@@ -2,23 +2,15 @@
 
 import os
 import sys
-import struct
+
+from record import Reader
 
 ARM = 1
 
 
 def main(filename):
-    trace = open(filename, 'rb')
-    while 1:
-        try:
-            n_regs = struct.unpack('<I', trace.read(4))[0]
-            regs = []
-            for i in range(n_regs):
-                regs.append(struct.unpack('<I', trace.read(4))[0])
-            code_size = struct.unpack('<I', trace.read(4))[0]
-            code = trace.read(code_size).decode('utf-8')
-        except struct.error:
-            break
+    reader = Reader(filename=filename)
+    for record in reader.get_record():
         if ARM:
             for i in range(12):
                 if i < 10 and i % 6 != 0:
@@ -27,15 +19,15 @@ def main(filename):
                     pre = 'r'
 
                 if i % 6 == 5:
-                    print('{}{}={:0>8x}'.format(pre, i, regs[i]))
+                    print('{}{}={:0>8x}'.format(pre, i, record['regs'][i]))
                 else:
-                    print('{}{}={:0>8x}'.format(pre, i, regs[i]), end=' ')
-            print('sp={:0>8x}'.format(regs[13]), end=' ')
-            print(' cl={:0>8x}'.format(regs[14]), end=' ')
-            print(' pc={:0>8x}'.format(regs[15]), end=' ')
-            print('cspr={:0>8x}'.format(regs[16]), end=' ')
-            print('xspr={:0>8x}'.format(regs[17]))
-            print(code, end=' ')
+                    print('{}{}={:0>8x}'.format(pre, i, record['regs'][i]), end=' ')
+            print('sp={:0>8x}'.format(record['regs'][13]), end=' ')
+            print(' cl={:0>8x}'.format(record['regs'][14]), end=' ')
+            print(' pc={:0>8x}'.format(record['regs'][15]), end=' ')
+            print('cspr={:0>8x}'.format(record['regs'][16]), end=' ')
+            print('xspr={:0>8x}'.format(record['regs'][17]))
+            print(record['code'], end=' ')
             print('-------------------------------')
 
 
