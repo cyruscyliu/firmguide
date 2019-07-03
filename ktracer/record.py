@@ -48,4 +48,4 @@ if __name__ == '__main__':
     wd = os.path.dirname(cwd)
     reader = Reader(os.path.join(wd, 'trace', 'log'))
     for record in reader.get_record():
-        print(json.loads(record))
+        print(record)
