@@ -32,6 +32,8 @@ If you plan to fire an issue, please choose of followings for your issue title.
 + [performance] your description
 
 ## Code of Conduct
+
 For C/C++, you should follow the [QEMU coding style](https://github.com/portante/qemu/blob/master/CODING_STYLE)
+
 For Python, you are expected to use Python3.x and follow the [PEP 8 -- Style Guide for Python Code](https://www.python.org/dev/peps/pep-0008/).
 
