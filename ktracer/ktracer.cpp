@@ -85,6 +85,7 @@ size_t disassemble_block(CPUState *cs, TranslationBlock *tb, uint8_t **code) {
     }
     *code = (uint8_t *) malloc(length * sizeof(uint8_t));
     memcpy(*code, mem, length);
+    free(mem);
     cs_free(insn, count);
     return length;
 }
