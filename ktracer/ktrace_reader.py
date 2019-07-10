@@ -22,7 +22,8 @@ def main(filename):
                     print('{}{}={:0>8x}'.format(pre, i, record['regs'][i]))
                 else:
                     print('{}{}={:0>8x}'.format(pre, i, record['regs'][i]), end=' ')
-            print('sp={:0>8x}'.format(record['regs'][13]), end=' ')
+            print('ip={:0>8x}'.format(record['regs'][12]), end=' ')
+            print(' sp={:0>8x}'.format(record['regs'][13]), end=' ')
             print(' cl={:0>8x}'.format(record['regs'][14]), end=' ')
             print(' pc={:0>8x}'.format(record['regs'][15]), end=' ')
             print('cspr={:0>8x}'.format(record['regs'][16]), end=' ')
