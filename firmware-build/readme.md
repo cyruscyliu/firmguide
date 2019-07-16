@@ -45,7 +45,7 @@ When you are in docker's shell, anything you do under the path `/root/firmware` 
 
 
 
-##2. Build the kernel
+## 2. Build the kernel
 
 Kernel version: 2.6.32.10
 
