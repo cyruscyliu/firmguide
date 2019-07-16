@@ -87,11 +87,16 @@ make
 
 ### 3.2 panda & ktracer plugin
 
-TODO
+See ktracer/readme.md
 
 ### 3.3 capstone
 
-TODO
+```bash
+git clone https://github.com/aquynh/capstone.git
+cd capstone
+./make.sh
+make install
+```
 
 ## 4. QEMU + GDB to debug the kernel
 
