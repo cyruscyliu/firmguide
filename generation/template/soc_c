@@ -1,0 +1,42 @@
+#include "hw/arm/{{soc_name}}.h"
+
+
+static void {{soc_name}}_init(Object *obj) {}
+
+static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {}
+
+static Property {{soc_name}}_props[] = {
+    DEFINE_PROP_UINT32("enabled-cpus", {{soc_name|upper}}State, enabled_cpus, {{soc_name|upper}}_NCPUS),
+    DEFINE_DROP_END_OF_LIST()
+}
+
+static void {{soc_name}}_class_init(ObjectClass *oc, void *data) {
+    DeviceClass *dc = DEVICE_CLASS(oc);
+    {{soc_name|upper}}Class *mc = {{soc_name|upper}}_CLASS(oc);
+
+    mc->info = data;
+    dc->realize = {{soc_name}}_realize;
+    dc->props = {{soc_name}}_props;
+}
+
+static const {{soc_name|upper}}Info {{soc_name}}_soc = {
+    .name = TYPE_{{soc_name|upper}},
+    .cpu_type = ARM_CPU_TYPE_NAME("{{cpu_type}}"),
+    .clusterid = 0xf,
+};
+
+static const TypeInfo {{soc_name}}_type_info = {
+    .name = TYPE_{{soc_name|upper}},
+    .parent = TYPE_DEVICE,
+    .instance_size = sizeof({{soc_name|upper}}State),
+    .instance_init = {{soc_name}}_init,
+    .class_size = sizeof({{soc_name|upper}}Class),
+    .class_init = {{soc_name}}_class_init,
+    .class_data = (void *){{soc_name}}_soc
+};
+
+static void {{soc_name}}_register_types= {
+    type_register_static(&{{soc_name}}_type_info);
+}
+
+type_init({{soc_name}}_register_types);

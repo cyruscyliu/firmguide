@@ -1,0 +1,19 @@
+#include "qemu/osdep.h"
+#include "hw/arm/{{soc_name}}.h"
+
+static void {{board_name}}_init(MachineState *machine) {
+
+}
+
+static void {{board_name}}_machine_init(MachineClass *mc) {
+    /* mc->family = ; */
+    /* mc->name = ; */
+    /* mc->alias = ; */
+    mc->desc = "{{board_name}}";
+    mc->init = {{board_name}}_init;
+    mc->max_cpus = {{soc_name|upper}}_NCPUS;
+    mc->min_cpus = {{soc_name|upper}}_NCPUS;
+    mc->default_cpus = {{soc_name|upper}}_NCPUS;
+    mc->default_ram_size = 1024 * 1024 * 1024;
+}
+DEFINE_MACHINE("{{board_name}}", {{board_name}}_machine_init)
