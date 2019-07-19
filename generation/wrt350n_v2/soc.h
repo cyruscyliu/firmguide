@@ -18,10 +18,10 @@
 
 typedef struct MV88F5181LControlState {
     /*< private >*/
-    SysBusDevice busdev;
-
+    SysBusDevice sysbus;
     /*< public >*/
-    MemoryRegion iomem;
+
+    MemoryRegion mmio;
 
     /* outputs to CPU cores */
     qemu_irq[MV88F5181L_NCPUS];
@@ -31,8 +31,8 @@ typedef struct MV88F5181LControlState {
 typedef struct MV88F5181LPeripheralState {
     /*< private >*/
     SysBusDevice parent_obj;
-
     /*< public >*/
+
     MemoryRegion ram_alias[4];
     qemu_irq irq, fiq;
 } MV88F5181LPeripheralState;
@@ -40,7 +40,6 @@ typedef struct MV88F5181LPeripheralState {
 typedef struct MV88F5181LState {
     /*< private >*/
     DeviceState parent_obj;
-
     /*< public >*/
 
     char *cpu_type;
@@ -51,21 +50,25 @@ typedef struct MV88F5181LState {
     MV88F5181LPeripheralState peripherals;
 } MV88F5181LState;
 
-typedef struct MV88F5181LInfo {
+typedef struct MV88F5181LClass {
+    /*< private >*/
+    DeviceClass parent_class;
+    /*< public >*/
+
     const char *name;
     const char *cpu_type;
     int clusterid;
-} MV88F5181LInfo;
-
-typedef struct MV88F5181LClass {
-    DeviceClass parent_class;
-    const MV88F5181LInfo *info;
 } MV88F5181LClass;
-
 
 #define MV88F5181L_CLASS(klass) \
     OBJECT_CLASS_CHECK(MV88F5181LClass, (klass), TYPE_MV88F5181L)
 #define MV88F5181LL_GET_CLASS(obj) \
     OBJECT_GET_CLASS(MV88F5181LClass, (obj), TYPE_MV88F5181L)
+
+#define ERROR_PROPAGATE(errp, err) \
+    if (err) { \
+        error_propagate(errp, err); \
+        return; \
+    }
 
 #endif /* MV88F5181L_H */

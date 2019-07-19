@@ -1,9 +1,49 @@
+#include "qemu/osdep.h"
+#include "qapi/error.h"
 #include "hw/arm/{{soc_name}}.h"
 
 
-static void {{soc_name}}_init(Object *obj) {}
+static void {{soc_name}}_init(Object *obj) {
+    {{soc_name|upper}}State *s = {{soc_name|upper}}(obj);
+    {{soc_name|upper}}Class *c = {{soc_name|upper}}_GET_CLASS(obj);
 
-static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {}
+    /* initialize cpus */
+    int n;
+    for (n = 0; n < {{soc_name|upper}}_NCPUS; n++) {
+        object_initialize_child(
+            obj, "cpu[*]", &s->cpus[n],  sizeof(s->cpus[n]),
+            s->cpu_type, &error_abort, NULL);
+    }
+    /* initialize sysbus */
+    sysbus_init_child_obj(
+        obj, "control", &s->control, sizeof(s->control),
+        TYPE_{{soc_name|upper}}_CONTROL);
+
+    /* initialize peripherals */
+    sysbus_init_child_obj(
+        obj, "peripherals", &s->peripherals, sizeof(s->peripherals),
+        TYPE_{{soc_name|upper}}_PERIPHERALS);
+}
+
+static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
+    {{soc_name|upper}}State *s = {{soc_name|upper}}(obj);
+    {{soc_name|upper}}Class *c = {{soc_name|upper}}_GET_CLASS(obj);
+    Error *err = NULL;
+
+    /* common peripherals */
+    obj = object_property_get_link(OBJECT(dev), "ram", &err);
+    if (obj == NULL ) {
+        error_setg(
+            errp, "%s: required ram link not found : %s",
+            __func__, error_get_pretty(err));
+        return;
+    }
+    object_property_add_const_link(OBJECT(&s->peripherals), "ram", obj, &err);
+    ERROR_PROPAGET(errp, err);
+    object_property_set_bool(OBJECT(&s->peripherals), true, "realized", &err);
+    ERROR_PROPAGET(errp, err);
+
+}
 
 static Property {{soc_name}}_props[] = {
     DEFINE_PROP_UINT32("enabled-cpus", {{soc_name|upper}}State, enabled_cpus, {{soc_name|upper}}_NCPUS),
@@ -14,16 +54,11 @@ static void {{soc_name}}_class_init(ObjectClass *oc, void *data) {
     DeviceClass *dc = DEVICE_CLASS(oc);
     {{soc_name|upper}}Class *mc = {{soc_name|upper}}_CLASS(oc);
 
-    mc->info = data;
+    mc->name= "{{soc_name}}";
+    mc->cpu_type = ARM_CPU_TYPE_NAME("{{cpu_type}}");
     dc->realize = {{soc_name}}_realize;
     dc->props = {{soc_name}}_props;
 }
-
-static const {{soc_name|upper}}Info {{soc_name}}_soc = {
-    .name = TYPE_{{soc_name|upper}},
-    .cpu_type = ARM_CPU_TYPE_NAME("{{cpu_type}}"),
-    .clusterid = 0xf,
-};
 
 static const TypeInfo {{soc_name}}_type_info = {
     .name = TYPE_{{soc_name|upper}},
@@ -32,7 +67,6 @@ static const TypeInfo {{soc_name}}_type_info = {
     .instance_init = {{soc_name}}_init,
     .class_size = sizeof({{soc_name|upper}}Class),
     .class_init = {{soc_name}}_class_init,
-    .class_data = (void *){{soc_name}}_soc
 };
 
 static void {{soc_name}}_register_types= {
