@@ -1,6 +1,7 @@
 machine:
   machine_desc: "Linksys WRT350N v2 (MV88F5181L)"
   machine_name: "wrt350n_v2"
+  board_id: "0x661"
   soc:
     soc_name: "mv88f5181L"
     cpu:
@@ -15,3 +16,14 @@ machine:
         - 32
       i_irqs:
         - 0
+  ram:
+    ram_size: "1 * GiB"
+  boot_device:
+    flash:
+      flash_enable: 1
+      flash_addr: "0xf4000000"
+      flash_sect_size: "64 * KiB"
+      flash_size: "8 * MiB"
+    sd:
+      sd_enable: 0
+      sd_size: ~

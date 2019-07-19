@@ -1,13 +1,43 @@
-#include "qemu/osdep.h"
-#include "hw/arm/mv88f5181L.h"
-
 static void wrt350n_v2_init(MachineState *machine) {
+    static struct arm_boot_info binfo;
+
+    /* instantiate WRT350N_V2State */
+    WRT350N_V2State *s = g_new0(WRT350N_V2State, 1);
+
+    /* instantiate MV88F5181LState
+     * object_initialize call soc->instance_init()
+     * then, call soc->instance_post_init()
+     */
+    object_initialize(&s->soc, sizeof(s->soc), MV88F5181L);
+    object_property_add_child(OBJECT(machine), "soc", OBJECT(&s->soc), &error_abort);
+
+    /* allocate ram */
+    memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
+    memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, 0);
+    object_property_add_const_link(OBJECT(&s->soc), "ram", OBJECT(&s->ram), &error_abort);
+
+    /* set up properties of the MV88F5181LState */
+    object_property_set_boot(OBJECT(&s->cos), true, "realized", &error_abort);
+
+    /* set up the flash */
+    dinfo = drive_get(IF_PFLASH)
+    if (!pflash_cfi01_register(
+            WRT350N_V2_FLASH_ADDR, "flash", WRT350N_V2_FLASH_SIZE,
+            dinfo ? blk_by_legacy_dinfo(dinfo)): NULL, WRT350N_V2_FLASH_SECT_SIZE,
+            4, 0, 0, 0, 0, 0) {
+        fprintf(stderr, "qemu: Error registering flash memory.\n");
+    }
+    
+    /* boot */
+    binfo.board_id =
+
+
 
 }
 
 static void wrt350n_v2_machine_init(MachineClass *mc) {
     /* mc->family = ; */
-    mc->name = "wrt350n_v2"; */
+    mc->name = "wrt350n_v2";
     /* mc->alias = ; */
     mc->desc = "Linksys WRT350N v2 (MV88F5181L)";
     /* mc->deprecation_reason = ; */
@@ -15,7 +45,7 @@ static void wrt350n_v2_machine_init(MachineClass *mc) {
     /* mc->reset = ; */
     /* mc->hot_add_cpu = ; */
     /* mc->kvm_type = ; */
-    mc->block_default_type = IF_NONE;
+    mc->block_default_type = IF_PFLASH;
     /* mc->units_per_default_bus = ; */
     mc->max_cpus = MV88F5181L_NCPUS;
     /* mc->min_cpus =  */;
@@ -33,8 +63,8 @@ static void wrt350n_v2_machine_init(MachineClass *mc) {
     /* mc->default_display = ; */
     /* mc->compat_props = ; */
     /* mc->hw_version = ; */
-    mc->default_ram_size = 1024 * 1024 * 1024;
-    mc->default_cpu_type = ARM_CPU_TYPE_NAME("arm926");;
+    mc->default_ram_size = 1 * GiB; /* 1 * GiB[MiB], 1024 * 1024 [* 1024] */
+    mc->default_cpu_type = ARM_CPU_TYPE_NAME("arm926");
     /* mc->default_kernel_irqchip_split = ; */
     /* mc->option_rom_has_mr = ; */
     /* mc->minimum_page_bits = ; */
