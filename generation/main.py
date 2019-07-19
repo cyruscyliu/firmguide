@@ -20,14 +20,13 @@ if __name__ == '__main__':
     machines = load_machines('machines')
     for machine in machines:
         context = get_context(machine, {})
-        print(context)
         context['upper'] = lambda x: x.upper()
         templates = os.listdir(TEMPLATE_DIR)
         MACHINE_DIR = context['machine_name']
         if not os.path.exists(MACHINE_DIR):
             os.mkdir(MACHINE_DIR)
         for template in templates:
-            target = template.replace('_', '.')
+            target = '{}.{}'.format(context[template[:-2]], template[-1])
             print('generating {} ...'.format(target))
             with open(os.path.join(MACHINE_DIR, target), 'w') as f_target:
                 with open(os.path.join(TEMPLATE_DIR, template), 'r') as f_template:

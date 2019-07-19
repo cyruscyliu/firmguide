@@ -7,6 +7,7 @@ machine:
       cpu_type: "arm926"
       n_cpus: 1
     interrupt_controller:
+      ic_name: "mv88f5181L_ic"
       b_fiqs: 8
       icr_size: "0x100"
       n_irqs: 32
