@@ -32,7 +32,7 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
 
     /* common peripherals */
     obj = object_property_get_link(OBJECT(dev), "ram", &err);
-    if (obj == NULL ) {
+    if (obj == NULL) {
         error_setg(
             errp, "%s: required ram link not found : %s",
             __func__, error_get_pretty(err));
@@ -40,24 +40,21 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
     }
     object_property_add_const_link(OBJECT(&s->peripherals), "ram", obj, &err);
     ERROR_PROPAGET(errp, err);
+
+    /* realize {{peripheral_name|upper}}State */
     object_property_set_bool(OBJECT(&s->peripherals), true, "realized", &err);
     ERROR_PROPAGET(errp, err);
 
 }
 
-static Property {{soc_name}}_props[] = {
-    DEFINE_PROP_UINT32("enabled-cpus", {{soc_name|upper}}State, enabled_cpus, {{soc_name|upper}}_NCPUS),
-    DEFINE_DROP_END_OF_LIST()
-}
 
 static void {{soc_name}}_class_init(ObjectClass *oc, void *data) {
     DeviceClass *dc = DEVICE_CLASS(oc);
     {{soc_name|upper}}Class *mc = {{soc_name|upper}}_CLASS(oc);
 
+    dc->realize = {{soc_name}}_realize;
     mc->name= "{{soc_name}}";
     mc->cpu_type = ARM_CPU_TYPE_NAME("{{cpu_type}}");
-    dc->realize = {{soc_name}}_realize;
-    dc->props = {{soc_name}}_props;
 }
 
 static const TypeInfo {{soc_name}}_type_info = {

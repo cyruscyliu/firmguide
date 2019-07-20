@@ -32,7 +32,7 @@ static void mv88f5181L_realize(DeviceState *dev, Error **errp) {
 
     /* common peripherals */
     obj = object_property_get_link(OBJECT(dev), "ram", &err);
-    if (obj == NULL ) {
+    if (obj == NULL) {
         error_setg(
             errp, "%s: required ram link not found : %s",
             __func__, error_get_pretty(err));
@@ -40,24 +40,21 @@ static void mv88f5181L_realize(DeviceState *dev, Error **errp) {
     }
     object_property_add_const_link(OBJECT(&s->peripherals), "ram", obj, &err);
     ERROR_PROPAGET(errp, err);
+
+    /* realize MV88F5181L_PERIPHERALSState */
     object_property_set_bool(OBJECT(&s->peripherals), true, "realized", &err);
     ERROR_PROPAGET(errp, err);
 
 }
 
-static Property mv88f5181L_props[] = {
-    DEFINE_PROP_UINT32("enabled-cpus", MV88F5181LState, enabled_cpus, MV88F5181L_NCPUS),
-    DEFINE_DROP_END_OF_LIST()
-}
 
 static void mv88f5181L_class_init(ObjectClass *oc, void *data) {
     DeviceClass *dc = DEVICE_CLASS(oc);
     MV88F5181LClass *mc = MV88F5181L_CLASS(oc);
 
+    dc->realize = mv88f5181L_realize;
     mc->name= "mv88f5181L";
     mc->cpu_type = ARM_CPU_TYPE_NAME("arm926");
-    dc->realize = mv88f5181L_realize;
-    dc->props = mv88f5181L_props;
 }
 
 static const TypeInfo mv88f5181L_type_info = {

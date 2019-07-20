@@ -1,40 +1,30 @@
 #ifndef {{soc_name|upper}}_H
 #define {{soc_name|upper}}_H
 
-#include "hw/arm/arm.h"
 #include "hw/sysbus.h"
+#include "hw/initc/{{soc_name}}_ic.h"
+#include "hw/gpio/{{soc_name}}_gpio"
 
 #define TYPE_{{soc_name|upper}} "{{soc_name}}"
 #define {{soc_name|upper}}(obj) \
     OBJECT_CHECK({{soc_name|upper}}State, (obj), TYPE_{{soc_name|upper}})
-#define TYPE_{{soc_name|upper}}_CONTROL "{{soc_name}}-control"
-#define {{soc_name|upper}}_CONTROL(obj) \
-    OBJECT_CHECK({{soc_name|upper}}ControlState, (obj), TYPE_{{soc_name|upper}}_CONTROL)
 #define TYPE_{{soc_name|upper}}_PERIPHERALS "{{soc_name}}-peripherals"
 #define {{soc_name|upper}}_PERIPHERALS(obj) \
     OBJECT_CHECK({{soc_name|upper}}PeripheralState, (obj),  TYPE_{{soc_name|upper}}_PERIPHERALS)
 
 #define {{soc_name|upper}}_NCPUS {{n_cpus}}
 
-typedef struct {{soc_name|upper}}ControlState {
-    /*< private >*/
-    SysBusDevice sysbus;
-    /*< public >*/
-
-    MemoryRegion mmio;
-
-    /* outputs to CPU cores */
-    qemu_irq[{{soc_name|upper}}_NCPUS];
-    qemu_fiq[{{soc_name|upper}}_NCPUS];
-} {{soc_name|upper}}ControlState;
-
 typedef struct {{soc_name|upper}}PeripheralState {
     /*< private >*/
-    SysBusDevice parent_obj;
+    SysBusDevice sys_bus;
     /*< public >*/
 
-    MemoryRegion ram_alias[4];
+    MemoryRegion peri_mr, peri_mr_alias;
     qemu_irq irq, fiq;
+
+    {{soc_name|upper}}ICState ic;
+    {{soc_name|upper}}GPIOState gpio;
+
 } {{soc_name|upper}}PeripheralState;
 
 typedef struct {{soc_name|upper}}State {
@@ -46,7 +36,6 @@ typedef struct {{soc_name|upper}}State {
     uint32_t enabled_cpus;
 
     ARMCPU cpus[{{soc_name|upper}}_NCPUS];
-    {{soc_name|upper}}ControlState control;
     {{soc_name|upper}}PeripheralState peripherals;
 } {{soc_name|upper}}State;
 
