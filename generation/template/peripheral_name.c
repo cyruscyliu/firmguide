@@ -1,3 +1,5 @@
+{{license}}
+
 #include "hw/arm/{{peripheral_name}}.h"
 
 static void {{peripheral_name}}_init(Object *obj) {
@@ -12,11 +14,6 @@ static void {{peripheral_name}}_init(Object *obj) {
     object_initialize(&s->ic, sizeof(s->ic), TYPE_{{ic_name}});
     object_property_add_child(obj, "ic", OBJECT(&s->ic), NULL);
     qdev_set_parent_bus(DEVICE(&s->ic), sysbus_get_default());
-
-    /* initialize the GPIO */
-    object_initialize(&s->gpio, sizeof(s->gpio),  TYPE_{{gpio_name}});
-    object_property_add_child(obj, "gpio", OBJECT(&s->gpio), NULL);
-    qdev_set_parent_bus(DEVICE(&s->gpio), sysbus_get_default());
 }
 
 static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
@@ -31,19 +28,6 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
     memory_region_add_subregion(&s->peri_mr, {{ic_name|upper}}_OFFSET,
         sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->ic), 0));
     sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->ic));
-
-    /* realize the gpio */
-    object_property_set_bool(OBJECT(&s->gpio), true, "realized", &err);
-    if (err) {
-        error_propagate(errp, err);
-        return;
-    }
-    memory_region_add_subregion(&s->peri_mr, "{{gpio_name|upper}}"_OFFSET,
-        sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->gpio), 0));
-    if (err) {
-        error_propagate(errp, err);
-        return;
-    }
 }
 
 static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data) {

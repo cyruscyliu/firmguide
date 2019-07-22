@@ -1,3 +1,7 @@
+/* 
+ * automatically generated, don't change
+ */
+
 #include "hw/arm/mv88f5181L_peripherals.h"
 
 static void mv88f5181L_peripherals_init(Object *obj) {
@@ -12,11 +16,6 @@ static void mv88f5181L_peripherals_init(Object *obj) {
     object_initialize(&s->ic, sizeof(s->ic), TYPE_mv88f5181L_ic);
     object_property_add_child(obj, "ic", OBJECT(&s->ic), NULL);
     qdev_set_parent_bus(DEVICE(&s->ic), sysbus_get_default());
-
-    /* initialize the GPIO */
-    object_initialize(&s->gpio, sizeof(s->gpio),  TYPE_mv88f5181L_gpio);
-    object_property_add_child(obj, "gpio", OBJECT(&s->gpio), NULL);
-    qdev_set_parent_bus(DEVICE(&s->gpio), sysbus_get_default());
 }
 
 static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
@@ -31,19 +30,6 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
     memory_region_add_subregion(&s->peri_mr, MV88F5181L_IC_OFFSET,
         sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->ic), 0));
     sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->ic));
-
-    /* realize the gpio */
-    object_property_set_bool(OBJECT(&s->gpio), true, "realized", &err);
-    if (err) {
-        error_propagate(errp, err);
-        return;
-    }
-    memory_region_add_subregion(&s->peri_mr, "MV88F5181L_GPIO"_OFFSET,
-        sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->gpio), 0));
-    if (err) {
-        error_propagate(errp, err);
-        return;
-    }
 }
 
 static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data) {

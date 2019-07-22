@@ -1,3 +1,5 @@
+{{license}}
+
 #ifndef {{machine_name|upper}}_H
 #define {{machine_name|upper}}_H
 

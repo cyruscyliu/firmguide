@@ -1,23 +1,25 @@
+{{license}}
+
 #include "hw/arm/{{machine_name}}.h"
 
 static void {{machine_name}}_init(MachineState *machine) {
     static struct arm_boot_info binfo;
 
-    /* initialize {{machine_name|upper}}State */
+    /* allocate our machine  */
     {{machine_name|upper}}State *s = g_new0({{machine_name|upper}}State, 1);
 
-    /* initialize {{soc_name|upper}}State */
+    /* initialize the soc */
     object_initialize(&s->soc, sizeof(s->soc), {{soc_name|upper}});
     object_property_add_child(OBJECT(machine), "soc", OBJECT(&s->soc), &error_abort);
 
-    /* allocate ram */
+    /* allocate the ram */
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
     memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, 0);
     object_property_add_child(OBJECT(machine), "ram", OBJECT(&s->ram), &error_abort);
     object_property_add_const_link(OBJECT(&s->soc), "ram", OBJECT(&s->ram), &error_abort);
 
-    /* realize {{soc_name|upper}}State */
-    object_property_set_boot(OBJECT(&s->cos), true, "realized", &error_abort);
+    /* realize the soc */
+    object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
 
     /* set up the flash */{% if flash_enable %}
     dinfo = drive_get(IF_PFLASH)
@@ -71,7 +73,7 @@ static void {{machine_name}}_machine_init(MachineClass *mc) {
     /* mc->option_rom_has_mr = ; */
     /* mc->minimum_page_bits = ; */
     /* mc->has_hotpluggable_cpus = ; */
-    mc->ignore_memory_transaction_failures = true;
+    mc->ignore_memory_transaction_failures = false;
     /* mc->numa_mem_align_shift = ; */
     /* mc->valid_cpu_types = ; */
     /* mc->allowed_dynamic_sysbus_devices = ; */

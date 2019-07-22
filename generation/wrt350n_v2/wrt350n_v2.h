@@ -1,3 +1,7 @@
+/* 
+ * automatically generated, don't change
+ */
+
 #ifndef WRT350N_V2_H
 #define WRT350N_V2_H
 

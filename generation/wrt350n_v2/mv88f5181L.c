@@ -1,3 +1,7 @@
+/* 
+ * automatically generated, don't change
+ */
+
 #include "qemu/osdep.h"
 #include "qapi/error.h"
 #include "hw/arm/mv88f5181L.h"
@@ -14,11 +18,6 @@ static void mv88f5181L_init(Object *obj) {
             obj, "cpu[*]", &s->cpus[n],  sizeof(s->cpus[n]),
             s->cpu_type, &error_abort, NULL);
     }
-    /* initialize sysbus */
-    sysbus_init_child_obj(
-        obj, "control", &s->control, sizeof(s->control),
-        TYPE_MV88F5181L_CONTROL);
-
     /* initialize peripherals */
     sysbus_init_child_obj(
         obj, "peripherals", &s->peripherals, sizeof(s->peripherals),
@@ -44,17 +43,13 @@ static void mv88f5181L_realize(DeviceState *dev, Error **errp) {
     /* realize MV88F5181L_PERIPHERALSState */
     object_property_set_bool(OBJECT(&s->peripherals), true, "realized", &err);
     ERROR_PROPAGET(errp, err);
-
 }
 
 
 static void mv88f5181L_class_init(ObjectClass *oc, void *data) {
     DeviceClass *dc = DEVICE_CLASS(oc);
-    MV88F5181LClass *mc = MV88F5181L_CLASS(oc);
 
     dc->realize = mv88f5181L_realize;
-    mc->name= "mv88f5181L";
-    mc->cpu_type = ARM_CPU_TYPE_NAME("arm926");
 }
 
 static const TypeInfo mv88f5181L_type_info = {
@@ -62,7 +57,7 @@ static const TypeInfo mv88f5181L_type_info = {
     .parent = TYPE_DEVICE,
     .instance_size = sizeof(MV88F5181LState),
     .instance_init = mv88f5181L_init,
-    .class_size = sizeof(MV88F5181LClass),
+    /* .class_size = sizeof(DeviceClass), */
     .class_init = mv88f5181L_class_init,
 };
 

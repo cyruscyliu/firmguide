@@ -1,3 +1,6 @@
 install:
+  include: "include"
   windows: 'C:\\Users\\liuqiang\\Desktop\\qemu\\qemu-4.0.0'
+    ic_name: "hw\\intc"
   linux: '/home/liuqiang/qemu-4.0.0'
+    ic_name: "hw/intc"

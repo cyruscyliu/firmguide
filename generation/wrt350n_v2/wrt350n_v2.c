@@ -1,23 +1,27 @@
+/* 
+ * automatically generated, don't change
+ */
+
 #include "hw/arm/wrt350n_v2.h"
 
 static void wrt350n_v2_init(MachineState *machine) {
     static struct arm_boot_info binfo;
 
-    /* initialize WRT350N_V2State */
+    /* allocate our machine  */
     WRT350N_V2State *s = g_new0(WRT350N_V2State, 1);
 
-    /* initialize MV88F5181LState */
+    /* initialize the soc */
     object_initialize(&s->soc, sizeof(s->soc), MV88F5181L);
     object_property_add_child(OBJECT(machine), "soc", OBJECT(&s->soc), &error_abort);
 
-    /* allocate ram */
+    /* allocate the ram */
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
     memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, 0);
     object_property_add_child(OBJECT(machine), "ram", OBJECT(&s->ram), &error_abort);
     object_property_add_const_link(OBJECT(&s->soc), "ram", OBJECT(&s->ram), &error_abort);
 
-    /* realize MV88F5181LState */
-    object_property_set_boot(OBJECT(&s->cos), true, "realized", &error_abort);
+    /* realize the soc */
+    object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
 
     /* set up the flash */
     dinfo = drive_get(IF_PFLASH)
@@ -71,7 +75,7 @@ static void wrt350n_v2_machine_init(MachineClass *mc) {
     /* mc->option_rom_has_mr = ; */
     /* mc->minimum_page_bits = ; */
     /* mc->has_hotpluggable_cpus = ; */
-    mc->ignore_memory_transaction_failures = true;
+    mc->ignore_memory_transaction_failures = false;
     /* mc->numa_mem_align_shift = ; */
     /* mc->valid_cpu_types = ; */
     /* mc->allowed_dynamic_sysbus_devices = ; */
