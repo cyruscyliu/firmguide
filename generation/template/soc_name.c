@@ -79,31 +79,31 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
 
 
 static void {{soc_name}}_class_init(ObjectClass *oc, void *data) {
-DeviceClass *dc = DEVICE_CLASS(oc);
+    DeviceClass *dc = DEVICE_CLASS(oc);
 
-/* dc->fw_name = ; */
-/* dc->desc = ; */
-/* dc->props = ; */
-/* dc->user_creatable = ; */
-/* dc->hotpluggable = ; */
-/* dc->reset = ; */
-dc->realize = {{soc_name}}_realize;
-/* dc->unrealize = ; */
-/* dc->vmsd = ; */
-/* dc->bus_type = ; */
+    /* dc->fw_name = ; */
+    /* dc->desc = ; */
+    /* dc->props = ; */
+    /* dc->user_creatable = ; */
+    /* dc->hotpluggable = ; */
+    /* dc->reset = ; */
+    dc->realize = {{soc_name}}_realize;
+    /* dc->unrealize = ; */
+    /* dc->vmsd = ; */
+    /* dc->bus_type = ; */
 }
 
 static const TypeInfo {{soc_name}}_type_info = {
-.name = TYPE_{{soc_name|upper}},
-.parent = TYPE_DEVICE,
-.instance_size = sizeof({{soc_name|upper}}State),
-.instance_init = {{soc_name}}_init,
-/* .class_size = sizeof(DeviceClass), */
-.class_init = {{soc_name}}_class_init,
+    .name = TYPE_{{soc_name|upper}},
+    .parent = TYPE_DEVICE,
+    .instance_size = sizeof({{soc_name|upper}}State),
+    .instance_init = {{soc_name}}_init,
+    /* .class_size = sizeof(DeviceClass), */
+    .class_init = {{soc_name}}_class_init,
 };
 
 static void {{soc_name}}_register_types= {
-type_register_static(&{{soc_name}}_type_info);
+    type_register_static(&{{soc_name}}_type_info);
 }
 
 type_init({{soc_name}}_register_types);
