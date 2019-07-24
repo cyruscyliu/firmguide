@@ -77,7 +77,7 @@ static void {{ic_name}}_init(Object *obj) {
     {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &{{ic_name}}_ops, s, TYPE_{{ic_name|upper}}, {{ic_ram_size}});
+    memory_region_init_io(&s->mmio, obj, &{{ic_name}}_ops, s, TYPE_{{ic_name|upper}}, {{ic_name}}_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the irq/fip to cpu */

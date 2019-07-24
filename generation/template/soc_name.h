@@ -11,7 +11,8 @@
 #define {{soc_name|upper}}(obj) \
     OBJECT_CHECK({{soc_name|upper}}State, (obj), TYPE_{{soc_name|upper}})
 
-#define {{peripheral_name}}_BASE {{peripheral_ram_base}}
+#define {{peripheral_name|upper}}_RAM_BASE {{peripheral_ram_base}}
+#define {{ic_name|upper}}_RAM_BASE {{ic_ram_base}}
 
 typedef struct {{soc_name|upper}}State {
     /*< private >*/
@@ -22,7 +23,7 @@ typedef struct {{soc_name|upper}}State {
     ARMCPU cpu;
     qemu_irq irq, fiq;
 
-    {{ic_name|upper|concat}}State local_ic;
+    {{ic_name|upper|concat}}State ic;
     {{peripheral_name|upper|concat}}State peripherals;
 } {{soc_name|upper}}State;
 

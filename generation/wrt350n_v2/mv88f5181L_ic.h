@@ -24,6 +24,7 @@ typedef struct MV88F5181LICState {
     /*< public >*/
 
     MemoryRegion mmio;
+    /* output to the cpu */
     qemu_irq irq;
     qemu_irq fiq;
 

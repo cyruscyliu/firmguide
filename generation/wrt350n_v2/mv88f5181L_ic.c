@@ -82,10 +82,9 @@ static void mv88f5181L_ic_init(Object *obj) {
     memory_region_init_io(&s->mmio, obj, &mv88f5181L_ic_ops, s, TYPE_MV88F5181L_IC, 0x100);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
-    /* initialize the irq */
-    qdev_init_gpio_in_named(DEVICE(s), mv88f5181L_ic_set_irq, MV88F5181L_IC_IRQ, 32);
-    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
-    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->fiq);
+    /* initialize the irq/fip to cpu */
+    qdev_init_gpio_out_named(dev, s->irq, "irq", 1);
+    qdev_init_gpio_out_named(dev, s->fiq, "fiq", 1);
 }
 
 static void mv88f5181L_ic_reset(DeviceState *d) {

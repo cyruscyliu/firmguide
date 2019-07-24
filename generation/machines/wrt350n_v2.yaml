@@ -13,8 +13,9 @@ machine:
       peripheral_ram_size: "0x10000000"
     local_interrupt_controller:
         ic_name: "mv88f5181L_ic"
-        b_fiqs: 8
+        ic_ram_base: "0xfdd20200"
         ic_ram_size: "0x100"
+        b_fiqs: 8
         n_irqs: 32
         l_irqs:
           - 32

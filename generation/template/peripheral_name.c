@@ -3,31 +3,16 @@
 #include "hw/arm/{{peripheral_name}}.h"
 
 static void {{peripheral_name}}_init(Object *obj) {
-    {{peripheral_name|upper}}State *s = {{peripheral_name|upper}}(obj);
+    {{peripheral_name|upper|concat}}State *s = {{peripheral_name|upper}}(obj);
 
     /* initialize the ram for peripheral devices */
-    memory_region_init(&s->peri_mr, obj, TYPE_{{peripheral_name|upper}}, {{peripheral_ram_size}});
-    object_property_add_child(obj, "peripheral-io", OBJECT(&s->peri_mr), NULL);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->peri_mr);
-
-    /* initialize the interrupt controller */
-    object_initialize(&s->ic, sizeof(s->ic), TYPE_{{ic_name}});
-    object_property_add_child(obj, "ic", OBJECT(&s->ic), NULL);
-    qdev_set_parent_bus(DEVICE(&s->ic), sysbus_get_default());
+    memory_region_init(&s->{{peripheral_name}}_io, obj, TYPE_{{peripheral_name|upper}}, {{peripheral_name|upper}}_RAM_SIZE);
+    object_property_add_child(obj, "peripheral_io", OBJECT(&s->{{peripheral_name}}_io), NULL);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->{{peripheral_name}}_io);
 }
 
 static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
-    {{peripheral_name|upper}}State *s = {{peripheral_name|upper}}(obj);
-
-    /* realize the interrupt controller */
-    object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);
-    if (err) {
-        error_propagate(errp, err);
-        return;
-    }
-    memory_region_add_subregion(&s->peri_mr, {{ic_name|upper}}_OFFSET,
-        sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->ic), 0));
-    sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->ic));
+    {{peripheral_name|upper|concat}}State *s = {{peripheral_name|upper}}(obj);
 }
 
 static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data) {

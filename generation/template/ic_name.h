@@ -16,6 +16,8 @@
 #define MAIN_FIQ_INTERRUPT_MASK_REGISTER      0x08
 #define MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER 0x0C
 
+#define {{ic_name|upper}}_RAM_SIZE {{ic_ram_size}}
+
 typedef struct {{ic_name|upper|concat}}State {
     /*< private >*/
     SysBusDevice sysbus;

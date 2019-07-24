@@ -8,16 +8,14 @@
 #define TYPE_{{peripheral_name|upper}} "{{peripheral_name|upper}}"
 #define {{peripheral_name|upper}}(obj) \
     OBJECT_CHECK({{peripheral_name|upper|concat}}State, (obj),  TYPE_{{peripheral_name|upper}})
+#define {{peripheral_name|upper}}_RAM_SIZE {{peripheral_ram_size}}
 
-typedef struct {{peripheral_name|upper}}PeripheralsState {
+typedef struct {{peripheral_name|upper|concat}}State {
     /*< private >*/
     SysBusDevice sys_bus;
     /*< public >*/
 
-    MemoryRegion peri_mr;
-    qemu_irq irq, fiq;
-
-    {{ic_name|upper|concat}}State ic;
+    MemoryRegion {{peripheral_name}}_io;
 } {{peripheral_name|upper|concat}}State;
 
 #endif /* {{peripheral_name|upper}}_H */

@@ -5,31 +5,16 @@
 #include "hw/arm/mv88f5181L_peripherals.h"
 
 static void mv88f5181L_peripherals_init(Object *obj) {
-    MV88F5181L_PERIPHERALSState *s = MV88F5181L_PERIPHERALS(obj);
+    MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(obj);
 
     /* initialize the ram for peripheral devices */
-    memory_region_init(&s->peri_mr, obj, TYPE_MV88F5181L_PERIPHERALS, 0x10000000);
-    object_property_add_child(obj, "peripheral-io", OBJECT(&s->peri_mr), NULL);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->peri_mr);
-
-    /* initialize the interrupt controller */
-    object_initialize(&s->ic, sizeof(s->ic), TYPE_mv88f5181L_ic);
-    object_property_add_child(obj, "ic", OBJECT(&s->ic), NULL);
-    qdev_set_parent_bus(DEVICE(&s->ic), sysbus_get_default());
+    memory_region_init(&s->mv88f5181L_peripherals_io, obj, TYPE_MV88F5181L_PERIPHERALS, MV88F5181L_PERIPHERALS_RAM_SIZE);
+    object_property_add_child(obj, "peripheral_io", OBJECT(&s->mv88f5181L_peripherals_io), NULL);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mv88f5181L_peripherals_io);
 }
 
 static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
-    MV88F5181L_PERIPHERALSState *s = MV88F5181L_PERIPHERALS(obj);
-
-    /* realize the interrupt controller */
-    object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);
-    if (err) {
-        error_propagate(errp, err);
-        return;
-    }
-    memory_region_add_subregion(&s->peri_mr, MV88F5181L_IC_OFFSET,
-        sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->ic), 0));
-    sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->ic));
+    MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(obj);
 }
 
 static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data) {

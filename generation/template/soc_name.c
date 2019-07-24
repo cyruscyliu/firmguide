@@ -10,12 +10,16 @@ static void {{soc_name}}_init(Object *obj) {
     {{soc_name|upper}}Class *c = {{soc_name|upper}}_GET_CLASS(obj);
 
     /* initialize cpus and add the cpu as soc's child */
-    object_initialize_child(obj, "cpu", &s->cpu,  sizeof(s->cpu), s->cpu_type, &error_abort, NULL);
+    object_initialize_child(
+        obj, "cpu", &s->cpu,  sizeof(s->cpu), s->cpu_type, &error_abort, NULL);
 
-    /* initialize peripherals and the peripherals as soc and sysbus's child */
+    /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
     sysbus_init_child_obj(
-        obj, "peripherals", &s->peripherals, sizeof(s->peripherals),
-        TYPE_{{soc_name|upper}}_PERIPHERALS);
+        obj, "ic", &s->ic, sizof(s->ic), TYPE_{{ic_name|upper}})
+
+    /* initialize peripherals and add the peripherals as soc and sysbus's child */
+    sysbus_init_child_obj(
+        obj, "peripherals", &s->peripherals, sizeof(s->peripherals), TYPE_{{soc_name|upper}}_PERIPHERALS);
 }
 
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
@@ -42,8 +46,18 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
         return;
     }
 
-    /* register peripherals' mr */
-    sysbus_mmio_map_overlap(SYS_BUS_DEVICE(&s->peripherals), 0, {{peripheral_name|upper}}_BASE, 1);
+    /* map peripheral's mmio */
+    sysbus_mmio_map_overlap(SYS_BUS_DEVICE(&s->peripherals), 0, {{peripheral_name|upper}}_RAM_BASE, 1);
+
+    /* realize the local interrupt controller */
+    object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);
+    if (err) {
+        error_propagate(errp, err);
+        return;
+    }
+
+    /* map ic's mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->id), 0, {{ic_name|upper}}_RAM_BASE);
 
     /* realize the cpu */
     object_property_set_bool(OBJECT(&s->cpu), true, "realized", &err);
@@ -52,6 +66,10 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
         return;
     }
 
+
+    memory_region_add_subregion(&s->peri_mr, {{ic_name|upper}}_OFFSET,
+        sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->ic), 0));
+    sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->ic));
     /* connect irq/fiq outputs from the interrupt controller to the cpu */
     qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0,
             qdev_get_gpio_in(DEVICE(&s->cpu), ARM_CPU_IRQ));

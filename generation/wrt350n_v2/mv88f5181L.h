@@ -13,6 +13,8 @@
 #define MV88F5181L(obj) \
     OBJECT_CHECK(MV88F5181LState, (obj), TYPE_MV88F5181L)
 
+#define mv88f5181L_peripherals_BASE 0xfdd00000
+
 typedef struct MV88F5181LState {
     /*< private >*/
     DeviceState parent_obj;
@@ -20,8 +22,10 @@ typedef struct MV88F5181LState {
 
     char *cpu_type;
     ARMCPU cpu;
+    qemu_irq irq, fiq;
 
-    MV88F5181LPeripheralState peripherals;
+    MV88F5181LICState ic;
+    MV88F5181LPERIPHERALSState peripherals;
 } MV88F5181LState;
 
 #endif /* MV88F5181L_H */
