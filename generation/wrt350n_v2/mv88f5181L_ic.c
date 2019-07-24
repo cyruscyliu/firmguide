@@ -5,7 +5,7 @@
 #include "hw/intc/mv88f5181L_ic.h"
 #include "qemu/log.h"
 
-static void mv88f5181L_ic_update(mv88f5181LICState *s) {
+static void mv88f5181L_ic_update(MV88F5181LICState *s) {
     bool set = false;
 
     set = (s->irq_level_0 & s->fiq_enable_0);
@@ -120,7 +120,7 @@ static void mv88f5181L_ic_class_init(ObjectClass *kclass, void *data) {
 static TypeInfo mv88f5181L_ic_type_info = {
     .name = TYPE_MV88F5181L_IC,
     .parent = TYPE_SYS_BUS_DEVICE,
-    .instance_size = sizeof(MV88F5181LICState,
+    .instance_size = sizeof(MV88F5181LICICState,
     .instance_init = mv88f5181L_ic_init,
     /* .class_size = sizeof(SysBusDeviceClass), */
     .class_init = mv88f5181L_ic_class_init,

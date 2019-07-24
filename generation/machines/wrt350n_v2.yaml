@@ -7,11 +7,11 @@ machine:
     soc_name: "mv88f5181L"
     cpu:
       cpu_type: "arm926"
-      n_cpus: 1
     peripheral:
       peripheral_name: "mv88f5181L_peripherals"
+      peripheral_ram_base: "0xfdd00000"
       peripheral_ram_size: "0x10000000"
-      interrupt_controller:
+    local_interrupt_controller:
         ic_name: "mv88f5181L_ic"
         b_fiqs: 8
         ic_ram_size: "0x100"

@@ -3,7 +3,7 @@
 #include "hw/intc/{{ic_name}}.h"
 #include "qemu/log.h"
 
-static void {{ic_name}}_update({{soc_name}}ICState *s) {
+static void {{ic_name}}_update({{ic_name|upper|concat}}State *s) {
     bool set = false;
 
     set = (s->irq_level_0 & s->fiq_enable_0);
@@ -13,13 +13,13 @@ static void {{ic_name}}_update({{soc_name}}ICState *s) {
 }
 
 static void {{ic_name}}_set_irq(void *opaque, int irq, int level) {
-    {{soc_name|upper}}ICState *s = {{ic_name|upper}}(obj);
+    {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(obj);
     s->irq_level_0 = deposit32(s->irq_level_0, irq, 1, level != 0);
     {{ic_name}}_update(s);
 }
 
 static void {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) {
-    {{soc_name|upper}}ICState *s = opaque;
+    {{ic_name|upper|concat}}State *s = opaque;
     uint32_t res = 0;
 
     switch (offset) {
@@ -43,7 +43,7 @@ static void {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) {
 }
 
 static void {{ic_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
-    {{soc_name|upper}}ICState *s = opaque;
+    {{ic_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
     case MAIN_INTERRUPT_CAUSE_REGISTER:
@@ -65,7 +65,7 @@ static void {{ic_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigne
     {{ic_name}}_update(s);
 }
 
-static const MemoryRegionOps {{soc_name}}_ic_ops = {
+static const MemoryRegionOps {{ic_name}}_ops = {
     .read = {{ic_name}}_read,
     .write = {{ic_name}}_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
@@ -73,21 +73,20 @@ static const MemoryRegionOps {{soc_name}}_ic_ops = {
     .valid.max_access_size = 4,
 };
 
-static void {{soc_name}}_ic_init(Object *obj) {
-    {{soc_name|upper}}ICState *s = {{ic_name|upper}}(obj);
+static void {{ic_name}}_init(Object *obj) {
+    {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(obj);
 
     /* initialize the mmio */
     memory_region_init_io(&s->mmio, obj, &{{ic_name}}_ops, s, TYPE_{{ic_name|upper}}, {{ic_ram_size}});
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
-    /* initialize the irq */
-    qdev_init_gpio_in_named(DEVICE(s), {{ic_name}}_set_irq, {{ic_name|upper}}_IRQ, {{n_irqs}});
-    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
-    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->fiq);
+    /* initialize the irq/fip to cpu */
+    qdev_init_gpio_out_named(dev, s->irq, "irq", 1);
+    qdev_init_gpio_out_named(dev, s->fiq, "fiq", 1);
 }
 
-static void {{soc_name}}_ic_reset(DeviceState *d) {
-    {{soc_name|upper}}ICState *s = {{soc_name|upper}}_IC(d);
+static void {{ic_name}}_reset(DeviceState *d) {
+    {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(d);
     {% for i in i_irqs %}{% for n in l_irqs %}
     s->irq_enable_{{i}} = 0;{% endfor %}{% endfor %}
 
@@ -103,7 +102,7 @@ static void {{ic_name}}_class_init(ObjectClass *kclass, void *data) {
     /* dc->props = ; */
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
-    dc->reset = {{soc_name}}_ic_reset;
+    dc->reset = {{ic_name}}_reset;
     /* dc->realize = ; */
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
@@ -118,7 +117,7 @@ static void {{ic_name}}_class_init(ObjectClass *kclass, void *data) {
 static TypeInfo {{ic_name}}_type_info = {
     .name = TYPE_{{ic_name|upper}},
     .parent = TYPE_SYS_BUS_DEVICE,
-    .instance_size = sizeof({{soc_name|upper}}ICState,
+    .instance_size = sizeof({{ic_name|upper|concat}}ICState,
     .instance_init = {{ic_name}}_init,
     /* .class_size = sizeof(SysBusDeviceClass), */
     .class_init = {{ic_name}}_class_init,

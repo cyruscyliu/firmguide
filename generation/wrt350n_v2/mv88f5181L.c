@@ -11,14 +11,10 @@ static void mv88f5181L_init(Object *obj) {
     MV88F5181LState *s = MV88F5181L(obj);
     MV88F5181LClass *c = MV88F5181L_GET_CLASS(obj);
 
-    /* initialize cpus */
-    int n;
-    for (n = 0; n < MV88F5181L_NCPUS; n++) {
-        object_initialize_child(
-            obj, "cpu[*]", &s->cpus[n],  sizeof(s->cpus[n]),
-            s->cpu_type, &error_abort, NULL);
-    }
-    /* initialize peripherals */
+    /* initialize cpus and add the cpu as soc's child */
+    object_initialize_child(obj, "cpu", &s->cpu,  sizeof(s->cpu), s->cpu_type, &error_abort, NULL);
+
+    /* initialize peripherals and the peripherals as soc and sysbus's child */
     sysbus_init_child_obj(
         obj, "peripherals", &s->peripherals, sizeof(s->peripherals),
         TYPE_MV88F5181L_PERIPHERALS);
@@ -49,7 +45,16 @@ static void mv88f5181L_realize(DeviceState *dev, Error **errp) {
 static void mv88f5181L_class_init(ObjectClass *oc, void *data) {
     DeviceClass *dc = DEVICE_CLASS(oc);
 
+    /* dc->fw_name = ; */
+    /* dc->desc = ; */
+    /* dc->props = ; */
+    /* dc->user_creatable = ; */
+    /* dc->hotpluggable = ; */
+    /* dc->reset = ; */
     dc->realize = mv88f5181L_realize;
+    /* dc->unrealize = ; */
+    /* dc->vmsd = ; */
+    /* dc->bus_type = ; */
 }
 
 static const TypeInfo mv88f5181L_type_info = {

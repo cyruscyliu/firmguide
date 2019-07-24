@@ -35,7 +35,21 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
 static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data) {
     DeviceClass *dc = DEVICE_CLASS(oc);
 
+    /* dc->fw_name = ; */
+    /* dc->desc = ; */
+    /* dc->props = ; */
+    /* dc->user_creatable = ; */
+    /* dc->hotpluggable = ; */
+    /* dc->reset = ; */
     dc->realize = mv88f5181L_peripherals_realize;
+    /* dc->unrealize = ; */
+    /* dc->vmsd = ; */
+    /* dc->bus_type = ; */
+
+    /* SysBusDeviceClass sbc = SYS_BUS_DEVICE_CLASS(klass); */
+
+    /* sbc->explicit_ofw_unit_address = ; */
+    /* sbc->connect_irq_notifier = ; */
 }
 
 static const TypeInfo mv88f5181L_peripherals_type_info = {

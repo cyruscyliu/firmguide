@@ -16,11 +16,16 @@ def get_context(machine, context):
     return context
 
 
+def concat(x):
+    return ''.join(x.split('_'))
+
+
 if __name__ == '__main__':
     machines = load_machines('machines')
     for machine in machines:
         context = get_context(machine, {})
         context['upper'] = lambda x: x.upper()
+        context['concat'] = lambda x: concat(x)
         templates = os.listdir(TEMPLATE_DIR)
         MACHINE_DIR = context['machine_name']
         if not os.path.exists(MACHINE_DIR):

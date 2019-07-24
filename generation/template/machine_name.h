@@ -10,6 +10,7 @@
 typedef struct {{machine_name|upper}}State {
     {{soc_name|upper}}State soc;
     MemoryRegion ram;
+    {% if flash_enable %}PFlashCFI01 *flash;{% endif %}
 } {{machine_name|upper}}State;
 
 static const int {{machine_name}}_board_id = {{board_id}};

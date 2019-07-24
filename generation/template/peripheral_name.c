@@ -33,7 +33,21 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
 static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data) {
     DeviceClass *dc = DEVICE_CLASS(oc);
 
+    /* dc->fw_name = ; */
+    /* dc->desc = ; */
+    /* dc->props = ; */
+    /* dc->user_creatable = ; */
+    /* dc->hotpluggable = ; */
+    /* dc->reset = ; */
     dc->realize = {{peripheral_name}}_realize;
+    /* dc->unrealize = ; */
+    /* dc->vmsd = ; */
+    /* dc->bus_type = ; */
+
+    /* SysBusDeviceClass sbc = SYS_BUS_DEVICE_CLASS(klass); */
+
+    /* sbc->explicit_ofw_unit_address = ; */
+    /* sbc->connect_irq_notifier = ; */
 }
 
 static const TypeInfo {{peripheral_name}}_type_info = {

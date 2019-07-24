@@ -13,6 +13,7 @@ static void wrt350n_v2_init(MachineState *machine) {
     /* initialize the soc */
     object_initialize(&s->soc, sizeof(s->soc), MV88F5181L);
     object_property_add_child(OBJECT(machine), "soc", OBJECT(&s->soc), &error_abort);
+    s->cpu_type = machine->cpu_type;
 
     /* allocate the ram */
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
@@ -25,11 +26,16 @@ static void wrt350n_v2_init(MachineState *machine) {
 
     /* set up the flash */
     dinfo = drive_get(IF_PFLASH)
-    if (!pflash_cfi01_register(
+    PFlashCFI01 *flash = pflash_cfi01_register(
             WRT350N_V2_FLASH_ADDR, "flash", WRT350N_V2_FLASH_SIZE,
             dinfo ? blk_by_legacy_dinfo(dinfo)): NULL, WRT350N_V2_FLASH_SECT_SIZE,
-            4, 0, 0, 0, 0, 0) {
+            4, 0, 0, 0, 0, 0);
+    if (!flash) {
         fprintf(stderr, "qemu: Error registering flash memory.\n");
+    } else {
+        s->flash = flash;
+        object_property_add_child(OBJECT(machine), "flash", OBJECT(&s->flash), &error_abort);
+        object_property_add_const_link(OBJECT(&s->soc), "flash", OBJECT(&s->flash), &error_abort);
     }
 
     /* boot */
@@ -51,11 +57,11 @@ static void wrt350n_v2_machine_init(MachineClass *mc) {
     /* mc->reset = ; */
     /* mc->hot_add_cpu = ; */
     /* mc->kvm_type = ; */
-    mc->block_default_type = IF_PFLASH;
+    /* mc->block_default_type = ; */
     /* mc->units_per_default_bus = ; */
-    mc->max_cpus = MV88F5181L_NCPUS;
-    /* mc->min_cpus =  */;
-    mc->default_cpus = MV88F5181L_NCPUS;
+    /* mc->max_cpus = ; */
+    /* mc->min_cpus = ; */
+    /* mc->default_cpus = ; */
     /* mc->no_serial = 1; */
     /* mc->no_paralled = 1; */
     /* mc->no_floppy = 1; */

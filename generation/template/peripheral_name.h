@@ -7,9 +7,9 @@
 
 #define TYPE_{{peripheral_name|upper}} "{{peripheral_name|upper}}"
 #define {{peripheral_name|upper}}(obj) \
-    OBJECT_CHECK({{soc_name|upper}}PeripheralsState, (obj),  TYPE_{{peripheral_name|upper}})
+    OBJECT_CHECK({{peripheral_name|upper|concat}}State, (obj),  TYPE_{{peripheral_name|upper}})
 
-typedef struct {{soc_name|upper}}PeripheralsState {
+typedef struct {{peripheral_name|upper}}PeripheralsState {
     /*< private >*/
     SysBusDevice sys_bus;
     /*< public >*/
@@ -17,7 +17,7 @@ typedef struct {{soc_name|upper}}PeripheralsState {
     MemoryRegion peri_mr;
     qemu_irq irq, fiq;
 
-    {{soc_name|upper}}ICState ic;
-} {{soc_name|upper}}PeripheralsState;
+    {{ic_name|upper|concat}}State ic;
+} {{peripheral_name|upper|concat}}State;
 
 #endif /* {{peripheral_name|upper}}_H */

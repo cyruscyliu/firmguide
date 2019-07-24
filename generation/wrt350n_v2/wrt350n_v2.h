@@ -12,6 +12,7 @@
 typedef struct WRT350N_V2State {
     MV88F5181LState soc;
     MemoryRegion ram;
+    PFlashCFI01 *flash;
 } WRT350N_V2State;
 
 static const int wrt350n_v2_board_id = 0x661;

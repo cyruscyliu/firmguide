@@ -7,7 +7,7 @@
 
 #define TYPE_{{ic_name|upper}} "{{ic_name}}"
 #define {{ic_name|upper}}(obj) \
-    OBJECT_CHECK({{soc_name|upper}}ICState, (obj), TYPE_{{ic_name|upper}})
+    OBJECT_CHECK({{ic_name|upper|concat}}State, (obj), TYPE_{{ic_name|upper}})
 
 #define {{ic_name|upper}}_IRQ "irq"
 
@@ -16,12 +16,13 @@
 #define MAIN_FIQ_INTERRUPT_MASK_REGISTER      0x08
 #define MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER 0x0C
 
-typedef struct {{soc_name|upper}}ICState {
+typedef struct {{ic_name|upper|concat}}State {
     /*< private >*/
     SysBusDevice sysbus;
     /*< public >*/
 
     MemoryRegion mmio;
+    /* output to the cpu */
     qemu_irq irq;
     qemu_irq fiq;
 
@@ -29,6 +30,6 @@ typedef struct {{soc_name|upper}}ICState {
     uint{{n}}_t irq_level_{{i}};
     uint{{n}}_t irq_enable_{{i}};
     uint{{n}}_t fiq_enable_{{i}};{% endfor %}{% endfor %}
-} {{soc_name|upper}}ICState;
+} {{ic_name|upper|concat}}State;
 
 #endif /* {{ic_name|upper}}_H */

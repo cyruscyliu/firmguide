@@ -11,7 +11,7 @@
 #define {{soc_name|upper}}(obj) \
     OBJECT_CHECK({{soc_name|upper}}State, (obj), TYPE_{{soc_name|upper}})
 
-#define {{soc_name|upper}}_NCPUS {{n_cpus}}
+#define {{peripheral_name}}_BASE {{peripheral_ram_base}}
 
 typedef struct {{soc_name|upper}}State {
     /*< private >*/
@@ -19,10 +19,11 @@ typedef struct {{soc_name|upper}}State {
     /*< public >*/
 
     char *cpu_type;
-    uint32_t enabled_cpus;
+    ARMCPU cpu;
+    qemu_irq irq, fiq;
 
-    ARMCPU cpus[{{soc_name|upper}}_NCPUS];
-    {{soc_name|upper}}PeripheralState peripherals;
+    {{ic_name|upper|concat}}State local_ic;
+    {{peripheral_name|upper|concat}}State peripherals;
 } {{soc_name|upper}}State;
 
 #endif /* {{soc_name|upper}}_H */
