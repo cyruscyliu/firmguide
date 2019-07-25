@@ -5,6 +5,7 @@
 #include "qapi/error.h"
 #include "exec/address-spaces.h"
 #include "sysemu/blockdev.h"
+#include "sysemu/numa.h"
 #include "target/arm/cpu.h"
 #include "hw/arm/{{machine_name}}.h"
 #include "hw/arm/{{soc_name}}.h"

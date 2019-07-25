@@ -22,7 +22,7 @@ static void mv88f5181L_init(Object *obj) {
 
     /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
     sysbus_init_child_obj(
-        obj, "ic", &s->ic, sizof(s->ic), TYPE_MV88F5181L_IC);
+        obj, "ic", &s->ic, sizeof(s->ic), TYPE_MV88F5181L_IC);
 
     /* initialize peripherals and add the peripherals as soc and sysbus's child */
     sysbus_init_child_obj(
