@@ -3,6 +3,6 @@
 ## dependency
 
 ```bash
-pip3.7 install -r requirements.txt
+sudo -H pip3.7 install -r requirements.txt
 ```
 
