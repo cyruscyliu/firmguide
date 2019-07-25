@@ -1,0 +1,16 @@
+install:
+  windows:
+    root: "C:\\Users\\liuqiang\\Desktop\\qemu\\qemu-4.0.0"
+    machine_name: "hw\\arm"
+    ic_name: "hw\\intc"
+    soc_name: "hw\\arm"
+    peripheral_name: "hw\\arm"
+    timer_name: "hw\\timer"
+  linux:
+    root: "/home/liuqiang/qemu-4.0.0"
+    machine_name: "hw/arm"
+    ic_name: "hw/intc"
+    soc_name: "hw/arm"
+    peripheral_name: "hw/arm"
+    timer_name: "hw/timer"
+  include: "include"
