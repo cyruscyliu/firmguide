@@ -23,7 +23,7 @@ typedef struct MV88F5181LState {
     DeviceState parent_obj;
     /*< public >*/
 
-    char *cpu_type;
+    const char *cpu_type;
     ARMCPU *cpu;
     qemu_irq irq, fiq;
 

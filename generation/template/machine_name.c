@@ -6,8 +6,8 @@
 #include "exec/address-spaces.h"
 #include "sysemu/blockdev.h"
 #include "sysemu/numa.h"
-#include "target/arm/cpu.h"
 #include "hw/arm/arm.h"
+#include "target/arm/cpu.h"
 #include "hw/arm/{{machine_name}}.h"
 #include "hw/arm/{{soc_name}}.h"
 
@@ -58,7 +58,7 @@ static void {{machine_name}}_init(MachineState *machine) {
     binfo.kernel_filename = machine->kernel_filename;
     binfo.kernel_cmdline = machine->kernel_cmdline;
     binfo.initrd_filename = machine->initrd_filename;
-    ram_load_kernel(ARM_CPU(first_cpu), &binfo);
+    arm_load_kernel(ARM_CPU(first_cpu), &binfo);
 }
 
 static void {{machine_name}}_machine_init(MachineClass *mc) {

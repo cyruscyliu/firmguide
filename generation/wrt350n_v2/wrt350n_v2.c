@@ -8,8 +8,8 @@
 #include "exec/address-spaces.h"
 #include "sysemu/blockdev.h"
 #include "sysemu/numa.h"
-#include "target/arm/cpu.h"
 #include "hw/arm/arm.h"
+#include "target/arm/cpu.h"
 #include "hw/arm/wrt350n_v2.h"
 #include "hw/arm/mv88f5181L.h"
 
