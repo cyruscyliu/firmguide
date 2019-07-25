@@ -15,7 +15,7 @@ static void {{soc_name}}_init(Object *obj) {
 
     /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
     sysbus_init_child_obj(
-        obj, "ic", &s->ic, sizof(s->ic), TYPE_{{ic_name|upper}})
+        obj, "ic", &s->ic, sizof(s->ic), TYPE_{{ic_name|upper}});
 
     /* initialize peripherals and add the peripherals as soc and sysbus's child */
     sysbus_init_child_obj(
@@ -23,8 +23,8 @@ static void {{soc_name}}_init(Object *obj) {
 }
 
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
-    {{soc_name|upper}}State *s = {{soc_name|upper}}(obj);
-    {{soc_name|upper}}Class *c = {{soc_name|upper}}_GET_CLASS(obj);
+    {{soc_name|upper}}State *s = {{soc_name|upper}}(dev);
+    {{soc_name|upper}}Class *c = {{soc_name|upper}}_GET_CLASS(dev);
     Error *err = NULL;
 
     /* common peripherals */

@@ -7,6 +7,7 @@
 
 #include "hw/arm/arm.h"
 #include "hw/intc/mv88f5181L_ic.h"
+#include "hw/arm/{{"
 
 #define TYPE_MV88F5181L "mv88f5181L"
 #define MV88F5181L(obj) \

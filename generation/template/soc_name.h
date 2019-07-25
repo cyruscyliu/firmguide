@@ -4,7 +4,8 @@
 #define {{soc_name|upper}}_H
 
 #include "hw/arm/arm.h"
-#include "hw/intc/{{soc_name}}_ic.h"
+#include "hw/intc/{{ic_name}}.h"
+#include "hw/arm/{{peripheral_name}}.h"
 
 #define TYPE_{{soc_name|upper}} "{{soc_name}}"
 #define {{soc_name|upper}}(obj) \
@@ -19,7 +20,7 @@ typedef struct {{soc_name|upper}}State {
     /*< public >*/
 
     char *cpu_type;
-    ARMCPU cpu;
+    ARMCPU *cpu;
     qemu_irq irq, fiq;
 
     {{ic_name|upper|concat}}State ic;
@@ -30,6 +31,6 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp);
 
 static void {{soc_name}}_init(Object *obj);
 static void {{soc_name}}_class_init(ObjectClass *oc, void *data);
-static const TypeInfo {{soc_name}}_type_info(void);
+static void {{soc_name}}_register_types(void);
 
 #endif /* {{soc_name|upper}}_H */

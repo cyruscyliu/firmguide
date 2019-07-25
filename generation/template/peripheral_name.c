@@ -17,7 +17,7 @@ static void {{peripheral_name}}_init(Object *obj) {
 }
 
 static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
-    {{peripheral_name|upper|concat}}State *s = {{peripheral_name|upper}}(obj);
+    {{peripheral_name|upper|concat}}State *s = {{peripheral_name|upper}}(dev);
     Error *err = NULL;
 
     /* realize the timer */
@@ -26,7 +26,7 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
         error_propaaget(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{timer_name}}_RAM_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{timer_name|upper}}_RAM_BASE);
     sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->timer));
 }
 
@@ -57,7 +57,7 @@ static const TypeInfo {{peripheral_name}}_type_info = {
     .instance_init = {{peripheral_name}}_init,
     /* .class_size = sizeof(SysBusDeviceClass), */
     .class_init = {{peripheral_name}}_class_init,
-}
+};
 
 static void {{peripheral_name}}_register_types(void) {
     type_register_static(&{{peripheral_name}}_type_info);
