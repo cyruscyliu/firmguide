@@ -2,12 +2,12 @@
 
 #include "qemu/osdep.h"
 #include "qapi/error.h"
+#include "target/arm/cpu.h"
 #include "hw/arm/{{soc_name}}.h"
 
 
 static void {{soc_name}}_init(Object *obj) {
     {{soc_name|upper}}State *s = {{soc_name|upper}}(obj);
-    {{soc_name|upper}}Class *c = {{soc_name|upper}}_GET_CLASS(obj);
 
     /* initialize cpus and add the cpu as soc's child */
     object_initialize_child(
@@ -24,8 +24,8 @@ static void {{soc_name}}_init(Object *obj) {
 
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
     {{soc_name|upper}}State *s = {{soc_name|upper}}(dev);
-    {{soc_name|upper}}Class *c = {{soc_name|upper}}_GET_CLASS(dev);
     Error *err = NULL;
+    Object *obj;
 
     /* common peripherals */
     obj = object_property_get_link(OBJECT(dev), "ram", &err);
@@ -68,7 +68,7 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
 
     /* connect irq from the peripheral to the interrupt controller */
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals), 0,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name}}_IRQ, TIMER_INTERRUPT));
+        qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, TIMER_INTERRUPT));
 
     /* connect irq/fiq outputs from the interrupt controller to the cpu */
     qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0,

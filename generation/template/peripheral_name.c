@@ -53,7 +53,7 @@ static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data) {
 static const TypeInfo {{peripheral_name}}_type_info = {
     .name = TYPE_{{peripheral_name|upper}},
     .parent = TYPE_SYS_BUS_DEVICE,
-    .instance_size = sizeof({{peripheral_name|upper}}State),
+    .instance_size = sizeof({{peripheral_name|upper|concat}}State),
     .instance_init = {{peripheral_name}}_init,
     /* .class_size = sizeof(SysBusDeviceClass), */
     .class_init = {{peripheral_name}}_class_init,

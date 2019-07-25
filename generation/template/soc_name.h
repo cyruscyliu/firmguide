@@ -14,6 +14,8 @@
 #define {{peripheral_name|upper}}_RAM_BASE {{peripheral_ram_base}}
 #define {{ic_name|upper}}_RAM_BASE {{ic_ram_base}}
 
+#define TIMER_INTERRUPT 0
+
 typedef struct {{soc_name|upper}}State {
     /*< private >*/
     DeviceState parent_obj;
