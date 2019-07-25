@@ -1,18 +1,32 @@
 {{license}}
 
+#include "hw/arm/{{machine_name}}.h"
 #include "hw/arm/{{peripheral_name}}.h"
 
 static void {{peripheral_name}}_init(Object *obj) {
     {{peripheral_name|upper|concat}}State *s = {{peripheral_name|upper}}(obj);
 
-    /* initialize the ram for peripheral devices */
-    memory_region_init(&s->{{peripheral_name}}_io, obj, TYPE_{{peripheral_name|upper}}, {{peripheral_name|upper}}_RAM_SIZE);
-    object_property_add_child(obj, "peripheral_io", OBJECT(&s->{{peripheral_name}}_io), NULL);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->{{peripheral_name}}_io);
+    /* initialize the peripheral mmio */
+    memory_region_init(&s->mmio, obj, TYPE_{{peripheral_name|upper}}, {{peripheral_name|upper}}_RAM_SIZE);
+    object_property_add_child(obj, "peripheral_io", OBJECT(&s->mmio), NULL);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
+
+    /* initialize the timer */
+    sysbus_init_child_obj(obj, "timer", &s->timer, sizeof(s->timer), TYPE_{{timer_name|upper}});
 }
 
 static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
     {{peripheral_name|upper|concat}}State *s = {{peripheral_name|upper}}(obj);
+    Error *err = NULL;
+
+    /* realize the timer */
+    object_property_set_bool(OBJECT(&s->timer), true, "realized", &err);
+    if (err != NULL) {
+        error_propaaget(errp, err);
+        return;
+    }
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{timer_name}}_RAM_BASE);
+    sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->timer));
 }
 
 static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data) {

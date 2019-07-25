@@ -18,9 +18,11 @@
 #define MAIN_FIQ_INTERRUPT_MASK_REGISTER      0x08
 #define MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER 0x0C
 
+#define MV88F5181L_IC_RAM_SIZE 0x100
+
 typedef struct MV88F5181LICState {
     /*< private >*/
-    SysBusDevice sysbus;
+    SysBusDevice sys_bus;
     /*< public >*/
 
     MemoryRegion mmio;

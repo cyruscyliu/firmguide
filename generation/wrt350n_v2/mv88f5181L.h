@@ -13,7 +13,8 @@
 #define MV88F5181L(obj) \
     OBJECT_CHECK(MV88F5181LState, (obj), TYPE_MV88F5181L)
 
-#define mv88f5181L_peripherals_BASE 0xfdd00000
+#define MV88F5181L_PERIPHERALS_RAM_BASE 0xfdd00000
+#define MV88F5181L_IC_RAM_BASE 0xfdd20200
 
 typedef struct MV88F5181LState {
     /*< private >*/

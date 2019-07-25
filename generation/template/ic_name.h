@@ -10,6 +10,7 @@
     OBJECT_CHECK({{ic_name|upper|concat}}State, (obj), TYPE_{{ic_name|upper}})
 
 #define {{ic_name|upper}}_IRQ "irq"
+#define {{ic_name|upper}}_N_IRQS "{{n_irqs}}"
 
 #define MAIN_INTERRUPT_CAUSE_REGISTER         0x00
 #define MAIN_IRQ_INTERRUPT_MASK_REGISTER      0x04
@@ -20,7 +21,7 @@
 
 typedef struct {{ic_name|upper|concat}}State {
     /*< private >*/
-    SysBusDevice sysbus;
+    SysBusDevice sys_bus;
     /*< public >*/
 
     MemoryRegion mmio;

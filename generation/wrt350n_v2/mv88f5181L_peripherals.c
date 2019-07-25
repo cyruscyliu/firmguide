@@ -7,14 +7,28 @@
 static void mv88f5181L_peripherals_init(Object *obj) {
     MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(obj);
 
-    /* initialize the ram for peripheral devices */
-    memory_region_init(&s->mv88f5181L_peripherals_io, obj, TYPE_MV88F5181L_PERIPHERALS, MV88F5181L_PERIPHERALS_RAM_SIZE);
-    object_property_add_child(obj, "peripheral_io", OBJECT(&s->mv88f5181L_peripherals_io), NULL);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mv88f5181L_peripherals_io);
+    /* initialize the peripheral mmio */
+    memory_region_init(&s->mmio, obj, TYPE_MV88F5181L_PERIPHERALS, MV88F5181L_PERIPHERALS_RAM_SIZE);
+    object_property_add_child(obj, "peripheral_io", OBJECT(&s->mmio), NULL);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
+
+    /* initialize the timer */
+    sysbus_init_child_obj(obj, "timer", &s->timer, sizeof(s->timer), TYPE_MV8865181L_TIMER);
 }
 
 static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
     MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(obj);
+    Error *err = NULL;
+
+    /* realize the timer */
+    object_property_set_bool(OBJECT(&s->timer), true, "realized", &err);
+    if (err != NULL) {
+        error_propaaget(errp, err);
+        return;
+    }
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, mv8865181L_timer_RAM_BASE);
+
+
 }
 
 static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data) {

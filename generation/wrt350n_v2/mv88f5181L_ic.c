@@ -20,7 +20,7 @@ static void mv88f5181L_ic_set_irq(void *opaque, int irq, int level) {
     mv88f5181L_ic_update(s);
 }
 
-static void mv88f5181L_ic_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181L_ic_read(void *opaque, hwaddr offset, unsigned size) {
     MV88F5181LICState *s = opaque;
     uint32_t res = 0;
 
@@ -39,7 +39,7 @@ static void mv88f5181L_ic_read(void *opaque, hwaddr offset, unsigned size) {
         break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return;
+        return 0;
     }
     return res;
 }
@@ -79,7 +79,7 @@ static void mv88f5181L_ic_init(Object *obj) {
     MV88F5181LICState *s = MV88F5181L_IC(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &mv88f5181L_ic_ops, s, TYPE_MV88F5181L_IC, 0x100);
+    memory_region_init_io(&s->mmio, obj, &mv88f5181L_ic_ops, s, TYPE_MV88F5181L_IC, mv88f5181L_ic_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the irq/fip to cpu */

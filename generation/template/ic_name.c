@@ -3,6 +3,12 @@
 #include "hw/intc/{{ic_name}}.h"
 #include "qemu/log.h"
 
+static void {{ic_name}}_set_irq(void *opaque, int irq, int level) {
+    {{ic_name|upper|concat}}State *s = opaque;
+
+    {{ic_name}}_update(s);
+}
+
 static void {{ic_name}}_update({{ic_name|upper|concat}}State *s) {
     bool set = false;
 
@@ -18,7 +24,7 @@ static void {{ic_name}}_set_irq(void *opaque, int irq, int level) {
     {{ic_name}}_update(s);
 }
 
-static void {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     {{ic_name|upper|concat}}State *s = opaque;
     uint32_t res = 0;
 
@@ -37,7 +43,7 @@ static void {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) {
         break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return;
+        return 0;
     }
     return res;
 }
@@ -79,6 +85,9 @@ static void {{ic_name}}_init(Object *obj) {
     /* initialize the mmio */
     memory_region_init_io(&s->mmio, obj, &{{ic_name}}_ops, s, TYPE_{{ic_name|upper}}, {{ic_name}}_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
+
+    /* initialize the interrupt input */
+    qdev_init_gpio_in_named(DEVICE(s), {{ic_name}}_set_irq, {{ic_name}}_IRQ), {{ic_name}}_N_IRQS);
 
     /* initialize the irq/fip to cpu */
     qdev_init_gpio_out_named(dev, s->irq, "irq", 1);
