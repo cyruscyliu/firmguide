@@ -1,0 +1,15 @@
+version: "3"
+services:
+  firmware:
+    image: wrt350v2-work-env:latest
+    #network_mode: "host"
+    command: ["sh", "-c", "while true; do sleep 1s; done"]
+    working_dir: /root/firmware
+    privileged: true
+    # https://stackoverflow.com/questions/35860527/warning-error-disabling-address-space-randomization-operation-not-permitted/46676907#46676907
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - ALL
+    volumes:
+      - ../ws:/root/firmware
