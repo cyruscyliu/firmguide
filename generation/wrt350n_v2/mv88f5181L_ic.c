@@ -87,8 +87,8 @@ static void mv88f5181L_ic_init(Object *obj) {
     qdev_init_gpio_in_named(DEVICE(s), mv88f5181L_ic_set_irq, MV88F5181L_IC_IRQ, MV88F5181L_IC_N_IRQS);
 
     /* initialize the irq/fip to cpu */
-    qdev_init_gpio_out_named(DEVICE(s), s->irq, "irq", 1);
-    qdev_init_gpio_out_named(DEVICE(s), s->fiq, "fiq", 1);
+    qdev_init_gpio_out_named(DEVICE(s), &s->irq, "irq", 1);
+    qdev_init_gpio_out_named(DEVICE(s), &s->fiq, "fiq", 1);
 }
 
 static void mv88f5181L_ic_reset(DeviceState *d) {

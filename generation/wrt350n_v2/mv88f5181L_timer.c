@@ -3,11 +3,11 @@
  */
 
 #include "qemu/osdep.h"
-#include "hw/timer/mv8865181L_timer.h"
-#define TYPE_MV8865181L_TIMER "mv8865181L_timer"
+#include "hw/timer/mv88f5181L_timer.h"
+#define TYPE_MV88F5181L_TIMER "mv88f5181L_timer"
 
-static void mv8865181L_timer_interrupt(void *opaque) {
-    MV8865181LTIMERState *s = opaque;
+static void mv88f5181L_timer_interrupt(void *opaque) {
+    MV88F5181LTIMERState *s = opaque;
 
     if (!s->timer0_enable ) {
         return;
@@ -25,8 +25,8 @@ static void mv8865181L_timer_interrupt(void *opaque) {
     }
 }
 
-static uint64_t mv8865181L_timer_read(void *opaque, hwaddr offset, unsigned size) {
-    MV8865181LTIMERState *s = opaque;
+static uint64_t mv88f5181L_timer_read(void *opaque, hwaddr offset, unsigned size) {
+    MV88F5181LTIMERState *s = opaque;
 
     uint64_t res = 0;
 
@@ -59,8 +59,8 @@ static uint64_t mv8865181L_timer_read(void *opaque, hwaddr offset, unsigned size
     return res;
 }
 
-static void mv8865181L_timer_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
-    MV8865181LTIMERState *s = opaque;
+static void mv88f5181L_timer_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+    MV88F5181LTIMERState *s = opaque;
 
     switch (offset) {
     case CPU_TIMERS_CONTROL_REGISTER:
@@ -91,28 +91,28 @@ static void mv8865181L_timer_write(void *opaque, hwaddr offset, uint64_t val, un
     }
 }
 
-static const MemoryRegionOps mv8865181L_timer_ops = {
-    .read = mv8865181L_timer_read,
-    .write = mv8865181L_timer_write,
+static const MemoryRegionOps mv88f5181L_timer_ops = {
+    .read = mv88f5181L_timer_read,
+    .write = mv88f5181L_timer_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 }
 
-static void mv8865181L_timer_init(Object *obj) {
-    MV8865181LTIMERState *s = MV8865181LTIMER(obj);
+static void mv88f5181L_timer_init(Object *obj) {
+    MV88F5181LTIMERState *s = MV88F5181LTIMER(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &mv8865181L_timer_ops, s, "mv8865181L_timer", mv8865181L_timer_RAM_SIZE);
+    memory_region_init_io(&s->mmio, obj, &mv88f5181L_timer_ops, s, "mv88f5181L_timer", mv88f5181L_timer_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the irq */
     sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
 
     /* initialize the timer */
-    s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, mv8865181L_timer_interrupt, s);
+    s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, mv88f5181L_timer_interrupt, s);
 }
 
-static void mv8865181L_timer_reset(DeviceState *dev) {
-    MV8865181LTIMERState *s = MV8865181LTIMER(dev);
+static void mv88f5181L_timer_reset(DeviceState *dev) {
+    MV88F5181LTIMERState *s = MV88F5181LTIMER(dev);
 
     s->timer0_enable = 0;
     s->timer0_auto_mode = 0;
@@ -121,7 +121,7 @@ static void mv8865181L_timer_reset(DeviceState *dev) {
     s->timer0_interrupted = False;
 }
 
-static void mv8865181L_timer_class_init(ObjectClass *klass, void *data) {
+static void mv88f5181L_timer_class_init(ObjectClass *klass, void *data) {
     DeviceClass *dc = DEVICE_CLASS(klass);
 
     /* dc->fw_name = ; */
@@ -130,7 +130,7 @@ static void mv8865181L_timer_class_init(ObjectClass *klass, void *data) {
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
     /* dc->reset = ; */
-    dc->reset = mv8865181L_timer_reset;
+    dc->reset = mv88f5181L_timer_reset;
     /* dc->realize = ; */
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
@@ -142,17 +142,17 @@ static void mv8865181L_timer_class_init(ObjectClass *klass, void *data) {
     /* sbc->connect_irq_notifier = ; */
 }
 
-static const TypeInfo mv8865181L_timer_info = {
-    .name = TYPE_MV8865181L_TIMER,
+static const TypeInfo mv88f5181L_timer_info = {
+    .name = TYPE_MV88F5181L_TIMER,
     .parent = TYPE_SYS_BUS_DEVICE,
-    .instance_size = sizeof(MV8865181LTIMERState),
-    .instance_init = mv8865181L_timer_init,
+    .instance_size = sizeof(MV88F5181LTIMERState),
+    .instance_init = mv88f5181L_timer_init,
     /* .class_zie = sizeof(SysBusDeviceClass), */
-    .class_init = mv8865181L_timer_class_init,
+    .class_init = mv88f5181L_timer_class_init,
 }
 
-static void mv8865181L_timer_register_types(void) {
-    type_register_static(&mv8865181L_timer_info);
+static void mv88f5181L_timer_register_types(void) {
+    type_register_static(&mv88f5181L_timer_info);
 }
 
-type_init(mv8865181L_timer_register_types)
+type_init(mv88f5181L_timer_register_types)

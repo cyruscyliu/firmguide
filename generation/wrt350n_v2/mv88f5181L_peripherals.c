@@ -15,7 +15,7 @@ static void mv88f5181L_peripherals_init(Object *obj) {
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the timer */
-    sysbus_init_child_obj(obj, "timer", &s->timer, sizeof(s->timer), TYPE_MV8865181L_TIMER);
+    sysbus_init_child_obj(obj, "timer", &s->timer, sizeof(s->timer), TYPE_MV88F5181L_TIMER);
 }
 
 static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
@@ -28,7 +28,7 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
         error_propaaget(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, mv8865181L_timer_RAM_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, mv88f5181L_timer_RAM_BASE);
     sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->timer));
 }
 

@@ -12,7 +12,7 @@ machine:
       peripheral_ram_base: "0xfdd00000"
       peripheral_ram_size: "0x10000000"
       timer:
-        timer_name: "mv8865181L_timer"
+        timer_name: "mv88f5181L_timer"
         timer_ram_base: "0x00020300"
         timer_ram_size: "0x100"
     local_interrupt_controller:
