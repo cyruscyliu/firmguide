@@ -2,28 +2,8 @@
 
 ## introduction
 
-Put the machine description files (yaml) in `./machines`.
-
-For example, a `wrt350n_v2` machine can be described as below.
-
-```yaml
-machine:
-  machine_desc: "Linksys WRT350N v2 (MV88F5181L)"
-  machine_name: "wrt350n_v2"
-  soc:
-    soc_name: "mv88f5181L"
-    cpu:
-      cpu_type: "arm926"
-      n_cpus: 1
-    interrupt_controller:
-      b_fiqs: 8
-      icr_size: "0x100"
-      n_irqs: 32
-      l_irqs:
-        - 32
-      i_irqs:
-        - 0
-```
+Put the machine description files (yaml) in `./machines`, see [wrt350n_v2.yaml](./machines/wrt350n_v2.yaml).
 
 Execution `main.py` and you will see the generated code in `wrt350n_v2`.
 
+And it will install the generated code at the same time.
