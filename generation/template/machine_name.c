@@ -63,7 +63,7 @@ static void {{machine_name}}_init(MachineState *machine) {
 
 static void {{machine_name}}_machine_init(MachineClass *mc) {
     /* mc->family = ; */
-    mc->name = "{{machine_name}}";
+    /* mc->name = "{{machine_name}}"; */
     /* mc->alias = ; */
     mc->desc = "{{machine_desc}}";
     /* mc->deprecation_reason = ; */
