@@ -26,4 +26,10 @@ typedef struct {{soc_name|upper}}State {
     {{peripheral_name|upper|concat}}State peripherals;
 } {{soc_name|upper}}State;
 
+static void {{soc_name}}_realize(DeviceState *dev, Error **errp);
+
+static void {{soc_name}}_init(Object *obj);
+static void {{soc_name}}_class_init(ObjectClass *oc, void *data);
+static const TypeInfo {{soc_name}}_type_info(void);
+
 #endif /* {{soc_name|upper}}_H */

@@ -22,4 +22,10 @@ typedef struct {{peripheral_name|upper|concat}}State {
     {{timer_name|upper|concat}}State timer;
 } {{peripheral_name|upper|concat}}State;
 
+static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp);
+
+static void {{peripheral_name}}_init(Object *obj);
+static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data);
+static void {{peripheral_name}}_register_types(void);
+
 #endif /* {{peripheral_name|upper}}_H */

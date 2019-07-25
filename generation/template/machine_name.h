@@ -21,4 +21,7 @@ typedef struct {{machine_name|upper}}State {
 
 static const int {{machine_name}}_board_id = {{board_id}};
 
+static void {{machine_name}}_init(MachineState *machine);
+static void {{machine_name}}_machine_init(MachineClass *mc);
+
 #endif /* {{machine_name|upper}}_H */

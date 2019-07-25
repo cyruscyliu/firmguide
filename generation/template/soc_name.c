@@ -102,7 +102,7 @@ static const TypeInfo {{soc_name}}_type_info = {
     .class_init = {{soc_name}}_class_init,
 };
 
-static void {{soc_name}}_register_types= {
+static void {{soc_name}}_register_types(void) {
     type_register_static(&{{soc_name}}_type_info);
 }
 

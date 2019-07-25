@@ -7,21 +7,6 @@
 #include "qemu/log.h"
 
 static void mv88f5181L_ic_set_irq(void *opaque, int irq, int level) {
-    MV88F5181LICState *s = opaque;
-
-    mv88f5181L_ic_update(s);
-}
-
-static void mv88f5181L_ic_update(MV88F5181LICState *s) {
-    bool set = false;
-
-    set = (s->irq_level_0 & s->fiq_enable_0);
-    qemu_set_irq(s->fiq, set);
-    set = (s->irq_level_0 & s->irq_enable_0);
-    qemu_set_irq(s->irq, set);
-}
-
-static void mv88f5181L_ic_set_irq(void *opaque, int irq, int level) {
     MV88F5181LICState *s = MV88F5181L_IC(obj);
     s->irq_level_0 = deposit32(s->irq_level_0, irq, 1, level != 0);
     mv88f5181L_ic_update(s);
@@ -72,6 +57,15 @@ static void mv88f5181L_ic_write(void *opaque, hwaddr offset, uint64_t val, unsig
         return;
     }
     mv88f5181L_ic_update(s);
+}
+
+static void mv88f5181L_ic_update(MV88F5181LICState *s) {
+    bool set = false;
+
+    set = (s->irq_level_0 & s->fiq_enable_0);
+    qemu_set_irq(s->fiq, set);
+    set = (s->irq_level_0 & s->irq_enable_0);
+    qemu_set_irq(s->irq, set);
 }
 
 static const MemoryRegionOps mv88f5181L_ic_ops = {

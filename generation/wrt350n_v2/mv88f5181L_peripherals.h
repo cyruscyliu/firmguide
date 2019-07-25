@@ -24,4 +24,10 @@ typedef struct MV88F5181LPERIPHERALSState {
     MV8865181LTIMERState timer;
 } MV88F5181LPERIPHERALSState;
 
+static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp);
+
+static void mv88f5181L_peripherals_init(Object *obj);
+static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data);
+static void mv88f5181L_peripherals_register_types(void);
+
 #endif /* MV88F5181L_PERIPHERALS_H */

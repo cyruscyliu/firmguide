@@ -111,7 +111,7 @@ static void mv8865181L_timer_init(Object *obj) {
     s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, mv8865181L_timer_interrupt, s);
 }
 
-static void mv8865181L_timer_resete(DeviceState *dev) {
+static void mv8865181L_timer_reset(DeviceState *dev) {
     MV8865181LTIMERState *s = MV8865181LTIMER(dev);
 
     s->timer0_enable = 0;

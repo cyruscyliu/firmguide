@@ -104,7 +104,7 @@ static const TypeInfo mv88f5181L_type_info = {
     .class_init = mv88f5181L_class_init,
 };
 
-static void mv88f5181L_register_types= {
+static void mv88f5181L_register_types(void) {
     type_register_static(&mv88f5181L_type_info);
 }
 

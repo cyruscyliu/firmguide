@@ -109,7 +109,7 @@ static void {{timer_name}}_init(Object *obj) {
     s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, {{timer_name}}_interrupt, s);
 }
 
-static void {{timer_name}}_resete(DeviceState *dev) {
+static void {{timer_name}}_reset(DeviceState *dev) {
     {{timer_name|upper|concat}}State *s = {{timer_name|upper|concat}}(dev);
 
     s->timer0_enable = 0;

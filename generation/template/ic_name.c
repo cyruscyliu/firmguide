@@ -5,21 +5,6 @@
 #include "qemu/log.h"
 
 static void {{ic_name}}_set_irq(void *opaque, int irq, int level) {
-    {{ic_name|upper|concat}}State *s = opaque;
-
-    {{ic_name}}_update(s);
-}
-
-static void {{ic_name}}_update({{ic_name|upper|concat}}State *s) {
-    bool set = false;
-
-    set = (s->irq_level_0 & s->fiq_enable_0);
-    qemu_set_irq(s->fiq, set);
-    set = (s->irq_level_0 & s->irq_enable_0);
-    qemu_set_irq(s->irq, set);
-}
-
-static void {{ic_name}}_set_irq(void *opaque, int irq, int level) {
     {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(obj);
     s->irq_level_0 = deposit32(s->irq_level_0, irq, 1, level != 0);
     {{ic_name}}_update(s);
@@ -70,6 +55,15 @@ static void {{ic_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigne
         return;
     }
     {{ic_name}}_update(s);
+}
+
+static void {{ic_name}}_update({{ic_name|upper|concat}}State *s) {
+    bool set = false;
+
+    set = (s->irq_level_0 & s->fiq_enable_0);
+    qemu_set_irq(s->fiq, set);
+    set = (s->irq_level_0 & s->irq_enable_0);
+    qemu_set_irq(s->irq, set);
 }
 
 static const MemoryRegionOps {{ic_name}}_ops = {
