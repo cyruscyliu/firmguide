@@ -5,6 +5,12 @@
 #include "hw/arm/{{machine_name}}.h"
 #include "hw/arm/{{peripheral_name}}.h"
 
+static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp);
+
+static void {{peripheral_name}}_init(Object *obj);
+static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data);
+static void {{peripheral_name}}_register_types(void);
+
 static void {{peripheral_name}}_init(Object *obj) {
     {{peripheral_name|upper|concat}}State *s = {{peripheral_name|upper}}(obj);
 

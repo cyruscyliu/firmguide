@@ -7,6 +7,12 @@
 #include "hw/arm/wrt350n_v2.h"
 #include "hw/arm/mv88f5181L_peripherals.h"
 
+static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp);
+
+static void mv88f5181L_peripherals_init(Object *obj);
+static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data);
+static void mv88f5181L_peripherals_register_types(void);
+
 static void mv88f5181L_peripherals_init(Object *obj) {
     MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(obj);
 

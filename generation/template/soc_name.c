@@ -5,6 +5,11 @@
 #include "target/arm/cpu.h"
 #include "hw/arm/{{soc_name}}.h"
 
+static void {{soc_name}}_realize(DeviceState *dev, Error **errp);
+
+static void {{soc_name}}_init(Object *obj);
+static void {{soc_name}}_class_init(ObjectClass *oc, void *data);
+static void {{soc_name}}_register_types(void);
 
 static void {{soc_name}}_init(Object *obj) {
     {{soc_name|upper}}State *s = {{soc_name|upper}}(obj);

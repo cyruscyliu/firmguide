@@ -4,6 +4,16 @@
 #include "qemu/log.h"
 #include "hw/timer/{{timer_name}}.h"
 
+static void {{timer_name}}_interrupt(void *opaque);
+static void {{timer_name}}_reset(DeviceState *dev);
+
+static uint64_t {{timer_name}}_read(void *opaque, hwaddr offset, unsigned size);
+static void {{timer_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+
+static void {{timer_name}}_init(Object *obj);
+static void {{timer_name}}_class_init(ObjectClass *klass, void *data);
+static void {{timer_name}}_register_types(void);
+
 static void {{timer_name}}_interrupt(void *opaque) {
     {{timer_name|upper|concat}}State *s = opaque;
 

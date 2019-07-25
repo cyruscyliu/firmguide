@@ -4,6 +4,17 @@
 #include "hw/intc/{{ic_name}}.h"
 #include "qemu/log.h"
 
+static void {{ic_name}}_set_irq(void *opaque, int irq, int level);
+static void {{ic_name}}_update({{ic_name|upper|concat}}State *s);
+static void {{ic_name}}_reset(DeviceState *d);
+
+static uint64_t {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size);
+static void {{ic_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+
+static void {{ic_name}}_init(Object *obj);
+static void {{ic_name}}_class_init(ObjectClass *kclass, void *data);
+static void {{ic_name}}_register_types(void);
+
 static void {{ic_name}}_set_irq(void *opaque, int irq, int level) {
     {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(opaque);
     s->irq_level_0 = deposit32(s->irq_level_0, irq, 1, level != 0);

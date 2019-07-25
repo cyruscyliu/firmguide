@@ -31,10 +31,4 @@ typedef struct MV88F5181LState {
     MV88F5181LPERIPHERALSState peripherals;
 } MV88F5181LState;
 
-static void mv88f5181L_realize(DeviceState *dev, Error **errp);
-
-static void mv88f5181L_init(Object *obj);
-static void mv88f5181L_class_init(ObjectClass *oc, void *data);
-static void mv88f5181L_register_types(void);
-
 #endif /* MV88F5181L_H */

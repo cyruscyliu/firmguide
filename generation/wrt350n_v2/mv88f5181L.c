@@ -7,6 +7,11 @@
 #include "target/arm/cpu.h"
 #include "hw/arm/mv88f5181L.h"
 
+static void mv88f5181L_realize(DeviceState *dev, Error **errp);
+
+static void mv88f5181L_init(Object *obj);
+static void mv88f5181L_class_init(ObjectClass *oc, void *data);
+static void mv88f5181L_register_types(void);
 
 static void mv88f5181L_init(Object *obj) {
     MV88F5181LState *s = MV88F5181L(obj);

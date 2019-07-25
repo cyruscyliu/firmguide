@@ -6,6 +6,17 @@
 #include "hw/intc/mv88f5181L_ic.h"
 #include "qemu/log.h"
 
+static void mv88f5181L_ic_set_irq(void *opaque, int irq, int level);
+static void mv88f5181L_ic_update(MV88F5181LICState *s);
+static void mv88f5181L_ic_reset(DeviceState *d);
+
+static uint64_t mv88f5181L_ic_read(void *opaque, hwaddr offset, unsigned size);
+static void mv88f5181L_ic_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+
+static void mv88f5181L_ic_init(Object *obj);
+static void mv88f5181L_ic_class_init(ObjectClass *kclass, void *data);
+static void mv88f5181L_ic_register_types(void);
+
 static void mv88f5181L_ic_set_irq(void *opaque, int irq, int level) {
     MV88F5181LICState *s = MV88F5181L_IC(opaque);
     s->irq_level_0 = deposit32(s->irq_level_0, irq, 1, level != 0);

@@ -38,14 +38,4 @@ typedef struct MV88F5181LTIMERState {
     bool timer0_interrupted;
 } MV88F5181LTIMERState;
 
-static void mv88f5181L_timer_interrupt(void *opaque);
-static void mv88f5181L_timer_reset(DeviceState *dev);
-
-static uint64_t mv88f5181L_timer_read(void *opaque, hwaddr offset, unsigned size);
-static void mv88f5181L_timer_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
-
-static void mv88f5181L_timer_init(Object *obj);
-static void mv88f5181L_timer_class_init(ObjectClass *klass, void *data);
-static void mv88f5181L_timer_register_types(void);
-
 #endif /* MV88F5181L_TIMER_H */

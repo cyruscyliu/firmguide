@@ -8,6 +8,11 @@
 #include "hw/arm/{{machine_name}}.h"
 #include "hw/arm/{{soc_name}}.h"
 
+static const int {{machine_name}}_board_id = {{board_id}};
+
+static void {{machine_name}}_init(MachineState *machine);
+static void {{machine_name}}_machine_init(MachineClass *mc);
+
 static void {{machine_name}}_init(MachineState *machine) {
     static struct arm_boot_info binfo;
     DriveInfo *dinfo;

@@ -21,9 +21,4 @@ typedef struct WRT350N_V2State {
     PFlashCFI01 *flash;
 } WRT350N_V2State;
 
-static const int wrt350n_v2_board_id = 0x661;
-
-static void wrt350n_v2_init(MachineState *machine);
-static void wrt350n_v2_machine_init(MachineClass *mc);
-
 #endif /* WRT350N_V2_H */

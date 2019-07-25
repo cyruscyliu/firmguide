@@ -10,6 +10,11 @@
 #include "hw/arm/wrt350n_v2.h"
 #include "hw/arm/mv88f5181L.h"
 
+static const int wrt350n_v2_board_id = 0x661;
+
+static void wrt350n_v2_init(MachineState *machine);
+static void wrt350n_v2_machine_init(MachineClass *mc);
+
 static void wrt350n_v2_init(MachineState *machine) {
     static struct arm_boot_info binfo;
     DriveInfo *dinfo;
