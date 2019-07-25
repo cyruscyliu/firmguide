@@ -33,7 +33,7 @@ static void wrt350n_v2_init(MachineState *machine) {
     object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
 
     /* set up the flash */
-    dinfo = drive_get(IF_PFLASH);
+    dinfo = drive_get(IF_PFLASH)
     flash = pflash_cfi01_register(
             WRT350N_V2_FLASH_ADDR, "flash", WRT350N_V2_FLASH_SIZE,
             dinfo ? blk_by_legacy_dinfo(dinfo): NULL, WRT350N_V2_FLASH_SECT_SIZE,

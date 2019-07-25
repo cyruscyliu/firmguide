@@ -1,11 +1,17 @@
 {{license}}
 
 #include "qemu/osdep.h"
+#include "qemu/units.h"
+#include "qapi/error.h"
+#include "sysemu/blockdev.h"
+#include "target/arm/cpu.h"
 #include "hw/arm/{{machine_name}}.h"
 #include "hw/arm/{{soc_name}}.h"
 
 static void {{machine_name}}_init(MachineState *machine) {
     static struct arm_boot_info binfo;
+    DriveInfo *dinfo;
+    PFlashCFI01 *flash;
 
     /* allocate our machine  */
     {{machine_name|upper}}State *s = g_new0({{machine_name|upper}}State, 1);
@@ -13,7 +19,7 @@ static void {{machine_name}}_init(MachineState *machine) {
     /* initialize the soc */
     object_initialize(&s->soc, sizeof(s->soc), TYPE_{{soc_name|upper}});
     object_property_add_child(OBJECT(machine), "soc", OBJECT(&s->soc), &error_abort);
-    s->cpu_type = machine->cpu_type;
+    s->soc->cpu_type = machine->cpu_type;
 
     /* allocate the ram */
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
@@ -26,9 +32,9 @@ static void {{machine_name}}_init(MachineState *machine) {
 
     /* set up the flash */{% if flash_enable %}
     dinfo = drive_get(IF_PFLASH)
-    PFlashCFI01 *flash = pflash_cfi01_register(
+    flash = pflash_cfi01_register(
             {{machine_name|upper}}_FLASH_ADDR, "flash", {{machine_name|upper}}_FLASH_SIZE,
-            dinfo ? blk_by_legacy_dinfo(dinfo)): NULL, {{machine_name|upper}}_FLASH_SECT_SIZE,
+            dinfo ? blk_by_legacy_dinfo(dinfo): NULL, {{machine_name|upper}}_FLASH_SECT_SIZE,
             4, 0, 0, 0, 0, 0);
     if (!flash) {
         fprintf(stderr, "qemu: Error registering flash memory.\n");
