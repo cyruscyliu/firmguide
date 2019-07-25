@@ -1,8 +1,8 @@
 {{license}}
 
 #include "qemu/osdep.h"
+#include "qemu/log.h"
 #include "hw/timer/{{timer_name}}.h"
-#define TYPE_{{timer_name|upper}} "{{timer_name}}"
 
 static void {{timer_name}}_interrupt(void *opaque) {
     {{timer_name|upper|concat}}State *s = opaque;
@@ -10,21 +10,19 @@ static void {{timer_name}}_interrupt(void *opaque) {
     if (!s->timer0_enable ) {
         return;
     }
-    s->timer0_counter--;
     if (s->timer0_counter == 0) {
         if (s->timer0_auto_mode == 0) {
             return;
         } else {
-            s->timer0_counter == s->timer0_reload;
+            s->timer0_counter = s->timer0_reload;
         }
         qemu_irq_pulse(s->irq);
-    } else {
-        s->timer0_counter--;
     }
+    s->timer0_counter--;
 }
 
 static uint64_t {{timer_name}}_read(void *opaque, hwaddr offset, unsigned size) {
-    {{timer_name|upper|concat}}State *s = opaque;
+    /* {{timer_name|upper|concat}}State *s = opaque; */
 
     uint64_t res = 0;
 
@@ -93,7 +91,7 @@ static const MemoryRegionOps {{timer_name}}_ops = {
     .read = {{timer_name}}_read,
     .write = {{timer_name}}_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
-}
+};
 
 static void {{timer_name}}_init(Object *obj) {
     {{timer_name|upper|concat}}State *s = {{timer_name|upper|concat}}(obj);
@@ -116,7 +114,7 @@ static void {{timer_name}}_reset(DeviceState *dev) {
     s->timer0_auto_mode = 0;
     s->timer0_reload = 0;
     s->timer0_counter = 0;
-    s->timer0_interrupted = False;
+    s->timer0_interrupted = false;
 }
 
 static void {{timer_name}}_class_init(ObjectClass *klass, void *data) {
@@ -147,7 +145,7 @@ static const TypeInfo {{timer_name}}_info = {
     .instance_init = {{timer_name}}_init,
     /* .class_zie = sizeof(SysBusDeviceClass), */
     .class_init = {{timer_name}}_class_init,
-}
+};
 
 static void {{timer_name}}_register_types(void) {
     type_register_static(&{{timer_name}}_info);

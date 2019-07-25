@@ -46,4 +46,4 @@ static void mv88f5181L_timer_init(Object *obj);
 static void mv88f5181L_timer_class_init(ObjectClass *klass, void *data);
 static void mv88f5181L_timer_register_types(void);
 
-#endif /* MV88F5181L_TIMER_H
+#endif /* MV88F5181L_TIMER_H */

@@ -3,8 +3,8 @@
  */
 
 #include "qemu/osdep.h"
+#include "qemu/log.h"
 #include "hw/timer/mv88f5181L_timer.h"
-#define TYPE_MV88F5181L_TIMER "mv88f5181L_timer"
 
 static void mv88f5181L_timer_interrupt(void *opaque) {
     MV88F5181LTIMERState *s = opaque;
@@ -12,21 +12,19 @@ static void mv88f5181L_timer_interrupt(void *opaque) {
     if (!s->timer0_enable ) {
         return;
     }
-    s->timer0_counter--;
     if (s->timer0_counter == 0) {
         if (s->timer0_auto_mode == 0) {
             return;
         } else {
-            s->timer0_counter == s->timer0_reload;
+            s->timer0_counter = s->timer0_reload;
         }
         qemu_irq_pulse(s->irq);
-    } else {
-        s->timer0_counter--;
     }
+    s->timer0_counter--;
 }
 
 static uint64_t mv88f5181L_timer_read(void *opaque, hwaddr offset, unsigned size) {
-    MV88F5181LTIMERState *s = opaque;
+    /* MV88F5181LTIMERState *s = opaque; */
 
     uint64_t res = 0;
 
@@ -95,7 +93,7 @@ static const MemoryRegionOps mv88f5181L_timer_ops = {
     .read = mv88f5181L_timer_read,
     .write = mv88f5181L_timer_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
-}
+};
 
 static void mv88f5181L_timer_init(Object *obj) {
     MV88F5181LTIMERState *s = MV88F5181LTIMER(obj);
@@ -118,7 +116,7 @@ static void mv88f5181L_timer_reset(DeviceState *dev) {
     s->timer0_auto_mode = 0;
     s->timer0_reload = 0;
     s->timer0_counter = 0;
-    s->timer0_interrupted = False;
+    s->timer0_interrupted = false;
 }
 
 static void mv88f5181L_timer_class_init(ObjectClass *klass, void *data) {
@@ -149,7 +147,7 @@ static const TypeInfo mv88f5181L_timer_info = {
     .instance_init = mv88f5181L_timer_init,
     /* .class_zie = sizeof(SysBusDeviceClass), */
     .class_init = mv88f5181L_timer_class_init,
-}
+};
 
 static void mv88f5181L_timer_register_types(void) {
     type_register_static(&mv88f5181L_timer_info);

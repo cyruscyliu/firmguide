@@ -44,4 +44,4 @@ static void {{timer_name}}_init(Object *obj);
 static void {{timer_name}}_class_init(ObjectClass *klass, void *data);
 static void {{timer_name}}_register_types(void);
 
-#endif /* {{timer_name|upper}}_H
+#endif /* {{timer_name|upper}}_H */
