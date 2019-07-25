@@ -2,6 +2,7 @@
 
 #include "qemu/osdep.h"
 #include "hw/arm/{{machine_name}}.h"
+#include "hw/arm/{{soc_name}}.h"
 
 static void {{machine_name}}_init(MachineState *machine) {
     static struct arm_boot_info binfo;
@@ -10,7 +11,7 @@ static void {{machine_name}}_init(MachineState *machine) {
     {{machine_name|upper}}State *s = g_new0({{machine_name|upper}}State, 1);
 
     /* initialize the soc */
-    object_initialize(&s->soc, sizeof(s->soc), {{soc_name|upper}});
+    object_initialize(&s->soc, sizeof(s->soc), TYPE_{{soc_name|upper}});
     object_property_add_child(OBJECT(machine), "soc", OBJECT(&s->soc), &error_abort);
     s->cpu_type = machine->cpu_type;
 

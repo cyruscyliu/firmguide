@@ -3,6 +3,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "qapi/error.h"
 #include "hw/arm/wrt350n_v2.h"
 #include "hw/arm/mv88f5181L_peripherals.h"
 
@@ -19,16 +20,16 @@ static void mv88f5181L_peripherals_init(Object *obj) {
 }
 
 static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
-    MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(obj);
+    MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(dev);
     Error *err = NULL;
 
     /* realize the timer */
     object_property_set_bool(OBJECT(&s->timer), true, "realized", &err);
     if (err != NULL) {
-        error_propaaget(errp, err);
+        error_propagate(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, mv88f5181L_timer_RAM_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, MV88F5181L_TIMER_RAM_BASE);
     sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->timer));
 }
 
@@ -55,11 +56,11 @@ static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data) {
 static const TypeInfo mv88f5181L_peripherals_type_info = {
     .name = TYPE_MV88F5181L_PERIPHERALS,
     .parent = TYPE_SYS_BUS_DEVICE,
-    .instance_size = sizeof(MV88F5181L_PERIPHERALSState),
+    .instance_size = sizeof(MV88F5181LPERIPHERALSState),
     .instance_init = mv88f5181L_peripherals_init,
     /* .class_size = sizeof(SysBusDeviceClass), */
     .class_init = mv88f5181L_peripherals_class_init,
-}
+};
 
 static void mv88f5181L_peripherals_register_types(void) {
     type_register_static(&mv88f5181L_peripherals_type_info);

@@ -7,7 +7,7 @@
 
 #include "hw/arm/arm.h"
 #include "hw/intc/mv88f5181L_ic.h"
-#include "hw/arm/{{"
+#include "hw/arm/mv88f5181L_peripherals.h"
 
 #define TYPE_MV88F5181L "mv88f5181L"
 #define MV88F5181L(obj) \
@@ -16,13 +16,15 @@
 #define MV88F5181L_PERIPHERALS_RAM_BASE 0xfdd00000
 #define MV88F5181L_IC_RAM_BASE 0xfdd20200
 
+#define TIMER_INTERRUPT 0
+
 typedef struct MV88F5181LState {
     /*< private >*/
     DeviceState parent_obj;
     /*< public >*/
 
     char *cpu_type;
-    ARMCPU cpu;
+    ARMCPU *cpu;
     qemu_irq irq, fiq;
 
     MV88F5181LICState ic;
@@ -33,6 +35,6 @@ static void mv88f5181L_realize(DeviceState *dev, Error **errp);
 
 static void mv88f5181L_init(Object *obj);
 static void mv88f5181L_class_init(ObjectClass *oc, void *data);
-static const TypeInfo mv88f5181L_type_info(void);
+static void mv88f5181L_register_types(void);
 
 #endif /* MV88F5181L_H */

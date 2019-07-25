@@ -11,6 +11,8 @@
 #define {{machine_name|upper}}_FLASH_SIZE      ({{flash_size}})
 #define {{machine_name|upper}}_FLASH_SECT_SIZE ({{flash_sect_size}})
 
+#define TYPE_{{machine_name|upper}} "{{machine_name}}"
+
 typedef struct {{machine_name|upper}}State {
     {{soc_name|upper}}State soc;
     MemoryRegion ram;

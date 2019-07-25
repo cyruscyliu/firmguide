@@ -3,18 +3,25 @@
  */
 
 #include "qemu/osdep.h"
+#include "qemu/units.h"
+#include "qapi/error.h"
+#include "sysemu/blockdev.h"
+#include "target/arm/cpu.h"
 #include "hw/arm/wrt350n_v2.h"
+#include "hw/arm/mv88f5181L.h"
 
 static void wrt350n_v2_init(MachineState *machine) {
     static struct arm_boot_info binfo;
+    DriveInfo *dinfo;
+    PFlashCFI01 *flash;
 
     /* allocate our machine  */
     WRT350N_V2State *s = g_new0(WRT350N_V2State, 1);
 
     /* initialize the soc */
-    object_initialize(&s->soc, sizeof(s->soc), MV88F5181L);
+    object_initialize(&s->soc, sizeof(s->soc), TYPE_MV88F5181L);
     object_property_add_child(OBJECT(machine), "soc", OBJECT(&s->soc), &error_abort);
-    s->cpu_type = machine->cpu_type;
+    s->soc->cpu_type = machine->cpu_type;
 
     /* allocate the ram */
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
@@ -26,10 +33,10 @@ static void wrt350n_v2_init(MachineState *machine) {
     object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
 
     /* set up the flash */
-    dinfo = drive_get(IF_PFLASH)
-    PFlashCFI01 *flash = pflash_cfi01_register(
+    dinfo = drive_get(IF_PFLASH);
+    flash = pflash_cfi01_register(
             WRT350N_V2_FLASH_ADDR, "flash", WRT350N_V2_FLASH_SIZE,
-            dinfo ? blk_by_legacy_dinfo(dinfo)): NULL, WRT350N_V2_FLASH_SECT_SIZE,
+            dinfo ? blk_by_legacy_dinfo(dinfo): NULL, WRT350N_V2_FLASH_SECT_SIZE,
             4, 0, 0, 0, 0, 0);
     if (!flash) {
         fprintf(stderr, "qemu: Error registering flash memory.\n");

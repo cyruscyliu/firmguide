@@ -4,12 +4,12 @@
 
 #include "qemu/osdep.h"
 #include "qapi/error.h"
+#include "target/arm/cpu.h"
 #include "hw/arm/mv88f5181L.h"
 
 
 static void mv88f5181L_init(Object *obj) {
     MV88F5181LState *s = MV88F5181L(obj);
-    MV88F5181LClass *c = MV88F5181L_GET_CLASS(obj);
 
     /* initialize cpus and add the cpu as soc's child */
     object_initialize_child(
@@ -17,7 +17,7 @@ static void mv88f5181L_init(Object *obj) {
 
     /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
     sysbus_init_child_obj(
-        obj, "ic", &s->ic, sizof(s->ic), TYPE_MV88F5181L_IC)
+        obj, "ic", &s->ic, sizof(s->ic), TYPE_MV88F5181L_IC);
 
     /* initialize peripherals and add the peripherals as soc and sysbus's child */
     sysbus_init_child_obj(
@@ -25,9 +25,9 @@ static void mv88f5181L_init(Object *obj) {
 }
 
 static void mv88f5181L_realize(DeviceState *dev, Error **errp) {
-    MV88F5181LState *s = MV88F5181L(obj);
-    MV88F5181LClass *c = MV88F5181L_GET_CLASS(obj);
+    MV88F5181LState *s = MV88F5181L(dev);
     Error *err = NULL;
+    Object *obj;
 
     /* common peripherals */
     obj = object_property_get_link(OBJECT(dev), "ram", &err);
@@ -70,7 +70,7 @@ static void mv88f5181L_realize(DeviceState *dev, Error **errp) {
 
     /* connect irq from the peripheral to the interrupt controller */
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals), 0,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), mv88f5181L_ic_IRQ, TIMER_INTERRUPT));
+        qdev_get_gpio_in_named(DEVICE(&s->ic), MV88F5181L_IC_IRQ, TIMER_INTERRUPT));
 
     /* connect irq/fiq outputs from the interrupt controller to the cpu */
     qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0,

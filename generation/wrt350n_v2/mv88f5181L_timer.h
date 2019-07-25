@@ -20,6 +20,8 @@
 #define CPU_WATCHDOG_TIMER_RELOAD_REGISTER  0x20
 #define CPU_WATCHDOG_TIMER_REGISTER         0x24
 
+#define MV88F5181L_TIMER_RAM_SIZE 0x100
+
 typedef struct MV88F5181LTIMERState {
     /* <private> */
     SysBusDevice sys_bus;

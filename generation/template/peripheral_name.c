@@ -1,6 +1,7 @@
 {{license}}
 
 #include "qemu/osdep.h"
+#include "qapi/error.h"
 #include "hw/arm/{{machine_name}}.h"
 #include "hw/arm/{{peripheral_name}}.h"
 
@@ -23,7 +24,7 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
     /* realize the timer */
     object_property_set_bool(OBJECT(&s->timer), true, "realized", &err);
     if (err != NULL) {
-        error_propaaget(errp, err);
+        error_propagate(errp, err);
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{timer_name|upper}}_RAM_BASE);
