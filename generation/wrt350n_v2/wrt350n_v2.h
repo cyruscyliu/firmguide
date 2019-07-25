@@ -5,6 +5,10 @@
 #ifndef WRT350N_V2_H
 #define WRT350N_V2_H
 
+#include "qemu/osdep.h"
+#include "hw/arm/mv88f5181L.h"
+#include "hw/block/flash.h"
+
 #define WRT350N_V2_FLASH_ADDR      0xf4000000
 #define WRT350N_V2_FLASH_SIZE      (8 * MiB)
 #define WRT350N_V2_FLASH_SECT_SIZE (64 * KiB)

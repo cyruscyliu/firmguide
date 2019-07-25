@@ -2,6 +2,7 @@
  * automatically generated, don't change
  */
 
+#include "qemu/osdep.h"
 #include "hw/arm/wrt350n_v2.h"
 #include "hw/arm/mv88f5181L_peripherals.h"
 

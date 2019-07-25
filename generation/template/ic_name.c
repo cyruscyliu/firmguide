@@ -1,5 +1,6 @@
 {{license}}
 
+#include "qemu/osdep.h"
 #include "hw/intc/{{ic_name}}.h"
 #include "qemu/log.h"
 

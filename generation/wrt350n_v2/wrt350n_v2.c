@@ -2,6 +2,7 @@
  * automatically generated, don't change
  */
 
+#include "qemu/osdep.h"
 #include "hw/arm/wrt350n_v2.h"
 
 static void wrt350n_v2_init(MachineState *machine) {

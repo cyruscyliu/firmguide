@@ -2,6 +2,7 @@
  * automatically generated, don't change
  */
 
+#include "qemu/osdep.h"
 #include "hw/timer/mv8865181L_timer.h"
 #define TYPE_MV8865181L_TIMER "mv8865181L_timer"
 

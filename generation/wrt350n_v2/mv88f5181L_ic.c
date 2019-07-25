@@ -2,6 +2,7 @@
  * automatically generated, don't change
  */
 
+#include "qemu/osdep.h"
 #include "hw/intc/mv88f5181L_ic.h"
 #include "qemu/log.h"
 

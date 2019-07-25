@@ -1,5 +1,6 @@
 {{license}}
 
+#include "qemu/osdep.h"
 #include "hw/arm/{{machine_name}}.h"
 
 static void {{machine_name}}_init(MachineState *machine) {

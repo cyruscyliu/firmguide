@@ -3,9 +3,8 @@
 #ifndef {{soc_name|upper}}_H
 #define {{soc_name|upper}}_H
 
-#include "hw/sysbus.h"
-#include "hw/initc/{{soc_name}}_ic.h"
-#include "hw/gpio/{{soc_name}}_gpio"
+#include "hw/arm/arm.h"
+#include "hw/intc/{{soc_name}}_ic.h"
 
 #define TYPE_{{soc_name|upper}} "{{soc_name}}"
 #define {{soc_name|upper}}(obj) \

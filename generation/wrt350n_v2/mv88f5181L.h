@@ -5,9 +5,8 @@
 #ifndef MV88F5181L_H
 #define MV88F5181L_H
 
-#include "hw/sysbus.h"
-#include "hw/initc/mv88f5181L_ic.h"
-#include "hw/gpio/mv88f5181L_gpio"
+#include "hw/arm/arm.h"
+#include "hw/intc/mv88f5181L_ic.h"
 
 #define TYPE_MV88F5181L "mv88f5181L"
 #define MV88F5181L(obj) \

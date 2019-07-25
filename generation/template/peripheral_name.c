@@ -1,5 +1,6 @@
 {{license}}
 
+#include "qemu/osdep.h"
 #include "hw/arm/{{machine_name}}.h"
 #include "hw/arm/{{peripheral_name}}.h"
 

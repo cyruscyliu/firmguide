@@ -1,5 +1,6 @@
 {{license}}
 
+#include "qemu/osdep.h"
 #include "hw/timer/{{timer_name}}.h"
 #define TYPE_{{timer_name|upper}} "{{timer_name}}"
 

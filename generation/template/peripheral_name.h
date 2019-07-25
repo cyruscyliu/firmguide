@@ -4,6 +4,7 @@
 #define {{peripheral_name|upper}}_H
 
 #include "hw/sysbus.h"
+#include "hw/timer/{{timer_name}}.h"
 
 #define TYPE_{{peripheral_name|upper}} "{{peripheral_name|upper}}"
 #define {{peripheral_name|upper}}(obj) \
