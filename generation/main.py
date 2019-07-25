@@ -80,7 +80,7 @@ if __name__ == '__main__':
                 for file_ in files:
                     src = os.path.join(root, file_)
                     dst = os.path.join(target_dir, root.replace('makefiles\\', ''), file_)
-                    dst = os.path.join(target_dir, root.replace('makefiles/', ''), file_)
+                    dst = dst.replace('makefiles/', '')
                     print(src, '->', dst)
                     copyfile(src, dst)
 
