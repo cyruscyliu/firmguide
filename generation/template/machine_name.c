@@ -36,7 +36,7 @@ static void {{machine_name}}_init(MachineState *machine) {
     object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
 
     /* set up the flash */{% if flash_enable %}
-    dinfo = drive_get(IF_PFLASH)
+    dinfo = drive_get(IF_PFLASH, 0, 0);
     flash = pflash_cfi01_register(
             {{machine_name|upper}}_FLASH_ADDR, "flash", {{machine_name|upper}}_FLASH_SIZE,
             dinfo ? blk_by_legacy_dinfo(dinfo): NULL, {{machine_name|upper}}_FLASH_SECT_SIZE,
