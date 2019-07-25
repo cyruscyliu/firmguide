@@ -80,11 +80,11 @@ static void mv88f5181L_ic_init(Object *obj) {
     MV88F5181LICState *s = MV88F5181L_IC(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &mv88f5181L_ic_ops, s, TYPE_MV88F5181L_IC, mv88f5181L_ic_RAM_SIZE);
+    memory_region_init_io(&s->mmio, obj, &mv88f5181L_ic_ops, s, TYPE_MV88F5181L_IC, MV88F5181L_IC_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the interrupt input */
-    qdev_init_gpio_in_named(DEVICE(s), mv88f5181L_ic_set_irq, mv88f5181L_ic_IRQ), mv88f5181L_ic_N_IRQS);
+    qdev_init_gpio_in_named(DEVICE(s), mv88f5181L_ic_set_irq, MV88F5181L_IC_IRQ, MV88F5181L_IC_N_IRQS);
 
     /* initialize the irq/fip to cpu */
     qdev_init_gpio_out_named(dev, s->irq, "irq", 1);
@@ -94,13 +94,12 @@ static void mv88f5181L_ic_init(Object *obj) {
 static void mv88f5181L_ic_reset(DeviceState *d) {
     MV88F5181LICState *s = MV88F5181L_IC(d);
     
+    s->irq_level_0 = 0;
     s->irq_enable_0 = 0;
-
-    s->fiq_enable = false;
-    s->fiq_select = 0;
+    s->fiq_enable_0 = 0;
 }
 
-static void mv88f5181L_ic_class_init(ObjectClass *kclass, void *data) {
+static void mv88f5181L_ic_class_init(ObjectClass *klass, void *data) {
     DeviceClass *dc = DEVICE_CLASS(klass);
 
     /* dc->fw_name = ; */
@@ -123,7 +122,7 @@ static void mv88f5181L_ic_class_init(ObjectClass *kclass, void *data) {
 static TypeInfo mv88f5181L_ic_type_info = {
     .name = TYPE_MV88F5181L_IC,
     .parent = TYPE_SYS_BUS_DEVICE,
-    .instance_size = sizeof(MV88F5181LICICState,
+    .instance_size = sizeof(MV88F5181LICState),
     .instance_init = mv88f5181L_ic_init,
     /* .class_size = sizeof(SysBusDeviceClass), */
     .class_init = mv88f5181L_ic_class_init,

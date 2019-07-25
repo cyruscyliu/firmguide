@@ -78,11 +78,11 @@ static void {{ic_name}}_init(Object *obj) {
     {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &{{ic_name}}_ops, s, TYPE_{{ic_name|upper}}, {{ic_name}}_RAM_SIZE);
+    memory_region_init_io(&s->mmio, obj, &{{ic_name}}_ops, s, TYPE_{{ic_name|upper}}, {{ic_name|upper}}_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the interrupt input */
-    qdev_init_gpio_in_named(DEVICE(s), {{ic_name}}_set_irq, {{ic_name}}_IRQ), {{ic_name}}_N_IRQS);
+    qdev_init_gpio_in_named(DEVICE(s), {{ic_name}}_set_irq, {{ic_name|upper}}_IRQ, {{ic_name|upper}}_N_IRQS);
 
     /* initialize the irq/fip to cpu */
     qdev_init_gpio_out_named(dev, s->irq, "irq", 1);
@@ -92,13 +92,12 @@ static void {{ic_name}}_init(Object *obj) {
 static void {{ic_name}}_reset(DeviceState *d) {
     {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(d);
     {% for i in i_irqs %}{% for n in l_irqs %}
-    s->irq_enable_{{i}} = 0;{% endfor %}{% endfor %}
-
-    s->fiq_enable = false;
-    s->fiq_select = 0;
+    s->irq_level_{{i}} = 0;
+    s->irq_enable_{{i}} = 0;
+    s->fiq_enable_{{i}} = 0;{% endfor %}{% endfor %}
 }
 
-static void {{ic_name}}_class_init(ObjectClass *kclass, void *data) {
+static void {{ic_name}}_class_init(ObjectClass *klass, void *data) {
     DeviceClass *dc = DEVICE_CLASS(klass);
 
     /* dc->fw_name = ; */
@@ -121,7 +120,7 @@ static void {{ic_name}}_class_init(ObjectClass *kclass, void *data) {
 static TypeInfo {{ic_name}}_type_info = {
     .name = TYPE_{{ic_name|upper}},
     .parent = TYPE_SYS_BUS_DEVICE,
-    .instance_size = sizeof({{ic_name|upper|concat}}ICState,
+    .instance_size = sizeof({{ic_name|upper|concat}}State),
     .instance_init = {{ic_name}}_init,
     /* .class_size = sizeof(SysBusDeviceClass), */
     .class_init = {{ic_name}}_class_init,
