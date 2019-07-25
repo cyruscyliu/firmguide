@@ -1,4 +1,5 @@
 from shutil import copyfile
+import argparse
 import yaml
 import os
 
@@ -6,7 +7,6 @@ from machines.machine_loader import load_machines
 from render import Template
 
 TEMPLATE_DIR = 'template'
-OS = 'windows'
 
 
 def get_config(path='config.yaml'):
@@ -29,6 +29,13 @@ def concat(x):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-os', help="assign your operating system, windows by default",
+                        choices=['windows', 'linux'], default='windows')
+    args = parser.parse_args()
+
+    OS = args.os
+
     machines = load_machines('machines')
     config = get_config()
     for machine in machines:
@@ -53,10 +60,10 @@ if __name__ == '__main__':
                 f_target.writelines(text_update)
                 f_target.flush()
 
-        print('installing ..')
+        print('\ninstalling ..')
         source_header_files = os.listdir(MACHINE_DIR)
+        target_dir = config[OS]['root']
         for source_header_file in source_header_files:
-            target_dir = config[OS]['root']
             name = source_header_file[:-2]
             src = os.path.join(MACHINE_DIR, source_header_file)
             if source_header_file.endswith('c'):
@@ -67,5 +74,13 @@ if __name__ == '__main__':
                 continue
             print(src, '->', dst)
             copyfile(src, dst)
+
+        for root, dirs, files in os.walk('makefiles'):
+            if not len(dirs):
+                for file_ in files:
+                    src = os.path.join(root, file_)
+                    dst = os.path.join(target_dir, root.replace('makefiles\\', ''), file_)
+                    print(src, '->', dst)
+                    copyfile(src, dst)
 
         print('done!')
