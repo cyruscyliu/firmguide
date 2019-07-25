@@ -5,7 +5,7 @@
 #include "qemu/log.h"
 
 static void {{ic_name}}_set_irq(void *opaque, int irq, int level) {
-    {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(obj);
+    {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(opaque);
     s->irq_level_0 = deposit32(s->irq_level_0, irq, 1, level != 0);
     {{ic_name}}_update(s);
 }
@@ -85,8 +85,8 @@ static void {{ic_name}}_init(Object *obj) {
     qdev_init_gpio_in_named(DEVICE(s), {{ic_name}}_set_irq, {{ic_name|upper}}_IRQ, {{ic_name|upper}}_N_IRQS);
 
     /* initialize the irq/fip to cpu */
-    qdev_init_gpio_out_named(dev, s->irq, "irq", 1);
-    qdev_init_gpio_out_named(dev, s->fiq, "fiq", 1);
+    qdev_init_gpio_out_named(DEVICE(s), &s->irq, "irq", 1);
+    qdev_init_gpio_out_named(DEVICE(s), &s->fiq, "fiq", 1);
 }
 
 static void {{ic_name}}_reset(DeviceState *d) {
