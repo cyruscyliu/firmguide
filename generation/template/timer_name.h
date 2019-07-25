@@ -18,6 +18,8 @@
 #define CPU_WATCHDOG_TIMER_RELOAD_REGISTER  0x20
 #define CPU_WATCHDOG_TIMER_REGISTER         0x24
 
+#define {{timer_name|upper}}_RAM_SIZE "{{timer_ram_size}}"
+
 typedef struct {{timer_name|upper|concat}}State {
     /* <private> */
     SysBusDevice sys_bus;
