@@ -3,6 +3,7 @@
 #include "qemu/osdep.h"
 #include "qemu/units.h"
 #include "qapi/error.h"
+#include "exec/address-spaces.h"
 #include "sysemu/blockdev.h"
 #include "target/arm/cpu.h"
 #include "hw/arm/{{machine_name}}.h"
