@@ -97,7 +97,7 @@ static void {{timer_name}}_init(Object *obj) {
     {{timer_name|upper|concat}}State *s = {{timer_name|upper|concat}}(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &{{timer_name}}_ops, s, "{{timer_name}}", {{timer_name}}_RAM_SIZE);
+    memory_region_init_io(&s->mmio, obj, &{{timer_name}}_ops, s, "{{timer_name}}", {{timer_name|upper}}_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the irq */
