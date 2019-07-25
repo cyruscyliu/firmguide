@@ -5,6 +5,12 @@
 #include "hw/intc/mv88f5181L_ic.h"
 #include "qemu/log.h"
 
+static void mv88f5181L_ic_set_irq(void *opaque, int irq, int level) {
+    MV88F5181LICState *s = opaque;
+
+    mv88f5181L_ic_update(s);
+}
+
 static void mv88f5181L_ic_update(MV88F5181LICState *s) {
     bool set = false;
 
@@ -81,6 +87,9 @@ static void mv88f5181L_ic_init(Object *obj) {
     /* initialize the mmio */
     memory_region_init_io(&s->mmio, obj, &mv88f5181L_ic_ops, s, TYPE_MV88F5181L_IC, mv88f5181L_ic_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
+
+    /* initialize the interrupt input */
+    qdev_init_gpio_in_named(DEVICE(s), mv88f5181L_ic_set_irq, mv88f5181L_ic_IRQ), mv88f5181L_ic_N_IRQS);
 
     /* initialize the irq/fip to cpu */
     qdev_init_gpio_out_named(dev, s->irq, "irq", 1);

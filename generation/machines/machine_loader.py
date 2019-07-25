@@ -2,8 +2,8 @@ import yaml
 import os
 
 
-def load_machine(file_):
-    with open(file_, encoding='utf-8') as f:
+def load_machine(path):
+    with open(path, encoding='utf-8') as f:
         machine = yaml.safe_load(f)
     return machine
 

@@ -9,6 +9,8 @@
 #define WRT350N_V2_FLASH_SIZE      (8 * MiB)
 #define WRT350N_V2_FLASH_SECT_SIZE (64 * KiB)
 
+#define TIMER_INTERRUPT 0
+
 typedef struct WRT350N_V2State {
     MV88F5181LState soc;
     MemoryRegion ram;

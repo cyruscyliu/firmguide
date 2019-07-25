@@ -2,6 +2,7 @@
  * automatically generated, don't change
  */
 
+#include "hw/arm/wrt350n_v2.h"
 #include "hw/arm/mv88f5181L_peripherals.h"
 
 static void mv88f5181L_peripherals_init(Object *obj) {
@@ -27,8 +28,7 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, mv8865181L_timer_RAM_BASE);
-
-
+    sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->timer));
 }
 
 static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data) {
