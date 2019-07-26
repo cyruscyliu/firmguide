@@ -64,6 +64,13 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
     /* map ic's mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {{ic_name|upper}}_RAM_BASE);
 
+    /* realize the cpu */
+    object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
+    if (err) {
+        error_propagate(errp, err);
+        return;
+    }
+
     /* connect irq from the peripheral to the interrupt controller */
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals), 0,
         qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, TIMER_INTERRUPT));
