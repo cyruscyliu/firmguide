@@ -15,6 +15,7 @@ static void {{soc_name}}_init(Object *obj) {
     {{soc_name|upper}}State *s = {{soc_name|upper}}(obj);
 
     /* initialize cpus and add the cpu as soc's child */
+    s->cpu_type = ARM_CPU_TYPE_NAME("{{cpu_type}}");
     object_initialize_child(
         obj, "cpu", &s->cpu,  sizeof(s->cpu), s->cpu_type, &error_abort, NULL);
 

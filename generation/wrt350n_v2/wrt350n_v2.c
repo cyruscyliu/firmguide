@@ -29,7 +29,6 @@ static void wrt350n_v2_init(MachineState *machine) {
     /* initialize the soc */
     object_initialize(&s->soc, sizeof(s->soc), TYPE_MV88F5181L);
     object_property_add_child(OBJECT(machine), "soc", OBJECT(&s->soc), &error_abort);
-    s->soc.cpu_type = machine->cpu_type;
 
     /* allocate the ram */
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
