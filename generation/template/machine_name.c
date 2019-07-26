@@ -49,8 +49,6 @@ static void {{machine_name}}_init(MachineState *machine) {
         fprintf(stderr, "qemu: Error registering flash memory.\n");
     } else {
         s->flash = flash;
-        object_property_add_child(OBJECT(machine), "flash", OBJECT(&s->flash), &error_abort);
-        object_property_add_const_link(OBJECT(&s->soc), "flash", OBJECT(&s->flash), &error_abort);
     }{% endif %}{% if sd_enable %}/* plugin in sd not implemented yet */ {% endif %}
 
     /* boot */

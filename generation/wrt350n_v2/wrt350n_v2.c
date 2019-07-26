@@ -51,8 +51,6 @@ static void wrt350n_v2_init(MachineState *machine) {
         fprintf(stderr, "qemu: Error registering flash memory.\n");
     } else {
         s->flash = flash;
-        object_property_add_child(OBJECT(machine), "flash", OBJECT(&s->flash), &error_abort);
-        object_property_add_const_link(OBJECT(&s->soc), "flash", OBJECT(&s->flash), &error_abort);
     }
 
     /* boot */
