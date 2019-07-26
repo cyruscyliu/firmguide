@@ -17,6 +17,7 @@ static void mv88f5181L_init(Object *obj) {
     MV88F5181LState *s = MV88F5181L(obj);
 
     /* initialize cpus and add the cpu as soc's child */
+    s->cpu_type = ARM_CPU_TYPE_NAME("arm926");
     object_initialize_child(
         obj, "cpu", &s->cpu,  sizeof(s->cpu), s->cpu_type, &error_abort, NULL);
 
