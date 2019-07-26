@@ -60,12 +60,12 @@ static void wrt350n_v2_init(MachineState *machine) {
     binfo.kernel_filename = machine->kernel_filename;
     binfo.kernel_cmdline = machine->kernel_cmdline;
     binfo.initrd_filename = machine->initrd_filename;
-    ram_load_kernel(ARM_CPU(first_cpu), &binfo);
+    arm_load_kernel(ARM_CPU(first_cpu), &binfo);
 }
 
 static void wrt350n_v2_machine_init(MachineClass *mc) {
     /* mc->family = ; */
-    mc->name = "wrt350n_v2";
+    /* mc->name = "wrt350n_v2"; */
     /* mc->alias = ; */
     mc->desc = "Linksys WRT350N v2 (MV88F5181L)";
     /* mc->deprecation_reason = ; */
