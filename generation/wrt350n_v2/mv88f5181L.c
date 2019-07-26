@@ -18,7 +18,7 @@ static void mv88f5181L_init(Object *obj) {
 
     /* initialize cpus and add the cpu as soc's child */
     s->cpu_type = ARM_CPU_TYPE_NAME("arm926");
-    s->cpu = ARM_CPU(object_new(machine->cpu_type));
+    s->cpu = ARM_CPU(object_new(s->cpu_type));
 
     /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
     sysbus_init_child_obj(

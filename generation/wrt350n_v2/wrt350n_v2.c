@@ -33,7 +33,9 @@ static void wrt350n_v2_init(MachineState *machine) {
     /* allocate the ram */
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
     memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, 0);
-    object_property_add_child(OBJECT(machine), "ram", OBJECT(&s->ram), &error_abort);
+    /* memory_region_allocate_system_memory do the same things as below */
+    /* object_property_add_child(OBJECT(machine), "ram", OBJECT(&s->ram), &error_abort); */
+    /* so, comment the last line */
     object_property_add_const_link(OBJECT(&s->soc), "ram", OBJECT(&s->ram), &error_abort);
 
     /* realize the soc */
