@@ -15,8 +15,8 @@ static void {{soc_name}}_init(Object *obj) {
     {{soc_name|upper}}State *s = {{soc_name|upper}}(obj);
 
     /* initialize cpus and add the cpu as soc's child */
-    object_initialize_child(
-        obj, "cpu", &s->cpu,  sizeof(s->cpu), s->cpu_type, &error_abort, NULL);
+    s->cpu_type = ARM_CPU_TYPE_NAME("{{cpu_type}}");
+    s->cpu = ARM_CPU(object_new(s->cpu_type));
 
     /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
     sysbus_init_child_obj(
@@ -65,7 +65,7 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {{ic_name|upper}}_RAM_BASE);
 
     /* realize the cpu */
-    object_property_set_bool(OBJECT(&s->cpu), true, "realized", &err);
+    object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
     if (err) {
         error_propagate(errp, err);
         return;
@@ -77,9 +77,9 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
 
     /* connect irq/fiq outputs from the interrupt controller to the cpu */
     qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0,
-            qdev_get_gpio_in(DEVICE(&s->cpu), ARM_CPU_IRQ));
+            qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));
     qdev_connect_gpio_out_named(DEVICE(&s->ic), "fiq", 0,
-            qdev_get_gpio_in(DEVICE(&s->cpu), ARM_CPU_FIQ));
+            qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_FIQ));
 }
 
 
