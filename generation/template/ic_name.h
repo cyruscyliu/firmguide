@@ -9,7 +9,7 @@
 #define {{ic_name|upper}}(obj) \
     OBJECT_CHECK({{ic_name|upper|concat}}State, (obj), TYPE_{{ic_name|upper}})
 
-#define {{ic_name|upper}}_IRQ "irq"
+#define {{ic_name|upper}}_IRQ "{{ic_name}}_irq"
 #define {{ic_name|upper}}_N_IRQS {{n_irqs}}
 
 #define MAIN_INTERRUPT_CAUSE_REGISTER         0x00
