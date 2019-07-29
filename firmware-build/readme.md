@@ -75,8 +75,12 @@ You have a docker container started by `wrt350nv2-kernel/start.sh`, and you run 
 
 The user & passwd are both `openwrt`, and has the sudo priviledge.
 
-1. Before building, make sure the whole directory has the right permission(the before patch may broke this).
+1. Before building, make sure the whole directory has the right permission(the patch before & dl may broke this).
 ```bash
+# if suitable
+tar xf dl.tar.gz
+mv dl ws/path/to/backfire_10.03
+# then
 cd ws/path/to/backfire_10.03
 sudo chown -R openwrt:openwrt .
 ```
