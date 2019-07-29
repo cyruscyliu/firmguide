@@ -26,7 +26,7 @@ machine:
         i_irqs:
           - 0
   ram:
-    ram_size: "1 * GiB"
+    ram_size: "32 * MiB"
   boot_device:
     flash_enable: 1
     flash:

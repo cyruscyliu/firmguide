@@ -90,7 +90,7 @@ static void wrt350n_v2_machine_init(MachineClass *mc) {
     /* mc->default_display = ; */
     /* mc->compat_props = ; */
     /* mc->hw_version = ; */
-    mc->default_ram_size = 1 * GiB; /* 1 * GiB[MiB], 1024 * 1024 [* 1024] */
+    mc->default_ram_size = 32 * MiB; /* 1 * GiB[MiB], 1024 * 1024 [* 1024] */
     mc->default_cpu_type = ARM_CPU_TYPE_NAME("arm926");
     /* mc->default_kernel_irqchip_split = ; */
     /* mc->option_rom_has_mr = ; */
