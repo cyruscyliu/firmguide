@@ -4,6 +4,25 @@ This is a plugin for PANDA which can track the guest processor's execution flow.
 
 Every execution record consists of the CPU registers and the code of the current basic block.
 
+## port to QEMU-4.0.0
+
+PANDA fails to support the latest QEMU-4.0.0, so I port the ktracer to QEMU-4.0.0 in order to
+use the latest APIs and new devices like `pfalsh_cfi01`.
+
+Replace `your/path/to/qemu-4.0.0/accel/tcg/cpu-exec.c` to 
+this patched [cpu-exec.c](./qemu-4.0.0/accel/tcg/cpu-exec.c).
+
+Use `your/path/to/qemu-4.0.0/arm-softmmu/qemu-system-arm` directly
+and no need `-panda ktracer` parameter. The log is still in `/tmp/log`
+and you can parse it with `ktrace_reader.py`.
+
+BTW, the only update of the ktracer is that I enlarge the buffer size for more
+instructions.
+
+```c
+uint8_t *mem = (uint8_t *) malloc(10240 * sizeof(uint8_t));
+```
+
 ## prepare 
 
 ```bash
