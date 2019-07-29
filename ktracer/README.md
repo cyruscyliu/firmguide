@@ -10,7 +10,8 @@ PANDA fails to support the latest QEMU-4.0.0, so I port the ktracer to QEMU-4.0.
 use the latest APIs and new devices like `pfalsh_cfi01`.
 
 Replace `your/path/to/qemu-4.0.0/accel/tcg/cpu-exec.c` to 
-this patched [cpu-exec.c](./qemu-4.0.0/accel/tcg/cpu-exec.c).
+this patched [cpu-exec.c](./qemu-4.0.0/accel/tcg/cpu-exec.c). 
+Search `/* patch ` in it and you'll find what I've changed.
 
 Use `your/path/to/qemu-4.0.0/arm-softmmu/qemu-system-arm` directly
 and no need `-panda ktracer` parameter. The log is still in `/tmp/log`
