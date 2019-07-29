@@ -45,7 +45,7 @@ When you are in docker's shell, anything you do under the path `/root/firmware` 
 
 
 
-## 2. Build the kernel
+## 2. Build the kernel (With Debug Info)
 
 Kernel version: 2.6.32.10
 
@@ -57,21 +57,49 @@ OpenWrt.config Download Link(https://archive.openwrt.org/backfire/10.03/orion/Op
 
 ### 2.1 Patches & Config to backfire 10.0.3
 
+Here lists the patches for building the kernel. You should first apply these patches before building.
+
 ```bash
+# for basic build
 cp patches/download.pl ../ws/path/to/backfire_10.03/scripts/download.pl
 cp patches/Makefile ../ws/path/to/backfire_10.03/toolchain/binutils/Makefile
-cp OpenWrt.config ../ws/path/to/backfire_10.03/.config
+cp patches/OpenWrt.config ../ws/path/to/backfire_10.03/.config
+# for debug-info
+cp patches/kernel-defaults.mk ../ws/path/to/backfire_10.03/include/kernel-defaults.mk
+cp patches/kernel-config-extra ../ws/path/to/backfire_10.03/kernel-config-extra
 ```
 
-### 2.2 Build 
+### 2.2 Build (In wrt350v2-build-env docker)
 
+You have a docker container started by `wrt350nv2-kernel/start.sh`, and you run `in.sh` in that dir, you get a shell of the docker container, which has ubuntu:12.04 env and a user `openwrt`.
+
+The user & passwd are both `openwrt`, and has the sudo priviledge.
+
+1. Before building, make sure the whole directory has the right permission(the before patch may broke this).
+```bash
+cd ws/path/to/backfire_10.03
+sudo chown -R openwrt:openwrt .
+```
+
+2. Building
 ```bash
 make -j8
-# or debug
+# or verbose
 make -j8 V=99
+# or verbose & record
+make -j12 V=99 2>&1 | tee klog
 ```
 
+3. You should find the following files after building
 
+```
+# uImage for qemu
+bin/orion/openwrt-wrt350nv2-uImage
+# elf with debug info
+build_dir/linux-orion_generic/vmlinux-debug-info.elf
+# linux source code with patch
+build_dir/linux-orion_generic/linux-2.6.32.10/
+```
 
 ## 3. Build the working env
 
@@ -107,5 +135,8 @@ make install
 
 # terminal 2
 gdb-multiarch
+(gdb) file ws/path/to/backfire_10.03/build_dir/linux-orion_generic/vmlinux-debug-info.elf
+(gdb) directory ws/path/to/backfire_10.03/build_dir/linux-orion_generic/linux-2.6.32.10/ 
 (gdb) target remote localhost:1234
+(gdb) ...
 ```
