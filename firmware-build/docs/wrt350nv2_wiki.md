@@ -55,11 +55,21 @@
 
 ### 4.1 version
 
+**Linux**
+
 编译linux 2.6.32.10，环境：
 - ubuntu 12.04
 - backfire 10.0.3
 - make version <= 3.82.rc3，建议3.81
 - gcc 用12.04自带的version
+
+**U-Boot**
+
+For booting the wrt350nv2, openwrt choose `u-boot-2009.11.tar.bz2`.
+
+**Qemu**
+
+We compile & use the latest `Qemu-4.0.0-rc4.tar.xz`.
 
 ### 4.2 refs
 
