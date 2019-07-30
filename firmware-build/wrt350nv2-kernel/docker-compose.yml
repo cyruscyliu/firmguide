@@ -1,7 +1,7 @@
 version: "3"
 services:
   firmware:
-    image: wrt350v2-work-env:latest
+    image:  wrt350nv2-build-env:latest
     #network_mode: "host"
     command: ["sh", "-c", "while true; do sleep 1s; done"]
     working_dir: /root/firmware

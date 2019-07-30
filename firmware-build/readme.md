@@ -1,10 +1,10 @@
 # Intro
 
-There are 3 dirs,  `wrt350v2-kernel`, `wrt350v2-work`, `ws`. 
+There are 3 dirs,  `wrt350nv2-kernel`, `wrt350nv2-work`, `ws`. 
 
 - First 2 dirs are used for build, and manage docker images.
-- `wrt350v2-kernel` provides the openwrt350-v2 kernel building env
-- `wrt350v2-work` provides the working env
+- `wrt350nv2-kernel` provides the openwrt350nv2 kernel building env
+- `wrt350nv2-work` provides the working env
 - `ws` is the shared directory for 2 dockers & host, it contains all working data
 
 More info about using the docker, see following chapter 1.
@@ -12,7 +12,7 @@ More info about using the docker, see following chapter 1.
 
 ## 1. Docker
 
-### 1.1 Meaning of \*.sh in wrt350v2-\*
+### 1.1 Meaning of \*.sh in wrt350nv2-\*
 
 Docker image is responsible for providing most of the dependency packages, thus every time running the image we can get a new, clean working/build environment. 
 
@@ -45,7 +45,7 @@ When you are in docker's shell, anything you do under the path `/root/firmware` 
 
 
 
-## 2. Build the kernel (With Debug Info)
+## 2. Build the kernel (Using the container from docker image wrt350nv2-build-env:latest)
 
 Kernel version: 2.6.32.10
 
@@ -69,7 +69,7 @@ cp patches/kernel-defaults.mk ../ws/path/to/backfire_10.03/include/kernel-defaul
 cp patches/kernel-config-extra ../ws/path/to/backfire_10.03/kernel-config-extra
 ```
 
-### 2.2 Build (In wrt350v2-build-env docker)
+### 2.2 Build (In wrt350nv2-build-env docker)
 
 You have a docker container started by `wrt350nv2-kernel/start.sh`, and you run `in.sh` in that dir, you get a shell of the docker container, which has ubuntu:12.04 env and a user `openwrt`.
 
@@ -105,7 +105,17 @@ build_dir/linux-orion_generic/vmlinux-debug-info.elf
 build_dir/linux-orion_generic/linux-2.6.32.10/
 ```
 
-## 3. Build the working env
+## 3. Build the working env (Using the container from docker image wrt350nv2-work-env:latest)
+
+### 3.0 docker image
+
+The docker image wrt350nv2-work-env:latest provides the basic building & working env.
+
+But you may still need to manually compile & install the following packages if you need them:
+- capstone (just compile)
+- qemu (just compile)
+- panda (self install the dependency)
+
 
 ### 3.1 qemu
 
@@ -144,3 +154,4 @@ gdb-multiarch
 (gdb) target remote localhost:1234
 (gdb) ...
 ```
+
