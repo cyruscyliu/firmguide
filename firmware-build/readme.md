@@ -44,6 +44,39 @@ bash remove.sh
 When you are in docker's shell, anything you do under the path `/root/firmware` is actually do under the host path of `ws`.
 
 
+### 1.3 Common FAQ
+
+#### install a docker
+
+Manual: https://docs.docker.com/install/linux/docker-ce/ubuntu/
+
+#### start the docker
+
+../wrt350nv2-kernel/start.sh: line 1: docker-compose: command not found
+
+```bash
+sudo -H pip3.7 install docker-compose
+```
+
+Can't find a suitable configuration file in this directory or any parent. Are you in the right directory?
+
+```bash
+cd path/to/wrt350nv2-kernel
+```
+
+ERROR: Couldn't connect to Docker daemon at http+docker://localhost - is it running?
+
+```bash
+systemctl enable docker
+systemctl start docker
+```
+
+ERROR: pull access denied for wrt350nv2-build-env, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+
+```bash
+./build-docker-image.sh
+```
+
 
 ## 2. Build the kernel (Using the container from docker image wrt350nv2-build-env:latest)
 
