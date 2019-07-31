@@ -194,5 +194,5 @@ gdb-multiarch
 
 ### 4.2 FAQ
 
-the target of `file` command should be `backfire_10.03/build_dir/linux-orion_generic/vmlinux-debug-info.elf`
-
+- the target of `file` command should be `backfire_10.03/build_dir/linux-orion_generic/vmlinux-debug-info.elf`
+- the target of `directory` command should be `backfire_10.03/build_dir/linux-orion_generic/linux-2.6.32.10`
