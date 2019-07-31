@@ -48,7 +48,9 @@ When you are in docker's shell, anything you do under the path `/root/firmware` 
 
 #### install a docker
 
-Manual: https://docs.docker.com/install/linux/docker-ce/ubuntu/
+- Install Manual: https://docs.docker.com/install/linux/docker-ce/ubuntu/
+- Post Manual: https://docs.docker.com/install/linux/linux-postinstall/
+- Get Started: https://docs.docker.com/get-started/
 
 #### start the docker
 
@@ -175,6 +177,8 @@ make install
 
 ## 4. QEMU + GDB to debug the kernel
 
+**Work Flow**
+
 ```bash
 # terminal 1
 ./panda-build/arm-softmmu/qemu-system-arm -nographic -machine versatilepb \
@@ -187,4 +191,7 @@ gdb-multiarch
 (gdb) target remote localhost:1234
 (gdb) ...
 ```
+
+**FAQ**
+the target of `file` command should be `backfire_10.03/build_dir/linux-orion_generic/vmlinux-debug-info.elf`
 
