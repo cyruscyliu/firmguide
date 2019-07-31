@@ -177,7 +177,7 @@ make install
 
 ## 4. QEMU + GDB to debug the kernel
 
-**Work Flow**
+### 4.1 Work Flow
 
 ```bash
 # terminal 1
@@ -192,6 +192,7 @@ gdb-multiarch
 (gdb) ...
 ```
 
-**FAQ**
+### 4.2 FAQ
+
 the target of `file` command should be `backfire_10.03/build_dir/linux-orion_generic/vmlinux-debug-info.elf`
 
