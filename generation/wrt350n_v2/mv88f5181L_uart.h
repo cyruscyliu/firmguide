@@ -3,6 +3,7 @@
  */
 
 #include "hw/sysbus.h"
+#include "chardev/char-fe.h"
 
 #ifndef MV88F5181L_UART_H
 #define MV88F5181L_UART_H

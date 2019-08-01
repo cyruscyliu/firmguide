@@ -3,6 +3,7 @@
 #include "qemu/osdep.h"
 #include "qemu/log.h"
 #include "hw/char/{{uart_name}}.h"
+#include "chardev/char-fe.h"
 
 static void {{uart_name}}_interrupt(void *opaque);
 static void {{uart_name}}_reset(DeviceState *dev);
@@ -14,8 +15,12 @@ static void {{uart_name}}_init(Object *obj);
 static void {{uart_name}}_class_init(ObjectClass *klass, void *data);
 static void {{uart_name}}_register_types(void);
 
+static void {{uart_name}}_update(void *opaque) {
+    /* {{uart_name|upper|concat}}State *s = opaque; */
+}
+
 static int {{uart_name}}_can_receive(void *opaque) {
-    {{uart_name|upper|concat}}State *s = ({{uart_name|upper|concat}}State *)opaque;
+    /* {{uart_name|upper|concat}}State *s = ({{uart_name|upper|concat}}State *)opaque; */
 
     return 0;
 }
@@ -30,50 +35,46 @@ static void {{uart_name}}_receive(void *opaque, const uint8_t *buf, int size) {
 static void {{uart_name}}_event(void *opaque, int event) {
 }
 
-static void {{uart_name}}_update(void *opaque) {
-    /* {{uart_name|upper|concat}}State *s = opaque; */
-}
-
 static uint64_t {{uart_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     {{uart_name|upper|concat}}State *s = ({{uart_name|upper|concat}}State *)opaque;
 
     uint64_t res = 0;
 
     switch (offset) {
-    case: UART_RBR:  /*  Receive Buffer Register (RBR) */
+    case UART_RBR:  /*  Receive Buffer Register (RBR) */
         /* do nothing */
         break;
-    case :UART_THR:  /*  Transmit Holding Register (THR) */
+    case UART_THR:  /*  Transmit Holding Register (THR) */
         /* do nothing */
         break;
-    case: UART_DLLR: /*  Divisor Latch Low (DLL) Register */
+    case UART_DLLR: /*  Divisor Latch Low (DLL) Register */
         /* do nothing */
         break;
-    case: UART_IER:  /*  Interrupt Enable Register (IER) */
+    case UART_IER:  /*  Interrupt Enable Register (IER) */
         /* do nothing */
         break;
-    case: UART_DLHR: /*  Divisor Latch High (DLH) Register */
+    case UART_DLHR: /*  Divisor Latch High (DLH) Register */
         /* do nothing */
         break;
-    case: UART_IIR:  /*  Interrupt Identity Register (IIR) */
+    case UART_IIR:  /*  Interrupt Identity Register (IIR) */
         /* do nothing */
         break;
-    case: UART_FCR:  /*  FIFO Control Register (FCR) */
+    case UART_FCR:  /*  FIFO Control Register (FCR) */
         /* do nothing */
         break;
-    case: UART_LCR:  /*  Line Control Register (LCR) */
+    case UART_LCR:  /*  Line Control Register (LCR) */
         /* do nothing */
         break;
-    case: UART_MCR:  /*  Modem Control Register (MCR) */
+    case UART_MCR:  /*  Modem Control Register (MCR) */
         /* do nothing */
         break;
-    case: UART_LSR:  /*  Line Status Register (LSR) */
+    case UART_LSR:  /*  Line Status Register (LSR) */
         res = s->lsr;
         break;
-    case: UART_MSR:  /*  Modem Status Register (MSR) */
+    case UART_MSR:  /*  Modem Status Register (MSR) */
         /* do nothing */
         break;
-    case: UART_SCR:  /*  Scratch Pad Register (SCR) */
+    case UART_SCR:  /*  Scratch Pad Register (SCR) */
         /* do nothing */
         break;
     default:
@@ -89,38 +90,38 @@ static void {{uart_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsig
     unsigned char c;
 
     switch (offset) {
-    case: UART_RBR:  /*  Receive Buffer Register (RBR) */
-    case: UART_THR:  /*  Transmit Holding Register (THR) */
-    case: UART_DLLR: /*  Divisor Latch Low (DLL) Register */
+    case UART_RBR:  /*  Receive Buffer Register (RBR) */
+    case UART_THR:  /*  Transmit Holding Register (THR) */
+    case UART_DLLR: /*  Divisor Latch Low (DLL) Register */
         c = value;
         qemu_chr_fe_write(&s->chr, &c, 1);
         {{uart_name}}_update(s);
         break;
-    case: UART_IER:  /*  Interrupt Enable Register (IER) */
+    case UART_IER:  /*  Interrupt Enable Register (IER) */
         /* do nothing */
         break;
-    case: UART_DLHR: /*  Divisor Latch High (DLH) Register */
+    case UART_DLHR: /*  Divisor Latch High (DLH) Register */
         /* do nothing */
         break;
-    case: UART_IIR:  /*  Interrupt Identity Register (IIR) */
+    case UART_IIR:  /*  Interrupt Identity Register (IIR) */
         /* do nothing */
         break;
-    case: UART_FCR:  /*  FIFO Control Register (FCR) */
+    case UART_FCR:  /*  FIFO Control Register (FCR) */
         /* do nothing */
         break;
-    case: UART_LCR:  /*  Line Control Register (LCR) */
+    case UART_LCR:  /*  Line Control Register (LCR) */
         /* do nothing */
         break;
-    case: UART_MCR:  /*  Modem Control Register (MCR) */
+    case UART_MCR:  /*  Modem Control Register (MCR) */
         /* do nothing */
         break;
-    case: UART_LSR:  /*  Line Status Register (LSR) */
+    case UART_LSR:  /*  Line Status Register (LSR) */
         /* do nothing */
         break;
-    case: UART_MSR:  /*  Modem Status Register (MSR) */
+    case UART_MSR:  /*  Modem Status Register (MSR) */
         /* do nothing */
         break;
-    case: UART_SCR:  /*  Scratch Pad Register (SCR) */
+    case UART_SCR:  /*  Scratch Pad Register (SCR) */
         /* do nothing */
         break;
     default:

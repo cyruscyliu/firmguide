@@ -1,6 +1,7 @@
 {{license}}
 
 #include "hw/sysbus.h"
+#include "chardev/char-fe.h"
 
 #ifndef {{uart_name|upper}}_H
 #define {{uart_name|upper}}_H
