@@ -2,24 +2,24 @@
 
 #include "qemu/osdep.h"
 #include "qemu/log.h"
-#include "hw/pci-host/{{pice_name}}.h"
+#include "hw/pci-host/{{pcie_name}}.h"
 
-static void {{pice_name}}_update(void *opaque);
-static void {{pice_name}}_reset(DeviceState *dev);
+static void {{pcie_name}}_update(void *opaque);
+static void {{pcie_name}}_reset(DeviceState *dev);
 
-static uint64_t {{pice_name}}_read(void *opaque, hwaddr offset, unsigned size);
-static void {{pice_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static uint64_t {{pcie_name}}_read(void *opaque, hwaddr offset, unsigned size);
+static void {{pcie_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 
-static void {{pice_name}}_init(Object *obj);
-static void {{pice_name}}_class_init(ObjectClass *klass, void *data);
-static void {{pice_name}}_register_types(void);
+static void {{pcie_name}}_init(Object *obj);
+static void {{pcie_name}}_class_init(ObjectClass *klass, void *data);
+static void {{pcie_name}}_register_types(void);
 
-static void {{pice_name}}_update(void *opaque) {
-    /* {{pice_name|upper|concat}}State *s = opaque; */
+static void {{pcie_name}}_update(void *opaque) {
+    /* {{pcie_name|upper|concat}}State *s = opaque; */
 }
 
-static uint64_t {{pice_name}}_read(void *opaque, hwaddr offset, unsigned size) {
-    {{pice_name|upper|concat}}State *s = ({{pice_name|upper|concat}}State *)opaque;
+static uint64_t {{pcie_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+    {{pcie_name|upper|concat}}State *s = ({{pcie_name|upper|concat}}State *)opaque;
 
     uint64_t res = 0;
 
@@ -37,8 +37,8 @@ static uint64_t {{pice_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     return res;
 }
 
-static void {{pice_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
-    {{pice_name|upper|concat}}State *s = opaque;
+static void {{pcie_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+    {{pcie_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
     case PCIE_DEVICE_AND_VENDOR_ID_REGISTER:
@@ -50,32 +50,32 @@ static void {{pice_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsig
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
     }
-    {{pice_name}}_update(s);
+    {{pcie_name}}_update(s);
     return;
 }
 
-static const MemoryRegionOps {{pice_name}}_ops = {
-    .read = {{pice_name}}_read,
-    .write = {{pice_name}}_write,
+static const MemoryRegionOps {{pcie_name}}_ops = {
+    .read = {{pcie_name}}_read,
+    .write = {{pcie_name}}_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void {{pice_name}}_init(Object *obj) {
-    {{pice_name|upper|concat}}State *s = {{pice_name|upper}}(obj);
+static void {{pcie_name}}_init(Object *obj) {
+    {{pcie_name|upper|concat}}State *s = {{pcie_name|upper}}(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &{{pice_name}}_ops, s, "{{pice_name}}", {{pice_name|upper}}_RAM_SIZE);
+    memory_region_init_io(&s->mmio, obj, &{{pcie_name}}_ops, s, "{{pcie_name}}", {{pcie_name|upper}}_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 }
 
-static void {{pice_name}}_reset(DeviceState *dev) {
-    {{pice_name|upper|concat}}State *s = {{pice_name|upper}}(dev);
+static void {{pcie_name}}_reset(DeviceState *dev) {
+    {{pcie_name|upper|concat}}State *s = {{pcie_name|upper}}(dev);
 
     s->device_id = 0x5181;
     s->revision_id = 3;
 }
 
-static void {{pice_name}}_class_init(ObjectClass *klass, void *data) {
+static void {{pcie_name}}_class_init(ObjectClass *klass, void *data) {
     DeviceClass *dc = DEVICE_CLASS(klass);
 
     /* dc->fw_name = ; */
@@ -83,7 +83,7 @@ static void {{pice_name}}_class_init(ObjectClass *klass, void *data) {
     /* dc->props = ; */
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
-    dc->reset = {{pice_name}}_reset;
+    dc->reset = {{pcie_name}}_reset;
     /* dc->realize = ; */
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
@@ -95,17 +95,17 @@ static void {{pice_name}}_class_init(ObjectClass *klass, void *data) {
     /* sbc->connect_irq_notifier = ; */
 }
 
-static const TypeInfo {{pice_name}}_info = {
-    .name = TYPE_{{pice_name|upper}},
+static const TypeInfo {{pcie_name}}_info = {
+    .name = TYPE_{{pcie_name|upper}},
     .parent = TYPE_SYS_BUS_DEVICE,
-    .instance_size = sizeof({{pice_name|upper|concat}}State),
-    .instance_init = {{pice_name}}_init,
+    .instance_size = sizeof({{pcie_name|upper|concat}}State),
+    .instance_init = {{pcie_name}}_init,
     /* .class_zie = sizeof(SysBusDeviceClass), */
-    .class_init = {{pice_name}}_class_init,
+    .class_init = {{pcie_name}}_class_init,
 };
 
-static void {{pice_name}}_register_types(void) {
-    type_register_static(&{{pice_name}}_info);
+static void {{pcie_name}}_register_types(void) {
+    type_register_static(&{{pcie_name}}_info);
 }
 
-type_init({{pice_name}}_register_types)
+type_init({{pcie_name}}_register_types)

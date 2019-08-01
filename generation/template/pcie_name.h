@@ -1,21 +1,21 @@
 {{license}}
 
-#ifndef {{pice_name|upper}}_H
-#define {{pice_name|upper}}_H
+#ifndef {{pcie_name|upper}}_H
+#define {{pcie_name|upper}}_H
 
 #include "hw/sysbus.h"
 
-#define TYPE_{{pice_name|upper}} "{{pice_name}}"
-#define {{pice_name|upper}}(obj) \
-    OBJECT_CHECK({{pice_name|upper|concat}}State, (obj), TYPE_{{pice_name|upper}})
+#define TYPE_{{pcie_name|upper}} "{{pcie_name}}"
+#define {{pcie_name|upper}}(obj) \
+    OBJECT_CHECK({{pcie_name|upper|concat}}State, (obj), TYPE_{{pcie_name|upper}})
 
 #define PCIE_DEVICE_AND_VENDOR_ID_REGISTER       0x00
 #define PCIE_CLASS_CODE_AND_REVISION_ID_REGISTER 0x08
 
-#define {{pice_name|upper}}_RAM_SIZE {{pice_ram_size}}
-#define {{pice_name|upper}}_RAM_BASE {{pice_ram_base}}
+#define {{pcie_name|upper}}_RAM_SIZE {{pcie_ram_size}}
+#define {{pcie_name|upper}}_RAM_BASE {{pcie_ram_base}}
 
-typedef struct {{pice_name|upper|concat}}State {
+typedef struct {{pcie_name|upper|concat}}State {
     /*< private >*/
     SysBusDevice sys_bus;
     /*< public >*/
@@ -23,6 +23,6 @@ typedef struct {{pice_name|upper|concat}}State {
     MemoryRegion mmio;
     uint32_t device_id;
     uint32_t revision_id;
-} {{pice_name|upper|concat}}State;
+} {{pcie_name|upper|concat}}State;
 
-#endif /* {{pice_name|upper}}_H */
+#endif /* {{pcie_name|upper}}_H */
