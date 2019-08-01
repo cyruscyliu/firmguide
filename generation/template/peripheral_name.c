@@ -1,6 +1,7 @@
 {{license}}
 
 #include "qemu/osdep.h"
+#include "qemu/log.h"
 #include "qapi/error.h"
 #include "hw/arm/{{machine_name}}.h"
 #include "hw/arm/{{peripheral_name}}.h"
@@ -11,11 +12,11 @@ static void {{peripheral_name}}_init(Object *obj);
 static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data);
 static void {{peripheral_name}}_register_types(void);
 
-static void {{bridge_name}}_update({{bridge_name|upper|concat}}State *s) {
+static void {{bridge_name}}_update({{peripheral_name|upper|concat}}State *s) {
 }
 
 static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size) {
-    {{bridge_name|upper|concat}}State *s = opaque;
+    {{peripheral_name|upper|concat}}State *s = opaque;
     uint32_t res = 0;
 
     switch (offset) {
@@ -45,7 +46,7 @@ static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size)
 }
 
 static void {{bridge_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
-    {{bridge_name|upper|concat}}State *s = opaque;
+    {{peripheral_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
     case BRIDGE_CONFIGURATION_REGISTER:
