@@ -46,7 +46,8 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->uart), 0, {{uart_name|upper}}_RAM_BASE);
-    sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->uart));
+    /* fix me */
+    /* sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->uart)); */
 }
 
 static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data) {
