@@ -54,7 +54,7 @@ static void mv88f5181L_realize(DeviceState *dev, Error **errp) {
     }
 
     /* map peripheral's mmio */
-    sysbus_mmio_map_overlap(SYS_BUS_DEVICE(&s->peripherals), 0, MV88F5181L_PERIPHERALS_RAM_BASE, 1);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->peripherals), 0, MV88F5181L_BRIDGE_RAM_BASE);
 
     /* realize the local interrupt controller */
     object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);

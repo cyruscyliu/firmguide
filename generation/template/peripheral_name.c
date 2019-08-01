@@ -11,13 +11,81 @@ static void {{peripheral_name}}_init(Object *obj);
 static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data);
 static void {{peripheral_name}}_register_types(void);
 
+static void {{bridge_name}}_update({{bridge_name|upper|concat}}State *s) {
+}
+
+static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+    {{bridge_name|upper|concat}}State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    case BRIDGE_CONFIGURATION_REGISTER:
+        /* do nothing */
+        break;
+    case BRIDGE_CONTROL_AND_STATUS_REGISTER:
+        /* do nothing */
+        break;
+    case BRIDGE_RSTOUTn_MASK_RESTIER:
+        /* do nothing */
+        break;
+    case BRIDGE_SYSTEM_SOFT_RESET_REGISTER:
+        /* do nothing */
+        break;
+    case BRIDGE_INTERRUPT_CAUSE_REGISTER:
+        res = s->bridge_interrupt_cause_register;
+        break;
+    case BRIDGE_INTERRUPT_MASK_REGISTER:
+        res = s->bridge_interrupt_mask_register;
+        break;
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    }
+    return res;
+}
+
+static void {{bridge_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+    {{bridge_name|upper|concat}}State *s = opaque;
+
+    switch (offset) {
+    case BRIDGE_CONFIGURATION_REGISTER:
+        /* do nothing */
+        break;
+    case BRIDGE_CONTROL_AND_STATUS_REGISTER:
+        /* do nothing */
+        break;
+    case BRIDGE_RSTOUTn_MASK_RESTIER:
+        /* do nothing */
+        break;
+    case BRIDGE_SYSTEM_SOFT_RESET_REGISTER:
+        /* do nothing */
+        break;
+    case BRIDGE_INTERRUPT_CAUSE_REGISTER:
+        s->bridge_interrupt_cause_register = val;
+        break;
+    case BRIDGE_INTERRUPT_MASK_REGISTER:
+        s->bridge_interrupt_mask_register = val;
+        break;
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    }
+    {{bridge_name}}_update(s);
+}
+
+
+static const MemoryRegionOps {{bridge_name}}_ops = {
+    .read = {{bridge_name}}_read,
+    .write = {{bridge_name}}_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
 static void {{peripheral_name}}_init(Object *obj) {
     {{peripheral_name|upper|concat}}State *s = {{peripheral_name|upper}}(obj);
 
     /* initialize the peripheral mmio */
-    memory_region_init(&s->mmio, obj, TYPE_{{peripheral_name|upper}}, {{peripheral_name|upper}}_RAM_SIZE);
-    object_property_add_child(obj, "peripheral_io", OBJECT(&s->mmio), NULL);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
+    memory_region_init_io(&s->bridge_mmio, obj, &{{bridge_name}}_ops, s, TYPE_{{peripheral_name|upper}}, {{bridge_name|upper}}_RAM_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->bridge_mmio);
 
     /* initialize the timer */
     sysbus_init_child_obj(obj, "timer", &s->timer, sizeof(s->timer), TYPE_{{timer_name|upper}});
@@ -74,6 +142,12 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->pcie), 0, {{pcie_name|upper}}_RAM_BASE);
 }
 
+static void {{bridge_name}}_reset(DeviceState *d) {
+    {{peripheral_name|upper|concat}}State *s = {{peripheral_name|upper}}(d);
+    s->bridge_interrupt_cause_register = 0;
+    s->bridge_interrupt_mask_register = 0;
+}
+
 static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data) {
     DeviceClass *dc = DEVICE_CLASS(oc);
 
@@ -82,7 +156,7 @@ static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data) {
     /* dc->props = ; */
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
-    /* dc->reset = ; */
+    dc->reset = {{bridge_name}}_reset;
     dc->realize = {{peripheral_name}}_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */

@@ -18,6 +18,7 @@
 #define MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER 0x0C
 
 #define {{ic_name|upper}}_RAM_SIZE {{ic_ram_size}}
+#define {{ic_name|upper}}_RAM_BASE {{ic_ram_base}}
 
 typedef struct {{ic_name|upper|concat}}State {
     /*< private >*/

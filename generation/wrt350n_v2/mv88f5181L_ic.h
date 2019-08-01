@@ -20,6 +20,7 @@
 #define MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER 0x0C
 
 #define MV88F5181L_IC_RAM_SIZE 0x100
+#define MV88F5181L_IC_RAM_BASE 0xf1020200
 
 typedef struct MV88F5181LICState {
     /*< private >*/

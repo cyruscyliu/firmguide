@@ -13,13 +13,81 @@ static void mv88f5181L_peripherals_init(Object *obj);
 static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data);
 static void mv88f5181L_peripherals_register_types(void);
 
+static void mv88f5181L_bridge_update(MV88F5181LBRIDGEState *s) {
+}
+
+static uint64_t mv88f5181L_bridge_read(void *opaque, hwaddr offset, unsigned size) {
+    MV88F5181LBRIDGEState *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    case BRIDGE_CONFIGURATION_REGISTER:
+        /* do nothing */
+        break;
+    case BRIDGE_CONTROL_AND_STATUS_REGISTER:
+        /* do nothing */
+        break;
+    case BRIDGE_RSTOUTn_MASK_RESTIER:
+        /* do nothing */
+        break;
+    case BRIDGE_SYSTEM_SOFT_RESET_REGISTER:
+        /* do nothing */
+        break;
+    case BRIDGE_INTERRUPT_CAUSE_REGISTER:
+        res = s->bridge_interrupt_cause_register;
+        break;
+    case BRIDGE_INTERRUPT_MASK_REGISTER:
+        res = s->bridge_interrupt_mask_register;
+        break;
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    }
+    return res;
+}
+
+static void mv88f5181L_bridge_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+    MV88F5181LBRIDGEState *s = opaque;
+
+    switch (offset) {
+    case BRIDGE_CONFIGURATION_REGISTER:
+        /* do nothing */
+        break;
+    case BRIDGE_CONTROL_AND_STATUS_REGISTER:
+        /* do nothing */
+        break;
+    case BRIDGE_RSTOUTn_MASK_RESTIER:
+        /* do nothing */
+        break;
+    case BRIDGE_SYSTEM_SOFT_RESET_REGISTER:
+        /* do nothing */
+        break;
+    case BRIDGE_INTERRUPT_CAUSE_REGISTER:
+        s->bridge_interrupt_cause_register = val;
+        break;
+    case BRIDGE_INTERRUPT_MASK_REGISTER:
+        s->bridge_interrupt_mask_register = val;
+        break;
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    }
+    mv88f5181L_bridge_update(s);
+}
+
+
+static const MemoryRegionOps mv88f5181L_bridge_ops = {
+    .read = mv88f5181L_bridge_read,
+    .write = mv88f5181L_bridge_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
 static void mv88f5181L_peripherals_init(Object *obj) {
     MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(obj);
 
     /* initialize the peripheral mmio */
-    memory_region_init(&s->mmio, obj, TYPE_MV88F5181L_PERIPHERALS, MV88F5181L_PERIPHERALS_RAM_SIZE);
-    object_property_add_child(obj, "peripheral_io", OBJECT(&s->mmio), NULL);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
+    memory_region_init_io(&s->bridge_mmio, obj, &mv88f5181L_bridge_ops, s, TYPE_MV88F5181L_PERIPHERALS, MV88F5181L_BRIDGE_RAM_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->bridge_mmio);
 
     /* initialize the timer */
     sysbus_init_child_obj(obj, "timer", &s->timer, sizeof(s->timer), TYPE_MV88F5181L_TIMER);
@@ -76,6 +144,12 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->pcie), 0, MV88F5181L_PCIE_RAM_BASE);
 }
 
+static void mv88f5181L_bridge_reset(DeviceState *d) {
+    MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(d);
+    s->bridge_interrupt_cause_register = 0;
+    s->bridge_interrupt_mask_register = 0;
+}
+
 static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data) {
     DeviceClass *dc = DEVICE_CLASS(oc);
 
@@ -84,7 +158,7 @@ static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data) {
     /* dc->props = ; */
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
-    /* dc->reset = ; */
+    dc->reset = mv88f5181L_bridge_reset;
     dc->realize = mv88f5181L_peripherals_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */

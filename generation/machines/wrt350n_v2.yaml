@@ -11,6 +11,9 @@ machine:
       peripheral_name: "mv88f5181L_peripherals"
       peripheral_ram_base: "0xf1000000"
       peripheral_ram_size: "0x00100000"
+      bridge_name: "mv88f5181L_bridge"
+      bridge_ram_base: "0xf1020100"
+      bridge_ram_size: "0x100"
       timer:
         timer_name: "mv88f5181L_timer"
         timer_ram_base: "0xf1020300"
@@ -27,7 +30,7 @@ machine:
       pcie:
         pcie_name: "mv88f5181L_pcie"
         pcie_ram_base: "0xf1040000"
-        pcie_ram_size: "0x2000"
+        pcie_ram_size: "0x10000"
     local_interrupt_controller:
         ic_name: "mv88f5181L_ic"
         ic_ram_base: "0xf1020200"
