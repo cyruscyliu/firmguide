@@ -120,7 +120,7 @@ static void mv88f5181L_timer_init(Object *obj) {
 }
 
 static void mv88f5181L_timer_reset(DeviceState *dev) {
-    MV88F5181LTIMERState *s = MV88F5181LTIMER(dev);
+    MV88F5181LTIMERState *s = MV88F5181L_TIMER(dev);
 
     s->timer0_enable = 0;
     s->timer0_auto_mode = 0;

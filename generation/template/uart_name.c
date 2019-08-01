@@ -20,7 +20,7 @@ static void {{uart_name}}_class_init(ObjectClass *klass, void *data);
 static void {{uart_name}}_register_types(void);
 
 static void {{uart_name}}_update(void *opaque) {
-    /* {{uart_name|upper|concat}}State *s = opaque; */
+    /* {{uart_name|upper|concat}}State *s = ({{uart_name|upper|concat}}State *)opaque; */
 }
 
 static int {{uart_name}}_can_receive(void *opaque) {
@@ -82,7 +82,7 @@ static uint64_t {{uart_name}}_read(void *opaque, hwaddr offset, unsigned size) {
 }
 
 static void {{uart_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
-    {{uart_name|upper|concat}}State *s = opaque;
+    {{uart_name|upper|concat}}State *s = ({{uart_name|upper|concat}}State *)opaque;
     unsigned char c;
 
     switch (offset) {
@@ -144,7 +144,7 @@ static void {{uart_name}}_init(Object *obj) {
 }
 
 static void {{uart_name}}_reset(DeviceState *dev) {
-    {{uart_name|upper|concat}}State *s = {{uart_name|upper|concat}}(dev);
+    {{uart_name|upper|concat}}State *s = {{uart_name|upper}}(dev);
 
     s->lsr = 0x20;
     s->char_received = 0;

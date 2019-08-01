@@ -118,7 +118,7 @@ static void {{timer_name}}_init(Object *obj) {
 }
 
 static void {{timer_name}}_reset(DeviceState *dev) {
-    {{timer_name|upper|concat}}State *s = {{timer_name|upper|concat}}(dev);
+    {{timer_name|upper|concat}}State *s = {{timer_name|upper}}(dev);
 
     s->timer0_enable = 0;
     s->timer0_auto_mode = 0;

@@ -22,7 +22,7 @@ static void mv88f5181L_uart_class_init(ObjectClass *klass, void *data);
 static void mv88f5181L_uart_register_types(void);
 
 static void mv88f5181L_uart_update(void *opaque) {
-    /* MV88F5181LUARTState *s = opaque; */
+    /* MV88F5181LUARTState *s = (MV88F5181LUARTState *)opaque; */
 }
 
 static int mv88f5181L_uart_can_receive(void *opaque) {
@@ -84,7 +84,7 @@ static uint64_t mv88f5181L_uart_read(void *opaque, hwaddr offset, unsigned size)
 }
 
 static void mv88f5181L_uart_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
-    MV88F5181LUARTState *s = opaque;
+    MV88F5181LUARTState *s = (MV88F5181LUARTState *)opaque;
     unsigned char c;
 
     switch (offset) {
@@ -146,7 +146,7 @@ static void mv88f5181L_uart_init(Object *obj) {
 }
 
 static void mv88f5181L_uart_reset(DeviceState *dev) {
-    MV88F5181LUARTState *s = MV88F5181LUART(dev);
+    MV88F5181LUARTState *s = MV88F5181L_UART(dev);
 
     s->lsr = 0x20;
     s->char_received = 0;

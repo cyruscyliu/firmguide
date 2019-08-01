@@ -108,7 +108,7 @@ static void {{gpio_name}}_init(Object *obj) {
 }
 
 static void {{gpio_name}}_reset(DeviceState *dev) {
-    {{gpio_name|upper|concat}}State *s = {{gpio_name|upper|concat}}(dev);
+    {{gpio_name|upper|concat}}State *s = {{gpio_name|upper}}(dev);
 
     s->icr = 0;
     s->imr = 0;

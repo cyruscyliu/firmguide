@@ -110,7 +110,7 @@ static void mv88f5181L_gpio_init(Object *obj) {
 }
 
 static void mv88f5181L_gpio_reset(DeviceState *dev) {
-    MV88F5181LGPIOState *s = MV88F5181LGPIO(dev);
+    MV88F5181LGPIOState *s = MV88F5181L_GPIO(dev);
 
     s->icr = 0;
     s->imr = 0;
