@@ -21,6 +21,9 @@ static void {{peripheral_name}}_init(Object *obj) {
 
     /* initialize the timer */
     sysbus_init_child_obj(obj, "timer", &s->timer, sizeof(s->timer), TYPE_{{timer_name|upper}});
+
+    /* initialize the uart */
+    sysbus_init_child_obj(obj, "uart", &s->uart, sizeof(s->uart), TYPE_{{uart_name|upper}});
 }
 
 static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
@@ -35,6 +38,15 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{timer_name|upper}}_RAM_BASE);
     sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->timer));
+
+    /* realize the uart */
+    object_property_set_bool(OBJECT(&s->uart), true, "realized", &err);
+    if (err != NULL) {
+        error_propagate(errp, err);
+        return;
+    }
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->uart), 0, {{uart_name|upper}}_RAM_BASE);
+    sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->uart));
 }
 
 static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data) {

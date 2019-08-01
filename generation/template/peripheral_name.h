@@ -20,6 +20,7 @@ typedef struct {{peripheral_name|upper|concat}}State {
 
     MemoryRegion mmio;
     {{timer_name|upper|concat}}State timer;
+    {{uart_name|upper|concat}}State uart;
 } {{peripheral_name|upper|concat}}State;
 
 #endif /* {{peripheral_name|upper}}_H */

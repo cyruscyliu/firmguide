@@ -91,7 +91,7 @@ static void mv88f5181L_uart_write(void *opaque, hwaddr offset, uint64_t val, uns
     case UART_RBR:  /*  Receive Buffer Register (RBR) */
     /* case UART_THR: */  /*  Transmit Holding Register (THR) */
     /* case UART_DLL: */  /*  Divisor Latch Low (DLL) Register */
-        c = value;
+        c = val;
         qemu_chr_fe_write(&s->chr, &c, 1);
         mv88f5181L_uart_update(s);
         break;
@@ -148,7 +148,7 @@ static void mv88f5181L_uart_init(Object *obj) {
 static void mv88f5181L_uart_reset(DeviceState *dev) {
     MV88F5181LUARTState *s = MV88F5181LUART(dev);
 
-    s->isr = 0x20;
+    s->lsr = 0x20;
     s->char_received = 0;
 }
 

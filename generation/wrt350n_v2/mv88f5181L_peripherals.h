@@ -22,6 +22,7 @@ typedef struct MV88F5181LPERIPHERALSState {
 
     MemoryRegion mmio;
     MV88F5181LTIMERState timer;
+    MV88F5181LUARTState uart;
 } MV88F5181LPERIPHERALSState;
 
 #endif /* MV88F5181L_PERIPHERALS_H */
