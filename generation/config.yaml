@@ -6,6 +6,7 @@ install:
     soc_name: "hw\\arm"
     peripheral_name: "hw\\arm"
     timer_name: "hw\\timer"
+    uart_name: "hw\\char"
   linux:
     root: "/home/liuqiang/qemu-4.0.0"
     machine_name: "hw/arm"
@@ -13,4 +14,5 @@ install:
     soc_name: "hw/arm"
     peripheral_name: "hw/arm"
     timer_name: "hw/timer"
+    uart_name: "hw/char"
   include: "include"
