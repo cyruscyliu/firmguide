@@ -131,7 +131,7 @@ static const MemoryRegionOps mv88f5181L_uart_ops = {
 };
 
 static void mv88f5181L_uart_init(Object *obj) {
-    MV88F5181LUARTState *s = MV88F5181LUART(obj);
+    MV88F5181LUARTState *s = MV88F5181L_UART(obj);
 
     /* initialize the mmio */
     memory_region_init_io(&s->mmio, obj, &mv88f5181L_uart_ops, s, "mv88f5181L_uart", MV88F5181L_UART_RAM_SIZE);

@@ -104,7 +104,7 @@ static const MemoryRegionOps {{timer_name}}_ops = {
 };
 
 static void {{timer_name}}_init(Object *obj) {
-    {{timer_name|upper|concat}}State *s = {{timer_name|upper|concat}}(obj);
+    {{timer_name|upper|concat}}State *s = {{timer_name|upper}}(obj);
 
     /* initialize the mmio */
     memory_region_init_io(&s->mmio, obj, &{{timer_name}}_ops, s, "{{timer_name}}", {{timer_name|upper}}_RAM_SIZE);

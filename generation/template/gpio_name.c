@@ -57,7 +57,6 @@ static uint64_t {{gpio_name}}_read(void *opaque, hwaddr offset, unsigned size) {
 
 static void {{gpio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
     {{gpio_name|upper|concat}}State *s = opaque;
-    unsigned char c;
 
     switch (offset) {
     case GPIO_DOR: /* GPIO Data Out Register */
@@ -98,14 +97,14 @@ static const MemoryRegionOps {{gpio_name}}_ops = {
 };
 
 static void {{gpio_name}}_init(Object *obj) {
-    {{gpio_name|upper|concat}}State *s = {{gpio_name|upper|concat}}(obj);
+    {{gpio_name|upper|concat}}State *s = {{gpio_name|upper}}(obj);
 
     /* initialize the mmio */
     memory_region_init_io(&s->mmio, obj, &{{gpio_name}}_ops, s, "{{gpio_name}}", {{gpio_name|upper}}_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the output */
-    qdev_init_gpio_out(DEVICE(s), &s->out, {{gpio_n}});
+    qdev_init_gpio_out(DEVICE(s), s->out, {{gpio_n}});
 }
 
 static void {{gpio_name}}_reset(DeviceState *dev) {

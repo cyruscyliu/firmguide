@@ -9,7 +9,7 @@
 #define MV88F5181L_UART_H
 
 #define TYPE_MV88F5181L_UART "mv88f5181L_uart"
-#define MV88F5181LUART(obj) \
+#define MV88F5181L_UART(obj) \
     OBJECT_CHECK(MV88F5181LUARTState, (obj), TYPE_MV88F5181L_UART)
 
 #define UART_RBR  0x00	/*  Receive Buffer Register (RBR) */

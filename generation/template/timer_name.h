@@ -7,7 +7,7 @@
 #define {{timer_name|upper}}_H
 
 #define TYPE_{{timer_name|upper}} "{{timer_name}}"
-#define {{timer_name|upper|concat}}(obj) \
+#define {{timer_name|upper}}(obj) \
     OBJECT_CHECK({{timer_name|upper|concat}}State, (obj), TYPE_{{timer_name|upper}})
 
 #define CPU_TIMERS_CONTROL_REGISTER         0x00

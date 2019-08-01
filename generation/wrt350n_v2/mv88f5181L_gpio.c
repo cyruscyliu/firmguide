@@ -59,7 +59,6 @@ static uint64_t mv88f5181L_gpio_read(void *opaque, hwaddr offset, unsigned size)
 
 static void mv88f5181L_gpio_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
     MV88F5181LGPIOState *s = opaque;
-    unsigned char c;
 
     switch (offset) {
     case GPIO_DOR: /* GPIO Data Out Register */
@@ -100,14 +99,14 @@ static const MemoryRegionOps mv88f5181L_gpio_ops = {
 };
 
 static void mv88f5181L_gpio_init(Object *obj) {
-    MV88F5181LGPIOState *s = MV88F5181LGPIO(obj);
+    MV88F5181LGPIOState *s = MV88F5181L_GPIO(obj);
 
     /* initialize the mmio */
     memory_region_init_io(&s->mmio, obj, &mv88f5181L_gpio_ops, s, "mv88f5181L_gpio", MV88F5181L_GPIO_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the output */
-    qdev_init_gpio_out(DEVICE(s), &s->out, 32);
+    qdev_init_gpio_out(DEVICE(s), s->out, 32);
 }
 
 static void mv88f5181L_gpio_reset(DeviceState *dev) {

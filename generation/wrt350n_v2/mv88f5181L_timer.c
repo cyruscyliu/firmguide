@@ -106,7 +106,7 @@ static const MemoryRegionOps mv88f5181L_timer_ops = {
 };
 
 static void mv88f5181L_timer_init(Object *obj) {
-    MV88F5181LTIMERState *s = MV88F5181LTIMER(obj);
+    MV88F5181LTIMERState *s = MV88F5181L_TIMER(obj);
 
     /* initialize the mmio */
     memory_region_init_io(&s->mmio, obj, &mv88f5181L_timer_ops, s, "mv88f5181L_timer", MV88F5181L_TIMER_RAM_SIZE);

@@ -7,7 +7,7 @@
 #define {{uart_name|upper}}_H
 
 #define TYPE_{{uart_name|upper}} "{{uart_name}}"
-#define {{uart_name|upper|concat}}(obj) \
+#define {{uart_name|upper}}(obj) \
     OBJECT_CHECK({{uart_name|upper|concat}}State, (obj), TYPE_{{uart_name|upper}})
 
 #define UART_RBR  0x00	/*  Receive Buffer Register (RBR) */
