@@ -3,6 +3,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "qemu/log.h"
 #include "qapi/error.h"
 #include "hw/arm/wrt350n_v2.h"
 #include "hw/arm/mv88f5181L_peripherals.h"
@@ -13,11 +14,11 @@ static void mv88f5181L_peripherals_init(Object *obj);
 static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data);
 static void mv88f5181L_peripherals_register_types(void);
 
-static void mv88f5181L_bridge_update(MV88F5181LBRIDGEState *s) {
+static void mv88f5181L_bridge_update(MV88F5181LPERIPHERALSState *s) {
 }
 
 static uint64_t mv88f5181L_bridge_read(void *opaque, hwaddr offset, unsigned size) {
-    MV88F5181LBRIDGEState *s = opaque;
+    MV88F5181LPERIPHERALSState *s = opaque;
     uint32_t res = 0;
 
     switch (offset) {
@@ -47,7 +48,7 @@ static uint64_t mv88f5181L_bridge_read(void *opaque, hwaddr offset, unsigned siz
 }
 
 static void mv88f5181L_bridge_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
-    MV88F5181LBRIDGEState *s = opaque;
+    MV88F5181LPERIPHERALSState *s = opaque;
 
     switch (offset) {
     case BRIDGE_CONFIGURATION_REGISTER:
