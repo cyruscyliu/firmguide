@@ -7,6 +7,7 @@
 
 #include "hw/sysbus.h"
 #include "hw/timer/mv88f5181L_timer.h"
+#include "hw/char/"
 
 #define TYPE_MV88F5181L_PERIPHERALS "MV88F5181L_PERIPHERALS"
 #define MV88F5181L_PERIPHERALS(obj) \

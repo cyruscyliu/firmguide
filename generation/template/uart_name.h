@@ -24,6 +24,7 @@
 #define UART_SCR  0x1C	/*  Scratch Pad Register (SCR) */
 
 #define {{uart_name|upper}}_RAM_SIZE {{uart_ram_size}}
+#define {{uart_name|upper}}_RAM_BASE {{uart_ram_base}}
 
 typedef struct {{uart_name|upper|concat}}State {
     /* <private> */
