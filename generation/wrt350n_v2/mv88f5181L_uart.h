@@ -26,6 +26,7 @@
 #define UART_SCR  0x1C	/*  Scratch Pad Register (SCR) */
 
 #define MV88F5181L_UART_RAM_SIZE 0x100
+#define MV88F5181L_UART_RAM_BASE 0xf1012000
 
 typedef struct MV88F5181LUARTState {
     /* <private> */

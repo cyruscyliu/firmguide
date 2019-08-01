@@ -7,14 +7,13 @@
 
 #include "hw/sysbus.h"
 #include "hw/timer/mv88f5181L_timer.h"
-#include "hw/char/"
+#include "hw/char/mv88f5181L_uart.h"
+#include "hw/gpio/mv88f5181L_gpio.h"
 
 #define TYPE_MV88F5181L_PERIPHERALS "MV88F5181L_PERIPHERALS"
 #define MV88F5181L_PERIPHERALS(obj) \
     OBJECT_CHECK(MV88F5181LPERIPHERALSState, (obj),  TYPE_MV88F5181L_PERIPHERALS)
 #define MV88F5181L_PERIPHERALS_RAM_SIZE 0x10000000
-
-#define MV88F5181L_TIMER_RAM_BASE 0xf1020300
 
 typedef struct MV88F5181LPERIPHERALSState {
     /*< private >*/
@@ -24,6 +23,7 @@ typedef struct MV88F5181LPERIPHERALSState {
     MemoryRegion mmio;
     MV88F5181LTIMERState timer;
     MV88F5181LUARTState uart;
+    MV88F5181LGPIOState gpio;
 } MV88F5181LPERIPHERALSState;
 
 #endif /* MV88F5181L_PERIPHERALS_H */

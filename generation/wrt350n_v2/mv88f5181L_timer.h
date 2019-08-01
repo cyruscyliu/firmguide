@@ -21,6 +21,7 @@
 #define CPU_WATCHDOG_TIMER_REGISTER         0x24
 
 #define MV88F5181L_TIMER_RAM_SIZE 0x100
+#define MV88F5181L_TIMER_RAM_BASE 0xf1020300
 
 typedef struct MV88F5181LTIMERState {
     /* <private> */

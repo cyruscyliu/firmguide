@@ -19,6 +19,7 @@
 #define CPU_WATCHDOG_TIMER_REGISTER         0x24
 
 #define {{timer_name|upper}}_RAM_SIZE {{timer_ram_size}}
+#define {{timer_name|upper}}_RAM_BASE {{timer_ram_base}}
 
 typedef struct {{timer_name|upper|concat}}State {
     /* <private> */

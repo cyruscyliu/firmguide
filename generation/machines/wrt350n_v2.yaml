@@ -19,6 +19,11 @@ machine:
         uart_name: "mv88f5181L_uart"
         uart_ram_base: "0xf1012000"
         uart_ram_size: "0x100"
+      gpio:
+        gpio_name: "mv88f5181L_gpio"
+        gpio_ram_base: "0xf1010100"
+        gpio_ram_size: "0x100"
+        gpio_n: 32
     local_interrupt_controller:
         ic_name: "mv88f5181L_ic"
         ic_ram_base: "0xf1020200"
