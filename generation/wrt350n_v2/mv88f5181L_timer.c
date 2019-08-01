@@ -6,7 +6,8 @@
 #include "qemu/log.h"
 #include "hw/timer/mv88f5181L_timer.h"
 
-static void mv88f5181L_timer_interrupt(void *opaque);
+static void mv88f5181L_timer_callback(void *opaque);
+static void mv88f5181L_timer_update(void *opaque);
 static void mv88f5181L_timer_reset(DeviceState *dev);
 
 static uint64_t mv88f5181L_timer_read(void *opaque, hwaddr offset, unsigned size);
@@ -16,10 +17,10 @@ static void mv88f5181L_timer_init(Object *obj);
 static void mv88f5181L_timer_class_init(ObjectClass *klass, void *data);
 static void mv88f5181L_timer_register_types(void);
 
-static void mv88f5181L_timer_interrupt(void *opaque) {
+static void mv88f5181L_timer_update(void *opaque) {
     MV88F5181LTIMERState *s = opaque;
 
-    if (!s->timer0_enable ) {
+    if (!s->timer0_enable) {
         return;
     }
     if (s->timer0_counter == 0) {
@@ -27,10 +28,17 @@ static void mv88f5181L_timer_interrupt(void *opaque) {
             return;
         } else {
             s->timer0_counter = s->timer0_reload;
+            timer_mod(s->timer, 10);
         }
-        qemu_irq_pulse(s->irq);
+        qemu_set_irq(s->irq, 1);
     }
     s->timer0_counter--;
+
+}
+static void mv88f5181L_timer_callback(void *opaque) {
+    MV88F5181LTIMERState *s = opaque;
+
+    mv88f5181L_timer_update(s);
 }
 
 static uint64_t mv88f5181L_timer_read(void *opaque, hwaddr offset, unsigned size) {
@@ -97,6 +105,7 @@ static void mv88f5181L_timer_write(void *opaque, hwaddr offset, uint64_t val, un
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
         return;
     }
+    mv88f5181L_timer_update(s);
 }
 
 static const MemoryRegionOps mv88f5181L_timer_ops = {
@@ -116,7 +125,7 @@ static void mv88f5181L_timer_init(Object *obj) {
     sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
 
     /* initialize the timer */
-    s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, mv88f5181L_timer_interrupt, s);
+    s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, mv88f5181L_timer_callback, s);
 }
 
 static void mv88f5181L_timer_reset(DeviceState *dev) {

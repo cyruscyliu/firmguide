@@ -4,7 +4,8 @@
 #include "qemu/log.h"
 #include "hw/timer/{{timer_name}}.h"
 
-static void {{timer_name}}_interrupt(void *opaque);
+static void {{timer_name}}_callback(void *opaque);
+static void {{timer_name}}_update(void *opaque);
 static void {{timer_name}}_reset(DeviceState *dev);
 
 static uint64_t {{timer_name}}_read(void *opaque, hwaddr offset, unsigned size);
@@ -14,10 +15,10 @@ static void {{timer_name}}_init(Object *obj);
 static void {{timer_name}}_class_init(ObjectClass *klass, void *data);
 static void {{timer_name}}_register_types(void);
 
-static void {{timer_name}}_interrupt(void *opaque) {
+static void {{timer_name}}_update(void *opaque) {
     {{timer_name|upper|concat}}State *s = opaque;
 
-    if (!s->timer0_enable ) {
+    if (!s->timer0_enable) {
         return;
     }
     if (s->timer0_counter == 0) {
@@ -25,10 +26,17 @@ static void {{timer_name}}_interrupt(void *opaque) {
             return;
         } else {
             s->timer0_counter = s->timer0_reload;
+            timer_mod(s->timer, 10);
         }
-        qemu_irq_pulse(s->irq);
+        qemu_set_irq(s->irq, 1);
     }
     s->timer0_counter--;
+
+}
+static void {{timer_name}}_callback(void *opaque) {
+    {{timer_name|upper|concat}}State *s = opaque;
+
+    {{timer_name}}_update(s);
 }
 
 static uint64_t {{timer_name}}_read(void *opaque, hwaddr offset, unsigned size) {
@@ -95,6 +103,7 @@ static void {{timer_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsi
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
         return;
     }
+    {{timer_name}}_update(s);
 }
 
 static const MemoryRegionOps {{timer_name}}_ops = {
@@ -114,7 +123,7 @@ static void {{timer_name}}_init(Object *obj) {
     sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
 
     /* initialize the timer */
-    s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, {{timer_name}}_interrupt, s);
+    s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, {{timer_name}}_callback, s);
 }
 
 static void {{timer_name}}_reset(DeviceState *dev) {
