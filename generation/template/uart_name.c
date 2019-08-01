@@ -89,7 +89,7 @@ static void {{uart_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsig
     case UART_RBR:  /*  Receive Buffer Register (RBR) */
     /* case UART_THR: */  /*  Transmit Holding Register (THR) */
     /* case UART_DLL: */  /*  Divisor Latch Low (DLL) Register */
-        c = value;
+        c = val;
         qemu_chr_fe_write(&s->chr, &c, 1);
         {{uart_name}}_update(s);
         break;
@@ -146,7 +146,7 @@ static void {{uart_name}}_init(Object *obj) {
 static void {{uart_name}}_reset(DeviceState *dev) {
     {{uart_name|upper|concat}}State *s = {{uart_name|upper|concat}}(dev);
 
-    s->isr = 0x20;
+    s->lsr = 0x20;
     s->char_received = 0;
 }
 
