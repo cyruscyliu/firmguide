@@ -12,9 +12,9 @@
 
 #define UART_RBR  0x00	/*  Receive Buffer Register (RBR) */
 #define UART_THR  0x00	/*  Transmit Holding Register (THR) */
-#define UART_DLLR 0x00	/*  Divisor Latch Low (DLL) Register */
+#define UART_DLL  0x00	/*  Divisor Latch Low (DLL) Register */
 #define UART_IER  0x04	/*  Interrupt Enable Register (IER) */
-#define UART_DLHR 0x04	/*  Divisor Latch High (DLH) Register */
+#define UART_DLH  0x04	/*  Divisor Latch High (DLH) Register */
 #define UART_IIR  0x08	/*  Interrupt Identity Register (IIR) */
 #define UART_FCR  0x08	/*  FIFO Control Register (FCR) */
 #define UART_LCR  0x0C	/*  Line Control Register (LCR) */
@@ -32,7 +32,7 @@ typedef struct {{uart_name|upper|concat}}State {
 
     MemoryRegion mmio;
     CharBackend chr;
-    uint8_t isr;
+    uint8_t lsr;
     uint8_t char_received;
     qemu_irq irq;
 } {{uart_name|upper|concat}}State;

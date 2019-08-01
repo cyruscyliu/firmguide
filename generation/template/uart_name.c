@@ -5,7 +5,11 @@
 #include "hw/char/{{uart_name}}.h"
 #include "chardev/char-fe.h"
 
-static void {{uart_name}}_interrupt(void *opaque);
+static int {{uart_name}}_can_receive(void *opaque);
+static void {{uart_name}}_receive(void *opaque, const uint8_t *buf, int size);
+static void {{uart_name}}_event(void *opaque, int event);
+
+static void {{uart_name}}_update(void *opaque);
 static void {{uart_name}}_reset(DeviceState *dev);
 
 static uint64_t {{uart_name}}_read(void *opaque, hwaddr offset, unsigned size);
@@ -42,24 +46,16 @@ static uint64_t {{uart_name}}_read(void *opaque, hwaddr offset, unsigned size) {
 
     switch (offset) {
     case UART_RBR:  /*  Receive Buffer Register (RBR) */
-        /* do nothing */
-        break;
-    case UART_THR:  /*  Transmit Holding Register (THR) */
-        /* do nothing */
-        break;
-    case UART_DLLR: /*  Divisor Latch Low (DLL) Register */
+    /* case UART_THR: */  /*  Transmit Holding Register (THR) */
+    /* case UART_DLL: */  /*  Divisor Latch Low (DLL) Register */
         /* do nothing */
         break;
     case UART_IER:  /*  Interrupt Enable Register (IER) */
-        /* do nothing */
-        break;
-    case UART_DLHR: /*  Divisor Latch High (DLH) Register */
+    /* case UART_DLH: */  /*  Divisor Latch High (DLH) Register */
         /* do nothing */
         break;
     case UART_IIR:  /*  Interrupt Identity Register (IIR) */
-        /* do nothing */
-        break;
-    case UART_FCR:  /*  FIFO Control Register (FCR) */
+    /* case UART_FCR: */  /*  FIFO Control Register (FCR) */
         /* do nothing */
         break;
     case UART_LCR:  /*  Line Control Register (LCR) */
@@ -91,22 +87,18 @@ static void {{uart_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsig
 
     switch (offset) {
     case UART_RBR:  /*  Receive Buffer Register (RBR) */
-    case UART_THR:  /*  Transmit Holding Register (THR) */
-    case UART_DLLR: /*  Divisor Latch Low (DLL) Register */
+    /* case UART_THR: */  /*  Transmit Holding Register (THR) */
+    /* case UART_DLL: */  /*  Divisor Latch Low (DLL) Register */
         c = value;
         qemu_chr_fe_write(&s->chr, &c, 1);
         {{uart_name}}_update(s);
         break;
     case UART_IER:  /*  Interrupt Enable Register (IER) */
-        /* do nothing */
-        break;
-    case UART_DLHR: /*  Divisor Latch High (DLH) Register */
+    /* case UART_DLH: */  /*  Divisor Latch High (DLH) Register */
         /* do nothing */
         break;
     case UART_IIR:  /*  Interrupt Identity Register (IIR) */
-        /* do nothing */
-        break;
-    case UART_FCR:  /*  FIFO Control Register (FCR) */
+    /* case UART_FCR: */  /*  FIFO Control Register (FCR) */
         /* do nothing */
         break;
     case UART_LCR:  /*  Line Control Register (LCR) */

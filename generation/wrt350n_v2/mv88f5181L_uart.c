@@ -7,7 +7,11 @@
 #include "hw/char/mv88f5181L_uart.h"
 #include "chardev/char-fe.h"
 
-static void mv88f5181L_uart_interrupt(void *opaque);
+static int mv88f5181L_uart_can_receive(void *opaque);
+static void mv88f5181L_uart_receive(void *opaque, const uint8_t *buf, int size);
+static void mv88f5181L_uart_event(void *opaque, int event);
+
+static void mv88f5181L_uart_update(void *opaque);
 static void mv88f5181L_uart_reset(DeviceState *dev);
 
 static uint64_t mv88f5181L_uart_read(void *opaque, hwaddr offset, unsigned size);
@@ -44,24 +48,16 @@ static uint64_t mv88f5181L_uart_read(void *opaque, hwaddr offset, unsigned size)
 
     switch (offset) {
     case UART_RBR:  /*  Receive Buffer Register (RBR) */
-        /* do nothing */
-        break;
-    case UART_THR:  /*  Transmit Holding Register (THR) */
-        /* do nothing */
-        break;
-    case UART_DLLR: /*  Divisor Latch Low (DLL) Register */
+    /* case UART_THR: */  /*  Transmit Holding Register (THR) */
+    /* case UART_DLL: */  /*  Divisor Latch Low (DLL) Register */
         /* do nothing */
         break;
     case UART_IER:  /*  Interrupt Enable Register (IER) */
-        /* do nothing */
-        break;
-    case UART_DLHR: /*  Divisor Latch High (DLH) Register */
+    /* case UART_DLH: */  /*  Divisor Latch High (DLH) Register */
         /* do nothing */
         break;
     case UART_IIR:  /*  Interrupt Identity Register (IIR) */
-        /* do nothing */
-        break;
-    case UART_FCR:  /*  FIFO Control Register (FCR) */
+    /* case UART_FCR: */  /*  FIFO Control Register (FCR) */
         /* do nothing */
         break;
     case UART_LCR:  /*  Line Control Register (LCR) */
@@ -93,22 +89,18 @@ static void mv88f5181L_uart_write(void *opaque, hwaddr offset, uint64_t val, uns
 
     switch (offset) {
     case UART_RBR:  /*  Receive Buffer Register (RBR) */
-    case UART_THR:  /*  Transmit Holding Register (THR) */
-    case UART_DLLR: /*  Divisor Latch Low (DLL) Register */
+    /* case UART_THR: */  /*  Transmit Holding Register (THR) */
+    /* case UART_DLL: */  /*  Divisor Latch Low (DLL) Register */
         c = value;
         qemu_chr_fe_write(&s->chr, &c, 1);
         mv88f5181L_uart_update(s);
         break;
     case UART_IER:  /*  Interrupt Enable Register (IER) */
-        /* do nothing */
-        break;
-    case UART_DLHR: /*  Divisor Latch High (DLH) Register */
+    /* case UART_DLH: */  /*  Divisor Latch High (DLH) Register */
         /* do nothing */
         break;
     case UART_IIR:  /*  Interrupt Identity Register (IIR) */
-        /* do nothing */
-        break;
-    case UART_FCR:  /*  FIFO Control Register (FCR) */
+    /* case UART_FCR: */  /*  FIFO Control Register (FCR) */
         /* do nothing */
         break;
     case UART_LCR:  /*  Line Control Register (LCR) */
