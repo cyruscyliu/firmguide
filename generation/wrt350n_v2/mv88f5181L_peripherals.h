@@ -28,6 +28,8 @@
 #define MV88F5181L_BRIDGE_RAM_SIZE 0x100
 #define MV88F5181L_BRIDGE_RAM_BASE 0xf1020100
 
+#define MV88F5181L_BRIDGE_IRQ "mv88f5181L_bridge_irq"
+
 typedef struct MV88F5181LPERIPHERALSState {
     /*< private >*/
     SysBusDevice sys_bus;

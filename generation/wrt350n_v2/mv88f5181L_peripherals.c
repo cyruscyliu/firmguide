@@ -17,6 +17,11 @@ static void mv88f5181L_peripherals_register_types(void);
 static void mv88f5181L_bridge_update(MV88F5181LPERIPHERALSState *s) {
 }
 
+static void mv88f5181L_bridge_set_irq(void *opaque, int irq, int level) {
+    MV88F5181LPERIPHERALSState *s = opaque;
+
+}
+
 static uint64_t mv88f5181L_bridge_read(void *opaque, hwaddr offset, unsigned size) {
     MV88F5181LPERIPHERALSState *s = opaque;
     uint32_t res = 0;
@@ -76,7 +81,6 @@ static void mv88f5181L_bridge_write(void *opaque, hwaddr offset, uint64_t val, u
     mv88f5181L_bridge_update(s);
 }
 
-
 static const MemoryRegionOps mv88f5181L_bridge_ops = {
     .read = mv88f5181L_bridge_read,
     .write = mv88f5181L_bridge_write,
@@ -86,9 +90,12 @@ static const MemoryRegionOps mv88f5181L_bridge_ops = {
 static void mv88f5181L_peripherals_init(Object *obj) {
     MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(obj);
 
-    /* initialize the peripheral mmio */
+    /* initialize the bridge mmio */
     memory_region_init_io(&s->bridge_mmio, obj, &mv88f5181L_bridge_ops, s, TYPE_MV88F5181L_PERIPHERALS, MV88F5181L_BRIDGE_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->bridge_mmio);
+
+    /* initialize GPIO in */
+    qdev_init_gpio_in_named(DEVICE(s), mv88f5181L_bridge_set_irq, MV88F5181L_BRIDGE_IRQ, 32);
 
     /* initialize the timer */
     sysbus_init_child_obj(obj, "timer", &s->timer, sizeof(s->timer), TYPE_MV88F5181L_TIMER);
@@ -114,7 +121,10 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, MV88F5181L_TIMER_RAM_BASE);
-    sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->timer));
+
+    /* connect the timer to the bridge */
+    sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 0,
+        qdev_get_gpio_in_named(DEVICE(&s), MV88F5181L_BRIDGE_IRQ, 0));
 
     /* realize the uart */
     object_property_set_bool(OBJECT(&s->uart), true, "realized", &err);
@@ -123,8 +133,6 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->uart), 0, MV88F5181L_UART_RAM_BASE);
-    /* fix me */
-    /* sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->uart)); */
 
     /* realize the uart */
     object_property_set_bool(OBJECT(&s->gpio), true, "realized", &err);
@@ -133,8 +141,6 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->gpio), 0, MV88F5181L_GPIO_RAM_BASE);
-    /* fix me */
-    /* sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->uart)); */
 
     /* realize the pcie */
     object_property_set_bool(OBJECT(&s->pcie), true, "realized", &err);

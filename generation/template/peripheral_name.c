@@ -15,6 +15,11 @@ static void {{peripheral_name}}_register_types(void);
 static void {{bridge_name}}_update({{peripheral_name|upper|concat}}State *s) {
 }
 
+static void {{bridge_name}}_set_irq(void *opaque, int irq, int level) {
+    {{peripheral_name|upper|concat}}State *s = opaque;
+
+}
+
 static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     {{peripheral_name|upper|concat}}State *s = opaque;
     uint32_t res = 0;
@@ -44,7 +49,6 @@ static void {{bridge_name}}_write(void *opaque, hwaddr offset, uint64_t val, uns
     {{bridge_name}}_update(s);
 }
 
-
 static const MemoryRegionOps {{bridge_name}}_ops = {
     .read = {{bridge_name}}_read,
     .write = {{bridge_name}}_write,
@@ -54,9 +58,12 @@ static const MemoryRegionOps {{bridge_name}}_ops = {
 static void {{peripheral_name}}_init(Object *obj) {
     {{peripheral_name|upper|concat}}State *s = {{peripheral_name|upper}}(obj);
 
-    /* initialize the peripheral mmio */
+    /* initialize the bridge mmio */
     memory_region_init_io(&s->bridge_mmio, obj, &{{bridge_name}}_ops, s, TYPE_{{peripheral_name|upper}}, {{bridge_name|upper}}_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->bridge_mmio);
+
+    /* initialize GPIO in */
+    qdev_init_gpio_in_named(DEVICE(s), {{bridge_name}}_set_irq, {{bridge_name|upper}}_IRQ, 32);
 
     /* initialize the timer */
     sysbus_init_child_obj(obj, "timer", &s->timer, sizeof(s->timer), TYPE_{{timer_name|upper}});
@@ -82,7 +89,10 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{timer_name|upper}}_RAM_BASE);
-    sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->timer));
+
+    /* connect the timer to the bridge */
+    sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 0,
+        qdev_get_gpio_in_named(DEVICE(&s), {{bridge_name|upper}}_IRQ, 0));
 
     /* realize the uart */
     object_property_set_bool(OBJECT(&s->uart), true, "realized", &err);
@@ -91,8 +101,6 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->uart), 0, {{uart_name|upper}}_RAM_BASE);
-    /* fix me */
-    /* sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->uart)); */
 
     /* realize the uart */
     object_property_set_bool(OBJECT(&s->gpio), true, "realized", &err);
@@ -101,8 +109,6 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->gpio), 0, {{gpio_name|upper}}_RAM_BASE);
-    /* fix me */
-    /* sysbus_pass_irq(SYS_BUS_DEVICE(s), SYS_BUS_DEVICE(&s->uart)); */
 
     /* realize the pcie */
     object_property_set_bool(OBJECT(&s->pcie), true, "realized", &err);

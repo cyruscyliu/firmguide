@@ -21,6 +21,8 @@
 #define {{bridge_name|upper}}_RAM_SIZE {{bridge_ram_size}}
 #define {{bridge_name|upper}}_RAM_BASE {{bridge_ram_base}}
 
+#define {{bridge_name|upper}}_IRQ "{{bridge_name}}_irq"
+
 typedef struct {{peripheral_name|upper|concat}}State {
     /*< private >*/
     SysBusDevice sys_bus;
