@@ -21,8 +21,35 @@ static void mv88f5181L_timer_register_types(void);
 static void mv88f5181L_timer_update(void *opaque) {
     MV88F5181LTIMERState *s = opaque;
 
-    timer_mod(s->timer, 0xffffffffffffff + qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
-    qemu_set_irq(s->irq, 1);
+    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    timer_mod(s->timer, 0x5 + now); /* 200MHZ */
+    if (extract32(s->cpu_timers_control_register, 0, 1)) {
+        if (s->cpu_timer0_register == 0) {
+            qemu_set_irq(s->irq, 1);
+            s->reserved_0 = true;
+            if (extract32(s->cpu_timers_control_register, 1, 1) == 1) {
+                 s->cpu_timer0_register = s->cpu_timer0_reload_register;
+            }
+        }
+        if (extract32(s->cpu_timers_control_register, 1, 1) == 1 ||
+            extract32(s->cpu_timers_control_register, 1, 1) == 0 && !s->reserved_0) {
+            s->cpu_timer0_register--;
+        }
+    }
+
+    if (extract32(s->cpu_timers_control_register, 2, 1) {
+        if (s->cpu_timer1_register == 0) {
+            qemu_set_irq(s->irq, 1);
+            s->reserved_1 = true;
+            if (extract32(s->cpu_timers_control_register, 3, 1) == 1) {
+                 s->cpu_timer1_register = s->cpu_timer1_reload_register;
+            }
+        }
+        if (extract32(s->cpu_timers_control_register, 3, 1) == 1 ||
+            extract32(s->cpu_timers_control_register, 3, 1) == 0 && !s->reserved_1) {
+            s->cpu_timer1_register--;
+        }
+    }
 }
 
 static void mv88f5181L_timer_callback(void *opaque) {
@@ -127,6 +154,9 @@ static void mv88f5181L_timer_reset(DeviceState *dev) {
     s->cpu_timer1_register = 0;
     s->cpu_watchdog_timer_reload_register = 0;
     s->cpu_watchdog_timer_register = 0;
+    s->reserved_0 = 0;
+    s->reserved_1 = 0;
+    s->reserved_2 = 0;
 }
 
 static void mv88f5181L_timer_class_init(ObjectClass *klass, void *data) {

@@ -26,6 +26,9 @@ typedef struct {{timer_name|upper|concat}}State {
 
     {% for register in timer_registers %}uint32_t {{register.name}};
     {% endfor %}
+    uint32_t reserved_0;
+    uint32_t reserved_1;
+    uint32_t reserved_2;
 } {{timer_name|upper|concat}}State;
 
 #endif /* {{timer_name|upper}}_H */

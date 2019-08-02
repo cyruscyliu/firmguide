@@ -40,6 +40,9 @@ typedef struct MV88F5181LTIMERState {
     uint32_t cpu_watchdog_timer_reload_register;
     uint32_t cpu_watchdog_timer_register;
     
+    uint32_t reserved_0;
+    uint32_t reserved_1;
+    uint32_t reserved_2;
 } MV88F5181LTIMERState;
 
 #endif /* MV88F5181L_TIMER_H */
