@@ -29,7 +29,7 @@ typedef struct {{peripheral_name|upper|concat}}State {
     /*< public >*/
 
     MemoryRegion bridge_mmio;
-    qemu_irq = bridge_irq;
+    qemu_irq irq;
 
     {% for register in bridge_registers %}uint32_t {{register.name}};
     {% endfor %}

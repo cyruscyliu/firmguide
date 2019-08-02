@@ -12,9 +12,9 @@ static void {{peripheral_name}}_init(Object *obj);
 static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data);
 static void {{peripheral_name}}_register_types(void);
 
-static void {{bridge_name}}_update({{peripheral_name|upper|concat}}State *s) {
+static void {{bridge_name}}_update(void *opaque) {
     {{peripheral_name|upper|concat}}State *s = opaque;
-    if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask) {
+    if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
         qemu_set_irq(s->irq, 1);
     }
 }
@@ -70,7 +70,7 @@ static void {{peripheral_name}}_init(Object *obj) {
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->bridge_mmio);
 
     /* initialize the bridge irq */
-    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->bridge_irq);
+    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
 
     /* initialize GPIO in */
     qdev_init_gpio_in_named(DEVICE(s), {{bridge_name}}_set_irq, {{bridge_name|upper}}_IRQ, 32);
