@@ -30,12 +30,12 @@ static void {{timer_name}}_update(void *opaque) {
             }
         }
         if (extract32(s->cpu_timers_control_register, 1, 1) == 1 ||
-            extract32(s->cpu_timers_control_register, 1, 1) == 0 && !s->reserved_0) {
+            (extract32(s->cpu_timers_control_register, 1, 1) == 0 && !s->reserved_0)) {
             s->cpu_timer0_register--;
         }
     }
 
-    if (extract32(s->cpu_timers_control_register, 2, 1) {
+    if (extract32(s->cpu_timers_control_register, 2, 1)) {
         if (s->cpu_timer1_register == 0) {
             qemu_set_irq(s->irq, 1);
             s->reserved_1 = true;
@@ -44,7 +44,7 @@ static void {{timer_name}}_update(void *opaque) {
             }
         }
         if (extract32(s->cpu_timers_control_register, 3, 1) == 1 ||
-            extract32(s->cpu_timers_control_register, 3, 1) == 0 && !s->reserved_1) {
+            (extract32(s->cpu_timers_control_register, 3, 1) == 0 && !s->reserved_1)) {
             s->cpu_timer1_register--;
         }
     }
