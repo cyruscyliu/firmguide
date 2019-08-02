@@ -2,6 +2,7 @@
 
 #include "qemu/osdep.h"
 #include "qemu/log.h"
+#include "qemu/timer.h"
 #include "hw/timer/{{timer_name}}.h"
 
 static void {{timer_name}}_callback(void *opaque);
