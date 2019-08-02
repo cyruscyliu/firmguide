@@ -22,8 +22,13 @@ static void {{timer_name}}_update(void *opaque) {
     if (!s->timer0_enable) {
         return;
     }
-    timer_mod(s->timer, 0xffffffffffff + qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+    timer_mod(s->timer, 0xffffffffffffff + qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+    if (s->timer0_counter) {
+        s->timer0_counter--;
+        return;
+    }
     qemu_set_irq(s->irq, 1);
+    s->timer0_counter = 0x1000;
 
 }
 static void {{timer_name}}_callback(void *opaque) {
@@ -78,7 +83,8 @@ static void {{timer_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsi
         s->timer0_reload = extract64(val, 0, 32);
         break;
     case CPU_TIMER0_REGISTER:
-        s->timer0_counter = extract64(val, 0, 32);
+        /* s->timer0_counter = extract64(val, 0, 32); */
+        s->timer0_counter = 0x1000;
         break;
     case CPU_TIMER1_RELOAD_REGISTER:
         /* do nothing */
