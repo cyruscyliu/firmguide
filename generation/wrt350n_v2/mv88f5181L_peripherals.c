@@ -14,9 +14,9 @@ static void mv88f5181L_peripherals_init(Object *obj);
 static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data);
 static void mv88f5181L_peripherals_register_types(void);
 
-static void mv88f5181L_bridge_update(MV88F5181LPERIPHERALSState *s) {
+static void mv88f5181L_bridge_update(void *opaque) {
     MV88F5181LPERIPHERALSState *s = opaque;
-    if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask) {
+    if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
         qemu_set_irq(s->irq, 1);
     }
 }
@@ -102,7 +102,7 @@ static void mv88f5181L_peripherals_init(Object *obj) {
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->bridge_mmio);
 
     /* initialize the bridge irq */
-    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->bridge_irq);
+    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
 
     /* initialize GPIO in */
     qdev_init_gpio_in_named(DEVICE(s), mv88f5181L_bridge_set_irq, MV88F5181L_BRIDGE_IRQ, 32);

@@ -16,7 +16,7 @@
 #define {{peripheral_name|upper}}_RAM_SIZE {{peripheral_ram_size}}
 #define {{peripheral_name|upper}}_RAM_BASE {{peripheral_ram_base}}
 {% for register in bridge_registers %}
-#define {{register.name|upper}} {{register.offset}}{%endfor %}
+#define {{register.name|upper}} {{register.offset}}{% endfor %}
 
 #define {{bridge_name|upper}}_RAM_SIZE {{bridge_ram_size}}
 #define {{bridge_name|upper}}_RAM_BASE {{bridge_ram_base}}

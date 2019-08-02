@@ -59,16 +59,20 @@ machine:
         pcie_name: "mv88f5181L_pcie"
         pcie_ram_base: "0xf1040000"
         pcie_ram_size: "0x10000"
-    local_interrupt_controller:
+    interrupt_controller:
       ic_name: "mv88f5181L_ic"
       ic_ram_base: "0xf1020200"
       ic_ram_size: "0x100"
-      b_fiqs: 8
-      n_irqs: 32
-      l_irqs:
-        - 32
-      i_irqs:
-        - 0
+      ic_registers:
+        - name: "main_interrupt_cause_register"
+          offset: "0x00"
+        - name: "main_irq_interrupt_mask_register"
+          offset: "0x04"
+        - name: "main_fiq_interrupt_mask_register"
+          offset: "0x08"
+        - name: "main_endpoint_interrupt_mask_register"
+          offset: "0x0c"
+      ic_n_irqs: 32
   ram:
     ram_size: "32 * MiB"
   boot_device:

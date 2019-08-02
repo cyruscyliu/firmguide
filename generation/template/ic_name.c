@@ -15,10 +15,21 @@ static void {{ic_name}}_init(Object *obj);
 static void {{ic_name}}_class_init(ObjectClass *kclass, void *data);
 static void {{ic_name}}_register_types(void);
 
+static void {{ic_name}}_update({{ic_name|upper|concat}}State *s) {
+    {{ic_name|upper|concat}}State *s = opaque;
+    if (extract32(s->main_interrupt_cause_register, 0, 1)) {
+        if (s->main_interrupt_cause_register & s->main_irq_interrupt_mask_register) {
+            qemu_set_irq(s->irq, 1);
+        }
+    }
+}
+
 static void {{ic_name}}_set_irq(void *opaque, int irq, int level) {
-    {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(opaque);
-    s->irq_level_0 = deposit32(s->irq_level_0, irq, 1, level != 0);
-    {{ic_name}}_update(s);
+    {{ic_name|upper|concat}}State *s = opaque;
+    if (level) {
+        deposit32(s->main_interrupt_cause_register, irq, 1, level);
+        {{ic_name}}_update(s);
+    }
 }
 
 static uint64_t {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) {
@@ -26,22 +37,13 @@ static uint64_t {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     uint32_t res = 0;
 
     switch (offset) {
-    case MAIN_INTERRUPT_CAUSE_REGISTER:
-        res = s->irq_level_0;
-        break;
-    case MAIN_IRQ_INTERRUPT_MASK_REGISTER:
-        res = s->irq_enable_0;
-        break;
-    case MAIN_FIQ_INTERRUPT_MASK_REGISTER:
-        res = s->fiq_enable_0;
-        break;
-    case MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER:
-        /* do nothing */
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return 0;
-    }
+    {% for register in ic_registers %}case {{register.name|upper}}:
+        res = s->{{register.name}};
+        break;
+    {% endfor %}}
     return res;
 }
 
@@ -49,40 +51,21 @@ static void {{ic_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigne
     {{ic_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
-    case MAIN_INTERRUPT_CAUSE_REGISTER:
-        s->irq_level_0 = extract64(val, 0, 32);
-        break;
-    case MAIN_IRQ_INTERRUPT_MASK_REGISTER:
-        s->irq_enable_0 |= extract64(val, 0, 32);
-        break;
-    case MAIN_FIQ_INTERRUPT_MASK_REGISTER:
-        s->fiq_enable_0 |= extract64(val, 0, 32);
-        break;
-    case MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER:
-        /* do nothing */
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return;
+    {% for register in ic_registers %}case {{register.name|upper}}:
+        s->{{register.name}} = val;
+        break;
     }
+    {% endfor %}
     {{ic_name}}_update(s);
-}
-
-static void {{ic_name}}_update({{ic_name|upper|concat}}State *s) {
-    bool set = false;
-
-    set = (s->irq_level_0 & s->fiq_enable_0);
-    qemu_set_irq(s->fiq, set);
-    set = (s->irq_level_0 & s->irq_enable_0);
-    qemu_set_irq(s->irq, 1);
 }
 
 static const MemoryRegionOps {{ic_name}}_ops = {
     .read = {{ic_name}}_read,
     .write = {{ic_name}}_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
-    .valid.min_access_size = 4,
-    .valid.max_access_size = 4,
 };
 
 static void {{ic_name}}_init(Object *obj) {
@@ -97,15 +80,12 @@ static void {{ic_name}}_init(Object *obj) {
 
     /* initialize the irq/fip to cpu */
     qdev_init_gpio_out_named(DEVICE(s), &s->irq, "irq", 1);
-    qdev_init_gpio_out_named(DEVICE(s), &s->fiq, "fiq", 1);
 }
 
-static void {{ic_name}}_reset(DeviceState *d) {
-    {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(d);
-    {% for i in i_irqs %}{% for n in l_irqs %}
-    s->irq_level_{{i}} = 0;
-    s->irq_enable_{{i}} = 0;
-    s->fiq_enable_{{i}} = 0;{% endfor %}{% endfor %}
+static void {{ic_name}}_reset(DeviceState *dev) {
+    {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(dev);
+    {% for register in ic_registers %}
+    s->{{register.name}} = 0;{% endfor %}
 }
 
 static void {{ic_name}}_class_init(ObjectClass *klass, void *data) {

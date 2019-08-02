@@ -13,8 +13,6 @@
 #define MV88F5181L(obj) \
     OBJECT_CHECK(MV88F5181LState, (obj), TYPE_MV88F5181L)
 
-#define TIMER_INTERRUPT 0
-
 typedef struct MV88F5181LState {
     /*< private >*/
     DeviceState parent_obj;

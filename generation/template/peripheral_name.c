@@ -14,8 +14,10 @@ static void {{peripheral_name}}_register_types(void);
 
 static void {{bridge_name}}_update(void *opaque) {
     {{peripheral_name|upper|concat}}State *s = opaque;
-    if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
-        qemu_set_irq(s->irq, 1);
+    if (extract32(s->bridge_interrupt_cause_register, 1, 1)) {
+        if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
+            qemu_set_irq(s->irq, 1);
+        }
     }
 }
 

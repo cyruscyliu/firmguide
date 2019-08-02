@@ -73,13 +73,11 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
 
     /* connect irq from the peripheral to the interrupt controller */
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals), 0,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, TIMER_INTERRUPT));
+        qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, 0));
 
     /* connect irq/fiq outputs from the interrupt controller to the cpu */
     qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0,
             qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));
-    qdev_connect_gpio_out_named(DEVICE(&s->ic), "fiq", 0,
-            qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_FIQ));
 }
 
 

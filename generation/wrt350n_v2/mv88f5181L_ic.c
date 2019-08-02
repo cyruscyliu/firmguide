@@ -17,10 +17,13 @@ static void mv88f5181L_ic_init(Object *obj);
 static void mv88f5181L_ic_class_init(ObjectClass *kclass, void *data);
 static void mv88f5181L_ic_register_types(void);
 
+static void mv88f5181L_ic_update(MV88F5181LICState *s) {
+}
+
 static void mv88f5181L_ic_set_irq(void *opaque, int irq, int level) {
-    MV88F5181LICState *s = MV88F5181L_IC(opaque);
-    s->irq_level_0 = deposit32(s->irq_level_0, irq, 1, level != 0);
-    mv88f5181L_ic_update(s);
+    MV88F5181LICState *s = opaque;
+    if (s->)
+
 }
 
 static uint64_t mv88f5181L_ic_read(void *opaque, hwaddr offset, unsigned size) {
@@ -28,21 +31,21 @@ static uint64_t mv88f5181L_ic_read(void *opaque, hwaddr offset, unsigned size) {
     uint32_t res = 0;
 
     switch (offset) {
-    case MAIN_INTERRUPT_CAUSE_REGISTER:
-        res = s->irq_level_0;
-        break;
-    case MAIN_IRQ_INTERRUPT_MASK_REGISTER:
-        res = s->irq_enable_0;
-        break;
-    case MAIN_FIQ_INTERRUPT_MASK_REGISTER:
-        res = s->fiq_enable_0;
-        break;
-    case MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER:
-        /* do nothing */
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return 0;
+    case MAIN_INTERRUPT_CAUSE_REGISTER:
+        res = s->main_interrupt_cause_register;
+        break;
+    case MAIN_IRQ_INTERRUPT_MASK_REGISTER:
+        res = s->main_irq_interrupt_mask_register;
+        break;
+    case MAIN_FIQ_INTERRUPT_MASK_REGISTER:
+        res = s->main_fiq_interrupt_mask_register;
+        break;
+    case MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER:
+        res = s->main_endpoint_interrupt_mask_register;
+        break;
     }
     return res;
 }
@@ -51,40 +54,33 @@ static void mv88f5181L_ic_write(void *opaque, hwaddr offset, uint64_t val, unsig
     MV88F5181LICState *s = opaque;
 
     switch (offset) {
-    case MAIN_INTERRUPT_CAUSE_REGISTER:
-        s->irq_level_0 = extract64(val, 0, 32);
-        break;
-    case MAIN_IRQ_INTERRUPT_MASK_REGISTER:
-        s->irq_enable_0 |= extract64(val, 0, 32);
-        break;
-    case MAIN_FIQ_INTERRUPT_MASK_REGISTER:
-        s->fiq_enable_0 |= extract64(val, 0, 32);
-        break;
-    case MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER:
-        /* do nothing */
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return;
+    case MAIN_INTERRUPT_CAUSE_REGISTER:
+        s->main_interrupt_cause_register = val;
+        break;
     }
+    case MAIN_IRQ_INTERRUPT_MASK_REGISTER:
+        s->main_irq_interrupt_mask_register = val;
+        break;
+    }
+    case MAIN_FIQ_INTERRUPT_MASK_REGISTER:
+        s->main_fiq_interrupt_mask_register = val;
+        break;
+    }
+    case MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER:
+        s->main_endpoint_interrupt_mask_register = val;
+        break;
+    }
+    
     mv88f5181L_ic_update(s);
-}
-
-static void mv88f5181L_ic_update(MV88F5181LICState *s) {
-    bool set = false;
-
-    set = (s->irq_level_0 & s->fiq_enable_0);
-    qemu_set_irq(s->fiq, set);
-    set = (s->irq_level_0 & s->irq_enable_0);
-    qemu_set_irq(s->irq, 1);
 }
 
 static const MemoryRegionOps mv88f5181L_ic_ops = {
     .read = mv88f5181L_ic_read,
     .write = mv88f5181L_ic_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
-    .valid.min_access_size = 4,
-    .valid.max_access_size = 4,
 };
 
 static void mv88f5181L_ic_init(Object *obj) {
@@ -99,15 +95,15 @@ static void mv88f5181L_ic_init(Object *obj) {
 
     /* initialize the irq/fip to cpu */
     qdev_init_gpio_out_named(DEVICE(s), &s->irq, "irq", 1);
-    qdev_init_gpio_out_named(DEVICE(s), &s->fiq, "fiq", 1);
 }
 
-static void mv88f5181L_ic_reset(DeviceState *d) {
-    MV88F5181LICState *s = MV88F5181L_IC(d);
+static void mv88f5181L_ic_reset(DeviceState *dev) {
+    MV88F5181LICState *s = MV88F5181L_IC(dev);
     
-    s->irq_level_0 = 0;
-    s->irq_enable_0 = 0;
-    s->fiq_enable_0 = 0;
+    s->main_interrupt_cause_register = 0;
+    s->main_irq_interrupt_mask_register = 0;
+    s->main_fiq_interrupt_mask_register = 0;
+    s->main_endpoint_interrupt_mask_register = 0;
 }
 
 static void mv88f5181L_ic_class_init(ObjectClass *klass, void *data) {
