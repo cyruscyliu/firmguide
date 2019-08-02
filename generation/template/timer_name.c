@@ -22,7 +22,7 @@ static void {{timer_name}}_update(void *opaque) {
     if (!s->timer0_enable) {
         return;
     }
-    timer_mod(s->timer, 0xffffffff + qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+    timer_mod(s->timer, 0xffffffffffff + qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
     qemu_set_irq(s->irq, 1);
 
 }
