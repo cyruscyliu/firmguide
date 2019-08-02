@@ -5,7 +5,7 @@
 #include "qemu/log.h"
 
 static void {{ic_name}}_set_irq(void *opaque, int irq, int level);
-static void {{ic_name}}_update({{ic_name|upper|concat}}State *s);
+static void {{ic_name}}_update(void *opaque);
 static void {{ic_name}}_reset(DeviceState *d);
 
 static uint64_t {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size);
