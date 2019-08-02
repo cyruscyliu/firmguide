@@ -19,17 +19,10 @@ static void {{timer_name}}_register_types(void);
 static void {{timer_name}}_update(void *opaque) {
     {{timer_name|upper|concat}}State *s = opaque;
 
-    if (extract32(s->cpu_timers_control_register))
-
     timer_mod(s->timer, 0xffffffffffffff + qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
-    if (s->timer0_counter) {
-        s->timer0_counter--;
-        return;
-    }
     qemu_set_irq(s->irq, 1);
-    s->timer0_counter = 0x1000;
-
 }
+
 static void {{timer_name}}_callback(void *opaque) {
     {{timer_name|upper|concat}}State *s = opaque;
 

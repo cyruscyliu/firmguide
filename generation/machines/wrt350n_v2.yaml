@@ -32,7 +32,7 @@ machine:
           - name: "cpu_watchdog_timer_reload_register"
             offset: "0x20"
           - name: "cpu_watchdog_timer_register"
-            offset: "0x20"
+            offset: "0x24"
       uart:
         uart_name: "mv88f5181L_uart"
         uart_ram_base: "0xf1012000"
