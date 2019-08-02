@@ -17,13 +17,21 @@ static void mv88f5181L_ic_init(Object *obj);
 static void mv88f5181L_ic_class_init(ObjectClass *kclass, void *data);
 static void mv88f5181L_ic_register_types(void);
 
-static void mv88f5181L_ic_update(MV88F5181LICState *s) {
+static void mv88f5181L_ic_update(void *opaque) {
+    MV88F5181LICState *s = opaque;
+    if (extract32(s->main_interrupt_cause_register, 0, 1)) {
+        if (s->main_interrupt_cause_register & s->main_irq_interrupt_mask_register) {
+            qemu_set_irq(s->irq, 1);
+        }
+    }
 }
 
 static void mv88f5181L_ic_set_irq(void *opaque, int irq, int level) {
     MV88F5181LICState *s = opaque;
-    if (s->)
-
+    if (level) {
+        deposit32(s->main_interrupt_cause_register, irq, 1, level);
+        mv88f5181L_ic_update(s);
+    }
 }
 
 static uint64_t mv88f5181L_ic_read(void *opaque, hwaddr offset, unsigned size) {
@@ -60,20 +68,16 @@ static void mv88f5181L_ic_write(void *opaque, hwaddr offset, uint64_t val, unsig
     case MAIN_INTERRUPT_CAUSE_REGISTER:
         s->main_interrupt_cause_register = val;
         break;
-    }
     case MAIN_IRQ_INTERRUPT_MASK_REGISTER:
         s->main_irq_interrupt_mask_register = val;
         break;
-    }
     case MAIN_FIQ_INTERRUPT_MASK_REGISTER:
         s->main_fiq_interrupt_mask_register = val;
         break;
-    }
     case MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER:
         s->main_endpoint_interrupt_mask_register = val;
         break;
     }
-    
     mv88f5181L_ic_update(s);
 }
 

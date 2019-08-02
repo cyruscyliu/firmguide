@@ -15,7 +15,7 @@ static void {{ic_name}}_init(Object *obj);
 static void {{ic_name}}_class_init(ObjectClass *kclass, void *data);
 static void {{ic_name}}_register_types(void);
 
-static void {{ic_name}}_update({{ic_name|upper|concat}}State *s) {
+static void {{ic_name}}_update(void *opaque) {
     {{ic_name|upper|concat}}State *s = opaque;
     if (extract32(s->main_interrupt_cause_register, 0, 1)) {
         if (s->main_interrupt_cause_register & s->main_irq_interrupt_mask_register) {
@@ -57,8 +57,7 @@ static void {{ic_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigne
     {% for register in ic_registers %}case {{register.name|upper}}:
         s->{{register.name}} = val;
         break;
-    }
-    {% endfor %}
+    {% endfor %}}
     {{ic_name}}_update(s);
 }
 

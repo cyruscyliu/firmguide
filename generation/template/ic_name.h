@@ -26,7 +26,7 @@ typedef struct {{ic_name|upper|concat}}State {
     /* output to the cpu */
     qemu_irq irq;
 
-    {% for register in bridge_registers %}uint32_t {{register.name}};
+    {% for register in ic_registers %}uint32_t {{register.name}};
     {% endfor %}
 
 } {{ic_name|upper|concat}}State;

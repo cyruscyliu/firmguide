@@ -31,12 +31,10 @@ typedef struct MV88F5181LICState {
     /* output to the cpu */
     qemu_irq irq;
 
-    uint32_t bridge_configuration_register;
-    uint32_t bridge_control_and_status_register;
-    uint32_t bridge_rstoutn_mask_register;
-    uint32_t bridge_system_soft_reset_register;
-    uint32_t bridge_interrupt_cause_register;
-    uint32_t bridge_interrupt_mask_register;
+    uint32_t main_interrupt_cause_register;
+    uint32_t main_irq_interrupt_mask_register;
+    uint32_t main_fiq_interrupt_mask_register;
+    uint32_t main_endpoint_interrupt_mask_register;
     
 
 } MV88F5181LICState;

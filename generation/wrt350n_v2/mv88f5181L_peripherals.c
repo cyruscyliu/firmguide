@@ -16,8 +16,10 @@ static void mv88f5181L_peripherals_register_types(void);
 
 static void mv88f5181L_bridge_update(void *opaque) {
     MV88F5181LPERIPHERALSState *s = opaque;
-    if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
-        qemu_set_irq(s->irq, 1);
+    if (extract32(s->bridge_interrupt_cause_register, 1, 1)) {
+        if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
+            qemu_set_irq(s->irq, 1);
+        }
     }
 }
 
