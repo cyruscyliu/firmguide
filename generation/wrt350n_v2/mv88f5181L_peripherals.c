@@ -43,7 +43,7 @@ static uint64_t mv88f5181L_bridge_read(void *opaque, hwaddr offset, unsigned siz
     case BRIDGE_INTERRUPT_MASK_REGISTER:
         res = s->bridge_interrupt_mask_register;
         break;
-    
+    }
     return res;
 }
 

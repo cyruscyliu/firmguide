@@ -26,7 +26,7 @@ static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size)
     {% for register in bridge_registers %}case {{register.name|upper}}:
         res = s->{{register.name}};
         break;
-    {% endfor %}
+    {% endfor %}}
     return res;
 }
 
