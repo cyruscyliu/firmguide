@@ -9,7 +9,7 @@
 #include "hw/gpio/{{gpio_name}}.h"
 #include "hw/pci-host/{{pcie_name}}.h"
 
-#define TYPE_{{peripheral_name|upper}} "{{peripheral_name|upper}}"
+#define TYPE_{{peripheral_name|upper}} "{{peripheral_name}}"
 #define {{peripheral_name|upper}}(obj) \
     OBJECT_CHECK({{peripheral_name|upper|concat}}State, (obj),  TYPE_{{peripheral_name|upper}})
 

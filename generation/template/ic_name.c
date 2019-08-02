@@ -74,7 +74,7 @@ static void {{ic_name}}_update({{ic_name|upper|concat}}State *s) {
     set = (s->irq_level_0 & s->fiq_enable_0);
     qemu_set_irq(s->fiq, set);
     set = (s->irq_level_0 & s->irq_enable_0);
-    qemu_set_irq(s->irq, set);
+    qemu_set_irq(s->irq, 1);
 }
 
 static const MemoryRegionOps {{ic_name}}_ops = {

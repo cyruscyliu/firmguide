@@ -76,7 +76,7 @@ static void mv88f5181L_ic_update(MV88F5181LICState *s) {
     set = (s->irq_level_0 & s->fiq_enable_0);
     qemu_set_irq(s->fiq, set);
     set = (s->irq_level_0 & s->irq_enable_0);
-    qemu_set_irq(s->irq, set);
+    qemu_set_irq(s->irq, 1);
 }
 
 static const MemoryRegionOps mv88f5181L_ic_ops = {

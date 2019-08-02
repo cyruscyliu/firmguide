@@ -21,16 +21,8 @@ static void {{timer_name}}_update(void *opaque) {
     if (!s->timer0_enable) {
         return;
     }
-    if (s->timer0_counter == 0) {
-        if (s->timer0_auto_mode == 0) {
-            return;
-        } else {
-            s->timer0_counter = s->timer0_reload;
-            timer_mod(s->timer, 10);
-        }
-        qemu_set_irq(s->irq, 1);
-    }
-    s->timer0_counter--;
+    timer_mod(s->timer, 0xffffffff + get_qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+    qemu_set_irq(s->irq, 1);
 
 }
 static void {{timer_name}}_callback(void *opaque) {
