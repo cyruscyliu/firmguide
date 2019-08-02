@@ -4,6 +4,7 @@
 
 #include "qemu/osdep.h"
 #include "qemu/log.h"
+#include "qemu/timer.h"
 #include "hw/timer/mv88f5181L_timer.h"
 
 static void mv88f5181L_timer_callback(void *opaque);
@@ -23,7 +24,7 @@ static void mv88f5181L_timer_update(void *opaque) {
     if (!s->timer0_enable) {
         return;
     }
-    timer_mod(s->timer, 0xffffffff + get_qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+    timer_mod(s->timer, 0xffffffff + qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
     qemu_set_irq(s->irq, 1);
 
 }
