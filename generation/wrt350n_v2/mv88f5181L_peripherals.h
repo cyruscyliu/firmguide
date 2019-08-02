@@ -36,6 +36,7 @@ typedef struct MV88F5181LPERIPHERALSState {
     /*< public >*/
 
     MemoryRegion bridge_mmio;
+    qemu_irq = bridge_irq;
 
     uint32_t bridge_configuration_register;
     uint32_t bridge_control_and_status_register;

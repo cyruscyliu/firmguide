@@ -13,11 +13,18 @@ static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data);
 static void {{peripheral_name}}_register_types(void);
 
 static void {{bridge_name}}_update({{peripheral_name|upper|concat}}State *s) {
+    {{peripheral_name|upper|concat}}State *s = opaque;
+    if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask) {
+        qemu_set_irq(s->irq, 1);
+    }
 }
 
 static void {{bridge_name}}_set_irq(void *opaque, int irq, int level) {
     {{peripheral_name|upper|concat}}State *s = opaque;
-
+    if (level) {
+        deposit32(s->bridge_interrupt_cause_register, irq, 1, level);
+        {{bridge_name}}_update(s);
+    }
 }
 
 static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size) {
@@ -62,6 +69,9 @@ static void {{peripheral_name}}_init(Object *obj) {
     memory_region_init_io(&s->bridge_mmio, obj, &{{bridge_name}}_ops, s, TYPE_{{peripheral_name|upper}}, {{bridge_name|upper}}_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->bridge_mmio);
 
+    /* initialize the bridge irq */
+    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->bridge_irq);
+
     /* initialize GPIO in */
     qdev_init_gpio_in_named(DEVICE(s), {{bridge_name}}_set_irq, {{bridge_name|upper}}_IRQ, 32);
 
@@ -92,7 +102,7 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
 
     /* connect the timer to the bridge */
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 0,
-        qdev_get_gpio_in_named(DEVICE(&s), {{bridge_name|upper}}_IRQ, 0));
+        qdev_get_gpio_in_named(DEVICE(&s), {{bridge_name|upper}}_IRQ, 1));
 
     /* realize the uart */
     object_property_set_bool(OBJECT(&s->uart), true, "realized", &err);

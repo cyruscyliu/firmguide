@@ -15,11 +15,18 @@ static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data);
 static void mv88f5181L_peripherals_register_types(void);
 
 static void mv88f5181L_bridge_update(MV88F5181LPERIPHERALSState *s) {
+    MV88F5181LPERIPHERALSState *s = opaque;
+    if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask) {
+        qemu_set_irq(s->irq, 1);
+    }
 }
 
 static void mv88f5181L_bridge_set_irq(void *opaque, int irq, int level) {
     MV88F5181LPERIPHERALSState *s = opaque;
-
+    if (level) {
+        deposit32(s->bridge_interrupt_cause_register, irq, 1, level);
+        mv88f5181L_bridge_update(s);
+    }
 }
 
 static uint64_t mv88f5181L_bridge_read(void *opaque, hwaddr offset, unsigned size) {
@@ -94,6 +101,9 @@ static void mv88f5181L_peripherals_init(Object *obj) {
     memory_region_init_io(&s->bridge_mmio, obj, &mv88f5181L_bridge_ops, s, TYPE_MV88F5181L_PERIPHERALS, MV88F5181L_BRIDGE_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->bridge_mmio);
 
+    /* initialize the bridge irq */
+    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->bridge_irq);
+
     /* initialize GPIO in */
     qdev_init_gpio_in_named(DEVICE(s), mv88f5181L_bridge_set_irq, MV88F5181L_BRIDGE_IRQ, 32);
 
@@ -124,7 +134,7 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
 
     /* connect the timer to the bridge */
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 0,
-        qdev_get_gpio_in_named(DEVICE(&s), MV88F5181L_BRIDGE_IRQ, 0));
+        qdev_get_gpio_in_named(DEVICE(&s), MV88F5181L_BRIDGE_IRQ, 1));
 
     /* realize the uart */
     object_property_set_bool(OBJECT(&s->uart), true, "realized", &err);
