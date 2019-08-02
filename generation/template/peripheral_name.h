@@ -15,13 +15,8 @@
 
 #define {{peripheral_name|upper}}_RAM_SIZE {{peripheral_ram_size}}
 #define {{peripheral_name|upper}}_RAM_BASE {{peripheral_ram_base}}
-
-#define BRIDGE_CONFIGURATION_REGISTER      0x00
-#define BRIDGE_CONTROL_AND_STATUS_REGISTER 0x04
-#define BRIDGE_RSTOUTn_MASK_RESTIER        0x08
-#define BRIDGE_SYSTEM_SOFT_RESET_REGISTER  0x0C
-#define BRIDGE_INTERRUPT_CAUSE_REGISTER    0x10
-#define BRIDGE_INTERRUPT_MASK_REGISTER     0x14
+{% for register in bridge_registers %}
+#define {{register.name|upper}} {{register.offset}}{%endfor %}
 
 #define {{bridge_name|upper}}_RAM_SIZE {{bridge_ram_size}}
 #define {{bridge_name|upper}}_RAM_BASE {{bridge_ram_base}}
@@ -32,8 +27,9 @@ typedef struct {{peripheral_name|upper|concat}}State {
     /*< public >*/
 
     MemoryRegion bridge_mmio;
-    uint32_t bridge_interrupt_cause_register;
-    uint32_t bridge_interrupt_mask_register;
+
+    {% for register in bridge_registers %}uint32_t {{register.name}};
+    {% endfor %}
     {{timer_name|upper|concat}}State timer;
     {{uart_name|upper|concat}}State uart;
     {{gpio_name|upper|concat}}State gpio;

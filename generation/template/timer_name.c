@@ -66,7 +66,7 @@ static uint64_t {{timer_name}}_read(void *opaque, hwaddr offset, unsigned size) 
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
         return 0;
     {% for register in timer_registers %}case {{register.name|upper}}:
-        res = s->{{register.name}};;
+        res = s->{{register.name}};
         break;
     {% endfor %}}
     return res;

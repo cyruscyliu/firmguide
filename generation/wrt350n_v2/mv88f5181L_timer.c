@@ -68,25 +68,25 @@ static uint64_t mv88f5181L_timer_read(void *opaque, hwaddr offset, unsigned size
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
         return 0;
     case CPU_TIMERS_CONTROL_REGISTER:
-        res = s->cpu_timers_control_register;;
+        res = s->cpu_timers_control_register;
         break;
     case CPU_TIMER0_RELOAD_REGISTER:
-        res = s->cpu_timer0_reload_register;;
+        res = s->cpu_timer0_reload_register;
         break;
     case CPU_TIMER0_REGISTER:
-        res = s->cpu_timer0_register;;
+        res = s->cpu_timer0_register;
         break;
     case CPU_TIMER1_RELOAD_REGISTER:
-        res = s->cpu_timer1_reload_register;;
+        res = s->cpu_timer1_reload_register;
         break;
     case CPU_TIMER1_REGISTER:
-        res = s->cpu_timer1_register;;
+        res = s->cpu_timer1_register;
         break;
     case CPU_WATCHDOG_TIMER_RELOAD_REGISTER:
-        res = s->cpu_watchdog_timer_reload_register;;
+        res = s->cpu_watchdog_timer_reload_register;
         break;
     case CPU_WATCHDOG_TIMER_REGISTER:
-        res = s->cpu_watchdog_timer_register;;
+        res = s->cpu_watchdog_timer_register;
         break;
     }
     return res;

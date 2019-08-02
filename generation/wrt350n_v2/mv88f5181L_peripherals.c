@@ -22,17 +22,20 @@ static uint64_t mv88f5181L_bridge_read(void *opaque, hwaddr offset, unsigned siz
     uint32_t res = 0;
 
     switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
     case BRIDGE_CONFIGURATION_REGISTER:
-        /* do nothing */
+        res = s->bridge_configuration_register;
         break;
     case BRIDGE_CONTROL_AND_STATUS_REGISTER:
-        /* do nothing */
+        res = s->bridge_control_and_status_register;
         break;
-    case BRIDGE_RSTOUTn_MASK_RESTIER:
-        /* do nothing */
+    case BRIDGE_RSTOUTN_MASK_REGISTER:
+        res = s->bridge_rstoutn_mask_register;
         break;
     case BRIDGE_SYSTEM_SOFT_RESET_REGISTER:
-        /* do nothing */
+        res = s->bridge_system_soft_reset_register;
         break;
     case BRIDGE_INTERRUPT_CAUSE_REGISTER:
         res = s->bridge_interrupt_cause_register;
@@ -40,10 +43,7 @@ static uint64_t mv88f5181L_bridge_read(void *opaque, hwaddr offset, unsigned siz
     case BRIDGE_INTERRUPT_MASK_REGISTER:
         res = s->bridge_interrupt_mask_register;
         break;
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return 0;
-    }
+    
     return res;
 }
 
@@ -51,17 +51,20 @@ static void mv88f5181L_bridge_write(void *opaque, hwaddr offset, uint64_t val, u
     MV88F5181LPERIPHERALSState *s = opaque;
 
     switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
     case BRIDGE_CONFIGURATION_REGISTER:
-        /* do nothing */
+        s->bridge_configuration_register = val;
         break;
     case BRIDGE_CONTROL_AND_STATUS_REGISTER:
-        /* do nothing */
+        s->bridge_control_and_status_register = val;
         break;
-    case BRIDGE_RSTOUTn_MASK_RESTIER:
-        /* do nothing */
+    case BRIDGE_RSTOUTN_MASK_REGISTER:
+        s->bridge_rstoutn_mask_register = val;
         break;
     case BRIDGE_SYSTEM_SOFT_RESET_REGISTER:
-        /* do nothing */
+        s->bridge_system_soft_reset_register = val;
         break;
     case BRIDGE_INTERRUPT_CAUSE_REGISTER:
         s->bridge_interrupt_cause_register = val;
@@ -69,9 +72,6 @@ static void mv88f5181L_bridge_write(void *opaque, hwaddr offset, uint64_t val, u
     case BRIDGE_INTERRUPT_MASK_REGISTER:
         s->bridge_interrupt_mask_register = val;
         break;
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return;
     }
     mv88f5181L_bridge_update(s);
 }
@@ -147,6 +147,11 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
 
 static void mv88f5181L_bridge_reset(DeviceState *d) {
     MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(d);
+    
+    s->bridge_configuration_register = 0;
+    s->bridge_control_and_status_register = 0;
+    s->bridge_rstoutn_mask_register = 0;
+    s->bridge_system_soft_reset_register = 0;
     s->bridge_interrupt_cause_register = 0;
     s->bridge_interrupt_mask_register = 0;
 }

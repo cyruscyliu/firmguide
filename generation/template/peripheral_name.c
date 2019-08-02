@@ -20,28 +20,13 @@ static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size)
     uint32_t res = 0;
 
     switch (offset) {
-    case BRIDGE_CONFIGURATION_REGISTER:
-        /* do nothing */
-        break;
-    case BRIDGE_CONTROL_AND_STATUS_REGISTER:
-        /* do nothing */
-        break;
-    case BRIDGE_RSTOUTn_MASK_RESTIER:
-        /* do nothing */
-        break;
-    case BRIDGE_SYSTEM_SOFT_RESET_REGISTER:
-        /* do nothing */
-        break;
-    case BRIDGE_INTERRUPT_CAUSE_REGISTER:
-        res = s->bridge_interrupt_cause_register;
-        break;
-    case BRIDGE_INTERRUPT_MASK_REGISTER:
-        res = s->bridge_interrupt_mask_register;
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return 0;
-    }
+    {% for register in bridge_registers %}case {{register.name|upper}}:
+        res = s->{{register.name}};
+        break;
+    {% endfor %}
     return res;
 }
 
@@ -49,28 +34,13 @@ static void {{bridge_name}}_write(void *opaque, hwaddr offset, uint64_t val, uns
     {{peripheral_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
-    case BRIDGE_CONFIGURATION_REGISTER:
-        /* do nothing */
-        break;
-    case BRIDGE_CONTROL_AND_STATUS_REGISTER:
-        /* do nothing */
-        break;
-    case BRIDGE_RSTOUTn_MASK_RESTIER:
-        /* do nothing */
-        break;
-    case BRIDGE_SYSTEM_SOFT_RESET_REGISTER:
-        /* do nothing */
-        break;
-    case BRIDGE_INTERRUPT_CAUSE_REGISTER:
-        s->bridge_interrupt_cause_register = val;
-        break;
-    case BRIDGE_INTERRUPT_MASK_REGISTER:
-        s->bridge_interrupt_mask_register = val;
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return;
-    }
+    {% for register in bridge_registers %}case {{register.name|upper}}:
+        s->{{register.name}} = val;
+        break;
+    {% endfor %}}
     {{bridge_name}}_update(s);
 }
 
@@ -145,8 +115,8 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
 
 static void {{bridge_name}}_reset(DeviceState *d) {
     {{peripheral_name|upper|concat}}State *s = {{peripheral_name|upper}}(d);
-    s->bridge_interrupt_cause_register = 0;
-    s->bridge_interrupt_mask_register = 0;
+    {% for register in bridge_registers %}
+    s->{{register.name}} = 0;{% endfor %}
 }
 
 static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data) {
