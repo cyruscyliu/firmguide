@@ -21,11 +21,15 @@ static void mv88f5181L_timer_register_types(void);
 static void mv88f5181L_timer_update(void *opaque) {
     MV88F5181LTIMERState *s = opaque;
 
-    if (!s->timer0_enable) {
+    if (extract32(s->cpu_timers_control_register))
+
+    timer_mod(s->timer, 0xffffffffffffff + qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+    if (s->timer0_counter) {
+        s->timer0_counter--;
         return;
     }
-    timer_mod(s->timer, 0xffffffffffff + qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
     qemu_set_irq(s->irq, 1);
+    s->timer0_counter = 0x1000;
 
 }
 static void mv88f5181L_timer_callback(void *opaque) {
@@ -35,35 +39,35 @@ static void mv88f5181L_timer_callback(void *opaque) {
 }
 
 static uint64_t mv88f5181L_timer_read(void *opaque, hwaddr offset, unsigned size) {
-    /* MV88F5181LTIMERState *s = opaque; */
+    MV88F5181LTIMERState *s = opaque;
 
     uint64_t res = 0;
 
     switch (offset) {
-    case CPU_TIMERS_CONTROL_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER0_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER0_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER1_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER1_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_WATCHDOG_TIMER_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_WATCHDOG_TIMER_REGISTER:
-        /* do nothing */
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
         return 0;
+    case CPU_TIMERS_CONTROL_REGISTER:
+        res = s->cpu_timers_control_register;;
+        break;
+    case CPU_TIMER0_RELOAD_REGISTER:
+        res = s->cpu_timer0_reload_register;;
+        break;
+    case CPU_TIMER0_REGISTER:
+        res = s->cpu_timer0_register;;
+        break;
+    case CPU_TIMER1_RELOAD_REGISTER:
+        res = s->cpu_timer1_reload_register;;
+        break;
+    case CPU_TIMER1_REGISTER:
+        res = s->cpu_timer1_register;;
+        break;
+    case CPU_WATCHDOG_TIMER_RELOAD_REGISTER:
+        res = s->cpu_watchdog_timer_reload_register;;
+        break;
+    case CPU_WATCHDOG_TIMER_REGISTER:
+        res = s->cpu_watchdog_timer_register;;
+        break;
     }
     return res;
 }
@@ -72,31 +76,30 @@ static void mv88f5181L_timer_write(void *opaque, hwaddr offset, uint64_t val, un
     MV88F5181LTIMERState *s = opaque;
 
     switch (offset) {
-    case CPU_TIMERS_CONTROL_REGISTER:
-        s->timer0_enable = extract64(val, 0, 1);
-        s->timer0_auto_mode = extract64(val, 1, 1);
-        break;
-    case CPU_TIMER0_RELOAD_REGISTER:
-        s->timer0_reload = extract64(val, 0, 32);
-        break;
-    case CPU_TIMER0_REGISTER:
-        s->timer0_counter = extract64(val, 0, 32);
-        break;
-    case CPU_TIMER1_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER1_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_WATCHDOG_TIMER_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_WATCHDOG_TIMER_REGISTER:
-        /* do nothing */
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
         return;
+    case CPU_TIMERS_CONTROL_REGISTER:
+        s->cpu_timers_control_register = val;
+        break;
+    case CPU_TIMER0_RELOAD_REGISTER:
+        s->cpu_timer0_reload_register = val;
+        break;
+    case CPU_TIMER0_REGISTER:
+        s->cpu_timer0_register = val;
+        break;
+    case CPU_TIMER1_RELOAD_REGISTER:
+        s->cpu_timer1_reload_register = val;
+        break;
+    case CPU_TIMER1_REGISTER:
+        s->cpu_timer1_register = val;
+        break;
+    case CPU_WATCHDOG_TIMER_RELOAD_REGISTER:
+        s->cpu_watchdog_timer_reload_register = val;
+        break;
+    case CPU_WATCHDOG_TIMER_REGISTER:
+        s->cpu_watchdog_timer_register = val;
+        break;
     }
     mv88f5181L_timer_update(s);
 }
@@ -123,12 +126,14 @@ static void mv88f5181L_timer_init(Object *obj) {
 
 static void mv88f5181L_timer_reset(DeviceState *dev) {
     MV88F5181LTIMERState *s = MV88F5181L_TIMER(dev);
-
-    s->timer0_enable = 0;
-    s->timer0_auto_mode = 0;
-    s->timer0_reload = 0;
-    s->timer0_counter = 0;
-    s->timer0_interrupted = false;
+    
+    s->cpu_timers_control_register = 0;
+    s->cpu_timer0_reload_register = 0;
+    s->cpu_timer0_register = 0;
+    s->cpu_timer1_reload_register = 0;
+    s->cpu_timer1_register = 0;
+    s->cpu_watchdog_timer_reload_register = 0;
+    s->cpu_watchdog_timer_register = 0;
 }
 
 static void mv88f5181L_timer_class_init(ObjectClass *klass, void *data) {

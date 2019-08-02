@@ -19,9 +19,8 @@ static void {{timer_name}}_register_types(void);
 static void {{timer_name}}_update(void *opaque) {
     {{timer_name|upper|concat}}State *s = opaque;
 
-    if (!s->timer0_enable) {
-        return;
-    }
+    if (extract32(s->cpu_timers_control_register))
+
     timer_mod(s->timer, 0xffffffffffffff + qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
     if (s->timer0_counter) {
         s->timer0_counter--;
@@ -38,36 +37,18 @@ static void {{timer_name}}_callback(void *opaque) {
 }
 
 static uint64_t {{timer_name}}_read(void *opaque, hwaddr offset, unsigned size) {
-    /* {{timer_name|upper|concat}}State *s = opaque; */
+    {{timer_name|upper|concat}}State *s = opaque;
 
     uint64_t res = 0;
 
     switch (offset) {
-    case CPU_TIMERS_CONTROL_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER0_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER0_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER1_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER1_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_WATCHDOG_TIMER_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_WATCHDOG_TIMER_REGISTER:
-        /* do nothing */
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
         return 0;
-    }
+    {% for register in timer_registers %}case {{register.name|upper}}:
+        res = s->{{register.name}};;
+        break;
+    {% endfor %}}
     return res;
 }
 
@@ -75,33 +56,13 @@ static void {{timer_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsi
     {{timer_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
-    case CPU_TIMERS_CONTROL_REGISTER:
-        s->timer0_enable = extract64(val, 0, 1);
-        s->timer0_auto_mode = extract64(val, 1, 1);
-        break;
-    case CPU_TIMER0_RELOAD_REGISTER:
-        s->timer0_reload = extract64(val, 0, 32);
-        break;
-    case CPU_TIMER0_REGISTER:
-        /* s->timer0_counter = extract64(val, 0, 32); */
-        s->timer0_counter = 0x1000;
-        break;
-    case CPU_TIMER1_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER1_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_WATCHDOG_TIMER_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_WATCHDOG_TIMER_REGISTER:
-        /* do nothing */
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
         return;
-    }
+    {% for register in timer_registers %}case {{register.name|upper}}:
+        s->{{register.name}} = val;
+        break;
+    {% endfor %}}
     {{timer_name}}_update(s);
 }
 
@@ -127,12 +88,8 @@ static void {{timer_name}}_init(Object *obj) {
 
 static void {{timer_name}}_reset(DeviceState *dev) {
     {{timer_name|upper|concat}}State *s = {{timer_name|upper}}(dev);
-
-    s->timer0_enable = 0;
-    s->timer0_auto_mode = 0;
-    s->timer0_reload = 0;
-    s->timer0_counter = 0;
-    s->timer0_interrupted = false;
+    {% for register in timer_registers %}
+    s->{{register.name}} = 0;{% endfor %}
 }
 
 static void {{timer_name}}_class_init(ObjectClass *klass, void *data) {
