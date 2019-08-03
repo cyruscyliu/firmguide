@@ -31,7 +31,8 @@ static void mv88f5181L_bridge_update(void *opaque) {
 static void mv88f5181L_bridge_set_irq(void *opaque, int irq, int level) {
     MV88F5181LPERIPHERALSState *s = opaque;
     if (level) {
-        s->bridge_interrupt_cause_register &= (1 << irq);
+        s->bridge_interrupt_cause_register &= 0x1;
+        s->bridge_interrupt_cause_register = deposit32(s->bridge_interrupt_cause_register, irq, 1, level);
         mv88f5181L_bridge_update(s);
     }
 }
