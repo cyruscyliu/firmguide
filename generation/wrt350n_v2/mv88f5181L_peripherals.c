@@ -136,7 +136,7 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
 
     /* connect the timer to the bridge */
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 0,
-        qdev_get_gpio_in_named(DEVICE(&s), MV88F5181L_BRIDGE_IRQ, 1));
+        qdev_get_gpio_in_named(DEVICE(s), MV88F5181L_BRIDGE_IRQ, 1));
 
     /* realize the uart */
     object_property_set_bool(OBJECT(&s->uart), true, "realized", &err);

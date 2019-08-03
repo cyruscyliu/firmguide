@@ -7,7 +7,7 @@
 #include "qemu/log.h"
 
 static void mv88f5181L_ic_set_irq(void *opaque, int irq, int level);
-static void mv88f5181L_ic_update(MV88F5181LICState *s);
+static void mv88f5181L_ic_update(void *opaque);
 static void mv88f5181L_ic_reset(DeviceState *d);
 
 static uint64_t mv88f5181L_ic_read(void *opaque, hwaddr offset, unsigned size);
