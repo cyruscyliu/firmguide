@@ -27,7 +27,7 @@ static void {{ic_name}}_update(void *opaque) {
 static void {{ic_name}}_set_irq(void *opaque, int irq, int level) {
     {{ic_name|upper|concat}}State *s = opaque;
     if (level) {
-        deposit32(s->main_interrupt_cause_register, irq, 1, level);
+        s->main_interrupt_cause_register = deposit32(s->main_interrupt_cause_register, irq, 1, level);
         {{ic_name}}_update(s);
     }
 }

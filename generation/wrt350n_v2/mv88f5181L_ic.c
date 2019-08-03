@@ -29,7 +29,7 @@ static void mv88f5181L_ic_update(void *opaque) {
 static void mv88f5181L_ic_set_irq(void *opaque, int irq, int level) {
     MV88F5181LICState *s = opaque;
     if (level) {
-        deposit32(s->main_interrupt_cause_register, irq, 1, level);
+        s->main_interrupt_cause_register = deposit32(s->main_interrupt_cause_register, irq, 1, level);
         mv88f5181L_ic_update(s);
     }
 }
