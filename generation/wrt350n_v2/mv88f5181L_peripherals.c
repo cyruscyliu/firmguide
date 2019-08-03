@@ -21,6 +21,11 @@ static void mv88f5181L_bridge_update(void *opaque) {
             qemu_set_irq(s->irq, 1);
         }
     }
+    if (extract32(s->bridge_interrupt_cause_register, 2, 1)) {
+        if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
+            qemu_set_irq(s->irq, 1);
+        }
+    }
 }
 
 static void mv88f5181L_bridge_set_irq(void *opaque, int irq, int level) {

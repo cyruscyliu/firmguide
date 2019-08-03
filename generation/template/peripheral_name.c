@@ -19,6 +19,11 @@ static void {{bridge_name}}_update(void *opaque) {
             qemu_set_irq(s->irq, 1);
         }
     }
+    if (extract32(s->bridge_interrupt_cause_register, 2, 1)) {
+        if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
+            qemu_set_irq(s->irq, 1);
+        }
+    }
 }
 
 static void {{bridge_name}}_set_irq(void *opaque, int irq, int level) {
