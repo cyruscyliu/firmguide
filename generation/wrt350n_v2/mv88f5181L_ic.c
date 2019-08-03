@@ -21,6 +21,7 @@ static void mv88f5181L_ic_update(void *opaque) {
     MV88F5181LICState *s = opaque;
     if (extract32(s->main_interrupt_cause_register, 0, 1)) {
         if (s->main_interrupt_cause_register & s->main_irq_interrupt_mask_register) {
+            s->main_interrupt_cause_register = deposit32(s->main_interrupt_cause_register, 0, 1, 0);
             qemu_set_irq(s->irq, 1);
         }
     }
