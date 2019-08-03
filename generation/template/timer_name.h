@@ -22,7 +22,7 @@ typedef struct {{timer_name|upper|concat}}State {
 
     MemoryRegion mmio;
     QEMUTimer *timer;
-    qemu_irq irq_0, irq1;
+    qemu_irq irq_0, irq_1;
 
     {% for register in timer_registers %}uint32_t {{register.name}};
     {% endfor %}
