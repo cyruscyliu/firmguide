@@ -20,17 +20,14 @@ static void {{ic_name}}_update(void *opaque) {
     if (extract32(s->main_interrupt_cause_register, 0, 1)) {
         if (s->main_interrupt_cause_register & s->main_irq_interrupt_mask_register) {
             qemu_set_irq(s->irq, 1);
-            s->main_interrupt_cause_register = deposit32(s->main_interrupt_cause_register, 0, 1, 0);
         }
     }
 }
 
 static void {{ic_name}}_set_irq(void *opaque, int irq, int level) {
     {{ic_name|upper|concat}}State *s = opaque;
-    if (level) {
-        s->main_interrupt_cause_register = deposit32(s->main_interrupt_cause_register, irq, 1, level);
-        {{ic_name}}_update(s);
-    }
+    s->main_interrupt_cause_register = deposit32(s->main_interrupt_cause_register, irq, 1, level);
+    {{ic_name}}_update(s);
 }
 
 static uint64_t {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) {

@@ -18,21 +18,25 @@ static void {{bridge_name}}_update(void *opaque) {
         if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
             qemu_set_irq(s->irq, 1);
         }
+    } else {
+        /* clear the interrupt */
+        qemu_set_irq(s->irq, 0);
     }
     if (extract32(s->bridge_interrupt_cause_register, 2, 1)) {
         if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
             qemu_set_irq(s->irq, 1);
         }
+    } else {
+        /* clear the interrupt */
+        qemu_set_irq(s->irq, 0);
     }
 }
 
 static void {{bridge_name}}_set_irq(void *opaque, int irq, int level) {
     {{peripheral_name|upper|concat}}State *s = opaque;
-    if (level) {
-        s->bridge_interrupt_cause_register &= 0x1;
-        s->bridge_interrupt_cause_register = deposit32(s->bridge_interrupt_cause_register, irq, 1, level);
-        {{bridge_name}}_update(s);
-    }
+    s->bridge_interrupt_cause_register &= 0x1;
+    s->bridge_interrupt_cause_register = deposit32(s->bridge_interrupt_cause_register, irq, 1, level);
+    {{bridge_name}}_update(s);
 }
 
 static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size) {

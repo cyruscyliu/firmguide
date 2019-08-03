@@ -20,21 +20,25 @@ static void mv88f5181L_bridge_update(void *opaque) {
         if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
             qemu_set_irq(s->irq, 1);
         }
+    } else {
+        /* clear the interrupt */
+        qemu_set_irq(s->irq, 0);
     }
     if (extract32(s->bridge_interrupt_cause_register, 2, 1)) {
         if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
             qemu_set_irq(s->irq, 1);
         }
+    } else {
+        /* clear the interrupt */
+        qemu_set_irq(s->irq, 0);
     }
 }
 
 static void mv88f5181L_bridge_set_irq(void *opaque, int irq, int level) {
     MV88F5181LPERIPHERALSState *s = opaque;
-    if (level) {
-        s->bridge_interrupt_cause_register &= 0x1;
-        s->bridge_interrupt_cause_register = deposit32(s->bridge_interrupt_cause_register, irq, 1, level);
-        mv88f5181L_bridge_update(s);
-    }
+    s->bridge_interrupt_cause_register &= 0x1;
+    s->bridge_interrupt_cause_register = deposit32(s->bridge_interrupt_cause_register, irq, 1, level);
+    mv88f5181L_bridge_update(s);
 }
 
 static uint64_t mv88f5181L_bridge_read(void *opaque, hwaddr offset, unsigned size) {
