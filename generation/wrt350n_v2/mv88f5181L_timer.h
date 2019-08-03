@@ -30,7 +30,7 @@ typedef struct MV88F5181LTIMERState {
 
     MemoryRegion mmio;
     QEMUTimer *timer;
-    qemu_irq irq;
+    qemu_irq irq_0, irq1;
 
     uint32_t cpu_timers_control_register;
     uint32_t cpu_timer0_reload_register;

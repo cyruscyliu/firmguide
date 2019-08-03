@@ -110,6 +110,8 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
     /* connect the timer to the bridge */
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 0,
         qdev_get_gpio_in_named(DEVICE(s), {{bridge_name|upper}}_IRQ, 1));
+    sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 1,
+        qdev_get_gpio_in_named(DEVICE(s), {{bridge_name|upper}}_IRQ, 2));
 
     /* realize the uart */
     object_property_set_bool(OBJECT(&s->uart), true, "realized", &err);

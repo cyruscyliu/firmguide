@@ -23,7 +23,7 @@ static void {{timer_name}}_update(void *opaque) {
     timer_mod(s->timer, 0x5 + now); /* 200MHZ */
     if (extract32(s->cpu_timers_control_register, 0, 1)) {
         if (s->cpu_timer0_register == 0) {
-            qemu_set_irq(s->irq, 1);
+            qemu_set_irq(s->irq_0, 1);
             s->reserved_0 = true;
             if (extract32(s->cpu_timers_control_register, 1, 1) == 1) {
                  s->cpu_timer0_register = s->cpu_timer0_reload_register;
@@ -37,7 +37,7 @@ static void {{timer_name}}_update(void *opaque) {
 
     if (extract32(s->cpu_timers_control_register, 2, 1)) {
         if (s->cpu_timer1_register == 0) {
-            qemu_set_irq(s->irq, 1);
+            qemu_set_irq(s->irq_1, 1);
             s->reserved_1 = true;
             if (extract32(s->cpu_timers_control_register, 3, 1) == 1) {
                  s->cpu_timer1_register = s->cpu_timer1_reload_register;
@@ -99,8 +99,9 @@ static void {{timer_name}}_init(Object *obj) {
     memory_region_init_io(&s->mmio, obj, &{{timer_name}}_ops, s, "{{timer_name}}", {{timer_name|upper}}_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
-    /* initialize the irq */
-    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
+    /* initialize the irqs */
+    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq_0);
+    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq_1);
 
     /* initialize the timer */
     s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, {{timer_name}}_callback, s);
