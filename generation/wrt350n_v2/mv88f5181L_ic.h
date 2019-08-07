@@ -14,12 +14,13 @@
 #define MV88F5181L_IC_IRQ "mv88f5181L_ic_irq"
 #define MV88F5181L_IC_N_IRQS 32
 
-#define MAIN_INTERRUPT_CAUSE_REGISTER         0x00
-#define MAIN_IRQ_INTERRUPT_MASK_REGISTER      0x04
-#define MAIN_FIQ_INTERRUPT_MASK_REGISTER      0x08
-#define MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER 0x0C
+#define MAIN_INTERRUPT_CAUSE_REGISTER 0x00
+#define MAIN_IRQ_INTERRUPT_MASK_REGISTER 0x04
+#define MAIN_FIQ_INTERRUPT_MASK_REGISTER 0x08
+#define MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER 0x0c
 
 #define MV88F5181L_IC_RAM_SIZE 0x100
+#define MV88F5181L_IC_RAM_BASE 0xf1020200
 
 typedef struct MV88F5181LICState {
     /*< private >*/
@@ -29,12 +30,13 @@ typedef struct MV88F5181LICState {
     MemoryRegion mmio;
     /* output to the cpu */
     qemu_irq irq;
-    qemu_irq fiq;
 
-    /* 32 IRQs */
-    uint32_t irq_level_0;
-    uint32_t irq_enable_0;
-    uint32_t fiq_enable_0;
+    uint32_t main_interrupt_cause_register;
+    uint32_t main_irq_interrupt_mask_register;
+    uint32_t main_fiq_interrupt_mask_register;
+    uint32_t main_endpoint_interrupt_mask_register;
+    
+
 } MV88F5181LICState;
 
 #endif /* MV88F5181L_IC_H */

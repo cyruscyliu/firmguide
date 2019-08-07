@@ -2,9 +2,11 @@
 
 #include "qemu/osdep.h"
 #include "qemu/log.h"
+#include "qemu/timer.h"
 #include "hw/timer/{{timer_name}}.h"
 
-static void {{timer_name}}_interrupt(void *opaque);
+static void {{timer_name}}_callback(void *opaque);
+static void {{timer_name}}_update(void *opaque);
 static void {{timer_name}}_reset(DeviceState *dev);
 
 static uint64_t {{timer_name}}_read(void *opaque, hwaddr offset, unsigned size);
@@ -14,54 +16,65 @@ static void {{timer_name}}_init(Object *obj);
 static void {{timer_name}}_class_init(ObjectClass *klass, void *data);
 static void {{timer_name}}_register_types(void);
 
-static void {{timer_name}}_interrupt(void *opaque) {
+static void {{timer_name}}_update(void *opaque) {
     {{timer_name|upper|concat}}State *s = opaque;
 
-    if (!s->timer0_enable ) {
-        return;
-    }
-    if (s->timer0_counter == 0) {
-        if (s->timer0_auto_mode == 0) {
-            return;
-        } else {
-            s->timer0_counter = s->timer0_reload;
+    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    timer_mod(s->timer, 0x5 + now); /* 200MHZ */
+    if (extract32(s->cpu_timers_control_register, 0, 1)) {
+        if (s->cpu_timer0_register == 0) {
+            qemu_set_irq(s->irq_0, 1);
+            if (s->reserved_0 == 0) {
+                s->reserved_0 = 1;
+                s->cpu_timer0_register = 0xffffffff;
+            }
+            if (extract32(s->cpu_timers_control_register, 1, 1) == 1) {
+                 s->cpu_timer0_register = s->cpu_timer0_reload_register / 0x5ff;
+            }
         }
-        qemu_irq_pulse(s->irq);
+        if (extract32(s->cpu_timers_control_register, 1, 1) == 1 ||
+            (extract32(s->cpu_timers_control_register, 1, 1) == 0 && !s->reserved_0)) {
+            s->cpu_timer0_register--;
+        }
     }
-    s->timer0_counter--;
+
+    if (extract32(s->cpu_timers_control_register, 2, 1)) {
+        if (s->cpu_timer1_register == 0) {
+            qemu_set_irq(s->irq_1, 1);
+            if (s->reserved_1 == 0) {
+                s->reserved_1 = 1;
+                s->cpu_timer1_register = 0xffffffff;
+            }
+            if (extract32(s->cpu_timers_control_register, 3, 1) == 1) {
+                 s->cpu_timer1_register = s->cpu_timer1_reload_register / 0x5ff;
+            }
+        }
+        if (extract32(s->cpu_timers_control_register, 3, 1) == 1 ||
+            (extract32(s->cpu_timers_control_register, 3, 1) == 0 && !s->reserved_1)) {
+            s->cpu_timer1_register--;
+        }
+    }
+}
+
+static void {{timer_name}}_callback(void *opaque) {
+    {{timer_name|upper|concat}}State *s = opaque;
+
+    {{timer_name}}_update(s);
 }
 
 static uint64_t {{timer_name}}_read(void *opaque, hwaddr offset, unsigned size) {
-    /* {{timer_name|upper|concat}}State *s = opaque; */
+    {{timer_name|upper|concat}}State *s = opaque;
 
     uint64_t res = 0;
 
     switch (offset) {
-    case CPU_TIMERS_CONTROL_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER0_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER0_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER1_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER1_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_WATCHDOG_TIMER_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_WATCHDOG_TIMER_REGISTER:
-        /* do nothing */
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
         return 0;
-    }
+    {% for register in timer_registers %}case {{register.name|upper}}:
+        res = s->{{register.name}};
+        break;
+    {% endfor %}}
     return res;
 }
 
@@ -69,32 +82,14 @@ static void {{timer_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsi
     {{timer_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
-    case CPU_TIMERS_CONTROL_REGISTER:
-        s->timer0_enable = extract64(val, 0, 1);
-        s->timer0_auto_mode = extract64(val, 1, 1);
-        break;
-    case CPU_TIMER0_RELOAD_REGISTER:
-        s->timer0_reload = extract64(val, 0, 32);
-        break;
-    case CPU_TIMER0_REGISTER:
-        s->timer0_counter = extract64(val, 0, 32);
-        break;
-    case CPU_TIMER1_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_TIMER1_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_WATCHDOG_TIMER_RELOAD_REGISTER:
-        /* do nothing */
-        break;
-    case CPU_WATCHDOG_TIMER_REGISTER:
-        /* do nothing */
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
         return;
-    }
+    {% for register in timer_registers %}case {{register.name|upper}}:
+        s->{{register.name}} = val;
+        break;
+    {% endfor %}}
+    {{timer_name}}_update(s);
 }
 
 static const MemoryRegionOps {{timer_name}}_ops = {
@@ -104,27 +99,27 @@ static const MemoryRegionOps {{timer_name}}_ops = {
 };
 
 static void {{timer_name}}_init(Object *obj) {
-    {{timer_name|upper|concat}}State *s = {{timer_name|upper|concat}}(obj);
+    {{timer_name|upper|concat}}State *s = {{timer_name|upper}}(obj);
 
     /* initialize the mmio */
     memory_region_init_io(&s->mmio, obj, &{{timer_name}}_ops, s, "{{timer_name}}", {{timer_name|upper}}_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
-    /* initialize the irq */
-    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
+    /* initialize the irqs */
+    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq_0);
+    sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq_1);
 
     /* initialize the timer */
-    s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, {{timer_name}}_interrupt, s);
+    s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, {{timer_name}}_callback, s);
 }
 
 static void {{timer_name}}_reset(DeviceState *dev) {
-    {{timer_name|upper|concat}}State *s = {{timer_name|upper|concat}}(dev);
-
-    s->timer0_enable = 0;
-    s->timer0_auto_mode = 0;
-    s->timer0_reload = 0;
-    s->timer0_counter = 0;
-    s->timer0_interrupted = false;
+    {{timer_name|upper|concat}}State *s = {{timer_name|upper}}(dev);
+    {% for register in timer_registers %}
+    s->{{register.name}} = 0;{% endfor %}
+    s->reserved_0 = 0;
+    s->reserved_1 = 0;
+    s->reserved_2 = 0;
 }
 
 static void {{timer_name}}_class_init(ObjectClass *klass, void *data) {

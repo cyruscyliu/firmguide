@@ -9,24 +9,72 @@ machine:
       cpu_type: "arm926"
     peripheral:
       peripheral_name: "mv88f5181L_peripherals"
-      peripheral_ram_base: "0xfdd00000"
-      peripheral_ram_size: "0x10000000"
+      peripheral_ram_base: "0xf1000000"
+      peripheral_ram_size: "0x00100000"
+      bridge_name: "mv88f5181L_bridge"
+      bridge_ram_base: "0xf1020100"
+      bridge_ram_size: "0x100"
+      bridge_registers:
+        - name: "bridge_configuration_register"
+          offset: "0x00"
+        - name: "bridge_control_and_status_register"
+          offset: "0x04"
+        - name: "bridge_rstoutn_mask_register"
+          offset: "0x08"
+        - name: "bridge_system_soft_reset_register"
+          offset: "0x0c"
+        - name: "bridge_interrupt_cause_register"
+          offset: "0x10"
+        - name: "bridge_interrupt_mask_register"
+          offset: "0x14"
       timer:
         timer_name: "mv88f5181L_timer"
-        timer_ram_base: "0x00020300"
+        timer_ram_base: "0xf1020300"
         timer_ram_size: "0x100"
-    local_interrupt_controller:
-        ic_name: "mv88f5181L_ic"
-        ic_ram_base: "0xfdd20200"
-        ic_ram_size: "0x100"
-        b_fiqs: 8
-        n_irqs: 32
-        l_irqs:
-          - 32
-        i_irqs:
-          - 0
+        timer_registers:
+          - name: "cpu_timers_control_register"
+            offset: "0x00"
+          - name: "cpu_timer0_reload_register"
+            offset: "0x10"
+          - name: "cpu_timer0_register"
+            offset: "0x14"
+          - name: "cpu_timer1_reload_register"
+            offset: "0x18"
+          - name: "cpu_timer1_register"
+            offset: "0x1c"
+          - name: "cpu_watchdog_timer_reload_register"
+            offset: "0x20"
+          - name: "cpu_watchdog_timer_register"
+            offset: "0x24"
+      uart:
+        uart_name: "mv88f5181L_uart"
+        uart_ram_base: "0xf1012000"
+        uart_ram_size: "0x100"
+      gpio:
+        gpio_name: "mv88f5181L_gpio"
+        gpio_ram_base: "0xf1010100"
+        gpio_ram_size: "0x100"
+        gpio_n: 32
+      pcie:
+        pcie_name: "mv88f5181L_pcie"
+        pcie_ram_base: "0xf1040000"
+        pcie_ram_size: "0x10000"
+    interrupt_controller:
+      ic_name: "mv88f5181L_ic"
+      ic_ram_base: "0xf1020200"
+      ic_ram_size: "0x100"
+      ic_registers:
+        - name: "main_interrupt_cause_register"
+          offset: "0x00"
+        - name: "main_irq_interrupt_mask_register"
+          offset: "0x04"
+        - name: "main_fiq_interrupt_mask_register"
+          offset: "0x08"
+        - name: "main_endpoint_interrupt_mask_register"
+          offset: "0x0c"
+      ic_n_irqs: 32
   ram:
-    ram_size: "1 * GiB"
+    ram_size: "32 * MiB"
   boot_device:
     flash_enable: 1
     flash:

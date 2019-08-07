@@ -9,18 +9,19 @@
 #define MV88F5181L_TIMER_H
 
 #define TYPE_MV88F5181L_TIMER "mv88f5181L_timer"
-#define MV88F5181LTIMER(obj) \
+#define MV88F5181L_TIMER(obj) \
     OBJECT_CHECK(MV88F5181LTIMERState, (obj), TYPE_MV88F5181L_TIMER)
 
-#define CPU_TIMERS_CONTROL_REGISTER         0x00
-#define CPU_TIMER0_RELOAD_REGISTER          0x10
-#define CPU_TIMER0_REGISTER                 0x14
-#define CPU_TIMER1_RELOAD_REGISTER          0x18
-#define CPU_TIMER1_REGISTER                 0x1C
-#define CPU_WATCHDOG_TIMER_RELOAD_REGISTER  0x20
-#define CPU_WATCHDOG_TIMER_REGISTER         0x24
+#define CPU_TIMERS_CONTROL_REGISTER 0x00
+#define CPU_TIMER0_RELOAD_REGISTER 0x10
+#define CPU_TIMER0_REGISTER 0x14
+#define CPU_TIMER1_RELOAD_REGISTER 0x18
+#define CPU_TIMER1_REGISTER 0x1c
+#define CPU_WATCHDOG_TIMER_RELOAD_REGISTER 0x20
+#define CPU_WATCHDOG_TIMER_REGISTER 0x24
 
 #define MV88F5181L_TIMER_RAM_SIZE 0x100
+#define MV88F5181L_TIMER_RAM_BASE 0xf1020300
 
 typedef struct MV88F5181LTIMERState {
     /* <private> */
@@ -29,13 +30,19 @@ typedef struct MV88F5181LTIMERState {
 
     MemoryRegion mmio;
     QEMUTimer *timer;
-    qemu_irq irq;
+    qemu_irq irq_0, irq_1;
 
-    uint8_t timer0_enable;
-    uint8_t timer0_auto_mode;
-    uint32_t timer0_reload;
-    uint32_t timer0_counter;
-    bool timer0_interrupted;
+    uint32_t cpu_timers_control_register;
+    uint32_t cpu_timer0_reload_register;
+    uint32_t cpu_timer0_register;
+    uint32_t cpu_timer1_reload_register;
+    uint32_t cpu_timer1_register;
+    uint32_t cpu_watchdog_timer_reload_register;
+    uint32_t cpu_watchdog_timer_register;
+    
+    uint32_t reserved_0;
+    uint32_t reserved_1;
+    uint32_t reserved_2;
 } MV88F5181LTIMERState;
 
 #endif /* MV88F5181L_TIMER_H */

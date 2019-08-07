@@ -10,14 +10,12 @@
     OBJECT_CHECK({{ic_name|upper|concat}}State, (obj), TYPE_{{ic_name|upper}})
 
 #define {{ic_name|upper}}_IRQ "{{ic_name}}_irq"
-#define {{ic_name|upper}}_N_IRQS {{n_irqs}}
-
-#define MAIN_INTERRUPT_CAUSE_REGISTER         0x00
-#define MAIN_IRQ_INTERRUPT_MASK_REGISTER      0x04
-#define MAIN_FIQ_INTERRUPT_MASK_REGISTER      0x08
-#define MAIN_ENDPOINT_INTERRUPT_MASK_REGISTER 0x0C
+#define {{ic_name|upper}}_N_IRQS {{ic_n_irqs}}
+{% for register in ic_registers %}
+#define {{register.name|upper}} {{register.offset}}{% endfor %}
 
 #define {{ic_name|upper}}_RAM_SIZE {{ic_ram_size}}
+#define {{ic_name|upper}}_RAM_BASE {{ic_ram_base}}
 
 typedef struct {{ic_name|upper|concat}}State {
     /*< private >*/
@@ -27,12 +25,10 @@ typedef struct {{ic_name|upper|concat}}State {
     MemoryRegion mmio;
     /* output to the cpu */
     qemu_irq irq;
-    qemu_irq fiq;
 
-    /* {{n_irqs}} IRQs */{% for i in i_irqs %}{% for n in l_irqs %}
-    uint{{n}}_t irq_level_{{i}};
-    uint{{n}}_t irq_enable_{{i}};
-    uint{{n}}_t fiq_enable_{{i}};{% endfor %}{% endfor %}
+    {% for register in ic_registers %}uint32_t {{register.name}};
+    {% endfor %}
+
 } {{ic_name|upper|concat}}State;
 
 #endif /* {{ic_name|upper}}_H */
