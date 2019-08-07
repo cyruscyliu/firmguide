@@ -26,7 +26,10 @@ static void mv88f5181L_timer_update(void *opaque) {
     if (extract32(s->cpu_timers_control_register, 0, 1)) {
         if (s->cpu_timer0_register == 0) {
             qemu_set_irq(s->irq_0, 1);
-            s->reserved_0 = true;
+            if (s->reserved_0 == 0) {
+                s->reserved_0 = 1;
+                s->cpu_timer0_register = 0xffffffff;
+            }
             if (extract32(s->cpu_timers_control_register, 1, 1) == 1) {
                  s->cpu_timer0_register = s->cpu_timer0_reload_register;
             }
@@ -40,7 +43,10 @@ static void mv88f5181L_timer_update(void *opaque) {
     if (extract32(s->cpu_timers_control_register, 2, 1)) {
         if (s->cpu_timer1_register == 0) {
             qemu_set_irq(s->irq_1, 1);
-            s->reserved_1 = true;
+            if (s->reserved_1 == 0) {
+                s->reserved_1 = 1;
+                s->cpu_timer1_register = 0xffffffff;
+            }
             if (extract32(s->cpu_timers_control_register, 3, 1) == 1) {
                  s->cpu_timer1_register = s->cpu_timer1_reload_register;
             }

@@ -23,6 +23,8 @@ static void mv88f5181L_ic_update(void *opaque) {
         if (s->main_interrupt_cause_register & s->main_irq_interrupt_mask_register) {
             qemu_set_irq(s->irq, 1);
         }
+    } else {
+        qemu_set_irq(s->irq, 0);
     }
 }
 
