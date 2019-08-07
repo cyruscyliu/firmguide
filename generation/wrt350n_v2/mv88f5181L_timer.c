@@ -31,7 +31,7 @@ static void mv88f5181L_timer_update(void *opaque) {
                 s->cpu_timer0_register = 0xffffffff;
             }
             if (extract32(s->cpu_timers_control_register, 1, 1) == 1) {
-                 s->cpu_timer0_register = s->cpu_timer0_reload_register;
+                 s->cpu_timer0_register = s->cpu_timer0_reload_register / 0x5ff;
             }
         }
         if (extract32(s->cpu_timers_control_register, 1, 1) == 1 ||
@@ -48,7 +48,7 @@ static void mv88f5181L_timer_update(void *opaque) {
                 s->cpu_timer1_register = 0xffffffff;
             }
             if (extract32(s->cpu_timers_control_register, 3, 1) == 1) {
-                 s->cpu_timer1_register = s->cpu_timer1_reload_register;
+                 s->cpu_timer1_register = s->cpu_timer1_reload_register / 0x5ff;
             }
         }
         if (extract32(s->cpu_timers_control_register, 3, 1) == 1 ||
