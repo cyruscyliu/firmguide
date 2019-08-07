@@ -1,4 +1,8 @@
-dir=`dirname $0`
+#!/bin/bash
+
+#set -x
+
+dir=`realpath $0 | xargs dirname`
 dirname=`basename $dir`
 srv=`head -n 3 ${dir}/docker-compose.yml | tail -n 1 | awk -F: '{print $1}' | tr -d ' '`
 

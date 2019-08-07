@@ -1,6 +1,6 @@
 FROM ubuntu:12.04
 
-# add wrt350 v2 build deps
+# add wrt350nv2 build deps
 RUN apt-get update
 RUN apt-get install -y libssl-dev zlib1g-dev autotools-dev zip automake gcc g++ sudo vim wget build-essential subversion git-core libncurses5-dev zlib1g-dev gawk flex quilt libssl-dev xsltproc libxml-parser-perl mercurial bzr ecj cvs unzip mercurial
 

@@ -1,10 +1,10 @@
 # Intro
 
-There are 3 dirs,  `wrt350v2-kernel`, `wrt350v2-work`, `ws`. 
+There are 3 dirs,  `wrt350nv2-kernel`, `wrt350nv2-work`, `ws`. 
 
 - First 2 dirs are used for build, and manage docker images.
-- `wrt350v2-kernel` provides the openwrt350-v2 kernel building env
-- `wrt350v2-work` provides the working env
+- `wrt350nv2-kernel` provides the openwrt350nv2 kernel building env
+- `wrt350nv2-work` provides the working env
 - `ws` is the shared directory for 2 dockers & host, it contains all working data
 
 More info about using the docker, see following chapter 1.
@@ -12,7 +12,7 @@ More info about using the docker, see following chapter 1.
 
 ## 1. Docker
 
-### 1.1 Meaning of \*.sh in wrt350v2-\*
+### 1.1 Meaning of \*.sh in wrt350nv2-\*
 
 Docker image is responsible for providing most of the dependency packages, thus every time running the image we can get a new, clean working/build environment. 
 
@@ -44,8 +44,43 @@ bash remove.sh
 When you are in docker's shell, anything you do under the path `/root/firmware` is actually do under the host path of `ws`.
 
 
+### 1.3 Common FAQ
 
-## 2. Build the kernel
+#### install a docker
+
+- Install Manual: https://docs.docker.com/install/linux/docker-ce/ubuntu/
+- Post Manual: https://docs.docker.com/install/linux/linux-postinstall/
+- Get Started: https://docs.docker.com/get-started/
+
+#### start the docker
+
+../wrt350nv2-kernel/start.sh: line 1: docker-compose: command not found
+
+```bash
+sudo -H pip3.7 install docker-compose
+```
+
+Can't find a suitable configuration file in this directory or any parent. Are you in the right directory?
+
+```bash
+cd path/to/wrt350nv2-kernel
+```
+
+ERROR: Couldn't connect to Docker daemon at http+docker://localhost - is it running?
+
+```bash
+systemctl enable docker
+systemctl start docker
+```
+
+ERROR: pull access denied for wrt350nv2-build-env, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+
+```bash
+./build-docker-image.sh
+```
+
+
+## 2. Build the kernel (Using the container from docker image wrt350nv2-build-env:latest)
 
 Kernel version: 2.6.32.10
 
@@ -57,23 +92,65 @@ OpenWrt.config Download Link(https://archive.openwrt.org/backfire/10.03/orion/Op
 
 ### 2.1 Patches & Config to backfire 10.0.3
 
+Here lists the patches for building the kernel. You should first apply these patches before building.
+
 ```bash
+# for basic build
 cp patches/download.pl ../ws/path/to/backfire_10.03/scripts/download.pl
 cp patches/Makefile ../ws/path/to/backfire_10.03/toolchain/binutils/Makefile
-cp OpenWrt.config ../ws/path/to/backfire_10.03/.config
+cp patches/OpenWrt.config ../ws/path/to/backfire_10.03/.config
+# for debug-info
+cp patches/kernel-defaults.mk ../ws/path/to/backfire_10.03/include/kernel-defaults.mk
+cp patches/kernel-config-extra ../ws/path/to/backfire_10.03/kernel-config-extra
 ```
 
-### 2.2 Build 
+### 2.2 Build (In wrt350nv2-build-env docker)
 
+You have a docker container started by `wrt350nv2-kernel/start.sh`, and you run `in.sh` in that dir, you get a shell of the docker container, which has ubuntu:12.04 env and a user `openwrt`.
+
+The user & passwd are both `openwrt`, and has the sudo priviledge.
+
+1. Before building, make sure the whole directory has the right permission(the patch before & dl may broke this).
+```bash
+# if suitable
+tar xf dl.tar.gz
+mv dl ws/path/to/backfire_10.03
+# then
+cd ws/path/to/backfire_10.03
+sudo chown -R openwrt:openwrt .
+```
+
+2. Building
 ```bash
 make -j8
-# or debug
+# or verbose
 make -j8 V=99
+# or verbose & record
+make -j12 V=99 2>&1 | tee klog
 ```
 
+3. You should find the following files after building
 
+```
+# uImage for qemu
+bin/orion/openwrt-wrt350nv2-uImage
+# elf with debug info
+build_dir/linux-orion_generic/vmlinux-debug-info.elf
+# linux source code with patch
+build_dir/linux-orion_generic/linux-2.6.32.10/
+```
 
-## 3. Build the working env
+## 3. Build the working env (Using the container from docker image wrt350nv2-work-env:latest)
+
+### 3.0 docker image
+
+The docker image wrt350nv2-work-env:latest provides the basic building & working env.
+
+But you may still need to manually compile & install the following packages if you need them:
+- capstone (just compile)
+- qemu (just compile)
+- panda (self install the dependency)
+
 
 ### 3.1 qemu
 
@@ -100,6 +177,8 @@ make install
 
 ## 4. QEMU + GDB to debug the kernel
 
+### 4.1 Work Flow
+
 ```bash
 # terminal 1
 ./panda-build/arm-softmmu/qemu-system-arm -nographic -machine versatilepb \
@@ -107,5 +186,13 @@ make install
 
 # terminal 2
 gdb-multiarch
+(gdb) file ws/path/to/backfire_10.03/build_dir/linux-orion_generic/vmlinux-debug-info.elf
+(gdb) directory ws/path/to/backfire_10.03/build_dir/linux-orion_generic/linux-2.6.32.10/ 
 (gdb) target remote localhost:1234
+(gdb) ...
 ```
+
+### 4.2 FAQ
+
+- the target of `file` command should be `backfire_10.03/build_dir/linux-orion_generic/vmlinux-debug-info.elf`
+- the target of `directory` command should be `backfire_10.03/build_dir/linux-orion_generic/linux-2.6.32.10`
