@@ -11,8 +11,10 @@
 #define {{soc_name|upper}}(obj) \
     OBJECT_CHECK({{soc_name|upper}}State, (obj), TYPE_{{soc_name|upper}})
 
-#define {{soc_mmio_name|upper}}_RAM_SIZE {{soc_mmio_size}}
-#define {{soc_mmio_name|upper}}_RAM_BASE {{soc_mmio_base}}
+#define {{cam_mmio_name|upper}}_MMIO_SIZE {{cam_mmio_size}}
+#define {{cam_mmio_name|upper}}_MMIO_BASE {{cam_mmio_base}}
+#define {{dsc_mmio_name|upper}}_MMIO_SIZE {{dsc_mmio_size}}
+#define {{dsc_mmio_name|upper}}_MMIO_BASE {{dsc_mmio_base}}
 
 typedef struct {{soc_name|upper}}State {
     /*< private >*/
@@ -24,7 +26,10 @@ typedef struct {{soc_name|upper}}State {
     qemu_irq irq, fiq;
 
     MemoryRegion cpu_address_map_mmio;
-    {% for register in soc_registers %}uint32_t {{register.name}};
+    {% for register in cam_registers %}uint32_t {{register.name}};
+    {% endfor %}
+    MemoryRegion addr_sdram_controller_mmio;
+    {% for register in dsc_registers %}uint32_t {{register.name}};
     {% endfor %}
     {{ic_name|upper|concat}}State ic;
     {{peripheral_name|upper|concat}}State peripherals;

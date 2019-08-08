@@ -5,22 +5,25 @@
 #include "target/arm/cpu.h"
 #include "hw/arm/{{soc_name}}.h"
 
-static void {{soc_mmio_name}}_update(void *opaque);
-static uint64_t {{soc_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size);
-static void {{soc_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void {{cam_mmio_name}}_update(void *opaque);
+static uint64_t {{cam_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size);
+static void {{cam_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void {{dsc_mmio_name}}_update(void *opaque);
+static uint64_t {{dsc_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size);
+static void {{dsc_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 
 static void {{soc_name}}_init(Object *obj);
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp);
-static void {{soc_mmio_name}}_reset(DeviceState *d);
+static void {{soc_name}}_reset(DeviceState *d);
 
 static void {{soc_name}}_class_init(ObjectClass *oc, void *data);
 static void {{soc_name}}_register_types(void);
 
-static void {{soc_mmio_name}}_update(void *opaque) {
+static void {{cam_mmio_name}}_update(void *opaque) {
     /* {{soc_name|upper|concat}}State *s = opaque; */
 }
 
-static uint64_t {{soc_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t {{cam_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     {{soc_name|upper|concat}}State *s = opaque;
     uint32_t res = 0;
 
@@ -28,36 +31,77 @@ static uint64_t {{soc_mmio_name}}_read(void *opaque, hwaddr offset, unsigned siz
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return 0;
-    {% for register in soc_registers %}case {{register.name|upper}}:
+    {% for register in cam_registers %}case {{register.name|upper}}:
         res = s->{{register.name}};
         break;
     {% endfor %}}
     return res;
 }
 
-static void {{soc_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void {{cam_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
     {{soc_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return;
-    {% for register in soc_registers %}case {{register.name|upper}}:
+    {% for register in cam_registers %}case {{register.name|upper}}:
         s->{{register.name}} = val;
         break;
     {% endfor %}}
-    {{soc_mmio_name}}_update(s);
+    {{cam_mmio_name}}_update(s);
 }
 
-static const MemoryRegionOps {{soc_mmio_name}}_ops = {
-    .read = {{soc_mmio_name}}_read,
-    .write = {{soc_mmio_name}}_write,
+static const MemoryRegionOps {{cam_mmio_name}}_ops = {
+    .read = {{cam_mmio_name}}_read,
+    .write = {{cam_mmio_name}}_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void {{soc_mmio_name}}_reset(DeviceState *d) {
+static void {{dsc_mmio_name}}_update(void *opaque) {
+    /* {{soc_name|upper|concat}}State *s = opaque; */
+}
+
+static uint64_t {{dsc_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+    {{soc_name|upper|concat}}State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    {% for register in dsc_registers %}case {{register.name|upper}}:
+        res = s->{{register.name}};
+        break;
+    {% endfor %}}
+    return res;
+}
+
+static void {{dsc_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+    {{soc_name|upper|concat}}State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    {% for register in dsc_registers %}case {{register.name|upper}}:
+        s->{{register.name}} = val;
+        break;
+    {% endfor %}}
+    {{dsc_mmio_name}}_update(s);
+}
+
+static const MemoryRegionOps {{dsc_mmio_name}}_ops = {
+    .read = {{dsc_mmio_name}}_read,
+    .write = {{dsc_mmio_name}}_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+}
+
+static void {{soc_name}}_reset(DeviceState *d) {
     {{soc_name|upper|concat}}State *s = {{soc_name|upper}}(d);
-    {% for register in soc_registers %}
+    {% for register in cam_registers %}
+    s->{{register.name}} = {{register.value}};{% endfor %}
+    {% for register in dsc_registers %}
     s->{{register.name}} = {{register.value}};{% endfor %}
 }
 
@@ -70,8 +114,13 @@ static void {{soc_name}}_init(Object *obj) {
 
     /* initialize cpu address map registers */
     memory_region_init_io(&s->cpu_address_map_mmio, obj,
-        &{{soc_mmio_name}}_ops, s, TYPE_{{soc_name|upper}}, {{soc_mmio_name|upper}}_RAM_SIZE);
+        &{{cam_mmio_name}}_ops, s, TYPE_{{soc_name|upper}}, {{cam_mmio_name|upper}}_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->cpu_address_map_mmio);
+
+    /* initialize ddr sdram controller registers */
+    memory_region_init_io(&s->ddr_sdram_controller_mmio, obj,
+        &{{dsc_mmio_name}}_ops, s, TYPE_{{soc_name|upper}}, {{dsc_mmio_name|upper}}_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ddr_sdram_controller_mmio);
 
     /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
     sysbus_init_child_obj(
@@ -132,7 +181,7 @@ static void {{soc_name}}_class_init(ObjectClass *oc, void *data) {
     /* dc->props = ; */
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
-    dc->reset = {{soc_mmio_name}}_reset; */
+    dc->reset = {{soc_name}}_reset; */
     dc->realize = {{soc_name}}_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
