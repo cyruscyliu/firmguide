@@ -3,6 +3,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "qemu/log.h"
 #include "qapi/error.h"
 #include "target/arm/cpu.h"
 #include "hw/arm/mv88f5181L.h"
@@ -249,8 +250,8 @@ static uint64_t mv88f5181_ddr_sdram_controller_read(void *opaque, hwaddr offset,
     case DDR_SDRAM_ADDRESS_CONTROL_REGISTER:
         res = s->ddr_sdram_address_control_register;
         break;
-    case DDR_SDRAM_OPEN PAGES_CONTROL_REGISTER:
-        res = s->ddr_sdram_open pages_control_register;
+    case DDR_SDRAM_OPEN_PAGES_CONTROL_REGISTER:
+        res = s->ddr_sdram_open_pages_control_register;
         break;
     case DDR_SDRAM_OPERATION_REGISTER:
         res = s->ddr_sdram_operation_register;
@@ -350,8 +351,8 @@ static void mv88f5181_ddr_sdram_controller_write(void *opaque, hwaddr offset, ui
     case DDR_SDRAM_ADDRESS_CONTROL_REGISTER:
         s->ddr_sdram_address_control_register = val;
         break;
-    case DDR_SDRAM_OPEN PAGES_CONTROL_REGISTER:
-        s->ddr_sdram_open pages_control_register = val;
+    case DDR_SDRAM_OPEN_PAGES_CONTROL_REGISTER:
+        s->ddr_sdram_open_pages_control_register = val;
         break;
     case DDR_SDRAM_OPERATION_REGISTER:
         s->ddr_sdram_operation_register = val;
@@ -447,7 +448,7 @@ static void mv88f5181L_reset(DeviceState *d) {
     s->ddr2_sdram_timing_low_register = 0x5 << 0 | 0x0 << 4 | 0x3 << 8 | 0x3 << 12 | 0x6 << 16 | 0x0 << 20;
     s->ddr2_sdram_timing_high_register = 0x0 << 0 | 0x3 << 4 | 0x3 << 8 | 0x6 << 12 | 0x0 << 16;
     s->ddr_sdram_address_control_register = 0x0 << 0 | 0x1 << 4 | 0x0 << 6;
-    s->ddr_sdram_open pages_control_register = 0x0 << 0 | 0x0 << 1;
+    s->ddr_sdram_open_pages_control_register = 0x0 << 0 | 0x0 << 1;
     s->ddr_sdram_operation_register = 0x0 << 0 | 0x0 << 4;
     s->ddr_sdram_operation_control_register = 0x0 << 0 | 0x0 << 2;
     s->ddr_sdram_mode_register = 0x2 << 0 | 0x0 << 3 | 0x3 << 4 | 0x0 << 7 | 0x0 << 8 | 0x0 << 12 | 0x0 << 13 | 0x0 << 14;
@@ -540,7 +541,7 @@ static void mv88f5181L_class_init(ObjectClass *oc, void *data) {
     /* dc->props = ; */
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
-    dc->reset = mv88f5181L_reset; */
+    dc->reset = mv88f5181L_reset;
     dc->realize = mv88f5181L_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */

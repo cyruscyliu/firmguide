@@ -133,7 +133,7 @@ machine:
         - name: "ddr_sdram_address_control_register"
           offset: "0x10"
           value: "0x0 << 0 | 0x1 << 4 | 0x0 << 6"
-        - name: "ddr_sdram_open pages_control_register"
+        - name: "ddr_sdram_open_pages_control_register"
           offset: "0x14"
           value: "0x0 << 0 | 0x0 << 1"
         - name: "ddr_sdram_operation_register"

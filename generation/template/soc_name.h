@@ -10,6 +10,10 @@
 #define TYPE_{{soc_name|upper}} "{{soc_name}}"
 #define {{soc_name|upper}}(obj) \
     OBJECT_CHECK({{soc_name|upper}}State, (obj), TYPE_{{soc_name|upper}})
+{% for register in cam_registers %}
+#define {{register.name|upper}} {{register.offset}}{% endfor %}
+{% for register in dsc_registers %}
+#define {{register.name|upper}} {{register.offset}}{% endfor %}
 
 #define {{cam_mmio_name|upper}}_MMIO_SIZE {{cam_mmio_size}}
 #define {{cam_mmio_name|upper}}_MMIO_BASE {{cam_mmio_base}}

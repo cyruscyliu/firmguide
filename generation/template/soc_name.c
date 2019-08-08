@@ -1,6 +1,7 @@
 {{license}}
 
 #include "qemu/osdep.h"
+#include "qemu/log.h"
 #include "qapi/error.h"
 #include "target/arm/cpu.h"
 #include "hw/arm/{{soc_name}}.h"
@@ -181,7 +182,7 @@ static void {{soc_name}}_class_init(ObjectClass *oc, void *data) {
     /* dc->props = ; */
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
-    dc->reset = {{soc_name}}_reset; */
+    dc->reset = {{soc_name}}_reset;
     dc->realize = {{soc_name}}_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
