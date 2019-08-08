@@ -32,7 +32,7 @@ typedef struct {{soc_name|upper}}State {
     MemoryRegion cpu_address_map_mmio;
     {% for register in cam_registers %}uint32_t {{register.name}};
     {% endfor %}
-    MemoryRegion addr_sdram_controller_mmio;
+    MemoryRegion ddr_sdram_controller_mmio;
     {% for register in dsc_registers %}uint32_t {{register.name}};
     {% endfor %}
     {{ic_name|upper|concat}}State ic;

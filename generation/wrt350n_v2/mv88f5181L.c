@@ -404,7 +404,7 @@ static const MemoryRegionOps mv88f5181_ddr_sdram_controller_ops = {
     .read = mv88f5181_ddr_sdram_controller_read,
     .write = mv88f5181_ddr_sdram_controller_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
-}
+};
 
 static void mv88f5181L_reset(DeviceState *d) {
     MV88F5181LState *s = MV88F5181L(d);

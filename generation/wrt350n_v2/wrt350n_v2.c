@@ -42,10 +42,10 @@ static void wrt350n_v2_init(MachineState *machine) {
     object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
 
     /* map cpu address map mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_address_map_mmio), 0, MV88F5181_CPU_ADDRESS_MAP_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 0, MV88F5181_CPU_ADDRESS_MAP_MMIO_BASE);
 
     /* map ddr sdram controller mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->ddr_sdram_controller_mmio), 0, MV88F5181_DDR_SDRAM_CONTROLLER_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 1, MV88F5181_DDR_SDRAM_CONTROLLER_MMIO_BASE);
 
     /* set up the flash */
     dinfo = drive_get(IF_PFLASH, 0, 0);

@@ -96,7 +96,7 @@ static const MemoryRegionOps {{dsc_mmio_name}}_ops = {
     .read = {{dsc_mmio_name}}_read,
     .write = {{dsc_mmio_name}}_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
-}
+};
 
 static void {{soc_name}}_reset(DeviceState *d) {
     {{soc_name|upper|concat}}State *s = {{soc_name|upper}}(d);

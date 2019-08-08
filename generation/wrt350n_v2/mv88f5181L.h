@@ -107,7 +107,7 @@ typedef struct MV88F5181LState {
     uint32_t window7_base_register;
     uint32_t _88f5181_internal_registers_base_address_register;
     
-    MemoryRegion addr_sdram_controller_mmio;
+    MemoryRegion ddr_sdram_controller_mmio;
     uint32_t cs0n_base_address_register;
     uint32_t cs0n_size_register;
     uint32_t cs1n_base_address_register;
