@@ -5,10 +5,10 @@
 #include "hw/gpio/{{gpio_name}}.h"
 
 static void {{gpio_name}}_update(void *opaque);
-static void {{gpio_name}}_reset(DeviceState *dev);
-
 static uint64_t {{gpio_name}}_read(void *opaque, hwaddr offset, unsigned size);
 static void {{gpio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+
+static void {{gpio_name}}_reset(DeviceState *dev);
 
 static void {{gpio_name}}_init(Object *obj);
 static void {{gpio_name}}_class_init(ObjectClass *klass, void *data);
@@ -24,34 +24,13 @@ static uint64_t {{gpio_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     uint64_t res = 0;
 
     switch (offset) {
-    case GPIO_DOR: /* GPIO Data Out Register */
-        /* do nothing */
-        break;
-    case GPIO_DOECR: /* GPIO Data Out Enable Control Register */
-        /* do nothing */
-        break;
-    case GPIO_BER: /* GPIO Blink Enable Register */
-        /* do nothing */
-        break;
-    case GPIO_DIPR: /* GPIO Data In Polarity Register */
-        /* do nothing */
-        break;
-    case GPIO_DIR: /* GPIO Data In Register */
-        /* do nothing */
-        break;
-    case GPIO_ICR: /* GPIO Interrupt Cause Register */
-        res = s->icr;
-        break;
-    case GPIO_IMR: /* GPIO Interrupt Mask Register */
-        res = s->imr;
-        break;
-    case GPIO_ILMR: /* GPIO Interrupt Level Mask Register */
-        res = s->ilmr;
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
-        res = 0;
-    }
+        return 0;
+    {% for register in gpio_registers %}case {{register.name|upper}}:
+        res = s->{{register.name}};
+        break;
+    {% endfor %}}
     return res;
 }
 
@@ -59,33 +38,13 @@ static void {{gpio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsig
     {{gpio_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
-    case GPIO_DOR: /* GPIO Data Out Register */
-        /* do nothing */
-        break;
-    case GPIO_DOECR: /* GPIO Data Out Enable Control Register */
-        /* do nothing */
-        break;
-    case GPIO_BER: /* GPIO Blink Enable Register */
-        /* do nothing */
-        break;
-    case GPIO_DIPR: /* GPIO Data In Polarity Register */
-        /* do nothing */
-        break;
-    case GPIO_DIR: /* GPIO Data In Register */
-        /* do nothing */
-        break;
-    case GPIO_ICR: /* GPIO Interrupt Cause Register */
-        s->icr = val;
-        break;
-    case GPIO_IMR: /* GPIO Interrupt Mask Register */
-        s->imr = val;
-        break;
-    case GPIO_ILMR: /* GPIO Interrupt Level Mask Register */
-        s->ilmr = val;
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
-    }
+        return;
+    {% for register in gpio_registers %}case {{register.name|upper}}:
+        s->{{register.name}} = val;
+        break;
+    {% endfor %}}
     {{gpio_name}}_update(s);
     return;
 }
@@ -100,8 +59,8 @@ static void {{gpio_name}}_init(Object *obj) {
     {{gpio_name|upper|concat}}State *s = {{gpio_name|upper}}(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &{{gpio_name}}_ops, s, "{{gpio_name}}", {{gpio_name|upper}}_RAM_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
+    memory_region_init_io(&s->gpio_mmio, obj, &{{gpio_name}}_ops, s, "{{gpio_name}}", {{gpio_name|upper}}_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->gpio_mmio);
 
     /* initialize the output */
     qdev_init_gpio_out(DEVICE(s), s->out, {{gpio_n}});
@@ -109,10 +68,8 @@ static void {{gpio_name}}_init(Object *obj) {
 
 static void {{gpio_name}}_reset(DeviceState *dev) {
     {{gpio_name|upper|concat}}State *s = {{gpio_name|upper}}(dev);
-
-    s->icr = 0;
-    s->imr = 0;
-    s->ilmr = 0;
+    {% for register in gpio_registers %}
+    s->{{register.name}} = 0;{% endfor %}
 }
 
 static void {{gpio_name}}_class_init(ObjectClass *klass, void *data) {

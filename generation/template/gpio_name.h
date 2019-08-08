@@ -8,29 +8,22 @@
 #define TYPE_{{gpio_name|upper}} "{{gpio_name}}"
 #define {{gpio_name|upper}}(obj) \
     OBJECT_CHECK({{gpio_name|upper|concat}}State, (obj), TYPE_{{gpio_name|upper}})
+{% for register in gpio_registers %}
+#define {{register.name|upper}} {{register.offset}}{% endfor %}
 
-#define GPIO_DOR    0x00	/* GPIO Data Out Register */
-#define GPIO_DOECR  0x04	/* GPIO Data Out Enable Control Register */
-#define GPIO_BER    0x08	/* GPIO Blink Enable Register */
-#define GPIO_DIPR   0x0C	/* GPIO Data In Polarity Register */
-#define GPIO_DIR    0x10	/* GPIO Data In Register */
-#define GPIO_ICR    0x14	/* GPIO Interrupt Cause Register */
-#define GPIO_IMR    0x18	/* GPIO Interrupt Mask Register */
-#define GPIO_ILMR   0x1C	/* GPIO Interrupt Level Mask Register */
-
-#define {{gpio_name|upper}}_RAM_SIZE {{gpio_mmio_size}}
-#define {{gpio_name|upper}}_RAM_BASE {{gpio_mmio_base}}
+#define {{gpio_name|upper}}_MMIO_SIZE {{gpio_mmio_size}}
+#define {{gpio_name|upper}}_MMIO_BASE {{gpio_mmio_base}}
 
 typedef struct {{gpio_name|upper|concat}}State {
     /*< private >*/
     SysBusDevice sys_bus;
     /*< public >*/
 
-    MemoryRegion mmio;
-    uint32_t icr;
-    uint32_t imr;
-    uint32_t ilmr;
+    MemoryRegion gpio_mmio;
     qemu_irq out[{{gpio_n}}];
+
+    {% for register in gpio_registers %}uint32_t {{register.name}};
+    {% endfor %}
 } {{gpio_name|upper|concat}}State;
 
 #endif /* {{gpio_name|upper}}_H */

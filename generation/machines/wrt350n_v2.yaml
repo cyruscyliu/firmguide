@@ -223,6 +223,23 @@ machine:
         gpio_name: "mv88f5181L_gpio"
         gpio_mmio_base: "0xf1010100"
         gpio_mmio_size: "0x100"
+        gpio_registers:
+          - name: "gpio_data_out_register"
+            offset: "0x00"
+          - name: "gpio_data_out_enable_control_register"
+            offset: "0x04"
+          - name: "gpio_blink_enable_register"
+            offset: "0x08"
+          - name: "gpio_data_in_polarity_register"
+            offset: "0x0c"
+          - name: "gpio_data_in_register"
+            offset: "0x10"
+          - name: "gpio_interrupt_cause_register"
+            offset: "0x14"
+          - name: "gpio_interrupt_mask_register"
+            offset: "0x18"
+          - name: "gpio_interrupt_level_mask_register"
+            offset: "0x1c"
         gpio_n: 32
       pcie:
         pcie_name: "mv88f5181L_pcie"
