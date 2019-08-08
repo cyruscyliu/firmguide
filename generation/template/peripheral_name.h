@@ -13,15 +13,13 @@
 #define {{peripheral_name|upper}}(obj) \
     OBJECT_CHECK({{peripheral_name|upper|concat}}State, (obj),  TYPE_{{peripheral_name|upper}})
 
-#define {{peripheral_name|upper}}_RAM_SIZE {{peripheral_ram_size}}
-#define {{peripheral_name|upper}}_RAM_BASE {{peripheral_ram_base}}
 {% for register in bridge_registers %}
 #define {{register.name|upper}} {{register.offset}}{% endfor %}
 
-#define {{bridge_name|upper}}_RAM_SIZE {{bridge_ram_size}}
-#define {{bridge_name|upper}}_RAM_BASE {{bridge_ram_base}}
+#define {{bridge_mmio_name|upper}}_RAM_SIZE {{bridge_mmio_size}}
+#define {{bridge_mmio_name|upper}}_RAM_BASE {{bridge_mmio_base}}
 
-#define {{bridge_name|upper}}_IRQ "{{bridge_name}}_irq"
+#define {{bridge_mmio_name|upper}}_IRQ "{{bridge_mmio_name}}_irq"
 
 typedef struct {{peripheral_name|upper|concat}}State {
     /*< private >*/

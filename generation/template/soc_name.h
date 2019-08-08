@@ -11,6 +11,9 @@
 #define {{soc_name|upper}}(obj) \
     OBJECT_CHECK({{soc_name|upper}}State, (obj), TYPE_{{soc_name|upper}})
 
+#define {{soc_mmio_name|upper}}_RAM_SIZE {{soc_mmio_size}}
+#define {{soc_mmio_name|upper}}_RAM_BASE {{soc_mmio_base}}
+
 typedef struct {{soc_name|upper}}State {
     /*< private >*/
     DeviceState parent_obj;
@@ -20,6 +23,9 @@ typedef struct {{soc_name|upper}}State {
     ARMCPU *cpu;
     qemu_irq irq, fiq;
 
+    MemoryRegion cpu_address_map_mmio;
+    {% for register in soc_registers %}uint32_t {{register.name}};
+    {% endfor %}
     {{ic_name|upper|concat}}State ic;
     {{peripheral_name|upper|concat}}State peripherals;
 } {{soc_name|upper}}State;

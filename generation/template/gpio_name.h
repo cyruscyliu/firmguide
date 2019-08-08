@@ -18,8 +18,8 @@
 #define GPIO_IMR    0x18	/* GPIO Interrupt Mask Register */
 #define GPIO_ILMR   0x1C	/* GPIO Interrupt Level Mask Register */
 
-#define {{gpio_name|upper}}_RAM_SIZE {{gpio_ram_size}}
-#define {{gpio_name|upper}}_RAM_BASE {{gpio_ram_base}}
+#define {{gpio_name|upper}}_RAM_SIZE {{gpio_mmio_size}}
+#define {{gpio_name|upper}}_RAM_BASE {{gpio_mmio_base}}
 
 typedef struct {{gpio_name|upper|concat}}State {
     /*< private >*/

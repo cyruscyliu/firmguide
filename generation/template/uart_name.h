@@ -23,8 +23,8 @@
 #define UART_MSR  0x18	/*  Modem Status Register (MSR) */
 #define UART_SCR  0x1C	/*  Scratch Pad Register (SCR) */
 
-#define {{uart_name|upper}}_RAM_SIZE {{uart_ram_size}}
-#define {{uart_name|upper}}_RAM_BASE {{uart_ram_base}}
+#define {{uart_name|upper}}_RAM_SIZE {{uart_mmio_size}}
+#define {{uart_name|upper}}_RAM_BASE {{uart_mmio_base}}
 
 typedef struct {{uart_name|upper|concat}}State {
     /* <private> */

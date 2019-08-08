@@ -39,6 +39,9 @@ static void {{machine_name}}_init(MachineState *machine) {
     /* realize the soc */
     object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
 
+    /* map cpu address map mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_address_map_mmio), 0, {{soc_mmio_name|upper}}_RAM_BASE);
+
     /* set up the flash */{% if flash_enable %}
     dinfo = drive_get(IF_PFLASH, 0, 0);
     flash = pflash_cfi01_register(

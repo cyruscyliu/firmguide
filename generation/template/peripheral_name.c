@@ -12,7 +12,7 @@ static void {{peripheral_name}}_init(Object *obj);
 static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data);
 static void {{peripheral_name}}_register_types(void);
 
-static void {{bridge_name}}_update(void *opaque) {
+static void {{bridge_mmio_name}}_update(void *opaque) {
     {{peripheral_name|upper|concat}}State *s = opaque;
     if (extract32(s->bridge_interrupt_cause_register, 1, 1)) {
         if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
@@ -32,14 +32,14 @@ static void {{bridge_name}}_update(void *opaque) {
     }
 }
 
-static void {{bridge_name}}_set_irq(void *opaque, int irq, int level) {
+static void {{bridge_mmio_name}}_set_irq(void *opaque, int irq, int level) {
     {{peripheral_name|upper|concat}}State *s = opaque;
     s->bridge_interrupt_cause_register &= 0x1;
     s->bridge_interrupt_cause_register = deposit32(s->bridge_interrupt_cause_register, irq, 1, level);
-    {{bridge_name}}_update(s);
+    {{bridge_mmio_name}}_update(s);
 }
 
-static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t {{bridge_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     {{peripheral_name|upper|concat}}State *s = opaque;
     uint32_t res = 0;
 
@@ -54,7 +54,7 @@ static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size)
     return res;
 }
 
-static void {{bridge_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void {{bridge_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
     {{peripheral_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
@@ -65,12 +65,12 @@ static void {{bridge_name}}_write(void *opaque, hwaddr offset, uint64_t val, uns
         s->{{register.name}} = val;
         break;
     {% endfor %}}
-    {{bridge_name}}_update(s);
+    {{bridge_mmio_name}}_update(s);
 }
 
-static const MemoryRegionOps {{bridge_name}}_ops = {
-    .read = {{bridge_name}}_read,
-    .write = {{bridge_name}}_write,
+static const MemoryRegionOps {{bridge_mmio_name}}_ops = {
+    .read = {{bridge_mmio_name}}_read,
+    .write = {{bridge_mmio_name}}_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
@@ -78,14 +78,14 @@ static void {{peripheral_name}}_init(Object *obj) {
     {{peripheral_name|upper|concat}}State *s = {{peripheral_name|upper}}(obj);
 
     /* initialize the bridge mmio */
-    memory_region_init_io(&s->bridge_mmio, obj, &{{bridge_name}}_ops, s, TYPE_{{peripheral_name|upper}}, {{bridge_name|upper}}_RAM_SIZE);
+    memory_region_init_io(&s->bridge_mmio, obj, &{{bridge_mmio_name}}_ops, s, TYPE_{{peripheral_name|upper}}, {{bridge_mmio_name|upper}}_RAM_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->bridge_mmio);
 
     /* initialize the bridge irq */
     sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
 
     /* initialize GPIO in */
-    qdev_init_gpio_in_named(DEVICE(s), {{bridge_name}}_set_irq, {{bridge_name|upper}}_IRQ, 32);
+    qdev_init_gpio_in_named(DEVICE(s), {{bridge_mmio_name}}_set_irq, {{bridge_mmio_name|upper}}_IRQ, 32);
 
     /* initialize the timer */
     sysbus_init_child_obj(obj, "timer", &s->timer, sizeof(s->timer), TYPE_{{timer_name|upper}});
@@ -114,9 +114,9 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
 
     /* connect the timer to the bridge */
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 0,
-        qdev_get_gpio_in_named(DEVICE(s), {{bridge_name|upper}}_IRQ, 1));
+        qdev_get_gpio_in_named(DEVICE(s), {{bridge_mmio_name|upper}}_IRQ, 1));
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 1,
-        qdev_get_gpio_in_named(DEVICE(s), {{bridge_name|upper}}_IRQ, 2));
+        qdev_get_gpio_in_named(DEVICE(s), {{bridge_mmio_name|upper}}_IRQ, 2));
 
     /* realize the uart */
     object_property_set_bool(OBJECT(&s->uart), true, "realized", &err);
@@ -143,7 +143,7 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->pcie), 0, {{pcie_name|upper}}_RAM_BASE);
 }
 
-static void {{bridge_name}}_reset(DeviceState *d) {
+static void {{bridge_mmio_name}}_reset(DeviceState *d) {
     {{peripheral_name|upper|concat}}State *s = {{peripheral_name|upper}}(d);
     {% for register in bridge_registers %}
     s->{{register.name}} = 0;{% endfor %}
@@ -157,7 +157,7 @@ static void {{peripheral_name}}_class_init(ObjectClass *oc, void *data) {
     /* dc->props = ; */
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
-    dc->reset = {{bridge_name}}_reset;
+    dc->reset = {{bridge_mmio_name}}_reset;
     dc->realize = {{peripheral_name}}_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */

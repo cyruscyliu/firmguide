@@ -41,6 +41,9 @@ static void wrt350n_v2_init(MachineState *machine) {
     /* realize the soc */
     object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
 
+    /* map cpu address map mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_address_map_mmio), 0, MV88F5181_CPU_ADDRESS_MAP_RAM_BASE);
+
     /* set up the flash */
     dinfo = drive_get(IF_PFLASH, 0, 0);
     flash = pflash_cfi01_register(

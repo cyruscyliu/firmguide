@@ -12,8 +12,8 @@
 #define PCIE_DEVICE_AND_VENDOR_ID_REGISTER       0x00
 #define PCIE_CLASS_CODE_AND_REVISION_ID_REGISTER 0x08
 
-#define {{pcie_name|upper}}_RAM_SIZE {{pcie_ram_size}}
-#define {{pcie_name|upper}}_RAM_BASE {{pcie_ram_base}}
+#define {{pcie_name|upper}}_RAM_SIZE {{pcie_mmio_size}}
+#define {{pcie_name|upper}}_RAM_BASE {{pcie_mmio_base}}
 
 typedef struct {{pcie_name|upper|concat}}State {
     /*< private >*/
