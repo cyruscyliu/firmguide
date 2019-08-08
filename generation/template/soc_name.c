@@ -58,7 +58,7 @@ static const MemoryRegionOps {{soc_mmio_name}}_ops = {
 static void {{soc_mmio_name}}_reset(DeviceState *d) {
     {{soc_name|upper|concat}}State *s = {{soc_name|upper}}(d);
     {% for register in soc_registers %}
-    s->{{register.name}} = 0;{% endfor %}
+    s->{{register.name}} = {{register.value}};{% endfor %}
 }
 
 static void {{soc_name}}_init(Object *obj) {

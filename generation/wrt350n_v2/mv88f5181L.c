@@ -192,29 +192,29 @@ static const MemoryRegionOps mv88f5181_cpu_address_map_ops = {
 static void mv88f5181_cpu_address_map_reset(DeviceState *d) {
     MV88F5181LState *s = MV88F5181L(d);
     
-    s->window0_control_register = 0;
-    s->window0_base_register = 0;
-    s->window0_remap_low_register = 0;
-    s->window0_remap_high_register = 0;
-    s->window1_control_register = 0;
-    s->window1_base_register = 0;
-    s->window1_remap_low_register = 0;
-    s->window1_remap_high_register = 0;
-    s->window2_control_register = 0;
-    s->window2_base_register = 0;
-    s->window2_remap_low_register = 0;
-    s->window2_remap_high_register = 0;
-    s->window3_control_register = 0;
-    s->window3_base_register = 0;
-    s->window4_control_register = 0;
-    s->window4_base_register = 0;
-    s->window5_control_register = 0;
-    s->window5_base_register = 0;
-    s->window6_control_register = 0;
-    s->window6_base_register = 0;
-    s->window7_control_register = 0;
-    s->window7_base_register = 0;
-    s->_88f5181_internal_registers_base_address_register = 0;
+    s->window0_control_register = 0x1FFF5941;
+    s->window0_base_register = 0x80000000;
+    s->window0_remap_low_register = 0x80000000;
+    s->window0_remap_high_register = 0x0;
+    s->window1_control_register = 0x1FFF5931;
+    s->window1_base_register = 0xA0000000;
+    s->window1_remap_low_register = 0xA0000000;
+    s->window1_remap_high_register = 0x0;
+    s->window2_control_register = 0x00005141;
+    s->window2_base_register = 0xC0000000;
+    s->window2_remap_low_register = 0xC0000000;
+    s->window2_remap_high_register = 0x0;
+    s->window3_control_register = 0x00005131;
+    s->window3_base_register = 0xC8000000;
+    s->window4_control_register = 0x00000091;
+    s->window4_base_register = 0xC8010000;
+    s->window5_control_register = 0x0;
+    s->window5_base_register = 0x0;
+    s->window6_control_register = 0x07FF1B11;
+    s->window6_base_register = 0xF0000000;
+    s->window7_control_register = 0x07FF0F11;
+    s->window7_base_register = 0xF8000000;
+    s->_88f5181_internal_registers_base_address_register = 0xD0000000;
 }
 
 static void mv88f5181L_init(Object *obj) {
