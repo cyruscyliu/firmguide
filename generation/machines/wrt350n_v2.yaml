@@ -226,21 +226,30 @@ machine:
         gpio_registers:
           - name: "gpio_data_out_register"
             offset: "0x00"
+            value: "0x0 << 0 | 0x0 << 26"
           - name: "gpio_data_out_enable_control_register"
             offset: "0x04"
+            value: "0xFFFF << 0 | 0x0 << 26"
           - name: "gpio_blink_enable_register"
             offset: "0x08"
+            value: "0x0 << 0 | 0x0 << 26"
           - name: "gpio_data_in_polarity_register"
             offset: "0x0c"
+            value: "0x0 << 0 | 0x0 << 26"
           - name: "gpio_data_in_register"
             offset: "0x10"
+            value: "0x0 << 0 | 0x0 << 26"
           - name: "gpio_interrupt_cause_register"
             offset: "0x14"
+            value: "0x0 << 0 | 0x0 << 26"
           - name: "gpio_interrupt_mask_register"
             offset: "0x18"
+            value: "0x0 << 0 | 0x0 << 26"
           - name: "gpio_interrupt_level_mask_register"
             offset: "0x1c"
-        gpio_n: 32
+            value: "0x0 << 0 | 0x0 << 26"
+        gpio_in_out_n: 26
+        gpio_irq_n: 4
       pcie:
         pcie_name: "mv88f5181L_pcie"
         pcie_mmio_base: "0xf1040000"

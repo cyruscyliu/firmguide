@@ -7,6 +7,7 @@
 #include "hw/gpio/mv88f5181L_gpio.h"
 
 static void mv88f5181L_gpio_update(void *opaque);
+static void mv88f5181L_gpio_set_irq(void *opaque, int irq, int level);
 static uint64_t mv88f5181L_gpio_read(void *opaque, hwaddr offset, unsigned size);
 static void mv88f5181L_gpio_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 
@@ -17,6 +18,10 @@ static void mv88f5181L_gpio_class_init(ObjectClass *klass, void *data);
 static void mv88f5181L_gpio_register_types(void);
 
 static void mv88f5181L_gpio_update(void *opaque) {
+    /* MV88F5181LGPIOState *s = opaque; */
+}
+
+static void mv88f5181L_gpio_set_irq(void *opaque, int irq, int level) {
     /* MV88F5181LGPIOState *s = opaque; */
 }
 
@@ -106,21 +111,27 @@ static void mv88f5181L_gpio_init(Object *obj) {
     memory_region_init_io(&s->gpio_mmio, obj, &mv88f5181L_gpio_ops, s, "mv88f5181L_gpio", MV88F5181L_GPIO_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->gpio_mmio);
 
-    /* initialize the output */
-    qdev_init_gpio_out(DEVICE(s), s->out, 32);
+    /* initialize the irq */
+    for (int i; i < 4; ++i) {
+        sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq[i]);
+    }
+
+    /* initialize the input/output */
+    qdev_init_gpio_in(DEVICE(s), mv88f5181L_gpio_set_irq, 26);
+    qdev_init_gpio_out(DEVICE(s), s->out, 26);
 }
 
 static void mv88f5181L_gpio_reset(DeviceState *dev) {
     MV88F5181LGPIOState *s = MV88F5181L_GPIO(dev);
     
-    s->gpio_data_out_register = 0;
-    s->gpio_data_out_enable_control_register = 0;
-    s->gpio_blink_enable_register = 0;
-    s->gpio_data_in_polarity_register = 0;
-    s->gpio_data_in_register = 0;
-    s->gpio_interrupt_cause_register = 0;
-    s->gpio_interrupt_mask_register = 0;
-    s->gpio_interrupt_level_mask_register = 0;
+    s->gpio_data_out_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_data_out_enable_control_register = 0xFFFF << 0 | 0x0 << 26;
+    s->gpio_blink_enable_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_data_in_polarity_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_data_in_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_interrupt_cause_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_interrupt_mask_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_interrupt_level_mask_register = 0x0 << 0 | 0x0 << 26;
 }
 
 static void mv88f5181L_gpio_class_init(ObjectClass *klass, void *data) {

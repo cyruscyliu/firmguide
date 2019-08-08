@@ -5,6 +5,7 @@
 #include "hw/gpio/{{gpio_name}}.h"
 
 static void {{gpio_name}}_update(void *opaque);
+static void {{gpio_name}}_set_irq(void *opaque, int irq, int level);
 static uint64_t {{gpio_name}}_read(void *opaque, hwaddr offset, unsigned size);
 static void {{gpio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 
@@ -15,6 +16,10 @@ static void {{gpio_name}}_class_init(ObjectClass *klass, void *data);
 static void {{gpio_name}}_register_types(void);
 
 static void {{gpio_name}}_update(void *opaque) {
+    /* {{gpio_name|upper|concat}}State *s = opaque; */
+}
+
+static void {{gpio_name}}_set_irq(void *opaque, int irq, int level) {
     /* {{gpio_name|upper|concat}}State *s = opaque; */
 }
 
@@ -62,14 +67,20 @@ static void {{gpio_name}}_init(Object *obj) {
     memory_region_init_io(&s->gpio_mmio, obj, &{{gpio_name}}_ops, s, "{{gpio_name}}", {{gpio_name|upper}}_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->gpio_mmio);
 
-    /* initialize the output */
-    qdev_init_gpio_out(DEVICE(s), s->out, {{gpio_n}});
+    /* initialize the irq */
+    for (int i; i < {{gpio_irq_n}}; ++i) {
+        sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq[i]);
+    }
+
+    /* initialize the input/output */
+    qdev_init_gpio_in(DEVICE(s), {{gpio_name}}_set_irq, {{gpio_in_out_n}});
+    qdev_init_gpio_out(DEVICE(s), s->out, {{gpio_in_out_n}});
 }
 
 static void {{gpio_name}}_reset(DeviceState *dev) {
     {{gpio_name|upper|concat}}State *s = {{gpio_name|upper}}(dev);
     {% for register in gpio_registers %}
-    s->{{register.name}} = 0;{% endfor %}
+    s->{{register.name}} = {{register.value}};{% endfor %}
 }
 
 static void {{gpio_name}}_class_init(ObjectClass *klass, void *data) {
