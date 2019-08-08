@@ -135,7 +135,6 @@ static void {{soc_name}}_init(Object *obj) {
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
     {{soc_name|upper}}State *s = {{soc_name|upper}}(dev);
     Error *err = NULL;
-    Object *obj;
 
     /* realize the peripherals  */
     object_property_set_bool(OBJECT(&s->peripherals), true, "realized", &err);
@@ -187,14 +186,19 @@ static void {{soc_name}}_class_init(ObjectClass *oc, void *data) {
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
     /* dc->bus_type = ; */
+
+    /* SysBusDeviceClass sbc = SYS_BUS_DEVICE_CLASS(klass); */
+
+    /* sbc->explicit_ofw_unit_address = ; */
+    /* sbc->connect_irq_notifier = ; */
 }
 
 static const TypeInfo {{soc_name}}_type_info = {
     .name = TYPE_{{soc_name|upper}},
-    .parent = TYPE_DEVICE,
+    .parent = TYPE_SYS_BUS_DEVICE,
     .instance_size = sizeof({{soc_name|upper}}State),
     .instance_init = {{soc_name}}_init,
-    /* .class_size = sizeof(DeviceClass), */
+    /* .class_size = sizeof(SysBusDeviceClass), */
     .class_init = {{soc_name}}_class_init,
 };
 

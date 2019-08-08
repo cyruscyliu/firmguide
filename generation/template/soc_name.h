@@ -22,7 +22,7 @@
 
 typedef struct {{soc_name|upper}}State {
     /*< private >*/
-    DeviceState parent_obj;
+    SysBusDevice sys_bus;
     /*< public >*/
 
     const char *cpu_type;

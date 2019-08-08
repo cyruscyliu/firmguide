@@ -494,7 +494,6 @@ static void mv88f5181L_init(Object *obj) {
 static void mv88f5181L_realize(DeviceState *dev, Error **errp) {
     MV88F5181LState *s = MV88F5181L(dev);
     Error *err = NULL;
-    Object *obj;
 
     /* realize the peripherals  */
     object_property_set_bool(OBJECT(&s->peripherals), true, "realized", &err);
@@ -546,14 +545,19 @@ static void mv88f5181L_class_init(ObjectClass *oc, void *data) {
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
     /* dc->bus_type = ; */
+
+    /* SysBusDeviceClass sbc = SYS_BUS_DEVICE_CLASS(klass); */
+
+    /* sbc->explicit_ofw_unit_address = ; */
+    /* sbc->connect_irq_notifier = ; */
 }
 
 static const TypeInfo mv88f5181L_type_info = {
     .name = TYPE_MV88F5181L,
-    .parent = TYPE_DEVICE,
+    .parent = TYPE_SYS_BUS_DEVICE,
     .instance_size = sizeof(MV88F5181LState),
     .instance_init = mv88f5181L_init,
-    /* .class_size = sizeof(DeviceClass), */
+    /* .class_size = sizeof(SysBusDeviceClass), */
     .class_init = mv88f5181L_class_init,
 };
 
