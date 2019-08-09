@@ -18,11 +18,47 @@ static void mv88f5181L_gpio_class_init(ObjectClass *klass, void *data);
 static void mv88f5181L_gpio_register_types(void);
 
 static void mv88f5181L_gpio_update(void *opaque) {
-    /* MV88F5181LGPIOState *s = opaque; */
+    MV88F5181LGPIOState *s = opaque;
+    int level;
+
+    for (int i = 0; i < 26; ++i) {
+        if (extract32(s->gpio_data_out_enable_control_register, irq, 0)) continue;
+        /* no implementation for blinking */
+        if (extract32(s->gpio_blink_enable_register, irq, 1)) continue;
+        level = extract32(s->gpio_data_out_register, i, 1);
+        qemu_set_irq(s->out[i], level);
+
+        if (extract32(s->gpio_interrupt_cause_register, i, 1) &&
+            extract32(s->gpio_interrupt_level_mask_register, i, 1)) {
+            qemu_set_irq(s->irq[i / 8], 1);
+        } else if (extract32(s->gpio_interrupt_cause_register, i, 1) &&
+            extract32(s->gpio_interrupt_mask_register, i, 1)) {
+            qemu_set_irq(s->irq[i / 8], 0);
+            qemu_set_irq(s->irq[i / 8], 1);
+        } else {
+            qemu_set_irq(s->irq[i / 8], 0);
+        }
+    }
 }
 
 static void mv88f5181L_gpio_set_irq(void *opaque, int irq, int level) {
-    /* MV88F5181LGPIOState *s = opaque; */
+    MV88F5181LGPIOState *s = opaque;
+    int artificial_level;
+
+    if (extract32(s->gpio_data_out_enable_control_register, irq, 1)) return;
+    if (extract32(s->gpio_blink_enable_register, irq, 1)) return;
+    if (extract32(s->data_in_polarity_register, irq, 1)) {
+        artificial_level = !level;
+    } else {
+        artificial_level = level;
+    }
+    if (extract32(s->gpio_data_in_register, irq, 1) == 0 && artificial_level == 1) {
+        s->gpio_interrupt_cause_register =
+            deposit32(s->gpio_interrupt_cause_register, irq, 1, 1);
+    }
+    s->gpio_data_in_register =
+        deposit32(s->gpio_data_in_register, irq, 1, artificial_level);
+    mv88f5181L_gpio_update(s);
 }
 
 static uint64_t mv88f5181L_gpio_read(void *opaque, hwaddr offset, unsigned size) {

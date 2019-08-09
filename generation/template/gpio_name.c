@@ -16,11 +16,47 @@ static void {{gpio_name}}_class_init(ObjectClass *klass, void *data);
 static void {{gpio_name}}_register_types(void);
 
 static void {{gpio_name}}_update(void *opaque) {
-    /* {{gpio_name|upper|concat}}State *s = opaque; */
+    {{gpio_name|upper|concat}}State *s = opaque;
+    int level;
+
+    for (int i = 0; i < {{gpio_in_out_n}}; ++i) {
+        if (extract32(s->gpio_data_out_enable_control_register, irq, 0)) continue;
+        /* no implementation for blinking */
+        if (extract32(s->gpio_blink_enable_register, irq, 1)) continue;
+        level = extract32(s->gpio_data_out_register, i, 1);
+        qemu_set_irq(s->out[i], level);
+
+        if (extract32(s->gpio_interrupt_cause_register, i, 1) &&
+            extract32(s->gpio_interrupt_level_mask_register, i, 1)) {
+            qemu_set_irq(s->irq[i / 8], 1);
+        } else if (extract32(s->gpio_interrupt_cause_register, i, 1) &&
+            extract32(s->gpio_interrupt_mask_register, i, 1)) {
+            qemu_set_irq(s->irq[i / 8], 0);
+            qemu_set_irq(s->irq[i / 8], 1);
+        } else {
+            qemu_set_irq(s->irq[i / 8], 0);
+        }
+    }
 }
 
 static void {{gpio_name}}_set_irq(void *opaque, int irq, int level) {
-    /* {{gpio_name|upper|concat}}State *s = opaque; */
+    {{gpio_name|upper|concat}}State *s = opaque;
+    int artificial_level;
+
+    if (extract32(s->gpio_data_out_enable_control_register, irq, 1)) return;
+    if (extract32(s->gpio_blink_enable_register, irq, 1)) return;
+    if (extract32(s->data_in_polarity_register, irq, 1)) {
+        artificial_level = !level;
+    } else {
+        artificial_level = level;
+    }
+    if (extract32(s->gpio_data_in_register, irq, 1) == 0 && artificial_level == 1) {
+        s->gpio_interrupt_cause_register =
+            deposit32(s->gpio_interrupt_cause_register, irq, 1, 1);
+    }
+    s->gpio_data_in_register =
+        deposit32(s->gpio_data_in_register, irq, 1, artificial_level);
+    {{gpio_name}}_update(s);
 }
 
 static uint64_t {{gpio_name}}_read(void *opaque, hwaddr offset, unsigned size) {
