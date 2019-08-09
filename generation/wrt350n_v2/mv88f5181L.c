@@ -14,9 +14,9 @@ static void mv88f5181_cpu_address_map_write(void *opaque, hwaddr offset, uint64_
 static void mv88f5181_ddr_sdram_controller_update(void *opaque);
 static uint64_t mv88f5181_ddr_sdram_controller_read(void *opaque, hwaddr offset, unsigned size);
 static void mv88f5181_ddr_sdram_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
-static void ﻿mv88f5181l_pins_multiplexing_interface_update(void *opaque);
-static uint64_t ﻿mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwaddr offset, unsigned size);
-static void ﻿mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void mv88f5181l_pins_multiplexing_interface_update(void *opaque);
+static uint64_t mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwaddr offset, unsigned size);
+static void mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 
 static void mv88f5181L_init(Object *obj);
 static void mv88f5181L_realize(DeviceState *dev, Error **errp);
@@ -409,11 +409,11 @@ static const MemoryRegionOps mv88f5181_ddr_sdram_controller_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void ﻿mv88f5181l_pins_multiplexing_interface_update(void *opaque) {
+static void mv88f5181l_pins_multiplexing_interface_update(void *opaque) {
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t ﻿mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwaddr offset, unsigned size) {
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -440,7 +440,7 @@ static uint64_t ﻿mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwa
     return res;
 }
 
-static void ﻿mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -463,12 +463,12 @@ static void ﻿mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr
         s->sample_at_reset_register = val;
         break;
     }
-    ﻿mv88f5181l_pins_multiplexing_interface_update(s);
+    mv88f5181l_pins_multiplexing_interface_update(s);
 }
 
-static const MemoryRegionOps ﻿mv88f5181l_pins_multiplexing_interface_ops = {
-    .read = ﻿mv88f5181l_pins_multiplexing_interface_read,
-    .write = ﻿mv88f5181l_pins_multiplexing_interface_write,
+static const MemoryRegionOps mv88f5181l_pins_multiplexing_interface_ops = {
+    .read = mv88f5181l_pins_multiplexing_interface_read,
+    .write = mv88f5181l_pins_multiplexing_interface_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
@@ -556,7 +556,7 @@ static void mv88f5181L_init(Object *obj) {
 
     /* initialize pins multiplexing interface registers */
     memory_region_init_io(&s->pins_multiplexing_interface_mmio, obj,
-        &﻿mv88f5181l_pins_multiplexing_interface_ops, s, TYPE_MV88F5181L, ﻿MV88F5181L_PINS_MULTIPLEXING_INTERFACE_MMIO_SIZE);
+        &mv88f5181l_pins_multiplexing_interface_ops, s, TYPE_MV88F5181L, MV88F5181L_PINS_MULTIPLEXING_INTERFACE_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->pins_multiplexing_interface_mmio);
 
     /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
