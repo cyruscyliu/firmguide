@@ -48,26 +48,53 @@ static uint64_t mv88f5181L_uart_read(void *opaque, hwaddr offset, unsigned size)
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
         return 0;
-    case CPU_TIMERS_CONTROL_REGISTER:
-        res = s->cpu_timers_control_register;
+    case UART_0_RECEIVE_BUFFER_REGISTER_RBR:
+        res = s->uart_0_receive_buffer_register_rbr;
         break;
-    case CPU_TIMER0_RELOAD_REGISTER:
-        res = s->cpu_timer0_reload_register;
+    case UART_0_INTERRUPT_ENABLE_REGISTER_IER:
+        res = s->uart_0_interrupt_enable_register_ier;
         break;
-    case CPU_TIMER0_REGISTER:
-        res = s->cpu_timer0_register;
+    case UART_0_INTERRUPT_IDENTITY_REGISTER_IIR:
+        res = s->uart_0_interrupt_identity_register_iir;
         break;
-    case CPU_TIMER1_RELOAD_REGISTER:
-        res = s->cpu_timer1_reload_register;
+    case UART_0_LINE_CONTROL_REGISTER_LCR:
+        res = s->uart_0_line_control_register_lcr;
         break;
-    case CPU_TIMER1_REGISTER:
-        res = s->cpu_timer1_register;
+    case UART_0_MODEM_CONTROL_REGISTER_MCR:
+        res = s->uart_0_modem_control_register_mcr;
         break;
-    case CPU_WATCHDOG_TIMER_RELOAD_REGISTER:
-        res = s->cpu_watchdog_timer_reload_register;
+    case UART_0_LINE_STATUS_REGISTER_LSR:
+        res = s->uart_0_line_status_register_lsr;
         break;
-    case CPU_WATCHDOG_TIMER_REGISTER:
-        res = s->cpu_watchdog_timer_register;
+    case UART_0_MODEM_STATUS_REGISTER_MSR:
+        res = s->uart_0_modem_status_register_msr;
+        break;
+    case UART_0_SCRATCH_PAD_REGISTER_SCR:
+        res = s->uart_0_scratch_pad_register_scr;
+        break;
+    case UART_1_RECEIVE_BUFFER_REGISTER_RBR:
+        res = s->uart_1_receive_buffer_register_rbr;
+        break;
+    case UART_1_INTERRUPT_ENABLE_REGISTER_IER:
+        res = s->uart_1_interrupt_enable_register_ier;
+        break;
+    case UART_1_INTERRUPT_IDENTITY_REGISTER_IIR:
+        res = s->uart_1_interrupt_identity_register_iir;
+        break;
+    case UART_1_LINE_CONTROL_REGISTER_LCR:
+        res = s->uart_1_line_control_register_lcr;
+        break;
+    case UART_1_MODEM_CONTROL_REGISTER_MCR:
+        res = s->uart_1_modem_control_register_mcr;
+        break;
+    case UART_1_LINE_STATUS_REGISTER_LSR:
+        res = s->uart_1_line_status_register_lsr;
+        break;
+    case UART_1_MODEM_STATUS_REGISTER_MSR:
+        res = s->uart_1_modem_status_register_msr;
+        break;
+    case UART_1_SCRATCH_PAD_REGISTER_SCR:
+        res = s->uart_1_scratch_pad_register_scr;
         break;
     }
     return res;

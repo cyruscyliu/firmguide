@@ -46,7 +46,7 @@ static uint64_t {{uart_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
         return 0;
-    {% for register in timer_registers %}case {{register.name|upper}}:
+    {% for register in uart_registers %}case {{register.name|upper}}:
         res = s->{{register.name}};
         break;
     {% endfor %}}
