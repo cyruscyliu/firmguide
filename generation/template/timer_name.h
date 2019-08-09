@@ -12,8 +12,8 @@
 {% for register in timer_registers %}
 #define {{register.name|upper}} {{register.offset}}{% endfor %}
 
-#define {{timer_name|upper}}_RAM_SIZE {{timer_mmio_size}}
-#define {{timer_name|upper}}_RAM_BASE {{timer_mmio_base}}
+#define {{timer_name|upper}}_MMIO_SIZE {{timer_mmio_size}}
+#define {{timer_name|upper}}_MMIO_BASE {{timer_mmio_base}}
 
 typedef struct {{timer_name|upper|concat}}State {
     /* <private> */

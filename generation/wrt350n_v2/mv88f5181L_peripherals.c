@@ -142,7 +142,7 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
         error_propagate(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, MV88F5181L_TIMER_RAM_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, MV88F5181L_TIMER_MMIO_BASE);
 
     /* connect the timer to the bridge */
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 0,
@@ -164,7 +164,7 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
         error_propagate(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->gpio), 0, MV88F5181L_GPIO_RAM_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->gpio), 0, MV88F5181L_GPIO_MMIO_BASE);
 
     /* realize the pcie */
     object_property_set_bool(OBJECT(&s->pcie), true, "realized", &err);

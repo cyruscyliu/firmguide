@@ -144,7 +144,7 @@ static void mv88f5181L_timer_init(Object *obj) {
     MV88F5181LTIMERState *s = MV88F5181L_TIMER(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &mv88f5181L_timer_ops, s, "mv88f5181L_timer", MV88F5181L_TIMER_RAM_SIZE);
+    memory_region_init_io(&s->mmio, obj, &mv88f5181L_timer_ops, s, "mv88f5181L_timer", MV88F5181L_TIMER_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the irqs */

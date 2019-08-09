@@ -110,7 +110,7 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
         error_propagate(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{timer_name|upper}}_RAM_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{timer_name|upper}}_MMIO_BASE);
 
     /* connect the timer to the bridge */
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 0,
@@ -132,7 +132,7 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
         error_propagate(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->gpio), 0, {{gpio_name|upper}}_RAM_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->gpio), 0, {{gpio_name|upper}}_MMIO_BASE);
 
     /* realize the pcie */
     object_property_set_bool(OBJECT(&s->pcie), true, "realized", &err);
