@@ -31,8 +31,6 @@ static void {{timer_name}}_update(void *opaque) {
             if (extract32(s->cpu_timers_control_register, 1, 1) == 1) {
                  s->cpu_timer0_register = s->cpu_timer0_reload_register / 0x5ff;
             }
-        } else {
-            qemu_set_irq(s->irq_0, 0);
         }
         if (extract32(s->cpu_timers_control_register, 1, 1) == 1 ||
             (extract32(s->cpu_timers_control_register, 1, 1) == 0 && !s->reserved_0)) {
@@ -50,8 +48,6 @@ static void {{timer_name}}_update(void *opaque) {
             if (extract32(s->cpu_timers_control_register, 3, 1) == 1) {
                  s->cpu_timer1_register = s->cpu_timer1_reload_register / 0x5ff;
             }
-        } else {
-            qemu_set_irq(s->irq_1, 0);
         }
         if (extract32(s->cpu_timers_control_register, 3, 1) == 1 ||
             (extract32(s->cpu_timers_control_register, 3, 1) == 0 && !s->reserved_1)) {
