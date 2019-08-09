@@ -41,21 +41,14 @@ static void {{gpio_name}}_update(void *opaque) {
 
 static void {{gpio_name}}_set_irq(void *opaque, int irq, int level) {
     {{gpio_name|upper|concat}}State *s = opaque;
-    int artificial_level;
 
     if (extract32(s->gpio_data_out_enable_control_register, irq, 1)) return;
     if (extract32(s->gpio_blink_enable_register, irq, 1)) return;
-    if (extract32(s->gpio_data_in_polarity_register, irq, 1)) {
-        artificial_level = !level;
-    } else {
-        artificial_level = level;
-    }
-    if (extract32(s->gpio_data_in_register, irq, 1) == 0 && artificial_level == 1) {
+    if (extract32(s->gpio_data_in_register, irq, 1) == 0 && level == 1) {
         s->gpio_interrupt_cause_register =
             deposit32(s->gpio_interrupt_cause_register, irq, 1, 1);
     }
-    s->gpio_data_in_register =
-        deposit32(s->gpio_data_in_register, irq, 1, artificial_level);
+    s->gpio_data_in_register = deposit32(s->gpio_data_in_register, irq, 1, level);
     {{gpio_name}}_update(s);
 }
 
@@ -104,7 +97,7 @@ static void {{gpio_name}}_init(Object *obj) {
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->gpio_mmio);
 
     /* initialize the irq */
-    for (int i; i < {{gpio_irq_n}}; ++i) {
+    for (int i = 0; i < {{gpio_irq_n}}; ++i) {
         sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq[i]);
     }
 

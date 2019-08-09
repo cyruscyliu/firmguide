@@ -126,7 +126,7 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->uart), 0, {{uart_name|upper}}_RAM_BASE);
 
-    /* realize the uart */
+    /* realize the  gpio */
     object_property_set_bool(OBJECT(&s->gpio), true, "realized", &err);
     if (err != NULL) {
         error_propagate(errp, err);
