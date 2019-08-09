@@ -7,17 +7,51 @@
 #include "hw/gpio/mv88f5181L_gpio.h"
 
 static void mv88f5181L_gpio_update(void *opaque);
-static void mv88f5181L_gpio_reset(DeviceState *dev);
-
+static void mv88f5181L_gpio_set_irq(void *opaque, int irq, int level);
 static uint64_t mv88f5181L_gpio_read(void *opaque, hwaddr offset, unsigned size);
 static void mv88f5181L_gpio_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+
+static void mv88f5181L_gpio_reset(DeviceState *dev);
 
 static void mv88f5181L_gpio_init(Object *obj);
 static void mv88f5181L_gpio_class_init(ObjectClass *klass, void *data);
 static void mv88f5181L_gpio_register_types(void);
 
 static void mv88f5181L_gpio_update(void *opaque) {
-    /* MV88F5181LGPIOState *s = opaque; */
+    MV88F5181LGPIOState *s = opaque;
+    int level;
+
+    for (int i = 0; i < 26; ++i) {
+        if (extract32(s->gpio_data_out_enable_control_register, i, 1)) continue;
+        /* no implementation for blinking */
+        if (extract32(s->gpio_blink_enable_register, i, 1)) continue;
+        level = extract32(s->gpio_data_out_register, i, 1);
+        qemu_set_irq(s->out[i], level);
+
+        if (extract32(s->gpio_interrupt_cause_register, i, 1) &&
+            extract32(s->gpio_interrupt_level_mask_register, i, 1)) {
+            qemu_set_irq(s->irq[i / 8], 1);
+        } else if (extract32(s->gpio_interrupt_cause_register, i, 1) &&
+            extract32(s->gpio_interrupt_mask_register, i, 1)) {
+            qemu_set_irq(s->irq[i / 8], 0);
+            qemu_set_irq(s->irq[i / 8], 1);
+        } else {
+            qemu_set_irq(s->irq[i / 8], 0);
+        }
+    }
+}
+
+static void mv88f5181L_gpio_set_irq(void *opaque, int irq, int level) {
+    MV88F5181LGPIOState *s = opaque;
+
+    if (extract32(s->gpio_data_out_enable_control_register, irq, 1)) return;
+    if (extract32(s->gpio_blink_enable_register, irq, 1)) return;
+    if (extract32(s->gpio_data_in_register, irq, 1) == 0 && level == 1) {
+        s->gpio_interrupt_cause_register =
+            deposit32(s->gpio_interrupt_cause_register, irq, 1, 1);
+    }
+    s->gpio_data_in_register = deposit32(s->gpio_data_in_register, irq, 1, level);
+    mv88f5181L_gpio_update(s);
 }
 
 static uint64_t mv88f5181L_gpio_read(void *opaque, hwaddr offset, unsigned size) {
@@ -26,33 +60,33 @@ static uint64_t mv88f5181L_gpio_read(void *opaque, hwaddr offset, unsigned size)
     uint64_t res = 0;
 
     switch (offset) {
-    case GPIO_DOR: /* GPIO Data Out Register */
-        /* do nothing */
-        break;
-    case GPIO_DOECR: /* GPIO Data Out Enable Control Register */
-        /* do nothing */
-        break;
-    case GPIO_BER: /* GPIO Blink Enable Register */
-        /* do nothing */
-        break;
-    case GPIO_DIPR: /* GPIO Data In Polarity Register */
-        /* do nothing */
-        break;
-    case GPIO_DIR: /* GPIO Data In Register */
-        /* do nothing */
-        break;
-    case GPIO_ICR: /* GPIO Interrupt Cause Register */
-        res = s->icr;
-        break;
-    case GPIO_IMR: /* GPIO Interrupt Mask Register */
-        res = s->imr;
-        break;
-    case GPIO_ILMR: /* GPIO Interrupt Level Mask Register */
-        res = s->ilmr;
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
-        res = 0;
+        return 0;
+    case GPIO_DATA_OUT_REGISTER:
+        res = s->gpio_data_out_register;
+        break;
+    case GPIO_DATA_OUT_ENABLE_CONTROL_REGISTER:
+        res = s->gpio_data_out_enable_control_register;
+        break;
+    case GPIO_BLINK_ENABLE_REGISTER:
+        res = s->gpio_blink_enable_register;
+        break;
+    case GPIO_DATA_IN_POLARITY_REGISTER:
+        res = s->gpio_data_in_polarity_register;
+        break;
+    case GPIO_DATA_IN_REGISTER:
+        res = s->gpio_data_in_register;
+        break;
+    case GPIO_INTERRUPT_CAUSE_REGISTER:
+        res = s->gpio_interrupt_cause_register;
+        break;
+    case GPIO_INTERRUPT_MASK_REGISTER:
+        res = s->gpio_interrupt_mask_register;
+        break;
+    case GPIO_INTERRUPT_LEVEL_MASK_REGISTER:
+        res = s->gpio_interrupt_level_mask_register;
+        break;
     }
     return res;
 }
@@ -61,32 +95,33 @@ static void mv88f5181L_gpio_write(void *opaque, hwaddr offset, uint64_t val, uns
     MV88F5181LGPIOState *s = opaque;
 
     switch (offset) {
-    case GPIO_DOR: /* GPIO Data Out Register */
-        /* do nothing */
-        break;
-    case GPIO_DOECR: /* GPIO Data Out Enable Control Register */
-        /* do nothing */
-        break;
-    case GPIO_BER: /* GPIO Blink Enable Register */
-        /* do nothing */
-        break;
-    case GPIO_DIPR: /* GPIO Data In Polarity Register */
-        /* do nothing */
-        break;
-    case GPIO_DIR: /* GPIO Data In Register */
-        /* do nothing */
-        break;
-    case GPIO_ICR: /* GPIO Interrupt Cause Register */
-        s->icr = val;
-        break;
-    case GPIO_IMR: /* GPIO Interrupt Mask Register */
-        s->imr = val;
-        break;
-    case GPIO_ILMR: /* GPIO Interrupt Level Mask Register */
-        s->ilmr = val;
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case GPIO_DATA_OUT_REGISTER:
+        s->gpio_data_out_register = val;
+        break;
+    case GPIO_DATA_OUT_ENABLE_CONTROL_REGISTER:
+        s->gpio_data_out_enable_control_register = val;
+        break;
+    case GPIO_BLINK_ENABLE_REGISTER:
+        s->gpio_blink_enable_register = val;
+        break;
+    case GPIO_DATA_IN_POLARITY_REGISTER:
+        s->gpio_data_in_polarity_register = val;
+        break;
+    case GPIO_DATA_IN_REGISTER:
+        s->gpio_data_in_register = val;
+        break;
+    case GPIO_INTERRUPT_CAUSE_REGISTER:
+        s->gpio_interrupt_cause_register = val;
+        break;
+    case GPIO_INTERRUPT_MASK_REGISTER:
+        s->gpio_interrupt_mask_register = val;
+        break;
+    case GPIO_INTERRUPT_LEVEL_MASK_REGISTER:
+        s->gpio_interrupt_level_mask_register = val;
+        break;
     }
     mv88f5181L_gpio_update(s);
     return;
@@ -102,19 +137,30 @@ static void mv88f5181L_gpio_init(Object *obj) {
     MV88F5181LGPIOState *s = MV88F5181L_GPIO(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &mv88f5181L_gpio_ops, s, "mv88f5181L_gpio", MV88F5181L_GPIO_RAM_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
+    memory_region_init_io(&s->gpio_mmio, obj, &mv88f5181L_gpio_ops, s, "mv88f5181L_gpio", MV88F5181L_GPIO_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->gpio_mmio);
 
-    /* initialize the output */
-    qdev_init_gpio_out(DEVICE(s), s->out, 32);
+    /* initialize the irq */
+    for (int i = 0; i < 4; ++i) {
+        sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq[i]);
+    }
+
+    /* initialize the input/output */
+    qdev_init_gpio_in(DEVICE(s), mv88f5181L_gpio_set_irq, 26);
+    qdev_init_gpio_out(DEVICE(s), s->out, 26);
 }
 
 static void mv88f5181L_gpio_reset(DeviceState *dev) {
     MV88F5181LGPIOState *s = MV88F5181L_GPIO(dev);
-
-    s->icr = 0;
-    s->imr = 0;
-    s->ilmr = 0;
+    
+    s->gpio_data_out_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_data_out_enable_control_register = 0xFFFF << 0 | 0x0 << 26;
+    s->gpio_blink_enable_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_data_in_polarity_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_data_in_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_interrupt_cause_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_interrupt_mask_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_interrupt_level_mask_register = 0x0 << 0 | 0x0 << 26;
 }
 
 static void mv88f5181L_gpio_class_init(ObjectClass *klass, void *data) {

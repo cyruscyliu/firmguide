@@ -51,8 +51,8 @@ if __name__ == '__main__':
             target = '{}.{}'.format(context[template[:-2]], template[-1])
             context_inv[target[:-2]] = template[:-2]
             print('generating {} ...'.format(target))
-            with open(os.path.join(MACHINE_DIR, target), 'w') as f_target:
-                with open(os.path.join(TEMPLATE_DIR, template), 'r') as f_template:
+            with open(os.path.join(MACHINE_DIR, target), 'w', encoding='utf-8') as f_target:
+                with open(os.path.join(TEMPLATE_DIR, template), 'r', encoding='utf-8') as f_template:
                     lines = ''
                     for line in f_template:
                         lines += line
