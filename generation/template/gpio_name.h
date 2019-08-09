@@ -20,7 +20,7 @@ typedef struct {{gpio_name|upper|concat}}State {
     /*< public >*/
 
     MemoryRegion gpio_mmio;
-    qemu_irq irq[{{gpio_irq_n}}]
+    qemu_irq irq[{{gpio_irq_n}}];
     qemu_irq out[{{gpio_in_out_n}}];
 
     {% for register in gpio_registers %}uint32_t {{register.name}};

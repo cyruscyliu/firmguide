@@ -29,7 +29,7 @@ typedef struct MV88F5181LGPIOState {
     /*< public >*/
 
     MemoryRegion gpio_mmio;
-    qemu_irq irq[4]
+    qemu_irq irq[4];
     qemu_irq out[26];
 
     uint32_t gpio_data_out_register;
