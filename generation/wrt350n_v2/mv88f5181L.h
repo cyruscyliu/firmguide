@@ -68,10 +68,18 @@
 #define DDR_SDRAM_INTERFACE_MBUS_TIMEOUT_REGISTER 0x38
 #define DDR_SDRAM_MMASK_REGISTER 0xB0
 
+#define MPP_CONTROL_0_REGISTER 0x00
+#define MPP_CONTROL_1_REGISTER 0x04
+#define MPP_CONTROL_2_REGISTER 0x50
+#define DEVICE_MULTIPLEX_CONTROL_REGISTER 0x08
+#define SAMPLE_AT_RESET_REGISTER 0x10
+
 #define MV88F5181_CPU_ADDRESS_MAP_MMIO_SIZE 0x100
 #define MV88F5181_CPU_ADDRESS_MAP_MMIO_BASE 0xf1020000
 #define MV88F5181_DDR_SDRAM_CONTROLLER_MMIO_SIZE 0x200
 #define MV88F5181_DDR_SDRAM_CONTROLLER_MMIO_BASE 0xf1001400
+#define ﻿MV88F5181L_PINS_MULTIPLEXING_INTERFACE_MMIO_SIZE 0x100
+#define ﻿MV88F5181L_PINS_MULTIPLEXING_INTERFACE_MMIO_BASE 0xf1010000
 
 typedef struct MV88F5181LState {
     /*< private >*/
@@ -138,6 +146,13 @@ typedef struct MV88F5181LState {
     uint32_t ddr_sdram_interface_mbus_control_high_register;
     uint32_t ddr_sdram_interface_mbus_timeout_register;
     uint32_t ddr_sdram_mmask_register;
+    
+    MemoryRegion pins_multiplexing_interface_mmio;
+    uint32_t mpp_control_0_register;
+    uint32_t mpp_control_1_register;
+    uint32_t mpp_control_2_register;
+    uint32_t device_multiplex_control_register;
+    uint32_t sample_at_reset_register;
     
     MV88F5181LICState ic;
     MV88F5181LPERIPHERALSState peripherals;

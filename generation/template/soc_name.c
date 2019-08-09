@@ -12,6 +12,9 @@ static void {{cam_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, u
 static void {{dsc_mmio_name}}_update(void *opaque);
 static uint64_t {{dsc_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size);
 static void {{dsc_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void {{mpp_mmio_name}}_update(void *opaque);
+static uint64_t {{mpp_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size);
+static void {{mpp_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 
 static void {{soc_name}}_init(Object *obj);
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp);
@@ -98,12 +101,53 @@ static const MemoryRegionOps {{dsc_mmio_name}}_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
+static void {{mpp_mmio_name}}_update(void *opaque) {
+    /* {{soc_name|upper|concat}}State *s = opaque; */
+}
+
+static uint64_t {{mpp_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+    {{soc_name|upper|concat}}State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    {% for register in mpp_registers %}case {{register.name|upper}}:
+        res = s->{{register.name}};
+        break;
+    {% endfor %}}
+    return res;
+}
+
+static void {{mpp_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+    {{soc_name|upper|concat}}State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    {% for register in mpp_registers %}case {{register.name|upper}}:
+        s->{{register.name}} = val;
+        break;
+    {% endfor %}}
+    {{mpp_mmio_name}}_update(s);
+}
+
+static const MemoryRegionOps {{mpp_mmio_name}}_ops = {
+    .read = {{mpp_mmio_name}}_read,
+    .write = {{mpp_mmio_name}}_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
 static void {{soc_name}}_reset(DeviceState *d) {
     {{soc_name|upper|concat}}State *s = {{soc_name|upper}}(d);
     {% for register in cam_registers %}
     s->{{register.name}} = {{register.value}};{% endfor %}
     {% for register in dsc_registers %}
     s->{{register.name}} = {{register.value}};{% endfor %}
+    {% for register in mpp_registers %}
+    s->{{register.name}} = 0;{% endfor %}
 }
 
 static void {{soc_name}}_init(Object *obj) {
@@ -122,6 +166,11 @@ static void {{soc_name}}_init(Object *obj) {
     memory_region_init_io(&s->ddr_sdram_controller_mmio, obj,
         &{{dsc_mmio_name}}_ops, s, TYPE_{{soc_name|upper}}, {{dsc_mmio_name|upper}}_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ddr_sdram_controller_mmio);
+
+    /* initialize pins multiplexing interface registers */
+    memory_region_init_io(&s->pins_multiplexing_interface_mmio, obj,
+        &{{mpp_mmio_name}}_ops, s, TYPE_{{soc_name|upper}}, {{mpp_mmio_name|upper}}_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->pins_multiplexing_interface_mmio);
 
     /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
     sysbus_init_child_obj(

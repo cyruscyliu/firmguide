@@ -14,6 +14,9 @@ static void mv88f5181_cpu_address_map_write(void *opaque, hwaddr offset, uint64_
 static void mv88f5181_ddr_sdram_controller_update(void *opaque);
 static uint64_t mv88f5181_ddr_sdram_controller_read(void *opaque, hwaddr offset, unsigned size);
 static void mv88f5181_ddr_sdram_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void ﻿mv88f5181l_pins_multiplexing_interface_update(void *opaque);
+static uint64_t ﻿mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwaddr offset, unsigned size);
+static void ﻿mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 
 static void mv88f5181L_init(Object *obj);
 static void mv88f5181L_realize(DeviceState *dev, Error **errp);
@@ -406,6 +409,69 @@ static const MemoryRegionOps mv88f5181_ddr_sdram_controller_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
+static void ﻿mv88f5181l_pins_multiplexing_interface_update(void *opaque) {
+    /* MV88F5181LState *s = opaque; */
+}
+
+static uint64_t ﻿mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwaddr offset, unsigned size) {
+    MV88F5181LState *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case MPP_CONTROL_0_REGISTER:
+        res = s->mpp_control_0_register;
+        break;
+    case MPP_CONTROL_1_REGISTER:
+        res = s->mpp_control_1_register;
+        break;
+    case MPP_CONTROL_2_REGISTER:
+        res = s->mpp_control_2_register;
+        break;
+    case DEVICE_MULTIPLEX_CONTROL_REGISTER:
+        res = s->device_multiplex_control_register;
+        break;
+    case SAMPLE_AT_RESET_REGISTER:
+        res = s->sample_at_reset_register;
+        break;
+    }
+    return res;
+}
+
+static void ﻿mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+    MV88F5181LState *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case MPP_CONTROL_0_REGISTER:
+        s->mpp_control_0_register = val;
+        break;
+    case MPP_CONTROL_1_REGISTER:
+        s->mpp_control_1_register = val;
+        break;
+    case MPP_CONTROL_2_REGISTER:
+        s->mpp_control_2_register = val;
+        break;
+    case DEVICE_MULTIPLEX_CONTROL_REGISTER:
+        s->device_multiplex_control_register = val;
+        break;
+    case SAMPLE_AT_RESET_REGISTER:
+        s->sample_at_reset_register = val;
+        break;
+    }
+    ﻿mv88f5181l_pins_multiplexing_interface_update(s);
+}
+
+static const MemoryRegionOps ﻿mv88f5181l_pins_multiplexing_interface_ops = {
+    .read = ﻿mv88f5181l_pins_multiplexing_interface_read,
+    .write = ﻿mv88f5181l_pins_multiplexing_interface_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
 static void mv88f5181L_reset(DeviceState *d) {
     MV88F5181LState *s = MV88F5181L(d);
     
@@ -463,6 +529,12 @@ static void mv88f5181L_reset(DeviceState *d) {
     s->ddr_sdram_interface_mbus_control_high_register = 0x8 << 0 | 0x9 << 4 | 0xA << 8 | 0xB << 12 | 0xC << 16 | 0xD << 20 | 0xE << 24 | 0xF << 28;
     s->ddr_sdram_interface_mbus_timeout_register = 0xFF << 0 | 0x0 << 8 | 0x1 << 16 | 0x0 << 17;
     s->ddr_sdram_mmask_register = 0x0 << 0 | 0x0 << 2 | 0x0 << 4 | 0xF << 5 | 0x0 << 9;
+    
+    s->mpp_control_0_register = 0;
+    s->mpp_control_1_register = 0;
+    s->mpp_control_2_register = 0;
+    s->device_multiplex_control_register = 0;
+    s->sample_at_reset_register = 0;
 }
 
 static void mv88f5181L_init(Object *obj) {
@@ -481,6 +553,11 @@ static void mv88f5181L_init(Object *obj) {
     memory_region_init_io(&s->ddr_sdram_controller_mmio, obj,
         &mv88f5181_ddr_sdram_controller_ops, s, TYPE_MV88F5181L, MV88F5181_DDR_SDRAM_CONTROLLER_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ddr_sdram_controller_mmio);
+
+    /* initialize pins multiplexing interface registers */
+    memory_region_init_io(&s->pins_multiplexing_interface_mmio, obj,
+        &﻿mv88f5181l_pins_multiplexing_interface_ops, s, TYPE_MV88F5181L, ﻿MV88F5181L_PINS_MULTIPLEXING_INTERFACE_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->pins_multiplexing_interface_mmio);
 
     /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
     sysbus_init_child_obj(
