@@ -22,7 +22,7 @@ static void mv88f5181L_gpio_update(void *opaque) {
     int level;
 
     for (int i = 0; i < 26; ++i) {
-        if (extract32(s->gpio_data_out_enable_control_register, i, 0)) continue;
+        if (extract32(s->gpio_data_out_enable_control_register, i, 1)) continue;
         /* no implementation for blinking */
         if (extract32(s->gpio_blink_enable_register, i, 1)) continue;
         level = extract32(s->gpio_data_out_register, i, 1);

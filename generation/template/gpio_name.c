@@ -20,7 +20,7 @@ static void {{gpio_name}}_update(void *opaque) {
     int level;
 
     for (int i = 0; i < {{gpio_in_out_n}}; ++i) {
-        if (extract32(s->gpio_data_out_enable_control_register, i, 0)) continue;
+        if (extract32(s->gpio_data_out_enable_control_register, i, 1)) continue;
         /* no implementation for blinking */
         if (extract32(s->gpio_blink_enable_register, i, 1)) continue;
         level = extract32(s->gpio_data_out_register, i, 1);
