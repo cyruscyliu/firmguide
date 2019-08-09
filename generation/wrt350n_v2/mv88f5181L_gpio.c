@@ -24,7 +24,7 @@ static void mv88f5181L_gpio_update(void *opaque) {
     for (int i = 0; i < 26; ++i) {
         if (extract32(s->gpio_data_out_enable_control_register, irq, 0)) continue;
         /* no implementation for blinking */
-        if (extract32(s->gpio_blink_enable_register, irq, 1)) continue;
+        if (extract32(s->gpio_blink_enable_register, i, 1)) continue;
         level = extract32(s->gpio_data_out_register, i, 1);
         qemu_set_irq(s->out[i], level);
 
@@ -47,7 +47,7 @@ static void mv88f5181L_gpio_set_irq(void *opaque, int irq, int level) {
 
     if (extract32(s->gpio_data_out_enable_control_register, irq, 1)) return;
     if (extract32(s->gpio_blink_enable_register, irq, 1)) return;
-    if (extract32(s->data_in_polarity_register, irq, 1)) {
+    if (extract32(s->gpio_data_in_polarity_register, irq, 1)) {
         artificial_level = !level;
     } else {
         artificial_level = level;
