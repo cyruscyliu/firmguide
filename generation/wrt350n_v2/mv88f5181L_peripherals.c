@@ -156,7 +156,7 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
         error_propagate(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->uart), 0, MV88F5181L_UART_RAM_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->uart), 0, MV88F5181L_UART_MMIO_BASE);
 
     /* realize the  gpio */
     object_property_set_bool(OBJECT(&s->gpio), true, "realized", &err);
