@@ -102,7 +102,6 @@ static uint64_t mv88f5181L_uart_read(void *opaque, hwaddr offset, unsigned size)
 
 static void mv88f5181L_uart_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
     MV88F5181LUARTState *s = (MV88F5181LUARTState *)opaque;
-    unsigned char c;
 
     switch (offset) {
     default:

@@ -55,7 +55,6 @@ static uint64_t {{uart_name}}_read(void *opaque, hwaddr offset, unsigned size) {
 
 static void {{uart_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
     {{uart_name|upper|concat}}State *s = ({{uart_name|upper|concat}}State *)opaque;
-    unsigned char c;
 
     switch (offset) {
     default:
