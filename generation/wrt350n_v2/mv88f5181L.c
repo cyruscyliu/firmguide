@@ -1477,14 +1477,14 @@ static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr
     case IP_DIFFERENTIATED_SERVICES_CODEPOINT_2_TO_PRIORITY_DSCP2:
         res = s->ip_differentiated_services_codepoint_2_to_priority_dscp2;
         break;
-    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_23?_TO_PRIORITY_DSCP3:
-        res = s->ip_differentiated_services_codepoint_23?_to_priority_dscp3;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_23_TO_PRIORITY_DSCP3:
+        res = s->ip_differentiated_services_codepoint_23_to_priority_dscp3;
         break;
-    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_24?_TO_PRIORITY_DSCP4:
-        res = s->ip_differentiated_services_codepoint_24?_to_priority_dscp4;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_24_TO_PRIORITY_DSCP4:
+        res = s->ip_differentiated_services_codepoint_24_to_priority_dscp4;
         break;
-    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_25?_TO_PRIORITY_DSCP5:
-        res = s->ip_differentiated_services_codepoint_25?_to_priority_dscp5;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_25_TO_PRIORITY_DSCP5:
+        res = s->ip_differentiated_services_codepoint_25_to_priority_dscp5;
         break;
     case IP_DIFFERENTIATED_SERVICES_CODEPOINT_6_TO_PRIORITY_DSCP6:
         res = s->ip_differentiated_services_codepoint_6_to_priority_dscp6;
@@ -1782,14 +1782,14 @@ static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr of
     case IP_DIFFERENTIATED_SERVICES_CODEPOINT_2_TO_PRIORITY_DSCP2:
         s->ip_differentiated_services_codepoint_2_to_priority_dscp2 = val;
         break;
-    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_23?_TO_PRIORITY_DSCP3:
-        s->ip_differentiated_services_codepoint_23?_to_priority_dscp3 = val;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_23_TO_PRIORITY_DSCP3:
+        s->ip_differentiated_services_codepoint_23_to_priority_dscp3 = val;
         break;
-    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_24?_TO_PRIORITY_DSCP4:
-        s->ip_differentiated_services_codepoint_24?_to_priority_dscp4 = val;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_24_TO_PRIORITY_DSCP4:
+        s->ip_differentiated_services_codepoint_24_to_priority_dscp4 = val;
         break;
-    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_25?_TO_PRIORITY_DSCP5:
-        s->ip_differentiated_services_codepoint_25?_to_priority_dscp5 = val;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_25_TO_PRIORITY_DSCP5:
+        s->ip_differentiated_services_codepoint_25_to_priority_dscp5 = val;
         break;
     case IP_DIFFERENTIATED_SERVICES_CODEPOINT_6_TO_PRIORITY_DSCP6:
         s->ip_differentiated_services_codepoint_6_to_priority_dscp6 = val;
@@ -2205,9 +2205,9 @@ static void mv88f5181L_reset(DeviceState *d) {
     s->ip_differentiated_services_codepoint_0_to_priority_dscp0 = 0;
     s->ip_differentiated_services_codepoint_1_to_priority_dscp1 = 0;
     s->ip_differentiated_services_codepoint_2_to_priority_dscp2 = 0;
-    s->ip_differentiated_services_codepoint_23?_to_priority_dscp3 = 0;
-    s->ip_differentiated_services_codepoint_24?_to_priority_dscp4 = 0;
-    s->ip_differentiated_services_codepoint_25?_to_priority_dscp5 = 0;
+    s->ip_differentiated_services_codepoint_23_to_priority_dscp3 = 0;
+    s->ip_differentiated_services_codepoint_24_to_priority_dscp4 = 0;
+    s->ip_differentiated_services_codepoint_25_to_priority_dscp5 = 0;
     s->ip_differentiated_services_codepoint_6_to_priority_dscp6 = 0;
     s->port_serial_control_psc = 0;
     s->vlan_priority_tag_to_priority_vpt2p = 0;

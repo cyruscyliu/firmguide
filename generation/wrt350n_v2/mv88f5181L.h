@@ -249,9 +249,9 @@
 #define IP_DIFFERENTIATED_SERVICES_CODEPOINT_0_TO_PRIORITY_DSCP0 0x420
 #define IP_DIFFERENTIATED_SERVICES_CODEPOINT_1_TO_PRIORITY_DSCP1 0x424
 #define IP_DIFFERENTIATED_SERVICES_CODEPOINT_2_TO_PRIORITY_DSCP2 0x428
-#define IP_DIFFERENTIATED_SERVICES_CODEPOINT_23?_TO_PRIORITY_DSCP3 0x42c
-#define IP_DIFFERENTIATED_SERVICES_CODEPOINT_24?_TO_PRIORITY_DSCP4 0x430
-#define IP_DIFFERENTIATED_SERVICES_CODEPOINT_25?_TO_PRIORITY_DSCP5 0x434
+#define IP_DIFFERENTIATED_SERVICES_CODEPOINT_23_TO_PRIORITY_DSCP3 0x42c
+#define IP_DIFFERENTIATED_SERVICES_CODEPOINT_24_TO_PRIORITY_DSCP4 0x430
+#define IP_DIFFERENTIATED_SERVICES_CODEPOINT_25_TO_PRIORITY_DSCP5 0x434
 #define IP_DIFFERENTIATED_SERVICES_CODEPOINT_6_TO_PRIORITY_DSCP6 0x438
 #define PORT_SERIAL_CONTROL_PSC 0x43c
 #define VLAN_PRIORITY_TAG_TO_PRIORITY_VPT2P 0x440
@@ -572,9 +572,9 @@ typedef struct MV88F5181LState {
     uint32_t ip_differentiated_services_codepoint_0_to_priority_dscp0;
     uint32_t ip_differentiated_services_codepoint_1_to_priority_dscp1;
     uint32_t ip_differentiated_services_codepoint_2_to_priority_dscp2;
-    uint32_t ip_differentiated_services_codepoint_23?_to_priority_dscp3;
-    uint32_t ip_differentiated_services_codepoint_24?_to_priority_dscp4;
-    uint32_t ip_differentiated_services_codepoint_25?_to_priority_dscp5;
+    uint32_t ip_differentiated_services_codepoint_23_to_priority_dscp3;
+    uint32_t ip_differentiated_services_codepoint_24_to_priority_dscp4;
+    uint32_t ip_differentiated_services_codepoint_25_to_priority_dscp5;
     uint32_t ip_differentiated_services_codepoint_6_to_priority_dscp6;
     uint32_t port_serial_control_psc;
     uint32_t vlan_priority_tag_to_priority_vpt2p;
