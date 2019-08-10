@@ -183,22 +183,22 @@ static void mv88f5181L_uart_init(Object *obj) {
 static void mv88f5181L_uart_reset(DeviceState *dev) {
     MV88F5181LUARTState *s = MV88F5181L_UART(dev);
     
-    s->uart_0_receive_buffer_register_rbr = 0;
-    s->uart_0_interrupt_enable_register_ier = 0;
-    s->uart_0_interrupt_identity_register_iir = 0;
-    s->uart_0_line_control_register_lcr = 0;
-    s->uart_0_modem_control_register_mcr = 0;
-    s->uart_0_line_status_register_lsr = 0;
-    s->uart_0_modem_status_register_msr = 0;
-    s->uart_0_scratch_pad_register_scr = 0;
-    s->uart_1_receive_buffer_register_rbr = 0;
-    s->uart_1_interrupt_enable_register_ier = 0;
-    s->uart_1_interrupt_identity_register_iir = 0;
-    s->uart_1_line_control_register_lcr = 0;
-    s->uart_1_modem_control_register_mcr = 0;
-    s->uart_1_line_status_register_lsr = 0;
-    s->uart_1_modem_status_register_msr = 0;
-    s->uart_1_scratch_pad_register_scr = 0;
+    s->uart_0_receive_buffer_register_rbr = 0x0 << 0 | 0x0 << 8;
+    s->uart_0_interrupt_enable_register_ier = 0x0 /* 0 1 2 3 4 */;
+    s->uart_0_interrupt_identity_register_iir = 0x0 /* 0 4 6 8 */;
+    s->uart_0_line_control_register_lcr = 0x0 /* 0 2 3 4 5 6 7 8 */;
+    s->uart_0_modem_control_register_mcr = 0x0 /* 0 1 2 4 5 */;
+    s->uart_0_line_status_register_lsr = 0x1 << 5 | 0x1 << 6 | 0x1 << 7 /* 0 1 2 3 4 5 6 7 8*/;
+    s->uart_0_modem_status_register_msr = 0x0 /* 0 1 4 5 */;
+    s->uart_0_scratch_pad_register_scr = 0x0 /* 0 8 */;
+    s->uart_1_receive_buffer_register_rbr = 0x0;
+    s->uart_1_interrupt_enable_register_ier = 0x0;
+    s->uart_1_interrupt_identity_register_iir = 0x0;
+    s->uart_1_line_control_register_lcr = 0x0;
+    s->uart_1_modem_control_register_mcr = 0x0;
+    s->uart_1_line_status_register_lsr = 0x0;
+    s->uart_1_modem_status_register_msr = 0x0;
+    s->uart_1_scratch_pad_register_scr = 0x0;
 }
 
 static void mv88f5181L_uart_class_init(ObjectClass *klass, void *data) {

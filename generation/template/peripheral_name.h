@@ -7,7 +7,6 @@
 #include "hw/timer/{{timer_name}}.h"
 #include "hw/char/{{uart_name}}.h"
 #include "hw/gpio/{{gpio_name}}.h"
-#include "hw/pci-host/{{pcie_name}}.h"
 
 #define TYPE_{{peripheral_name|upper}} "{{peripheral_name}}"
 #define {{peripheral_name|upper}}(obj) \
@@ -34,7 +33,6 @@ typedef struct {{peripheral_name|upper|concat}}State {
     {{timer_name|upper|concat}}State timer;
     {{uart_name|upper|concat}}State uart;
     {{gpio_name|upper|concat}}State gpio;
-    {{pcie_name|upper|concat}}State pcie;
 } {{peripheral_name|upper|concat}}State;
 
 #endif /* {{peripheral_name|upper}}_H */

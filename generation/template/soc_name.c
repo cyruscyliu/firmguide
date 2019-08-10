@@ -15,6 +15,12 @@ static void {{dsc_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, u
 static void {{mpp_mmio_name}}_update(void *opaque);
 static uint64_t {{mpp_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size);
 static void {{mpp_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void {{pci_mmio_name}}_update(void *opaque);
+static uint64_t {{pci_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size);
+static void {{pci_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void {{pcie_mmio_name}}_update(void *opaque);
+static uint64_t {{pcie_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size);
+static void {{pcie_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 
 static void {{soc_name}}_init(Object *obj);
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp);
@@ -140,6 +146,84 @@ static const MemoryRegionOps {{mpp_mmio_name}}_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
+static void {{pci_mmio_name}}_update(void *opaque) {
+    /* {{soc_name|upper|concat}}State *s = opaque; */
+}
+
+static uint64_t {{pci_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+    {{soc_name|upper|concat}}State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    {% for register in pci_registers %}case {{register.name|upper}}:
+        res = s->{{register.name}};
+        break;
+    {% endfor %}}
+    return res;
+}
+
+static void {{pci_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+    {{soc_name|upper|concat}}State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    {% for register in pci_registers %}case {{register.name|upper}}:
+        s->{{register.name}} = val;
+        break;
+    {% endfor %}}
+    {{pci_mmio_name}}_update(s);
+}
+
+static const MemoryRegionOps {{pci_mmio_name}}_ops = {
+    .read = {{pci_mmio_name}}_read,
+    .write = {{pci_mmio_name}}_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
+static void {{pcie_mmio_name}}_update(void *opaque) {
+    /* {{soc_name|upper|concat}}State *s = opaque; */
+}
+
+static uint64_t {{pcie_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+    {{soc_name|upper|concat}}State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    {% for register in pcie_registers %}case {{register.name|upper}}:
+        res = s->{{register.name}};
+        break;
+    {% endfor %}}
+    return res;
+}
+
+static void {{pcie_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+    {{soc_name|upper|concat}}State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    {% for register in pcie_registers %}case {{register.name|upper}}:
+        s->{{register.name}} = val;
+        break;
+    {% endfor %}}
+    {{pcie_mmio_name}}_update(s);
+}
+
+static const MemoryRegionOps {{pcie_mmio_name}}_ops = {
+    .read = {{pcie_mmio_name}}_read,
+    .write = {{pcie_mmio_name}}_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
 static void {{soc_name}}_reset(DeviceState *d) {
     {{soc_name|upper|concat}}State *s = {{soc_name|upper}}(d);
     {% for register in cam_registers %}
@@ -148,6 +232,10 @@ static void {{soc_name}}_reset(DeviceState *d) {
     s->{{register.name}} = {{register.value}};{% endfor %}
     {% for register in mpp_registers %}
     s->{{register.name}} = 0;{% endfor %}
+    {% for register in pci_registers %}
+    s->{{register.name}} = {{register.value}};{% endfor %}
+    {% for register in pcie_registers %}
+    s->{{register.name}} = {{register.value}};{% endfor %}
 }
 
 static void {{soc_name}}_init(Object *obj) {
@@ -171,6 +259,16 @@ static void {{soc_name}}_init(Object *obj) {
     memory_region_init_io(&s->pins_multiplexing_interface_mmio, obj,
         &{{mpp_mmio_name}}_ops, s, TYPE_{{soc_name|upper}}, {{mpp_mmio_name|upper}}_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->pins_multiplexing_interface_mmio);
+
+    /* initialize pci interface registers */
+    memory_region_init_io(&s->pci_interface_mmio, obj,
+        &{{pci_mmio_name}}_ops, s, TYPE_{{soc_name|upper}}, {{pci_mmio_name|upper}}_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->pci_interface_mmio);
+
+    /* initialize pcie interface registers */
+    memory_region_init_io(&s->pcie_interface_mmio, obj,
+        &{{pcie_mmio_name}}_ops, s, TYPE_{{soc_name|upper}}, {{pcie_mmio_name|upper}}_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->pcie_interface_mmio);
 
     /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
     sysbus_init_child_obj(
