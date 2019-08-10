@@ -1567,8 +1567,8 @@ static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr
     case TRANSMIT_CURRENT_QUEUE_DESCRIPTOR_POINTER_TCQDP_Q0:
         res = s->transmit_current_queue_descriptor_pointer_tcqdp_q0;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q0:
-        res = s->transmit_queue_token-bucket_counter_tqxtbc_q0;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q0:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q0;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q0:
         res = s->transmit_queue_token_bucket_configuration_tqxtbc_q0;
@@ -1576,8 +1576,8 @@ static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q0:
         res = s->transmit_queue_arbiter_configuration_tqxac_q0;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q1:
-        res = s->transmit_queue_token-bucket_counter_tqxtbc_q1;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q1:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q1;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q1:
         res = s->transmit_queue_token_bucket_configuration_tqxtbc_q1;
@@ -1585,8 +1585,8 @@ static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q1:
         res = s->transmit_queue_arbiter_configuration_tqxac_q1;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q2:
-        res = s->transmit_queue_token-bucket_counter_tqxtbc_q2;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q2:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q2;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q2:
         res = s->transmit_queue_token_bucket_configuration_tqxtbc_q2;
@@ -1594,8 +1594,8 @@ static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q2:
         res = s->transmit_queue_arbiter_configuration_tqxac_q2;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q3:
-        res = s->transmit_queue_token-bucket_counter_tqxtbc_q3;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q3:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q3;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q3:
         res = s->transmit_queue_token_bucket_configuration_tqxtbc_q3;
@@ -1603,8 +1603,8 @@ static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q3:
         res = s->transmit_queue_arbiter_configuration_tqxac_q3;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q4:
-        res = s->transmit_queue_token-bucket_counter_tqxtbc_q4;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q4:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q4;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q4:
         res = s->transmit_queue_token_bucket_configuration_tqxtbc_q4;
@@ -1612,8 +1612,8 @@ static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q4:
         res = s->transmit_queue_arbiter_configuration_tqxac_q4;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q5:
-        res = s->transmit_queue_token-bucket_counter_tqxtbc_q5;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q5:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q5;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q5:
         res = s->transmit_queue_token_bucket_configuration_tqxtbc_q5;
@@ -1621,8 +1621,8 @@ static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q5:
         res = s->transmit_queue_arbiter_configuration_tqxac_q5;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q6:
-        res = s->transmit_queue_token-bucket_counter_tqxtbc_q6;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q6:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q6;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q6:
         res = s->transmit_queue_token_bucket_configuration_tqxtbc_q6;
@@ -1630,8 +1630,8 @@ static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q6:
         res = s->transmit_queue_arbiter_configuration_tqxac_q6;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q7:
-        res = s->transmit_queue_token-bucket_counter_tqxtbc_q7;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q7:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q7;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q7:
         res = s->transmit_queue_token_bucket_configuration_tqxtbc_q7;
@@ -1872,8 +1872,8 @@ static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr of
     case TRANSMIT_CURRENT_QUEUE_DESCRIPTOR_POINTER_TCQDP_Q0:
         s->transmit_current_queue_descriptor_pointer_tcqdp_q0 = val;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q0:
-        s->transmit_queue_token-bucket_counter_tqxtbc_q0 = val;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q0:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q0 = val;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q0:
         s->transmit_queue_token_bucket_configuration_tqxtbc_q0 = val;
@@ -1881,8 +1881,8 @@ static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr of
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q0:
         s->transmit_queue_arbiter_configuration_tqxac_q0 = val;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q1:
-        s->transmit_queue_token-bucket_counter_tqxtbc_q1 = val;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q1:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q1 = val;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q1:
         s->transmit_queue_token_bucket_configuration_tqxtbc_q1 = val;
@@ -1890,8 +1890,8 @@ static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr of
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q1:
         s->transmit_queue_arbiter_configuration_tqxac_q1 = val;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q2:
-        s->transmit_queue_token-bucket_counter_tqxtbc_q2 = val;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q2:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q2 = val;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q2:
         s->transmit_queue_token_bucket_configuration_tqxtbc_q2 = val;
@@ -1899,8 +1899,8 @@ static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr of
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q2:
         s->transmit_queue_arbiter_configuration_tqxac_q2 = val;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q3:
-        s->transmit_queue_token-bucket_counter_tqxtbc_q3 = val;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q3:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q3 = val;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q3:
         s->transmit_queue_token_bucket_configuration_tqxtbc_q3 = val;
@@ -1908,8 +1908,8 @@ static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr of
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q3:
         s->transmit_queue_arbiter_configuration_tqxac_q3 = val;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q4:
-        s->transmit_queue_token-bucket_counter_tqxtbc_q4 = val;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q4:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q4 = val;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q4:
         s->transmit_queue_token_bucket_configuration_tqxtbc_q4 = val;
@@ -1917,8 +1917,8 @@ static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr of
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q4:
         s->transmit_queue_arbiter_configuration_tqxac_q4 = val;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q5:
-        s->transmit_queue_token-bucket_counter_tqxtbc_q5 = val;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q5:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q5 = val;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q5:
         s->transmit_queue_token_bucket_configuration_tqxtbc_q5 = val;
@@ -1926,8 +1926,8 @@ static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr of
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q5:
         s->transmit_queue_arbiter_configuration_tqxac_q5 = val;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q6:
-        s->transmit_queue_token-bucket_counter_tqxtbc_q6 = val;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q6:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q6 = val;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q6:
         s->transmit_queue_token_bucket_configuration_tqxtbc_q6 = val;
@@ -1935,8 +1935,8 @@ static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr of
     case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q6:
         s->transmit_queue_arbiter_configuration_tqxac_q6 = val;
         break;
-    case TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q7:
-        s->transmit_queue_token-bucket_counter_tqxtbc_q7 = val;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q7:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q7 = val;
         break;
     case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q7:
         s->transmit_queue_token_bucket_configuration_tqxtbc_q7 = val;
@@ -2235,28 +2235,28 @@ static void mv88f5181L_reset(DeviceState *d) {
     s->receive_queue_command_rqc = 0;
     s->transmit_current_served_descriptor_pointer = 0;
     s->transmit_current_queue_descriptor_pointer_tcqdp_q0 = 0;
-    s->transmit_queue_token-bucket_counter_tqxtbc_q0 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q0 = 0;
     s->transmit_queue_token_bucket_configuration_tqxtbc_q0 = 0;
     s->transmit_queue_arbiter_configuration_tqxac_q0 = 0;
-    s->transmit_queue_token-bucket_counter_tqxtbc_q1 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q1 = 0;
     s->transmit_queue_token_bucket_configuration_tqxtbc_q1 = 0;
     s->transmit_queue_arbiter_configuration_tqxac_q1 = 0;
-    s->transmit_queue_token-bucket_counter_tqxtbc_q2 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q2 = 0;
     s->transmit_queue_token_bucket_configuration_tqxtbc_q2 = 0;
     s->transmit_queue_arbiter_configuration_tqxac_q2 = 0;
-    s->transmit_queue_token-bucket_counter_tqxtbc_q3 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q3 = 0;
     s->transmit_queue_token_bucket_configuration_tqxtbc_q3 = 0;
     s->transmit_queue_arbiter_configuration_tqxac_q3 = 0;
-    s->transmit_queue_token-bucket_counter_tqxtbc_q4 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q4 = 0;
     s->transmit_queue_token_bucket_configuration_tqxtbc_q4 = 0;
     s->transmit_queue_arbiter_configuration_tqxac_q4 = 0;
-    s->transmit_queue_token-bucket_counter_tqxtbc_q5 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q5 = 0;
     s->transmit_queue_token_bucket_configuration_tqxtbc_q5 = 0;
     s->transmit_queue_arbiter_configuration_tqxac_q5 = 0;
-    s->transmit_queue_token-bucket_counter_tqxtbc_q6 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q6 = 0;
     s->transmit_queue_token_bucket_configuration_tqxtbc_q6 = 0;
     s->transmit_queue_arbiter_configuration_tqxac_q6 = 0;
-    s->transmit_queue_token-bucket_counter_tqxtbc_q7 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q7 = 0;
     s->transmit_queue_token_bucket_configuration_tqxtbc_q7 = 0;
     s->transmit_queue_arbiter_configuration_tqxac_q7 = 0;
     s->mac_mib_countersnterrupt_cause_register = 0;

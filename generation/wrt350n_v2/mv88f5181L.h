@@ -279,28 +279,28 @@
 #define RECEIVE_QUEUE_COMMAND_RQC 0x680
 #define TRANSMIT_CURRENT_SERVED_DESCRIPTOR_POINTER 0x684
 #define TRANSMIT_CURRENT_QUEUE_DESCRIPTOR_POINTER_TCQDP_Q0 0x6c0
-#define TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q0 0x700
+#define TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q0 0x700
 #define TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q0 0x704
 #define TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q0 0x708
-#define TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q1 0x710
+#define TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q1 0x710
 #define TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q1 0x714
 #define TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q1 0x718
-#define TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q2 0x720
+#define TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q2 0x720
 #define TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q2 0x724
 #define TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q2 0x728
-#define TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q3 0x730
+#define TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q3 0x730
 #define TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q3 0x734
 #define TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q3 0x738
-#define TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q4 0x740
+#define TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q4 0x740
 #define TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q4 0x744
 #define TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q4 0x748
-#define TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q5 0x750
+#define TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q5 0x750
 #define TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q5 0x754
 #define TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q5 0x758
-#define TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q6 0x760
+#define TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q6 0x760
 #define TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q6 0x764
 #define TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q6 0x768
-#define TRANSMIT_QUEUE_TOKEN-BUCKET_COUNTER_TQXTBC_Q7 0x770
+#define TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q7 0x770
 #define TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q7 0x774
 #define TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q7 0x778
 #define MAC_MIB_COUNTERSNTERRUPT_CAUSE_REGISTER 0x1000
@@ -602,28 +602,28 @@ typedef struct MV88F5181LState {
     uint32_t receive_queue_command_rqc;
     uint32_t transmit_current_served_descriptor_pointer;
     uint32_t transmit_current_queue_descriptor_pointer_tcqdp_q0;
-    uint32_t transmit_queue_token-bucket_counter_tqxtbc_q0;
+    uint32_t transmit_queue_token_bucket_counter_tqxtbc_q0;
     uint32_t transmit_queue_token_bucket_configuration_tqxtbc_q0;
     uint32_t transmit_queue_arbiter_configuration_tqxac_q0;
-    uint32_t transmit_queue_token-bucket_counter_tqxtbc_q1;
+    uint32_t transmit_queue_token_bucket_counter_tqxtbc_q1;
     uint32_t transmit_queue_token_bucket_configuration_tqxtbc_q1;
     uint32_t transmit_queue_arbiter_configuration_tqxac_q1;
-    uint32_t transmit_queue_token-bucket_counter_tqxtbc_q2;
+    uint32_t transmit_queue_token_bucket_counter_tqxtbc_q2;
     uint32_t transmit_queue_token_bucket_configuration_tqxtbc_q2;
     uint32_t transmit_queue_arbiter_configuration_tqxac_q2;
-    uint32_t transmit_queue_token-bucket_counter_tqxtbc_q3;
+    uint32_t transmit_queue_token_bucket_counter_tqxtbc_q3;
     uint32_t transmit_queue_token_bucket_configuration_tqxtbc_q3;
     uint32_t transmit_queue_arbiter_configuration_tqxac_q3;
-    uint32_t transmit_queue_token-bucket_counter_tqxtbc_q4;
+    uint32_t transmit_queue_token_bucket_counter_tqxtbc_q4;
     uint32_t transmit_queue_token_bucket_configuration_tqxtbc_q4;
     uint32_t transmit_queue_arbiter_configuration_tqxac_q4;
-    uint32_t transmit_queue_token-bucket_counter_tqxtbc_q5;
+    uint32_t transmit_queue_token_bucket_counter_tqxtbc_q5;
     uint32_t transmit_queue_token_bucket_configuration_tqxtbc_q5;
     uint32_t transmit_queue_arbiter_configuration_tqxac_q5;
-    uint32_t transmit_queue_token-bucket_counter_tqxtbc_q6;
+    uint32_t transmit_queue_token_bucket_counter_tqxtbc_q6;
     uint32_t transmit_queue_token_bucket_configuration_tqxtbc_q6;
     uint32_t transmit_queue_arbiter_configuration_tqxac_q6;
-    uint32_t transmit_queue_token-bucket_counter_tqxtbc_q7;
+    uint32_t transmit_queue_token_bucket_counter_tqxtbc_q7;
     uint32_t transmit_queue_token_bucket_configuration_tqxtbc_q7;
     uint32_t transmit_queue_arbiter_configuration_tqxac_q7;
     uint32_t mac_mib_countersnterrupt_cause_register;
