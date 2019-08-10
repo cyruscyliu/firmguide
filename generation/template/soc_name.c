@@ -15,12 +15,12 @@ static void {{dsc_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, u
 static void {{mpp_mmio_name}}_update(void *opaque);
 static uint64_t {{mpp_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size);
 static void {{mpp_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
-static void {{pci_mmio_name}}_update(void *opaque);
-static uint64_t {{pci_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size);
-static void {{pci_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
-static void {{pcie_mmio_name}}_update(void *opaque);
-static uint64_t {{pcie_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size);
-static void {{pcie_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void {{pci_name}}_update(void *opaque);
+static uint64_t {{pci_name}}_read(void *opaque, hwaddr offset, unsigned size);
+static void {{pci_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void {{pcie_name}}_update(void *opaque);
+static uint64_t {{pcie_name}}_read(void *opaque, hwaddr offset, unsigned size);
+static void {{pcie_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 static void {{eth_name}}_update(void *opaque);
 static uint64_t {{eth_name}}_read(void *opaque, hwaddr offset, unsigned size);
 static void {{eth_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
@@ -149,11 +149,11 @@ static const MemoryRegionOps {{mpp_mmio_name}}_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void {{pci_mmio_name}}_update(void *opaque) {
+static void {{pci_name}}_update(void *opaque) {
     /* {{soc_name|upper|concat}}State *s = opaque; */
 }
 
-static uint64_t {{pci_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t {{pci_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     {{soc_name|upper|concat}}State *s = opaque;
     uint32_t res = 0;
 
@@ -168,7 +168,7 @@ static uint64_t {{pci_mmio_name}}_read(void *opaque, hwaddr offset, unsigned siz
     return res;
 }
 
-static void {{pci_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void {{pci_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
     {{soc_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
@@ -179,20 +179,20 @@ static void {{pci_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, u
         s->{{register.name}} = val;
         break;
     {% endfor %}}
-    {{pci_mmio_name}}_update(s);
+    {{pci_name}}_update(s);
 }
 
-static const MemoryRegionOps {{pci_mmio_name}}_ops = {
-    .read = {{pci_mmio_name}}_read,
-    .write = {{pci_mmio_name}}_write,
+static const MemoryRegionOps {{pci_name}}_ops = {
+    .read = {{pci_name}}_read,
+    .write = {{pci_name}}_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void {{pcie_mmio_name}}_update(void *opaque) {
+static void {{pcie_name}}_update(void *opaque) {
     /* {{soc_name|upper|concat}}State *s = opaque; */
 }
 
-static uint64_t {{pcie_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t {{pcie_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     {{soc_name|upper|concat}}State *s = opaque;
     uint32_t res = 0;
 
@@ -207,7 +207,7 @@ static uint64_t {{pcie_mmio_name}}_read(void *opaque, hwaddr offset, unsigned si
     return res;
 }
 
-static void {{pcie_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void {{pcie_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
     {{soc_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
@@ -218,12 +218,12 @@ static void {{pcie_mmio_name}}_write(void *opaque, hwaddr offset, uint64_t val, 
         s->{{register.name}} = val;
         break;
     {% endfor %}}
-    {{pcie_mmio_name}}_update(s);
+    {{pcie_name}}_update(s);
 }
 
-static const MemoryRegionOps {{pcie_mmio_name}}_ops = {
-    .read = {{pcie_mmio_name}}_read,
-    .write = {{pcie_mmio_name}}_write,
+static const MemoryRegionOps {{pcie_name}}_ops = {
+    .read = {{pcie_name}}_read,
+    .write = {{pcie_name}}_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
@@ -306,12 +306,12 @@ static void {{soc_name}}_init(Object *obj) {
 
     /* initialize pci interface registers */
     memory_region_init_io(&s->pci_interface_mmio, obj,
-        &{{pci_mmio_name}}_ops, s, TYPE_{{soc_name|upper}}, {{pci_mmio_name|upper}}_MMIO_SIZE);
+        &{{pci_name}}_ops, s, TYPE_{{soc_name|upper}}, {{pci_name|upper}}_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->pci_interface_mmio);
 
     /* initialize pcie interface registers */
     memory_region_init_io(&s->pcie_interface_mmio, obj,
-        &{{pcie_mmio_name}}_ops, s, TYPE_{{soc_name|upper}}, {{pcie_mmio_name|upper}}_MMIO_SIZE);
+        &{{pcie_name}}_ops, s, TYPE_{{soc_name|upper}}, {{pcie_name|upper}}_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->pcie_interface_mmio);
 
     /* initialize eth interface registers */

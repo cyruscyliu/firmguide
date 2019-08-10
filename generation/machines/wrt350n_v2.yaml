@@ -195,7 +195,6 @@ machine:
           offset: "0x10"
     pci_interface:
       pci_name: "mv88f5181l_pci_interface"
-      pci_mmio_name: "mv88f5181l_pci_interface"
       pci_mmio_base: "0xf1030000"
       pci_mmio_size: "0x2000"
       pci_registers:
@@ -388,7 +387,6 @@ machine:
           value: "0x0 /* 0 4 5 */"
     pcie_interface:
       pcie_name: "mv88f5181L_pcie_interface"
-      pcie_mmio_name: "mv88f5181l_pcie_interface"
       pcie_mmio_base: "0xf1040000"
       pcie_mmio_size: "0x2000"
       pcie_registers:

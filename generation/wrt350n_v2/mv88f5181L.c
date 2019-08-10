@@ -20,9 +20,9 @@ static void mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr of
 static void mv88f5181l_pci_interface_update(void *opaque);
 static uint64_t mv88f5181l_pci_interface_read(void *opaque, hwaddr offset, unsigned size);
 static void mv88f5181l_pci_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
-static void mv88f5181l_pcie_interface_update(void *opaque);
-static uint64_t mv88f5181l_pcie_interface_read(void *opaque, hwaddr offset, unsigned size);
-static void mv88f5181l_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void mv88f5181L_pcie_interface_update(void *opaque);
+static uint64_t mv88f5181L_pcie_interface_read(void *opaque, hwaddr offset, unsigned size);
+static void mv88f5181L_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 static void mv88f5181l_gigabit_ethernet_controller_update(void *opaque);
 static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr offset, unsigned size);
 static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
@@ -886,11 +886,11 @@ static const MemoryRegionOps mv88f5181l_pci_interface_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_pcie_interface_update(void *opaque) {
+static void mv88f5181L_pcie_interface_update(void *opaque) {
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_pcie_interface_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181L_pcie_interface_read(void *opaque, hwaddr offset, unsigned size) {
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -1115,7 +1115,7 @@ static uint64_t mv88f5181l_pcie_interface_read(void *opaque, hwaddr offset, unsi
     return res;
 }
 
-static void mv88f5181l_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181L_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -1336,12 +1336,12 @@ static void mv88f5181l_pcie_interface_write(void *opaque, hwaddr offset, uint64_
         s->pci_express_tl_control_register = val;
         break;
     }
-    mv88f5181l_pcie_interface_update(s);
+    mv88f5181L_pcie_interface_update(s);
 }
 
-static const MemoryRegionOps mv88f5181l_pcie_interface_ops = {
-    .read = mv88f5181l_pcie_interface_read,
-    .write = mv88f5181l_pcie_interface_write,
+static const MemoryRegionOps mv88f5181L_pcie_interface_ops = {
+    .read = mv88f5181L_pcie_interface_read,
+    .write = mv88f5181L_pcie_interface_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
@@ -2294,7 +2294,7 @@ static void mv88f5181L_init(Object *obj) {
 
     /* initialize pcie interface registers */
     memory_region_init_io(&s->pcie_interface_mmio, obj,
-        &mv88f5181l_pcie_interface_ops, s, TYPE_MV88F5181L, MV88F5181L_PCIE_INTERFACE_MMIO_SIZE);
+        &mv88f5181L_pcie_interface_ops, s, TYPE_MV88F5181L, MV88F5181L_PCIE_INTERFACE_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->pcie_interface_mmio);
 
     /* initialize eth interface registers */
