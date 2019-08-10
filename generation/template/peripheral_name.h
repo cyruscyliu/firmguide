@@ -7,7 +7,6 @@
 #include "hw/timer/{{timer_name}}.h"
 #include "hw/char/{{uart_name}}.h"
 #include "hw/gpio/{{gpio_name}}.h"
-#include "hw/pci-host/{{pcie_name}}.h"
 
 #define TYPE_{{peripheral_name|upper}} "{{peripheral_name}}"
 #define {{peripheral_name|upper}}(obj) \
