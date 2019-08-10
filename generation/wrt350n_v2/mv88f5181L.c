@@ -1432,7 +1432,7 @@ static void mv88f5181L_reset(DeviceState *d) {
     s->expansion_rom_base_address_remap = 0xE0000000 << 0;
     s->dram_bar_bank_select = 0x0 << 0 | 0x1 << 2 | 0x2 << 4 | 0x3 << 6 | 0x0 << 8;
     s->pci_address_decode_control = 0x1 << 3 /* 0 1 3 4 8 25 */;
-    s->pci_dll_control = 0x1 << 1 | 0x1 << 20 / 0 1 3 5 9 13 15 16 17 20 22 31 */;
+    s->pci_dll_control = 0x1 << 1 | 0x1 << 20 /* 0 1 3 5 9 13 15 16 17 20 22 31 */;
     s->pci_or_mpp_pads_calibration = 0xF << 0 | 0xF << 4 | 0xF << 8 | 0xF << 12 | 0x1 << 16 | 0x1 << 17 | 0x0 << 18 | 0x0 << 22 | 0x0 << 31;
     s->pci_command = 0x1 << 0 | 0x1 << 4 |  0x1 << 5 | 0x1 << 6 | 0x1 << 8 | 0x1 << 9 | 0x1 << 13 | 0x1 << 14 | 0x1 << 16 | 0x1 << 17 | 0x1 << 24 /* 0 1 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 24 26 28 29 */;
     s->pci_mode = 0x1 << 31 /* 0 2 3 4 6 8 9 31 */;
