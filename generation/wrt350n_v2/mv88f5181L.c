@@ -1340,7 +1340,7 @@ static const MemoryRegionOps mv88f5181l_pcie_interface_ops = {
     .read = mv88f5181l_pcie_interface_read,
     .write = mv88f5181l_pcie_interface_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
-}
+};
 
 static void mv88f5181L_reset(DeviceState *d) {
     MV88F5181LState *s = MV88F5181L(d);
