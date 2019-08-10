@@ -54,6 +54,9 @@ static void {{machine_name}}_init(MachineState *machine) {
     /* map pins multiplexing interface mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 4, {{pcie_mmio_name|upper}}_MMIO_BASE);
 
+    /* map gigabi ethernet controller mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 4, {{eth_name|upper}}_MMIO_BASE);
+
     /* set up the flash */{% if flash_enable %}
     dinfo = drive_get(IF_PFLASH, 0, 0);
     flash = pflash_cfi01_register(

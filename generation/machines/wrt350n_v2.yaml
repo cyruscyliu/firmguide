@@ -963,8 +963,8 @@ machine:
         - name: "port0_usb_2_0_power_control_register"
           offset: "0x400"
     eth_controller:
-      eth_name: "gigabit_ethernet_controller"
-      eth_mmio_base: "0xf107200"
+      eth_name: "mv88f5181l_gigabit_ethernet_controller"
+      eth_mmio_base: "0xf1072000"
       eth_mmio_size: "0x2000"
       eth_registers:
         - name: "phy_address"
