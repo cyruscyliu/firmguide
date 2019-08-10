@@ -50,6 +50,12 @@ static void wrt350n_v2_init(MachineState *machine) {
     /* map pins multiplexing interface mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 2, MV88F5181L_PINS_MULTIPLEXING_INTERFACE_MMIO_BASE);
 
+    /* map pins multiplexing interface mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 3, MV88F5181L_PCI_INTERFACE_MMIO_BASE);
+
+    /* map pins multiplexing interface mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 4, MV88F5181L_PCIE_INTERFACE_MMIO_BASE);
+
     /* set up the flash */
     dinfo = drive_get(IF_PFLASH, 0, 0);
     flash = pflash_cfi01_register(

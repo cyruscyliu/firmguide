@@ -16,6 +16,10 @@
 #define {{register.name|upper}} {{register.offset}}{% endfor %}
 {% for register in mpp_registers %}
 #define {{register.name|upper}} {{register.offset}}{% endfor %}
+{% for register in pci_registers %}
+#define {{register.name|upper}} {{register.offset}}{% endfor %}
+{% for register in pcie_registers %}
+#define {{register.name|upper}} {{register.offset}}{% endfor %}
 
 #define {{cam_mmio_name|upper}}_MMIO_SIZE {{cam_mmio_size}}
 #define {{cam_mmio_name|upper}}_MMIO_BASE {{cam_mmio_base}}
@@ -23,6 +27,10 @@
 #define {{dsc_mmio_name|upper}}_MMIO_BASE {{dsc_mmio_base}}
 #define {{mpp_mmio_name|upper}}_MMIO_SIZE {{mpp_mmio_size}}
 #define {{mpp_mmio_name|upper}}_MMIO_BASE {{mpp_mmio_base}}
+#define {{pci_name|upper}}_MMIO_SIZE {{pci_mmio_size}}
+#define {{pci_name|upper}}_MMIO_BASE {{pci_mmio_base}}
+#define {{pcie_name|upper}}_MMIO_SIZE {{pcie_mmio_size}}
+#define {{pcie_name|upper}}_MMIO_BASE {{pcie_mmio_base}}
 
 typedef struct {{soc_name|upper}}State {
     /*< private >*/
@@ -41,6 +49,12 @@ typedef struct {{soc_name|upper}}State {
     {% endfor %}
     MemoryRegion pins_multiplexing_interface_mmio;
     {% for register in mpp_registers %}uint32_t {{register.name}};
+    {% endfor %}
+    MemoryRegion pci_interface_mmio;
+    {% for register in pci_registers %}uint32_t {{register.name}};
+    {% endfor %}
+    MemoryRegion pcie_interface_mmio;
+    {% for register in pcie_registers %}uint32_t {{register.name}};
     {% endfor %}
     {{ic_name|upper|concat}}State ic;
     {{peripheral_name|upper|concat}}State peripherals;

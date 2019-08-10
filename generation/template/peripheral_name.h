@@ -34,7 +34,6 @@ typedef struct {{peripheral_name|upper|concat}}State {
     {{timer_name|upper|concat}}State timer;
     {{uart_name|upper|concat}}State uart;
     {{gpio_name|upper|concat}}State gpio;
-    {{pcie_name|upper|concat}}State pcie;
 } {{peripheral_name|upper|concat}}State;
 
 #endif /* {{peripheral_name|upper}}_H */

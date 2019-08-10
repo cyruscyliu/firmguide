@@ -127,9 +127,6 @@ static void mv88f5181L_peripherals_init(Object *obj) {
 
     /* initialize the gpio */
     sysbus_init_child_obj(obj, "gpio", &s->gpio, sizeof(s->gpio), TYPE_MV88F5181L_GPIO);
-
-    /* initialize the pcie */
-    sysbus_init_child_obj(obj, "pcie", &s->pcie, sizeof(s->pcie), TYPE_MV88F5181L_PCIE);
 }
 
 static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
@@ -165,14 +162,6 @@ static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->gpio), 0, MV88F5181L_GPIO_MMIO_BASE);
-
-    /* realize the pcie */
-    object_property_set_bool(OBJECT(&s->pcie), true, "realized", &err);
-    if (err != NULL) {
-        error_propagate(errp, err);
-        return;
-    }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->pcie), 0, MV88F5181L_PCIE_MMIO_BASE);
 }
 
 static void mv88f5181_bridge_reset(DeviceState *d) {
