@@ -48,11 +48,14 @@ static void {{machine_name}}_init(MachineState *machine) {
     /* map pins multiplexing interface mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 2, {{mpp_mmio_name|upper}}_MMIO_BASE);
 
-    /* map pins multiplexing interface mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 3, {{pci_mmio_name|upper}}_MMIO_BASE);
+    /* map pins pci interface mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 3, {{pci_name|upper}}_MMIO_BASE);
 
-    /* map pins multiplexing interface mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 4, {{pcie_mmio_name|upper}}_MMIO_BASE);
+    /* map pins pcie interface mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 4, {{pcie_name|upper}}_MMIO_BASE);
+
+    /* map gigabit ethernet controller mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 5, {{eth_name|upper}}_MMIO_BASE);
 
     /* set up the flash */{% if flash_enable %}
     dinfo = drive_get(IF_PFLASH, 0, 0);

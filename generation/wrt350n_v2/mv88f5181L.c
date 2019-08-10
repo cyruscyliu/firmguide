@@ -20,9 +20,12 @@ static void mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr of
 static void mv88f5181l_pci_interface_update(void *opaque);
 static uint64_t mv88f5181l_pci_interface_read(void *opaque, hwaddr offset, unsigned size);
 static void mv88f5181l_pci_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
-static void mv88f5181l_pcie_interface_update(void *opaque);
-static uint64_t mv88f5181l_pcie_interface_read(void *opaque, hwaddr offset, unsigned size);
-static void mv88f5181l_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void mv88f5181L_pcie_interface_update(void *opaque);
+static uint64_t mv88f5181L_pcie_interface_read(void *opaque, hwaddr offset, unsigned size);
+static void mv88f5181L_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void mv88f5181l_gigabit_ethernet_controller_update(void *opaque);
+static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr offset, unsigned size);
+static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 
 static void mv88f5181L_init(Object *obj);
 static void mv88f5181L_realize(DeviceState *dev, Error **errp);
@@ -883,11 +886,11 @@ static const MemoryRegionOps mv88f5181l_pci_interface_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_pcie_interface_update(void *opaque) {
+static void mv88f5181L_pcie_interface_update(void *opaque) {
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_pcie_interface_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181L_pcie_interface_read(void *opaque, hwaddr offset, unsigned size) {
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -1112,7 +1115,7 @@ static uint64_t mv88f5181l_pcie_interface_read(void *opaque, hwaddr offset, unsi
     return res;
 }
 
-static void mv88f5181l_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181L_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -1333,12 +1336,633 @@ static void mv88f5181l_pcie_interface_write(void *opaque, hwaddr offset, uint64_
         s->pci_express_tl_control_register = val;
         break;
     }
-    mv88f5181l_pcie_interface_update(s);
+    mv88f5181L_pcie_interface_update(s);
 }
 
-static const MemoryRegionOps mv88f5181l_pcie_interface_ops = {
-    .read = mv88f5181l_pcie_interface_read,
-    .write = mv88f5181l_pcie_interface_write,
+static const MemoryRegionOps mv88f5181L_pcie_interface_ops = {
+    .read = mv88f5181L_pcie_interface_read,
+    .write = mv88f5181L_pcie_interface_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
+static void mv88f5181l_gigabit_ethernet_controller_update(void *opaque) {
+    /* MV88F5181LState *s = opaque; */
+}
+
+static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr offset, unsigned size) {
+    MV88F5181LState *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case PHY_ADDRESS:
+        res = s->phy_address;
+        break;
+    case SMI:
+        res = s->smi;
+        break;
+    case ETHERNET_UNIT_DEFAULT_ADDRESS_EUDA:
+        res = s->ethernet_unit_default_address_euda;
+        break;
+    case ETHERNET_UNIT_DEFAULT_ID_EUDID:
+        res = s->ethernet_unit_default_id_eudid;
+        break;
+    case ETHERNET_UNIT_RESERVED_EU:
+        res = s->ethernet_unit_reserved_eu;
+        break;
+    case ETHERNET_UNIT_INTERRUPT_CAUSE_EUIC:
+        res = s->ethernet_unit_interrupt_cause_euic;
+        break;
+    case ETHERNET_UNIT_INTERRUPT_MASK_EUIM:
+        res = s->ethernet_unit_interrupt_mask_euim;
+        break;
+    case ETHERNET_UNIT_ERROR_ADDRESS_EUEA:
+        res = s->ethernet_unit_error_address_euea;
+        break;
+    case ETHERNET_UNIT_INTERNAL_ADDRESS_ERROR_EUIAE:
+        res = s->ethernet_unit_internal_address_error_euiae;
+        break;
+    case ETHERNET_UNIT_PORT_PADS_CALIBRATION_EUPCR:
+        res = s->ethernet_unit_port_pads_calibration_eupcr;
+        break;
+    case ETHERNET_UNIT_CONTROL_EUC:
+        res = s->ethernet_unit_control_euc;
+        break;
+    case BASE_ADDRESS_0_BA0:
+        res = s->base_address_0_ba0;
+        break;
+    case SIZE_S_0_SR0:
+        res = s->size_s_0_sr0;
+        break;
+    case BASE_ADDRESS_1_BA1:
+        res = s->base_address_1_ba1;
+        break;
+    case SIZE_S_1_SR1:
+        res = s->size_s_1_sr1;
+        break;
+    case BASE_ADDRESS_2_BA2:
+        res = s->base_address_2_ba2;
+        break;
+    case SIZE_S_2_SR2:
+        res = s->size_s_2_sr2;
+        break;
+    case BASE_ADDRESS_3_BA3:
+        res = s->base_address_3_ba3;
+        break;
+    case SIZE_S_3_SR3:
+        res = s->size_s_3_sr3;
+        break;
+    case BASE_ADDRESS_4_BA4:
+        res = s->base_address_4_ba4;
+        break;
+    case SIZE_S_4_SR4:
+        res = s->size_s_4_sr4;
+        break;
+    case BASE_ADDRESS_5_BA5:
+        res = s->base_address_5_ba5;
+        break;
+    case SIZE_S_5_SR5:
+        res = s->size_s_5_sr5;
+        break;
+    case HIGH_ADDRESS_REMAP_HA_HARR0:
+        res = s->high_address_remap_ha_harr0;
+        break;
+    case HIGH_ADDRESS_REMAP_HA_HARR1:
+        res = s->high_address_remap_ha_harr1;
+        break;
+    case HIGH_ADDRESS_REMAP_HA_HARR2:
+        res = s->high_address_remap_ha_harr2;
+        break;
+    case HIGH_ADDRESS_REMAP_HA_HARR3:
+        res = s->high_address_remap_ha_harr3;
+        break;
+    case BASE_ADDRESS_ENABLE_BARE:
+        res = s->base_address_enable_bare;
+        break;
+    case ETHERNET_PORT_ACCESS_PROTECT_EPAP:
+        res = s->ethernet_port_access_protect_epap;
+        break;
+    case PORT_CONFIGURATION_GEC:
+        res = s->port_configuration_gec;
+        break;
+    case PORT_CONFIGURATION_EXTEND_GECX:
+        res = s->port_configuration_extend_gecx;
+        break;
+    case MII_SERIAL_PARAMETERS:
+        res = s->mii_serial_parameters;
+        break;
+    case GMII_SERIAL_PARAMETERS:
+        res = s->gmii_serial_parameters;
+        break;
+    case VLAN_ETHERTYPE_EVLANE:
+        res = s->vlan_ethertype_evlane;
+        break;
+    case MAC_ADDRESS_LOW_MACAL:
+        res = s->mac_address_low_macal;
+        break;
+    case MAC_ADDRESS_HIGH_MACAH:
+        res = s->mac_address_high_macah;
+        break;
+    case SDMA_CONFIGURATION_SDC:
+        res = s->sdma_configuration_sdc;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_0_TO_PRIORITY_DSCP0:
+        res = s->ip_differentiated_services_codepoint_0_to_priority_dscp0;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_1_TO_PRIORITY_DSCP1:
+        res = s->ip_differentiated_services_codepoint_1_to_priority_dscp1;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_2_TO_PRIORITY_DSCP2:
+        res = s->ip_differentiated_services_codepoint_2_to_priority_dscp2;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_23_TO_PRIORITY_DSCP3:
+        res = s->ip_differentiated_services_codepoint_23_to_priority_dscp3;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_24_TO_PRIORITY_DSCP4:
+        res = s->ip_differentiated_services_codepoint_24_to_priority_dscp4;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_25_TO_PRIORITY_DSCP5:
+        res = s->ip_differentiated_services_codepoint_25_to_priority_dscp5;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_6_TO_PRIORITY_DSCP6:
+        res = s->ip_differentiated_services_codepoint_6_to_priority_dscp6;
+        break;
+    case PORT_SERIAL_CONTROL_PSC:
+        res = s->port_serial_control_psc;
+        break;
+    case VLAN_PRIORITY_TAG_TO_PRIORITY_VPT2P:
+        res = s->vlan_priority_tag_to_priority_vpt2p;
+        break;
+    case ETHERNET_PORT_STATUS_PS:
+        res = s->ethernet_port_status_ps;
+        break;
+    case TRANSMIT_QUEUE_COMMAND_TQC:
+        res = s->transmit_queue_command_tqc;
+        break;
+    case MAXIMUM_TRANSMIT_UNIT_MTU:
+        res = s->maximum_transmit_unit_mtu;
+        break;
+    case PORT_INTERRUPT_CAUSE_IC:
+        res = s->port_interrupt_cause_ic;
+        break;
+    case PORT_INTERRUPT_CAUSE_EXTEND_ICE:
+        res = s->port_interrupt_cause_extend_ice;
+        break;
+    case PORT_INTERRUPT_MASK_PIM:
+        res = s->port_interrupt_mask_pim;
+        break;
+    case PORT_EXTEND_INTERRUPT_MASK_PEIM:
+        res = s->port_extend_interrupt_mask_peim;
+        break;
+    case PORT_RX_FIFO_URGENT_THRESHOLD_PRFUT:
+        res = s->port_rx_fifo_urgent_threshold_prfut;
+        break;
+    case PORT_TX_FIFO_URGENT_THRESHOLD_PTFUT:
+        res = s->port_tx_fifo_urgent_threshold_ptfut;
+        break;
+    case PORT_RX_MINIMAL_FRAME_SIZE_PMFS:
+        res = s->port_rx_minimal_frame_size_pmfs;
+        break;
+    case PORT_RX_DISCARD_FRAME_COUNTER_GEDFC:
+        res = s->port_rx_discard_frame_counter_gedfc;
+        break;
+    case PORT_OVERRUN_FRAME_COUNTER_POFC:
+        res = s->port_overrun_frame_counter_pofc;
+        break;
+    case PORT_INTERNAL_ADDRESS_ERROR_EUIAE:
+        res = s->port_internal_address_error_euiae;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q0:
+        res = s->ethernet_current_receive_descriptor_pointers_crdp_q0;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q1:
+        res = s->ethernet_current_receive_descriptor_pointers_crdp_q1;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q2:
+        res = s->ethernet_current_receive_descriptor_pointers_crdp_q2;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q3:
+        res = s->ethernet_current_receive_descriptor_pointers_crdp_q3;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q4:
+        res = s->ethernet_current_receive_descriptor_pointers_crdp_q4;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q5:
+        res = s->ethernet_current_receive_descriptor_pointers_crdp_q5;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q6:
+        res = s->ethernet_current_receive_descriptor_pointers_crdp_q6;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q7:
+        res = s->ethernet_current_receive_descriptor_pointers_crdp_q7;
+        break;
+    case RECEIVE_QUEUE_COMMAND_RQC:
+        res = s->receive_queue_command_rqc;
+        break;
+    case TRANSMIT_CURRENT_SERVED_DESCRIPTOR_POINTER:
+        res = s->transmit_current_served_descriptor_pointer;
+        break;
+    case TRANSMIT_CURRENT_QUEUE_DESCRIPTOR_POINTER_TCQDP_Q0:
+        res = s->transmit_current_queue_descriptor_pointer_tcqdp_q0;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q0:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q0;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q0:
+        res = s->transmit_queue_token_bucket_configuration_tqxtbc_q0;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q0:
+        res = s->transmit_queue_arbiter_configuration_tqxac_q0;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q1:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q1;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q1:
+        res = s->transmit_queue_token_bucket_configuration_tqxtbc_q1;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q1:
+        res = s->transmit_queue_arbiter_configuration_tqxac_q1;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q2:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q2;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q2:
+        res = s->transmit_queue_token_bucket_configuration_tqxtbc_q2;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q2:
+        res = s->transmit_queue_arbiter_configuration_tqxac_q2;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q3:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q3;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q3:
+        res = s->transmit_queue_token_bucket_configuration_tqxtbc_q3;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q3:
+        res = s->transmit_queue_arbiter_configuration_tqxac_q3;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q4:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q4;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q4:
+        res = s->transmit_queue_token_bucket_configuration_tqxtbc_q4;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q4:
+        res = s->transmit_queue_arbiter_configuration_tqxac_q4;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q5:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q5;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q5:
+        res = s->transmit_queue_token_bucket_configuration_tqxtbc_q5;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q5:
+        res = s->transmit_queue_arbiter_configuration_tqxac_q5;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q6:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q6;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q6:
+        res = s->transmit_queue_token_bucket_configuration_tqxtbc_q6;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q6:
+        res = s->transmit_queue_arbiter_configuration_tqxac_q6;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q7:
+        res = s->transmit_queue_token_bucket_counter_tqxtbc_q7;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q7:
+        res = s->transmit_queue_token_bucket_configuration_tqxtbc_q7;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q7:
+        res = s->transmit_queue_arbiter_configuration_tqxac_q7;
+        break;
+    case MAC_MIB_COUNTERSNTERRUPT_CAUSE_REGISTER:
+        res = s->mac_mib_countersnterrupt_cause_register;
+        break;
+    case DESTINATION_ADDRESS_FILTER_SPECIAL_MULTICAST_TABLE_DFSMT:
+        res = s->destination_address_filter_special_multicast_table_dfsmt;
+        break;
+    case DESTINATION_ADDRESS_FILTER_OTHER_MULTICAST_TABLE_DFUT:
+        res = s->destination_address_filter_other_multicast_table_dfut;
+        break;
+    case DESTINATION_ADDRESS_FILTER_UNICAST_TABLE_DFUT:
+        res = s->destination_address_filter_unicast_table_dfut;
+        break;
+    }
+    return res;
+}
+
+static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+    MV88F5181LState *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case PHY_ADDRESS:
+        s->phy_address = val;
+        break;
+    case SMI:
+        s->smi = val;
+        break;
+    case ETHERNET_UNIT_DEFAULT_ADDRESS_EUDA:
+        s->ethernet_unit_default_address_euda = val;
+        break;
+    case ETHERNET_UNIT_DEFAULT_ID_EUDID:
+        s->ethernet_unit_default_id_eudid = val;
+        break;
+    case ETHERNET_UNIT_RESERVED_EU:
+        s->ethernet_unit_reserved_eu = val;
+        break;
+    case ETHERNET_UNIT_INTERRUPT_CAUSE_EUIC:
+        s->ethernet_unit_interrupt_cause_euic = val;
+        break;
+    case ETHERNET_UNIT_INTERRUPT_MASK_EUIM:
+        s->ethernet_unit_interrupt_mask_euim = val;
+        break;
+    case ETHERNET_UNIT_ERROR_ADDRESS_EUEA:
+        s->ethernet_unit_error_address_euea = val;
+        break;
+    case ETHERNET_UNIT_INTERNAL_ADDRESS_ERROR_EUIAE:
+        s->ethernet_unit_internal_address_error_euiae = val;
+        break;
+    case ETHERNET_UNIT_PORT_PADS_CALIBRATION_EUPCR:
+        s->ethernet_unit_port_pads_calibration_eupcr = val;
+        break;
+    case ETHERNET_UNIT_CONTROL_EUC:
+        s->ethernet_unit_control_euc = val;
+        break;
+    case BASE_ADDRESS_0_BA0:
+        s->base_address_0_ba0 = val;
+        break;
+    case SIZE_S_0_SR0:
+        s->size_s_0_sr0 = val;
+        break;
+    case BASE_ADDRESS_1_BA1:
+        s->base_address_1_ba1 = val;
+        break;
+    case SIZE_S_1_SR1:
+        s->size_s_1_sr1 = val;
+        break;
+    case BASE_ADDRESS_2_BA2:
+        s->base_address_2_ba2 = val;
+        break;
+    case SIZE_S_2_SR2:
+        s->size_s_2_sr2 = val;
+        break;
+    case BASE_ADDRESS_3_BA3:
+        s->base_address_3_ba3 = val;
+        break;
+    case SIZE_S_3_SR3:
+        s->size_s_3_sr3 = val;
+        break;
+    case BASE_ADDRESS_4_BA4:
+        s->base_address_4_ba4 = val;
+        break;
+    case SIZE_S_4_SR4:
+        s->size_s_4_sr4 = val;
+        break;
+    case BASE_ADDRESS_5_BA5:
+        s->base_address_5_ba5 = val;
+        break;
+    case SIZE_S_5_SR5:
+        s->size_s_5_sr5 = val;
+        break;
+    case HIGH_ADDRESS_REMAP_HA_HARR0:
+        s->high_address_remap_ha_harr0 = val;
+        break;
+    case HIGH_ADDRESS_REMAP_HA_HARR1:
+        s->high_address_remap_ha_harr1 = val;
+        break;
+    case HIGH_ADDRESS_REMAP_HA_HARR2:
+        s->high_address_remap_ha_harr2 = val;
+        break;
+    case HIGH_ADDRESS_REMAP_HA_HARR3:
+        s->high_address_remap_ha_harr3 = val;
+        break;
+    case BASE_ADDRESS_ENABLE_BARE:
+        s->base_address_enable_bare = val;
+        break;
+    case ETHERNET_PORT_ACCESS_PROTECT_EPAP:
+        s->ethernet_port_access_protect_epap = val;
+        break;
+    case PORT_CONFIGURATION_GEC:
+        s->port_configuration_gec = val;
+        break;
+    case PORT_CONFIGURATION_EXTEND_GECX:
+        s->port_configuration_extend_gecx = val;
+        break;
+    case MII_SERIAL_PARAMETERS:
+        s->mii_serial_parameters = val;
+        break;
+    case GMII_SERIAL_PARAMETERS:
+        s->gmii_serial_parameters = val;
+        break;
+    case VLAN_ETHERTYPE_EVLANE:
+        s->vlan_ethertype_evlane = val;
+        break;
+    case MAC_ADDRESS_LOW_MACAL:
+        s->mac_address_low_macal = val;
+        break;
+    case MAC_ADDRESS_HIGH_MACAH:
+        s->mac_address_high_macah = val;
+        break;
+    case SDMA_CONFIGURATION_SDC:
+        s->sdma_configuration_sdc = val;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_0_TO_PRIORITY_DSCP0:
+        s->ip_differentiated_services_codepoint_0_to_priority_dscp0 = val;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_1_TO_PRIORITY_DSCP1:
+        s->ip_differentiated_services_codepoint_1_to_priority_dscp1 = val;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_2_TO_PRIORITY_DSCP2:
+        s->ip_differentiated_services_codepoint_2_to_priority_dscp2 = val;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_23_TO_PRIORITY_DSCP3:
+        s->ip_differentiated_services_codepoint_23_to_priority_dscp3 = val;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_24_TO_PRIORITY_DSCP4:
+        s->ip_differentiated_services_codepoint_24_to_priority_dscp4 = val;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_25_TO_PRIORITY_DSCP5:
+        s->ip_differentiated_services_codepoint_25_to_priority_dscp5 = val;
+        break;
+    case IP_DIFFERENTIATED_SERVICES_CODEPOINT_6_TO_PRIORITY_DSCP6:
+        s->ip_differentiated_services_codepoint_6_to_priority_dscp6 = val;
+        break;
+    case PORT_SERIAL_CONTROL_PSC:
+        s->port_serial_control_psc = val;
+        break;
+    case VLAN_PRIORITY_TAG_TO_PRIORITY_VPT2P:
+        s->vlan_priority_tag_to_priority_vpt2p = val;
+        break;
+    case ETHERNET_PORT_STATUS_PS:
+        s->ethernet_port_status_ps = val;
+        break;
+    case TRANSMIT_QUEUE_COMMAND_TQC:
+        s->transmit_queue_command_tqc = val;
+        break;
+    case MAXIMUM_TRANSMIT_UNIT_MTU:
+        s->maximum_transmit_unit_mtu = val;
+        break;
+    case PORT_INTERRUPT_CAUSE_IC:
+        s->port_interrupt_cause_ic = val;
+        break;
+    case PORT_INTERRUPT_CAUSE_EXTEND_ICE:
+        s->port_interrupt_cause_extend_ice = val;
+        break;
+    case PORT_INTERRUPT_MASK_PIM:
+        s->port_interrupt_mask_pim = val;
+        break;
+    case PORT_EXTEND_INTERRUPT_MASK_PEIM:
+        s->port_extend_interrupt_mask_peim = val;
+        break;
+    case PORT_RX_FIFO_URGENT_THRESHOLD_PRFUT:
+        s->port_rx_fifo_urgent_threshold_prfut = val;
+        break;
+    case PORT_TX_FIFO_URGENT_THRESHOLD_PTFUT:
+        s->port_tx_fifo_urgent_threshold_ptfut = val;
+        break;
+    case PORT_RX_MINIMAL_FRAME_SIZE_PMFS:
+        s->port_rx_minimal_frame_size_pmfs = val;
+        break;
+    case PORT_RX_DISCARD_FRAME_COUNTER_GEDFC:
+        s->port_rx_discard_frame_counter_gedfc = val;
+        break;
+    case PORT_OVERRUN_FRAME_COUNTER_POFC:
+        s->port_overrun_frame_counter_pofc = val;
+        break;
+    case PORT_INTERNAL_ADDRESS_ERROR_EUIAE:
+        s->port_internal_address_error_euiae = val;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q0:
+        s->ethernet_current_receive_descriptor_pointers_crdp_q0 = val;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q1:
+        s->ethernet_current_receive_descriptor_pointers_crdp_q1 = val;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q2:
+        s->ethernet_current_receive_descriptor_pointers_crdp_q2 = val;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q3:
+        s->ethernet_current_receive_descriptor_pointers_crdp_q3 = val;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q4:
+        s->ethernet_current_receive_descriptor_pointers_crdp_q4 = val;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q5:
+        s->ethernet_current_receive_descriptor_pointers_crdp_q5 = val;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q6:
+        s->ethernet_current_receive_descriptor_pointers_crdp_q6 = val;
+        break;
+    case ETHERNET_CURRENT_RECEIVE_DESCRIPTOR_POINTERS_CRDP_Q7:
+        s->ethernet_current_receive_descriptor_pointers_crdp_q7 = val;
+        break;
+    case RECEIVE_QUEUE_COMMAND_RQC:
+        s->receive_queue_command_rqc = val;
+        break;
+    case TRANSMIT_CURRENT_SERVED_DESCRIPTOR_POINTER:
+        s->transmit_current_served_descriptor_pointer = val;
+        break;
+    case TRANSMIT_CURRENT_QUEUE_DESCRIPTOR_POINTER_TCQDP_Q0:
+        s->transmit_current_queue_descriptor_pointer_tcqdp_q0 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q0:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q0 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q0:
+        s->transmit_queue_token_bucket_configuration_tqxtbc_q0 = val;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q0:
+        s->transmit_queue_arbiter_configuration_tqxac_q0 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q1:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q1 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q1:
+        s->transmit_queue_token_bucket_configuration_tqxtbc_q1 = val;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q1:
+        s->transmit_queue_arbiter_configuration_tqxac_q1 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q2:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q2 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q2:
+        s->transmit_queue_token_bucket_configuration_tqxtbc_q2 = val;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q2:
+        s->transmit_queue_arbiter_configuration_tqxac_q2 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q3:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q3 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q3:
+        s->transmit_queue_token_bucket_configuration_tqxtbc_q3 = val;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q3:
+        s->transmit_queue_arbiter_configuration_tqxac_q3 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q4:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q4 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q4:
+        s->transmit_queue_token_bucket_configuration_tqxtbc_q4 = val;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q4:
+        s->transmit_queue_arbiter_configuration_tqxac_q4 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q5:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q5 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q5:
+        s->transmit_queue_token_bucket_configuration_tqxtbc_q5 = val;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q5:
+        s->transmit_queue_arbiter_configuration_tqxac_q5 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q6:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q6 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q6:
+        s->transmit_queue_token_bucket_configuration_tqxtbc_q6 = val;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q6:
+        s->transmit_queue_arbiter_configuration_tqxac_q6 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_COUNTER_TQXTBC_Q7:
+        s->transmit_queue_token_bucket_counter_tqxtbc_q7 = val;
+        break;
+    case TRANSMIT_QUEUE_TOKEN_BUCKET_CONFIGURATION_TQXTBC_Q7:
+        s->transmit_queue_token_bucket_configuration_tqxtbc_q7 = val;
+        break;
+    case TRANSMIT_QUEUE_ARBITER_CONFIGURATION_TQXAC_Q7:
+        s->transmit_queue_arbiter_configuration_tqxac_q7 = val;
+        break;
+    case MAC_MIB_COUNTERSNTERRUPT_CAUSE_REGISTER:
+        s->mac_mib_countersnterrupt_cause_register = val;
+        break;
+    case DESTINATION_ADDRESS_FILTER_SPECIAL_MULTICAST_TABLE_DFSMT:
+        s->destination_address_filter_special_multicast_table_dfsmt = val;
+        break;
+    case DESTINATION_ADDRESS_FILTER_OTHER_MULTICAST_TABLE_DFUT:
+        s->destination_address_filter_other_multicast_table_dfut = val;
+        break;
+    case DESTINATION_ADDRESS_FILTER_UNICAST_TABLE_DFUT:
+        s->destination_address_filter_unicast_table_dfut = val;
+        break;
+    }
+    mv88f5181l_gigabit_ethernet_controller_update(s);
+}
+
+static const MemoryRegionOps mv88f5181l_gigabit_ethernet_controller_ops = {
+    .read = mv88f5181l_gigabit_ethernet_controller_read,
+    .write = mv88f5181l_gigabit_ethernet_controller_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
@@ -1540,6 +2164,105 @@ static void mv88f5181L_reset(DeviceState *d) {
     s->pci_express_acknowledge_timers_1x_register = 0x4 << 0 | 0x320 << 16;
     s->pci_express_debug_control_register = 0x0 << 0 | 0x1 << 16 | 0x17 << 1 | 0x0 << 0 | 0x1 << 19 | 0x0 << 20;
     s->pci_express_tl_control_register = 0x0 << 0;
+    
+    s->phy_address = 0;
+    s->smi = 0;
+    s->ethernet_unit_default_address_euda = 0;
+    s->ethernet_unit_default_id_eudid = 0;
+    s->ethernet_unit_reserved_eu = 0;
+    s->ethernet_unit_interrupt_cause_euic = 0;
+    s->ethernet_unit_interrupt_mask_euim = 0;
+    s->ethernet_unit_error_address_euea = 0;
+    s->ethernet_unit_internal_address_error_euiae = 0;
+    s->ethernet_unit_port_pads_calibration_eupcr = 0;
+    s->ethernet_unit_control_euc = 0;
+    s->base_address_0_ba0 = 0;
+    s->size_s_0_sr0 = 0;
+    s->base_address_1_ba1 = 0;
+    s->size_s_1_sr1 = 0;
+    s->base_address_2_ba2 = 0;
+    s->size_s_2_sr2 = 0;
+    s->base_address_3_ba3 = 0;
+    s->size_s_3_sr3 = 0;
+    s->base_address_4_ba4 = 0;
+    s->size_s_4_sr4 = 0;
+    s->base_address_5_ba5 = 0;
+    s->size_s_5_sr5 = 0;
+    s->high_address_remap_ha_harr0 = 0;
+    s->high_address_remap_ha_harr1 = 0;
+    s->high_address_remap_ha_harr2 = 0;
+    s->high_address_remap_ha_harr3 = 0;
+    s->base_address_enable_bare = 0;
+    s->ethernet_port_access_protect_epap = 0;
+    s->port_configuration_gec = 0;
+    s->port_configuration_extend_gecx = 0;
+    s->mii_serial_parameters = 0;
+    s->gmii_serial_parameters = 0;
+    s->vlan_ethertype_evlane = 0;
+    s->mac_address_low_macal = 0;
+    s->mac_address_high_macah = 0;
+    s->sdma_configuration_sdc = 0;
+    s->ip_differentiated_services_codepoint_0_to_priority_dscp0 = 0;
+    s->ip_differentiated_services_codepoint_1_to_priority_dscp1 = 0;
+    s->ip_differentiated_services_codepoint_2_to_priority_dscp2 = 0;
+    s->ip_differentiated_services_codepoint_23_to_priority_dscp3 = 0;
+    s->ip_differentiated_services_codepoint_24_to_priority_dscp4 = 0;
+    s->ip_differentiated_services_codepoint_25_to_priority_dscp5 = 0;
+    s->ip_differentiated_services_codepoint_6_to_priority_dscp6 = 0;
+    s->port_serial_control_psc = 0;
+    s->vlan_priority_tag_to_priority_vpt2p = 0;
+    s->ethernet_port_status_ps = 0;
+    s->transmit_queue_command_tqc = 0;
+    s->maximum_transmit_unit_mtu = 0;
+    s->port_interrupt_cause_ic = 0;
+    s->port_interrupt_cause_extend_ice = 0;
+    s->port_interrupt_mask_pim = 0;
+    s->port_extend_interrupt_mask_peim = 0;
+    s->port_rx_fifo_urgent_threshold_prfut = 0;
+    s->port_tx_fifo_urgent_threshold_ptfut = 0;
+    s->port_rx_minimal_frame_size_pmfs = 0;
+    s->port_rx_discard_frame_counter_gedfc = 0;
+    s->port_overrun_frame_counter_pofc = 0;
+    s->port_internal_address_error_euiae = 0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q0 = 0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q1 = 0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q2 = 0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q3 = 0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q4 = 0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q5 = 0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q6 = 0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q7 = 0;
+    s->receive_queue_command_rqc = 0;
+    s->transmit_current_served_descriptor_pointer = 0;
+    s->transmit_current_queue_descriptor_pointer_tcqdp_q0 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q0 = 0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q0 = 0;
+    s->transmit_queue_arbiter_configuration_tqxac_q0 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q1 = 0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q1 = 0;
+    s->transmit_queue_arbiter_configuration_tqxac_q1 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q2 = 0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q2 = 0;
+    s->transmit_queue_arbiter_configuration_tqxac_q2 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q3 = 0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q3 = 0;
+    s->transmit_queue_arbiter_configuration_tqxac_q3 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q4 = 0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q4 = 0;
+    s->transmit_queue_arbiter_configuration_tqxac_q4 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q5 = 0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q5 = 0;
+    s->transmit_queue_arbiter_configuration_tqxac_q5 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q6 = 0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q6 = 0;
+    s->transmit_queue_arbiter_configuration_tqxac_q6 = 0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q7 = 0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q7 = 0;
+    s->transmit_queue_arbiter_configuration_tqxac_q7 = 0;
+    s->mac_mib_countersnterrupt_cause_register = 0;
+    s->destination_address_filter_special_multicast_table_dfsmt = 0;
+    s->destination_address_filter_other_multicast_table_dfut = 0;
+    s->destination_address_filter_unicast_table_dfut = 0;
 }
 
 static void mv88f5181L_init(Object *obj) {
@@ -1571,8 +2294,13 @@ static void mv88f5181L_init(Object *obj) {
 
     /* initialize pcie interface registers */
     memory_region_init_io(&s->pcie_interface_mmio, obj,
-        &mv88f5181l_pcie_interface_ops, s, TYPE_MV88F5181L, MV88F5181L_PCIE_INTERFACE_MMIO_SIZE);
+        &mv88f5181L_pcie_interface_ops, s, TYPE_MV88F5181L, MV88F5181L_PCIE_INTERFACE_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->pcie_interface_mmio);
+
+    /* initialize eth interface registers */
+    memory_region_init_io(&s->gigabit_ethernet_controller_mmio, obj,
+        &mv88f5181l_gigabit_ethernet_controller_ops, s, TYPE_MV88F5181L, MV88F5181L_GIGABIT_ETHERNET_CONTROLLER_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->gigabit_ethernet_controller_mmio);
 
     /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
     sysbus_init_child_obj(
