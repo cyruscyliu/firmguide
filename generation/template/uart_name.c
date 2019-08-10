@@ -91,7 +91,7 @@ static void {{uart_name}}_init(Object *obj) {
 static void {{uart_name}}_reset(DeviceState *dev) {
     {{uart_name|upper|concat}}State *s = {{uart_name|upper}}(dev);
     {% for register in uart_registers %}
-    s->{{register.name}} = 0;{% endfor %}
+    s->{{register.name}} = {{register.value}};{% endfor %}
 }
 
 static void {{uart_name}}_class_init(ObjectClass *klass, void *data) {
