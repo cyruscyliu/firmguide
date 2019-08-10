@@ -1463,7 +1463,7 @@ static void mv88f5181L_reset(DeviceState *d) {
     s->pci_configuration_data = 0x0 << 0;
     s->pci_interrupt_acknowledge = 0x0 << 0;
     s->pci_serrn_mask = 0x0 /* 0 1 2 3 5 6 7 8 9 10 11 12 17 18 20 21 22 */;
-    s->pci_interrupt_cause = 0x0 /* 0 24 25 26 27 *;
+    s->pci_interrupt_cause = 0x0 /* 0 24 25 26 27 */;
     s->pci_interrupt_mask = 0x0 /* 0 27 */;
     s->pci_error_address_low = 0x0 << 0;
     s->pci_error_address_high = 0x0 << 0;
