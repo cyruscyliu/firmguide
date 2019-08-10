@@ -24,16 +24,13 @@ static uint64_t {{pcie_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     uint64_t res = 0;
 
     switch (offset) {
-    case PCIE_DEVICE_AND_VENDOR_ID_REGISTER:
-        res = s->device_id << 16;
-        break;
-    case PCIE_CLASS_CODE_AND_REVISION_ID_REGISTER:
-        res = s->revision_id;
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
-        res = 0;
-    }
+        return 0;
+    {% for register in pcie_registers %}case {{register.name|upper}}:
+        res = s->{{register.name}};
+        break;
+    {% endfor %}}
     return res;
 }
 
@@ -41,15 +38,13 @@ static void {{pcie_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsig
     {{pcie_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
-    case PCIE_DEVICE_AND_VENDOR_ID_REGISTER:
-        s->device_id = val;
-        break;
-    case PCIE_CLASS_CODE_AND_REVISION_ID_REGISTER:
-        s->revision_id = val;
-        break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset 0x%"HWADDR_PRIx"\n", __func__, offset);
-    }
+        return;
+    {% for register in pcie_registers %}case {{register.name|upper}}:
+        s->{{register.name}} = val;
+        break;
+    {% endfor %}}
     {{pcie_name}}_update(s);
     return;
 }
@@ -64,15 +59,14 @@ static void {{pcie_name}}_init(Object *obj) {
     {{pcie_name|upper|concat}}State *s = {{pcie_name|upper}}(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &{{pcie_name}}_ops, s, "{{pcie_name}}", {{pcie_name|upper}}_RAM_SIZE);
+    memory_region_init_io(&s->mmio, obj, &{{pcie_name}}_ops, s, "{{pcie_name}}", {{pcie_name|upper}}_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 }
 
 static void {{pcie_name}}_reset(DeviceState *dev) {
     {{pcie_name|upper|concat}}State *s = {{pcie_name|upper}}(dev);
-
-    s->device_id = 0x5181;
-    s->revision_id = 3;
+    {% for register in pcie_registers %}
+    s->{{register.name}} = {{register.value}};{% endfor %}
 }
 
 static void {{pcie_name}}_class_init(ObjectClass *klass, void *data) {

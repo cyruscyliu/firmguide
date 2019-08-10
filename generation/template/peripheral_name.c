@@ -140,7 +140,7 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
         error_propagate(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->pcie), 0, {{pcie_name|upper}}_RAM_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->pcie), 0, {{pcie_name|upper}}_MMIO_BASE);
 }
 
 static void {{bridge_mmio_name}}_reset(DeviceState *d) {

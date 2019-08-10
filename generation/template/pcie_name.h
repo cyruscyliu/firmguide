@@ -8,12 +8,11 @@
 #define TYPE_{{pcie_name|upper}} "{{pcie_name}}"
 #define {{pcie_name|upper}}(obj) \
     OBJECT_CHECK({{pcie_name|upper|concat}}State, (obj), TYPE_{{pcie_name|upper}})
+{% for register in pcie_registers %}
+#define {{register.name|upper}} {{register.offset}}{% endfor %}
 
-#define PCIE_DEVICE_AND_VENDOR_ID_REGISTER       0x00
-#define PCIE_CLASS_CODE_AND_REVISION_ID_REGISTER 0x08
-
-#define {{pcie_name|upper}}_RAM_SIZE {{pcie_mmio_size}}
-#define {{pcie_name|upper}}_RAM_BASE {{pcie_mmio_base}}
+#define {{pcie_name|upper}}_MMIO_SIZE {{pcie_mmio_size}}
+#define {{pcie_name|upper}}_MMIO_BASE {{pcie_mmio_base}}
 
 typedef struct {{pcie_name|upper|concat}}State {
     /*< private >*/
@@ -21,8 +20,8 @@ typedef struct {{pcie_name|upper|concat}}State {
     /*< public >*/
 
     MemoryRegion mmio;
-    uint32_t device_id;
-    uint32_t revision_id;
+    {% for register in pcie_registers %}uint32_t {{register.name}};
+    {% endfor %}
 } {{pcie_name|upper|concat}}State;
 
 #endif /* {{pcie_name|upper}}_H */
