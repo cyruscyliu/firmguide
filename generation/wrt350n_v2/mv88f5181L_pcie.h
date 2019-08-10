@@ -14,7 +14,7 @@
 #define PCI_EXPRESS_DEVICE_AND_VENDOR_ID_REGISTER 0x0000
 #define PCI_EXPRESS_COMMAND_AND_STATUS_REGISTER 0x0004
 #define PCI_EXPRESS_CLASS_CODE_AND_REVISION_ID_REGISTER 0x0008
-#define PCI_EXPRESS_BIST,_HEADER_TYPE_AND_CACHE_LINE_SIZE_REGISTER 0x000c
+#define PCI_EXPRESS_BIST_HEADER_TYPE_AND_CACHE_LINE_SIZE_REGISTER 0x000c
 #define PCI_EXPRESS_BAR0_INTERNAL_REGISTER 0x0010
 #define PCI_EXPRESS_BAR0_INTERNAL_HIGH_REGISTER 0x0014
 #define PCI_EXPRESS_BAR1_REGISTER 0x0018
@@ -95,7 +95,7 @@ typedef struct MV88F5181LPCIEState {
     uint32_t pci_express_device_and_vendor_id_register;
     uint32_t pci_express_command_and_status_register;
     uint32_t pci_express_class_code_and_revision_id_register;
-    uint32_t pci_express_bist,_header_type_and_cache_line_size_register;
+    uint32_t pci_express_bist_header_type_and_cache_line_size_register;
     uint32_t pci_express_bar0_internal_register;
     uint32_t pci_express_bar0_internal_high_register;
     uint32_t pci_express_bar1_register;

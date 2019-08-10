@@ -38,8 +38,8 @@ static uint64_t mv88f5181L_pcie_read(void *opaque, hwaddr offset, unsigned size)
     case PCI_EXPRESS_CLASS_CODE_AND_REVISION_ID_REGISTER:
         res = s->pci_express_class_code_and_revision_id_register;
         break;
-    case PCI_EXPRESS_BIST,_HEADER_TYPE_AND_CACHE_LINE_SIZE_REGISTER:
-        res = s->pci_express_bist,_header_type_and_cache_line_size_register;
+    case PCI_EXPRESS_BIST_HEADER_TYPE_AND_CACHE_LINE_SIZE_REGISTER:
+        res = s->pci_express_bist_header_type_and_cache_line_size_register;
         break;
     case PCI_EXPRESS_BAR0_INTERNAL_REGISTER:
         res = s->pci_express_bar0_internal_register;
@@ -262,8 +262,8 @@ static void mv88f5181L_pcie_write(void *opaque, hwaddr offset, uint64_t val, uns
     case PCI_EXPRESS_CLASS_CODE_AND_REVISION_ID_REGISTER:
         s->pci_express_class_code_and_revision_id_register = val;
         break;
-    case PCI_EXPRESS_BIST,_HEADER_TYPE_AND_CACHE_LINE_SIZE_REGISTER:
-        s->pci_express_bist,_header_type_and_cache_line_size_register = val;
+    case PCI_EXPRESS_BIST_HEADER_TYPE_AND_CACHE_LINE_SIZE_REGISTER:
+        s->pci_express_bist_header_type_and_cache_line_size_register = val;
         break;
     case PCI_EXPRESS_BAR0_INTERNAL_REGISTER:
         s->pci_express_bar0_internal_register = val;
@@ -491,7 +491,7 @@ static void mv88f5181L_pcie_reset(DeviceState *dev) {
     s->pci_express_device_and_vendor_id_register = 0x11AB << 0 | 0x5181 << 16;
     s->pci_express_command_and_status_register = 0x0;
     s->pci_express_class_code_and_revision_id_register = 0x3;
-    s->pci_express_bist,_header_type_and_cache_line_size_register = 0x0;
+    s->pci_express_bist_header_type_and_cache_line_size_register = 0x0;
     s->pci_express_bar0_internal_register = 0x0;
     s->pci_express_bar0_internal_high_register = 0x0;
     s->pci_express_bar1_register = 0x0;

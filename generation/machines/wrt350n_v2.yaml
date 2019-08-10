@@ -207,7 +207,7 @@ machine:
         - name: "pci_express_class_code_and_revision_id_register"
           offset: "0x0008"
           value: "0x3"
-        - name: "pci_express_bist,_header_type_and_cache_line_size_register"
+        - name: "pci_express_bist_header_type_and_cache_line_size_register"
           offset: "0x000c"
           value: "0x0"
         - name: "pci_express_bar0_internal_register"
