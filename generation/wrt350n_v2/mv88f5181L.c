@@ -7,6 +7,7 @@
 #include "qapi/error.h"
 #include "target/arm/cpu.h"
 #include "hw/arm/mv88f5181L.h"
+#include "hw/char/serial.h"
 
 static void mv88f5181_cpu_address_map_update(void *opaque);
 static uint64_t mv88f5181_cpu_address_map_read(void *opaque, hwaddr offset, unsigned size);
@@ -2355,6 +2356,13 @@ static void mv88f5181L_realize(DeviceState *dev, Error **errp) {
         qdev_get_gpio_in_named(DEVICE(&s->ic), MV88F5181L_IC_IRQ, 8));
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals.gpio), 3,
         qdev_get_gpio_in_named(DEVICE(&s->ic), MV88F5181L_IC_IRQ, 9));
+
+    /* attach the uart to 16550A(8250) */
+    if (serial_hd(0)) {
+        serial_mm_init(get_system_memory(), mv88f5181L_uart_MMIO_BASE, 2,
+                       qdev_get_gpio_in_named(DEVICE(&s->ic), MV88F5181L_IC_IRQ, 3),
+                       115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
+    }
 
     /* connect irq/fiq outputs from the interrupt controller to the cpu */
     qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0,

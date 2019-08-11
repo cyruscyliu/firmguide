@@ -5,6 +5,7 @@
 #include "qapi/error.h"
 #include "target/arm/cpu.h"
 #include "hw/arm/{{soc_name}}.h"
+#include "hw/char/serial.h"
 
 static void {{cam_mmio_name}}_update(void *opaque);
 static uint64_t {{cam_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size);
@@ -372,6 +373,13 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
         qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, 8));
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals.gpio), 3,
         qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, 9));
+
+    /* attach the uart to 16550A(8250) */
+    if (serial_hd(0)) {
+        serial_mm_init(get_system_memory(), {{uart_name}}_MMIO_BASE, 2,
+                       qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, 3),
+                       115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
+    }
 
     /* connect irq/fiq outputs from the interrupt controller to the cpu */
     qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0,
