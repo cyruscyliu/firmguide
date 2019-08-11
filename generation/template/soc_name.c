@@ -6,6 +6,7 @@
 #include "target/arm/cpu.h"
 #include "hw/arm/{{soc_name}}.h"
 #include "hw/char/serial.h"
+#include "exec/address-spaces.h"
 
 static void {{cam_mmio_name}}_update(void *opaque);
 static uint64_t {{cam_mmio_name}}_read(void *opaque, hwaddr offset, unsigned size);
@@ -376,7 +377,7 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
 
     /* attach the uart to 16550A(8250) */
     if (serial_hd(0)) {
-        serial_mm_init(get_system_memory(), {{uart_name}}_MMIO_BASE, 2,
+        serial_mm_init(get_system_memory(), {{uart_name|upper}}_MMIO_BASE, 2,
                        qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, 3),
                        115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
     }
