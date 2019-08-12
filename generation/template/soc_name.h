@@ -36,6 +36,9 @@
 #define {{eth_name|upper}}_MMIO_SIZE {{eth_mmio_size}}
 #define {{eth_name|upper}}_MMIO_BASE {{eth_mmio_base}}
 
+#define {{uart_name|upper}}_MMIO_SIZE {{uart_mmio_size}}
+#define {{uart_name|upper}}_MMIO_BASE {{uart_mmio_base}}
+
 typedef struct {{soc_name|upper}}State {
     /*< private >*/
     SysBusDevice sys_bus;

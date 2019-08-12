@@ -7,7 +7,6 @@
 
 #include "hw/sysbus.h"
 #include "hw/timer/mv88f5181L_timer.h"
-#include "hw/char/mv88f5181L_uart.h"
 #include "hw/gpio/mv88f5181L_gpio.h"
 
 #define TYPE_MV88F5181L_PERIPHERALS "mv88f5181L_peripherals"
@@ -43,7 +42,6 @@ typedef struct MV88F5181LPERIPHERALSState {
     uint32_t bridge_interrupt_mask_register;
     
     MV88F5181LTIMERState timer;
-    MV88F5181LUARTState uart;
     MV88F5181LGPIOState gpio;
 } MV88F5181LPERIPHERALSState;
 
