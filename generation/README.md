@@ -65,6 +65,7 @@ done!
 ./arm-softmmu/qemu-system-arm \
      -machine wrt350n_v2 \
      -kernel  ~/esv/firmware-build/ws/backfire_10.03/bin/orion/openwrt-wrt350nv2-uImage \
+     -drive file=~/esv/generation/firmware/ec5859077831e078987ebb05461d4ec834896f3e.bin,format=raw,if=pflash
      --nographic -S -s
 ```
 
@@ -80,7 +81,7 @@ port: 1234 (by default)
 ### launch directly
 
 ```text
-liuqiang@liuqiang-VirtualBox:~/qemu-4.0.0$ ./arm-softmmu/qemu-system-arm -machine wrt350n_v2 -kernel  ~/esv/firmware-build/ws/backfire_10.03/bin/orion/openwrt-wrt350nv2-uImage --nographic
+liuqiang@liuqiang-VirtualBox:~/qemu-4.0.0$ ./arm-softmmu/qemu-system-arm -machine wrt350n_v2 -kernel  ~/esv/firmware-build/ws/backfire_10.03/bin/orion/openwrt-wrt350nv2-uImage -drive file=~/firmware/15007/ec5859077831e078987ebb05461d4ec834896f3e.bin,format=raw,if=pflash --nographic
 Uncompressing Linux... done, booting the kernel.
 Linux version 2.6.32.10 (openwrt@65e79451f278) (gcc version 4.3.3 (GCC) ) #1 Wed Jul 31 02:29:48 UTC 2019
 CPU: Feroceon [41069265] revision 5 (ARMv5TEJ), cr=00093177
@@ -96,7 +97,7 @@ Memory: 32MB = 32MB total
 Memory: 29576KB available (2564K code, 208K data, 96K init, 0K highmem)
 Hierarchical RCU implementation.
 NR_IRQS:64
-Calibrating delay loop... 209.30 BogoMIPS (lpj=1046528)
+Calibrating delay loop... 262.14 BogoMIPS (lpj=1310720)
 Mount-cache hash table entries: 512
 CPU: Testing write buffer coherency: ok
 NET: Registered protocol family 16
@@ -132,7 +133,8 @@ Creating 7 MTD partitions on "physmap-flash.0":
 0x000000000000-0x000000100000 : "kernel"
 0x000000100000-0x000000750000 : "rootfs"
 mtd: partition "rootfs" set to be root filesystem
-split_squashfs: no squashfs found in "physmap-flash.0"
+mtd: partition "rootfs_data" created automatically, ofs=290000, len=4C0000 
+0x000000290000-0x000000750000 : "rootfs_data"
 0x000000760000-0x0000007a0000 : "lang"
 0x0000007a0000-0x0000007c0000 : "nvram"
 0x0000007c0000-0x000000800000 : "u-boot"
@@ -156,16 +158,7 @@ eth0[0]: couldn't create dsa switch instance (error -22)
 802.1Q VLAN Support v1.8 Ben Greear <greearb@candelatech.com>
 All bugs added by David S. Miller <davem@redhat.com>
 drivers/rtc/hctosys.c: unable to open rtc device (rtc0)
-Cowardly refusing to erase blocks on filesystem with no valid JFFS2 nodes
-empty_blocks 0, bad_blocks 0, c->nr_blocks 101
-VFS: Cannot open root device "mtdblock1" or unknown-block(31,1)
-Please append a correct "root=" boot option; here are the available partitions:
-1f00            1024 mtdblock0 (driver?)
-1f01            6464 mtdblock1 (driver?)
-1f02             256 mtdblock2 (driver?)
-1f03             128 mtdblock3 (driver?)
-1f04             256 mtdblock4 (driver?)
-1f05              64 mtdblock5 (driver?)
-1f06            7488 mtdblock6 (driver?)
-Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(31,1)
+VFS: Mounted root (squashfs filesystem) readonly on device 31:1.
+Freeing init memory: 96K
+Please be patient, while OpenWrt loads ...
 ```
