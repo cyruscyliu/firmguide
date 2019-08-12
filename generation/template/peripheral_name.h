@@ -5,7 +5,6 @@
 
 #include "hw/sysbus.h"
 #include "hw/timer/{{timer_name}}.h"
-#include "hw/char/{{uart_name}}.h"
 #include "hw/gpio/{{gpio_name}}.h"
 
 #define TYPE_{{peripheral_name|upper}} "{{peripheral_name}}"
@@ -31,7 +30,6 @@ typedef struct {{peripheral_name|upper|concat}}State {
     {% for register in bridge_registers %}uint32_t {{register.name}};
     {% endfor %}
     {{timer_name|upper|concat}}State timer;
-    {{uart_name|upper|concat}}State uart;
     {{gpio_name|upper|concat}}State gpio;
 } {{peripheral_name|upper|concat}}State;
 

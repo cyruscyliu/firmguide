@@ -90,9 +90,6 @@ static void {{peripheral_name}}_init(Object *obj) {
     /* initialize the timer */
     sysbus_init_child_obj(obj, "timer", &s->timer, sizeof(s->timer), TYPE_{{timer_name|upper}});
 
-    /* initialize the uart */
-    // sysbus_init_child_obj(obj, "uart", &s->uart, sizeof(s->uart), TYPE_{{uart_name|upper}});
-
     /* initialize the gpio */
     sysbus_init_child_obj(obj, "gpio", &s->gpio, sizeof(s->gpio), TYPE_{{gpio_name|upper}});
 }
@@ -114,14 +111,6 @@ static void {{peripheral_name}}_realize(DeviceState *dev, Error **errp) {
         qdev_get_gpio_in_named(DEVICE(s), {{bridge_mmio_name|upper}}_IRQ, 1));
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 1,
         qdev_get_gpio_in_named(DEVICE(s), {{bridge_mmio_name|upper}}_IRQ, 2));
-
-    /* realize the uart */
-    // object_property_set_bool(OBJECT(&s->uart), true, "realized", &err);
-    // if (err != NULL) {
-    //    error_propagate(errp, err);
-    //   return;
-    // }
-    // sysbus_mmio_map(SYS_BUS_DEVICE(&s->uart), 0, {{uart_name|upper}}_MMIO_BASE);
 
     /* realize the  gpio */
     object_property_set_bool(OBJECT(&s->gpio), true, "realized", &err);
