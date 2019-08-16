@@ -15,7 +15,8 @@ static void {{ic_name}}_init(Object *obj);
 static void {{ic_name}}_class_init(ObjectClass *kclass, void *data);
 static void {{ic_name}}_register_types(void);
 
-static void {{ic_name}}_update(void *opaque) {
+static void {{ic_name}}_update(void *opaque) 
+{
     {{ic_name|upper|concat}}State *s = opaque;
     if (extract32(s->main_interrupt_cause_register, 0, 1)) {
         if (s->main_interrupt_cause_register & s->main_irq_interrupt_mask_register) {
@@ -26,13 +27,15 @@ static void {{ic_name}}_update(void *opaque) {
     }
 }
 
-static void {{ic_name}}_set_irq(void *opaque, int irq, int level) {
+static void {{ic_name}}_set_irq(void *opaque, int irq, int level) 
+{
     {{ic_name|upper|concat}}State *s = opaque;
     s->main_interrupt_cause_register = deposit32(s->main_interrupt_cause_register, irq, 1, level);
     {{ic_name}}_update(s);
 }
 
-static uint64_t {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) 
+{
     {{ic_name|upper|concat}}State *s = opaque;
     uint32_t res = 0;
 
@@ -47,7 +50,8 @@ static uint64_t {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     return res;
 }
 
-static void {{ic_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void {{ic_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     {{ic_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
@@ -67,7 +71,8 @@ static const MemoryRegionOps {{ic_name}}_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void {{ic_name}}_init(Object *obj) {
+static void {{ic_name}}_init(Object *obj) 
+{
     {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(obj);
 
     /* initialize the mmio */
@@ -81,13 +86,15 @@ static void {{ic_name}}_init(Object *obj) {
     qdev_init_gpio_out_named(DEVICE(s), &s->irq, "irq", 1);
 }
 
-static void {{ic_name}}_reset(DeviceState *dev) {
+static void {{ic_name}}_reset(DeviceState *dev) 
+{
     {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(dev);
     {% for register in ic_registers %}
     s->{{register.name}} = 0;{% endfor %}
 }
 
-static void {{ic_name}}_class_init(ObjectClass *klass, void *data) {
+static void {{ic_name}}_class_init(ObjectClass *klass, void *data) 
+{
     DeviceClass *dc = DEVICE_CLASS(klass);
 
     /* dc->fw_name = ; */
@@ -116,7 +123,8 @@ static TypeInfo {{ic_name}}_type_info = {
     .class_init = {{ic_name}}_class_init,
 };
 
-static void {{ic_name}}_register_types(void) {
+static void {{ic_name}}_register_types(void) 
+{
     type_register_static(&{{ic_name}}_type_info);
 }
 

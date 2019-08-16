@@ -16,7 +16,8 @@ static const int {{machine_name}}_board_id = {{board_id}};
 static void {{machine_name}}_init(MachineState *machine);
 static void {{machine_name}}_machine_init(MachineClass *mc);
 
-static void {{machine_name}}_init(MachineState *machine) {
+static void {{machine_name}}_init(MachineState *machine) 
+{
     static struct arm_boot_info binfo;
     DriveInfo *dinfo;
     PFlashCFI01 *flash;
@@ -63,7 +64,8 @@ static void {{machine_name}}_init(MachineState *machine) {
     arm_load_kernel(ARM_CPU(first_cpu), &binfo);
 }
 
-static void {{machine_name}}_machine_init(MachineClass *mc) {
+static void {{machine_name}}_machine_init(MachineClass *mc) 
+{
     /* mc->family = ; */
     /* mc->name = "{{machine_name}}"; */
     /* mc->alias = ; */
@@ -111,4 +113,5 @@ static void {{machine_name}}_machine_init(MachineClass *mc) {
     /* mc->CPuArchIdList = ; */
     /* mc->get_default_cpu_node_id = ; */
 }
+
 DEFINE_MACHINE("{{machine_name}}", {{machine_name}}_machine_init)
