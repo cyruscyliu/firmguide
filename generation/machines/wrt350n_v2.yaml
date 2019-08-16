@@ -3,6 +3,12 @@ machine:
   machine_desc: "Linksys WRT350N v2 (MV88F5181L)"
   machine_name: "wrt350n_v2"
   board_id: "0x661"
+  ram:
+    ram_size: "32 * MiB"
+  flash:
+    flash_addr: "0xf4000000"
+    flash_sect_size: "64 * KiB"
+    flash_size: "8 * MiB"
   soc:
     soc_name: "mv88f5181l"
     abelia:
@@ -10,12 +16,6 @@ machine:
       cpu:
         cpu_name: "arm926"
         cpu_type: "arm926"
-      ram:
-        ram_size: "32 * MiB"
-      flash:
-        flash_addr: "0xf4000000"
-        flash_sect_size: "64 * KiB"
-        flash_size: "8 * MiB"
       interrupt_controller:
         ic_name: "mv88f5181l_ic"
         ic_mmio_base: "0xf1020200"
