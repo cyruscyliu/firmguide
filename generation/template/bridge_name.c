@@ -91,19 +91,21 @@ static void {{bridge_name}}_init(Object *obj) {
 
 static void {{bridge_name}}_realize(DeviceState *dev, Error **errp) {
     {{bridge_name|upper|concat}}State *s = {{bridge_name|upper}}(dev);
-    Object *timer;
+    Object *obj;
+    {{timer_name|upper|concat}}State *timer;
     Error *err = NULL;
 
     /* connect the timer to the bridge */
-    timer = object_property_get_link(OBJECT(dev), "timer", &err) ;
+    obj = object_property_get_link(OBJECT(dev), "timer", &err) ;
+    timer = {{timer_name|upper}}(obj);
     if (timer == NULL) {
         error_setg(errp, "%s: required ram link not found: %s",
                    __func__, error_get_pretty(err));
         return;
     }
-    sysbus_connect_irq(SYS_BUS_DEVICE(&{{timer_name|upper}}(timer)), 0,
+    sysbus_connect_irq(SYS_BUS_DEVICE(timer), 0,
         qdev_get_gpio_in_named(DEVICE(s), {{bridge_name|upper}}_IRQ, 1));
-    sysbus_connect_irq(SYS_BUS_DEVICE(&{{timer_name|upper}}(timer)), 1,
+    sysbus_connect_irq(SYS_BUS_DEVICE(timer), 1,
         qdev_get_gpio_in_named(DEVICE(s), {{bridge_name|upper}}_IRQ, 2));
 }
 

@@ -123,19 +123,21 @@ static void mv88f5181l_bridge_init(Object *obj) {
 
 static void mv88f5181l_bridge_realize(DeviceState *dev, Error **errp) {
     MV88F5181LBRIDGEState *s = MV88F5181L_BRIDGE(dev);
-    Object *timer;
+    Object *obj;
+    MV88F5181LTIMERState *timer;
     Error *err = NULL;
 
     /* connect the timer to the bridge */
-    timer = object_property_get_link(OBJECT(dev), "timer", &err) ;
+    obj = object_property_get_link(OBJECT(dev), "timer", &err) ;
+    timer = MV88F5181L_TIMER(obj);
     if (timer == NULL) {
         error_setg(errp, "%s: required ram link not found: %s",
                    __func__, error_get_pretty(err));
         return;
     }
-    sysbus_connect_irq(SYS_BUS_DEVICE(&MV88F5181L_TIMER(timer)), 0,
+    sysbus_connect_irq(SYS_BUS_DEVICE(timer), 0,
         qdev_get_gpio_in_named(DEVICE(s), MV88F5181L_BRIDGE_IRQ, 1));
-    sysbus_connect_irq(SYS_BUS_DEVICE(&MV88F5181L_TIMER(timer)), 1,
+    sysbus_connect_irq(SYS_BUS_DEVICE(timer), 1,
         qdev_get_gpio_in_named(DEVICE(s), MV88F5181L_BRIDGE_IRQ, 2));
 }
 
