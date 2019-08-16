@@ -5,8 +5,8 @@
 #include "qemu/osdep.h"
 #include "qemu/log.h"
 #include "qapi/error.h"
-#include "hw/arm/wrt350n_v2.h"
 #include "hw/arm/mv88f5181l_bridge.h"
+#include "hw/timer/mv88f5181l_timer.h"
 
 static void mv88f5181l_bridge_realize(DeviceState *dev, Error **errp);
 

@@ -3,8 +3,8 @@
 #include "qemu/osdep.h"
 #include "qemu/log.h"
 #include "qapi/error.h"
-#include "hw/arm/{{machine_name}}.h"
 #include "hw/arm/{{bridge_name}}.h"
+#include "hw/timer/{{timer_name}}.h"
 
 static void {{bridge_name}}_realize(DeviceState *dev, Error **errp);
 
