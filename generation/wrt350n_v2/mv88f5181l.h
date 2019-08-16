@@ -862,6 +862,7 @@ typedef struct MV88F5181LState {
     
     MV88F5181LICState ic;
     MV88F5181LTIMERState timer;
+    MV88F5181LBRIDGEState bridge;
 } MV88F5181LState;
 
 #endif /* MV88F5181L_H */

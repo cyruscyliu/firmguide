@@ -34,6 +34,7 @@ typedef struct {{soc_name|upper}}State {
     {% endfor %}{% endfor %}
     {{ic_name|upper|concat}}State ic;
     {{timer_name|upper|concat}}State timer;
+    {{bridge_name|upper|concat}}State bridge;
 } {{soc_name|upper}}State;
 
 #endif /* {{soc_name|upper}}_H */
