@@ -77,38 +77,49 @@ static void {{soc_name}}_init(Object *obj) {
         &{{device.name}}_ops, s, TYPE_{{soc_name|upper}}, {{device.name|upper}}_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->{{device.name}}_mmio);
     {% endfor %}
-    /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
+
+    /* initialize the interrupt controller */
     sysbus_init_child_obj(
         obj, "ic", &s->ic, sizeof(s->ic), TYPE_{{ic_name|upper}});
 
-    /* initialize peripherals and add the peripherals as soc and sysbus's child */
+    /* initialize the bridge */
     sysbus_init_child_obj(
-        obj, "peripherals", &s->peripherals, sizeof(s->peripherals), TYPE_{{soc_name|upper}}_PERIPHERALS);
+        obj, "bridge", &s->bridge, sizeof(s->bridge), TYPE_{{bridge_name|upper}});
+
+    /* initialize the timer */
+    sysbus_init_child_obj(
+        obj, "timer", &s->timer, sizeof(s->timer), TYPE_{{timer_name|upper}});
+
+    object_property_add_const_link(OBJECT(&s->bridge), "timer", OBJECT(&s->timer), &error_abort);
 }
 
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
     {{soc_name|upper}}State *s = {{soc_name|upper}}(dev);
     Error *err = NULL;
 
-    /* realize the peripherals  */
-    object_property_set_bool(OBJECT(&s->peripherals), true, "realized", &err);
+    /* realize the timer */
+    object_property_set_bool(OBJECT(&s->timer), true, "realized", &err);
+    if (err != NULL) {
+        error_propagate(errp, err);
+        return;
+    }
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{timer_name|upper}}_MMIO_BASE);
+
+    /* realize the bridge  */
+    object_property_set_bool(OBJECT(&s->bridge), true, "realized", &err);
     if (err) {
         error_propagate(errp, err);
         return;
     }
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->bridge), 0, {{bridge_name|upper}}_MMIO_BASE);
 
-    /* map peripheral's mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->peripherals), 0, {{bridge_mmio_name|upper}}_RAM_BASE);
-
-    /* realize the local interrupt controller */
+    /* realize the interrupt controller */
     object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);
     if (err) {
         error_propagate(errp, err);
         return;
     }
-
-    /* map ic's mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {{ic_name|upper}}_RAM_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {{ic_name|upper}}_MMIO_BASE);
 
     /* realize the cpu */
     object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
@@ -117,19 +128,9 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
         return;
     }
 
-    /* connect irq from the peripheral to the interrupt controller */
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals), 0,
+    /* connect irq from the bridge to the interrupt controller */
+    sysbus_connect_irq(SYS_BUS_DEVICE(&s->bridge), 0,
         qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, 0));
-
-    /* connect irq from the gpio to the interrupt controller */
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals.gpio), 0,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, 6));
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals.gpio), 1,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, 7));
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals.gpio), 2,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, 8));
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals.gpio), 3,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, 9));
 
     /* attach the uart to 16550A(8250) */
     if (serial_hd(0)) {

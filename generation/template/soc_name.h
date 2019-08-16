@@ -31,6 +31,7 @@ typedef struct {{soc_name|upper}}State {
     {% for register in device.registers %}uint32_t {{register.name}};
     {% endfor %}{% endfor %}
     {{ic_name|upper|concat}}State ic;
+    {{timer_name|upper|concat}}State timer;
 } {{soc_name|upper}}State;
 
 #endif /* {{soc_name|upper}}_H */

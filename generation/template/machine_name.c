@@ -28,19 +28,17 @@ static void {{machine_name}}_init(MachineState *machine) {
     object_initialize(&s->soc, sizeof(s->soc), TYPE_{{soc_name|upper}});
     object_property_add_child(OBJECT(machine), "soc", OBJECT(&s->soc), &error_abort);
 
+    /* realize the soc */
+    object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
+
     /* allocate the ram */
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
     memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, 0);
     /* memory_region_allocate_system_memory do the same things as below */
     /* object_property_add_child(OBJECT(machine), "ram", OBJECT(&s->ram), &error_abort); */
-    /* so, comment the last line */
-    object_property_add_const_link(OBJECT(&s->soc), "ram", OBJECT(&s->ram), &error_abort);
+    /* so, comment the line above */
 
-    /* realize the soc */
-    object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
-
-    /* map bamboo devices mmio */
-    {% for device in bamboo %}
+    /* map bamboo devices mmio */{% for device in bamboo %}
     /* map {{device.name}} mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), {{device.id}}, {{device.name|upper}}_MMIO_BASE);
     {% endfor %}

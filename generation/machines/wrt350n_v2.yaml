@@ -17,7 +17,7 @@ machine:
         flash_sect_size: "64 * KiB"
         flash_size: "8 * MiB"
       interrupt_controller:
-        ic_name: "mv88f5181L_ic"
+        ic_name: "mv88f5181l_ic"
         ic_mmio_base: "0xf1020200"
         ic_mmio_size: "0x100"
         ic_registers:
@@ -31,7 +31,7 @@ machine:
             offset: "0x0c"
         ic_n_irqs: 32
       timer:
-        timer_name: "mv88f5181L_timer"
+        timer_name: "mv88f5181l_timer"
         timer_mmio_base: "0xf1020300"
         timer_mmio_size: "0x100"
         timer_registers:
@@ -50,7 +50,7 @@ machine:
           - name: "cpu_watchdog_timer_register"
             offset: "0x24"
       uart:
-        uart_name: "mv88f5181L_uart"
+        uart_name: "mv88f5181l_uart"
         uart_mmio_base: "0xf1012000"
         uart_mmio_size: "0x200"
         uart_registers:
@@ -119,7 +119,7 @@ machine:
             offset: "0x11c"
             value: "0x0"
       bridge:
-        bridge_mmio_name: "mv88f5181l_bridge"
+        bridge_name: "mv88f5181l_bridge"
         bridge_mmio_base: "0xf1020100"
         bridge_mmio_size: "0x100"
         bridge_registers:
@@ -137,7 +137,7 @@ machine:
             offset: "0x14"
     bamboo:
       # the second class devices that must have registers callbacks
-      - name: "mv88f5181L_gpio"
+      - name: "mv88f5181l_gpio"
         id: "0"
         mmio_base: "0xf1010100"
         mmio_size: "0x100"
@@ -551,7 +551,7 @@ machine:
           - name: "pci_error_command"
             offset: "0x1d50"
             value: "0x0 /* 0 4 5 */"
-      - name: "mv88f5181L_pcie_interface"
+      - name: "mv88f5181l_pcie_interface"
         id: "5"
         mmio_base: "0xf1040000"
         mmio_size: "0x2000"
