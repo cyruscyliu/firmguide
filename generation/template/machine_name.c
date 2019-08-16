@@ -39,8 +39,8 @@ static void {{machine_name}}_init(MachineState *machine) {
     /* realize the soc */
     object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
 
-    /* map banboo devices mmio */
-    {% for device in banboo %}
+    /* map bamboo devices mmio */
+    {% for device in bamboo %}
     /* map {{device.name}} mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), {{device.id}}, {{device.name|upper}}_MMIO_BASE);
     {% endfor %}
