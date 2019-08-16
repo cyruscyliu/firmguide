@@ -91,7 +91,7 @@ static void mv88f5181l_ic_init(Object *obj) {
     MV88F5181LICState *s = MV88F5181L_IC(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &mv88f5181l_ic_ops, s, TYPE_MV88F5181L_IC, MV88F5181L_IC_RAM_SIZE);
+    memory_region_init_io(&s->mmio, obj, &mv88f5181l_ic_ops, s, TYPE_MV88F5181L_IC, MV88F5181L_IC_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the interrupt input */

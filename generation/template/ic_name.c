@@ -71,7 +71,7 @@ static void {{ic_name}}_init(Object *obj) {
     {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &{{ic_name}}_ops, s, TYPE_{{ic_name|upper}}, {{ic_name|upper}}_RAM_SIZE);
+    memory_region_init_io(&s->mmio, obj, &{{ic_name}}_ops, s, TYPE_{{ic_name|upper}}, {{ic_name|upper}}_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the interrupt input */

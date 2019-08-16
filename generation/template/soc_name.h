@@ -4,7 +4,9 @@
 #define {{soc_name|upper}}_H
 
 #include "hw/arm/arm.h"
+#include "hw/arm/{{bridge_name}}.h"
 #include "hw/intc/{{ic_name}}.h"
+#include "hw/timer/{{timer_name}}.h"
 
 #define TYPE_{{soc_name|upper}} "{{soc_name}}"
 #define {{soc_name|upper}}(obj) \
