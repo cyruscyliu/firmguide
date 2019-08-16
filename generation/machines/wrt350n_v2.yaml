@@ -118,12 +118,30 @@ machine:
           - name: "uart_1_scratch_pad_register_scr"
             offset: "0x11c"
             value: "0x0"
+      bridge:
+        name: "mv88f5181l_bridge"
+        mmio_base: "0xf1020100"
+        mmio_size: "0x100"
+        registers:
+          - name: "bridge_configuration_register"
+            offset: "0x00"
+          - name: "bridge_control_and_status_register"
+            offset: "0x04"
+          - name: "bridge_rstoutn_mask_register"
+            offset: "0x08"
+          - name: "bridge_system_soft_reset_register"
+            offset: "0x0c"
+          - name: "bridge_interrupt_cause_register"
+            offset: "0x10"
+          - name: "bridge_interrupt_mask_register"
+            offset: "0x14"
     banboo:
       # the second class devices that must have registers callbacks
-      - gpio_name: "mv88f5181L_gpio"
-        gpio_mmio_base: "0xf1010100"
-        gpio_mmio_size: "0x100"
-        gpio_registers:
+      - name: "mv88f5181L_gpio"
+        id: "0"
+        mmio_base: "0xf1010100"
+        mmio_size: "0x100"
+        registers:
           - name: "gpio_data_out_register"
             offset: "0x00"
             value: "0x0 << 0 | 0x0 << 26"
@@ -150,10 +168,11 @@ machine:
             value: "0x0 << 0 | 0x0 << 26"
         gpio_in_out_n: 26
         gpio_irq_n: 4
-      - cam_mmio_name: "mv88f5181l_cpu_address_map"
-        cam_mmio_base: "0xf1020000"
-        cam_mmio_size: "0x100"
-        cam_registers:
+      - name: "mv88f5181l_cpu_address_map"
+        id: "1"
+        mmio_base: "0xf1020000"
+        mmio_size: "0x100"
+        registers:
           # default value copied from mv88f8182, base and size seems wrong
           # but it doesn't matter, the kernel will overwrite them all
           - name: "window0_control_register"
@@ -225,10 +244,11 @@ machine:
           - name: "_88f5181_internal_registers_base_address_register"
             offset: "0x80"
             value: "0xD0000000"
-      - dsc_mmio_name: "mv88f5181l_ddr_sdram_controller"
-        dsc_mmio_base: "0xf1001400"
-        dsc_mmio_size: "0x200"
-        dsc_registers:
+      - name: "mv88f5181l_ddr_sdram_controller"
+        id: "2"
+        mmio_base: "0xf1001400"
+        mmio_size: "0x200"
+        registers:
           - name: "cs0n_base_address_register"
             offset: "0x100"
             value: "0x0 << 0 | 0x0 << 16 | 0x0 << 24"
@@ -319,10 +339,11 @@ machine:
           - name: "ddr_sdram_mmask_register"
             offset: "0xB0"
             value: "0x0 << 0 | 0x0 << 2 | 0x0 << 4 | 0xF << 5 | 0x0 << 9"
-      - mpp_mmio_name: "mv88f5181l_pins_multiplexing_interface"
-        mpp_mmio_base: "0xf1010000"
-        mpp_mmio_size: "0x100"
-        mpp_registers:
+      - name: "mv88f5181l_pins_multiplexing_interface"
+        id: "3"
+        mmio_base: "0xf1010000"
+        mmio_size: "0x100"
+        registers:
           - name: "mpp_control_0_register"
             offset: "0x00"
           - name: "mpp_control_1_register"
@@ -333,10 +354,11 @@ machine:
             offset: "0x08"
           - name: "sample_at_reset_register"
             offset: "0x10"
-      - pci_name: "mv88f5181l_pci_interface"
-        pci_mmio_base: "0xf1030000"
-        pci_mmio_size: "0x2000"
-        pci_registers:
+      - name: "mv88f5181l_pci_interface"
+        id: "4"
+        mmio_base: "0xf1030000"
+        mmio_size: "0x2000"
+        registers:
           - name: "csn0_bar_size"
             offset: "0x0c08"
             value: "0x0 << 0 | 0x0FFFF << 12"
@@ -524,10 +546,11 @@ machine:
           - name: "pci_error_command"
             offset: "0x1d50"
             value: "0x0 /* 0 4 5 */"
-      - pcie_name: "mv88f5181L_pcie_interface"
-        pcie_mmio_base: "0xf1040000"
-        pcie_mmio_size: "0x2000"
-        pcie_registers:
+      - name: "mv88f5181L_pcie_interface"
+        id: "5"
+        mmio_base: "0xf1040000"
+        mmio_size: "0x2000"
+        registers:
           - name: "pci_express_device_and_vendor_id_register"
             offset: "0x0000"
             value: "0x11AB << 0 | 0x5181 << 16"
@@ -741,10 +764,11 @@ machine:
           - name: "pci_express_tl_control_register"
             offset: "0x1ab0"
             value: "0x0 << 0"
-      - u2c_name: "mv88f5181l_usb_2_0_controller"
-        u2c_mmio_base: "0xf1050000"
-        u2c_mmio_size: "0x500"
-        u2c_registers:
+      - name: "mv88f5181l_usb_2_0_controller"
+        id: "6"
+        mmio_base: "0xf1050000"
+        mmio_size: "0x500"
+        registers:
           - name: "port0_usb_2_0_id"
             offset: "0x00"
           - name: "port0_usb_2_0_hwgeneral"
@@ -845,10 +869,11 @@ machine:
             offset: "0x354"
           - name: "port0_usb_2_0_power_control_register"
             offset: "0x400"
-      - eth_name: "mv88f5181l_gigabit_ethernet_controller"
-        eth_mmio_base: "0xf1072000"
-        eth_mmio_size: "0x2000"
-        eth_registers:
+      - name: "mv88f5181l_gigabit_ethernet_controller"
+        id: "7"
+        mmio_base: "0xf1072000"
+        mmio_size: "0x2000"
+        registers:
           - name: "phy_address"
             offset: "0x000"
           - name: "smi"
@@ -1049,10 +1074,11 @@ machine:
           - name: "destination_address_filter_unicast_table_dfut"
             offset: "0x1600"
             size: "64"
-      - cesa_name: "mv88f5181l_cesa"
-        cesa_mmio_base: "0xf109DD00"
-        cesa_mmio_size: "0x200"
-        cesa_registers:
+      - name: "mv88f5181l_cesa"
+        id: "8"
+        mmio_base: "0xf109DD00"
+        mmio_size: "0x200"
+        registers:
           - name: "des_data_out_low_register"
             offset: "0x00000078"
           - name: "des_data_out_high_register"
@@ -1163,19 +1189,4 @@ machine:
             offset: "0x00000120"
           - name: "cryptographic_engines_and_security_accelerator_interrupt_mask_register"
             offset: "0x00000124"
-      - bridge_mmio_name: "mv88f5181l_bridge"
-        bridge_mmio_base: "0xf1020100"
-        bridge_mmio_size: "0x100"
-        bridge_registers:
-          - name: "bridge_configuration_register"
-            offset: "0x00"
-          - name: "bridge_control_and_status_register"
-            offset: "0x04"
-          - name: "bridge_rstoutn_mask_register"
-            offset: "0x08"
-          - name: "bridge_system_soft_reset_register"
-            offset: "0x0c"
-          - name: "bridge_interrupt_cause_register"
-            offset: "0x10"
-          - name: "bridge_interrupt_mask_register"
-            offset: "0x14"
+

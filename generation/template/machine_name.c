@@ -39,25 +39,12 @@ static void {{machine_name}}_init(MachineState *machine) {
     /* realize the soc */
     object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
 
-    /* map cpu address map mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 0, {{cam_mmio_name|upper}}_MMIO_BASE);
-
-    /* map ddr sdram controller mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 1, {{dsc_mmio_name|upper}}_MMIO_BASE);
-
-    /* map pins multiplexing interface mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 2, {{mpp_mmio_name|upper}}_MMIO_BASE);
-
-    /* map pins pci interface mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 3, {{pci_name|upper}}_MMIO_BASE);
-
-    /* map pins pcie interface mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 4, {{pcie_name|upper}}_MMIO_BASE);
-
-    /* map gigabit ethernet controller mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 5, {{eth_name|upper}}_MMIO_BASE);
-
-    /* set up the flash */{% if flash_enable %}
+    /* map banboo devices mmio */
+    {% for device in banboo %}
+    /* map {{device.name}} mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), {{device.id}}, {{device.name|upper}}_MMIO_BASE);
+    {% endfor %}
+    /* set up the flash */
     dinfo = drive_get(IF_PFLASH, 0, 0);
     flash = pflash_cfi01_register(
             {{machine_name|upper}}_FLASH_ADDR, "flash", {{machine_name|upper}}_FLASH_SIZE,
@@ -67,7 +54,7 @@ static void {{machine_name}}_init(MachineState *machine) {
         fprintf(stderr, "qemu: Error registering flash memory.\n");
     } else {
         s->flash = flash;
-    }{% endif %}{% if sd_enable %}/* plugin in sd not implemented yet */ {% endif %}
+    }
 
     /* boot */
     binfo.board_id = {{machine_name}}_board_id;
