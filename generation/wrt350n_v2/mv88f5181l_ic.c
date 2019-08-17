@@ -17,7 +17,8 @@ static void mv88f5181l_ic_init(Object *obj);
 static void mv88f5181l_ic_class_init(ObjectClass *kclass, void *data);
 static void mv88f5181l_ic_register_types(void);
 
-static void mv88f5181l_ic_update(void *opaque) {
+static void mv88f5181l_ic_update(void *opaque) 
+{
     MV88F5181LICState *s = opaque;
     if (extract32(s->main_interrupt_cause_register, 0, 1)) {
         if (s->main_interrupt_cause_register & s->main_irq_interrupt_mask_register) {
@@ -28,13 +29,15 @@ static void mv88f5181l_ic_update(void *opaque) {
     }
 }
 
-static void mv88f5181l_ic_set_irq(void *opaque, int irq, int level) {
+static void mv88f5181l_ic_set_irq(void *opaque, int irq, int level) 
+{
     MV88F5181LICState *s = opaque;
     s->main_interrupt_cause_register = deposit32(s->main_interrupt_cause_register, irq, 1, level);
     mv88f5181l_ic_update(s);
 }
 
-static uint64_t mv88f5181l_ic_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_ic_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LICState *s = opaque;
     uint32_t res = 0;
 
@@ -58,7 +61,8 @@ static uint64_t mv88f5181l_ic_read(void *opaque, hwaddr offset, unsigned size) {
     return res;
 }
 
-static void mv88f5181l_ic_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_ic_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LICState *s = opaque;
 
     switch (offset) {
@@ -87,7 +91,8 @@ static const MemoryRegionOps mv88f5181l_ic_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_ic_init(Object *obj) {
+static void mv88f5181l_ic_init(Object *obj) 
+{
     MV88F5181LICState *s = MV88F5181L_IC(obj);
 
     /* initialize the mmio */
@@ -101,7 +106,8 @@ static void mv88f5181l_ic_init(Object *obj) {
     qdev_init_gpio_out_named(DEVICE(s), &s->irq, "irq", 1);
 }
 
-static void mv88f5181l_ic_reset(DeviceState *dev) {
+static void mv88f5181l_ic_reset(DeviceState *dev) 
+{
     MV88F5181LICState *s = MV88F5181L_IC(dev);
     
     s->main_interrupt_cause_register = 0;
@@ -110,7 +116,8 @@ static void mv88f5181l_ic_reset(DeviceState *dev) {
     s->main_endpoint_interrupt_mask_register = 0;
 }
 
-static void mv88f5181l_ic_class_init(ObjectClass *klass, void *data) {
+static void mv88f5181l_ic_class_init(ObjectClass *klass, void *data) 
+{
     DeviceClass *dc = DEVICE_CLASS(klass);
 
     /* dc->fw_name = ; */
@@ -139,7 +146,8 @@ static TypeInfo mv88f5181l_ic_type_info = {
     .class_init = mv88f5181l_ic_class_init,
 };
 
-static void mv88f5181l_ic_register_types(void) {
+static void mv88f5181l_ic_register_types(void) 
+{
     type_register_static(&mv88f5181l_ic_type_info);
 }
 

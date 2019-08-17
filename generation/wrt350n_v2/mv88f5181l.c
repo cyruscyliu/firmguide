@@ -45,11 +45,13 @@ static void mv88f5181l_reset(DeviceState *d);
 static void mv88f5181l_class_init(ObjectClass *oc, void *data);
 static void mv88f5181l_register_types(void);
 
-static void mv88f5181l_gpio_update(void *opaque) {
+static void mv88f5181l_gpio_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_gpio_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_gpio_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -85,7 +87,8 @@ static uint64_t mv88f5181l_gpio_read(void *opaque, hwaddr offset, unsigned size)
     return res;
 }
 
-static void mv88f5181l_gpio_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_gpio_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -126,11 +129,13 @@ static const MemoryRegionOps mv88f5181l_gpio_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_cpu_address_map_update(void *opaque) {
+static void mv88f5181l_cpu_address_map_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_cpu_address_map_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_cpu_address_map_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -211,7 +216,8 @@ static uint64_t mv88f5181l_cpu_address_map_read(void *opaque, hwaddr offset, uns
     return res;
 }
 
-static void mv88f5181l_cpu_address_map_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_cpu_address_map_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -297,11 +303,13 @@ static const MemoryRegionOps mv88f5181l_cpu_address_map_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_ddr_sdram_controller_update(void *opaque) {
+static void mv88f5181l_ddr_sdram_controller_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_ddr_sdram_controller_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_ddr_sdram_controller_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -403,7 +411,8 @@ static uint64_t mv88f5181l_ddr_sdram_controller_read(void *opaque, hwaddr offset
     return res;
 }
 
-static void mv88f5181l_ddr_sdram_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_ddr_sdram_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -510,11 +519,13 @@ static const MemoryRegionOps mv88f5181l_ddr_sdram_controller_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_pins_multiplexing_interface_update(void *opaque) {
+static void mv88f5181l_pins_multiplexing_interface_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -541,7 +552,8 @@ static uint64_t mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwaddr
     return res;
 }
 
-static void mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -573,11 +585,13 @@ static const MemoryRegionOps mv88f5181l_pins_multiplexing_interface_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_pci_interface_update(void *opaque) {
+static void mv88f5181l_pci_interface_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_pci_interface_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_pci_interface_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -775,7 +789,8 @@ static uint64_t mv88f5181l_pci_interface_read(void *opaque, hwaddr offset, unsig
     return res;
 }
 
-static void mv88f5181l_pci_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_pci_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -978,11 +993,13 @@ static const MemoryRegionOps mv88f5181l_pci_interface_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_pcie_interface_update(void *opaque) {
+static void mv88f5181l_pcie_interface_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_pcie_interface_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_pcie_interface_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -1207,7 +1224,8 @@ static uint64_t mv88f5181l_pcie_interface_read(void *opaque, hwaddr offset, unsi
     return res;
 }
 
-static void mv88f5181l_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -1437,11 +1455,13 @@ static const MemoryRegionOps mv88f5181l_pcie_interface_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_usb_2_0_controller_update(void *opaque) {
+static void mv88f5181l_usb_2_0_controller_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_usb_2_0_controller_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_usb_2_0_controller_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -1603,7 +1623,8 @@ static uint64_t mv88f5181l_usb_2_0_controller_read(void *opaque, hwaddr offset, 
     return res;
 }
 
-static void mv88f5181l_usb_2_0_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_usb_2_0_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -1770,11 +1791,13 @@ static const MemoryRegionOps mv88f5181l_usb_2_0_controller_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_gigabit_ethernet_controller_update(void *opaque) {
+static void mv88f5181l_gigabit_ethernet_controller_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -2080,7 +2103,8 @@ static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr
     return res;
 }
 
-static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -2391,11 +2415,13 @@ static const MemoryRegionOps mv88f5181l_gigabit_ethernet_controller_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_cesa_update(void *opaque) {
+static void mv88f5181l_cesa_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_cesa_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_cesa_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -2572,7 +2598,8 @@ static uint64_t mv88f5181l_cesa_read(void *opaque, hwaddr offset, unsigned size)
     return res;
 }
 
-static void mv88f5181l_cesa_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_cesa_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -2754,7 +2781,8 @@ static const MemoryRegionOps mv88f5181l_cesa_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_reset(void *opaque) {
+static void mv88f5181l_reset(void *opaque)
+{
     MV88F5181LState *s = opaque;
     
     s->gpio_data_out_register = 0x0 << 0 | 0x0 << 26;
@@ -3161,7 +3189,8 @@ static void mv88f5181l_reset(void *opaque) {
     s->cryptographic_engines_and_security_accelerator_interrupt_mask_register = 0x0;
 }
 
-static void mv88f5181l_init(Object *obj) {
+static void mv88f5181l_init(Object *obj) 
+{
     MV88F5181LState *s = MV88F5181L(obj);
 
     /* initialize cpus and add the cpu as soc's child */
@@ -3233,7 +3262,8 @@ static void mv88f5181l_init(Object *obj) {
     qemu_register_reset(mv88f5181l_reset, s);
 }
 
-static void mv88f5181l_realize(DeviceState *dev, Error **errp) {
+static void mv88f5181l_realize(DeviceState *dev, Error **errp) 
+{
     MV88F5181LState *s = MV88F5181L(dev);
     Error *err = NULL;
 
@@ -3284,8 +3314,8 @@ static void mv88f5181l_realize(DeviceState *dev, Error **errp) {
             qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));
 }
 
-
-static void mv88f5181l_class_init(ObjectClass *oc, void *data) {
+static void mv88f5181l_class_init(ObjectClass *oc, void *data) 
+{
     DeviceClass *dc = DEVICE_CLASS(oc);
 
     /* dc->fw_name = ; */
@@ -3314,7 +3344,8 @@ static const TypeInfo mv88f5181l_type_info = {
     .class_init = mv88f5181l_class_init,
 };
 
-static void mv88f5181l_register_types(void) {
+static void mv88f5181l_register_types(void) 
+{
     type_register_static(&mv88f5181l_type_info);
 }
 

@@ -18,7 +18,8 @@ static void mv88f5181l_timer_init(Object *obj);
 static void mv88f5181l_timer_class_init(ObjectClass *klass, void *data);
 static void mv88f5181l_timer_register_types(void);
 
-static void mv88f5181l_timer_update(void *opaque) {
+static void mv88f5181l_timer_update(void *opaque) 
+{
     MV88F5181LTIMERState *s = opaque;
 
     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
@@ -58,13 +59,15 @@ static void mv88f5181l_timer_update(void *opaque) {
     }
 }
 
-static void mv88f5181l_timer_callback(void *opaque) {
+static void mv88f5181l_timer_callback(void *opaque) 
+{
     MV88F5181LTIMERState *s = opaque;
 
     mv88f5181l_timer_update(s);
 }
 
-static uint64_t mv88f5181l_timer_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_timer_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LTIMERState *s = opaque;
 
     uint64_t res = 0;
@@ -98,7 +101,8 @@ static uint64_t mv88f5181l_timer_read(void *opaque, hwaddr offset, unsigned size
     return res;
 }
 
-static void mv88f5181l_timer_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_timer_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LTIMERState *s = opaque;
 
     switch (offset) {
@@ -136,7 +140,8 @@ static const MemoryRegionOps mv88f5181l_timer_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_timer_init(Object *obj) {
+static void mv88f5181l_timer_init(Object *obj) 
+{
     MV88F5181LTIMERState *s = MV88F5181L_TIMER(obj);
 
     /* initialize the mmio */
@@ -151,7 +156,8 @@ static void mv88f5181l_timer_init(Object *obj) {
     s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, mv88f5181l_timer_callback, s);
 }
 
-static void mv88f5181l_timer_reset(DeviceState *dev) {
+static void mv88f5181l_timer_reset(DeviceState *dev) 
+{
     MV88F5181LTIMERState *s = MV88F5181L_TIMER(dev);
     
     s->cpu_timers_control_register = 0;
@@ -166,7 +172,8 @@ static void mv88f5181l_timer_reset(DeviceState *dev) {
     s->reserved_2 = 0;
 }
 
-static void mv88f5181l_timer_class_init(ObjectClass *klass, void *data) {
+static void mv88f5181l_timer_class_init(ObjectClass *klass, void *data) 
+{
     DeviceClass *dc = DEVICE_CLASS(klass);
 
     /* dc->fw_name = ; */
@@ -196,7 +203,8 @@ static const TypeInfo mv88f5181l_timer_info = {
     .class_init = mv88f5181l_timer_class_init,
 };
 
-static void mv88f5181l_timer_register_types(void) {
+static void mv88f5181l_timer_register_types(void) 
+{
     type_register_static(&mv88f5181l_timer_info);
 }
 

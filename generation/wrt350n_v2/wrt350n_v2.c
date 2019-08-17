@@ -18,7 +18,8 @@ static const int wrt350n_v2_board_id = 0x661;
 static void wrt350n_v2_init(MachineState *machine);
 static void wrt350n_v2_machine_init(MachineClass *mc);
 
-static void wrt350n_v2_init(MachineState *machine) {
+static void wrt350n_v2_init(MachineState *machine) 
+{
     static struct arm_boot_info binfo;
     DriveInfo *dinfo;
     PFlashCFI01 *flash;
@@ -89,7 +90,8 @@ static void wrt350n_v2_init(MachineState *machine) {
     arm_load_kernel(ARM_CPU(first_cpu), &binfo);
 }
 
-static void wrt350n_v2_machine_init(MachineClass *mc) {
+static void wrt350n_v2_machine_init(MachineClass *mc) 
+{
     /* mc->family = ; */
     /* mc->name = "wrt350n_v2"; */
     /* mc->alias = ; */
@@ -137,4 +139,5 @@ static void wrt350n_v2_machine_init(MachineClass *mc) {
     /* mc->CPuArchIdList = ; */
     /* mc->get_default_cpu_node_id = ; */
 }
+
 DEFINE_MACHINE("wrt350n_v2", wrt350n_v2_machine_init)

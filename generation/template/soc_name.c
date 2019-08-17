@@ -19,11 +19,13 @@ static void {{soc_name}}_reset(DeviceState *d);
 static void {{soc_name}}_class_init(ObjectClass *oc, void *data);
 static void {{soc_name}}_register_types(void);
 
-{% for device in bamboo %}static void {{device.name}}_update(void *opaque) {
+{% for device in bamboo %}static void {{device.name}}_update(void *opaque) 
+{
     /* {{soc_name|upper|concat}}State *s = opaque; */
 }
 
-static uint64_t {{device.name}}_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t {{device.name}}_read(void *opaque, hwaddr offset, unsigned size) 
+{
     {{soc_name|upper|concat}}State *s = opaque;
     uint32_t res = 0;
 
@@ -38,7 +40,8 @@ static uint64_t {{device.name}}_read(void *opaque, hwaddr offset, unsigned size)
     return res;
 }
 
-static void {{device.name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void {{device.name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     {{soc_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
@@ -58,13 +61,15 @@ static const MemoryRegionOps {{device.name}}_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-{% endfor %}static void {{soc_name}}_reset(void *opaque) {
+{% endfor %}static void {{soc_name}}_reset(void *opaque)
+{
     {{soc_name|upper|concat}}State *s = opaque;
     {% for device in bamboo %}{% for register in device.registers %}
     s->{{register.name}} = {{register.value}};{% endfor %}{% endfor %}
 }
 
-static void {{soc_name}}_init(Object *obj) {
+static void {{soc_name}}_init(Object *obj) 
+{
     {{soc_name|upper}}State *s = {{soc_name|upper}}(obj);
 
     /* initialize cpus and add the cpu as soc's child */
@@ -96,7 +101,8 @@ static void {{soc_name}}_init(Object *obj) {
     qemu_register_reset({{soc_name}}_reset, s);
 }
 
-static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
+static void {{soc_name}}_realize(DeviceState *dev, Error **errp) 
+{
     {{soc_name|upper}}State *s = {{soc_name|upper}}(dev);
     Error *err = NULL;
 
@@ -147,8 +153,8 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
             qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));
 }
 
-
-static void {{soc_name}}_class_init(ObjectClass *oc, void *data) {
+static void {{soc_name}}_class_init(ObjectClass *oc, void *data) 
+{
     DeviceClass *dc = DEVICE_CLASS(oc);
 
     /* dc->fw_name = ; */
@@ -177,7 +183,8 @@ static const TypeInfo {{soc_name}}_type_info = {
     .class_init = {{soc_name}}_class_init,
 };
 
-static void {{soc_name}}_register_types(void) {
+static void {{soc_name}}_register_types(void) 
+{
     type_register_static(&{{soc_name}}_type_info);
 }
 

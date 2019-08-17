@@ -12,7 +12,8 @@ static void {{bridge_name}}_init(Object *obj);
 static void {{bridge_name}}_class_init(ObjectClass *oc, void *data);
 static void {{bridge_name}}_register_types(void);
 
-static void {{bridge_name}}_update(void *opaque) {
+static void {{bridge_name}}_update(void *opaque) 
+{
     {{bridge_name|upper|concat}}State *s = opaque;
     if (extract32(s->bridge_interrupt_cause_register, 1, 1)) {
         if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
@@ -32,14 +33,16 @@ static void {{bridge_name}}_update(void *opaque) {
     }
 }
 
-static void {{bridge_name}}_set_irq(void *opaque, int irq, int level) {
+static void {{bridge_name}}_set_irq(void *opaque, int irq, int level) 
+{
     {{bridge_name|upper|concat}}State *s = opaque;
     s->bridge_interrupt_cause_register &= 0x1;
     s->bridge_interrupt_cause_register = deposit32(s->bridge_interrupt_cause_register, irq, 1, level);
     {{bridge_name}}_update(s);
 }
 
-static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size) 
+{
     {{bridge_name|upper|concat}}State *s = opaque;
     uint32_t res = 0;
 
@@ -54,7 +57,8 @@ static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size)
     return res;
 }
 
-static void {{bridge_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void {{bridge_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     {{bridge_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
@@ -74,7 +78,8 @@ static const MemoryRegionOps {{bridge_name}}_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void {{bridge_name}}_init(Object *obj) {
+static void {{bridge_name}}_init(Object *obj) 
+{
     {{bridge_name|upper|concat}}State *s = {{bridge_name|upper}}(obj);
 
     /* initialize the bridge mmio */
@@ -89,7 +94,8 @@ static void {{bridge_name}}_init(Object *obj) {
     qdev_init_gpio_in_named(DEVICE(s), {{bridge_name}}_set_irq, {{bridge_name|upper}}_IRQ, 32);
 }
 
-static void {{bridge_name}}_realize(DeviceState *dev, Error **errp) {
+static void {{bridge_name}}_realize(DeviceState *dev, Error **errp) 
+{
     {{bridge_name|upper|concat}}State *s = {{bridge_name|upper}}(dev);
     Object *obj;
     {{timer_name|upper|concat}}State *timer;
@@ -109,13 +115,15 @@ static void {{bridge_name}}_realize(DeviceState *dev, Error **errp) {
         qdev_get_gpio_in_named(DEVICE(s), {{bridge_name|upper}}_IRQ, 2));
 }
 
-static void {{bridge_name}}_reset(DeviceState *d) {
+static void {{bridge_name}}_reset(DeviceState *d) 
+{
     {{bridge_name|upper|concat}}State *s = {{bridge_name|upper}}(d);
     {% for register in bridge_registers %}
     s->{{register.name}} = 0;{% endfor %}
 }
 
-static void {{bridge_name}}_class_init(ObjectClass *oc, void *data) {
+static void {{bridge_name}}_class_init(ObjectClass *oc, void *data) 
+{
     DeviceClass *dc = DEVICE_CLASS(oc);
 
     /* dc->fw_name = ; */
@@ -144,7 +152,8 @@ static const TypeInfo {{bridge_name}}_type_info = {
     .class_init = {{bridge_name}}_class_init,
 };
 
-static void {{bridge_name}}_register_types(void) {
+static void {{bridge_name}}_register_types(void) 
+{
     type_register_static(&{{bridge_name}}_type_info);
 }
 
