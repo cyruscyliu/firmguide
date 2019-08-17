@@ -83,19 +83,21 @@ static void {{soc_name}}_init(Object *obj)
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->{{device.name}}_mmio);
     {% endfor %}
 
-    /* initialize the interrupt controller */
+    /* initialize the timer */
     sysbus_init_child_obj(
-        obj, "ic", &s->ic, sizeof(s->ic), TYPE_{{ic_name|upper}});
+        obj, "timer", &s->timer, sizeof(s->timer), TYPE_{{timer_name|upper}});
 
     /* initialize the bridge */
     sysbus_init_child_obj(
         obj, "bridge", &s->bridge, sizeof(s->bridge), TYPE_{{bridge_name|upper}});
 
-    /* initialize the timer */
-    sysbus_init_child_obj(
-        obj, "timer", &s->timer, sizeof(s->timer), TYPE_{{timer_name|upper}});
-
     object_property_add_const_link(OBJECT(&s->bridge), "timer", OBJECT(&s->timer), &error_abort);
+
+    /* initialize the interrupt controller */
+    sysbus_init_child_obj(
+        obj, "ic", &s->ic, sizeof(s->ic), TYPE_{{ic_name|upper}});
+
+    object_property_add_const_link(OBJECT(&s->ic), "bridge", OBJECT(&s->bridge), &error_abort);
 
     /* register reset for {{soc_name}} */
     qemu_register_reset({{soc_name}}_reset, s);
@@ -130,17 +132,6 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp)
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {{ic_name|upper}}_MMIO_BASE);
 
-    /* realize the cpu */
-    object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
-    if (err) {
-        error_propagate(errp, err);
-        return;
-    }
-
-    /* connect irq from the bridge to the interrupt controller */
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->bridge), 0,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, 0));
-
     /* attach the uart to 16550A(8250) */
     if (serial_hd(0)) {
         serial_mm_init(get_system_memory(), {{uart_name|upper}}_MMIO_BASE, 2,
@@ -148,6 +139,12 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp)
                        115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
     }
 
+    /* realize the cpu */
+    object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
+    if (err) {
+        error_propagate(errp, err);
+        return;
+    }
     /* connect irq/fiq outputs from the interrupt controller to the cpu */
     qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0,
             qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));

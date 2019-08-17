@@ -137,7 +137,7 @@ static void mv88f5181l_bridge_realize(DeviceState *dev, Error **errp)
     obj = object_property_get_link(OBJECT(dev), "timer", &err) ;
     timer = MV88F5181L_TIMER(obj);
     if (timer == NULL) {
-        error_setg(errp, "%s: required ram link not found: %s",
+        error_setg(errp, "%s: required timer link not found: %s",
                    __func__, error_get_pretty(err));
         return;
     }

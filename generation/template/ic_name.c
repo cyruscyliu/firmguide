@@ -1,6 +1,7 @@
 {{license}}
 
 #include "qemu/osdep.h"
+#include "hw/{{bridge_name}}.h"
 #include "hw/intc/{{ic_name}}.h"
 #include "qemu/log.h"
 
@@ -84,6 +85,25 @@ static void {{ic_name}}_init(Object *obj)
 
     /* initialize the irq/fip to cpu */
     qdev_init_gpio_out_named(DEVICE(s), &s->irq, "irq", 1);
+}
+
+static void {{ic_name}}_realize(DeviceState *dev, Error **errp)
+{
+    {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(dev);
+    Object *obj;
+    {{bridge_name|upper|concat}}State *bridge;
+    Error *err = NULL;
+
+    /* connect the bridge the interrupt controller */
+    obj = object_property_get_link(OBJECT(dev), "bridge", &err) ;
+    bridge = {{bridge_name|upper}}(obj);
+    if (bridge == NULL) {
+        error_setg(errp, "%s: required bridge link not found: %s",
+                   __func__, error_get_pretty(err));
+        return;
+    }
+    sysbus_connect_irq(SYS_BUS_DEVICE(bridge), 0,
+        qdev_get_gpio_in_named(DEVICE(s), {{ic_name|upper}}_IRQ, 0));
 }
 
 static void {{ic_name}}_reset(DeviceState *dev) 

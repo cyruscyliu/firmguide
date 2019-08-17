@@ -3,6 +3,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "hw/mv88f5181l_bridge.h"
 #include "hw/intc/mv88f5181l_ic.h"
 #include "qemu/log.h"
 
@@ -104,6 +105,25 @@ static void mv88f5181l_ic_init(Object *obj)
 
     /* initialize the irq/fip to cpu */
     qdev_init_gpio_out_named(DEVICE(s), &s->irq, "irq", 1);
+}
+
+static void mv88f5181l_ic_realize(DeviceState *dev, Error **errp)
+{
+    MV88F5181LICState *s = MV88F5181L_IC(dev);
+    Object *obj;
+    MV88F5181LBRIDGEState *bridge;
+    Error *err = NULL;
+
+    /* connect the bridge the interrupt controller */
+    obj = object_property_get_link(OBJECT(dev), "bridge", &err) ;
+    bridge = MV88F5181L_BRIDGE(obj);
+    if (bridge == NULL) {
+        error_setg(errp, "%s: required bridge link not found: %s",
+                   __func__, error_get_pretty(err));
+        return;
+    }
+    sysbus_connect_irq(SYS_BUS_DEVICE(bridge), 0,
+        qdev_get_gpio_in_named(DEVICE(s), MV88F5181L_IC_IRQ, 0));
 }
 
 static void mv88f5181l_ic_reset(DeviceState *dev) 

@@ -3244,19 +3244,21 @@ static void mv88f5181l_init(Object *obj)
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mv88f5181l_cesa_mmio);
     
 
-    /* initialize the interrupt controller */
+    /* initialize the timer */
     sysbus_init_child_obj(
-        obj, "ic", &s->ic, sizeof(s->ic), TYPE_MV88F5181L_IC);
+        obj, "timer", &s->timer, sizeof(s->timer), TYPE_MV88F5181L_TIMER);
 
     /* initialize the bridge */
     sysbus_init_child_obj(
         obj, "bridge", &s->bridge, sizeof(s->bridge), TYPE_MV88F5181L_BRIDGE);
 
-    /* initialize the timer */
-    sysbus_init_child_obj(
-        obj, "timer", &s->timer, sizeof(s->timer), TYPE_MV88F5181L_TIMER);
-
     object_property_add_const_link(OBJECT(&s->bridge), "timer", OBJECT(&s->timer), &error_abort);
+
+    /* initialize the interrupt controller */
+    sysbus_init_child_obj(
+        obj, "ic", &s->ic, sizeof(s->ic), TYPE_MV88F5181L_IC);
+
+    object_property_add_const_link(OBJECT(&s->ic), "bridge", OBJECT(&s->bridge), &error_abort);
 
     /* register reset for mv88f5181l */
     qemu_register_reset(mv88f5181l_reset, s);
@@ -3291,17 +3293,6 @@ static void mv88f5181l_realize(DeviceState *dev, Error **errp)
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, MV88F5181L_IC_MMIO_BASE);
 
-    /* realize the cpu */
-    object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
-    if (err) {
-        error_propagate(errp, err);
-        return;
-    }
-
-    /* connect irq from the bridge to the interrupt controller */
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->bridge), 0,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), MV88F5181L_IC_IRQ, 0));
-
     /* attach the uart to 16550A(8250) */
     if (serial_hd(0)) {
         serial_mm_init(get_system_memory(), MV88F5181L_UART_MMIO_BASE, 2,
@@ -3309,6 +3300,12 @@ static void mv88f5181l_realize(DeviceState *dev, Error **errp)
                        115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
     }
 
+    /* realize the cpu */
+    object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
+    if (err) {
+        error_propagate(errp, err);
+        return;
+    }
     /* connect irq/fiq outputs from the interrupt controller to the cpu */
     qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0,
             qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));
