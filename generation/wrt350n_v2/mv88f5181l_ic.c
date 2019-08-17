@@ -3,7 +3,7 @@
  */
 
 #include "qemu/osdep.h"
-#include "hw/mv88f5181l_bridge.h"
+#include "hw/arm/mv88f5181l_bridge.h"
 #include "hw/intc/mv88f5181l_ic.h"
 #include "qemu/log.h"
 
