@@ -1,6 +1,8 @@
 {{license}}
 
 #include "qemu/osdep.h"
+#include "qemu/log.h"
+#include "qapi/error.h"
 #include "hw/arm/{{bridge_name}}.h"
 #include "hw/intc/{{ic_name}}.h"
 #include "qemu/log.h"
