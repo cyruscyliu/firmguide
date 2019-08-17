@@ -3261,7 +3261,7 @@ static void mv88f5181l_init(Object *obj)
     object_property_add_const_link(OBJECT(&s->ic), "bridge", OBJECT(&s->bridge), &error_abort);
 
     /* register reset for mv88f5181l */
-    qemu_register_reset(mv88f5181l_reset, s);
+    // qemu_register_reset(mv88f5181l_reset, s);
 }
 
 static void mv88f5181l_realize(DeviceState *dev, Error **errp) 
