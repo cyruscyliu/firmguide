@@ -2754,8 +2754,8 @@ static const MemoryRegionOps mv88f5181l_cesa_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_reset(DeviceState *d) {
-    MV88F5181LState *s = MV88F5181L(d);
+static void mv88f5181l_reset(void *opaque) {
+    MV88F5181LState *s = opaque;
     
     s->gpio_data_out_register = 0x0 << 0 | 0x0 << 26;
     s->gpio_data_out_enable_control_register = 0xFFFF << 0 | 0x0 << 26;
@@ -3228,6 +3228,9 @@ static void mv88f5181l_init(Object *obj) {
         obj, "timer", &s->timer, sizeof(s->timer), TYPE_MV88F5181L_TIMER);
 
     object_property_add_const_link(OBJECT(&s->bridge), "timer", OBJECT(&s->timer), &error_abort);
+
+    /* register reset for mv88f5181l */
+    qemu_register_reset(mv88f5181l_reset, s);
 }
 
 static void mv88f5181l_realize(DeviceState *dev, Error **errp) {
@@ -3290,7 +3293,7 @@ static void mv88f5181l_class_init(ObjectClass *oc, void *data) {
     /* dc->props = ; */
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
-    dc->reset = mv88f5181l_reset;
+    /* dc->reset = ; */
     dc->realize = mv88f5181l_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */

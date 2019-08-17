@@ -58,8 +58,8 @@ static const MemoryRegionOps {{device.name}}_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-{% endfor %}static void {{soc_name}}_reset(DeviceState *d) {
-    {{soc_name|upper|concat}}State *s = {{soc_name|upper}}(d);
+{% endfor %}static void {{soc_name}}_reset(void *opaque) {
+    {{soc_name|upper|concat}}State *s = opaque;
     {% for device in bamboo %}{% for register in device.registers %}
     s->{{register.name}} = {{register.value}};{% endfor %}{% endfor %}
 }
@@ -91,6 +91,9 @@ static void {{soc_name}}_init(Object *obj) {
         obj, "timer", &s->timer, sizeof(s->timer), TYPE_{{timer_name|upper}});
 
     object_property_add_const_link(OBJECT(&s->bridge), "timer", OBJECT(&s->timer), &error_abort);
+
+    /* register reset for {{soc_name}} */
+    qemu_register_reset({{soc_name}}_reset, s);
 }
 
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp) {
@@ -153,7 +156,7 @@ static void {{soc_name}}_class_init(ObjectClass *oc, void *data) {
     /* dc->props = ; */
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
-    dc->reset = {{soc_name}}_reset;
+    /* dc->reset = ; */
     dc->realize = {{soc_name}}_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
