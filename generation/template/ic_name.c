@@ -125,7 +125,7 @@ static void {{ic_name}}_class_init(ObjectClass *klass, void *data)
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
     dc->reset = {{ic_name}}_reset;
-    /* dc->realize = ; */
+    dc->realize = {{ic_name}}_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
     /* dc->bus_type = ; */

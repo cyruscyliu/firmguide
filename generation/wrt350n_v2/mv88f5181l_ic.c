@@ -148,7 +148,7 @@ static void mv88f5181l_ic_class_init(ObjectClass *klass, void *data)
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
     dc->reset = mv88f5181l_ic_reset;
-    /* dc->realize = ; */
+    dc->realize = mv88f5181l_ic_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
     /* dc->bus_type = ; */
