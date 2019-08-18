@@ -6,7 +6,7 @@
 #define OX820_H
 
 #include "hw/arm/arm.h"
-#include "hw/system.h"
+#include "hw/sysbus.h"
 #include "hw/cpu/arm11mpcore.h"
 
 #define TYPE_OX820 "ox820"

@@ -4,7 +4,7 @@
 #define {{soc_name|upper}}_H
 
 #include "hw/arm/arm.h"
-#include "hw/system.h"{% if bridge %}
+#include "hw/sysbus.h"{% if bridge %}
 #include "hw/arm/{{bridge_name}}.h"{% endif %}{% if ic %}
 #include "hw/intc/{{ic_name}}.h"{% endif %}{% if timer %}
 #include "hw/timer/{{timer_name}}.h"{% endif %}{% if cpu_pp %}
