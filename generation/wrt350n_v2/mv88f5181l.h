@@ -437,9 +437,6 @@
 #define MV88F5181L_CESA_MMIO_SIZE 0x200
 #define MV88F5181L_CESA_MMIO_BASE 0xf109DD00
 
-#define MV88F5181L_UART_MMIO_SIZE 0x200
-#define MV88F5181L_UART_MMIO_BASE 0xf1012000
-
 typedef struct MV88F5181LState {
     /*< private >*/
     SysBusDevice sys_bus;

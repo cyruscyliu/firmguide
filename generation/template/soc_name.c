@@ -145,13 +145,13 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp)
 
     /* attach the uart to 16550A(8250) */
     if (serial_hd(0)) {
-        serial_mm_init(get_system_memory(), {{uart_name|upper}}_MMIO_BASE, 2,
+        serial_mm_init(get_system_memory(), {{uart_mmio_base}}, 2,
                        qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, {{uart_irq}}),
                        115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
     }{% endif %}{% if cpu_pp %}
     if (serial_hd(0)) {
-        serial_mm_init(get_system_memory(), {{uart_name|upper}}_MMIO_BASE, 2,
-                       qdev_get_gpio_in_named(DEVICE(&s->cpu_pp), SYSBUS_DEVICE_GPIO_IRQ, {{uart_irq}}),
+        serial_mm_init(get_system_memory(), {{uart_mmio_base}}, 2,
+                       qdev_get_gpio_in(DEVICE(&s->cpu_pp), {{uart_irq}}),
                        6250000, serial_hd(0), DEVICE_LITTLE_ENDIAN);
     }{% endif %}
 

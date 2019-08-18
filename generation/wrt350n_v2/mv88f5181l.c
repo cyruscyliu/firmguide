@@ -3286,7 +3286,7 @@ static void mv88f5181l_realize(DeviceState *dev, Error **errp)
 
     /* attach the uart to 16550A(8250) */
     if (serial_hd(0)) {
-        serial_mm_init(get_system_memory(), MV88F5181L_UART_MMIO_BASE, 2,
+        serial_mm_init(get_system_memory(), 0xf1012000, 2,
                        qdev_get_gpio_in_named(DEVICE(&s->ic), MV88F5181L_IC_IRQ, 3),
                        115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
     }

@@ -42,9 +42,6 @@
 #define NAS782X_RPS_MMIO_SIZE 0x14
 #define NAS782X_RPS_MMIO_BASE 0x44400000
 
-#define NS16550A_MMIO_SIZE 0x100
-#define NS16550A_MMIO_BASE 0x44200000
-
 typedef struct OX820State {
     /*< private >*/
     SysBusDevice sys_bus;
