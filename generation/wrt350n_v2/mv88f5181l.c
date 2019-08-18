@@ -2781,7 +2781,6 @@ static const MemoryRegionOps mv88f5181l_cesa_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-/*
 static void mv88f5181l_reset(void *opaque)
 {
     MV88F5181LState *s = opaque;
@@ -3189,7 +3188,6 @@ static void mv88f5181l_reset(void *opaque)
     s->cryptographic_engines_and_security_accelerator_interrupt_cause_register = 0x0;
     s->cryptographic_engines_and_security_accelerator_interrupt_mask_register = 0x0;
 }
-*/
 
 static void mv88f5181l_init(Object *obj) 
 {

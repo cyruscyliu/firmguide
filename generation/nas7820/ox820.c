@@ -423,7 +423,6 @@ static const MemoryRegionOps nas782x_rps_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-/*
 static void ox820_reset(void *opaque)
 {
     OX820State *s = opaque;
@@ -438,7 +437,6 @@ static void ox820_reset(void *opaque)
     s->rps_timer_reserved = 0x0;
     s->rps_reserved = 0x0;
 }
-*/
 
 static void ox820_init(Object *obj) 
 {

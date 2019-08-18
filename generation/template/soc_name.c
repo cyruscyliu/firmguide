@@ -61,14 +61,12 @@ static const MemoryRegionOps {{device.name}}_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-{% endfor %}/*
-static void {{soc_name}}_reset(void *opaque)
+{% endfor %}static void {{soc_name}}_reset(void *opaque)
 {
     {{soc_name|upper|concat}}State *s = opaque;
     {% for device in bamboo %}{% for register in device.registers %}
     s->{{register.name}} = {{register.value}};{% endfor %}{% endfor %}
 }
-*/
 
 static void {{soc_name}}_init(Object *obj) 
 {
