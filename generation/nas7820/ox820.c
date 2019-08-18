@@ -423,6 +423,7 @@ static const MemoryRegionOps nas782x_rps_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
+/*
 static void ox820_reset(void *opaque)
 {
     OX820State *s = opaque;
@@ -437,6 +438,7 @@ static void ox820_reset(void *opaque)
     s->rps_timer_reserved = 0x0;
     s->rps_reserved = 0x0;
 }
+*/
 
 static void ox820_init(Object *obj) 
 {
@@ -498,7 +500,7 @@ static void ox820_realize(DeviceState *dev, Error **errp)
     Error *err = NULL;
 
     /*realize the cpu private peripherals */
-    object_realize_set_bool(OBJECT(&s->cpu_pp), true, "realize", &err);
+    object_property_set_bool(OBJECT(&s->cpu_pp), true, "realize", &err);
     if (err != NULL) {
         error_propagate(errp, err);
         return;

@@ -61,12 +61,14 @@ static const MemoryRegionOps {{device.name}}_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-{% endfor %}static void {{soc_name}}_reset(void *opaque)
+{% endfor %}/*
+static void {{soc_name}}_reset(void *opaque)
 {
     {{soc_name|upper|concat}}State *s = opaque;
     {% for device in bamboo %}{% for register in device.registers %}
     s->{{register.name}} = {{register.value}};{% endfor %}{% endfor %}
 }
+*/
 
 static void {{soc_name}}_init(Object *obj) 
 {
@@ -112,7 +114,7 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp)
     Error *err = NULL;{% if cpu_pp %}
 
     /*realize the cpu private peripherals */
-    object_realize_set_bool(OBJECT(&s->cpu_pp), true, "realize", &err);
+    object_property_set_bool(OBJECT(&s->cpu_pp), true, "realize", &err);
     if (err != NULL) {
         error_propagate(errp, err);
         return;
