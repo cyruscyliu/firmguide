@@ -112,7 +112,7 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp)
     Error *err = NULL;{% if cpu_pp %}
 
     /*realize the cpu private peripherals */
-    object_property_set_bool(OBJECT(&s->cpu_pp), true, "realize", &err);
+    object_property_set_bool(OBJECT(&s->cpu_pp), true, "realized", &err);
     if (err != NULL) {
         error_propagate(errp, err);
         return;

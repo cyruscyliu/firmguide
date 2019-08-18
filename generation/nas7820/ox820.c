@@ -498,7 +498,7 @@ static void ox820_realize(DeviceState *dev, Error **errp)
     Error *err = NULL;
 
     /*realize the cpu private peripherals */
-    object_property_set_bool(OBJECT(&s->cpu_pp), true, "realize", &err);
+    object_property_set_bool(OBJECT(&s->cpu_pp), true, "realized", &err);
     if (err != NULL) {
         error_propagate(errp, err);
         return;
