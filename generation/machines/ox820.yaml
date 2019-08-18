@@ -1,0 +1,85 @@
+machine:
+  license: "/* \n * automatically generated, don't change\n */"
+  machine_desc: "PLX NAS7820"
+  machine_name: "nas7820"
+  board_id: "0x480"
+  ram:
+    ram_size: "32 * MiB"
+  flash:
+    flash_addr: "0xf4000000"
+    flash_sect_size: "64 * KiB"
+    flash_size: "8 * MiB"
+  soc:
+    soc_name: "ox820"
+    abelia:
+      # the first class devices that must be functional accurate
+      cpu:
+        cpu_type: "arm11mpcore"
+        cpu_pp_model: 1
+        cpu_pp_model_type: "TYPE_ARM11MPCORE_PRIV"
+        cpu_pp_model_struct: "ARM11MPCorePriveState"
+        ic: 0
+        timer: 0
+      interrupt_controller:
+        ic_name: ~
+      timer:
+        timer_name: ~
+      uart:
+        uart_name: "ox820_uart"
+        uart_mmio_base: "0x44200000"
+        uart_mmio_size: "0x100"
+      bridge:
+        bridge_name: "nas782x_rps"
+        bridge_mmio_base: "0x44400000"
+        bridge_mmio_size: "0x14"
+        bridge_registers:
+          - name: "rps_status"
+            offset: "0x0"
+          - name: "rps_ram_status"
+            offset: "0x4"
+          - name: "rps_unmask"
+            offset: "0x8"
+          - name: "rps_mask"
+            offset: "0xC"
+    bamboo:
+      # the second class devices that must have registers callbacks
+      - name: "ox820_gpio"
+        id: "0"
+        mmio_base: "0xf1010100"
+        mmio_size: "0x100"
+        registers:
+          - name: "gpio_reserved"
+            offset: "0x0...0x100"
+            value: "0x0"
+      - name: "ox820_pcie_interface"
+        id: "1"
+        mmio_base: "0x47C00000"
+        mmio_size: "0x500000"
+        registers:
+          - name: "pcie_reserved"
+            offset: "0x0...0x500000"
+            value: "0x0"
+      - name: "ox820_sata"
+        id: ""
+        mmio_base: "0x45900000"
+        mmio_size: "0x100000"
+        registers:
+          - name: "sata_reserved"
+            offset: "0x0...0x100000"
+            value: "0x0"
+      - name: "ox820_ehci"
+        id: "6"
+        mmio_base: "0x40200100"
+        mmio_size: "0xf00"
+        registers:
+          - name: "ehci_reserved"
+            offset: "0x0...0xf00"
+            value: "0x0"
+      - name: "ox820_gmac"
+        id: ""
+        mmio_base: "0x40400000"
+        mmio_size: "0x2000"
+        registers:
+          - name: "gmac_reserved"
+            offset: "0x0...0x2000"
+            value: "0x0"

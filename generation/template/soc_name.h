@@ -4,9 +4,9 @@
 #define {{soc_name|upper}}_H
 
 #include "hw/arm/arm.h"
-#include "hw/arm/{{bridge_name}}.h"
-#include "hw/intc/{{ic_name}}.h"
-#include "hw/timer/{{timer_name}}.h"
+#include "hw/arm/{{bridge_name}}.h"{% if ic %}
+#include "hw/intc/{{ic_name}}.h"{% endif %}{% if timer %}
+#include "hw/timer/{{timer_name}}.h"{% endif %}
 
 #define TYPE_{{soc_name|upper}} "{{soc_name}}"
 #define {{soc_name|upper}}(obj) \
@@ -31,9 +31,10 @@ typedef struct {{soc_name|upper}}State {
 
     {% for device in bamboo %}MemoryRegion {{device.name}}_mmio;
     {% for register in device.registers %}uint32_t {{register.name}};
-    {% endfor %}{% endfor %}
-    {{ic_name|upper|concat}}State ic;
-    {{timer_name|upper|concat}}State timer;
+    {% endfor %}{% endfor %}{% if cpu_pp_model %}
+    {{cpu_pp_model_struct}} cpu_pp_model;{% endif %}{% if ic %}
+    {{ic_name|upper|concat}}State ic;{% endif %}{% if timer %}
+    {{timer_name|upper|concat}}State timer;{% endif %}
     {{bridge_name|upper|concat}}State bridge;
 } {{soc_name|upper}}State;
 

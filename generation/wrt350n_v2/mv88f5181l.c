@@ -3247,17 +3247,17 @@ static void mv88f5181l_init(Object *obj)
     /* initialize the timer */
     sysbus_init_child_obj(
         obj, "timer", &s->timer, sizeof(s->timer), TYPE_MV88F5181L_TIMER);
-
+    
     /* initialize the bridge */
     sysbus_init_child_obj(
         obj, "bridge", &s->bridge, sizeof(s->bridge), TYPE_MV88F5181L_BRIDGE);
 
     object_property_add_const_link(OBJECT(&s->bridge), "timer", OBJECT(&s->timer), &error_abort);
-
+    
     /* initialize the interrupt controller */
     sysbus_init_child_obj(
         obj, "ic", &s->ic, sizeof(s->ic), TYPE_MV88F5181L_IC);
-
+    
     object_property_add_const_link(OBJECT(&s->ic), "bridge", OBJECT(&s->bridge), &error_abort);
 
     /* register reset for mv88f5181l */
@@ -3276,7 +3276,7 @@ static void mv88f5181l_realize(DeviceState *dev, Error **errp)
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, MV88F5181L_TIMER_MMIO_BASE);
-
+    
     /* realize the bridge  */
     object_property_set_bool(OBJECT(&s->bridge), true, "realized", &err);
     if (err) {
@@ -3292,7 +3292,7 @@ static void mv88f5181l_realize(DeviceState *dev, Error **errp)
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, MV88F5181L_IC_MMIO_BASE);
-
+    
     /* attach the uart to 16550A(8250) */
     if (serial_hd(0)) {
         serial_mm_init(get_system_memory(), MV88F5181L_UART_MMIO_BASE, 2,

@@ -51,6 +51,8 @@ if __name__ == '__main__':
         if not os.path.exists(MACHINE_DIR):
             os.mkdir(MACHINE_DIR)
         for template in templates:
+            if context[template[:-2]] is None:
+                continue
             target = '{}.{}'.format(context[template[:-2]], template[-1])
             context_inv[target[:-2]] = template[:-2]
             print('generating {} ...'.format(target))

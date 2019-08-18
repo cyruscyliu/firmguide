@@ -81,23 +81,23 @@ static void {{soc_name}}_init(Object *obj)
     memory_region_init_io(&s->{{device.name}}_mmio, obj,
         &{{device.name}}_ops, s, TYPE_{{soc_name|upper}}, {{device.name|upper}}_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->{{device.name}}_mmio);
-    {% endfor %}
+    {% endfor %}{% if timer %}
 
     /* initialize the timer */
     sysbus_init_child_obj(
         obj, "timer", &s->timer, sizeof(s->timer), TYPE_{{timer_name|upper}});
-
+    {% endif %}
     /* initialize the bridge */
     sysbus_init_child_obj(
-        obj, "bridge", &s->bridge, sizeof(s->bridge), TYPE_{{bridge_name|upper}});
+        obj, "bridge", &s->bridge, sizeof(s->bridge), TYPE_{{bridge_name|upper}});{% if timer %}
 
     object_property_add_const_link(OBJECT(&s->bridge), "timer", OBJECT(&s->timer), &error_abort);
-
+    {% endif %}{% if ic %}
     /* initialize the interrupt controller */
     sysbus_init_child_obj(
         obj, "ic", &s->ic, sizeof(s->ic), TYPE_{{ic_name|upper}});
-
-    object_property_add_const_link(OBJECT(&s->ic), "bridge", OBJECT(&s->bridge), &error_abort);
+    {% endif %}{% if ic %}
+    object_property_add_const_link(OBJECT(&s->ic), "bridge", OBJECT(&s->bridge), &error_abort);{% endif %}
 
     /* register reset for {{soc_name}} */
     // qemu_register_reset({{soc_name}}_reset, s);
@@ -106,7 +106,7 @@ static void {{soc_name}}_init(Object *obj)
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp) 
 {
     {{soc_name|upper}}State *s = {{soc_name|upper}}(dev);
-    Error *err = NULL;
+    Error *err = NULL;{% if timer %}
 
     /* realize the timer */
     object_property_set_bool(OBJECT(&s->timer), true, "realized", &err);
@@ -115,14 +115,14 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp)
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{timer_name|upper}}_MMIO_BASE);
-
+    {% endif %}
     /* realize the bridge  */
     object_property_set_bool(OBJECT(&s->bridge), true, "realized", &err);
     if (err) {
         error_propagate(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->bridge), 0, {{bridge_name|upper}}_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->bridge), 0, {{bridge_name|upper}}_MMIO_BASE);{% if ic %}
 
     /* realize the interrupt controller */
     object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);
@@ -131,13 +131,13 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp)
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {{ic_name|upper}}_MMIO_BASE);
-
+    {% endif %}{% if ic %}
     /* attach the uart to 16550A(8250) */
     if (serial_hd(0)) {
         serial_mm_init(get_system_memory(), {{uart_name|upper}}_MMIO_BASE, 2,
                        qdev_get_gpio_in_named(DEVICE(&s->ic), {{ic_name|upper}}_IRQ, 3),
                        115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
-    }
+    }{% endif %}
 
     /* realize the cpu */
     object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
