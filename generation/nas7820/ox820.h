@@ -6,20 +6,22 @@
 #define OX820_H
 
 #include "hw/arm/arm.h"
+#include "hw/system.h"
+#include "hw/cpu/arm11mpcore.h"
 
 #define TYPE_OX820 "ox820"
 #define OX820(obj) \
     OBJECT_CHECK(OX820State, (obj), TYPE_OX820)
 
-#define GPIO_RESERVED 0x0...0x100
-#define PCIE_RESERVED 0x0...0x500000
-#define SATA_RESERVED 0x0...0x100000
-#define GMAC_RESERVED 0x0...0x2000
-#define EHCI_RESERVED 0x0...0xf00
-#define PLL_RESERVED 0x0...0x10
-#define RESET_RESERVED 0x0...0x8
-#define RPS_TIMER_RESERVED 0x0...0x40
-#define RPS_RESERVED 0x0...0x14
+#define GPIO_RESERVED 0x0 ... 0x100
+#define PCIE_RESERVED 0x0 ... 0x500000
+#define SATA_RESERVED 0x0 ... 0x100000
+#define GMAC_RESERVED 0x0 ... 0x2000
+#define EHCI_RESERVED 0x0 ... 0xf00
+#define PLL_RESERVED 0x0 ... 0x10
+#define RESET_RESERVED 0x0 ... 0x8
+#define RPS_TIMER_RESERVED 0x0 ... 0x40
+#define RPS_RESERVED 0x0 ... 0x14
 
 #define OXMAS782X_GPIO_MMIO_SIZE 0x200000
 #define OXMAS782X_GPIO_MMIO_BASE 0x44000000

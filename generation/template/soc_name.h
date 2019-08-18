@@ -3,10 +3,12 @@
 #ifndef {{soc_name|upper}}_H
 #define {{soc_name|upper}}_H
 
-#include "hw/arm/arm.h"{% if bridge %}
+#include "hw/arm/arm.h"
+#include "hw/system.h"{% if bridge %}
 #include "hw/arm/{{bridge_name}}.h"{% endif %}{% if ic %}
 #include "hw/intc/{{ic_name}}.h"{% endif %}{% if timer %}
-#include "hw/timer/{{timer_name}}.h"{% endif %}
+#include "hw/timer/{{timer_name}}.h"{% endif %}{% if cpu_pp %}
+#include "hw/cpu/arm11mpcore.h"{% endif %}
 
 #define TYPE_{{soc_name|upper}} "{{soc_name}}"
 #define {{soc_name|upper}}(obj) \

@@ -40,7 +40,7 @@ static void mv88f5181l_cesa_write(void *opaque, hwaddr offset, uint64_t val, uns
 
 static void mv88f5181l_init(Object *obj);
 static void mv88f5181l_realize(DeviceState *dev, Error **errp);
-static void mv88f5181l_reset(void *opaque);
+// static void mv88f5181l_reset(void *opaque);
 
 static void mv88f5181l_class_init(ObjectClass *oc, void *data);
 static void mv88f5181l_register_types(void);

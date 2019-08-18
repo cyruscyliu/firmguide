@@ -6,6 +6,7 @@
 #define MV88F5181L_H
 
 #include "hw/arm/arm.h"
+#include "hw/system.h"
 #include "hw/arm/mv88f5181l_bridge.h"
 #include "hw/intc/mv88f5181l_ic.h"
 #include "hw/timer/mv88f5181l_timer.h"

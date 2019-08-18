@@ -14,7 +14,7 @@ static void {{device.name}}_write(void *opaque, hwaddr offset, uint64_t val, uns
 {% endfor %}
 static void {{soc_name}}_init(Object *obj);
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp);
-static void {{soc_name}}_reset(void *opaque);
+// static void {{soc_name}}_reset(void *opaque);
 
 static void {{soc_name}}_class_init(ObjectClass *oc, void *data);
 static void {{soc_name}}_register_types(void);

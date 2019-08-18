@@ -49,17 +49,17 @@ static void nas7820_init(MachineState *machine)
     /* map nas782x_sata mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 2, NAS782X_SATA_MMIO_BASE);
     /* map nas782x_gmac mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), , NAS782X_GMAC_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 3, NAS782X_GMAC_MMIO_BASE);
     /* map nas782x_ehci mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 3, NAS782X_EHCI_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 4, NAS782X_EHCI_MMIO_BASE);
     /* map nas782x_pll mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), , NAS782X_PLL_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 5, NAS782X_PLL_MMIO_BASE);
     /* map nas782x_reset mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), , NAS782X_RESET_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 6, NAS782X_RESET_MMIO_BASE);
     /* map nas782x_rps_timer mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), , NAS782X_RPS_TIMER_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 7, NAS782X_RPS_TIMER_MMIO_BASE);
     /* map nas782x_rps mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), , NAS782X_RPS_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 8, NAS782X_RPS_MMIO_BASE);
 
     /* set up the nand flash */
     dinfo = drive_get(IF_MTD, 0, 0);
