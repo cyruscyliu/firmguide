@@ -41,6 +41,7 @@ if __name__ == '__main__':
 
     machines = load_machines('machines')
     config = get_config()
+    target_dir = config[OS]['root']
     for machine in machines:
         context_inv = {}
         context = get_context(machine, {})
@@ -65,9 +66,8 @@ if __name__ == '__main__':
                 f_target.writelines(text_update)
                 f_target.flush()
 
-        print('\ninstalling ..')
+        print('installing ..')
         source_header_files = os.listdir(MACHINE_DIR)
-        target_dir = config[OS]['root']
         for source_header_file in source_header_files:
             name = source_header_file[:-2]
             src = os.path.join(MACHINE_DIR, source_header_file)
@@ -80,13 +80,13 @@ if __name__ == '__main__':
             print(src, '->', dst)
             copyfile(src, dst)
 
-        for root, dirs, files in os.walk('makefiles'):
-            if not len(dirs):
-                for file_ in files:
-                    src = os.path.join(root, file_)
-                    dst = os.path.join(target_dir, root.replace('makefiles\\', ''), file_)
-                    dst = dst.replace('makefiles/', '')
-                    print(src, '->', dst)
-                    copyfile(src, dst)
+    for root, dirs, files in os.walk('makefiles'):
+        if not len(dirs):
+            for file_ in files:
+                src = os.path.join(root, file_)
+                dst = os.path.join(target_dir, root.replace('makefiles\\', ''), file_)
+                dst = dst.replace('makefiles/', '')
+                print(src, '->', dst)
+                copyfile(src, dst)
 
-        print('done!')
+    print('done!')
