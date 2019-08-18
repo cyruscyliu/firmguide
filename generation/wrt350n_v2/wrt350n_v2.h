@@ -18,7 +18,6 @@
 typedef struct WRT350N_V2State {
     MV88F5181LState soc;
     MemoryRegion ram;
-    PFlashCFI01 *flash;
 } WRT350N_V2State;
 
 #endif /* WRT350N_V2_H */

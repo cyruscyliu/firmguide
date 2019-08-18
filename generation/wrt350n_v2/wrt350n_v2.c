@@ -68,10 +68,6 @@ static void wrt350n_v2_init(MachineState *machine)
             dinfo ? blk_by_legacy_dinfo(dinfo): NULL, WRT350N_V2_FLASH_SECT_SIZE,
             4, 0, 0, 0, 0, 0);
 
-    if (!flash) {
-        fprintf(stderr, "qemu: Error registering flash memory.\n");
-    }
-
     /* boot */
     binfo.board_id = wrt350n_v2_board_id;
     binfo.ram_size = machine->ram_size;

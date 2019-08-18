@@ -16,7 +16,6 @@
 typedef struct {{machine_name|upper}}State {
     {{soc_name|upper}}State soc;
     MemoryRegion ram;
-    PFlashCFI01 *flash;
 } {{machine_name|upper}}State;
 
 #endif /* {{machine_name|upper}}_H */

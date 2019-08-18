@@ -54,10 +54,6 @@ static void {{machine_name}}_init(MachineState *machine)
     dinfo = drive_get(IF_MTD, 0, 0);
     nand_init(dinfo ? blk_by_legacy_dinfo(dinfo): NULL, 0xec, 0x73);{% endif %}
 
-    if (!flash) {
-        fprintf(stderr, "qemu: Error registering flash memory.\n");
-    }
-
     /* boot */
     binfo.board_id = {{machine_name}}_board_id;
     binfo.ram_size = machine->ram_size;

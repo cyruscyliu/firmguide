@@ -18,7 +18,6 @@
 typedef struct NAS7820State {
     OX820State soc;
     MemoryRegion ram;
-    PFlashCFI01 *flash;
 } NAS7820State;
 
 #endif /* NAS7820_H */
