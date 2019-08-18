@@ -448,7 +448,6 @@ static void ox820_init(Object *obj)
 
     /* initialize the cpus' private peripherals */
     sysbus_init_child_obj(obj, "cpu_pp", &s->cpu_pp, sizeof(s->cpu_pp), TYPE_ARM11MPCORE_PRIV);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->cpu_pp), 0));
 
     /* initialize bamboo device registers */
     /* initialize oxmas782x_gpio registers */

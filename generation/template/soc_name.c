@@ -77,8 +77,7 @@ static void {{soc_name}}_init(Object *obj)
     s->cpu = ARM_CPU(object_new(s->cpu_type));{% if cpu_pp %}
 
     /* initialize the cpus' private peripherals */
-    sysbus_init_child_obj(obj, "cpu_pp", &s->cpu_pp, sizeof(s->cpu_pp), {{cpu_pp_type}});
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->cpu_pp), 0));{% endif %}
+    sysbus_init_child_obj(obj, "cpu_pp", &s->cpu_pp, sizeof(s->cpu_pp), {{cpu_pp_type}});{% endif %}
 
     /* initialize bamboo device registers */{% for device in bamboo %}
     /* initialize {{device.name}} registers */
