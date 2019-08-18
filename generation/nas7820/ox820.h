@@ -6,7 +6,6 @@
 #define OX820_H
 
 #include "hw/arm/arm.h"
-#include "hw/arm/nas782x_rps.h"
 
 #define TYPE_OX820 "ox820"
 #define OX820(obj) \
@@ -52,8 +51,7 @@ typedef struct OX820State {
     MemoryRegion ox820_gmac_mmio;
     uint32_t gmac_reserved;
     
-    ARM11MPCorePriveState cpu_pp_model;
-    NAS782XRPSState bridge;
+    ARM11MPCorePriveState cpu_pp;
 } OX820State;
 
 #endif /* OX820_H */

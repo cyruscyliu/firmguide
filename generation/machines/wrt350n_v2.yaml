@@ -16,11 +16,13 @@ machine:
       cpu:
         cpu_name: "arm926"
         cpu_type: "arm926"
-        cpu_pp_model: 0
-        cpu_pp_model_type: ~
-        cpu_pp_model_struct: ~
+        cpu_pp: 0
+        cpu_pp_type: ~
+        cpu_pp_struct: ~
+        cpu_pp_mmio_base: ~
         ic: 1
         timer: 1
+        bridge: 1
       interrupt_controller:
         ic_name: "mv88f5181l_ic"
         ic_mmio_base: "0xf1020200"

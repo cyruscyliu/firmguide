@@ -262,35 +262,31 @@ static void ox820_init(Object *obj)
     s->cpu_type = ARM_CPU_TYPE_NAME("arm11mpcore");
     s->cpu = ARM_CPU(object_new(s->cpu_type));
 
+    /* initialize the cpus' private peripherals */
+    sysbus_init_child_obj(obj, "cpu_pp", &s->cpu_pp, sizeof(s->cpu_pp), TYPE_ARM11MPCORE_PRIV);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->cpu_pp), 0));
+
     /* initialize bamboo device registers */
     /* initialize ox820_gpio registers */
     memory_region_init_io(&s->ox820_gpio_mmio, obj,
         &ox820_gpio_ops, s, TYPE_OX820, OX820_GPIO_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ox820_gpio_mmio);
-    
     /* initialize ox820_pcie_interface registers */
     memory_region_init_io(&s->ox820_pcie_interface_mmio, obj,
         &ox820_pcie_interface_ops, s, TYPE_OX820, OX820_PCIE_INTERFACE_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ox820_pcie_interface_mmio);
-    
     /* initialize ox820_sata registers */
     memory_region_init_io(&s->ox820_sata_mmio, obj,
         &ox820_sata_ops, s, TYPE_OX820, OX820_SATA_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ox820_sata_mmio);
-    
     /* initialize ox820_ehci registers */
     memory_region_init_io(&s->ox820_ehci_mmio, obj,
         &ox820_ehci_ops, s, TYPE_OX820, OX820_EHCI_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ox820_ehci_mmio);
-    
     /* initialize ox820_gmac registers */
     memory_region_init_io(&s->ox820_gmac_mmio, obj,
         &ox820_gmac_ops, s, TYPE_OX820, OX820_GMAC_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ox820_gmac_mmio);
-    
-    /* initialize the bridge */
-    sysbus_init_child_obj(
-        obj, "bridge", &s->bridge, sizeof(s->bridge), TYPE_NAS782X_RPS);
 
     /* register reset for ox820 */
     // qemu_register_reset(ox820_reset, s);
@@ -300,13 +296,14 @@ static void ox820_realize(DeviceState *dev, Error **errp)
 {
     OX820State *s = OX820(dev);
     Error *err = NULL;
-    /* realize the bridge  */
-    object_property_set_bool(OBJECT(&s->bridge), true, "realized", &err);
-    if (err) {
+
+    /*realize the cpu private peripherals */
+    object_realize_set_bool(OBJECT(&s->cpu_pp), true, "realize", &err);
+    if (err != NULL) {
         error_propagate(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->bridge), 0, NAS782X_RPS_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_pp), 0, 0x47000000);
 
     /* realize the cpu */
     object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
@@ -314,9 +311,16 @@ static void ox820_realize(DeviceState *dev, Error **errp)
         error_propagate(errp, err);
         return;
     }
-    /* connect irq/fiq outputs from the interrupt controller to the cpu */
-    qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0,
-            qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));
+
+    /* connect irq/fiq outputs from the gic to cpu */
+    sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 0,
+        qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));
+    sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 1,
+        qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_FIQ));
+    sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 2,
+        qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_VIRQ));
+    sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 3,
+        qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_VFIQ));
 }
 
 static void ox820_class_init(ObjectClass *oc, void *data) 

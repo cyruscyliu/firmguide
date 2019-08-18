@@ -74,29 +74,32 @@ static void {{soc_name}}_init(Object *obj)
 
     /* initialize cpus and add the cpu as soc's child */
     s->cpu_type = ARM_CPU_TYPE_NAME("{{cpu_type}}");
-    s->cpu = ARM_CPU(object_new(s->cpu_type));
+    s->cpu = ARM_CPU(object_new(s->cpu_type));{% if cpu_pp %}
+
+    /* initialize the cpus' private peripherals */
+    sysbus_init_child_obj(obj, "cpu_pp", &s->cpu_pp, sizeof(s->cpu_pp), {{cpu_pp_type}});
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->cpu_pp), 0));{% endif %}
 
     /* initialize bamboo device registers */{% for device in bamboo %}
     /* initialize {{device.name}} registers */
     memory_region_init_io(&s->{{device.name}}_mmio, obj,
         &{{device.name}}_ops, s, TYPE_{{soc_name|upper}}, {{device.name|upper}}_MMIO_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->{{device.name}}_mmio);
-    {% endfor %}{% if timer %}
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->{{device.name}}_mmio);{% endfor %}{% if timer %}
 
     /* initialize the timer */
     sysbus_init_child_obj(
-        obj, "timer", &s->timer, sizeof(s->timer), TYPE_{{timer_name|upper}});
-    {% endif %}
+        obj, "timer", &s->timer, sizeof(s->timer), TYPE_{{timer_name|upper}});{% endif %}{% if bridge %}
+
     /* initialize the bridge */
     sysbus_init_child_obj(
-        obj, "bridge", &s->bridge, sizeof(s->bridge), TYPE_{{bridge_name|upper}});{% if timer %}
+        obj, "bridge", &s->bridge, sizeof(s->bridge), TYPE_{{bridge_name|upper}});{% endif %}{% if timer %}
 
-    object_property_add_const_link(OBJECT(&s->bridge), "timer", OBJECT(&s->timer), &error_abort);
-    {% endif %}{% if ic %}
+    object_property_add_const_link(OBJECT(&s->bridge), "timer", OBJECT(&s->timer), &error_abort);{% endif %}{% if ic %}
+
     /* initialize the interrupt controller */
     sysbus_init_child_obj(
-        obj, "ic", &s->ic, sizeof(s->ic), TYPE_{{ic_name|upper}});
-    {% endif %}{% if ic %}
+        obj, "ic", &s->ic, sizeof(s->ic), TYPE_{{ic_name|upper}});{% endif %}{% if ic %}
+
     object_property_add_const_link(OBJECT(&s->ic), "bridge", OBJECT(&s->bridge), &error_abort);{% endif %}
 
     /* register reset for {{soc_name}} */
@@ -106,7 +109,15 @@ static void {{soc_name}}_init(Object *obj)
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp) 
 {
     {{soc_name|upper}}State *s = {{soc_name|upper}}(dev);
-    Error *err = NULL;{% if timer %}
+    Error *err = NULL;{% if cpu_pp %}
+
+    /*realize the cpu private peripherals */
+    object_realize_set_bool(OBJECT(&s->cpu_pp), true, "realize", &err);
+    if (err != NULL) {
+        error_propagate(errp, err);
+        return;
+    }
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_pp), 0, {{cpu_pp_mmio_base}});{% endif %}{% if timer %}
 
     /* realize the timer */
     object_property_set_bool(OBJECT(&s->timer), true, "realized", &err);
@@ -114,15 +125,15 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp)
         error_propagate(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{timer_name|upper}}_MMIO_BASE);
-    {% endif %}
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{timer_name|upper}}_MMIO_BASE);{% endif %}{% if bridge %}
+
     /* realize the bridge  */
     object_property_set_bool(OBJECT(&s->bridge), true, "realized", &err);
     if (err) {
         error_propagate(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->bridge), 0, {{bridge_name|upper}}_MMIO_BASE);{% if ic %}
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->bridge), 0, {{bridge_name|upper}}_MMIO_BASE);{% endif %}{% if ic %}
 
     /* realize the interrupt controller */
     object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);
@@ -130,8 +141,8 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp)
         error_propagate(errp, err);
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {{ic_name|upper}}_MMIO_BASE);
-    {% endif %}{% if ic %}
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {{ic_name|upper}}_MMIO_BASE);{% endif %}{% if ic %}
+
     /* attach the uart to 16550A(8250) */
     if (serial_hd(0)) {
         serial_mm_init(get_system_memory(), {{uart_name|upper}}_MMIO_BASE, 2,
@@ -144,10 +155,21 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp)
     if (err) {
         error_propagate(errp, err);
         return;
-    }
+    }{% if ic %}
+
     /* connect irq/fiq outputs from the interrupt controller to the cpu */
     qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0,
-            qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));
+        qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));{% endif %}{% if cpu_pp %}
+
+    /* connect irq/fiq outputs from the gic to cpu */
+    sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 0,
+        qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));
+    sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 1,
+        qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_FIQ));
+    sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 2,
+        qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_VIRQ));
+    sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 3,
+        qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_VFIQ));{% endif %}
 }
 
 static void {{soc_name}}_class_init(ObjectClass *oc, void *data) 

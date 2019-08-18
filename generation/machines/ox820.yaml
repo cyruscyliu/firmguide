@@ -15,32 +15,23 @@ machine:
       # the first class devices that must be functional accurate
       cpu:
         cpu_type: "arm11mpcore"
-        cpu_pp_model: 1
-        cpu_pp_model_type: "TYPE_ARM11MPCORE_PRIV"
-        cpu_pp_model_struct: "ARM11MPCorePriveState"
+        cpu_pp: 1
+        cpu_pp_type: "TYPE_ARM11MPCORE_PRIV"
+        cpu_pp_struct: "ARM11MPCorePriveState"
+        cpu_pp_mmio_base: "0x47000000"
         ic: 0
         timer: 0
+        bridge: 0
       interrupt_controller:
         ic_name: ~
+      bridge:
+        bridge_name: ~
       timer:
         timer_name: ~
       uart:
         uart_name: "ox820_uart"
         uart_mmio_base: "0x44200000"
         uart_mmio_size: "0x100"
-      bridge:
-        bridge_name: "nas782x_rps"
-        bridge_mmio_base: "0x44400000"
-        bridge_mmio_size: "0x14"
-        bridge_registers:
-          - name: "rps_status"
-            offset: "0x0"
-          - name: "rps_ram_status"
-            offset: "0x4"
-          - name: "rps_unmask"
-            offset: "0x8"
-          - name: "rps_mask"
-            offset: "0xC"
     bamboo:
       # the second class devices that must have registers callbacks
       - name: "ox820_gpio"
