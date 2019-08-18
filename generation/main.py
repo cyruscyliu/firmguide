@@ -17,6 +17,9 @@ def get_config(path='config.yaml'):
 
 def get_context(machine, context):
     for k, v in machine.items():
+        if k == 'banboo':
+            context[k] = v
+            return
         if isinstance(v, dict):
             get_context(v, context)
         else:

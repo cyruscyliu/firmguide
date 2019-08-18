@@ -1,6 +1,9 @@
 {{license}}
 
 #include "qemu/osdep.h"
+#include "qemu/log.h"
+#include "qapi/error.h"
+#include "hw/arm/{{bridge_name}}.h"
 #include "hw/intc/{{ic_name}}.h"
 #include "qemu/log.h"
 
@@ -15,7 +18,8 @@ static void {{ic_name}}_init(Object *obj);
 static void {{ic_name}}_class_init(ObjectClass *kclass, void *data);
 static void {{ic_name}}_register_types(void);
 
-static void {{ic_name}}_update(void *opaque) {
+static void {{ic_name}}_update(void *opaque) 
+{
     {{ic_name|upper|concat}}State *s = opaque;
     if (extract32(s->main_interrupt_cause_register, 0, 1)) {
         if (s->main_interrupt_cause_register & s->main_irq_interrupt_mask_register) {
@@ -26,13 +30,15 @@ static void {{ic_name}}_update(void *opaque) {
     }
 }
 
-static void {{ic_name}}_set_irq(void *opaque, int irq, int level) {
+static void {{ic_name}}_set_irq(void *opaque, int irq, int level) 
+{
     {{ic_name|upper|concat}}State *s = opaque;
     s->main_interrupt_cause_register = deposit32(s->main_interrupt_cause_register, irq, 1, level);
     {{ic_name}}_update(s);
 }
 
-static uint64_t {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) 
+{
     {{ic_name|upper|concat}}State *s = opaque;
     uint32_t res = 0;
 
@@ -47,7 +53,8 @@ static uint64_t {{ic_name}}_read(void *opaque, hwaddr offset, unsigned size) {
     return res;
 }
 
-static void {{ic_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void {{ic_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     {{ic_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
@@ -67,11 +74,12 @@ static const MemoryRegionOps {{ic_name}}_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void {{ic_name}}_init(Object *obj) {
+static void {{ic_name}}_init(Object *obj) 
+{
     {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &{{ic_name}}_ops, s, TYPE_{{ic_name|upper}}, {{ic_name|upper}}_RAM_SIZE);
+    memory_region_init_io(&s->mmio, obj, &{{ic_name}}_ops, s, TYPE_{{ic_name|upper}}, {{ic_name|upper}}_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the interrupt input */
@@ -81,13 +89,34 @@ static void {{ic_name}}_init(Object *obj) {
     qdev_init_gpio_out_named(DEVICE(s), &s->irq, "irq", 1);
 }
 
-static void {{ic_name}}_reset(DeviceState *dev) {
+static void {{ic_name}}_realize(DeviceState *dev, Error **errp)
+{
+    {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(dev);
+    Object *obj;
+    {{bridge_name|upper|concat}}State *bridge;
+    Error *err = NULL;
+
+    /* connect the bridge the interrupt controller */
+    obj = object_property_get_link(OBJECT(dev), "bridge", &err) ;
+    bridge = {{bridge_name|upper}}(obj);
+    if (bridge == NULL) {
+        error_setg(errp, "%s: required bridge link not found: %s",
+                   __func__, error_get_pretty(err));
+        return;
+    }
+    sysbus_connect_irq(SYS_BUS_DEVICE(bridge), 0,
+        qdev_get_gpio_in_named(DEVICE(s), {{ic_name|upper}}_IRQ, 0));
+}
+
+static void {{ic_name}}_reset(DeviceState *dev) 
+{
     {{ic_name|upper|concat}}State *s = {{ic_name|upper}}(dev);
     {% for register in ic_registers %}
     s->{{register.name}} = 0;{% endfor %}
 }
 
-static void {{ic_name}}_class_init(ObjectClass *klass, void *data) {
+static void {{ic_name}}_class_init(ObjectClass *klass, void *data) 
+{
     DeviceClass *dc = DEVICE_CLASS(klass);
 
     /* dc->fw_name = ; */
@@ -96,7 +125,7 @@ static void {{ic_name}}_class_init(ObjectClass *klass, void *data) {
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
     dc->reset = {{ic_name}}_reset;
-    /* dc->realize = ; */
+    dc->realize = {{ic_name}}_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
     /* dc->bus_type = ; */
@@ -116,7 +145,8 @@ static TypeInfo {{ic_name}}_type_info = {
     .class_init = {{ic_name}}_class_init,
 };
 
-static void {{ic_name}}_register_types(void) {
+static void {{ic_name}}_register_types(void) 
+{
     type_register_static(&{{ic_name}}_type_info);
 }
 

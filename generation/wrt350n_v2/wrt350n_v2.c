@@ -11,14 +11,15 @@
 #include "hw/arm/arm.h"
 #include "target/arm/cpu.h"
 #include "hw/arm/wrt350n_v2.h"
-#include "hw/arm/mv88f5181L.h"
+#include "hw/arm/mv88f5181l.h"
 
 static const int wrt350n_v2_board_id = 0x661;
 
 static void wrt350n_v2_init(MachineState *machine);
 static void wrt350n_v2_machine_init(MachineClass *mc);
 
-static void wrt350n_v2_init(MachineState *machine) {
+static void wrt350n_v2_init(MachineState *machine) 
+{
     static struct arm_boot_info binfo;
     DriveInfo *dinfo;
     PFlashCFI01 *flash;
@@ -30,35 +31,44 @@ static void wrt350n_v2_init(MachineState *machine) {
     object_initialize(&s->soc, sizeof(s->soc), TYPE_MV88F5181L);
     object_property_add_child(OBJECT(machine), "soc", OBJECT(&s->soc), &error_abort);
 
+    /* realize the soc */
+    object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
+
     /* allocate the ram */
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
     memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, 0);
     /* memory_region_allocate_system_memory do the same things as below */
     /* object_property_add_child(OBJECT(machine), "ram", OBJECT(&s->ram), &error_abort); */
-    /* so, comment the last line */
-    object_property_add_const_link(OBJECT(&s->soc), "ram", OBJECT(&s->ram), &error_abort);
+    /* so, comment the line above */
 
-    /* realize the soc */
-    object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
-
-    /* map cpu address map mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 0, MV88F5181_CPU_ADDRESS_MAP_MMIO_BASE);
-
-    /* map ddr sdram controller mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 1, MV88F5181_DDR_SDRAM_CONTROLLER_MMIO_BASE);
-
-    /* map pins multiplexing interface mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 2, MV88F5181L_PINS_MULTIPLEXING_INTERFACE_MMIO_BASE);
-
-    /* map pins pci interface mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 3, MV88F5181L_PCI_INTERFACE_MMIO_BASE);
-
-    /* map pins pcie interface mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 4, MV88F5181L_PCIE_INTERFACE_MMIO_BASE);
-
-    /* map gigabit ethernet controller mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 5, MV88F5181L_GIGABIT_ETHERNET_CONTROLLER_MMIO_BASE);
-
+    /* map bamboo devices mmio */
+    /* map mv88f5181l_gpio mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 0, MV88F5181L_GPIO_MMIO_BASE);
+    
+    /* map mv88f5181l_cpu_address_map mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 1, MV88F5181L_CPU_ADDRESS_MAP_MMIO_BASE);
+    
+    /* map mv88f5181l_ddr_sdram_controller mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 2, MV88F5181L_DDR_SDRAM_CONTROLLER_MMIO_BASE);
+    
+    /* map mv88f5181l_pins_multiplexing_interface mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 3, MV88F5181L_PINS_MULTIPLEXING_INTERFACE_MMIO_BASE);
+    
+    /* map mv88f5181l_pci_interface mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 4, MV88F5181L_PCI_INTERFACE_MMIO_BASE);
+    
+    /* map mv88f5181l_pcie_interface mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 5, MV88F5181L_PCIE_INTERFACE_MMIO_BASE);
+    
+    /* map mv88f5181l_usb_2_0_controller mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 6, MV88F5181L_USB_2_0_CONTROLLER_MMIO_BASE);
+    
+    /* map mv88f5181l_gigabit_ethernet_controller mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 7, MV88F5181L_GIGABIT_ETHERNET_CONTROLLER_MMIO_BASE);
+    
+    /* map mv88f5181l_cesa mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 8, MV88F5181L_CESA_MMIO_BASE);
+    
     /* set up the flash */
     dinfo = drive_get(IF_PFLASH, 0, 0);
     flash = pflash_cfi01_register(
@@ -80,7 +90,8 @@ static void wrt350n_v2_init(MachineState *machine) {
     arm_load_kernel(ARM_CPU(first_cpu), &binfo);
 }
 
-static void wrt350n_v2_machine_init(MachineClass *mc) {
+static void wrt350n_v2_machine_init(MachineClass *mc) 
+{
     /* mc->family = ; */
     /* mc->name = "wrt350n_v2"; */
     /* mc->alias = ; */
@@ -128,4 +139,5 @@ static void wrt350n_v2_machine_init(MachineClass *mc) {
     /* mc->CPuArchIdList = ; */
     /* mc->get_default_cpu_node_id = ; */
 }
+
 DEFINE_MACHINE("wrt350n_v2", wrt350n_v2_machine_init)

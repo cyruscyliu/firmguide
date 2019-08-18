@@ -5,17 +5,18 @@
 #include "qemu/osdep.h"
 #include "qemu/log.h"
 #include "qapi/error.h"
-#include "hw/arm/wrt350n_v2.h"
-#include "hw/arm/mv88f5181L_peripherals.h"
+#include "hw/arm/mv88f5181l_bridge.h"
+#include "hw/timer/mv88f5181l_timer.h"
 
-static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp);
+static void mv88f5181l_bridge_realize(DeviceState *dev, Error **errp);
 
-static void mv88f5181L_peripherals_init(Object *obj);
-static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data);
-static void mv88f5181L_peripherals_register_types(void);
+static void mv88f5181l_bridge_init(Object *obj);
+static void mv88f5181l_bridge_class_init(ObjectClass *oc, void *data);
+static void mv88f5181l_bridge_register_types(void);
 
-static void mv88f5181_bridge_update(void *opaque) {
-    MV88F5181LPERIPHERALSState *s = opaque;
+static void mv88f5181l_bridge_update(void *opaque) 
+{
+    MV88F5181LBRIDGEState *s = opaque;
     if (extract32(s->bridge_interrupt_cause_register, 1, 1)) {
         if (s->bridge_interrupt_cause_register & s->bridge_interrupt_mask_register) {
             qemu_set_irq(s->irq, 1);
@@ -34,15 +35,17 @@ static void mv88f5181_bridge_update(void *opaque) {
     }
 }
 
-static void mv88f5181_bridge_set_irq(void *opaque, int irq, int level) {
-    MV88F5181LPERIPHERALSState *s = opaque;
+static void mv88f5181l_bridge_set_irq(void *opaque, int irq, int level) 
+{
+    MV88F5181LBRIDGEState *s = opaque;
     s->bridge_interrupt_cause_register &= 0x1;
     s->bridge_interrupt_cause_register = deposit32(s->bridge_interrupt_cause_register, irq, 1, level);
-    mv88f5181_bridge_update(s);
+    mv88f5181l_bridge_update(s);
 }
 
-static uint64_t mv88f5181_bridge_read(void *opaque, hwaddr offset, unsigned size) {
-    MV88F5181LPERIPHERALSState *s = opaque;
+static uint64_t mv88f5181l_bridge_read(void *opaque, hwaddr offset, unsigned size) 
+{
+    MV88F5181LBRIDGEState *s = opaque;
     uint32_t res = 0;
 
     switch (offset) {
@@ -71,8 +74,9 @@ static uint64_t mv88f5181_bridge_read(void *opaque, hwaddr offset, unsigned size
     return res;
 }
 
-static void mv88f5181_bridge_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
-    MV88F5181LPERIPHERALSState *s = opaque;
+static void mv88f5181l_bridge_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
+    MV88F5181LBRIDGEState *s = opaque;
 
     switch (offset) {
     default:
@@ -97,64 +101,55 @@ static void mv88f5181_bridge_write(void *opaque, hwaddr offset, uint64_t val, un
         s->bridge_interrupt_mask_register = val;
         break;
     }
-    mv88f5181_bridge_update(s);
+    mv88f5181l_bridge_update(s);
 }
 
-static const MemoryRegionOps mv88f5181_bridge_ops = {
-    .read = mv88f5181_bridge_read,
-    .write = mv88f5181_bridge_write,
+static const MemoryRegionOps mv88f5181l_bridge_ops = {
+    .read = mv88f5181l_bridge_read,
+    .write = mv88f5181l_bridge_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181L_peripherals_init(Object *obj) {
-    MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(obj);
+static void mv88f5181l_bridge_init(Object *obj) 
+{
+    MV88F5181LBRIDGEState *s = MV88F5181L_BRIDGE(obj);
 
     /* initialize the bridge mmio */
-    memory_region_init_io(&s->bridge_mmio, obj, &mv88f5181_bridge_ops, s, TYPE_MV88F5181L_PERIPHERALS, MV88F5181_BRIDGE_RAM_SIZE);
+    memory_region_init_io(
+        &s->bridge_mmio, obj, &mv88f5181l_bridge_ops, s, TYPE_MV88F5181L_BRIDGE, MV88F5181L_BRIDGE_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->bridge_mmio);
 
     /* initialize the bridge irq */
     sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
 
     /* initialize GPIO in */
-    qdev_init_gpio_in_named(DEVICE(s), mv88f5181_bridge_set_irq, MV88F5181_BRIDGE_IRQ, 32);
-
-    /* initialize the timer */
-    sysbus_init_child_obj(obj, "timer", &s->timer, sizeof(s->timer), TYPE_MV88F5181L_TIMER);
-
-    /* initialize the gpio */
-    sysbus_init_child_obj(obj, "gpio", &s->gpio, sizeof(s->gpio), TYPE_MV88F5181L_GPIO);
+    qdev_init_gpio_in_named(DEVICE(s), mv88f5181l_bridge_set_irq, MV88F5181L_BRIDGE_IRQ, 32);
 }
 
-static void mv88f5181L_peripherals_realize(DeviceState *dev, Error **errp) {
-    MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(dev);
+static void mv88f5181l_bridge_realize(DeviceState *dev, Error **errp) 
+{
+    MV88F5181LBRIDGEState *s = MV88F5181L_BRIDGE(dev);
+    Object *obj;
+    MV88F5181LTIMERState *timer;
     Error *err = NULL;
 
-    /* realize the timer */
-    object_property_set_bool(OBJECT(&s->timer), true, "realized", &err);
-    if (err != NULL) {
-        error_propagate(errp, err);
-        return;
-    }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, MV88F5181L_TIMER_MMIO_BASE);
-
     /* connect the timer to the bridge */
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 0,
-        qdev_get_gpio_in_named(DEVICE(s), MV88F5181_BRIDGE_IRQ, 1));
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), 1,
-        qdev_get_gpio_in_named(DEVICE(s), MV88F5181_BRIDGE_IRQ, 2));
-
-    /* realize the  gpio */
-    object_property_set_bool(OBJECT(&s->gpio), true, "realized", &err);
-    if (err != NULL) {
-        error_propagate(errp, err);
+    obj = object_property_get_link(OBJECT(dev), "timer", &err) ;
+    timer = MV88F5181L_TIMER(obj);
+    if (timer == NULL) {
+        error_setg(errp, "%s: required timer link not found: %s",
+                   __func__, error_get_pretty(err));
         return;
     }
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->gpio), 0, MV88F5181L_GPIO_MMIO_BASE);
+    sysbus_connect_irq(SYS_BUS_DEVICE(timer), 0,
+        qdev_get_gpio_in_named(DEVICE(s), MV88F5181L_BRIDGE_IRQ, 1));
+    sysbus_connect_irq(SYS_BUS_DEVICE(timer), 1,
+        qdev_get_gpio_in_named(DEVICE(s), MV88F5181L_BRIDGE_IRQ, 2));
 }
 
-static void mv88f5181_bridge_reset(DeviceState *d) {
-    MV88F5181LPERIPHERALSState *s = MV88F5181L_PERIPHERALS(d);
+static void mv88f5181l_bridge_reset(DeviceState *d) 
+{
+    MV88F5181LBRIDGEState *s = MV88F5181L_BRIDGE(d);
     
     s->bridge_configuration_register = 0;
     s->bridge_control_and_status_register = 0;
@@ -164,7 +159,8 @@ static void mv88f5181_bridge_reset(DeviceState *d) {
     s->bridge_interrupt_mask_register = 0;
 }
 
-static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data) {
+static void mv88f5181l_bridge_class_init(ObjectClass *oc, void *data) 
+{
     DeviceClass *dc = DEVICE_CLASS(oc);
 
     /* dc->fw_name = ; */
@@ -172,8 +168,8 @@ static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data) {
     /* dc->props = ; */
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
-    dc->reset = mv88f5181_bridge_reset;
-    dc->realize = mv88f5181L_peripherals_realize;
+    dc->reset = mv88f5181l_bridge_reset;
+    dc->realize = mv88f5181l_bridge_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
     /* dc->bus_type = ; */
@@ -184,17 +180,18 @@ static void mv88f5181L_peripherals_class_init(ObjectClass *oc, void *data) {
     /* sbc->connect_irq_notifier = ; */
 }
 
-static const TypeInfo mv88f5181L_peripherals_type_info = {
-    .name = TYPE_MV88F5181L_PERIPHERALS,
+static const TypeInfo mv88f5181l_bridge_type_info = {
+    .name = TYPE_MV88F5181L_BRIDGE,
     .parent = TYPE_SYS_BUS_DEVICE,
-    .instance_size = sizeof(MV88F5181LPERIPHERALSState),
-    .instance_init = mv88f5181L_peripherals_init,
+    .instance_size = sizeof(MV88F5181LBRIDGEState),
+    .instance_init = mv88f5181l_bridge_init,
     /* .class_size = sizeof(SysBusDeviceClass), */
-    .class_init = mv88f5181L_peripherals_class_init,
+    .class_init = mv88f5181l_bridge_class_init,
 };
 
-static void mv88f5181L_peripherals_register_types(void) {
-    type_register_static(&mv88f5181L_peripherals_type_info);
+static void mv88f5181l_bridge_register_types(void) 
+{
+    type_register_static(&mv88f5181l_bridge_type_info);
 }
 
-type_init(mv88f5181L_peripherals_register_types)
+type_init(mv88f5181l_bridge_register_types)

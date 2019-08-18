@@ -6,41 +6,136 @@
 #include "qemu/log.h"
 #include "qapi/error.h"
 #include "target/arm/cpu.h"
-#include "hw/arm/mv88f5181L.h"
+#include "hw/arm/mv88f5181l.h"
 #include "hw/char/serial.h"
 #include "exec/address-spaces.h"
 
-static void mv88f5181_cpu_address_map_update(void *opaque);
-static uint64_t mv88f5181_cpu_address_map_read(void *opaque, hwaddr offset, unsigned size);
-static void mv88f5181_cpu_address_map_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
-static void mv88f5181_ddr_sdram_controller_update(void *opaque);
-static uint64_t mv88f5181_ddr_sdram_controller_read(void *opaque, hwaddr offset, unsigned size);
-static void mv88f5181_ddr_sdram_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void mv88f5181l_gpio_update(void *opaque);
+static uint64_t mv88f5181l_gpio_read(void *opaque, hwaddr offset, unsigned size);
+static void mv88f5181l_gpio_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void mv88f5181l_cpu_address_map_update(void *opaque);
+static uint64_t mv88f5181l_cpu_address_map_read(void *opaque, hwaddr offset, unsigned size);
+static void mv88f5181l_cpu_address_map_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void mv88f5181l_ddr_sdram_controller_update(void *opaque);
+static uint64_t mv88f5181l_ddr_sdram_controller_read(void *opaque, hwaddr offset, unsigned size);
+static void mv88f5181l_ddr_sdram_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 static void mv88f5181l_pins_multiplexing_interface_update(void *opaque);
 static uint64_t mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwaddr offset, unsigned size);
 static void mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 static void mv88f5181l_pci_interface_update(void *opaque);
 static uint64_t mv88f5181l_pci_interface_read(void *opaque, hwaddr offset, unsigned size);
 static void mv88f5181l_pci_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
-static void mv88f5181L_pcie_interface_update(void *opaque);
-static uint64_t mv88f5181L_pcie_interface_read(void *opaque, hwaddr offset, unsigned size);
-static void mv88f5181L_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void mv88f5181l_pcie_interface_update(void *opaque);
+static uint64_t mv88f5181l_pcie_interface_read(void *opaque, hwaddr offset, unsigned size);
+static void mv88f5181l_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void mv88f5181l_usb_2_0_controller_update(void *opaque);
+static uint64_t mv88f5181l_usb_2_0_controller_read(void *opaque, hwaddr offset, unsigned size);
+static void mv88f5181l_usb_2_0_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 static void mv88f5181l_gigabit_ethernet_controller_update(void *opaque);
 static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr offset, unsigned size);
 static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void mv88f5181l_cesa_update(void *opaque);
+static uint64_t mv88f5181l_cesa_read(void *opaque, hwaddr offset, unsigned size);
+static void mv88f5181l_cesa_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 
-static void mv88f5181L_init(Object *obj);
-static void mv88f5181L_realize(DeviceState *dev, Error **errp);
-static void mv88f5181L_reset(DeviceState *d);
+static void mv88f5181l_init(Object *obj);
+static void mv88f5181l_realize(DeviceState *dev, Error **errp);
+static void mv88f5181l_reset(void *opaque);
 
-static void mv88f5181L_class_init(ObjectClass *oc, void *data);
-static void mv88f5181L_register_types(void);
+static void mv88f5181l_class_init(ObjectClass *oc, void *data);
+static void mv88f5181l_register_types(void);
 
-static void mv88f5181_cpu_address_map_update(void *opaque) {
+static void mv88f5181l_gpio_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181_cpu_address_map_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_gpio_read(void *opaque, hwaddr offset, unsigned size) 
+{
+    MV88F5181LState *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case GPIO_DATA_OUT_REGISTER:
+        res = s->gpio_data_out_register;
+        break;
+    case GPIO_DATA_OUT_ENABLE_CONTROL_REGISTER:
+        res = s->gpio_data_out_enable_control_register;
+        break;
+    case GPIO_BLINK_ENABLE_REGISTER:
+        res = s->gpio_blink_enable_register;
+        break;
+    case GPIO_DATA_IN_POLARITY_REGISTER:
+        res = s->gpio_data_in_polarity_register;
+        break;
+    case GPIO_DATA_IN_REGISTER:
+        res = s->gpio_data_in_register;
+        break;
+    case GPIO_INTERRUPT_CAUSE_REGISTER:
+        res = s->gpio_interrupt_cause_register;
+        break;
+    case GPIO_INTERRUPT_MASK_REGISTER:
+        res = s->gpio_interrupt_mask_register;
+        break;
+    case GPIO_INTERRUPT_LEVEL_MASK_REGISTER:
+        res = s->gpio_interrupt_level_mask_register;
+        break;
+    }
+    return res;
+}
+
+static void mv88f5181l_gpio_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
+    MV88F5181LState *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case GPIO_DATA_OUT_REGISTER:
+        s->gpio_data_out_register = val;
+        break;
+    case GPIO_DATA_OUT_ENABLE_CONTROL_REGISTER:
+        s->gpio_data_out_enable_control_register = val;
+        break;
+    case GPIO_BLINK_ENABLE_REGISTER:
+        s->gpio_blink_enable_register = val;
+        break;
+    case GPIO_DATA_IN_POLARITY_REGISTER:
+        s->gpio_data_in_polarity_register = val;
+        break;
+    case GPIO_DATA_IN_REGISTER:
+        s->gpio_data_in_register = val;
+        break;
+    case GPIO_INTERRUPT_CAUSE_REGISTER:
+        s->gpio_interrupt_cause_register = val;
+        break;
+    case GPIO_INTERRUPT_MASK_REGISTER:
+        s->gpio_interrupt_mask_register = val;
+        break;
+    case GPIO_INTERRUPT_LEVEL_MASK_REGISTER:
+        s->gpio_interrupt_level_mask_register = val;
+        break;
+    }
+    mv88f5181l_gpio_update(s);
+}
+
+static const MemoryRegionOps mv88f5181l_gpio_ops = {
+    .read = mv88f5181l_gpio_read,
+    .write = mv88f5181l_gpio_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
+static void mv88f5181l_cpu_address_map_update(void *opaque) 
+{
+    /* MV88F5181LState *s = opaque; */
+}
+
+static uint64_t mv88f5181l_cpu_address_map_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -121,7 +216,8 @@ static uint64_t mv88f5181_cpu_address_map_read(void *opaque, hwaddr offset, unsi
     return res;
 }
 
-static void mv88f5181_cpu_address_map_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_cpu_address_map_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -198,20 +294,22 @@ static void mv88f5181_cpu_address_map_write(void *opaque, hwaddr offset, uint64_
         s->_88f5181_internal_registers_base_address_register = val;
         break;
     }
-    mv88f5181_cpu_address_map_update(s);
+    mv88f5181l_cpu_address_map_update(s);
 }
 
-static const MemoryRegionOps mv88f5181_cpu_address_map_ops = {
-    .read = mv88f5181_cpu_address_map_read,
-    .write = mv88f5181_cpu_address_map_write,
+static const MemoryRegionOps mv88f5181l_cpu_address_map_ops = {
+    .read = mv88f5181l_cpu_address_map_read,
+    .write = mv88f5181l_cpu_address_map_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181_ddr_sdram_controller_update(void *opaque) {
+static void mv88f5181l_ddr_sdram_controller_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181_ddr_sdram_controller_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_ddr_sdram_controller_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -313,7 +411,8 @@ static uint64_t mv88f5181_ddr_sdram_controller_read(void *opaque, hwaddr offset,
     return res;
 }
 
-static void mv88f5181_ddr_sdram_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_ddr_sdram_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -411,20 +510,22 @@ static void mv88f5181_ddr_sdram_controller_write(void *opaque, hwaddr offset, ui
         s->ddr_sdram_mmask_register = val;
         break;
     }
-    mv88f5181_ddr_sdram_controller_update(s);
+    mv88f5181l_ddr_sdram_controller_update(s);
 }
 
-static const MemoryRegionOps mv88f5181_ddr_sdram_controller_ops = {
-    .read = mv88f5181_ddr_sdram_controller_read,
-    .write = mv88f5181_ddr_sdram_controller_write,
+static const MemoryRegionOps mv88f5181l_ddr_sdram_controller_ops = {
+    .read = mv88f5181l_ddr_sdram_controller_read,
+    .write = mv88f5181l_ddr_sdram_controller_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_pins_multiplexing_interface_update(void *opaque) {
+static void mv88f5181l_pins_multiplexing_interface_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -451,7 +552,8 @@ static uint64_t mv88f5181l_pins_multiplexing_interface_read(void *opaque, hwaddr
     return res;
 }
 
-static void mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_pins_multiplexing_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -483,11 +585,13 @@ static const MemoryRegionOps mv88f5181l_pins_multiplexing_interface_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_pci_interface_update(void *opaque) {
+static void mv88f5181l_pci_interface_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_pci_interface_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_pci_interface_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -685,7 +789,8 @@ static uint64_t mv88f5181l_pci_interface_read(void *opaque, hwaddr offset, unsig
     return res;
 }
 
-static void mv88f5181l_pci_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_pci_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -888,11 +993,13 @@ static const MemoryRegionOps mv88f5181l_pci_interface_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181L_pcie_interface_update(void *opaque) {
+static void mv88f5181l_pcie_interface_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181L_pcie_interface_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_pcie_interface_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -1117,7 +1224,8 @@ static uint64_t mv88f5181L_pcie_interface_read(void *opaque, hwaddr offset, unsi
     return res;
 }
 
-static void mv88f5181L_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -1338,20 +1446,358 @@ static void mv88f5181L_pcie_interface_write(void *opaque, hwaddr offset, uint64_
         s->pci_express_tl_control_register = val;
         break;
     }
-    mv88f5181L_pcie_interface_update(s);
+    mv88f5181l_pcie_interface_update(s);
 }
 
-static const MemoryRegionOps mv88f5181L_pcie_interface_ops = {
-    .read = mv88f5181L_pcie_interface_read,
-    .write = mv88f5181L_pcie_interface_write,
+static const MemoryRegionOps mv88f5181l_pcie_interface_ops = {
+    .read = mv88f5181l_pcie_interface_read,
+    .write = mv88f5181l_pcie_interface_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181l_gigabit_ethernet_controller_update(void *opaque) {
+static void mv88f5181l_usb_2_0_controller_update(void *opaque) 
+{
     /* MV88F5181LState *s = opaque; */
 }
 
-static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_usb_2_0_controller_read(void *opaque, hwaddr offset, unsigned size) 
+{
+    MV88F5181LState *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case PORT0_USB_2_0_ID:
+        res = s->port0_usb_2_0_id;
+        break;
+    case PORT0_USB_2_0_HWGENERAL:
+        res = s->port0_usb_2_0_hwgeneral;
+        break;
+    case PORT0_USB_2_0_HWHOST:
+        res = s->port0_usb_2_0_hwhost;
+        break;
+    case PORT0_USB_2_0_HWDEVICE:
+        res = s->port0_usb_2_0_hwdevice;
+        break;
+    case PORT0_USB_2_0_HWTXBUF:
+        res = s->port0_usb_2_0_hwtxbuf;
+        break;
+    case PORT0_USB_2_0_HWRXBUF:
+        res = s->port0_usb_2_0_hwrxbuf;
+        break;
+    case PORT0_USB_2_0_HWTTTXBUF:
+        res = s->port0_usb_2_0_hwtttxbuf;
+        break;
+    case PORT0_USB_2_0_HWTTRXBUF:
+        res = s->port0_usb_2_0_hwttrxbuf;
+        break;
+    case PORT0_USB_2_0_CAPLENGTH:
+        res = s->port0_usb_2_0_caplength;
+        break;
+    case PORT0_USB_2_0_HCIVERSION:
+        res = s->port0_usb_2_0_hciversion;
+        break;
+    case PORT0_USB_2_0_HCSPARAMS:
+        res = s->port0_usb_2_0_hcsparams;
+        break;
+    case PORT0_USB_2_0_HCCPARAMS:
+        res = s->port0_usb_2_0_hccparams;
+        break;
+    case PORT0_USB_2_0_DCIVERSION:
+        res = s->port0_usb_2_0_dciversion;
+        break;
+    case PORT0_USB_2_0_DCCPARAMS:
+        res = s->port0_usb_2_0_dccparams;
+        break;
+    case PORT0_USB_2_0_USBCMD:
+        res = s->port0_usb_2_0_usbcmd;
+        break;
+    case PORT0_USB_2_0_USBSTS:
+        res = s->port0_usb_2_0_usbsts;
+        break;
+    case PORT0_USB_2_0_USBINTR:
+        res = s->port0_usb_2_0_usbintr;
+        break;
+    case PORT0_USB_2_0_FRINDEX:
+        res = s->port0_usb_2_0_frindex;
+        break;
+    case PORT0_USB_2_0_PERIODICLISTBASE__OR__DEVICE_ADDR:
+        res = s->port0_usb_2_0_periodiclistbase__or__device_addr;
+        break;
+    case PORT0_USB_2_0_ASYNCLISTADDR__OR__ENDPOINTLIST_ADDR:
+        res = s->port0_usb_2_0_asynclistaddr__or__endpointlist_addr;
+        break;
+    case PORT0_USB_2_0_TTCTRL:
+        res = s->port0_usb_2_0_ttctrl;
+        break;
+    case PORT0_USB_2_0_BURSTSIZE:
+        res = s->port0_usb_2_0_burstsize;
+        break;
+    case PORT0_USB_2_0_TXFILLTUNING:
+        res = s->port0_usb_2_0_txfilltuning;
+        break;
+    case PORT0_USB_2_0_TXTTFILLTUNING:
+        res = s->port0_usb_2_0_txttfilltuning;
+        break;
+    case PORT0_USB_2_0_CONFIGFLAG:
+        res = s->port0_usb_2_0_configflag;
+        break;
+    case PORT0_USB_2_0_PORTSC1:
+        res = s->port0_usb_2_0_portsc1;
+        break;
+    case PORT0_USB_2_0_OTGSC:
+        res = s->port0_usb_2_0_otgsc;
+        break;
+    case PORT0_USB_2_0_USBMODE:
+        res = s->port0_usb_2_0_usbmode;
+        break;
+    case PORT0_USB_2_0_ENPDTSETUPSTAT:
+        res = s->port0_usb_2_0_enpdtsetupstat;
+        break;
+    case PORT0_USB_2_0_ENDPTPRIME:
+        res = s->port0_usb_2_0_endptprime;
+        break;
+    case PORT0_USB_2_0_ENDPTFLUSH:
+        res = s->port0_usb_2_0_endptflush;
+        break;
+    case PORT0_USB_2_0_ENDPTSTATUS:
+        res = s->port0_usb_2_0_endptstatus;
+        break;
+    case PORT0_USB_2_0_ENDPTCOMPLETE:
+        res = s->port0_usb_2_0_endptcomplete;
+        break;
+    case PORT0_USB_2_0_ENDPTCTRL0:
+        res = s->port0_usb_2_0_endptctrl0;
+        break;
+    case PORT0_USB_2_0_ENDPTCTRL1:
+        res = s->port0_usb_2_0_endptctrl1;
+        break;
+    case PORT0_USB_2_0_ENDPTCTRL2:
+        res = s->port0_usb_2_0_endptctrl2;
+        break;
+    case PORT0_USB_2_0_ENDPTCTRL3:
+        res = s->port0_usb_2_0_endptctrl3;
+        break;
+    case PORT0_USB_2_0_BRIDGE_CONTROL_REGISTER:
+        res = s->port0_usb_2_0_bridge_control_register;
+        break;
+    case PORT0_USB_2_0_BRIDGE_INTERRUPT_CAUSE_REGISTER:
+        res = s->port0_usb_2_0_bridge_interrupt_cause_register;
+        break;
+    case PORT0_USB_2_0_BRIDGE_INTERRUPT_MASK_REGISTER:
+        res = s->port0_usb_2_0_bridge_interrupt_mask_register;
+        break;
+    case PORT0_USB_2_0_BRIDGE_ERROR_ADDRESS_REGISTER:
+        res = s->port0_usb_2_0_bridge_error_address_register;
+        break;
+    case PORT0_USB_2_0_WINDOW0_CONTROL_REGISTER:
+        res = s->port0_usb_2_0_window0_control_register;
+        break;
+    case PORT0_USB_2_0_WINDOW0_BASE_REGISTER:
+        res = s->port0_usb_2_0_window0_base_register;
+        break;
+    case PORT0_USB_2_0_WINDOW1_CONTROL_REGISTER:
+        res = s->port0_usb_2_0_window1_control_register;
+        break;
+    case PORT0_USB_2_0_WINDOW1_BASE_REGISTER:
+        res = s->port0_usb_2_0_window1_base_register;
+        break;
+    case PORT0_USB_2_0_WINDOW2_CONTROL_REGISTER:
+        res = s->port0_usb_2_0_window2_control_register;
+        break;
+    case PORT0_USB_2_0_WINDOW2_BASE_REGISTER:
+        res = s->port0_usb_2_0_window2_base_register;
+        break;
+    case PORT0_USB_2_0_WINDOW3_CONTROL_REGISTER:
+        res = s->port0_usb_2_0_window3_control_register;
+        break;
+    case PORT0_USB_2_0_WINDOW3_BASE_REGISTER:
+        res = s->port0_usb_2_0_window3_base_register;
+        break;
+    case PORT0_USB_2_0_POWER_CONTROL_REGISTER:
+        res = s->port0_usb_2_0_power_control_register;
+        break;
+    }
+    return res;
+}
+
+static void mv88f5181l_usb_2_0_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
+    MV88F5181LState *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case PORT0_USB_2_0_ID:
+        s->port0_usb_2_0_id = val;
+        break;
+    case PORT0_USB_2_0_HWGENERAL:
+        s->port0_usb_2_0_hwgeneral = val;
+        break;
+    case PORT0_USB_2_0_HWHOST:
+        s->port0_usb_2_0_hwhost = val;
+        break;
+    case PORT0_USB_2_0_HWDEVICE:
+        s->port0_usb_2_0_hwdevice = val;
+        break;
+    case PORT0_USB_2_0_HWTXBUF:
+        s->port0_usb_2_0_hwtxbuf = val;
+        break;
+    case PORT0_USB_2_0_HWRXBUF:
+        s->port0_usb_2_0_hwrxbuf = val;
+        break;
+    case PORT0_USB_2_0_HWTTTXBUF:
+        s->port0_usb_2_0_hwtttxbuf = val;
+        break;
+    case PORT0_USB_2_0_HWTTRXBUF:
+        s->port0_usb_2_0_hwttrxbuf = val;
+        break;
+    case PORT0_USB_2_0_CAPLENGTH:
+        s->port0_usb_2_0_caplength = val;
+        break;
+    case PORT0_USB_2_0_HCIVERSION:
+        s->port0_usb_2_0_hciversion = val;
+        break;
+    case PORT0_USB_2_0_HCSPARAMS:
+        s->port0_usb_2_0_hcsparams = val;
+        break;
+    case PORT0_USB_2_0_HCCPARAMS:
+        s->port0_usb_2_0_hccparams = val;
+        break;
+    case PORT0_USB_2_0_DCIVERSION:
+        s->port0_usb_2_0_dciversion = val;
+        break;
+    case PORT0_USB_2_0_DCCPARAMS:
+        s->port0_usb_2_0_dccparams = val;
+        break;
+    case PORT0_USB_2_0_USBCMD:
+        s->port0_usb_2_0_usbcmd = val;
+        break;
+    case PORT0_USB_2_0_USBSTS:
+        s->port0_usb_2_0_usbsts = val;
+        break;
+    case PORT0_USB_2_0_USBINTR:
+        s->port0_usb_2_0_usbintr = val;
+        break;
+    case PORT0_USB_2_0_FRINDEX:
+        s->port0_usb_2_0_frindex = val;
+        break;
+    case PORT0_USB_2_0_PERIODICLISTBASE__OR__DEVICE_ADDR:
+        s->port0_usb_2_0_periodiclistbase__or__device_addr = val;
+        break;
+    case PORT0_USB_2_0_ASYNCLISTADDR__OR__ENDPOINTLIST_ADDR:
+        s->port0_usb_2_0_asynclistaddr__or__endpointlist_addr = val;
+        break;
+    case PORT0_USB_2_0_TTCTRL:
+        s->port0_usb_2_0_ttctrl = val;
+        break;
+    case PORT0_USB_2_0_BURSTSIZE:
+        s->port0_usb_2_0_burstsize = val;
+        break;
+    case PORT0_USB_2_0_TXFILLTUNING:
+        s->port0_usb_2_0_txfilltuning = val;
+        break;
+    case PORT0_USB_2_0_TXTTFILLTUNING:
+        s->port0_usb_2_0_txttfilltuning = val;
+        break;
+    case PORT0_USB_2_0_CONFIGFLAG:
+        s->port0_usb_2_0_configflag = val;
+        break;
+    case PORT0_USB_2_0_PORTSC1:
+        s->port0_usb_2_0_portsc1 = val;
+        break;
+    case PORT0_USB_2_0_OTGSC:
+        s->port0_usb_2_0_otgsc = val;
+        break;
+    case PORT0_USB_2_0_USBMODE:
+        s->port0_usb_2_0_usbmode = val;
+        break;
+    case PORT0_USB_2_0_ENPDTSETUPSTAT:
+        s->port0_usb_2_0_enpdtsetupstat = val;
+        break;
+    case PORT0_USB_2_0_ENDPTPRIME:
+        s->port0_usb_2_0_endptprime = val;
+        break;
+    case PORT0_USB_2_0_ENDPTFLUSH:
+        s->port0_usb_2_0_endptflush = val;
+        break;
+    case PORT0_USB_2_0_ENDPTSTATUS:
+        s->port0_usb_2_0_endptstatus = val;
+        break;
+    case PORT0_USB_2_0_ENDPTCOMPLETE:
+        s->port0_usb_2_0_endptcomplete = val;
+        break;
+    case PORT0_USB_2_0_ENDPTCTRL0:
+        s->port0_usb_2_0_endptctrl0 = val;
+        break;
+    case PORT0_USB_2_0_ENDPTCTRL1:
+        s->port0_usb_2_0_endptctrl1 = val;
+        break;
+    case PORT0_USB_2_0_ENDPTCTRL2:
+        s->port0_usb_2_0_endptctrl2 = val;
+        break;
+    case PORT0_USB_2_0_ENDPTCTRL3:
+        s->port0_usb_2_0_endptctrl3 = val;
+        break;
+    case PORT0_USB_2_0_BRIDGE_CONTROL_REGISTER:
+        s->port0_usb_2_0_bridge_control_register = val;
+        break;
+    case PORT0_USB_2_0_BRIDGE_INTERRUPT_CAUSE_REGISTER:
+        s->port0_usb_2_0_bridge_interrupt_cause_register = val;
+        break;
+    case PORT0_USB_2_0_BRIDGE_INTERRUPT_MASK_REGISTER:
+        s->port0_usb_2_0_bridge_interrupt_mask_register = val;
+        break;
+    case PORT0_USB_2_0_BRIDGE_ERROR_ADDRESS_REGISTER:
+        s->port0_usb_2_0_bridge_error_address_register = val;
+        break;
+    case PORT0_USB_2_0_WINDOW0_CONTROL_REGISTER:
+        s->port0_usb_2_0_window0_control_register = val;
+        break;
+    case PORT0_USB_2_0_WINDOW0_BASE_REGISTER:
+        s->port0_usb_2_0_window0_base_register = val;
+        break;
+    case PORT0_USB_2_0_WINDOW1_CONTROL_REGISTER:
+        s->port0_usb_2_0_window1_control_register = val;
+        break;
+    case PORT0_USB_2_0_WINDOW1_BASE_REGISTER:
+        s->port0_usb_2_0_window1_base_register = val;
+        break;
+    case PORT0_USB_2_0_WINDOW2_CONTROL_REGISTER:
+        s->port0_usb_2_0_window2_control_register = val;
+        break;
+    case PORT0_USB_2_0_WINDOW2_BASE_REGISTER:
+        s->port0_usb_2_0_window2_base_register = val;
+        break;
+    case PORT0_USB_2_0_WINDOW3_CONTROL_REGISTER:
+        s->port0_usb_2_0_window3_control_register = val;
+        break;
+    case PORT0_USB_2_0_WINDOW3_BASE_REGISTER:
+        s->port0_usb_2_0_window3_base_register = val;
+        break;
+    case PORT0_USB_2_0_POWER_CONTROL_REGISTER:
+        s->port0_usb_2_0_power_control_register = val;
+        break;
+    }
+    mv88f5181l_usb_2_0_controller_update(s);
+}
+
+static const MemoryRegionOps mv88f5181l_usb_2_0_controller_ops = {
+    .read = mv88f5181l_usb_2_0_controller_read,
+    .write = mv88f5181l_usb_2_0_controller_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
+static void mv88f5181l_gigabit_ethernet_controller_update(void *opaque) 
+{
+    /* MV88F5181LState *s = opaque; */
+}
+
+static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LState *s = opaque;
     uint32_t res = 0;
 
@@ -1657,7 +2103,8 @@ static uint64_t mv88f5181l_gigabit_ethernet_controller_read(void *opaque, hwaddr
     return res;
 }
 
-static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_gigabit_ethernet_controller_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LState *s = opaque;
 
     switch (offset) {
@@ -1968,9 +2415,384 @@ static const MemoryRegionOps mv88f5181l_gigabit_ethernet_controller_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181L_reset(DeviceState *d) {
-    MV88F5181LState *s = MV88F5181L(d);
+static void mv88f5181l_cesa_update(void *opaque) 
+{
+    /* MV88F5181LState *s = opaque; */
+}
+
+static uint64_t mv88f5181l_cesa_read(void *opaque, hwaddr offset, unsigned size) 
+{
+    MV88F5181LState *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case DES_DATA_OUT_LOW_REGISTER:
+        res = s->des_data_out_low_register;
+        break;
+    case DES_DATA_OUT_HIGH_REGISTER:
+        res = s->des_data_out_high_register;
+        break;
+    case DES_DATA_BUFFER_LOW_REGISTER:
+        res = s->des_data_buffer_low_register;
+        break;
+    case DES_DATA_BUFFER_HIGH_REGISTER:
+        res = s->des_data_buffer_high_register;
+        break;
+    case DES_INITIAL_VALUE_LOW_REGISTER:
+        res = s->des_initial_value_low_register;
+        break;
+    case DES_INITIAL_VALUE_HIGH_REGISTER:
+        res = s->des_initial_value_high_register;
+        break;
+    case DES_KEY0_LOW_REGISTER:
+        res = s->des_key0_low_register;
+        break;
+    case DES_KEY0_HIGH_REGISTER:
+        res = s->des_key0_high_register;
+        break;
+    case DES_KEY1_LOW_REGISTER:
+        res = s->des_key1_low_register;
+        break;
+    case DES_KEY1_HIGH_REGISTER:
+        res = s->des_key1_high_register;
+        break;
+    case DES_KEY2_LOW_REGISTER:
+        res = s->des_key2_low_register;
+        break;
+    case DES_KEY2_HIGH_REGISTER:
+        res = s->des_key2_high_register;
+        break;
+    case DES_COMMAND_REGISTER:
+        res = s->des_command_register;
+        break;
+    case SHA_1_OR_MD5_DATA_IN_REGISTER:
+        res = s->sha_1_or_md5_data_in_register;
+        break;
+    case SHA_1_OR_MD5_BIT_COUNT_LOW_REGISTER:
+        res = s->sha_1_or_md5_bit_count_low_register;
+        break;
+    case SHA_1_OR_MD5_BIT_COUNT_HIGH_REGISTER:
+        res = s->sha_1_or_md5_bit_count_high_register;
+        break;
+    case SHA_1_OR_MD5_INITIAL_VALUE_OR_DIGEST_A_REGISTER:
+        res = s->sha_1_or_md5_initial_value_or_digest_a_register;
+        break;
+    case SHA_1_OR_MD5_INITIAL_VALUE_OR_DIGEST_B_REGISTER:
+        res = s->sha_1_or_md5_initial_value_or_digest_b_register;
+        break;
+    case SHA_1_OR_MD5_INITIAL_VALUE_OR_DIGEST_C_REGISTER:
+        res = s->sha_1_or_md5_initial_value_or_digest_c_register;
+        break;
+    case SHA_1_OR_MD5_INITIAL_VALUE_OR_DIGEST_D_REGISTER:
+        res = s->sha_1_or_md5_initial_value_or_digest_d_register;
+        break;
+    case SHA_1_INITIAL_VALUE_OR_DIGEST_E_REGISTER:
+        res = s->sha_1_initial_value_or_digest_e_register;
+        break;
+    case SHA_1_OR_MD5_AUTHENTICATION_COMMAND_REGISTER:
+        res = s->sha_1_or_md5_authentication_command_register;
+        break;
+    case AES_ENCRYPTION_DATA_IN_OR_OUT_COLUMN_3_REGISTER:
+        res = s->aes_encryption_data_in_or_out_column_3_register;
+        break;
+    case AES_ENCRYPTION_DATA_IN_OR_OUT_COLUMN_2_REGISTER:
+        res = s->aes_encryption_data_in_or_out_column_2_register;
+        break;
+    case AES_ENCRYPTION_DATA_IN_OR_OUT_COLUMN_1_REGISTER:
+        res = s->aes_encryption_data_in_or_out_column_1_register;
+        break;
+    case AES_ENCRYPTION_DATA_IN_OR_OUT_COLUMN_0_REGISTER:
+        res = s->aes_encryption_data_in_or_out_column_0_register;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_3_REGISTER:
+        res = s->aes_encryption_key_column_3_register;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_2_REGISTER:
+        res = s->aes_encryption_key_column_2_register;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_1_REGISTER:
+        res = s->aes_encryption_key_column_1_register;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_0_REGISTER:
+        res = s->aes_encryption_key_column_0_register;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_7_REGISTER:
+        res = s->aes_encryption_key_column_7_register;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_6_REGISTER:
+        res = s->aes_encryption_key_column_6_register;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_5_REGISTER:
+        res = s->aes_encryption_key_column_5_register;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_4_REGISTER:
+        res = s->aes_encryption_key_column_4_register;
+        break;
+    case AES_ENCRYPTION_COMMAND_REGISTER:
+        res = s->aes_encryption_command_register;
+        break;
+    case AES_DECRYPTION_DATA_IN_OR_OUT_COLUMN_3_REGISTER:
+        res = s->aes_decryption_data_in_or_out_column_3_register;
+        break;
+    case AES_DECRYPTION_DATA_IN_OR_OUT_COLUMN_2_REGISTER:
+        res = s->aes_decryption_data_in_or_out_column_2_register;
+        break;
+    case AES_DECRYPTION_DATA_IN_OR_OUT_COLUMN_1_REGISTER:
+        res = s->aes_decryption_data_in_or_out_column_1_register;
+        break;
+    case AES_DECRYPTION_DATA_IN_OR_OUT_COLUMN_0_REGISTER:
+        res = s->aes_decryption_data_in_or_out_column_0_register;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_3_REGISTER:
+        res = s->aes_decryption_key_column_3_register;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_2_REGISTER:
+        res = s->aes_decryption_key_column_2_register;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_1_REGISTER:
+        res = s->aes_decryption_key_column_1_register;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_0_REGISTER:
+        res = s->aes_decryption_key_column_0_register;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_7_REGISTER:
+        res = s->aes_decryption_key_column_7_register;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_6_REGISTER:
+        res = s->aes_decryption_key_column_6_register;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_5_REGISTER:
+        res = s->aes_decryption_key_column_5_register;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_4_REGISTER:
+        res = s->aes_decryption_key_column_4_register;
+        break;
+    case AES_DECRYPTION_COMMAND_REGISTER:
+        res = s->aes_decryption_command_register;
+        break;
+    case SECURITY_ACCELERATOR_COMMAND_REGISTER:
+        res = s->security_accelerator_command_register;
+        break;
+    case SECURITY_ACCELERATOR_DESCRIPTOR_POINTER_SESSION_0_REGISTER:
+        res = s->security_accelerator_descriptor_pointer_session_0_register;
+        break;
+    case SECURITY_ACCELERATOR_DESCRIPTOR_POINTER_SESSION_1_REGISTER:
+        res = s->security_accelerator_descriptor_pointer_session_1_register;
+        break;
+    case SECURITY_ACCELERATOR_CONFIGURATION_REGISTER:
+        res = s->security_accelerator_configuration_register;
+        break;
+    case SECURITY_ACCELERATOR_STATUS_REGISTER:
+        res = s->security_accelerator_status_register;
+        break;
+    case CRYPTOGRAPHIC_ENGINES_AND_SECURITY_ACCELERATOR_INTERRUPT_CAUSE_REGISTER:
+        res = s->cryptographic_engines_and_security_accelerator_interrupt_cause_register;
+        break;
+    case CRYPTOGRAPHIC_ENGINES_AND_SECURITY_ACCELERATOR_INTERRUPT_MASK_REGISTER:
+        res = s->cryptographic_engines_and_security_accelerator_interrupt_mask_register;
+        break;
+    }
+    return res;
+}
+
+static void mv88f5181l_cesa_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
+    MV88F5181LState *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case DES_DATA_OUT_LOW_REGISTER:
+        s->des_data_out_low_register = val;
+        break;
+    case DES_DATA_OUT_HIGH_REGISTER:
+        s->des_data_out_high_register = val;
+        break;
+    case DES_DATA_BUFFER_LOW_REGISTER:
+        s->des_data_buffer_low_register = val;
+        break;
+    case DES_DATA_BUFFER_HIGH_REGISTER:
+        s->des_data_buffer_high_register = val;
+        break;
+    case DES_INITIAL_VALUE_LOW_REGISTER:
+        s->des_initial_value_low_register = val;
+        break;
+    case DES_INITIAL_VALUE_HIGH_REGISTER:
+        s->des_initial_value_high_register = val;
+        break;
+    case DES_KEY0_LOW_REGISTER:
+        s->des_key0_low_register = val;
+        break;
+    case DES_KEY0_HIGH_REGISTER:
+        s->des_key0_high_register = val;
+        break;
+    case DES_KEY1_LOW_REGISTER:
+        s->des_key1_low_register = val;
+        break;
+    case DES_KEY1_HIGH_REGISTER:
+        s->des_key1_high_register = val;
+        break;
+    case DES_KEY2_LOW_REGISTER:
+        s->des_key2_low_register = val;
+        break;
+    case DES_KEY2_HIGH_REGISTER:
+        s->des_key2_high_register = val;
+        break;
+    case DES_COMMAND_REGISTER:
+        s->des_command_register = val;
+        break;
+    case SHA_1_OR_MD5_DATA_IN_REGISTER:
+        s->sha_1_or_md5_data_in_register = val;
+        break;
+    case SHA_1_OR_MD5_BIT_COUNT_LOW_REGISTER:
+        s->sha_1_or_md5_bit_count_low_register = val;
+        break;
+    case SHA_1_OR_MD5_BIT_COUNT_HIGH_REGISTER:
+        s->sha_1_or_md5_bit_count_high_register = val;
+        break;
+    case SHA_1_OR_MD5_INITIAL_VALUE_OR_DIGEST_A_REGISTER:
+        s->sha_1_or_md5_initial_value_or_digest_a_register = val;
+        break;
+    case SHA_1_OR_MD5_INITIAL_VALUE_OR_DIGEST_B_REGISTER:
+        s->sha_1_or_md5_initial_value_or_digest_b_register = val;
+        break;
+    case SHA_1_OR_MD5_INITIAL_VALUE_OR_DIGEST_C_REGISTER:
+        s->sha_1_or_md5_initial_value_or_digest_c_register = val;
+        break;
+    case SHA_1_OR_MD5_INITIAL_VALUE_OR_DIGEST_D_REGISTER:
+        s->sha_1_or_md5_initial_value_or_digest_d_register = val;
+        break;
+    case SHA_1_INITIAL_VALUE_OR_DIGEST_E_REGISTER:
+        s->sha_1_initial_value_or_digest_e_register = val;
+        break;
+    case SHA_1_OR_MD5_AUTHENTICATION_COMMAND_REGISTER:
+        s->sha_1_or_md5_authentication_command_register = val;
+        break;
+    case AES_ENCRYPTION_DATA_IN_OR_OUT_COLUMN_3_REGISTER:
+        s->aes_encryption_data_in_or_out_column_3_register = val;
+        break;
+    case AES_ENCRYPTION_DATA_IN_OR_OUT_COLUMN_2_REGISTER:
+        s->aes_encryption_data_in_or_out_column_2_register = val;
+        break;
+    case AES_ENCRYPTION_DATA_IN_OR_OUT_COLUMN_1_REGISTER:
+        s->aes_encryption_data_in_or_out_column_1_register = val;
+        break;
+    case AES_ENCRYPTION_DATA_IN_OR_OUT_COLUMN_0_REGISTER:
+        s->aes_encryption_data_in_or_out_column_0_register = val;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_3_REGISTER:
+        s->aes_encryption_key_column_3_register = val;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_2_REGISTER:
+        s->aes_encryption_key_column_2_register = val;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_1_REGISTER:
+        s->aes_encryption_key_column_1_register = val;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_0_REGISTER:
+        s->aes_encryption_key_column_0_register = val;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_7_REGISTER:
+        s->aes_encryption_key_column_7_register = val;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_6_REGISTER:
+        s->aes_encryption_key_column_6_register = val;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_5_REGISTER:
+        s->aes_encryption_key_column_5_register = val;
+        break;
+    case AES_ENCRYPTION_KEY_COLUMN_4_REGISTER:
+        s->aes_encryption_key_column_4_register = val;
+        break;
+    case AES_ENCRYPTION_COMMAND_REGISTER:
+        s->aes_encryption_command_register = val;
+        break;
+    case AES_DECRYPTION_DATA_IN_OR_OUT_COLUMN_3_REGISTER:
+        s->aes_decryption_data_in_or_out_column_3_register = val;
+        break;
+    case AES_DECRYPTION_DATA_IN_OR_OUT_COLUMN_2_REGISTER:
+        s->aes_decryption_data_in_or_out_column_2_register = val;
+        break;
+    case AES_DECRYPTION_DATA_IN_OR_OUT_COLUMN_1_REGISTER:
+        s->aes_decryption_data_in_or_out_column_1_register = val;
+        break;
+    case AES_DECRYPTION_DATA_IN_OR_OUT_COLUMN_0_REGISTER:
+        s->aes_decryption_data_in_or_out_column_0_register = val;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_3_REGISTER:
+        s->aes_decryption_key_column_3_register = val;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_2_REGISTER:
+        s->aes_decryption_key_column_2_register = val;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_1_REGISTER:
+        s->aes_decryption_key_column_1_register = val;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_0_REGISTER:
+        s->aes_decryption_key_column_0_register = val;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_7_REGISTER:
+        s->aes_decryption_key_column_7_register = val;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_6_REGISTER:
+        s->aes_decryption_key_column_6_register = val;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_5_REGISTER:
+        s->aes_decryption_key_column_5_register = val;
+        break;
+    case AES_DECRYPTION_KEY_COLUMN_4_REGISTER:
+        s->aes_decryption_key_column_4_register = val;
+        break;
+    case AES_DECRYPTION_COMMAND_REGISTER:
+        s->aes_decryption_command_register = val;
+        break;
+    case SECURITY_ACCELERATOR_COMMAND_REGISTER:
+        s->security_accelerator_command_register = val;
+        break;
+    case SECURITY_ACCELERATOR_DESCRIPTOR_POINTER_SESSION_0_REGISTER:
+        s->security_accelerator_descriptor_pointer_session_0_register = val;
+        break;
+    case SECURITY_ACCELERATOR_DESCRIPTOR_POINTER_SESSION_1_REGISTER:
+        s->security_accelerator_descriptor_pointer_session_1_register = val;
+        break;
+    case SECURITY_ACCELERATOR_CONFIGURATION_REGISTER:
+        s->security_accelerator_configuration_register = val;
+        break;
+    case SECURITY_ACCELERATOR_STATUS_REGISTER:
+        s->security_accelerator_status_register = val;
+        break;
+    case CRYPTOGRAPHIC_ENGINES_AND_SECURITY_ACCELERATOR_INTERRUPT_CAUSE_REGISTER:
+        s->cryptographic_engines_and_security_accelerator_interrupt_cause_register = val;
+        break;
+    case CRYPTOGRAPHIC_ENGINES_AND_SECURITY_ACCELERATOR_INTERRUPT_MASK_REGISTER:
+        s->cryptographic_engines_and_security_accelerator_interrupt_mask_register = val;
+        break;
+    }
+    mv88f5181l_cesa_update(s);
+}
+
+static const MemoryRegionOps mv88f5181l_cesa_ops = {
+    .read = mv88f5181l_cesa_read,
+    .write = mv88f5181l_cesa_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
+static void mv88f5181l_reset(void *opaque)
+{
+    MV88F5181LState *s = opaque;
     
+    s->gpio_data_out_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_data_out_enable_control_register = 0xFFFF << 0 | 0x0 << 26;
+    s->gpio_blink_enable_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_data_in_polarity_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_data_in_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_interrupt_cause_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_interrupt_mask_register = 0x0 << 0 | 0x0 << 26;
+    s->gpio_interrupt_level_mask_register = 0x0 << 0 | 0x0 << 26;
     s->window0_control_register = 0x1FFF5941;
     s->window0_base_register = 0x80000000;
     s->window0_remap_low_register = 0x80000000;
@@ -1994,7 +2816,6 @@ static void mv88f5181L_reset(DeviceState *d) {
     s->window7_control_register = 0x07FF0F11;
     s->window7_base_register = 0xF8000000;
     s->_88f5181_internal_registers_base_address_register = 0xD0000000;
-    
     s->cs0n_base_address_register = 0x0 << 0 | 0x0 << 16 | 0x0 << 24;
     s->cs0n_size_register = 0x1 << 0 | 0x0 << 1 |  0xFF << 16 | 0x0F << 24;
     s->cs1n_base_address_register = 0x0 << 0 | 0x0 << 16 | 0x10 << 24;
@@ -2025,13 +2846,11 @@ static void mv88f5181L_reset(DeviceState *d) {
     s->ddr_sdram_interface_mbus_control_high_register = 0x8 << 0 | 0x9 << 4 | 0xA << 8 | 0xB << 12 | 0xC << 16 | 0xD << 20 | 0xE << 24 | 0xF << 28;
     s->ddr_sdram_interface_mbus_timeout_register = 0xFF << 0 | 0x0 << 8 | 0x1 << 16 | 0x0 << 17;
     s->ddr_sdram_mmask_register = 0x0 << 0 | 0x0 << 2 | 0x0 << 4 | 0xF << 5 | 0x0 << 9;
-    
-    s->mpp_control_0_register = 0;
-    s->mpp_control_1_register = 0;
-    s->mpp_control_2_register = 0;
-    s->device_multiplex_control_register = 0;
-    s->sample_at_reset_register = 0;
-    
+    s->mpp_control_0_register = 0x0;
+    s->mpp_control_1_register = 0x0;
+    s->mpp_control_2_register = 0x0;
+    s->device_multiplex_control_register = 0x0;
+    s->sample_at_reset_register = 0x0;
     s->csn0_bar_size = 0x0 << 0 | 0x0FFFF << 12;
     s->csn1_bar_size = 0x0FFFF000 << 0;
     s->csn2_bar_size = 0x0FFFF000 << 0;
@@ -2094,7 +2913,6 @@ static void mv88f5181L_reset(DeviceState *d) {
     s->pci_error_address_low = 0x0 << 0;
     s->pci_error_address_high = 0x0 << 0;
     s->pci_error_command = 0x0 /* 0 4 5 */;
-    
     s->pci_express_device_and_vendor_id_register = 0x11AB << 0 | 0x5181 << 16;
     s->pci_express_command_and_status_register = 0x1 << 20 /* 0 1 2 3 6 7 8 9 10 11 19 20 21 24 25 27 29 30 31 */;
     s->pci_express_class_code_and_revision_id_register = 0x3 << 0 | 0x80 << 16 | 0x05 << 24;
@@ -2166,197 +2984,314 @@ static void mv88f5181L_reset(DeviceState *d) {
     s->pci_express_acknowledge_timers_1x_register = 0x4 << 0 | 0x320 << 16;
     s->pci_express_debug_control_register = 0x0 << 0 | 0x1 << 16 | 0x17 << 1 | 0x0 << 0 | 0x1 << 19 | 0x0 << 20;
     s->pci_express_tl_control_register = 0x0 << 0;
-    
-    s->phy_address = 0;
-    s->smi = 0;
-    s->ethernet_unit_default_address_euda = 0;
-    s->ethernet_unit_default_id_eudid = 0;
-    s->ethernet_unit_reserved_eu = 0;
-    s->ethernet_unit_interrupt_cause_euic = 0;
-    s->ethernet_unit_interrupt_mask_euim = 0;
-    s->ethernet_unit_error_address_euea = 0;
-    s->ethernet_unit_internal_address_error_euiae = 0;
-    s->ethernet_unit_port_pads_calibration_eupcr = 0;
-    s->ethernet_unit_control_euc = 0;
-    s->base_address_0_ba0 = 0;
-    s->size_s_0_sr0 = 0;
-    s->base_address_1_ba1 = 0;
-    s->size_s_1_sr1 = 0;
-    s->base_address_2_ba2 = 0;
-    s->size_s_2_sr2 = 0;
-    s->base_address_3_ba3 = 0;
-    s->size_s_3_sr3 = 0;
-    s->base_address_4_ba4 = 0;
-    s->size_s_4_sr4 = 0;
-    s->base_address_5_ba5 = 0;
-    s->size_s_5_sr5 = 0;
-    s->high_address_remap_ha_harr0 = 0;
-    s->high_address_remap_ha_harr1 = 0;
-    s->high_address_remap_ha_harr2 = 0;
-    s->high_address_remap_ha_harr3 = 0;
-    s->base_address_enable_bare = 0;
-    s->ethernet_port_access_protect_epap = 0;
-    s->port_configuration_gec = 0;
-    s->port_configuration_extend_gecx = 0;
-    s->mii_serial_parameters = 0;
-    s->gmii_serial_parameters = 0;
-    s->vlan_ethertype_evlane = 0;
-    s->mac_address_low_macal = 0;
-    s->mac_address_high_macah = 0;
-    s->sdma_configuration_sdc = 0;
-    s->ip_differentiated_services_codepoint_0_to_priority_dscp0 = 0;
-    s->ip_differentiated_services_codepoint_1_to_priority_dscp1 = 0;
-    s->ip_differentiated_services_codepoint_2_to_priority_dscp2 = 0;
-    s->ip_differentiated_services_codepoint_23_to_priority_dscp3 = 0;
-    s->ip_differentiated_services_codepoint_24_to_priority_dscp4 = 0;
-    s->ip_differentiated_services_codepoint_25_to_priority_dscp5 = 0;
-    s->ip_differentiated_services_codepoint_6_to_priority_dscp6 = 0;
-    s->port_serial_control_psc = 0;
-    s->vlan_priority_tag_to_priority_vpt2p = 0;
-    s->ethernet_port_status_ps = 0;
-    s->transmit_queue_command_tqc = 0;
-    s->maximum_transmit_unit_mtu = 0;
-    s->port_interrupt_cause_ic = 0;
-    s->port_interrupt_cause_extend_ice = 0;
-    s->port_interrupt_mask_pim = 0;
-    s->port_extend_interrupt_mask_peim = 0;
-    s->port_rx_fifo_urgent_threshold_prfut = 0;
-    s->port_tx_fifo_urgent_threshold_ptfut = 0;
-    s->port_rx_minimal_frame_size_pmfs = 0;
-    s->port_rx_discard_frame_counter_gedfc = 0;
-    s->port_overrun_frame_counter_pofc = 0;
-    s->port_internal_address_error_euiae = 0;
-    s->ethernet_current_receive_descriptor_pointers_crdp_q0 = 0;
-    s->ethernet_current_receive_descriptor_pointers_crdp_q1 = 0;
-    s->ethernet_current_receive_descriptor_pointers_crdp_q2 = 0;
-    s->ethernet_current_receive_descriptor_pointers_crdp_q3 = 0;
-    s->ethernet_current_receive_descriptor_pointers_crdp_q4 = 0;
-    s->ethernet_current_receive_descriptor_pointers_crdp_q5 = 0;
-    s->ethernet_current_receive_descriptor_pointers_crdp_q6 = 0;
-    s->ethernet_current_receive_descriptor_pointers_crdp_q7 = 0;
-    s->receive_queue_command_rqc = 0;
-    s->transmit_current_served_descriptor_pointer = 0;
-    s->transmit_current_queue_descriptor_pointer_tcqdp_q0 = 0;
-    s->transmit_queue_token_bucket_counter_tqxtbc_q0 = 0;
-    s->transmit_queue_token_bucket_configuration_tqxtbc_q0 = 0;
-    s->transmit_queue_arbiter_configuration_tqxac_q0 = 0;
-    s->transmit_queue_token_bucket_counter_tqxtbc_q1 = 0;
-    s->transmit_queue_token_bucket_configuration_tqxtbc_q1 = 0;
-    s->transmit_queue_arbiter_configuration_tqxac_q1 = 0;
-    s->transmit_queue_token_bucket_counter_tqxtbc_q2 = 0;
-    s->transmit_queue_token_bucket_configuration_tqxtbc_q2 = 0;
-    s->transmit_queue_arbiter_configuration_tqxac_q2 = 0;
-    s->transmit_queue_token_bucket_counter_tqxtbc_q3 = 0;
-    s->transmit_queue_token_bucket_configuration_tqxtbc_q3 = 0;
-    s->transmit_queue_arbiter_configuration_tqxac_q3 = 0;
-    s->transmit_queue_token_bucket_counter_tqxtbc_q4 = 0;
-    s->transmit_queue_token_bucket_configuration_tqxtbc_q4 = 0;
-    s->transmit_queue_arbiter_configuration_tqxac_q4 = 0;
-    s->transmit_queue_token_bucket_counter_tqxtbc_q5 = 0;
-    s->transmit_queue_token_bucket_configuration_tqxtbc_q5 = 0;
-    s->transmit_queue_arbiter_configuration_tqxac_q5 = 0;
-    s->transmit_queue_token_bucket_counter_tqxtbc_q6 = 0;
-    s->transmit_queue_token_bucket_configuration_tqxtbc_q6 = 0;
-    s->transmit_queue_arbiter_configuration_tqxac_q6 = 0;
-    s->transmit_queue_token_bucket_counter_tqxtbc_q7 = 0;
-    s->transmit_queue_token_bucket_configuration_tqxtbc_q7 = 0;
-    s->transmit_queue_arbiter_configuration_tqxac_q7 = 0;
-    s->mac_mib_countersnterrupt_cause_register = 0;
-    s->destination_address_filter_special_multicast_table_dfsmt = 0;
-    s->destination_address_filter_other_multicast_table_dfut = 0;
-    s->destination_address_filter_unicast_table_dfut = 0;
+    s->port0_usb_2_0_id = 0x0;
+    s->port0_usb_2_0_hwgeneral = 0x0;
+    s->port0_usb_2_0_hwhost = 0x0;
+    s->port0_usb_2_0_hwdevice = 0x0;
+    s->port0_usb_2_0_hwtxbuf = 0x0;
+    s->port0_usb_2_0_hwrxbuf = 0x0;
+    s->port0_usb_2_0_hwtttxbuf = 0x0;
+    s->port0_usb_2_0_hwttrxbuf = 0x0;
+    s->port0_usb_2_0_caplength = 0x0;
+    s->port0_usb_2_0_hciversion = 0x0;
+    s->port0_usb_2_0_hcsparams = 0x0;
+    s->port0_usb_2_0_hccparams = 0x0;
+    s->port0_usb_2_0_dciversion = 0x0;
+    s->port0_usb_2_0_dccparams = 0x0;
+    s->port0_usb_2_0_usbcmd = 0x0;
+    s->port0_usb_2_0_usbsts = 0x0;
+    s->port0_usb_2_0_usbintr = 0x0;
+    s->port0_usb_2_0_frindex = 0x0;
+    s->port0_usb_2_0_periodiclistbase__or__device_addr = 0x0;
+    s->port0_usb_2_0_asynclistaddr__or__endpointlist_addr = 0x0;
+    s->port0_usb_2_0_ttctrl = 0x0;
+    s->port0_usb_2_0_burstsize = 0x0;
+    s->port0_usb_2_0_txfilltuning = 0x0;
+    s->port0_usb_2_0_txttfilltuning = 0x0;
+    s->port0_usb_2_0_configflag = 0x0;
+    s->port0_usb_2_0_portsc1 = 0x0;
+    s->port0_usb_2_0_otgsc = 0x0;
+    s->port0_usb_2_0_usbmode = 0x0;
+    s->port0_usb_2_0_enpdtsetupstat = 0x0;
+    s->port0_usb_2_0_endptprime = 0x0;
+    s->port0_usb_2_0_endptflush = 0x0;
+    s->port0_usb_2_0_endptstatus = 0x0;
+    s->port0_usb_2_0_endptcomplete = 0x0;
+    s->port0_usb_2_0_endptctrl0 = 0x0;
+    s->port0_usb_2_0_endptctrl1 = 0x0;
+    s->port0_usb_2_0_endptctrl2 = 0x0;
+    s->port0_usb_2_0_endptctrl3 = 0x0;
+    s->port0_usb_2_0_bridge_control_register = 0x0;
+    s->port0_usb_2_0_bridge_interrupt_cause_register = 0x0;
+    s->port0_usb_2_0_bridge_interrupt_mask_register = 0x0;
+    s->port0_usb_2_0_bridge_error_address_register = 0x0;
+    s->port0_usb_2_0_window0_control_register = 0x0;
+    s->port0_usb_2_0_window0_base_register = 0x0;
+    s->port0_usb_2_0_window1_control_register = 0x0;
+    s->port0_usb_2_0_window1_base_register = 0x0;
+    s->port0_usb_2_0_window2_control_register = 0x0;
+    s->port0_usb_2_0_window2_base_register = 0x0;
+    s->port0_usb_2_0_window3_control_register = 0x0;
+    s->port0_usb_2_0_window3_base_register = 0x0;
+    s->port0_usb_2_0_power_control_register = 0x0;
+    s->phy_address = 0x0;
+    s->smi = 0x0;
+    s->ethernet_unit_default_address_euda = 0x0;
+    s->ethernet_unit_default_id_eudid = 0x0;
+    s->ethernet_unit_reserved_eu = 0x0;
+    s->ethernet_unit_interrupt_cause_euic = 0x0;
+    s->ethernet_unit_interrupt_mask_euim = 0x0;
+    s->ethernet_unit_error_address_euea = 0x0;
+    s->ethernet_unit_internal_address_error_euiae = 0x0;
+    s->ethernet_unit_port_pads_calibration_eupcr = 0x0;
+    s->ethernet_unit_control_euc = 0x0;
+    s->base_address_0_ba0 = 0x0;
+    s->size_s_0_sr0 = 0x0;
+    s->base_address_1_ba1 = 0x0;
+    s->size_s_1_sr1 = 0x0;
+    s->base_address_2_ba2 = 0x0;
+    s->size_s_2_sr2 = 0x0;
+    s->base_address_3_ba3 = 0x0;
+    s->size_s_3_sr3 = 0x0;
+    s->base_address_4_ba4 = 0x0;
+    s->size_s_4_sr4 = 0x0;
+    s->base_address_5_ba5 = 0x0;
+    s->size_s_5_sr5 = 0x0;
+    s->high_address_remap_ha_harr0 = 0x0;
+    s->high_address_remap_ha_harr1 = 0x0;
+    s->high_address_remap_ha_harr2 = 0x0;
+    s->high_address_remap_ha_harr3 = 0x0;
+    s->base_address_enable_bare = 0x0;
+    s->ethernet_port_access_protect_epap = 0x0;
+    s->port_configuration_gec = 0x0;
+    s->port_configuration_extend_gecx = 0x0;
+    s->mii_serial_parameters = 0x0;
+    s->gmii_serial_parameters = 0x0;
+    s->vlan_ethertype_evlane = 0x0;
+    s->mac_address_low_macal = 0x0;
+    s->mac_address_high_macah = 0x0;
+    s->sdma_configuration_sdc = 0x0;
+    s->ip_differentiated_services_codepoint_0_to_priority_dscp0 = 0x0;
+    s->ip_differentiated_services_codepoint_1_to_priority_dscp1 = 0x0;
+    s->ip_differentiated_services_codepoint_2_to_priority_dscp2 = 0x0;
+    s->ip_differentiated_services_codepoint_23_to_priority_dscp3 = 0x0;
+    s->ip_differentiated_services_codepoint_24_to_priority_dscp4 = 0x0;
+    s->ip_differentiated_services_codepoint_25_to_priority_dscp5 = 0x0;
+    s->ip_differentiated_services_codepoint_6_to_priority_dscp6 = 0x0;
+    s->port_serial_control_psc = 0x0;
+    s->vlan_priority_tag_to_priority_vpt2p = 0x0;
+    s->ethernet_port_status_ps = 0x0;
+    s->transmit_queue_command_tqc = 0x0;
+    s->maximum_transmit_unit_mtu = 0x0;
+    s->port_interrupt_cause_ic = 0x0;
+    s->port_interrupt_cause_extend_ice = 0x0;
+    s->port_interrupt_mask_pim = 0x0;
+    s->port_extend_interrupt_mask_peim = 0x0;
+    s->port_rx_fifo_urgent_threshold_prfut = 0x0;
+    s->port_tx_fifo_urgent_threshold_ptfut = 0x0;
+    s->port_rx_minimal_frame_size_pmfs = 0x0;
+    s->port_rx_discard_frame_counter_gedfc = 0x0;
+    s->port_overrun_frame_counter_pofc = 0x0;
+    s->port_internal_address_error_euiae = 0x0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q0 = 0x0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q1 = 0x0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q2 = 0x0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q3 = 0x0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q4 = 0x0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q5 = 0x0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q6 = 0x0;
+    s->ethernet_current_receive_descriptor_pointers_crdp_q7 = 0x0;
+    s->receive_queue_command_rqc = 0x0;
+    s->transmit_current_served_descriptor_pointer = 0x0;
+    s->transmit_current_queue_descriptor_pointer_tcqdp_q0 = 0x0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q0 = 0x0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q0 = 0x0;
+    s->transmit_queue_arbiter_configuration_tqxac_q0 = 0x0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q1 = 0x0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q1 = 0x0;
+    s->transmit_queue_arbiter_configuration_tqxac_q1 = 0x0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q2 = 0x0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q2 = 0x0;
+    s->transmit_queue_arbiter_configuration_tqxac_q2 = 0x0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q3 = 0x0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q3 = 0x0;
+    s->transmit_queue_arbiter_configuration_tqxac_q3 = 0x0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q4 = 0x0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q4 = 0x0;
+    s->transmit_queue_arbiter_configuration_tqxac_q4 = 0x0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q5 = 0x0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q5 = 0x0;
+    s->transmit_queue_arbiter_configuration_tqxac_q5 = 0x0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q6 = 0x0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q6 = 0x0;
+    s->transmit_queue_arbiter_configuration_tqxac_q6 = 0x0;
+    s->transmit_queue_token_bucket_counter_tqxtbc_q7 = 0x0;
+    s->transmit_queue_token_bucket_configuration_tqxtbc_q7 = 0x0;
+    s->transmit_queue_arbiter_configuration_tqxac_q7 = 0x0;
+    s->mac_mib_countersnterrupt_cause_register = 0x0;
+    s->destination_address_filter_special_multicast_table_dfsmt = 0x0;
+    s->destination_address_filter_other_multicast_table_dfut = 0x0;
+    s->destination_address_filter_unicast_table_dfut = 0x0;
+    s->des_data_out_low_register = 0x0;
+    s->des_data_out_high_register = 0x0;
+    s->des_data_buffer_low_register = 0x0;
+    s->des_data_buffer_high_register = 0x0;
+    s->des_initial_value_low_register = 0x0;
+    s->des_initial_value_high_register = 0x0;
+    s->des_key0_low_register = 0x0;
+    s->des_key0_high_register = 0x0;
+    s->des_key1_low_register = 0x0;
+    s->des_key1_high_register = 0x0;
+    s->des_key2_low_register = 0x0;
+    s->des_key2_high_register = 0x0;
+    s->des_command_register = 0x0;
+    s->sha_1_or_md5_data_in_register = 0x0;
+    s->sha_1_or_md5_bit_count_low_register = 0x0;
+    s->sha_1_or_md5_bit_count_high_register = 0x0;
+    s->sha_1_or_md5_initial_value_or_digest_a_register = 0x0;
+    s->sha_1_or_md5_initial_value_or_digest_b_register = 0x0;
+    s->sha_1_or_md5_initial_value_or_digest_c_register = 0x0;
+    s->sha_1_or_md5_initial_value_or_digest_d_register = 0x0;
+    s->sha_1_initial_value_or_digest_e_register = 0x0;
+    s->sha_1_or_md5_authentication_command_register = 0x0;
+    s->aes_encryption_data_in_or_out_column_3_register = 0x0;
+    s->aes_encryption_data_in_or_out_column_2_register = 0x0;
+    s->aes_encryption_data_in_or_out_column_1_register = 0x0;
+    s->aes_encryption_data_in_or_out_column_0_register = 0x0;
+    s->aes_encryption_key_column_3_register = 0x0;
+    s->aes_encryption_key_column_2_register = 0x0;
+    s->aes_encryption_key_column_1_register = 0x0;
+    s->aes_encryption_key_column_0_register = 0x0;
+    s->aes_encryption_key_column_7_register = 0x0;
+    s->aes_encryption_key_column_6_register = 0x0;
+    s->aes_encryption_key_column_5_register = 0x0;
+    s->aes_encryption_key_column_4_register = 0x0;
+    s->aes_encryption_command_register = 0x0;
+    s->aes_decryption_data_in_or_out_column_3_register = 0x0;
+    s->aes_decryption_data_in_or_out_column_2_register = 0x0;
+    s->aes_decryption_data_in_or_out_column_1_register = 0x0;
+    s->aes_decryption_data_in_or_out_column_0_register = 0x0;
+    s->aes_decryption_key_column_3_register = 0x0;
+    s->aes_decryption_key_column_2_register = 0x0;
+    s->aes_decryption_key_column_1_register = 0x0;
+    s->aes_decryption_key_column_0_register = 0x0;
+    s->aes_decryption_key_column_7_register = 0x0;
+    s->aes_decryption_key_column_6_register = 0x0;
+    s->aes_decryption_key_column_5_register = 0x0;
+    s->aes_decryption_key_column_4_register = 0x0;
+    s->aes_decryption_command_register = 0x0;
+    s->security_accelerator_command_register = 0x0;
+    s->security_accelerator_descriptor_pointer_session_0_register = 0x0;
+    s->security_accelerator_descriptor_pointer_session_1_register = 0x0;
+    s->security_accelerator_configuration_register = 0x0;
+    s->security_accelerator_status_register = 0x0;
+    s->cryptographic_engines_and_security_accelerator_interrupt_cause_register = 0x0;
+    s->cryptographic_engines_and_security_accelerator_interrupt_mask_register = 0x0;
 }
 
-static void mv88f5181L_init(Object *obj) {
+static void mv88f5181l_init(Object *obj) 
+{
     MV88F5181LState *s = MV88F5181L(obj);
 
     /* initialize cpus and add the cpu as soc's child */
     s->cpu_type = ARM_CPU_TYPE_NAME("arm926");
     s->cpu = ARM_CPU(object_new(s->cpu_type));
 
-    /* initialize cpu address map registers */
-    memory_region_init_io(&s->cpu_address_map_mmio, obj,
-        &mv88f5181_cpu_address_map_ops, s, TYPE_MV88F5181L, MV88F5181_CPU_ADDRESS_MAP_MMIO_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->cpu_address_map_mmio);
-
-    /* initialize ddr sdram controller registers */
-    memory_region_init_io(&s->ddr_sdram_controller_mmio, obj,
-        &mv88f5181_ddr_sdram_controller_ops, s, TYPE_MV88F5181L, MV88F5181_DDR_SDRAM_CONTROLLER_MMIO_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ddr_sdram_controller_mmio);
-
-    /* initialize pins multiplexing interface registers */
-    memory_region_init_io(&s->pins_multiplexing_interface_mmio, obj,
+    /* initialize bamboo device registers */
+    /* initialize mv88f5181l_gpio registers */
+    memory_region_init_io(&s->mv88f5181l_gpio_mmio, obj,
+        &mv88f5181l_gpio_ops, s, TYPE_MV88F5181L, MV88F5181L_GPIO_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mv88f5181l_gpio_mmio);
+    
+    /* initialize mv88f5181l_cpu_address_map registers */
+    memory_region_init_io(&s->mv88f5181l_cpu_address_map_mmio, obj,
+        &mv88f5181l_cpu_address_map_ops, s, TYPE_MV88F5181L, MV88F5181L_CPU_ADDRESS_MAP_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mv88f5181l_cpu_address_map_mmio);
+    
+    /* initialize mv88f5181l_ddr_sdram_controller registers */
+    memory_region_init_io(&s->mv88f5181l_ddr_sdram_controller_mmio, obj,
+        &mv88f5181l_ddr_sdram_controller_ops, s, TYPE_MV88F5181L, MV88F5181L_DDR_SDRAM_CONTROLLER_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mv88f5181l_ddr_sdram_controller_mmio);
+    
+    /* initialize mv88f5181l_pins_multiplexing_interface registers */
+    memory_region_init_io(&s->mv88f5181l_pins_multiplexing_interface_mmio, obj,
         &mv88f5181l_pins_multiplexing_interface_ops, s, TYPE_MV88F5181L, MV88F5181L_PINS_MULTIPLEXING_INTERFACE_MMIO_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->pins_multiplexing_interface_mmio);
-
-    /* initialize pci interface registers */
-    memory_region_init_io(&s->pci_interface_mmio, obj,
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mv88f5181l_pins_multiplexing_interface_mmio);
+    
+    /* initialize mv88f5181l_pci_interface registers */
+    memory_region_init_io(&s->mv88f5181l_pci_interface_mmio, obj,
         &mv88f5181l_pci_interface_ops, s, TYPE_MV88F5181L, MV88F5181L_PCI_INTERFACE_MMIO_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->pci_interface_mmio);
-
-    /* initialize pcie interface registers */
-    memory_region_init_io(&s->pcie_interface_mmio, obj,
-        &mv88f5181L_pcie_interface_ops, s, TYPE_MV88F5181L, MV88F5181L_PCIE_INTERFACE_MMIO_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->pcie_interface_mmio);
-
-    /* initialize eth interface registers */
-    memory_region_init_io(&s->gigabit_ethernet_controller_mmio, obj,
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mv88f5181l_pci_interface_mmio);
+    
+    /* initialize mv88f5181l_pcie_interface registers */
+    memory_region_init_io(&s->mv88f5181l_pcie_interface_mmio, obj,
+        &mv88f5181l_pcie_interface_ops, s, TYPE_MV88F5181L, MV88F5181L_PCIE_INTERFACE_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mv88f5181l_pcie_interface_mmio);
+    
+    /* initialize mv88f5181l_usb_2_0_controller registers */
+    memory_region_init_io(&s->mv88f5181l_usb_2_0_controller_mmio, obj,
+        &mv88f5181l_usb_2_0_controller_ops, s, TYPE_MV88F5181L, MV88F5181L_USB_2_0_CONTROLLER_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mv88f5181l_usb_2_0_controller_mmio);
+    
+    /* initialize mv88f5181l_gigabit_ethernet_controller registers */
+    memory_region_init_io(&s->mv88f5181l_gigabit_ethernet_controller_mmio, obj,
         &mv88f5181l_gigabit_ethernet_controller_ops, s, TYPE_MV88F5181L, MV88F5181L_GIGABIT_ETHERNET_CONTROLLER_MMIO_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->gigabit_ethernet_controller_mmio);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mv88f5181l_gigabit_ethernet_controller_mmio);
+    
+    /* initialize mv88f5181l_cesa registers */
+    memory_region_init_io(&s->mv88f5181l_cesa_mmio, obj,
+        &mv88f5181l_cesa_ops, s, TYPE_MV88F5181L, MV88F5181L_CESA_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mv88f5181l_cesa_mmio);
+    
 
-    /* initialize the interrupt controller and add the ic as soc and sysbus's child*/
+    /* initialize the timer */
+    sysbus_init_child_obj(
+        obj, "timer", &s->timer, sizeof(s->timer), TYPE_MV88F5181L_TIMER);
+
+    /* initialize the bridge */
+    sysbus_init_child_obj(
+        obj, "bridge", &s->bridge, sizeof(s->bridge), TYPE_MV88F5181L_BRIDGE);
+
+    object_property_add_const_link(OBJECT(&s->bridge), "timer", OBJECT(&s->timer), &error_abort);
+
+    /* initialize the interrupt controller */
     sysbus_init_child_obj(
         obj, "ic", &s->ic, sizeof(s->ic), TYPE_MV88F5181L_IC);
 
-    /* initialize peripherals and add the peripherals as soc and sysbus's child */
-    sysbus_init_child_obj(
-        obj, "peripherals", &s->peripherals, sizeof(s->peripherals), TYPE_MV88F5181L_PERIPHERALS);
+    object_property_add_const_link(OBJECT(&s->ic), "bridge", OBJECT(&s->bridge), &error_abort);
+
+    /* register reset for mv88f5181l */
+    // qemu_register_reset(mv88f5181l_reset, s);
 }
 
-static void mv88f5181L_realize(DeviceState *dev, Error **errp) {
+static void mv88f5181l_realize(DeviceState *dev, Error **errp) 
+{
     MV88F5181LState *s = MV88F5181L(dev);
     Error *err = NULL;
 
-    /* realize the peripherals  */
-    object_property_set_bool(OBJECT(&s->peripherals), true, "realized", &err);
+    /* realize the timer */
+    object_property_set_bool(OBJECT(&s->timer), true, "realized", &err);
+    if (err != NULL) {
+        error_propagate(errp, err);
+        return;
+    }
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, MV88F5181L_TIMER_MMIO_BASE);
+
+    /* realize the bridge  */
+    object_property_set_bool(OBJECT(&s->bridge), true, "realized", &err);
     if (err) {
         error_propagate(errp, err);
         return;
     }
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->bridge), 0, MV88F5181L_BRIDGE_MMIO_BASE);
 
-    /* map peripheral's mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->peripherals), 0, MV88F5181_BRIDGE_RAM_BASE);
-
-    /* realize the local interrupt controller */
+    /* realize the interrupt controller */
     object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);
     if (err) {
         error_propagate(errp, err);
         return;
     }
-
-    /* map ic's mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, MV88F5181L_IC_RAM_BASE);
-
-    /* realize the cpu */
-    object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
-    if (err) {
-        error_propagate(errp, err);
-        return;
-    }
-
-    /* connect irq from the peripheral to the interrupt controller */
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals), 0,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), MV88F5181L_IC_IRQ, 0));
-
-    /* connect irq from the gpio to the interrupt controller */
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals.gpio), 0,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), MV88F5181L_IC_IRQ, 6));
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals.gpio), 1,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), MV88F5181L_IC_IRQ, 7));
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals.gpio), 2,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), MV88F5181L_IC_IRQ, 8));
-    sysbus_connect_irq(SYS_BUS_DEVICE(&s->peripherals.gpio), 3,
-        qdev_get_gpio_in_named(DEVICE(&s->ic), MV88F5181L_IC_IRQ, 9));
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, MV88F5181L_IC_MMIO_BASE);
 
     /* attach the uart to 16550A(8250) */
     if (serial_hd(0)) {
@@ -2365,13 +3300,19 @@ static void mv88f5181L_realize(DeviceState *dev, Error **errp) {
                        115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
     }
 
+    /* realize the cpu */
+    object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
+    if (err) {
+        error_propagate(errp, err);
+        return;
+    }
     /* connect irq/fiq outputs from the interrupt controller to the cpu */
     qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0,
             qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));
 }
 
-
-static void mv88f5181L_class_init(ObjectClass *oc, void *data) {
+static void mv88f5181l_class_init(ObjectClass *oc, void *data) 
+{
     DeviceClass *dc = DEVICE_CLASS(oc);
 
     /* dc->fw_name = ; */
@@ -2379,8 +3320,8 @@ static void mv88f5181L_class_init(ObjectClass *oc, void *data) {
     /* dc->props = ; */
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
-    dc->reset = mv88f5181L_reset;
-    dc->realize = mv88f5181L_realize;
+    /* dc->reset = ; */
+    dc->realize = mv88f5181l_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
     /* dc->bus_type = ; */
@@ -2391,17 +3332,18 @@ static void mv88f5181L_class_init(ObjectClass *oc, void *data) {
     /* sbc->connect_irq_notifier = ; */
 }
 
-static const TypeInfo mv88f5181L_type_info = {
+static const TypeInfo mv88f5181l_type_info = {
     .name = TYPE_MV88F5181L,
     .parent = TYPE_SYS_BUS_DEVICE,
     .instance_size = sizeof(MV88F5181LState),
-    .instance_init = mv88f5181L_init,
+    .instance_init = mv88f5181l_init,
     /* .class_size = sizeof(SysBusDeviceClass), */
-    .class_init = mv88f5181L_class_init,
+    .class_init = mv88f5181l_class_init,
 };
 
-static void mv88f5181L_register_types(void) {
-    type_register_static(&mv88f5181L_type_info);
+static void mv88f5181l_register_types(void) 
+{
+    type_register_static(&mv88f5181l_type_info);
 }
 
-type_init(mv88f5181L_register_types);
+type_init(mv88f5181l_register_types);

@@ -14,8 +14,8 @@
 {% for register in ic_registers %}
 #define {{register.name|upper}} {{register.offset}}{% endfor %}
 
-#define {{ic_name|upper}}_RAM_SIZE {{ic_mmio_size}}
-#define {{ic_name|upper}}_RAM_BASE {{ic_mmio_base}}
+#define {{ic_name|upper}}_MMIO_SIZE {{ic_mmio_size}}
+#define {{ic_name|upper}}_MMIO_BASE {{ic_mmio_base}}
 
 typedef struct {{ic_name|upper|concat}}State {
     /*< private >*/

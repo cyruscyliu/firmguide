@@ -48,4 +48,4 @@ common-obj-$(CONFIG_CMSDK_APB_TIMER) += cmsdk-apb-timer.o
 common-obj-$(CONFIG_CMSDK_APB_DUALTIMER) += cmsdk-apb-dualtimer.o
 common-obj-$(CONFIG_MSF2) += mss-timer.o
 
-obj-$(CONFIG_WRT350N_V2) += mv88f5181L_timer.o
+obj-$(CONFIG_WRT350N_V2) += mv88f5181l_timer.o

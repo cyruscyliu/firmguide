@@ -6,13 +6,22 @@
 #define MV88F5181L_H
 
 #include "hw/arm/arm.h"
-#include "hw/intc/mv88f5181L_ic.h"
-#include "hw/arm/mv88f5181L_peripherals.h"
+#include "hw/arm/mv88f5181l_bridge.h"
+#include "hw/intc/mv88f5181l_ic.h"
+#include "hw/timer/mv88f5181l_timer.h"
 
-#define TYPE_MV88F5181L "mv88f5181L"
+#define TYPE_MV88F5181L "mv88f5181l"
 #define MV88F5181L(obj) \
     OBJECT_CHECK(MV88F5181LState, (obj), TYPE_MV88F5181L)
 
+#define GPIO_DATA_OUT_REGISTER 0x00
+#define GPIO_DATA_OUT_ENABLE_CONTROL_REGISTER 0x04
+#define GPIO_BLINK_ENABLE_REGISTER 0x08
+#define GPIO_DATA_IN_POLARITY_REGISTER 0x0c
+#define GPIO_DATA_IN_REGISTER 0x10
+#define GPIO_INTERRUPT_CAUSE_REGISTER 0x14
+#define GPIO_INTERRUPT_MASK_REGISTER 0x18
+#define GPIO_INTERRUPT_LEVEL_MASK_REGISTER 0x1c
 #define WINDOW0_CONTROL_REGISTER 0x00
 #define WINDOW0_BASE_REGISTER 0x04
 #define WINDOW0_REMAP_LOW_REGISTER 0x08
@@ -36,7 +45,6 @@
 #define WINDOW7_CONTROL_REGISTER 0x70
 #define WINDOW7_BASE_REGISTER 0x74
 #define _88F5181_INTERNAL_REGISTERS_BASE_ADDRESS_REGISTER 0x80
-
 #define CS0N_BASE_ADDRESS_REGISTER 0x100
 #define CS0N_SIZE_REGISTER 0x104
 #define CS1N_BASE_ADDRESS_REGISTER 0x108
@@ -67,13 +75,11 @@
 #define DDR_SDRAM_INTERFACE_MBUS_CONTROL_HIGH_REGISTER 0x34
 #define DDR_SDRAM_INTERFACE_MBUS_TIMEOUT_REGISTER 0x38
 #define DDR_SDRAM_MMASK_REGISTER 0xB0
-
 #define MPP_CONTROL_0_REGISTER 0x00
 #define MPP_CONTROL_1_REGISTER 0x04
 #define MPP_CONTROL_2_REGISTER 0x50
 #define DEVICE_MULTIPLEX_CONTROL_REGISTER 0x08
 #define SAMPLE_AT_RESET_REGISTER 0x10
-
 #define CSN0_BAR_SIZE 0x0c08
 #define CSN1_BAR_SIZE 0x0d08
 #define CSN2_BAR_SIZE 0x0c0c
@@ -136,7 +142,6 @@
 #define PCI_ERROR_ADDRESS_LOW 0x1d40
 #define PCI_ERROR_ADDRESS_HIGH 0x1d44
 #define PCI_ERROR_COMMAND 0x1d50
-
 #define PCI_EXPRESS_DEVICE_AND_VENDOR_ID_REGISTER 0x0000
 #define PCI_EXPRESS_COMMAND_AND_STATUS_REGISTER 0x0004
 #define PCI_EXPRESS_CLASS_CODE_AND_REVISION_ID_REGISTER 0x0008
@@ -208,7 +213,56 @@
 #define PCI_EXPRESS_ACKNOWLEDGE_TIMERS_1X_REGISTER 0x1a40
 #define PCI_EXPRESS_DEBUG_CONTROL_REGISTER 0x1a60
 #define PCI_EXPRESS_TL_CONTROL_REGISTER 0x1ab0
-
+#define PORT0_USB_2_0_ID 0x00
+#define PORT0_USB_2_0_HWGENERAL 0x04
+#define PORT0_USB_2_0_HWHOST 0x08
+#define PORT0_USB_2_0_HWDEVICE 0x0c
+#define PORT0_USB_2_0_HWTXBUF 0x10
+#define PORT0_USB_2_0_HWRXBUF 0x14
+#define PORT0_USB_2_0_HWTTTXBUF 0x18
+#define PORT0_USB_2_0_HWTTRXBUF 0x1c
+#define PORT0_USB_2_0_CAPLENGTH 0x100
+#define PORT0_USB_2_0_HCIVERSION 0x102
+#define PORT0_USB_2_0_HCSPARAMS 0x104
+#define PORT0_USB_2_0_HCCPARAMS 0x108
+#define PORT0_USB_2_0_DCIVERSION 0x120
+#define PORT0_USB_2_0_DCCPARAMS 0x124
+#define PORT0_USB_2_0_USBCMD 0x140
+#define PORT0_USB_2_0_USBSTS 0x144
+#define PORT0_USB_2_0_USBINTR 0x148
+#define PORT0_USB_2_0_FRINDEX 0x14c
+#define PORT0_USB_2_0_PERIODICLISTBASE__OR__DEVICE_ADDR 0x154
+#define PORT0_USB_2_0_ASYNCLISTADDR__OR__ENDPOINTLIST_ADDR 0x158
+#define PORT0_USB_2_0_TTCTRL 0x15c
+#define PORT0_USB_2_0_BURSTSIZE 0x160
+#define PORT0_USB_2_0_TXFILLTUNING 0x164
+#define PORT0_USB_2_0_TXTTFILLTUNING 0x168
+#define PORT0_USB_2_0_CONFIGFLAG 0x180
+#define PORT0_USB_2_0_PORTSC1 0x184
+#define PORT0_USB_2_0_OTGSC 0x1a4
+#define PORT0_USB_2_0_USBMODE 0x1a8
+#define PORT0_USB_2_0_ENPDTSETUPSTAT 0x1ac
+#define PORT0_USB_2_0_ENDPTPRIME 0x1b0
+#define PORT0_USB_2_0_ENDPTFLUSH 0x1b4
+#define PORT0_USB_2_0_ENDPTSTATUS 0x1b8
+#define PORT0_USB_2_0_ENDPTCOMPLETE 0x1bc
+#define PORT0_USB_2_0_ENDPTCTRL0 0x1c0
+#define PORT0_USB_2_0_ENDPTCTRL1 0x1c4
+#define PORT0_USB_2_0_ENDPTCTRL2 0x1c8
+#define PORT0_USB_2_0_ENDPTCTRL3 0x1cc
+#define PORT0_USB_2_0_BRIDGE_CONTROL_REGISTER 0x300
+#define PORT0_USB_2_0_BRIDGE_INTERRUPT_CAUSE_REGISTER 0x310
+#define PORT0_USB_2_0_BRIDGE_INTERRUPT_MASK_REGISTER 0x314
+#define PORT0_USB_2_0_BRIDGE_ERROR_ADDRESS_REGISTER 0x31c
+#define PORT0_USB_2_0_WINDOW0_CONTROL_REGISTER 0x320
+#define PORT0_USB_2_0_WINDOW0_BASE_REGISTER 0x324
+#define PORT0_USB_2_0_WINDOW1_CONTROL_REGISTER 0x330
+#define PORT0_USB_2_0_WINDOW1_BASE_REGISTER 0x334
+#define PORT0_USB_2_0_WINDOW2_CONTROL_REGISTER 0x340
+#define PORT0_USB_2_0_WINDOW2_BASE_REGISTER 0x344
+#define PORT0_USB_2_0_WINDOW3_CONTROL_REGISTER 0x350
+#define PORT0_USB_2_0_WINDOW3_BASE_REGISTER 0x354
+#define PORT0_USB_2_0_POWER_CONTROL_REGISTER 0x400
 #define PHY_ADDRESS 0x000
 #define SMI 0x004
 #define ETHERNET_UNIT_DEFAULT_ADDRESS_EUDA 0x008
@@ -307,19 +361,80 @@
 #define DESTINATION_ADDRESS_FILTER_SPECIAL_MULTICAST_TABLE_DFSMT 0x1400
 #define DESTINATION_ADDRESS_FILTER_OTHER_MULTICAST_TABLE_DFUT 0x1500
 #define DESTINATION_ADDRESS_FILTER_UNICAST_TABLE_DFUT 0x1600
+#define DES_DATA_OUT_LOW_REGISTER 0x00000078
+#define DES_DATA_OUT_HIGH_REGISTER 0x0000007c
+#define DES_DATA_BUFFER_LOW_REGISTER 0x00000070
+#define DES_DATA_BUFFER_HIGH_REGISTER 0x00000074
+#define DES_INITIAL_VALUE_LOW_REGISTER 0x00000040
+#define DES_INITIAL_VALUE_HIGH_REGISTER 0x00000044
+#define DES_KEY0_LOW_REGISTER 0x00000048
+#define DES_KEY0_HIGH_REGISTER 0x0000004c
+#define DES_KEY1_LOW_REGISTER 0x00000050
+#define DES_KEY1_HIGH_REGISTER 0x00000054
+#define DES_KEY2_LOW_REGISTER 0x00000060
+#define DES_KEY2_HIGH_REGISTER 0x00000064
+#define DES_COMMAND_REGISTER 0x00000058
+#define SHA_1_OR_MD5_DATA_IN_REGISTER 0x00000038
+#define SHA_1_OR_MD5_BIT_COUNT_LOW_REGISTER 0x00000020
+#define SHA_1_OR_MD5_BIT_COUNT_HIGH_REGISTER 0x00000024
+#define SHA_1_OR_MD5_INITIAL_VALUE_OR_DIGEST_A_REGISTER 0x00000000
+#define SHA_1_OR_MD5_INITIAL_VALUE_OR_DIGEST_B_REGISTER 0x00000004
+#define SHA_1_OR_MD5_INITIAL_VALUE_OR_DIGEST_C_REGISTER 0x00000008
+#define SHA_1_OR_MD5_INITIAL_VALUE_OR_DIGEST_D_REGISTER 0x0000000c
+#define SHA_1_INITIAL_VALUE_OR_DIGEST_E_REGISTER 0x00000010
+#define SHA_1_OR_MD5_AUTHENTICATION_COMMAND_REGISTER 0x00000018
+#define AES_ENCRYPTION_DATA_IN_OR_OUT_COLUMN_3_REGISTER 0x000000a0
+#define AES_ENCRYPTION_DATA_IN_OR_OUT_COLUMN_2_REGISTER 0x000000a4
+#define AES_ENCRYPTION_DATA_IN_OR_OUT_COLUMN_1_REGISTER 0x000000a8
+#define AES_ENCRYPTION_DATA_IN_OR_OUT_COLUMN_0_REGISTER 0x000000ac
+#define AES_ENCRYPTION_KEY_COLUMN_3_REGISTER 0x00000090
+#define AES_ENCRYPTION_KEY_COLUMN_2_REGISTER 0x00000094
+#define AES_ENCRYPTION_KEY_COLUMN_1_REGISTER 0x00000098
+#define AES_ENCRYPTION_KEY_COLUMN_0_REGISTER 0x0000009c
+#define AES_ENCRYPTION_KEY_COLUMN_7_REGISTER 0x00000080
+#define AES_ENCRYPTION_KEY_COLUMN_6_REGISTER 0x00000084
+#define AES_ENCRYPTION_KEY_COLUMN_5_REGISTER 0x00000088
+#define AES_ENCRYPTION_KEY_COLUMN_4_REGISTER 0x0000008c
+#define AES_ENCRYPTION_COMMAND_REGISTER 0x000000b0
+#define AES_DECRYPTION_DATA_IN_OR_OUT_COLUMN_3_REGISTER 0x000000e0
+#define AES_DECRYPTION_DATA_IN_OR_OUT_COLUMN_2_REGISTER 0x000000e4
+#define AES_DECRYPTION_DATA_IN_OR_OUT_COLUMN_1_REGISTER 0x000000e8
+#define AES_DECRYPTION_DATA_IN_OR_OUT_COLUMN_0_REGISTER 0x000000ec
+#define AES_DECRYPTION_KEY_COLUMN_3_REGISTER 0x000000d0
+#define AES_DECRYPTION_KEY_COLUMN_2_REGISTER 0x000000d4
+#define AES_DECRYPTION_KEY_COLUMN_1_REGISTER 0x000000d8
+#define AES_DECRYPTION_KEY_COLUMN_0_REGISTER 0x000000dc
+#define AES_DECRYPTION_KEY_COLUMN_7_REGISTER 0x000000c0
+#define AES_DECRYPTION_KEY_COLUMN_6_REGISTER 0x000000c4
+#define AES_DECRYPTION_KEY_COLUMN_5_REGISTER 0x000000c8
+#define AES_DECRYPTION_KEY_COLUMN_4_REGISTER 0x000000cc
+#define AES_DECRYPTION_COMMAND_REGISTER 0x000000f0
+#define SECURITY_ACCELERATOR_COMMAND_REGISTER 0x00000100
+#define SECURITY_ACCELERATOR_DESCRIPTOR_POINTER_SESSION_0_REGISTER 0x00000104
+#define SECURITY_ACCELERATOR_DESCRIPTOR_POINTER_SESSION_1_REGISTER 0x00000114
+#define SECURITY_ACCELERATOR_CONFIGURATION_REGISTER 0x00000108
+#define SECURITY_ACCELERATOR_STATUS_REGISTER 0x0000010c
+#define CRYPTOGRAPHIC_ENGINES_AND_SECURITY_ACCELERATOR_INTERRUPT_CAUSE_REGISTER 0x00000120
+#define CRYPTOGRAPHIC_ENGINES_AND_SECURITY_ACCELERATOR_INTERRUPT_MASK_REGISTER 0x00000124
 
-#define MV88F5181_CPU_ADDRESS_MAP_MMIO_SIZE 0x100
-#define MV88F5181_CPU_ADDRESS_MAP_MMIO_BASE 0xf1020000
-#define MV88F5181_DDR_SDRAM_CONTROLLER_MMIO_SIZE 0x200
-#define MV88F5181_DDR_SDRAM_CONTROLLER_MMIO_BASE 0xf1001400
+#define MV88F5181L_GPIO_MMIO_SIZE 0x100
+#define MV88F5181L_GPIO_MMIO_BASE 0xf1010100
+#define MV88F5181L_CPU_ADDRESS_MAP_MMIO_SIZE 0x100
+#define MV88F5181L_CPU_ADDRESS_MAP_MMIO_BASE 0xf1020000
+#define MV88F5181L_DDR_SDRAM_CONTROLLER_MMIO_SIZE 0x200
+#define MV88F5181L_DDR_SDRAM_CONTROLLER_MMIO_BASE 0xf1001400
 #define MV88F5181L_PINS_MULTIPLEXING_INTERFACE_MMIO_SIZE 0x100
 #define MV88F5181L_PINS_MULTIPLEXING_INTERFACE_MMIO_BASE 0xf1010000
 #define MV88F5181L_PCI_INTERFACE_MMIO_SIZE 0x2000
 #define MV88F5181L_PCI_INTERFACE_MMIO_BASE 0xf1030000
 #define MV88F5181L_PCIE_INTERFACE_MMIO_SIZE 0x2000
 #define MV88F5181L_PCIE_INTERFACE_MMIO_BASE 0xf1040000
+#define MV88F5181L_USB_2_0_CONTROLLER_MMIO_SIZE 0x500
+#define MV88F5181L_USB_2_0_CONTROLLER_MMIO_BASE 0xf1050000
 #define MV88F5181L_GIGABIT_ETHERNET_CONTROLLER_MMIO_SIZE 0x2000
 #define MV88F5181L_GIGABIT_ETHERNET_CONTROLLER_MMIO_BASE 0xf1072000
+#define MV88F5181L_CESA_MMIO_SIZE 0x200
+#define MV88F5181L_CESA_MMIO_BASE 0xf109DD00
 
 #define MV88F5181L_UART_MMIO_SIZE 0x200
 #define MV88F5181L_UART_MMIO_BASE 0xf1012000
@@ -333,7 +448,16 @@ typedef struct MV88F5181LState {
     ARMCPU *cpu;
     qemu_irq irq, fiq;
 
-    MemoryRegion cpu_address_map_mmio;
+    MemoryRegion mv88f5181l_gpio_mmio;
+    uint32_t gpio_data_out_register;
+    uint32_t gpio_data_out_enable_control_register;
+    uint32_t gpio_blink_enable_register;
+    uint32_t gpio_data_in_polarity_register;
+    uint32_t gpio_data_in_register;
+    uint32_t gpio_interrupt_cause_register;
+    uint32_t gpio_interrupt_mask_register;
+    uint32_t gpio_interrupt_level_mask_register;
+    MemoryRegion mv88f5181l_cpu_address_map_mmio;
     uint32_t window0_control_register;
     uint32_t window0_base_register;
     uint32_t window0_remap_low_register;
@@ -357,8 +481,7 @@ typedef struct MV88F5181LState {
     uint32_t window7_control_register;
     uint32_t window7_base_register;
     uint32_t _88f5181_internal_registers_base_address_register;
-    
-    MemoryRegion ddr_sdram_controller_mmio;
+    MemoryRegion mv88f5181l_ddr_sdram_controller_mmio;
     uint32_t cs0n_base_address_register;
     uint32_t cs0n_size_register;
     uint32_t cs1n_base_address_register;
@@ -389,15 +512,13 @@ typedef struct MV88F5181LState {
     uint32_t ddr_sdram_interface_mbus_control_high_register;
     uint32_t ddr_sdram_interface_mbus_timeout_register;
     uint32_t ddr_sdram_mmask_register;
-    
-    MemoryRegion pins_multiplexing_interface_mmio;
+    MemoryRegion mv88f5181l_pins_multiplexing_interface_mmio;
     uint32_t mpp_control_0_register;
     uint32_t mpp_control_1_register;
     uint32_t mpp_control_2_register;
     uint32_t device_multiplex_control_register;
     uint32_t sample_at_reset_register;
-    
-    MemoryRegion pci_interface_mmio;
+    MemoryRegion mv88f5181l_pci_interface_mmio;
     uint32_t csn0_bar_size;
     uint32_t csn1_bar_size;
     uint32_t csn2_bar_size;
@@ -460,8 +581,7 @@ typedef struct MV88F5181LState {
     uint32_t pci_error_address_low;
     uint32_t pci_error_address_high;
     uint32_t pci_error_command;
-    
-    MemoryRegion pcie_interface_mmio;
+    MemoryRegion mv88f5181l_pcie_interface_mmio;
     uint32_t pci_express_device_and_vendor_id_register;
     uint32_t pci_express_command_and_status_register;
     uint32_t pci_express_class_code_and_revision_id_register;
@@ -533,8 +653,58 @@ typedef struct MV88F5181LState {
     uint32_t pci_express_acknowledge_timers_1x_register;
     uint32_t pci_express_debug_control_register;
     uint32_t pci_express_tl_control_register;
-    
-    MemoryRegion gigabit_ethernet_controller_mmio;
+    MemoryRegion mv88f5181l_usb_2_0_controller_mmio;
+    uint32_t port0_usb_2_0_id;
+    uint32_t port0_usb_2_0_hwgeneral;
+    uint32_t port0_usb_2_0_hwhost;
+    uint32_t port0_usb_2_0_hwdevice;
+    uint32_t port0_usb_2_0_hwtxbuf;
+    uint32_t port0_usb_2_0_hwrxbuf;
+    uint32_t port0_usb_2_0_hwtttxbuf;
+    uint32_t port0_usb_2_0_hwttrxbuf;
+    uint32_t port0_usb_2_0_caplength;
+    uint32_t port0_usb_2_0_hciversion;
+    uint32_t port0_usb_2_0_hcsparams;
+    uint32_t port0_usb_2_0_hccparams;
+    uint32_t port0_usb_2_0_dciversion;
+    uint32_t port0_usb_2_0_dccparams;
+    uint32_t port0_usb_2_0_usbcmd;
+    uint32_t port0_usb_2_0_usbsts;
+    uint32_t port0_usb_2_0_usbintr;
+    uint32_t port0_usb_2_0_frindex;
+    uint32_t port0_usb_2_0_periodiclistbase__or__device_addr;
+    uint32_t port0_usb_2_0_asynclistaddr__or__endpointlist_addr;
+    uint32_t port0_usb_2_0_ttctrl;
+    uint32_t port0_usb_2_0_burstsize;
+    uint32_t port0_usb_2_0_txfilltuning;
+    uint32_t port0_usb_2_0_txttfilltuning;
+    uint32_t port0_usb_2_0_configflag;
+    uint32_t port0_usb_2_0_portsc1;
+    uint32_t port0_usb_2_0_otgsc;
+    uint32_t port0_usb_2_0_usbmode;
+    uint32_t port0_usb_2_0_enpdtsetupstat;
+    uint32_t port0_usb_2_0_endptprime;
+    uint32_t port0_usb_2_0_endptflush;
+    uint32_t port0_usb_2_0_endptstatus;
+    uint32_t port0_usb_2_0_endptcomplete;
+    uint32_t port0_usb_2_0_endptctrl0;
+    uint32_t port0_usb_2_0_endptctrl1;
+    uint32_t port0_usb_2_0_endptctrl2;
+    uint32_t port0_usb_2_0_endptctrl3;
+    uint32_t port0_usb_2_0_bridge_control_register;
+    uint32_t port0_usb_2_0_bridge_interrupt_cause_register;
+    uint32_t port0_usb_2_0_bridge_interrupt_mask_register;
+    uint32_t port0_usb_2_0_bridge_error_address_register;
+    uint32_t port0_usb_2_0_window0_control_register;
+    uint32_t port0_usb_2_0_window0_base_register;
+    uint32_t port0_usb_2_0_window1_control_register;
+    uint32_t port0_usb_2_0_window1_base_register;
+    uint32_t port0_usb_2_0_window2_control_register;
+    uint32_t port0_usb_2_0_window2_base_register;
+    uint32_t port0_usb_2_0_window3_control_register;
+    uint32_t port0_usb_2_0_window3_base_register;
+    uint32_t port0_usb_2_0_power_control_register;
+    MemoryRegion mv88f5181l_gigabit_ethernet_controller_mmio;
     uint32_t phy_address;
     uint32_t smi;
     uint32_t ethernet_unit_default_address_euda;
@@ -633,9 +803,66 @@ typedef struct MV88F5181LState {
     uint32_t destination_address_filter_special_multicast_table_dfsmt;
     uint32_t destination_address_filter_other_multicast_table_dfut;
     uint32_t destination_address_filter_unicast_table_dfut;
+    MemoryRegion mv88f5181l_cesa_mmio;
+    uint32_t des_data_out_low_register;
+    uint32_t des_data_out_high_register;
+    uint32_t des_data_buffer_low_register;
+    uint32_t des_data_buffer_high_register;
+    uint32_t des_initial_value_low_register;
+    uint32_t des_initial_value_high_register;
+    uint32_t des_key0_low_register;
+    uint32_t des_key0_high_register;
+    uint32_t des_key1_low_register;
+    uint32_t des_key1_high_register;
+    uint32_t des_key2_low_register;
+    uint32_t des_key2_high_register;
+    uint32_t des_command_register;
+    uint32_t sha_1_or_md5_data_in_register;
+    uint32_t sha_1_or_md5_bit_count_low_register;
+    uint32_t sha_1_or_md5_bit_count_high_register;
+    uint32_t sha_1_or_md5_initial_value_or_digest_a_register;
+    uint32_t sha_1_or_md5_initial_value_or_digest_b_register;
+    uint32_t sha_1_or_md5_initial_value_or_digest_c_register;
+    uint32_t sha_1_or_md5_initial_value_or_digest_d_register;
+    uint32_t sha_1_initial_value_or_digest_e_register;
+    uint32_t sha_1_or_md5_authentication_command_register;
+    uint32_t aes_encryption_data_in_or_out_column_3_register;
+    uint32_t aes_encryption_data_in_or_out_column_2_register;
+    uint32_t aes_encryption_data_in_or_out_column_1_register;
+    uint32_t aes_encryption_data_in_or_out_column_0_register;
+    uint32_t aes_encryption_key_column_3_register;
+    uint32_t aes_encryption_key_column_2_register;
+    uint32_t aes_encryption_key_column_1_register;
+    uint32_t aes_encryption_key_column_0_register;
+    uint32_t aes_encryption_key_column_7_register;
+    uint32_t aes_encryption_key_column_6_register;
+    uint32_t aes_encryption_key_column_5_register;
+    uint32_t aes_encryption_key_column_4_register;
+    uint32_t aes_encryption_command_register;
+    uint32_t aes_decryption_data_in_or_out_column_3_register;
+    uint32_t aes_decryption_data_in_or_out_column_2_register;
+    uint32_t aes_decryption_data_in_or_out_column_1_register;
+    uint32_t aes_decryption_data_in_or_out_column_0_register;
+    uint32_t aes_decryption_key_column_3_register;
+    uint32_t aes_decryption_key_column_2_register;
+    uint32_t aes_decryption_key_column_1_register;
+    uint32_t aes_decryption_key_column_0_register;
+    uint32_t aes_decryption_key_column_7_register;
+    uint32_t aes_decryption_key_column_6_register;
+    uint32_t aes_decryption_key_column_5_register;
+    uint32_t aes_decryption_key_column_4_register;
+    uint32_t aes_decryption_command_register;
+    uint32_t security_accelerator_command_register;
+    uint32_t security_accelerator_descriptor_pointer_session_0_register;
+    uint32_t security_accelerator_descriptor_pointer_session_1_register;
+    uint32_t security_accelerator_configuration_register;
+    uint32_t security_accelerator_status_register;
+    uint32_t cryptographic_engines_and_security_accelerator_interrupt_cause_register;
+    uint32_t cryptographic_engines_and_security_accelerator_interrupt_mask_register;
     
     MV88F5181LICState ic;
-    MV88F5181LPERIPHERALSState peripherals;
+    MV88F5181LTIMERState timer;
+    MV88F5181LBRIDGEState bridge;
 } MV88F5181LState;
 
 #endif /* MV88F5181L_H */

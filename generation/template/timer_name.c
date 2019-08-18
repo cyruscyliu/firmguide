@@ -16,7 +16,8 @@ static void {{timer_name}}_init(Object *obj);
 static void {{timer_name}}_class_init(ObjectClass *klass, void *data);
 static void {{timer_name}}_register_types(void);
 
-static void {{timer_name}}_update(void *opaque) {
+static void {{timer_name}}_update(void *opaque) 
+{
     {{timer_name|upper|concat}}State *s = opaque;
 
     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
@@ -56,13 +57,15 @@ static void {{timer_name}}_update(void *opaque) {
     }
 }
 
-static void {{timer_name}}_callback(void *opaque) {
+static void {{timer_name}}_callback(void *opaque) 
+{
     {{timer_name|upper|concat}}State *s = opaque;
 
     {{timer_name}}_update(s);
 }
 
-static uint64_t {{timer_name}}_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t {{timer_name}}_read(void *opaque, hwaddr offset, unsigned size) 
+{
     {{timer_name|upper|concat}}State *s = opaque;
 
     uint64_t res = 0;
@@ -78,7 +81,8 @@ static uint64_t {{timer_name}}_read(void *opaque, hwaddr offset, unsigned size) 
     return res;
 }
 
-static void {{timer_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void {{timer_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     {{timer_name|upper|concat}}State *s = opaque;
 
     switch (offset) {
@@ -98,7 +102,8 @@ static const MemoryRegionOps {{timer_name}}_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void {{timer_name}}_init(Object *obj) {
+static void {{timer_name}}_init(Object *obj) 
+{
     {{timer_name|upper|concat}}State *s = {{timer_name|upper}}(obj);
 
     /* initialize the mmio */
@@ -113,7 +118,8 @@ static void {{timer_name}}_init(Object *obj) {
     s->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, {{timer_name}}_callback, s);
 }
 
-static void {{timer_name}}_reset(DeviceState *dev) {
+static void {{timer_name}}_reset(DeviceState *dev) 
+{
     {{timer_name|upper|concat}}State *s = {{timer_name|upper}}(dev);
     {% for register in timer_registers %}
     s->{{register.name}} = 0;{% endfor %}
@@ -122,7 +128,8 @@ static void {{timer_name}}_reset(DeviceState *dev) {
     s->reserved_2 = 0;
 }
 
-static void {{timer_name}}_class_init(ObjectClass *klass, void *data) {
+static void {{timer_name}}_class_init(ObjectClass *klass, void *data) 
+{
     DeviceClass *dc = DEVICE_CLASS(klass);
 
     /* dc->fw_name = ; */
@@ -152,7 +159,8 @@ static const TypeInfo {{timer_name}}_info = {
     .class_init = {{timer_name}}_class_init,
 };
 
-static void {{timer_name}}_register_types(void) {
+static void {{timer_name}}_register_types(void) 
+{
     type_register_static(&{{timer_name}}_info);
 }
 

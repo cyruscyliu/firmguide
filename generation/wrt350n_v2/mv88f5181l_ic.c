@@ -3,21 +3,25 @@
  */
 
 #include "qemu/osdep.h"
-#include "hw/intc/mv88f5181L_ic.h"
+#include "qemu/log.h"
+#include "qapi/error.h"
+#include "hw/arm/mv88f5181l_bridge.h"
+#include "hw/intc/mv88f5181l_ic.h"
 #include "qemu/log.h"
 
-static void mv88f5181L_ic_set_irq(void *opaque, int irq, int level);
-static void mv88f5181L_ic_update(void *opaque);
-static void mv88f5181L_ic_reset(DeviceState *d);
+static void mv88f5181l_ic_set_irq(void *opaque, int irq, int level);
+static void mv88f5181l_ic_update(void *opaque);
+static void mv88f5181l_ic_reset(DeviceState *d);
 
-static uint64_t mv88f5181L_ic_read(void *opaque, hwaddr offset, unsigned size);
-static void mv88f5181L_ic_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static uint64_t mv88f5181l_ic_read(void *opaque, hwaddr offset, unsigned size);
+static void mv88f5181l_ic_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 
-static void mv88f5181L_ic_init(Object *obj);
-static void mv88f5181L_ic_class_init(ObjectClass *kclass, void *data);
-static void mv88f5181L_ic_register_types(void);
+static void mv88f5181l_ic_init(Object *obj);
+static void mv88f5181l_ic_class_init(ObjectClass *kclass, void *data);
+static void mv88f5181l_ic_register_types(void);
 
-static void mv88f5181L_ic_update(void *opaque) {
+static void mv88f5181l_ic_update(void *opaque) 
+{
     MV88F5181LICState *s = opaque;
     if (extract32(s->main_interrupt_cause_register, 0, 1)) {
         if (s->main_interrupt_cause_register & s->main_irq_interrupt_mask_register) {
@@ -28,13 +32,15 @@ static void mv88f5181L_ic_update(void *opaque) {
     }
 }
 
-static void mv88f5181L_ic_set_irq(void *opaque, int irq, int level) {
+static void mv88f5181l_ic_set_irq(void *opaque, int irq, int level) 
+{
     MV88F5181LICState *s = opaque;
     s->main_interrupt_cause_register = deposit32(s->main_interrupt_cause_register, irq, 1, level);
-    mv88f5181L_ic_update(s);
+    mv88f5181l_ic_update(s);
 }
 
-static uint64_t mv88f5181L_ic_read(void *opaque, hwaddr offset, unsigned size) {
+static uint64_t mv88f5181l_ic_read(void *opaque, hwaddr offset, unsigned size) 
+{
     MV88F5181LICState *s = opaque;
     uint32_t res = 0;
 
@@ -58,7 +64,8 @@ static uint64_t mv88f5181L_ic_read(void *opaque, hwaddr offset, unsigned size) {
     return res;
 }
 
-static void mv88f5181L_ic_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) {
+static void mv88f5181l_ic_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
     MV88F5181LICState *s = opaque;
 
     switch (offset) {
@@ -78,30 +85,51 @@ static void mv88f5181L_ic_write(void *opaque, hwaddr offset, uint64_t val, unsig
         s->main_endpoint_interrupt_mask_register = val;
         break;
     }
-    mv88f5181L_ic_update(s);
+    mv88f5181l_ic_update(s);
 }
 
-static const MemoryRegionOps mv88f5181L_ic_ops = {
-    .read = mv88f5181L_ic_read,
-    .write = mv88f5181L_ic_write,
+static const MemoryRegionOps mv88f5181l_ic_ops = {
+    .read = mv88f5181l_ic_read,
+    .write = mv88f5181l_ic_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void mv88f5181L_ic_init(Object *obj) {
+static void mv88f5181l_ic_init(Object *obj) 
+{
     MV88F5181LICState *s = MV88F5181L_IC(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &mv88f5181L_ic_ops, s, TYPE_MV88F5181L_IC, MV88F5181L_IC_RAM_SIZE);
+    memory_region_init_io(&s->mmio, obj, &mv88f5181l_ic_ops, s, TYPE_MV88F5181L_IC, MV88F5181L_IC_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the interrupt input */
-    qdev_init_gpio_in_named(DEVICE(s), mv88f5181L_ic_set_irq, MV88F5181L_IC_IRQ, MV88F5181L_IC_N_IRQS);
+    qdev_init_gpio_in_named(DEVICE(s), mv88f5181l_ic_set_irq, MV88F5181L_IC_IRQ, MV88F5181L_IC_N_IRQS);
 
     /* initialize the irq/fip to cpu */
     qdev_init_gpio_out_named(DEVICE(s), &s->irq, "irq", 1);
 }
 
-static void mv88f5181L_ic_reset(DeviceState *dev) {
+static void mv88f5181l_ic_realize(DeviceState *dev, Error **errp)
+{
+    MV88F5181LICState *s = MV88F5181L_IC(dev);
+    Object *obj;
+    MV88F5181LBRIDGEState *bridge;
+    Error *err = NULL;
+
+    /* connect the bridge the interrupt controller */
+    obj = object_property_get_link(OBJECT(dev), "bridge", &err) ;
+    bridge = MV88F5181L_BRIDGE(obj);
+    if (bridge == NULL) {
+        error_setg(errp, "%s: required bridge link not found: %s",
+                   __func__, error_get_pretty(err));
+        return;
+    }
+    sysbus_connect_irq(SYS_BUS_DEVICE(bridge), 0,
+        qdev_get_gpio_in_named(DEVICE(s), MV88F5181L_IC_IRQ, 0));
+}
+
+static void mv88f5181l_ic_reset(DeviceState *dev) 
+{
     MV88F5181LICState *s = MV88F5181L_IC(dev);
     
     s->main_interrupt_cause_register = 0;
@@ -110,7 +138,8 @@ static void mv88f5181L_ic_reset(DeviceState *dev) {
     s->main_endpoint_interrupt_mask_register = 0;
 }
 
-static void mv88f5181L_ic_class_init(ObjectClass *klass, void *data) {
+static void mv88f5181l_ic_class_init(ObjectClass *klass, void *data) 
+{
     DeviceClass *dc = DEVICE_CLASS(klass);
 
     /* dc->fw_name = ; */
@@ -118,8 +147,8 @@ static void mv88f5181L_ic_class_init(ObjectClass *klass, void *data) {
     /* dc->props = ; */
     /* dc->user_creatable = ; */
     /* dc->hotpluggable = ; */
-    dc->reset = mv88f5181L_ic_reset;
-    /* dc->realize = ; */
+    dc->reset = mv88f5181l_ic_reset;
+    dc->realize = mv88f5181l_ic_realize;
     /* dc->unrealize = ; */
     /* dc->vmsd = ; */
     /* dc->bus_type = ; */
@@ -130,17 +159,18 @@ static void mv88f5181L_ic_class_init(ObjectClass *klass, void *data) {
     /* sbc->connect_irq_notifier = ; */
 }
 
-static TypeInfo mv88f5181L_ic_type_info = {
+static TypeInfo mv88f5181l_ic_type_info = {
     .name = TYPE_MV88F5181L_IC,
     .parent = TYPE_SYS_BUS_DEVICE,
     .instance_size = sizeof(MV88F5181LICState),
-    .instance_init = mv88f5181L_ic_init,
+    .instance_init = mv88f5181l_ic_init,
     /* .class_size = sizeof(SysBusDeviceClass), */
-    .class_init = mv88f5181L_ic_class_init,
+    .class_init = mv88f5181l_ic_class_init,
 };
 
-static void mv88f5181L_ic_register_types(void) {
-    type_register_static(&mv88f5181L_ic_type_info);
+static void mv88f5181l_ic_register_types(void) 
+{
+    type_register_static(&mv88f5181l_ic_type_info);
 }
 
-type_init(mv88f5181L_ic_register_types)
+type_init(mv88f5181l_ic_register_types)

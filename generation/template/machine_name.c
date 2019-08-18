@@ -16,7 +16,8 @@ static const int {{machine_name}}_board_id = {{board_id}};
 static void {{machine_name}}_init(MachineState *machine);
 static void {{machine_name}}_machine_init(MachineClass *mc);
 
-static void {{machine_name}}_init(MachineState *machine) {
+static void {{machine_name}}_init(MachineState *machine) 
+{
     static struct arm_boot_info binfo;
     DriveInfo *dinfo;
     PFlashCFI01 *flash;
@@ -28,36 +29,21 @@ static void {{machine_name}}_init(MachineState *machine) {
     object_initialize(&s->soc, sizeof(s->soc), TYPE_{{soc_name|upper}});
     object_property_add_child(OBJECT(machine), "soc", OBJECT(&s->soc), &error_abort);
 
+    /* realize the soc */
+    object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
+
     /* allocate the ram */
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
     memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, 0);
     /* memory_region_allocate_system_memory do the same things as below */
     /* object_property_add_child(OBJECT(machine), "ram", OBJECT(&s->ram), &error_abort); */
-    /* so, comment the last line */
-    object_property_add_const_link(OBJECT(&s->soc), "ram", OBJECT(&s->ram), &error_abort);
+    /* so, comment the line above */
 
-    /* realize the soc */
-    object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
-
-    /* map cpu address map mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 0, {{cam_mmio_name|upper}}_MMIO_BASE);
-
-    /* map ddr sdram controller mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 1, {{dsc_mmio_name|upper}}_MMIO_BASE);
-
-    /* map pins multiplexing interface mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 2, {{mpp_mmio_name|upper}}_MMIO_BASE);
-
-    /* map pins pci interface mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 3, {{pci_name|upper}}_MMIO_BASE);
-
-    /* map pins pcie interface mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 4, {{pcie_name|upper}}_MMIO_BASE);
-
-    /* map gigabit ethernet controller mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 5, {{eth_name|upper}}_MMIO_BASE);
-
-    /* set up the flash */{% if flash_enable %}
+    /* map bamboo devices mmio */{% for device in bamboo %}
+    /* map {{device.name}} mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), {{device.id}}, {{device.name|upper}}_MMIO_BASE);
+    {% endfor %}
+    /* set up the flash */
     dinfo = drive_get(IF_PFLASH, 0, 0);
     flash = pflash_cfi01_register(
             {{machine_name|upper}}_FLASH_ADDR, "flash", {{machine_name|upper}}_FLASH_SIZE,
@@ -67,7 +53,7 @@ static void {{machine_name}}_init(MachineState *machine) {
         fprintf(stderr, "qemu: Error registering flash memory.\n");
     } else {
         s->flash = flash;
-    }{% endif %}{% if sd_enable %}/* plugin in sd not implemented yet */ {% endif %}
+    }
 
     /* boot */
     binfo.board_id = {{machine_name}}_board_id;
@@ -78,7 +64,8 @@ static void {{machine_name}}_init(MachineState *machine) {
     arm_load_kernel(ARM_CPU(first_cpu), &binfo);
 }
 
-static void {{machine_name}}_machine_init(MachineClass *mc) {
+static void {{machine_name}}_machine_init(MachineClass *mc) 
+{
     /* mc->family = ; */
     /* mc->name = "{{machine_name}}"; */
     /* mc->alias = ; */
@@ -126,4 +113,5 @@ static void {{machine_name}}_machine_init(MachineClass *mc) {
     /* mc->CPuArchIdList = ; */
     /* mc->get_default_cpu_node_id = ; */
 }
+
 DEFINE_MACHINE("{{machine_name}}", {{machine_name}}_machine_init)

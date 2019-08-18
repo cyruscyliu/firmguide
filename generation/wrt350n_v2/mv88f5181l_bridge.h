@@ -2,16 +2,14 @@
  * automatically generated, don't change
  */
 
-#ifndef MV88F5181L_PERIPHERALS_H
-#define MV88F5181L_PERIPHERALS_H
+#ifndef MV88F5181L_BRIDGE_H
+#define MV88F5181L_BRIDGE_H
 
 #include "hw/sysbus.h"
-#include "hw/timer/mv88f5181L_timer.h"
-#include "hw/gpio/mv88f5181L_gpio.h"
 
-#define TYPE_MV88F5181L_PERIPHERALS "mv88f5181L_peripherals"
-#define MV88F5181L_PERIPHERALS(obj) \
-    OBJECT_CHECK(MV88F5181LPERIPHERALSState, (obj),  TYPE_MV88F5181L_PERIPHERALS)
+#define TYPE_MV88F5181L_BRIDGE "mv88f5181l_bridge"
+#define MV88F5181L_BRIDGE(obj) \
+    OBJECT_CHECK(MV88F5181LBRIDGEState, (obj),  TYPE_MV88F5181L_BRIDGE)
 
 
 #define BRIDGE_CONFIGURATION_REGISTER 0x00
@@ -21,12 +19,11 @@
 #define BRIDGE_INTERRUPT_CAUSE_REGISTER 0x10
 #define BRIDGE_INTERRUPT_MASK_REGISTER 0x14
 
-#define MV88F5181_BRIDGE_RAM_SIZE 0x100
-#define MV88F5181_BRIDGE_RAM_BASE 0xf1020100
+#define MV88F5181L_BRIDGE_MMIO_SIZE 0x100
+#define MV88F5181L_BRIDGE_MMIO_BASE 0xf1020100
+#define MV88F5181L_BRIDGE_IRQ "mv88f5181l_bridge_irq"
 
-#define MV88F5181_BRIDGE_IRQ "mv88f5181_bridge_irq"
-
-typedef struct MV88F5181LPERIPHERALSState {
+typedef struct MV88F5181LBRIDGEState {
     /*< private >*/
     SysBusDevice sys_bus;
     /*< public >*/
@@ -41,8 +38,6 @@ typedef struct MV88F5181LPERIPHERALSState {
     uint32_t bridge_interrupt_cause_register;
     uint32_t bridge_interrupt_mask_register;
     
-    MV88F5181LTIMERState timer;
-    MV88F5181LGPIOState gpio;
-} MV88F5181LPERIPHERALSState;
+} MV88F5181LBRIDGEState;
 
-#endif /* MV88F5181L_PERIPHERALS_H */
+#endif /* MV88F5181L_BRIDGE_H */
