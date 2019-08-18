@@ -10,21 +10,33 @@
 #include "hw/char/serial.h"
 #include "exec/address-spaces.h"
 
-static void ox820_gpio_update(void *opaque);
-static uint64_t ox820_gpio_read(void *opaque, hwaddr offset, unsigned size);
-static void ox820_gpio_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
-static void ox820_pcie_interface_update(void *opaque);
-static uint64_t ox820_pcie_interface_read(void *opaque, hwaddr offset, unsigned size);
-static void ox820_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
-static void ox820_sata_update(void *opaque);
-static uint64_t ox820_sata_read(void *opaque, hwaddr offset, unsigned size);
-static void ox820_sata_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
-static void ox820_ehci_update(void *opaque);
-static uint64_t ox820_ehci_read(void *opaque, hwaddr offset, unsigned size);
-static void ox820_ehci_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
-static void ox820_gmac_update(void *opaque);
-static uint64_t ox820_gmac_read(void *opaque, hwaddr offset, unsigned size);
-static void ox820_gmac_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void oxmas782x_gpio_update(void *opaque);
+static uint64_t oxmas782x_gpio_read(void *opaque, hwaddr offset, unsigned size);
+static void oxmas782x_gpio_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void nas782x_pcie_update(void *opaque);
+static uint64_t nas782x_pcie_read(void *opaque, hwaddr offset, unsigned size);
+static void nas782x_pcie_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void nas782x_sata_update(void *opaque);
+static uint64_t nas782x_sata_read(void *opaque, hwaddr offset, unsigned size);
+static void nas782x_sata_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void nas782x_gmac_update(void *opaque);
+static uint64_t nas782x_gmac_read(void *opaque, hwaddr offset, unsigned size);
+static void nas782x_gmac_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void nas782x_ehci_update(void *opaque);
+static uint64_t nas782x_ehci_read(void *opaque, hwaddr offset, unsigned size);
+static void nas782x_ehci_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void nas782x_pll_update(void *opaque);
+static uint64_t nas782x_pll_read(void *opaque, hwaddr offset, unsigned size);
+static void nas782x_pll_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void nas782x_reset_update(void *opaque);
+static uint64_t nas782x_reset_read(void *opaque, hwaddr offset, unsigned size);
+static void nas782x_reset_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void nas782x_rps_timer_update(void *opaque);
+static uint64_t nas782x_rps_timer_read(void *opaque, hwaddr offset, unsigned size);
+static void nas782x_rps_timer_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
+static void nas782x_rps_update(void *opaque);
+static uint64_t nas782x_rps_read(void *opaque, hwaddr offset, unsigned size);
+static void nas782x_rps_write(void *opaque, hwaddr offset, uint64_t val, unsigned size);
 
 static void ox820_init(Object *obj);
 static void ox820_realize(DeviceState *dev, Error **errp);
@@ -33,12 +45,12 @@ static void ox820_reset(void *opaque);
 static void ox820_class_init(ObjectClass *oc, void *data);
 static void ox820_register_types(void);
 
-static void ox820_gpio_update(void *opaque) 
+static void oxmas782x_gpio_update(void *opaque) 
 {
     /* OX820State *s = opaque; */
 }
 
-static uint64_t ox820_gpio_read(void *opaque, hwaddr offset, unsigned size) 
+static uint64_t oxmas782x_gpio_read(void *opaque, hwaddr offset, unsigned size) 
 {
     OX820State *s = opaque;
     uint32_t res = 0;
@@ -54,7 +66,7 @@ static uint64_t ox820_gpio_read(void *opaque, hwaddr offset, unsigned size)
     return res;
 }
 
-static void ox820_gpio_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+static void oxmas782x_gpio_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
 {
     OX820State *s = opaque;
 
@@ -66,21 +78,21 @@ static void ox820_gpio_write(void *opaque, hwaddr offset, uint64_t val, unsigned
         s->gpio_reserved = val;
         break;
     }
-    ox820_gpio_update(s);
+    oxmas782x_gpio_update(s);
 }
 
-static const MemoryRegionOps ox820_gpio_ops = {
-    .read = ox820_gpio_read,
-    .write = ox820_gpio_write,
+static const MemoryRegionOps oxmas782x_gpio_ops = {
+    .read = oxmas782x_gpio_read,
+    .write = oxmas782x_gpio_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void ox820_pcie_interface_update(void *opaque) 
+static void nas782x_pcie_update(void *opaque) 
 {
     /* OX820State *s = opaque; */
 }
 
-static uint64_t ox820_pcie_interface_read(void *opaque, hwaddr offset, unsigned size) 
+static uint64_t nas782x_pcie_read(void *opaque, hwaddr offset, unsigned size) 
 {
     OX820State *s = opaque;
     uint32_t res = 0;
@@ -96,7 +108,7 @@ static uint64_t ox820_pcie_interface_read(void *opaque, hwaddr offset, unsigned 
     return res;
 }
 
-static void ox820_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+static void nas782x_pcie_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
 {
     OX820State *s = opaque;
 
@@ -108,21 +120,21 @@ static void ox820_pcie_interface_write(void *opaque, hwaddr offset, uint64_t val
         s->pcie_reserved = val;
         break;
     }
-    ox820_pcie_interface_update(s);
+    nas782x_pcie_update(s);
 }
 
-static const MemoryRegionOps ox820_pcie_interface_ops = {
-    .read = ox820_pcie_interface_read,
-    .write = ox820_pcie_interface_write,
+static const MemoryRegionOps nas782x_pcie_ops = {
+    .read = nas782x_pcie_read,
+    .write = nas782x_pcie_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void ox820_sata_update(void *opaque) 
+static void nas782x_sata_update(void *opaque) 
 {
     /* OX820State *s = opaque; */
 }
 
-static uint64_t ox820_sata_read(void *opaque, hwaddr offset, unsigned size) 
+static uint64_t nas782x_sata_read(void *opaque, hwaddr offset, unsigned size) 
 {
     OX820State *s = opaque;
     uint32_t res = 0;
@@ -138,7 +150,7 @@ static uint64_t ox820_sata_read(void *opaque, hwaddr offset, unsigned size)
     return res;
 }
 
-static void ox820_sata_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+static void nas782x_sata_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
 {
     OX820State *s = opaque;
 
@@ -150,63 +162,21 @@ static void ox820_sata_write(void *opaque, hwaddr offset, uint64_t val, unsigned
         s->sata_reserved = val;
         break;
     }
-    ox820_sata_update(s);
+    nas782x_sata_update(s);
 }
 
-static const MemoryRegionOps ox820_sata_ops = {
-    .read = ox820_sata_read,
-    .write = ox820_sata_write,
+static const MemoryRegionOps nas782x_sata_ops = {
+    .read = nas782x_sata_read,
+    .write = nas782x_sata_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
-static void ox820_ehci_update(void *opaque) 
+static void nas782x_gmac_update(void *opaque) 
 {
     /* OX820State *s = opaque; */
 }
 
-static uint64_t ox820_ehci_read(void *opaque, hwaddr offset, unsigned size) 
-{
-    OX820State *s = opaque;
-    uint32_t res = 0;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return 0;
-    case EHCI_RESERVED:
-        res = s->ehci_reserved;
-        break;
-    }
-    return res;
-}
-
-static void ox820_ehci_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
-{
-    OX820State *s = opaque;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return;
-    case EHCI_RESERVED:
-        s->ehci_reserved = val;
-        break;
-    }
-    ox820_ehci_update(s);
-}
-
-static const MemoryRegionOps ox820_ehci_ops = {
-    .read = ox820_ehci_read,
-    .write = ox820_ehci_write,
-    .endianness = DEVICE_NATIVE_ENDIAN,
-};
-
-static void ox820_gmac_update(void *opaque) 
-{
-    /* OX820State *s = opaque; */
-}
-
-static uint64_t ox820_gmac_read(void *opaque, hwaddr offset, unsigned size) 
+static uint64_t nas782x_gmac_read(void *opaque, hwaddr offset, unsigned size) 
 {
     OX820State *s = opaque;
     uint32_t res = 0;
@@ -222,7 +192,7 @@ static uint64_t ox820_gmac_read(void *opaque, hwaddr offset, unsigned size)
     return res;
 }
 
-static void ox820_gmac_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+static void nas782x_gmac_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
 {
     OX820State *s = opaque;
 
@@ -234,12 +204,222 @@ static void ox820_gmac_write(void *opaque, hwaddr offset, uint64_t val, unsigned
         s->gmac_reserved = val;
         break;
     }
-    ox820_gmac_update(s);
+    nas782x_gmac_update(s);
 }
 
-static const MemoryRegionOps ox820_gmac_ops = {
-    .read = ox820_gmac_read,
-    .write = ox820_gmac_write,
+static const MemoryRegionOps nas782x_gmac_ops = {
+    .read = nas782x_gmac_read,
+    .write = nas782x_gmac_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
+static void nas782x_ehci_update(void *opaque) 
+{
+    /* OX820State *s = opaque; */
+}
+
+static uint64_t nas782x_ehci_read(void *opaque, hwaddr offset, unsigned size) 
+{
+    OX820State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case EHCI_RESERVED:
+        res = s->ehci_reserved;
+        break;
+    }
+    return res;
+}
+
+static void nas782x_ehci_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
+    OX820State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case EHCI_RESERVED:
+        s->ehci_reserved = val;
+        break;
+    }
+    nas782x_ehci_update(s);
+}
+
+static const MemoryRegionOps nas782x_ehci_ops = {
+    .read = nas782x_ehci_read,
+    .write = nas782x_ehci_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
+static void nas782x_pll_update(void *opaque) 
+{
+    /* OX820State *s = opaque; */
+}
+
+static uint64_t nas782x_pll_read(void *opaque, hwaddr offset, unsigned size) 
+{
+    OX820State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case PLL_RESERVED:
+        res = s->pll_reserved;
+        break;
+    }
+    return res;
+}
+
+static void nas782x_pll_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
+    OX820State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case PLL_RESERVED:
+        s->pll_reserved = val;
+        break;
+    }
+    nas782x_pll_update(s);
+}
+
+static const MemoryRegionOps nas782x_pll_ops = {
+    .read = nas782x_pll_read,
+    .write = nas782x_pll_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
+static void nas782x_reset_update(void *opaque) 
+{
+    /* OX820State *s = opaque; */
+}
+
+static uint64_t nas782x_reset_read(void *opaque, hwaddr offset, unsigned size) 
+{
+    OX820State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case RESET_RESERVED:
+        res = s->reset_reserved;
+        break;
+    }
+    return res;
+}
+
+static void nas782x_reset_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
+    OX820State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case RESET_RESERVED:
+        s->reset_reserved = val;
+        break;
+    }
+    nas782x_reset_update(s);
+}
+
+static const MemoryRegionOps nas782x_reset_ops = {
+    .read = nas782x_reset_read,
+    .write = nas782x_reset_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
+static void nas782x_rps_timer_update(void *opaque) 
+{
+    /* OX820State *s = opaque; */
+}
+
+static uint64_t nas782x_rps_timer_read(void *opaque, hwaddr offset, unsigned size) 
+{
+    OX820State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case RPS_TIMER_RESERVED:
+        res = s->rps_timer_reserved;
+        break;
+    }
+    return res;
+}
+
+static void nas782x_rps_timer_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
+    OX820State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case RPS_TIMER_RESERVED:
+        s->rps_timer_reserved = val;
+        break;
+    }
+    nas782x_rps_timer_update(s);
+}
+
+static const MemoryRegionOps nas782x_rps_timer_ops = {
+    .read = nas782x_rps_timer_read,
+    .write = nas782x_rps_timer_write,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+
+static void nas782x_rps_update(void *opaque) 
+{
+    /* OX820State *s = opaque; */
+}
+
+static uint64_t nas782x_rps_read(void *opaque, hwaddr offset, unsigned size) 
+{
+    OX820State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case RPS_RESERVED:
+        res = s->rps_reserved;
+        break;
+    }
+    return res;
+}
+
+static void nas782x_rps_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+{
+    OX820State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case RPS_RESERVED:
+        s->rps_reserved = val;
+        break;
+    }
+    nas782x_rps_update(s);
+}
+
+static const MemoryRegionOps nas782x_rps_ops = {
+    .read = nas782x_rps_read,
+    .write = nas782x_rps_write,
     .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
@@ -250,8 +430,12 @@ static void ox820_reset(void *opaque)
     s->gpio_reserved = 0x0;
     s->pcie_reserved = 0x0;
     s->sata_reserved = 0x0;
-    s->ehci_reserved = 0x0;
     s->gmac_reserved = 0x0;
+    s->ehci_reserved = 0x0;
+    s->pll_reserved = 0x0;
+    s->reset_reserved = 0x0;
+    s->rps_timer_reserved = 0x0;
+    s->rps_reserved = 0x0;
 }
 
 static void ox820_init(Object *obj) 
@@ -267,26 +451,42 @@ static void ox820_init(Object *obj)
     sysbus_init_mmio(SYS_BUS_DEVICE(s), sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->cpu_pp), 0));
 
     /* initialize bamboo device registers */
-    /* initialize ox820_gpio registers */
-    memory_region_init_io(&s->ox820_gpio_mmio, obj,
-        &ox820_gpio_ops, s, TYPE_OX820, OX820_GPIO_MMIO_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ox820_gpio_mmio);
-    /* initialize ox820_pcie_interface registers */
-    memory_region_init_io(&s->ox820_pcie_interface_mmio, obj,
-        &ox820_pcie_interface_ops, s, TYPE_OX820, OX820_PCIE_INTERFACE_MMIO_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ox820_pcie_interface_mmio);
-    /* initialize ox820_sata registers */
-    memory_region_init_io(&s->ox820_sata_mmio, obj,
-        &ox820_sata_ops, s, TYPE_OX820, OX820_SATA_MMIO_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ox820_sata_mmio);
-    /* initialize ox820_ehci registers */
-    memory_region_init_io(&s->ox820_ehci_mmio, obj,
-        &ox820_ehci_ops, s, TYPE_OX820, OX820_EHCI_MMIO_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ox820_ehci_mmio);
-    /* initialize ox820_gmac registers */
-    memory_region_init_io(&s->ox820_gmac_mmio, obj,
-        &ox820_gmac_ops, s, TYPE_OX820, OX820_GMAC_MMIO_SIZE);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->ox820_gmac_mmio);
+    /* initialize oxmas782x_gpio registers */
+    memory_region_init_io(&s->oxmas782x_gpio_mmio, obj,
+        &oxmas782x_gpio_ops, s, TYPE_OX820, OXMAS782X_GPIO_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->oxmas782x_gpio_mmio);
+    /* initialize nas782x_pcie registers */
+    memory_region_init_io(&s->nas782x_pcie_mmio, obj,
+        &nas782x_pcie_ops, s, TYPE_OX820, NAS782X_PCIE_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->nas782x_pcie_mmio);
+    /* initialize nas782x_sata registers */
+    memory_region_init_io(&s->nas782x_sata_mmio, obj,
+        &nas782x_sata_ops, s, TYPE_OX820, NAS782X_SATA_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->nas782x_sata_mmio);
+    /* initialize nas782x_gmac registers */
+    memory_region_init_io(&s->nas782x_gmac_mmio, obj,
+        &nas782x_gmac_ops, s, TYPE_OX820, NAS782X_GMAC_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->nas782x_gmac_mmio);
+    /* initialize nas782x_ehci registers */
+    memory_region_init_io(&s->nas782x_ehci_mmio, obj,
+        &nas782x_ehci_ops, s, TYPE_OX820, NAS782X_EHCI_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->nas782x_ehci_mmio);
+    /* initialize nas782x_pll registers */
+    memory_region_init_io(&s->nas782x_pll_mmio, obj,
+        &nas782x_pll_ops, s, TYPE_OX820, NAS782X_PLL_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->nas782x_pll_mmio);
+    /* initialize nas782x_reset registers */
+    memory_region_init_io(&s->nas782x_reset_mmio, obj,
+        &nas782x_reset_ops, s, TYPE_OX820, NAS782X_RESET_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->nas782x_reset_mmio);
+    /* initialize nas782x_rps_timer registers */
+    memory_region_init_io(&s->nas782x_rps_timer_mmio, obj,
+        &nas782x_rps_timer_ops, s, TYPE_OX820, NAS782X_RPS_TIMER_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->nas782x_rps_timer_mmio);
+    /* initialize nas782x_rps registers */
+    memory_region_init_io(&s->nas782x_rps_mmio, obj,
+        &nas782x_rps_ops, s, TYPE_OX820, NAS782X_RPS_MMIO_SIZE);
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->nas782x_rps_mmio);
 
     /* register reset for ox820 */
     // qemu_register_reset(ox820_reset, s);
@@ -304,6 +504,11 @@ static void ox820_realize(DeviceState *dev, Error **errp)
         return;
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_pp), 0, 0x47000000);
+    if (serial_hd(0)) {
+        serial_mm_init(get_system_memory(), NS16550A_MMIO_BASE, 2,
+                       qdev_get_gpio_in_named(DEVICE(&s->cpu_pp), SYSBUS_DEVICE_GPIO_IRQ, 23),
+                       6250000, serial_hd(0), DEVICE_LITTLE_ENDIAN);
+    }
 
     /* realize the cpu */
     object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);

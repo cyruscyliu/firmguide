@@ -42,20 +42,32 @@ static void nas7820_init(MachineState *machine)
     /* so, comment the line above */
 
     /* map bamboo devices mmio */
-    /* map ox820_gpio mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 0, OX820_GPIO_MMIO_BASE);
+    /* map oxmas782x_gpio mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 0, OXMAS782X_GPIO_MMIO_BASE);
     
-    /* map ox820_pcie_interface mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 1, OX820_PCIE_INTERFACE_MMIO_BASE);
+    /* map nas782x_pcie mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 1, NAS782X_PCIE_MMIO_BASE);
     
-    /* map ox820_sata mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), , OX820_SATA_MMIO_BASE);
+    /* map nas782x_sata mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 2, NAS782X_SATA_MMIO_BASE);
     
-    /* map ox820_ehci mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 6, OX820_EHCI_MMIO_BASE);
+    /* map nas782x_gmac mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), , NAS782X_GMAC_MMIO_BASE);
     
-    /* map ox820_gmac mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), , OX820_GMAC_MMIO_BASE);
+    /* map nas782x_ehci mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 3, NAS782X_EHCI_MMIO_BASE);
+    
+    /* map nas782x_pll mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), , NAS782X_PLL_MMIO_BASE);
+    
+    /* map nas782x_reset mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), , NAS782X_RESET_MMIO_BASE);
+    
+    /* map nas782x_rps_timer mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), , NAS782X_RPS_TIMER_MMIO_BASE);
+    
+    /* map nas782x_rps mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), , NAS782X_RPS_MMIO_BASE);
     
     /* set up the flash */
     dinfo = drive_get(IF_PFLASH, 0, 0);
