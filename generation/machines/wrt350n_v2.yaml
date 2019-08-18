@@ -6,6 +6,8 @@ machine:
   ram:
     ram_size: "32 * MiB"
   flash:
+    nor_flash: 1
+    nand_flash: 0
     flash_addr: "0xf4000000"
     flash_sect_size: "64 * KiB"
     flash_size: "8 * MiB"

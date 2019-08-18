@@ -8,9 +8,9 @@ machine:
   flash:
     nor_flash: 0
     nand_flash: 1
-    flash_addr: "0xf4000000"
-    flash_sect_size: "64 * KiB"
-    flash_size: "8 * MiB"
+    flash_addr: "0x41000000"
+    flash_sect_size: ~
+    flash_size: "128 * MiB"
   soc:
     soc_name: "ox820"
     abelia:
