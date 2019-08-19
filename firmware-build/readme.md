@@ -1,50 +1,35 @@
-# Intro
+# firmware building and working environment
 
-There are 3 dirs,  `wrt350nv2-kernel`, `wrt350nv2-work`, `ws`. 
+- `*-kernel` provides the kernel building environment
+- `*-work` provides the working environment
+- `ws` is the shared directory for dockers & host, which contains all working data
 
-- First 2 dirs are used for build, and manage docker images.
-- `wrt350nv2-kernel` provides the openwrt350nv2 kernel building env
-- `wrt350nv2-work` provides the working env
-- `ws` is the shared directory for 2 dockers & host, it contains all working data
+## 1. How to Use Docker
 
-More info about using the docker, see following chapter 1.
+### 1.1 meaning of \*.sh in *-\*
 
-
-## 1. Docker
-
-### 1.1 Meaning of \*.sh in wrt350nv2-\*
-
-Docker image is responsible for providing most of the dependency packages, thus every time running the image we can get a new, clean working/build environment. 
-
-Here, the docker started by start.sh will run in background and never stop by itself.
-
-If you want to use the docker env, run in.sh and you will get a shell.
-
-Use remove.sh to destroy the background running docker and then use start.sh to create a new one.
-
+Docker image is responsible for providing most of the dependency packages, thus every time running the image we can get 
+a new, clean working/build environment. First, build a docker by `build-docker-image.sh`. Then, the docker started by 
+`start.sh` will run in background and never stop by itself. If you want to use the docker env, run `in.sh` and you will 
+get a shell. Use `remove.sh` to destroy the background running docker and then use `start.sh` to create a new one.
 
 ```bash
 # build docker image
 bash build-docker-image.sh 
-
 # start docker image in background, and we can exec into it at any time
 bash start.sh
-
 # exec into docker image & use, exit if not needed
 bash in.sh
-
 # stop & destory the background running docker
 bash remove.sh
 ```
 
-### 1.2 Shared dir between host & 2 dockers
+### 1.2 shared dir between host & dockers
 
-`ws` is a shared directory among the 2 dockers and host machine, and it is mapped to `/root/firmware` in docker.
-
+`ws` is a shared directory among the 2 dockers and host machine, and it is mapped to `/root/firmware` in docker. 
 When you are in docker's shell, anything you do under the path `/root/firmware` is actually do under the host path of `ws`.
 
-
-### 1.3 Common FAQ
+### 1.3 common FAQ
 
 #### install a docker
 
@@ -73,26 +58,32 @@ systemctl enable docker
 systemctl start docker
 ```
 
-ERROR: pull access denied for wrt350nv2-build-env, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+ERROR: pull access denied for wrt350nv2-build-env, repository does not exist or may require 'docker login': 
+denied: requested access to the resource is denied
 
 ```bash
 ./build-docker-image.sh
 ```
 
+## 2. Build the kernel 
 
-## 2. Build the kernel (Using the container from docker image wrt350nv2-build-env:latest)
+Using the container from docker image wrt350nv2-build-env:latest
++ Kernel version: 2.6.32.10
++ Openwrt version: backfire 10.0.3
++ Download [Backfire 10.0.3](https://archive.openwrt.org/backfire/10.03/orion/OpenWrt-ImageBuilder-orion-for-Linux-i686.tar.bz2)
++ Download [.config for Backfire 10.0.3](https://archive.openwrt.org/backfire/10.03/orion/OpenWrt.config)
 
-Kernel version: 2.6.32.10
+Using the container from docker image nas7820-build-evn:latest
++ Kernel version: 3.18.20
++ Openwrt version: chaos calmer 15.05
++ Download [Chaos Calmer 15.05](https://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/OpenWrt-ImageBuilder-15.05-oxnas.Linux-x86_64.tar.bz2)
++ Download [config.diff for Backfire 10.0.3](https://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/config.diff)
 
-Openwrt version: backfire 10.0.3
-
-Backfire 10.0.3 Download Link(https://archive.openwrt.org/backfire/10.03/orion/OpenWrt-ImageBuilder-orion-for-Linux-i686.tar.bz2)
-
-OpenWrt.config Download Link(https://archive.openwrt.org/backfire/10.03/orion/OpenWrt.config)
-
-### 2.1 Patches & Config to backfire 10.0.3
+### 2.1 Patches & Config 
 
 Here lists the patches for building the kernel. You should first apply these patches before building.
+
+For wrt350nv2, you should
 
 ```bash
 # for basic build
@@ -102,6 +93,16 @@ cp patches/OpenWrt.config ../ws/path/to/backfire_10.03/.config
 # for debug-info
 cp patches/kernel-defaults.mk ../ws/path/to/backfire_10.03/include/kernel-defaults.mk
 cp patches/kernel-config-extra ../ws/path/to/backfire_10.03/kernel-config-extra
+```
+
+For nas7820, you should
+```bash
+# for basic build
+cp patches/download.pl ../ws/path/to/chaos_calmer_15.05/scripts/download.pl
+
+# for debug-info
+cp patches/kernel-defaults.mk ../ws/path/to/chaos_calmer_15.05/include/kernel-defaults.mk
+cp patches/kernel-config-extra ../ws/path/to/chaos_calmer_15.05/kernel-config-extra
 ```
 
 ### 2.2 Build (In wrt350nv2-build-env docker)
