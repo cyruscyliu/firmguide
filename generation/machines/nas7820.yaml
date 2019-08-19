@@ -4,7 +4,7 @@ machine:
   machine_name: "nas7820"
   board_id: "0x480"
   ram:
-    ram_size: "256 * MiB"
+    ram_size: "2 * GiB"
   flash:
     nor_flash: 0
     nand_flash: 1
