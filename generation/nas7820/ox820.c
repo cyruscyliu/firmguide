@@ -504,7 +504,7 @@ static void ox820_realize(DeviceState *dev, Error **errp)
     }
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_pp), 0, 0x47000000);
     if (serial_hd(0)) {
-        serial_mm_init(get_system_memory(), 0x44200000, 2,
+        serial_mm_init(get_system_memory(), 0x44200000, 0,
                        qdev_get_gpio_in(DEVICE(&s->cpu_pp), 23),
                        6250000, serial_hd(0), DEVICE_LITTLE_ENDIAN);
     }

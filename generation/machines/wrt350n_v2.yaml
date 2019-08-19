@@ -62,6 +62,8 @@ machine:
         uart_name: "mv88f5181l_uart"
         uart_mmio_base: "0xf1012000"
         uart_mmio_size: "0x200"
+        uart_baud_rate: "115200"
+        uart_reg_shift: "2"
         uart_irq: "3"
         uart_registers:
           - name: "uart_0_receive_buffer_register_rbr"
