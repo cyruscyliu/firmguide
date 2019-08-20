@@ -77,7 +77,7 @@ Using the container from docker image nas7820-build-evn:latest
 + Kernel version: 3.18.20
 + Openwrt version: chaos calmer 15.05
 + Download [Chaos Calmer 15.05](https://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/OpenWrt-ImageBuilder-15.05-oxnas.Linux-x86_64.tar.bz2)
-+ Download [config.diff for Backfire 10.0.3](https://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/config.diff)
++ Check [config.diff for Backfire 10.0.3](https://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/config.diff)
 
 ### 2.1 Patches & Config 
 
@@ -95,15 +95,7 @@ cp patches/kernel-defaults.mk ../ws/path/to/backfire_10.03/include/kernel-defaul
 cp patches/kernel-config-extra ../ws/path/to/backfire_10.03/kernel-config-extra
 ```
 
-For nas7820, you should
-```bash
-# for basic build
-cp patches/download.pl ../ws/path/to/chaos_calmer_15.05/scripts/download.pl
-
-# for debug-info
-cp patches/kernel-defaults.mk ../ws/path/to/chaos_calmer_15.05/include/kernel-defaults.mk
-cp patches/kernel-config-extra ../ws/path/to/chaos_calmer_15.05/kernel-config-extra
-```
+For nas7820, you could run `build.sh` in `nas7820-kernel` .
 
 ### 2.2 Build (In wrt350nv2-build-env docker)
 
