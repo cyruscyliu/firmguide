@@ -28,7 +28,7 @@ static void nas7820_init(MachineState *machine)
     NAS7820State *s = g_new0(NAS7820State, 1);
 
     /* initialize the soc */
-    sysbus_init_child_obj(obj, "soc", &s->soc, sizeof(s->soc), TYPE_OX820);
+    sysbus_init_child_obj(OBJECT(machine), "soc", &s->soc, sizeof(s->soc), TYPE_OX820);
 
     /* realize the soc */
     object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);

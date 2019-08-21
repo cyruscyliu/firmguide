@@ -26,7 +26,7 @@ static void {{machine_name}}_init(MachineState *machine)
     {{machine_name|upper}}State *s = g_new0({{machine_name|upper}}State, 1);
 
     /* initialize the soc */
-    sysbus_init_child_obj(obj, "soc", &s->soc, sizeof(s->soc), TYPE_{{soc_name|upper}});
+    sysbus_init_child_obj(OBJECT(machine), "soc", &s->soc, sizeof(s->soc), TYPE_{{soc_name|upper}});
 
     /* realize the soc */
     object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);
