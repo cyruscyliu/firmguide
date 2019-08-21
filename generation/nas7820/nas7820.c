@@ -42,24 +42,54 @@ static void nas7820_init(MachineState *machine)
     /* so, comment the line above */
 
     /* map bamboo devices mmio */
-    /* map oxmas782x_gpio mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 0, OXMAS782X_GPIO_MMIO_BASE);
-    /* map nas782x_pcie mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 1, NAS782X_PCIE_MMIO_BASE);
-    /* map nas782x_sata mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 2, NAS782X_SATA_MMIO_BASE);
+    /* map oxmas782x_gpioa_0 mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 0, OXMAS782X_GPIOA_0_MMIO_BASE);
+    /* map oxmas782x_gpioa_1 mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 1, OXMAS782X_GPIOA_1_MMIO_BASE);
+    /* map oxmas782x_gpiob_0 mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 2, OXMAS782X_GPIOB_0_MMIO_BASE);
+    /* map oxmas782x_gpiob_1 mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 3, OXMAS782X_GPIOB_1_MMIO_BASE);
+    /* map nas782x_pcie0_cfg mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 4, NAS782X_PCIE0_CFG_MMIO_BASE);
+    /* map nas782x_pcie0_it mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 5, NAS782X_PCIE0_IT_MMIO_BASE);
+    /* map nas782x_pcie0_phy mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 6, NAS782X_PCIE0_PHY_MMIO_BASE);
+    /* map nas782x_pcie1_cfg mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 7, NAS782X_PCIE1_CFG_MMIO_BASE);
+    /* map nas782x_pcie1_it mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 8, NAS782X_PCIE1_IT_MMIO_BASE);
+    /* map nas782x_pcie1_phy mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 9, NAS782X_PCIE1_PHY_MMIO_BASE);
+    /* map nas782x_sata_ports mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 10, NAS782X_SATA_PORTS_MMIO_BASE);
+    /* map nas782x_sata_dmactl mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 11, NAS782X_SATA_DMACTL_MMIO_BASE);
+    /* map nas782x_sata_sgdma mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 12, NAS782X_SATA_SGDMA_MMIO_BASE);
+    /* map nas782x_sata_core mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 13, NAS782X_SATA_CORE_MMIO_BASE);
+    /* map nas782x_sata_pyh mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 14, NAS782X_SATA_PYH_MMIO_BASE);
+    /* map nas782x_sata_descriptors mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 15, NAS782X_SATA_DESCRIPTORS_MMIO_BASE);
     /* map nas782x_gmac mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 3, NAS782X_GMAC_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 16, NAS782X_GMAC_MMIO_BASE);
     /* map nas782x_ehci mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 4, NAS782X_EHCI_MMIO_BASE);
-    /* map nas782x_pll mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 5, NAS782X_PLL_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 17, NAS782X_EHCI_MMIO_BASE);
+    /* map nas782x_plla mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 18, NAS782X_PLLA_MMIO_BASE);
+    /* map nas782x_pllb mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 19, NAS782X_PLLB_MMIO_BASE);
     /* map nas782x_reset mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 6, NAS782X_RESET_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 20, NAS782X_RESET_MMIO_BASE);
     /* map nas782x_rps_timer mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 7, NAS782X_RPS_TIMER_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 21, NAS782X_RPS_TIMER_MMIO_BASE);
     /* map nas782x_rps mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 8, NAS782X_RPS_MMIO_BASE);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 22, NAS782X_RPS_MMIO_BASE);
+    /* map nas782x_nand mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 23, NAS782X_NAND_MMIO_BASE);
 
     /* set up the nand flash */
     dinfo = drive_get(IF_MTD, 0, 0);
