@@ -40,7 +40,7 @@ static void mv88f5181l_cesa_write(void *opaque, hwaddr offset, uint64_t val, uns
 
 static void mv88f5181l_init(Object *obj);
 static void mv88f5181l_realize(DeviceState *dev, Error **errp);
-// static void mv88f5181l_reset(void *opaque);
+static void mv88f5181l_reset(void *opaque);
 
 static void mv88f5181l_class_init(ObjectClass *oc, void *data);
 static void mv88f5181l_register_types(void);
@@ -3251,8 +3251,8 @@ static void mv88f5181l_init(Object *obj)
 
     object_property_add_const_link(OBJECT(&s->ic), "bridge", OBJECT(&s->bridge), &error_abort);
 
-    /* register reset for mv88f5181l */
-    // qemu_register_reset(mv88f5181l_reset, s);
+    /* reset */
+    mv88f5181l_reset(s);
 }
 
 static void mv88f5181l_realize(DeviceState *dev, Error **errp) 

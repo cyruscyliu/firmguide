@@ -14,7 +14,7 @@ static void {{device.name}}_write(void *opaque, hwaddr offset, uint64_t val, uns
 {% endfor %}
 static void {{soc_name}}_init(Object *obj);
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp);
-// static void {{soc_name}}_reset(void *opaque);
+static void {{soc_name}}_reset(void *opaque);
 
 static void {{soc_name}}_class_init(ObjectClass *oc, void *data);
 static void {{soc_name}}_register_types(void);
@@ -101,8 +101,8 @@ static void {{soc_name}}_init(Object *obj)
 
     object_property_add_const_link(OBJECT(&s->ic), "bridge", OBJECT(&s->bridge), &error_abort);{% endif %}
 
-    /* register reset for {{soc_name}} */
-    // qemu_register_reset({{soc_name}}_reset, s);
+    /* reset */
+    {{soc_name}}_reset(s);
 }
 
 static void {{soc_name}}_realize(DeviceState *dev, Error **errp) 

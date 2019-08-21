@@ -28,7 +28,8 @@ static void wrt350n_v2_init(MachineState *machine)
     WRT350N_V2State *s = g_new0(WRT350N_V2State, 1);
 
     /* initialize the soc */
-    sysbus_init_child_obj(OBJECT(machine), "soc", &s->soc, sizeof(s->soc), TYPE_MV88F5181L);
+    object_initialize(&s->soc, sizeof(s->soc), TYPE_MV88F5181L);
+    object_property_add_child(OBJECT(machine), "soc", OBJECT(&s->soc), &error_abort);
 
     /* realize the soc */
     object_property_set_bool(OBJECT(&s->soc), true, "realized", &error_abort);

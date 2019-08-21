@@ -40,7 +40,7 @@ static void nas782x_rps_write(void *opaque, hwaddr offset, uint64_t val, unsigne
 
 static void ox820_init(Object *obj);
 static void ox820_realize(DeviceState *dev, Error **errp);
-// static void ox820_reset(void *opaque);
+static void ox820_reset(void *opaque);
 
 static void ox820_class_init(ObjectClass *oc, void *data);
 static void ox820_register_types(void);
@@ -501,8 +501,8 @@ static void ox820_init(Object *obj)
         &nas782x_rps_ops, s, TYPE_OX820, NAS782X_RPS_MMIO_SIZE);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->nas782x_rps_mmio);
 
-    /* register reset for ox820 */
-    // qemu_register_reset(ox820_reset, s);
+    /* reset */
+    ox820_reset(s);
 }
 
 static void ox820_realize(DeviceState *dev, Error **errp) 
