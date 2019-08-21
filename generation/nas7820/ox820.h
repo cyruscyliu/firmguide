@@ -18,7 +18,9 @@
 #define SATA_RESERVED 0x0 ... 0x100000
 #define GMAC_RESERVED 0x0 ... 0x2000
 #define EHCI_RESERVED 0x0 ... 0xf00
-#define PLL_RESERVED 0x0 ... 0x10
+#define PLL_CTRL_0 0x0
+#define PLL_CTRL_1 0x4
+#define PLL_RESERVED 0x8 ... 0x10
 #define RESET_RESERVED 0x0 ... 0x8
 #define RPS_TIMER_RESERVED 0x0 ... 0x40
 #define RPS_RESERVED 0x0 ... 0x14
@@ -62,6 +64,8 @@ typedef struct OX820State {
     MemoryRegion nas782x_ehci_mmio;
     uint32_t ehci_reserved;
     MemoryRegion nas782x_pll_mmio;
+    uint32_t pll_ctrl_0;
+    uint32_t pll_ctrl_1;
     uint32_t pll_reserved;
     MemoryRegion nas782x_reset_mmio;
     uint32_t reset_reserved;

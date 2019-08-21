@@ -269,6 +269,12 @@ static uint64_t nas782x_pll_read(void *opaque, hwaddr offset, unsigned size)
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return 0;
+    case PLL_CTRL_0:
+        res = s->pll_ctrl_0;
+        break;
+    case PLL_CTRL_1:
+        res = s->pll_ctrl_1;
+        break;
     case PLL_RESERVED:
         res = s->pll_reserved;
         break;
@@ -284,6 +290,12 @@ static void nas782x_pll_write(void *opaque, hwaddr offset, uint64_t val, unsigne
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return;
+    case PLL_CTRL_0:
+        s->pll_ctrl_0 = val;
+        break;
+    case PLL_CTRL_1:
+        s->pll_ctrl_1 = val;
+        break;
     case PLL_RESERVED:
         s->pll_reserved = val;
         break;
@@ -432,6 +444,8 @@ static void ox820_reset(void *opaque)
     s->sata_reserved = 0x0;
     s->gmac_reserved = 0x0;
     s->ehci_reserved = 0x0;
+    s->pll_ctrl_0 = 3 << 8 | 3 << 4;
+    s->pll_ctrl_1 = 32768;
     s->pll_reserved = 0x0;
     s->reset_reserved = 0x0;
     s->rps_timer_reserved = 0x0;
