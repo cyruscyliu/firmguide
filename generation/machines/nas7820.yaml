@@ -8,7 +8,9 @@ machine:
   flash:
     nor_flash: 0
     nand_flash: 1
-    flash_addr: "0x41000000"
+    # for nand flash, you might need a customized nand controller
+    # move register info into bamboo temporarily
+    flash_addr: ~
     flash_sect_size: ~
     flash_size: "128 * MiB"
   soc:
@@ -229,11 +231,22 @@ machine:
           - name: "rps_reserved"
             offset: "0x0 ... 0x14"
             value: "0x0"
-      - name: "nas782x_nand"
+      - name: "nas782x_nand_0"
         id: "23"
+        mmio_base: "0x41000000"
+        mmio_size: "0x100000"
+        registers:
+          - name: "io_addr_r"
+            offset: "0x0"
+            value: "0x40"
+          - name: "nand_0_reserved"
+            offset: "0x4 ... 0x100000"
+            value: "0x0"
+      - name: "nas782x_nand_1"
+        id: "24"
         mmio_base: "0x41C00000"
         mmio_size: "0x20"
         registers:
-          - name: "nand_reseverd"
+          - name: "nand_1_reserved"
             offset: "0x0 ... 0x20"
             value: "0x0"

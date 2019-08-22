@@ -38,7 +38,9 @@
 #define RESET_RESERVED 0x0 ... 0x8
 #define RPS_TIMER_RESERVED 0x0 ... 0x40
 #define RPS_RESERVED 0x0 ... 0x14
-#define NAND_RESEVERD 0x0 ... 0x20
+#define IO_ADDR_R 0x0
+#define NAND_0_RESERVED 0x4 ... 0x100000
+#define NAND_1_RESERVED 0x0 ... 0x20
 
 #define OXMAS782X_GPIOA_0_MMIO_SIZE 0x100
 #define OXMAS782X_GPIOA_0_MMIO_BASE 0x44000000
@@ -86,8 +88,10 @@
 #define NAS782X_RPS_TIMER_MMIO_BASE 0x44400200
 #define NAS782X_RPS_MMIO_SIZE 0x14
 #define NAS782X_RPS_MMIO_BASE 0x44400000
-#define NAS782X_NAND_MMIO_SIZE 0x20
-#define NAS782X_NAND_MMIO_BASE 0x41C00000
+#define NAS782X_NAND_0_MMIO_SIZE 0x100000
+#define NAS782X_NAND_0_MMIO_BASE 0x41000000
+#define NAS782X_NAND_1_MMIO_SIZE 0x20
+#define NAS782X_NAND_1_MMIO_BASE 0x41C00000
 
 typedef struct OX820State {
     /*< private >*/
@@ -146,8 +150,11 @@ typedef struct OX820State {
     uint32_t rps_timer_reserved;
     MemoryRegion nas782x_rps_mmio;
     uint32_t rps_reserved;
-    MemoryRegion nas782x_nand_mmio;
-    uint32_t nand_reseverd;
+    MemoryRegion nas782x_nand_0_mmio;
+    uint32_t io_addr_r;
+    uint32_t nand_0_reserved;
+    MemoryRegion nas782x_nand_1_mmio;
+    uint32_t nand_1_reserved;
     
     ARM11MPCorePriveState cpu_pp;
 } OX820State;

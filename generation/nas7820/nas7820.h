@@ -9,7 +9,7 @@
 #include "hw/arm/ox820.h"
 #include "hw/block/flash.h"
 
-#define NAS7820_FLASH_ADDR      0x41000000
+#define NAS7820_FLASH_ADDR      None
 #define NAS7820_FLASH_SIZE      (128 * MiB)
 #define NAS7820_FLASH_SECT_SIZE (None)
 

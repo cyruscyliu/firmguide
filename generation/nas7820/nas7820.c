@@ -88,8 +88,10 @@ static void nas7820_init(MachineState *machine)
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 21, NAS782X_RPS_TIMER_MMIO_BASE);
     /* map nas782x_rps mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 22, NAS782X_RPS_MMIO_BASE);
-    /* map nas782x_nand mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 23, NAS782X_NAND_MMIO_BASE);
+    /* map nas782x_nand_0 mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 23, NAS782X_NAND_0_MMIO_BASE);
+    /* map nas782x_nand_1 mmio */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 24, NAS782X_NAND_1_MMIO_BASE);
 
     /* set up the nand flash */
     dinfo = drive_get(IF_MTD, 0, 0);
