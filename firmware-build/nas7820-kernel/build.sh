@@ -4,14 +4,19 @@
 
 cd ../ws
 # download the package
-DOWNLOAD_URL="https://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/OpenWrt-ImageBuilder-15.05-oxnas.Linux-x86_64.tar.bz2"
-PACKAGE_NAME="OpenWrt-ImageBuilder-15.05-oxnas.Linux-x86_64.tar.bz2"
-if [ ! -f $PACKAGE_NAME ];then
+DOWNLOAD_URL="https://github.com/openwrt/chaos_calmer/archive/v15.05.zip"
+PACKAGE_NAME="v15.05.zip"
+PACKAGE_DIR_NAME="chaos_calmer-15.05"
+if [ ! -f $PACKAGE_NAME  ];then
     wget $DOWNLOAD_URL
-    tar jxvf $PACKAGE_NAME
+    unzip $PACKAGE_NAME
+    mv $PACKAGE_DIR_NAME chaos_camler_1505_oxnas
+fi
+if [ -d $PACKAGE_DIR_NAME ];then
+    mv $PACKAGE_DIR_NAME chaos_camler_1505_oxnas
 fi
 # patch and config
-target="./OpenWrt-ImageBuilder-15.05-oxnas.Linux-x86_64"
+target="./chaos_camler_1505_oxnas"
 patch="../nas7820-kernel/patches"
 cp "$patch/download.pl" "$target/scripts/download.pl"
 cp "$patch/kernel-defaults.mk" "$target/include/kernel-defaults.mk"
@@ -19,19 +24,10 @@ cp "$patch/kernel-config-extra" "$target/kernel-config-extra"
 
 cd ../nas7820-kernel
 # build the docker
-chmod +x build-docker-image.sh
 ./build-docker-image.sh
 # start the docker
-chmod +x start.sh
 ./start.sh
 # enter the docker
-chmod +x in.h
 ./in.sh
 
 # update the packages
-cd "$target"
-
-
-
-
-
