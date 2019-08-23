@@ -18,6 +18,7 @@ fi
 # patch and config
 target="./chaos_camler_1505_oxnas"
 patch="../nas7820-kernel/patches"
+cp "$patch/.config" "$target/.config"
 cp "$patch/download.pl" "$target/scripts/download.pl"
 cp "$patch/kernel-defaults.mk" "$target/include/kernel-defaults.mk"
 cp "$patch/kernel-config-extra" "$target/kernel-config-extra"
@@ -31,3 +32,4 @@ cd ../nas7820-kernel
 ./in.sh
 
 # update the packages
+
