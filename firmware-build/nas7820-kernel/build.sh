@@ -4,10 +4,12 @@
 
 cd ../ws
 # download the package
-wget https://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/OpenWrt-ImageBuilder-15.05-oxnas.Linux-x86_64.tar.bz2
-tar jxvf OpenWrt-ImageBuilder-15.05-oxnas.Linux-x86_64.tar.bz2
-# then, you will get uncompressed OpenWrt-ImageBuilder-15.05-oxnas.Linux-x86_64
-
+DOWNLOAD_URL="https://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/OpenWrt-ImageBuilder-15.05-oxnas.Linux-x86_64.tar.bz2"
+PACKAGE_NAME="OpenWrt-ImageBuilder-15.05-oxnas.Linux-x86_64.tar.bz2"
+if [ ! -f $PACKAGE_NAME ];then
+    wget $DOWNLOAD_URL
+    tar jxvf $PACKAGE_NAME
+fi
 # patch and config
 target="./OpenWrt-ImageBuilder-15.05-oxnas.Linux-x86_64"
 patch="../nas7820-kernel/patches"
