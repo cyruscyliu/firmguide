@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 # python3.x is required
-python3.7 ktracer_reader.py /tmp/log | tee log
+python3.7 reader.py /tmp/log | tee log

@@ -8,6 +8,11 @@ simple instrumentation. Just enjoy it.
 To use ktracer for QEMU, you need patch `qemu-4.0.0/accel/tcg/cpu-exec.c`. Only `QEMU-4.0.0`
 is supported now, we don't test other QEMU release versions.
 
+```bash
+cd path/to/qemu-4.0.0
+git am path/to/add_ktracer.patch
+```
+
 ## usage
 By default, you'll find `/tmp/log` which stores the execution records. Use 
 `reader.py` to get readable content. You can also use `read.sh` directly.
