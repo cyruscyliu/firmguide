@@ -21,6 +21,7 @@ patch="../nas7820-kernel/patches"
 cp "$patch/.config" "$target/.config"
 cp "$patch/build.sh" "$target/build.sh"
 cp "$patch/download.pl" "$target/scripts/download.pl"
+cp "$patch/libjson-c.makefile" "$target/package/libs/libjson-c/Makefile"
 cp "$patch/kernel-defaults.mk" "$target/include/kernel-defaults.mk"
 cp "$patch/kernel-config-extra" "$target/kernel-config-extra"
 
