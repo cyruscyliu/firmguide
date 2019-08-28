@@ -3,8 +3,8 @@
 #include "qemu/osdep.h"
 #include "qemu/log.h"
 #include "qapi/error.h"
-#include "hw/arm/{{bridge_name}}.h"
-#include "hw/timer/{{timer_name}}.h"
+#include "hw/arm/{{bridge_name}}.h"{% if timer %}
+#include "hw/timer/{{timer_name}}.h"{% endif %}
 
 static void {{bridge_name}}_realize(DeviceState *dev, Error **errp);
 
@@ -12,7 +12,7 @@ static void {{bridge_name}}_init(Object *obj);
 static void {{bridge_name}}_class_init(ObjectClass *oc, void *data);
 static void {{bridge_name}}_register_types(void);
 
-static void {{bridge_name}}_update(void *opaque) 
+static void {{bridge_name}}_update(void *opaque)
 {
     {{bridge_name|upper|concat}}State *s = opaque;
     if (extract32(s->bridge_interrupt_cause_register, 1, 1)) {
@@ -33,7 +33,7 @@ static void {{bridge_name}}_update(void *opaque)
     }
 }
 
-static void {{bridge_name}}_set_irq(void *opaque, int irq, int level) 
+static void {{bridge_name}}_set_irq(void *opaque, int irq, int level)
 {
     {{bridge_name|upper|concat}}State *s = opaque;
     s->bridge_interrupt_cause_register &= 0x1;
@@ -41,7 +41,7 @@ static void {{bridge_name}}_set_irq(void *opaque, int irq, int level)
     {{bridge_name}}_update(s);
 }
 
-static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size) 
+static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size)
 {
     {{bridge_name|upper|concat}}State *s = opaque;
     uint32_t res = 0;
@@ -57,7 +57,7 @@ static uint64_t {{bridge_name}}_read(void *opaque, hwaddr offset, unsigned size)
     return res;
 }
 
-static void {{bridge_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+static void {{bridge_name}}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
 {
     {{bridge_name|upper|concat}}State *s = opaque;
 
@@ -94,9 +94,9 @@ static void {{bridge_name}}_init(Object *obj)
     qdev_init_gpio_in_named(DEVICE(s), {{bridge_name}}_set_irq, {{bridge_name|upper}}_IRQ, 32);
 }
 
-static void {{bridge_name}}_realize(DeviceState *dev, Error **errp) 
+static void {{bridge_name}}_realize(DeviceState *dev, Error **errp)
 {
-    {{bridge_name|upper|concat}}State *s = {{bridge_name|upper}}(dev);
+    {{bridge_name|upper|concat}}State *s = {{bridge_name|upper}}(dev);{% if timer %}
     Object *obj;
     {{timer_name|upper|concat}}State *timer;
     Error *err = NULL;
@@ -112,17 +112,17 @@ static void {{bridge_name}}_realize(DeviceState *dev, Error **errp)
     sysbus_connect_irq(SYS_BUS_DEVICE(timer), 0,
         qdev_get_gpio_in_named(DEVICE(s), {{bridge_name|upper}}_IRQ, 1));
     sysbus_connect_irq(SYS_BUS_DEVICE(timer), 1,
-        qdev_get_gpio_in_named(DEVICE(s), {{bridge_name|upper}}_IRQ, 2));
+        qdev_get_gpio_in_named(DEVICE(s), {{bridge_name|upper}}_IRQ, 2));{% endif %}
 }
 
-static void {{bridge_name}}_reset(DeviceState *d) 
+static void {{bridge_name}}_reset(DeviceState *d)
 {
     {{bridge_name|upper|concat}}State *s = {{bridge_name|upper}}(d);
     {% for register in bridge_registers %}
     s->{{register.name}} = 0;{% endfor %}
 }
 
-static void {{bridge_name}}_class_init(ObjectClass *oc, void *data) 
+static void {{bridge_name}}_class_init(ObjectClass *oc, void *data)
 {
     DeviceClass *dc = DEVICE_CLASS(oc);
 
@@ -152,7 +152,7 @@ static const TypeInfo {{bridge_name}}_type_info = {
     .class_init = {{bridge_name}}_class_init,
 };
 
-static void {{bridge_name}}_register_types(void) 
+static void {{bridge_name}}_register_types(void)
 {
     type_register_static(&{{bridge_name}}_type_info);
 }

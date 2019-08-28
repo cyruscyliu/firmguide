@@ -10,6 +10,7 @@
 #include "sysemu/numa.h"
 #include "hw/arm/arm.h"
 #include "target/arm/cpu.h"
+#include "hw/block/flash.h"
 #include "hw/arm/wrt350n_v2.h"
 #include "hw/arm/mv88f5181l.h"
 
@@ -22,7 +23,6 @@ static void wrt350n_v2_init(MachineState *machine)
 {
     static struct arm_boot_info binfo;
     DriveInfo *dinfo;
-    PFlashCFI01 *flash;
 
     /* allocate our machine  */
     WRT350N_V2State *s = g_new0(WRT350N_V2State, 1);
@@ -36,7 +36,7 @@ static void wrt350n_v2_init(MachineState *machine)
 
     /* allocate the ram */
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
-    memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, 0);
+    memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, -1);
     /* memory_region_allocate_system_memory do the same things as below */
     /* object_property_add_child(OBJECT(machine), "ram", OBJECT(&s->ram), &error_abort); */
     /* so, comment the line above */
@@ -44,42 +44,29 @@ static void wrt350n_v2_init(MachineState *machine)
     /* map bamboo devices mmio */
     /* map mv88f5181l_gpio mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 0, MV88F5181L_GPIO_MMIO_BASE);
-    
     /* map mv88f5181l_cpu_address_map mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 1, MV88F5181L_CPU_ADDRESS_MAP_MMIO_BASE);
-    
     /* map mv88f5181l_ddr_sdram_controller mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 2, MV88F5181L_DDR_SDRAM_CONTROLLER_MMIO_BASE);
-    
     /* map mv88f5181l_pins_multiplexing_interface mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 3, MV88F5181L_PINS_MULTIPLEXING_INTERFACE_MMIO_BASE);
-    
     /* map mv88f5181l_pci_interface mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 4, MV88F5181L_PCI_INTERFACE_MMIO_BASE);
-    
     /* map mv88f5181l_pcie_interface mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 5, MV88F5181L_PCIE_INTERFACE_MMIO_BASE);
-    
     /* map mv88f5181l_usb_2_0_controller mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 6, MV88F5181L_USB_2_0_CONTROLLER_MMIO_BASE);
-    
     /* map mv88f5181l_gigabit_ethernet_controller mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 7, MV88F5181L_GIGABIT_ETHERNET_CONTROLLER_MMIO_BASE);
-    
     /* map mv88f5181l_cesa mmio */
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), 8, MV88F5181L_CESA_MMIO_BASE);
-    
-    /* set up the flash */
+
+    /* set up the nor flash */
     dinfo = drive_get(IF_PFLASH, 0, 0);
-    flash = pflash_cfi01_register(
+    pflash_cfi01_register(
             WRT350N_V2_FLASH_ADDR, "flash", WRT350N_V2_FLASH_SIZE,
             dinfo ? blk_by_legacy_dinfo(dinfo): NULL, WRT350N_V2_FLASH_SECT_SIZE,
             4, 0, 0, 0, 0, 0);
-    if (!flash) {
-        fprintf(stderr, "qemu: Error registering flash memory.\n");
-    } else {
-        s->flash = flash;
-    }
 
     /* boot */
     binfo.board_id = wrt350n_v2_board_id;

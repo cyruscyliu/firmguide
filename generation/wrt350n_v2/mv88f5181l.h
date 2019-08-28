@@ -6,6 +6,7 @@
 #define MV88F5181L_H
 
 #include "hw/arm/arm.h"
+#include "hw/sysbus.h"
 #include "hw/arm/mv88f5181l_bridge.h"
 #include "hw/intc/mv88f5181l_ic.h"
 #include "hw/timer/mv88f5181l_timer.h"
@@ -435,9 +436,6 @@
 #define MV88F5181L_GIGABIT_ETHERNET_CONTROLLER_MMIO_BASE 0xf1072000
 #define MV88F5181L_CESA_MMIO_SIZE 0x200
 #define MV88F5181L_CESA_MMIO_BASE 0xf109DD00
-
-#define MV88F5181L_UART_MMIO_SIZE 0x200
-#define MV88F5181L_UART_MMIO_BASE 0xf1012000
 
 typedef struct MV88F5181LState {
     /*< private >*/

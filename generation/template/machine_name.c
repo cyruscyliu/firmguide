@@ -8,6 +8,7 @@
 #include "sysemu/numa.h"
 #include "hw/arm/arm.h"
 #include "target/arm/cpu.h"
+#include "hw/block/flash.h"
 #include "hw/arm/{{machine_name}}.h"
 #include "hw/arm/{{soc_name}}.h"
 
@@ -20,7 +21,6 @@ static void {{machine_name}}_init(MachineState *machine)
 {
     static struct arm_boot_info binfo;
     DriveInfo *dinfo;
-    PFlashCFI01 *flash;
 
     /* allocate our machine  */
     {{machine_name|upper}}State *s = g_new0({{machine_name|upper}}State, 1);
@@ -34,26 +34,25 @@ static void {{machine_name}}_init(MachineState *machine)
 
     /* allocate the ram */
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
-    memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, 0);
+    memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, -1);
     /* memory_region_allocate_system_memory do the same things as below */
     /* object_property_add_child(OBJECT(machine), "ram", OBJECT(&s->ram), &error_abort); */
     /* so, comment the line above */
 
     /* map bamboo devices mmio */{% for device in bamboo %}
     /* map {{device.name}} mmio */
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), {{device.id}}, {{device.name|upper}}_MMIO_BASE);
-    {% endfor %}
-    /* set up the flash */
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->soc), {{device.id}}, {{device.name|upper}}_MMIO_BASE);{% endfor %}{% if nor_flash %}
+
+    /* set up the nor flash */
     dinfo = drive_get(IF_PFLASH, 0, 0);
-    flash = pflash_cfi01_register(
+    pflash_cfi01_register(
             {{machine_name|upper}}_FLASH_ADDR, "flash", {{machine_name|upper}}_FLASH_SIZE,
             dinfo ? blk_by_legacy_dinfo(dinfo): NULL, {{machine_name|upper}}_FLASH_SECT_SIZE,
-            4, 0, 0, 0, 0, 0);
-    if (!flash) {
-        fprintf(stderr, "qemu: Error registering flash memory.\n");
-    } else {
-        s->flash = flash;
-    }
+            4, 0, 0, 0, 0, 0);{% endif %}{% if nand_flash %}
+
+    /* set up the nand flash */
+    dinfo = drive_get(IF_MTD, 0, 0);
+    nand_init(dinfo ? blk_by_legacy_dinfo(dinfo): NULL, 0xec, 0x73);{% endif %}
 
     /* boot */
     binfo.board_id = {{machine_name}}_board_id;

@@ -14,7 +14,7 @@ static void mv88f5181l_bridge_init(Object *obj);
 static void mv88f5181l_bridge_class_init(ObjectClass *oc, void *data);
 static void mv88f5181l_bridge_register_types(void);
 
-static void mv88f5181l_bridge_update(void *opaque) 
+static void mv88f5181l_bridge_update(void *opaque)
 {
     MV88F5181LBRIDGEState *s = opaque;
     if (extract32(s->bridge_interrupt_cause_register, 1, 1)) {
@@ -35,7 +35,7 @@ static void mv88f5181l_bridge_update(void *opaque)
     }
 }
 
-static void mv88f5181l_bridge_set_irq(void *opaque, int irq, int level) 
+static void mv88f5181l_bridge_set_irq(void *opaque, int irq, int level)
 {
     MV88F5181LBRIDGEState *s = opaque;
     s->bridge_interrupt_cause_register &= 0x1;
@@ -43,7 +43,7 @@ static void mv88f5181l_bridge_set_irq(void *opaque, int irq, int level)
     mv88f5181l_bridge_update(s);
 }
 
-static uint64_t mv88f5181l_bridge_read(void *opaque, hwaddr offset, unsigned size) 
+static uint64_t mv88f5181l_bridge_read(void *opaque, hwaddr offset, unsigned size)
 {
     MV88F5181LBRIDGEState *s = opaque;
     uint32_t res = 0;
@@ -74,7 +74,7 @@ static uint64_t mv88f5181l_bridge_read(void *opaque, hwaddr offset, unsigned siz
     return res;
 }
 
-static void mv88f5181l_bridge_write(void *opaque, hwaddr offset, uint64_t val, unsigned size) 
+static void mv88f5181l_bridge_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
 {
     MV88F5181LBRIDGEState *s = opaque;
 
@@ -126,7 +126,7 @@ static void mv88f5181l_bridge_init(Object *obj)
     qdev_init_gpio_in_named(DEVICE(s), mv88f5181l_bridge_set_irq, MV88F5181L_BRIDGE_IRQ, 32);
 }
 
-static void mv88f5181l_bridge_realize(DeviceState *dev, Error **errp) 
+static void mv88f5181l_bridge_realize(DeviceState *dev, Error **errp)
 {
     MV88F5181LBRIDGEState *s = MV88F5181L_BRIDGE(dev);
     Object *obj;
@@ -147,7 +147,7 @@ static void mv88f5181l_bridge_realize(DeviceState *dev, Error **errp)
         qdev_get_gpio_in_named(DEVICE(s), MV88F5181L_BRIDGE_IRQ, 2));
 }
 
-static void mv88f5181l_bridge_reset(DeviceState *d) 
+static void mv88f5181l_bridge_reset(DeviceState *d)
 {
     MV88F5181LBRIDGEState *s = MV88F5181L_BRIDGE(d);
     
@@ -159,7 +159,7 @@ static void mv88f5181l_bridge_reset(DeviceState *d)
     s->bridge_interrupt_mask_register = 0;
 }
 
-static void mv88f5181l_bridge_class_init(ObjectClass *oc, void *data) 
+static void mv88f5181l_bridge_class_init(ObjectClass *oc, void *data)
 {
     DeviceClass *dc = DEVICE_CLASS(oc);
 
@@ -189,7 +189,7 @@ static const TypeInfo mv88f5181l_bridge_type_info = {
     .class_init = mv88f5181l_bridge_class_init,
 };
 
-static void mv88f5181l_bridge_register_types(void) 
+static void mv88f5181l_bridge_register_types(void)
 {
     type_register_static(&mv88f5181l_bridge_type_info);
 }
