@@ -15,6 +15,10 @@ fi
 if [ -d $PACKAGE_DIR_NAME ];then
     mv $PACKAGE_DIR_NAME chaos_camler_1505_oxnas
 fi
+if [ ! -d chaos_camler_1505_oxnas ];then
+    unzip $PACKAGE_NAME
+    mv $PACKAGE_DIR_NAME chaos_camler_1505_oxnas
+fi
 # patch and config
 target="./chaos_camler_1505_oxnas"
 patch="../nas7820-kernel/patches"
