@@ -2,4 +2,4 @@
 
 target="./chaos_camler_1505_oxnas"
 cd $target
-make -j4 V=s
+make -j4
