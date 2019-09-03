@@ -700,4 +700,31 @@
 >20   ulelong    x             \b, ramdisk addr: 0x%X
 >48   string     x             \b, product name: "%s"
 
+# flattened image tree
+0                   ubelong   0xd00dfeed  flattened image tree, # fit_header
+>4                  ubelong   x           total size: %d bytes,
+>4                  ubelong   x           {size:%d}
+>(8.L)              ubelong   0           {invalid}
+# >8                ubelong   x           offset to dt_struct: 0x%x,
+>(12.L)             ubelong   0           {invalid} # enlarge block size and try again, default=0x100000 (1M)
+# >12               ubelong   x           offset to strings: 0x%x,
+>(16.L)             ubelong   !0          {invalid}
+# >16               ubelong   x           offset to memory reserve map: 0x%x,
+# >20               ubelong   x           version: %d,
+# >24               ubelong   x           last compatiable version: %d,
+# >28               ubelong   x           booting on CPU %d,
+>(32.L)             ubelong   0           {invalid}
+# >32               ubelong   x           size of the strings block: %d bytes,
+>(36.L)             ubelong   0           {invalid}
+# >36               ubelong   x           size of the structure block: %d bytes,
+>(8.L)+0            ubelong   !1          {invalid} # fit_structure->root_node_header
+>(8.L)+8+0          ubelong   !3          {invalid} # fit_structure->root_timestamp
+>(8.L)+8+8          ubelong   x           # offset to name,
+>(12.L)+(>.L)       string    !timestamp  {invalid}
+>(8.L)+8+12         ubedate   x           timestamp: %s,
+>(8.L)+24+0         ubelong   3           # fit_structure->root_description
+>>(8.L)+24+4        ubelong   x           {strlen:(%d+3)&~3}
+>>(8.L)+24+8        ubelong   x           # offset to name,
+>>(12.L)+(>.L)      string    x           %s:
+>>(8.L)+24+12       string    x           {string}%s
 

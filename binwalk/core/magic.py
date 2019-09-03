@@ -467,7 +467,7 @@ class Magic(object):
 
         return filtered
 
-    def _do_math(self, offset, expression):
+    def _do_math(self, offset, expression, previous_line_start):
         '''
         Parses and evaluates complex expressions, e.g., "(4.l+12)", "(6*32)", etc.
 
@@ -484,9 +484,16 @@ class Magic(object):
                 # Separate the offset field into the integer offset and type
                 # values (o and t respsectively)
                 s = expression[:period].rfind('(') + 1
-                # The offset address may be an evaluatable expression, such as '(4+0.L)', typically the result
-                # of the original offset being something like '(&0.L)'.
-                o = binwalk.core.common.MathExpression(expression[s:period]).value
+                if s == period:
+                    # The > in >.L indicates the current offset.
+                    # It must follow a normal signature which handles the value at the same offset.
+                    # >(8.L)+8+8          ubelong   x           offset to name %d
+                    # >(12.L)+(>.L)       string    x           %s
+                    o = previous_line_start
+                else:
+                    # The offset address may be an evaluatable expression, such as '(4+0.L)', typically the result
+                    # of the original offset being something like '(&0.L)'.
+                    o = binwalk.core.common.MathExpression(expression[s:period]).value
                 t = expression[period + 1]
 
                 # Re-build just the parsed offset portion of the expression
@@ -554,6 +561,8 @@ class Magic(object):
         description = []
         max_line_level = 0
         previous_line_end = 0
+        previous_line_size = 0
+        non_printable_char = False
         tags = {'id': signature.id, 'offset':
             offset, 'invalid': False, 'once': False}
 
@@ -578,7 +587,7 @@ class Magic(object):
                     # replace both with the ple text.
                     line_offset_text = line.offset.replace('&+', ple).replace('&', ple)
                     # Evaluate the expression
-                    line_offset = self._do_math(offset, line_offset_text)
+                    line_offset = self._do_math(offset, line_offset_text, previous_line_end - previous_line_size)
 
                 # Sanity check
                 if not isinstance(line_offset, int):
@@ -606,6 +615,7 @@ class Magic(object):
                         if binwalk.core.compat.has_key(tags, 'strlen') and binwalk.core.compat.has_key(line.tags,
                                                                                                        'string'):
                             dvalue = self.data[start:(start + tags['strlen'])]
+                            non_printable_char = True
                         # Else, just terminate the string at the first newline,
                         # carriage return, or NULL byte
                         else:
@@ -738,8 +748,10 @@ class Magic(object):
                         if next_line.level > line.level:
                             if line.type == 'string':
                                 previous_line_end = line_offset + len(dvalue)
+                                previous_line_size = len(dvalue)
                             else:
                                 previous_line_end = line_offset + line.size
+                                previous_line_size = line.size
                     except IndexError as e:
                         pass
 
@@ -764,9 +776,11 @@ class Magic(object):
             tags['display'] = False
             tags['invalid'] = True
 
-        # If the formatted string contains non-printable characters, consider
-        # it invalid
-        if self.printable.match(tags['description']).group() != tags['description']:
+        # If the formatted string contains non-printable characters, consider it invalid.
+        if non_printable_char:
+            tags['description'] = tags['description'].replace('\0', '')
+
+        if not non_printable_char and self.printable.match(tags['description']).group() != tags['description']:
             tags['invalid'] = True
 
         return tags
