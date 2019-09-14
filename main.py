@@ -1,8 +1,16 @@
 import argparse
 
-from db import get_database
 from analysis.metadata import get_metadata
 from analysis.abstract import extract_kernel_and_dtb, get_kernel_and_dtb
+from database.db import DatabaseText
+
+
+def get_database(dbtype, **kwargs):
+    if dbtype == 'text':
+        path = kwargs.pop('tdb', 'openwrt_arm_el')
+        return DatabaseText(path)
+    else:
+        raise NotImplementedError('the dbtype {} is not support yet'.format(dbtype))
 
 
 def run(args):

@@ -1,18 +1,7 @@
-from db_text import DatabaseText
 import abc
 import os
 
-
-class Firmware(object):
-    def __init__(self, *args, **kwargs):
-        self.uuid = kwargs.pop('uuid')
-        # directory where the firmware are put
-        self.storage = os.path.realpath(os.path.join(os.getcwd(), '..'))
-        # absolute or relative path for the firmware
-        self.path = kwargs.pop('path')
-        self.relative = True
-        self.arch = kwargs.pop('arch')
-        self.endian = kwargs.pop('endian')
+from dbi import DatabaseInterface, Firmware
 
 
 class Database(metaclass=abc.ABCMeta):
@@ -33,19 +22,50 @@ class Database(metaclass=abc.ABCMeta):
         pass
 
 
-def get_database(dbtype, **kwargs):
-    if dbtype == 'text':
-        path = kwargs.pop('tdb', 'openwrt_arm_el')
-        return DatabaseText(path)
-    else:
-        raise NotImplementedError('the dbtype {} is not support yet'.format(dbtype))
-
-
-class DatabaseInterface(metaclass=abc.ABCMeta):
-    @abc.abstractmethod
+class DatabaseText(Database, DatabaseInterface):
     def get_count(self, *args, **kwargs):
+        return self.count
+
+    def get_firmware(self, *args, **kwargs):
+        for firmware in self.records:
+            yield firmware
+
+    def select(self, *args, **kwargs):
         pass
 
-    @abc.abstractmethod
-    def get_firmware(self, *args, **kwargs):
+    def add(self, *args, **kwargs):
         pass
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    def update(self, *args, **kwargs):
+        pass
+
+    def __init__(self, path, **kwargs):
+        super().__init__()
+        self.dbtype = 'text'
+        self.path = path
+        self.lazy_loading = False
+        self.records = []
+        self.count = None
+
+        if not self.lazy_loading:
+            self.load()
+
+    def load(self):
+        # format for a record
+        # uuid, relative path, brand, architecture, endian
+        with open(self.path) as f:
+            for line in f:
+                items = line.strip().split()
+                record = {
+                    'uuid': items[0],
+                    'name': os.path.basename(items[1]),
+                    'path': items[1],
+                    'brand': 'openwrt',
+                    'arch': 'arm',
+                    'endian': 'el',
+                }
+                self.records.append(Firmware(kargs=record))
+        self.count = self.records.__len__()
