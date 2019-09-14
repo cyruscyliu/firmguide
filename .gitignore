@@ -1,3 +1,5 @@
 trace
+build
 .idea
 __pycache__
+*.extracted
