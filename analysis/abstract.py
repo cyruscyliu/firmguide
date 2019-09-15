@@ -12,7 +12,9 @@ def extract_kernel_and_dtb(firmware):
     else:
         full_path = firmware.path
     working_dir = tempfile.gettempdir()
-    os.mkdir(os.path.join(working_dir, firmware.uuid))
+    target_dir = os.path.join(working_dir, firmware.uuid)
+    if not os.path.exists(target_dir):
+        os.mkdir(os.path.join(working_dir, firmware.uuid))
     target_full_path = shutil.copy(full_path, working_dir)
     print(target_full_path)
 

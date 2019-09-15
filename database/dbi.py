@@ -16,7 +16,7 @@ class Firmware(object):
     def __init__(self, *args, **kwargs):
         self.uuid = kwargs.pop('uuid')
         # directory where the firmware are put
-        self.storage = os.path.realpath(os.path.join(os.getcwd(), '..'))
+        self.storage = os.getcwd()
         # absolute or relative path for the firmware
         self.path = kwargs.pop('path')
         self.relative = True

@@ -45,7 +45,7 @@ class DatabaseText(Database, DatabaseInterface):
     def __init__(self, path, **kwargs):
         super().__init__()
         self.dbtype = 'text'
-        self.path = path
+        self.path = os.path.join(os.getcwd(), 'database', path)
         self.lazy_loading = False
         self.records = []
         self.count = None
@@ -67,5 +67,5 @@ class DatabaseText(Database, DatabaseInterface):
                     'arch': 'arm',
                     'endian': 'el',
                 }
-                self.records.append(Firmware(kargs=record))
+                self.records.append(Firmware(**record))
         self.count = self.records.__len__()

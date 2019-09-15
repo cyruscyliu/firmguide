@@ -24,18 +24,18 @@ def run(args):
         raise NotImplementedError('multi threads not implemented yet')
     for firmware in dbi.get_firmware():
         if not args.s1:
-            exit(0)
+            continue
         extract_kernel_and_dtb(firmware)
         get_metadata(firmware)
         # get_source_code(firmware)
         if not args.s2:
-            exit(0)
+            continue
         get_kernel_and_dtb(firmware)
         if not args.s5:
-            exit(0)
+            continue
         # infer_cpu(firmware)
         if not args.s6:
-            exit(0)
+            continue
         # generate_cpu(firmware)
 
 
