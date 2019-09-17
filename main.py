@@ -1,6 +1,8 @@
 import argparse
 import os
 import yaml
+import shutil
+import tempfile
 import logging.config
 
 from analysis.metadata import get_metadata
@@ -28,6 +30,21 @@ def get_database(dbtype, **kwargs):
         raise NotImplementedError('the dbtype {} is not support yet'.format(dbtype))
 
 
+def copy_to_tmp(firmware):
+    if firmware.relative:
+        full_path = os.path.join(firmware.storage, firmware.path)
+    else:
+        full_path = firmware.path
+    working_dir = tempfile.gettempdir()
+    target_dir = os.path.join(working_dir, firmware.uuid)
+    if not os.path.exists(target_dir):
+        os.mkdir(os.path.join(working_dir, firmware.uuid))
+    target_full_path = shutil.copy(full_path, target_dir)
+    firmware.working_dir = working_dir
+    firmware.working_path = target_full_path
+    logger.info('firmware {} at {}'.format(firmware.uuid, target_full_path))
+
+
 def run(args):
     if args.dbt is None:
         raise ValueError('no database available')
@@ -42,6 +59,7 @@ def run(args):
     for firmware in dbi.get_firmware():
         if not args.s1:
             continue
+        copy_to_tmp(firmware)
         extract_kernel_and_dtb(firmware)
         get_metadata(firmware)
         # get_source_code(firmware)

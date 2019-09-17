@@ -22,3 +22,5 @@ class Firmware(object):
         self.relative = True
         self.arch = kwargs.pop('arch')
         self.endian = kwargs.pop('endian')
+        self.working_dir = None
+        self.working_path = None
