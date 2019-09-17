@@ -41,7 +41,9 @@ build:
 	@mv $(DIR_TO_BUILD)/$(PACKAGE_DIR_NAME)/*.patch ./patches/
 	@cd $(DIR_TO_BUILD)/$(PACKAGE_DIR_NAME)
 	@echo $(PREFIX) installing ..
-	@sudo $(PYTHON) setup.py -q install
+	@sudo $(PYTHON) setup.py -q uninstall && sudo $(PYTHON) setup.py -q install
+	@sudo cp src/build/scripts-3.7/binwalk /usr/local/bin
+	@sudo chmod 755 /usr/local/bin
 	@echo $(PREFIX) done
 
 clean:
