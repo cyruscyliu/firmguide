@@ -24,5 +24,6 @@ def extract_kernel_and_dtb(firmware):
     register_extract_kernel_and_dtb(by_binwalk)
 
 
+
 def get_kernel_and_dtb(firmware):
     pass
