@@ -4,3 +4,4 @@ build
 .idea
 __pycache__
 *.extracted
+*.pyc
