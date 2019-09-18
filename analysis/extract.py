@@ -1,6 +1,10 @@
+"""
+Extract images, such as kernel image, dtb, from firmware blob.
+
+Add your own extractor by register_extract_kernel_and_dtb(your_func).
+"""
+
 import os
-import tempfile
-import shutil
 import binwalk
 import logging
 

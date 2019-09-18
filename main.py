@@ -6,7 +6,7 @@ import tempfile
 import logging.config
 
 from analysis.metadata import get_metadata
-from analysis.abstract import extract_kernel_and_dtb, get_kernel_and_dtb
+from analysis.extract import extract_kernel_and_dtb, get_kernel_and_dtb
 from database.db import DatabaseText
 
 

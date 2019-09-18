@@ -32,3 +32,13 @@ class Firmware(object):
         self.image_path = None
         self.kernel = None
         self.dtb = None
+        self.metadata = {
+            'brand': [],
+            'os': [],
+            'arch': [],
+            'created_time': [],
+            'kernel_version': [],
+            'kernel_created_time': [],
+            'kernel_load_address': [],
+            'kernel_entry_point': [],
+        }
