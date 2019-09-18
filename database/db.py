@@ -1,7 +1,7 @@
 import abc
 import os
 
-from dbi import DatabaseInterface, Firmware
+from database.dbi import DatabaseInterface, Firmware
 
 
 class Database(metaclass=abc.ABCMeta):

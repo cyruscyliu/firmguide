@@ -1,48 +1,14 @@
-From 4e68b413211be48ea0a520c8af0818d2a60d6e17 Mon Sep 17 00:00:00 2001
+From 723fc42a41f9d01fc8f83cc426f2894163016e59 Mon Sep 17 00:00:00 2001
 From: cyrus <cyruscyliu@gmail.com>
-Date: Tue, 17 Sep 2019 23:05:11 +0800
+Date: Wed, 18 Sep 2019 09:53:50 +0800
 Subject: [PATCH] patch binwalk-2.1.1
 
 ---
- src/binwalk/core/exceptions.py |  25 ++++
  src/binwalk/core/magic.py      | 326 +++++++++++++++++++++++++----------------
  src/binwalk/magic/firmware     |  28 ++++
  src/binwalk/modules/general.py |  44 +++---
- 4 files changed, 278 insertions(+), 145 deletions(-)
- create mode 100644 src/binwalk/core/exceptions.py
+ 3 files changed, 253 insertions(+), 145 deletions(-)
 
-diff --git a/src/binwalk/core/exceptions.py b/src/binwalk/core/exceptions.py
-new file mode 100644
-index 0000000..a032c39
---- /dev/null
-+++ b/src/binwalk/core/exceptions.py
-@@ -0,0 +1,25 @@
-+class ParserException(Exception):
-+
-+    '''
-+    Exception thrown specifically for signature file parsing errors.
-+    '''
-+    pass
-+
-+
-+class ModuleException(Exception):
-+
-+    '''
-+    Module exception class.
-+    Nothing special here except the name.
-+    '''
-+    pass
-+
-+
-+class IgnoreFileException(Exception):
-+
-+    '''
-+    Special exception class used by the load_file plugin method
-+    to indicate that the file that we are attempting to load
-+    should be ignored.
-+    '''
-+    pass
-\ No newline at end of file
 diff --git a/src/binwalk/core/magic.py b/src/binwalk/core/magic.py
 index 0c398a4..a7a0757 100644
 --- a/src/binwalk/core/magic.py

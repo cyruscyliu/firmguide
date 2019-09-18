@@ -42,6 +42,7 @@ def copy_to_tmp(firmware):
     target_full_path = shutil.copy(full_path, target_dir)
     firmware.working_dir = working_dir
     firmware.working_path = target_full_path
+    firmware.size = os.path.getsize(firmware.working_path)
     logger.info('firmware {} at {}'.format(firmware.uuid, target_full_path))
 
 
