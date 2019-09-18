@@ -1,13 +1,13 @@
-From 723fc42a41f9d01fc8f83cc426f2894163016e59 Mon Sep 17 00:00:00 2001
+From 852be4ab8c0c31c50811888d74b80ab97bd1af5e Mon Sep 17 00:00:00 2001
 From: cyrus <cyruscyliu@gmail.com>
-Date: Wed, 18 Sep 2019 09:53:50 +0800
+Date: Wed, 18 Sep 2019 10:49:44 +0800
 Subject: [PATCH] patch binwalk-2.1.1
 
 ---
  src/binwalk/core/magic.py      | 326 +++++++++++++++++++++++++----------------
- src/binwalk/magic/firmware     |  28 ++++
+ src/binwalk/magic/firmware     |  58 ++++++--
  src/binwalk/modules/general.py |  44 +++---
- 3 files changed, 253 insertions(+), 145 deletions(-)
+ 3 files changed, 268 insertions(+), 160 deletions(-)
 
 diff --git a/src/binwalk/core/magic.py b/src/binwalk/core/magic.py
 index 0c398a4..a7a0757 100644
@@ -720,17 +720,59 @@ index 0c398a4..a7a0757 100644
          self.signatures.sort(key=lambda x: x.confidence, reverse=True)
 -
 diff --git a/src/binwalk/magic/firmware b/src/binwalk/magic/firmware
-index 53fc9cc..ccdb0bb 100644
+index 53fc9cc..b0c5f55 100644
 --- a/src/binwalk/magic/firmware
 +++ b/src/binwalk/magic/firmware
-@@ -8,6 +8,7 @@
+@@ -4,13 +4,14 @@
+ # uImage file     
+ # From: Craig Heffner, U-Boot image.h header definitions file
+ 0      belong    0x27051956     uImage header, header size: 64 bytes,
+->4     ubelong   x              header CRC: 0x%X,
++>4     ubelong   x              # header CRC: 0x%X,
  >8     bedate    x              created: %s,
  >12    belong    <1             {invalid}
  >12    ubelong   x              image size: %d bytes,
 +>12    ubelong   x              {size:%d+64}
  >16    ubelong   x              Data Address: 0x%X,
  >20    ubelong   x              Entry Point: 0x%X,
- >24    ubelong   x              data CRC: 0x%X,
+->24    ubelong   x              data CRC: 0x%X,
++>24    ubelong   x              # data CRC: 0x%X,
+ >28    byte      0              OS: {invalid}invalid OS,
+ >28    byte      1              OS: OpenBSD,
+ >28    byte      2              OS: NetBSD,
+@@ -52,19 +53,19 @@
+ >29    byte      17             CPU: AVR,
+ >29    byte      18             CPU: STMicroelectronics ST200,
+ #>30    byte    x        image type: %d,
+->30    byte      0              image type: {invalid} Image,
+->30    byte      1              image type: Standalone Program,
+->30    byte      2              image type: OS Kernel Image,
+->30    byte      3              image type: RAMDisk Image,
+->30    byte      4              image type: Multi-File Image,
+->30    byte      5              image type: Firmware Image,
+->30    byte      6              image type: Script file,
+->30    byte      7              image type: Filesystem Image,
+->30    byte      8              image type: Binary Flat Device Tree Blob
+->31    byte      0              compression type: none,
+->31    byte      1              compression type: gzip,
+->31    byte      2              compression type: bzip2,
+->31    byte      3              compression type: lzma,
++>30    byte      0              # image type: {invalid} Image,
++>30    byte      1              # image type: Standalone Program,
++>30    byte      2              # image type: OS Kernel Image,
++>30    byte      3              # image type: RAMDisk Image,
++>30    byte      4              # image type: Multi-File Image,
++>30    byte      5              # image type: Firmware Image,
++>30    byte      6              # image type: Script file,
++>30    byte      7              # image type: Filesystem Image,
++>30    byte      8              # image type: Binary Flat Device Tree Blob
++>31    byte      0              # compression type: none,
++>31    byte      1              # compression type: gzip,
++>31    byte      2              # compression type: bzip2,
++>31    byte      3              # compression type: lzma,
+ >32    string    x              image name: "%s"
+ 
+ #IMG0 header, found in VxWorks-based Mercury router firmware
 @@ -699,4 +700,31 @@
  >20   ulelong    x             \b, ramdisk addr: 0x%X
  >48   string     x             \b, product name: "%s"
