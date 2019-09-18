@@ -40,7 +40,7 @@ def copy_to_tmp(firmware):
     if not os.path.exists(target_dir):
         os.mkdir(os.path.join(working_dir, firmware.uuid))
     target_full_path = shutil.copy(full_path, target_dir)
-    firmware.working_dir = working_dir
+    firmware.working_dir = target_dir
     firmware.working_path = target_full_path
     firmware.size = os.path.getsize(firmware.working_path)
     logger.info('firmware {} at {}'.format(firmware.uuid, target_full_path))

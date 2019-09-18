@@ -27,3 +27,8 @@ class Firmware(object):
 
         self.arch = kwargs.pop('arch')
         self.endian = kwargs.pop('endian')
+
+        self.image_type = None
+        self.image_path = None
+        self.kernel = None
+        self.dtb = None
