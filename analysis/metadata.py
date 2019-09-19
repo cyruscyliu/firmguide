@@ -6,6 +6,7 @@ Add your own function by register_get_metadata(your_func).
 
 import os
 import re
+import fdt
 import time
 import logging
 
@@ -192,7 +193,21 @@ def by_dumpimage(firmware):
 
 
 def by_device_tree(firmware):
-    pass
+    if firmware.dtb is None:
+        return
+    logger.info('search possible target(s) by device tree')
+    # thanks to https://github.com/molejar/pyFDT, a flattened device tree parser in Python
+    with open(firmware.dtb, 'rb') as f:
+        dtb = f.read()
+    dtc = fdt.parse_dtb(dtb)
+    compatible = dtc.get_property('compatible', '/')
+    logger.info('\033[32mget the platform {}, confidence: {}\033[0m'.format(compatible.data, 1))
+    model = dtc.get_property('model', '/')
+    logger.info('\033[32mget the model {}, confidence: {}\033[0m'.format(model.data, 1))
+    firmware.dtc = dtc
+    firmware.compatible = compatible
+    firmware.model = model
+
 
 
 def by_strings(firmware):

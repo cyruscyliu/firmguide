@@ -32,6 +32,7 @@ class Firmware(object):
         self.image_path = None
         self.kernel = None
         self.dtb = None
+        self.dtc = None
         self.metadata = {
             'brand': [],
             'os': [],
@@ -44,3 +45,5 @@ class Firmware(object):
         }
         self.possible_targets = None
         self.most_possible_target = None
+        self.compatible = None
+        self.model = None
