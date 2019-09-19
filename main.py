@@ -9,6 +9,8 @@ from analysis.metadata import get_metadata
 from analysis.extract import extract_kernel_and_dtb, get_kernel_and_dtb
 from database.db import DatabaseText
 
+progress = 0
+
 
 def setup_logging(default_path="logging.yaml", default_level=logging.INFO, env_key="LOG_CFG"):
     path = default_path
@@ -31,6 +33,7 @@ def get_database(dbtype, **kwargs):
 
 
 def copy_to_tmp(firmware):
+    global progress
     if firmware.relative:
         full_path = os.path.join(firmware.storage, firmware.path)
     else:
@@ -43,7 +46,8 @@ def copy_to_tmp(firmware):
     firmware.working_dir = target_dir
     firmware.working_path = target_full_path
     firmware.size = os.path.getsize(firmware.working_path)
-    logger.info('firmware {} at {}'.format(firmware.uuid, target_full_path))
+    logger.info('[{}] firmware {} at {}'.format(progress, firmware.uuid, target_full_path))
+    progress += 1
 
 
 def run(args):

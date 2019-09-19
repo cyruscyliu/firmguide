@@ -69,3 +69,26 @@ class DatabaseText(Database, DatabaseInterface):
                 }
                 self.records.append(Firmware(**record))
         self.count = self.records.__len__()
+
+
+class DatabaseOpenWrt(Database):
+    """
+    Will load openwrt.csv which is the official table of hardware from OpenWrt.
+    Download it from https://openwrt.org/_media/toh_dump_tab_separated_csv.zip.
+    We rename toh_dump_tab_separated_csv.csv to simple openwrt.csv.
+    """
+
+    def __init__(self):
+
+
+    def select(self, *args, **kwargs):
+        pass
+
+    def add(self, *args, **kwargs):
+        pass
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    def update(self, *args, **kwargs):
+        pass

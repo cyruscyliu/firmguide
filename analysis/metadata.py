@@ -124,7 +124,6 @@ def description_parser(firmware, description):
         firmware.metadata['kernel_version'].append({'value': kernel_version.group(), 'confidence': 1})
         logger.info(
             '\033[32mget the kernel version: {}, confidence: {}\033[0m'.format(kernel_version.group(), 1))
-    # search for board name and target platform
 
 
 def by_dumpimage(firmware):
@@ -191,6 +190,9 @@ def by_dumpimage(firmware):
 
 
 def by_strings(firmware):
+    """
+    If no dtb available, we can infer target platform and machine by strings.
+    """
     pass
 
 
