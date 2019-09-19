@@ -42,3 +42,5 @@ class Firmware(object):
             'kernel_load_address': [],
             'kernel_entry_point': [],
         }
+        self.possible_targets = None
+        self.most_possible_target = None

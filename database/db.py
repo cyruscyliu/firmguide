@@ -1,4 +1,5 @@
 import abc
+import csv
 import os
 
 from database.dbi import DatabaseInterface, Firmware
@@ -76,13 +77,33 @@ class DatabaseOpenWrt(Database):
     Will load openwrt.csv which is the official table of hardware from OpenWrt.
     Download it from https://openwrt.org/_media/toh_dump_tab_separated_csv.zip.
     We rename toh_dump_tab_separated_csv.csv to simple openwrt.csv.
+
+    Note: the delimiter is '\t'.
     """
 
     def __init__(self):
-
+        self.table = open(os.path.join(os.getcwd(), 'database', 'openwrt.csv'))
+        self.header = None
 
     def select(self, *args, **kwargs):
-        pass
+        columns = []
+        results = {}
+        for line in csv.reader(self.table, delimiter='\t'):
+            if self.header is None:
+                self.header = line
+                for arg in args:
+                    columns.append(self.header.index(arg))
+            else:
+                for column in columns:
+                    item = line[column]
+                    if column not in results:
+                        results[column] = []
+                    results[column].append(item)
+        deduplicated = kwargs.pop('deduplicated', False)
+        if deduplicated:
+            for k, v in results.items():
+                results[k] = list(set(v))
+        return results
 
     def add(self, *args, **kwargs):
         pass
