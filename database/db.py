@@ -88,17 +88,26 @@ class DatabaseOpenWrt(Database):
     def select(self, *args, **kwargs):
         columns = []
         results = {}
+        conditions = {'target': kwargs.pop('target', None)}
         for line in csv.reader(self.table, delimiter='\t'):
             if self.header is None:
                 self.header = line
                 for arg in args:
                     columns.append(self.header.index(arg))
-            else:
-                for column in columns:
-                    item = line[column]
-                    if column not in results:
-                        results[column] = []
-                    results[column].append(item)
+            valid = 1
+            for k, v in conditions.items():
+                if v is None:
+                    continue
+                if line[self.header.index(k)] != v:
+                    valid = 0
+                    break
+            if not valid:
+                continue
+            for column in columns:
+                item = line[column]
+                if column not in results:
+                    results[column] = []
+                results[column].append(item)
         deduplicated = kwargs.pop('deduplicated', False)
         if deduplicated:
             for k, v in results.items():

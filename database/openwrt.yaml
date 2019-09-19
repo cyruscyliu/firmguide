@@ -1,116 +1,118 @@
 # ref: https://en.wikipedia.org/wiki/OpenWrt
-0.9:
+"0.9":
   code name: White Russion
   release date: Januray 2006
   kernel: 2.4.30
   libc: uClibc
-7.06:
+"7.06":
   code name: Kamikaze
   release date: June 2007
   kernel: 2.6.19
   libc: uClibc
-7.07:
+"7.07":
   code name: Kamikaze
   release date: July 2007
   kernel: 2.6.21
   libc: uClibc
-7.08:
+"7.08":
   code name: Kamikaze
   release date: September 2007
   kernel: 2.6.21
   libc: uClibc
-8.09:
+"8.09":
   code name: Kamikaze
   release date: September 2007
   kernel: 2.6.26
   libc: uClibc
-10.03:
+"10.03":
   code name: Backfire
   release date: April 2010
   kernel: 2.6.32
   libc: uClibc
-12.09:
+  url: https://archive.openwrt.org/backfire/
+"12.09":
   code name: Attitude Adjustment
   release date: April 2013
   kernel: 3.3.8
   libc: uClibc
-14.07:
+  url: https://archive.openwrt.org/attitude_adjustment/
+"14.07":
   code name: Barrier Breaker
   release date: October 2014
   kernel: 3.10.49
   libc: uClibc
-15.05:
+"15.05":
   code name: Chaos Calmer
   release date: September 2015
   kernel: 3.18.20
   libc: uClibc
-15.05.1:
+"15.05.1":
   code name: Chaos Calmer
   release date: March 2016
   kernel: 3.18.23
   libc: uClibc
-17.01.0:
+"17.01.0":
   code name: LEDE
   release date: February 2017
   kernel: ~
   libc: musl
-17.01.1:
+"17.01.1":
   code name: LEDE
   release date: April 2017
   kernel: 4.4.61
   libc: musl
-17.01.2:
+"17.01.2":
   code name: LEDE
   release date: June 2017
   kernel: 4.4.71
   libc: musl
-17.01.3:
+"17.01.3":
   code name: LEDE
   release date: October 2017
   kernel: 4.4.89
   libc: musl
-17.01.4:
+"17.01.4":
   code name: LEDE
   release date: October 2017
   kernel: 4.4.92
   libc: musl
-17.01.5:
+"17.01.5":
   code name: LEDE
   release date: July 2018
   kernel: 4.4.140
   libc: musl
-17.01.6:
+"17.01.6":
   code name: LEDE
   release date: September 2018
   kernel: 4.4.153
   libc: musl
-18.06.0:
+"18.06.0":
   code name: ~
   release date: July 2018
   kernel:
     - 4.9.111
     - 4.14.52
   libc: musl
-18.06.1:
+"18.06.1":
   code name: ~
   release date: August 2018
   kernel:
     - 4.9.120
     - 4.14.63
   libc: musl
-18.06.2:
+"18.06.2":
   code name: ~
   release date: January 2019
   kernel:
     - 4.9.152
     - 4.14.95
   libc: musl
-  18.06.4:
-    code name: ~
-    release date: July 2019
-    kernel:
-      - 4.9.184
-      - 4.14.131
-    libc: musl
+"18.06.4":
+  code name: ~
+  release date: July 2019
+  kernel:
+    - 4.9.184
+    - 4.14.131
+  libc: musl
 
 
