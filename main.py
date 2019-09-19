@@ -6,7 +6,8 @@ import tempfile
 import logging.config
 
 from analysis.metadata import get_metadata
-from analysis.extract import extract_kernel_and_dtb, get_kernel_and_dtb
+from analysis.extraction import extract_kernel_and_dtb, get_kernel_and_dtb
+from analysis.srcode import get_source_code
 from database.dbf import get_database
 
 progress = 0
@@ -59,7 +60,11 @@ def run(args):
         copy_to_tmp(firmware)
         extract_kernel_and_dtb(firmware)
         get_metadata(firmware)
-        # get_source_code(firmware)
+        try:
+            get_source_code(firmware)
+        except ValueError as e:
+            logging.warning(e)
+            continue
         if not args.s2:
             continue
         get_kernel_and_dtb(firmware)

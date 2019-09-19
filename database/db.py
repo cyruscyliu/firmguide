@@ -64,7 +64,7 @@ class DatabaseText(Database, DatabaseInterface):
                     'uuid': items[0],
                     'name': os.path.basename(items[1]),
                     'path': items[1],
-                    'brand': 'openwrt',
+                    'brand': 'OpenWrt',
                     'arch': 'arm',
                     'endian': 'el',
                 }

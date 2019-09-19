@@ -36,7 +36,7 @@ def by_file(firmware):
         info = os.popen('file -b {}'.format(firmware.image_path))
         metadata = info.readline().strip()
         items = metadata.split(', ')
-        kernel_version = items[1]
+        kernel_version = re.search(r'Linux-\d+.\d+.\d+', items[1]).group()
         _os = items[2].split('/')[0]
         arch = items[2].split('/')[1]
         kernel_created_time = time.strptime(items[5], "%a %b %d %H:%M:%S %Y")
@@ -200,14 +200,13 @@ def by_device_tree(firmware):
     with open(firmware.dtb, 'rb') as f:
         dtb = f.read()
     dtc = fdt.parse_dtb(dtb)
+    firmware.dtc = dtc
     compatible = dtc.get_property('compatible', '/')
+    firmware.metadata['compatible'].append({'value': compatible.data, 'confidence': 1})
     logger.info('\033[32mget the platform {}, confidence: {}\033[0m'.format(compatible.data, 1))
     model = dtc.get_property('model', '/')
+    firmware.metadata['model'].append({'value': compatible.data, 'confidence': 1})
     logger.info('\033[32mget the model {}, confidence: {}\033[0m'.format(model.data, 1))
-    firmware.dtc = dtc
-    firmware.compatible = compatible
-    firmware.model = model
-
 
 
 def by_strings(firmware):
@@ -265,13 +264,13 @@ def by_strings(firmware):
     max_count = 0
     for k, v in target_searched.items():
         count = v['count']
-        logger.info('>> {}, confidence: {:.2f}, {}'.format(
-            k, count / sum_of_occurance, v['strings']))
+        confidence = round(count / sum_of_occurance, 2)
+        logger.info('>> {}, confidence: {:.2f}, {}'.format(k, confidence, v['strings']))
         if count > max_count:
             most_possible = k
             max_count = count
+        firmware.metadata['possible_targets'].append({'value': k, 'confidence': confidence})
     logger.info('\033[32mget the most possible target {}\033[0m'.format(most_possible))
-    firmware.possible_targets = target_searched
     firmware.most_possible_target = most_possible
 
     openwrt.table.close()
