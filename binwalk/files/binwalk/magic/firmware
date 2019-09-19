@@ -4,14 +4,14 @@
 # uImage file     
 # From: Craig Heffner, U-Boot image.h header definitions file
 0      belong    0x27051956     uImage header, header size: 64 bytes,
->4     ubelong   x              header CRC: 0x%X,
+>4     ubelong   x              # header CRC: 0x%X,
 >8     bedate    x              created: %s,
 >12    belong    <1             {invalid}
 >12    ubelong   x              image size: %d bytes,
 >12    ubelong   x              {size:%d+64}
 >16    ubelong   x              Data Address: 0x%X,
 >20    ubelong   x              Entry Point: 0x%X,
->24    ubelong   x              data CRC: 0x%X,
+>24    ubelong   x              # data CRC: 0x%X,
 >28    byte      0              OS: {invalid}invalid OS,
 >28    byte      1              OS: OpenBSD,
 >28    byte      2              OS: NetBSD,
@@ -53,19 +53,19 @@
 >29    byte      17             CPU: AVR,
 >29    byte      18             CPU: STMicroelectronics ST200,
 #>30    byte    x        image type: %d,
->30    byte      0              image type: {invalid} Image,
->30    byte      1              image type: Standalone Program,
->30    byte      2              image type: OS Kernel Image,
->30    byte      3              image type: RAMDisk Image,
->30    byte      4              image type: Multi-File Image,
->30    byte      5              image type: Firmware Image,
->30    byte      6              image type: Script file,
->30    byte      7              image type: Filesystem Image,
->30    byte      8              image type: Binary Flat Device Tree Blob
->31    byte      0              compression type: none,
->31    byte      1              compression type: gzip,
->31    byte      2              compression type: bzip2,
->31    byte      3              compression type: lzma,
+>30    byte      0              # image type: {invalid} Image,
+>30    byte      1              # image type: Standalone Program,
+>30    byte      2              # image type: OS Kernel Image,
+>30    byte      3              # image type: RAMDisk Image,
+>30    byte      4              # image type: Multi-File Image,
+>30    byte      5              # image type: Firmware Image,
+>30    byte      6              # image type: Script file,
+>30    byte      7              # image type: Filesystem Image,
+>30    byte      8              # image type: Binary Flat Device Tree Blob
+>31    byte      0              # compression type: none,
+>31    byte      1              # compression type: gzip,
+>31    byte      2              # compression type: bzip2,
+>31    byte      3              # compression type: lzma,
 >32    string    x              image name: "%s"
 
 #IMG0 header, found in VxWorks-based Mercury router firmware

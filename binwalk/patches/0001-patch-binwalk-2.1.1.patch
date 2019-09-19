@@ -1,17 +1,14 @@
-From fba78dca9bebe5094268aa75b41653617052a777 Mon Sep 17 00:00:00 2001
+From 64b7f696b72876bc48089cec037ff675b2244f3c Mon Sep 17 00:00:00 2001
 From: cyrus <cyruscyliu@gmail.com>
-Date: Tue, 3 Sep 2019 19:29:40 +0800
+Date: Wed, 18 Sep 2019 13:00:23 +0800
 Subject: [PATCH] patch binwalk-2.1.1
 
 ---
- src/binwalk/core/magic.py            | 326 +++++++++++++++++++++--------------
- src/binwalk/magic/firmware           |  28 +++
- src/binwalk/modules/general.py       |  44 ++---
- src/binwalk/plugins/uimageextract.py |  23 +++
- src/scripts/extract_uimage.py        |  11 ++
- 5 files changed, 287 insertions(+), 145 deletions(-)
- create mode 100644 src/binwalk/plugins/uimageextract.py
- create mode 100644 src/scripts/extract_uimage.py
+ src/binwalk/core/magic.py        | 326 ++++++++++++++++++++++++---------------
+ src/binwalk/magic/firmware       |  58 +++++--
+ src/binwalk/modules/extractor.py |  13 +-
+ src/binwalk/modules/general.py   |  44 +++---
+ 4 files changed, 273 insertions(+), 168 deletions(-)
 
 diff --git a/src/binwalk/core/magic.py b/src/binwalk/core/magic.py
 index 0c398a4..a7a0757 100644
@@ -724,17 +721,59 @@ index 0c398a4..a7a0757 100644
          self.signatures.sort(key=lambda x: x.confidence, reverse=True)
 -
 diff --git a/src/binwalk/magic/firmware b/src/binwalk/magic/firmware
-index 53fc9cc..ccdb0bb 100644
+index 53fc9cc..b0c5f55 100644
 --- a/src/binwalk/magic/firmware
 +++ b/src/binwalk/magic/firmware
-@@ -8,6 +8,7 @@
+@@ -4,13 +4,14 @@
+ # uImage file     
+ # From: Craig Heffner, U-Boot image.h header definitions file
+ 0      belong    0x27051956     uImage header, header size: 64 bytes,
+->4     ubelong   x              header CRC: 0x%X,
++>4     ubelong   x              # header CRC: 0x%X,
  >8     bedate    x              created: %s,
  >12    belong    <1             {invalid}
  >12    ubelong   x              image size: %d bytes,
 +>12    ubelong   x              {size:%d+64}
  >16    ubelong   x              Data Address: 0x%X,
  >20    ubelong   x              Entry Point: 0x%X,
- >24    ubelong   x              data CRC: 0x%X,
+->24    ubelong   x              data CRC: 0x%X,
++>24    ubelong   x              # data CRC: 0x%X,
+ >28    byte      0              OS: {invalid}invalid OS,
+ >28    byte      1              OS: OpenBSD,
+ >28    byte      2              OS: NetBSD,
+@@ -52,19 +53,19 @@
+ >29    byte      17             CPU: AVR,
+ >29    byte      18             CPU: STMicroelectronics ST200,
+ #>30    byte    x        image type: %d,
+->30    byte      0              image type: {invalid} Image,
+->30    byte      1              image type: Standalone Program,
+->30    byte      2              image type: OS Kernel Image,
+->30    byte      3              image type: RAMDisk Image,
+->30    byte      4              image type: Multi-File Image,
+->30    byte      5              image type: Firmware Image,
+->30    byte      6              image type: Script file,
+->30    byte      7              image type: Filesystem Image,
+->30    byte      8              image type: Binary Flat Device Tree Blob
+->31    byte      0              compression type: none,
+->31    byte      1              compression type: gzip,
+->31    byte      2              compression type: bzip2,
+->31    byte      3              compression type: lzma,
++>30    byte      0              # image type: {invalid} Image,
++>30    byte      1              # image type: Standalone Program,
++>30    byte      2              # image type: OS Kernel Image,
++>30    byte      3              # image type: RAMDisk Image,
++>30    byte      4              # image type: Multi-File Image,
++>30    byte      5              # image type: Firmware Image,
++>30    byte      6              # image type: Script file,
++>30    byte      7              # image type: Filesystem Image,
++>30    byte      8              # image type: Binary Flat Device Tree Blob
++>31    byte      0              # compression type: none,
++>31    byte      1              # compression type: gzip,
++>31    byte      2              # compression type: bzip2,
++>31    byte      3              # compression type: lzma,
+ >32    string    x              image name: "%s"
+ 
+ #IMG0 header, found in VxWorks-based Mercury router firmware
 @@ -699,4 +700,31 @@
  >20   ulelong    x             \b, ramdisk addr: 0x%X
  >48   string     x             \b, product name: "%s"
@@ -767,6 +806,30 @@ index 53fc9cc..ccdb0bb 100644
 +>>(12.L)+(>.L)      string    x           %s:
 +>>(8.L)+24+12       string    x           {string}%s
  
+diff --git a/src/binwalk/modules/extractor.py b/src/binwalk/modules/extractor.py
+index 16c6f00..51e829a 100644
+--- a/src/binwalk/modules/extractor.py
++++ b/src/binwalk/modules/extractor.py
+@@ -622,14 +622,11 @@ class Extractor(Module):
+                 fname = unique_file_name(default_bname, extension)
+                 fdout = BlockFile(fname, 'w')
+ 
+-            while total_size < size:
+-                (data, dlen) = fdin.read_block()
+-                if not data:
+-                    break
+-                else:
+-                    fdout.write(str2bytes(data[adjust:dlen]))
+-                    total_size += (dlen-adjust)
+-                    adjust = 0
++            data = fdin.read(size)
++            if data:
++                fdout.write(str2bytes(data))
++                total_size += size
++                adjust = 0
+ 
+             # Cleanup
+             fdout.close()
 diff --git a/src/binwalk/modules/general.py b/src/binwalk/modules/general.py
 index 0549a97..49205c2 100644
 --- a/src/binwalk/modules/general.py
@@ -906,52 +969,6 @@ index 0549a97..49205c2 100644
 -                    self.error(description="Cannot open file : %s" % str(e))
 -
 +                    self.error(description="Cannot open file %s (CWD: %s) : %s" % (tfile, os.getcwd(), str(e)))
-diff --git a/src/binwalk/plugins/uimageextract.py b/src/binwalk/plugins/uimageextract.py
-new file mode 100644
-index 0000000..d703a25
---- /dev/null
-+++ b/src/binwalk/plugins/uimageextract.py
-@@ -0,0 +1,23 @@
-+import os
-+import binwalk.core.plugin
-+
-+
-+class uImageExtractPlugin(binwalk.core.plugin.Plugin):
-+    """
-+    uImage extractor plugin.
-+    """
-+    MODULES = ['Signature']
-+
-+    def init(self):
-+        if self.module.extractor.enabled:
-+            self.module.extractor.add_rule(txtrule=None,
-+                                           regex='^uimage',
-+                                           extension='uimage',
-+                                           cmd=self.extractor)
-+            self.module.extractor.add_rule(txtrule=None,
-+                                           regex='^flattened image tree',
-+                                           extension='uimage.fit',
-+                                           cmd=self.extractor)
-+
-+    def extractor(self, fname):
-+        pass
-diff --git a/src/scripts/extract_uimage.py b/src/scripts/extract_uimage.py
-new file mode 100644
-index 0000000..3a1f657
---- /dev/null
-+++ b/src/scripts/extract_uimage.py
-@@ -0,0 +1,11 @@
-+#!/usr/bin/env python
-+
-+import sys
-+import binwalk
-+
-+for module in binwalk.scan(*sys.argv[1:], signature=True, quit=False, extract=False):
-+    print('%s Results:' % module.name)
-+    # for result in module.results:
-+    #     if result.file.path in module.extractor.output:
-+    #         if module.extractor.output[result.file.path].extracted.has_key(result.offset):
-+    #             pass
 -- 
 2.7.4
 

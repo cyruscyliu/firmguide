@@ -1,4 +1,25 @@
-from db import Database, DatabaseInterface, Firmware
+import abc
+import os
+
+from database.dbi import DatabaseInterface, Firmware
+
+
+class Database(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def select(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def add(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def delete(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def update(self, *args, **kwargs):
+        pass
 
 
 class DatabaseText(Database, DatabaseInterface):
@@ -24,7 +45,7 @@ class DatabaseText(Database, DatabaseInterface):
     def __init__(self, path, **kwargs):
         super().__init__()
         self.dbtype = 'text'
-        self.path = path
+        self.path = os.path.join(os.getcwd(), 'database', path)
         self.lazy_loading = False
         self.records = []
         self.count = None
@@ -40,10 +61,11 @@ class DatabaseText(Database, DatabaseInterface):
                 items = line.strip().split()
                 record = {
                     'uuid': items[0],
+                    'name': os.path.basename(items[1]),
                     'path': items[1],
                     'brand': 'openwrt',
                     'arch': 'arm',
                     'endian': 'el',
                 }
-                self.records.append(Firmware(kargs=record))
+                self.records.append(Firmware(**record))
         self.count = self.records.__len__()
