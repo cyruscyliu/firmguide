@@ -2,8 +2,6 @@
 
 ## dependency
 
-##### python3.7
-
 ```bash
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get update
