@@ -8,13 +8,12 @@ import os
 import re
 import fdt
 import time
-import yaml
 import logging
 
-from prettytable import PrettyTable
+import yaml
 
-from analysis.common import vote
-from database.dbf import get_database
+from analysis.common import search_most_possible_subtarget, search_most_possible_target, \
+    search_most_possible_toh_record, vote
 
 logger = logging.getLogger()
 
@@ -196,6 +195,26 @@ def by_dumpimage(firmware):
                 firmware.metadata['kernel_entry_point'].append({'value': kernel_node['entry point'], 'confidence': 1})
 
 
+def by_kernel_version(firmware):
+    logger.info('get metadata by kernel version')
+    with open(os.path.join(os.getcwd(), 'database', 'openwrt.yaml')) as f:
+        openwrt_release_info = yaml.safe_load(f)
+    # vote for the kernel version, all should be of Linux-x.x.x format.
+    kernel_version = vote(firmware.metadata['kernel_version'], 'kernel version')
+    simple_kernel_version = kernel_version.split('-')[1]
+    openwrt_revision = None
+    for revision, info in openwrt_release_info.items():
+        if info['kernel'] == simple_kernel_version:
+            openwrt_revision = str(revision)
+            logger.info('\033[32mOpenWrt {} {} found\033[0m'.format(
+                revision, openwrt_release_info[revision]['code name']))
+    firmware.openwrt_revision = openwrt_revision
+    if openwrt_revision is None:
+        logger.info(
+            'no available OpenWrt revision found for {}, '
+            'please seek expertise for help'.format(kernel_version))
+
+
 def by_device_tree(firmware):
     if firmware.dtb is None:
         return
@@ -205,158 +224,27 @@ def by_device_tree(firmware):
         dtb = f.read()
     dtc = fdt.parse_dtb(dtb)
     firmware.dtc = dtc
-    compatible = dtc.get_property('compatible', '/')
-    firmware.metadata['compatible'].append({'value': compatible.data, 'confidence': 1})
-    logger.info('\033[32mget the platform {}, confidence: {}\033[0m'.format(compatible.data, 1))
-    model = dtc.get_property('model', '/')
-    firmware.metadata['model'].append({'value': compatible.data, 'confidence': 1})
-    logger.info('\033[32mget the model {}, confidence: {}\033[0m'.format(model.data, 1))
-
-
-def search_most_possible_target(firmware, strings):
-    openwrt = get_database('openwrt')
-    results = openwrt.select('target', deduplicated=True)
-    targets = results[openwrt.header.index('target')]
-    target_searched = {}
-    for string in strings:
-        for target in targets:
-            if target.startswith('?'):
-                target = target[1:]
-            if len(target) > len(string) or len(target) < 2:
-                continue
-            if string.find(target) != -1:
-                if target not in target_searched:
-                    target_searched[target] = {'count': 0, 'strings': []}
-                target_searched[target]['count'] += 1
-                target_searched[target]['strings'].append(string.strip())
-                break
-    logger.info('search possible target(s) by strings')
-    sum_of_occurance = 0
-    for k, v in target_searched.items():
-        sum_of_occurance += v['count']
-    most_possible = None
-    max_count = 0
-    for k, v in target_searched.items():
-        count = v['count']
-        confidence = round(count / sum_of_occurance, 2)
-        logger.info('>> {}, confidence: {:.2f}, {}'.format(k, confidence, v['strings']))
-        if count > max_count:
-            most_possible = k
-            max_count = count
-        firmware.metadata['possible_targets'].append({'value': k, 'confidence': confidence})
-    logger.info('\033[32mget the most possible target {}\033[0m'.format(most_possible))
-    firmware.most_possible_target = most_possible
-    openwrt.table.close()
-
-
-def search_most_possible_subtarget(firmware, strings):
-    if firmware.most_possible_target is None:
-        return
-
-    openwrt = get_database('openwrt')
-    results = openwrt.select('pid', 'subtarget', deduplicated=True, target=firmware.most_possible_target)
-    subtargets = results[openwrt.header.index('subtarget')]
-    subtarget_searched = {}
-    for string in strings:
-        for subtarget in subtargets:
-            if subtarget.startswith('?'):
-                subtarget = subtarget[1:]
-            if len(subtarget) > len(string) or len(subtarget) < 2 or subtarget == 'generic':
-                continue
-            if string.find(subtarget) != -1:
-                if subtarget not in subtarget_searched:
-                    subtarget_searched[subtarget] = {'count': 0, 'strings': []}
-                subtarget_searched[subtarget]['count'] += 1
-                subtarget_searched[subtarget]['strings'].append(string.strip())
-                break
-    logger.info('search possible subtarget(s) by strings')
-    sum_of_occurance = 0
-    for k, v in subtarget_searched.items():
-        sum_of_occurance += v['count']
-    if not sum_of_occurance:
-        logger.info('get nothing, however here are some options')
-        results = openwrt.select('*', target=firmware.most_possible_target, row=True)
-        table = PrettyTable(openwrt.header_last_selected)
-        filterd_results = []
-        for k, v in results.items():
-            table.add_row(v)
-            if v[openwrt.header_last_selected.index('supportedcurrentrel')] == '':
-                continue
-            filterd_results.append(v)
-        for line in table.__unicode__().split('\n'):
-            logger.info(line)
-        logger.info('filter out candidates by empty supportedcurrentrel')
-        if len(filterd_results) == 1:
-            logger.info('only one left, choose it automatically')
-            firmware.most_possible_subtarget = filterd_results[0][openwrt.header_last_selected.index('subtarget')]
-            firmware.openwrt = filterd_results[0]
-            logger.info('\033[32mget the most possible subtarget {}\033[0m'.format(firmware.most_possible_subtarget))
-            return
-
-        # use kernel version to infer supportedcurrentrel
-        logger.info('filter out candidates by matching kernel version')
-        with open(os.path.join(os.getcwd(), 'database', 'openwrt.yaml')) as f:
-            openwrt_release_info = yaml.safe_load(f)
-        # vote for the kernel version, all should be of Linux-x.x.x format.
-        kernel_version = vote(firmware.metadata['kernel_version'], 'kernel version')
-        simple_kernel_version = kernel_version.split('-')[1]
-        openwrt_revision = None
-        for revision, info in openwrt_release_info.items():
-            if info['kernel'] == simple_kernel_version:
-                openwrt_revision = str(revision)
-                logger.info('\033[32mOpenWrt {} {} found\033[0m'.format(
-                    revision, openwrt_release_info[revision]['code name']))
-        firmware.openwrt_revision = openwrt_revision
-        if openwrt_revision is None:
-            logger.info(
-                'no available OpenWrt revision found for {}, '
-                'please seek expertise for help'.format(kernel_version))
-            return
-
-        filterd_results_2 = []
-        for v in filterd_results:
-            if openwrt_revision == v[openwrt.header_last_selected.index('supportedcurrentrel')]:
-                filterd_results_2.append(v)
-        if len(filterd_results_2) == 1:
-            logger.info('only one left, choose it for you automatically')
-            firmware.most_possible_subtarget = filterd_results_2[0][openwrt.header_last_selected.index('subtarget')]
-            firmware.openwrt = filterd_results_2[0]
-            logger.info('\033[32mget the most possible subtarget {}\033[0m'.format(firmware.most_possible_subtarget))
-            return
-        # if firmware.most_possible_subtarget is None:
-        #     tries = 2
-        #     logger.info('please input the pid of what you choose: ')
-        #     while tries:
-        #         pid = input('please input the pid of what you choose: ')
-        #         result = openwrt.select('*', pid=pid, row=True)
-        #         if not len(result):
-        #             logger.info('one more time')
-        #             tries -= 1
-        #             continue
-        #         firmware.most_possible_subtarget = result[pid][openwrt.header_last_selected.index('subtarget')]
-        #         firmware.openwrt = result[pid]
-        #         break
-    most_possible = None
-    max_count = 0
-    for k, v in subtarget_searched.items():
-        count = v['count']
-        confidence = round(count / sum_of_occurance, 2)
-        logger.info('>> {}, confidence: {:.2f}, {}'.format(k, confidence, v['strings']))
-        if count > max_count:
-            most_possible = k
-            max_count = count
-        firmware.metadata['possible_subtargets'].append({'value': k, 'confidence': confidence})
-    logger.info('\033[32mget the most possible subtarget {}\033[0m'.format(most_possible))
-    firmware.most_possible_subtarget = most_possible
-    openwrt.table.close()
+    compatibles = dtc.get_property('compatible', '/').data
+    # firmware.metadata['compatible'].append({'value': compatibles, 'confidence': 1})
+    # logger.info('\033[32mget the platform {}, confidence: {}\033[0m'.format(compatibles, 1))
+    models = dtc.get_property('model', '/').data
+    # firmware.metadata['model'].append({'value': compatible, 'confidence': 1})
+    # logger.info('\033[32mget the model {}, confidence: {}\033[0m'.format(model, 1))
+    strings = []
+    for compatible in compatibles:
+        strings += compatible.split(',')
+    for model in models:
+        strings += model.split(' ')
+    search_most_possible_toh_record(firmware, strings)
 
 
 def by_strings(firmware):
     """
     If no dtb available, we can infer target platform and machine by strings.
     """
-    if firmware.dtb is not None:
+    if firmware.openwrt is not None:
         return
+    logger.info('get metadata by strings')
     working_dir = os.path.dirname(firmware.kernel)
     candidates = [firmware.kernel]
     for file_ in os.listdir(working_dir):
@@ -379,6 +267,7 @@ def register_get_metadata(func):
 
 register_get_metadata(by_file)
 register_get_metadata(by_dumpimage)
+register_get_metadata(by_kernel_version)
 register_get_metadata(by_device_tree)
 register_get_metadata(by_strings)
 

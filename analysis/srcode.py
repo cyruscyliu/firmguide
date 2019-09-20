@@ -6,7 +6,6 @@ import yaml
 import logging
 
 from analysis.common import vote
-from database.dbf import get_database
 
 logger = logging.getLogger()
 
@@ -32,14 +31,19 @@ def get_source_code(firmware):
     if brand == 'OpenWrt':
         logger.info('get source code by openwrt table of hardware')
         if firmware.openwrt is None:
-            raise ValueError('no record found in toh of openwrt')
+            if firmware.most_possible_target is None or firmware.most_possible_subtarget is None:
+                raise ValueError('incomplete information for finding source code')
         with open(os.path.join(os.getcwd(), 'database', 'openwrt.yaml')) as f:
             openwrt_release_info = yaml.safe_load(f)
+        try:
+            url = openwrt_release_info[firmware.openwrt_revision]['url']
+        except KeyError:
+            logger.info('no available url for this version {}'.format(firmware.openwrt_revision))
+            return
         possible_package = os.path.join(
-            openwrt_release_info[firmware.openwrt_revision]['url'],
-            firmware.openwrt[5],  # supportedcurrentrel
-            firmware.openwrt[6],  # target
-            firmware.openwrt[7],  # subtarget
+            url,
+            firmware.most_possible_target,  # target
+            firmware.most_possible_subtarget,  # subtarget
         )
         logger.info(
             '\033[32mdownload page found for OpenWrt project {}\033[0m'.format(possible_package))

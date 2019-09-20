@@ -102,6 +102,7 @@ class DatabaseOpenWrt(Database):
         for line in csv.reader(self.table, delimiter='\t'):
             if self.header is None:
                 self.header = line
+                continue
             if not len(columns):
                 if len(args) == 1 and args[0] == '*':
                     args = ['pid', 'devicetype', 'brand', 'model', 'supportedsincerel', 'supportedcurrentrel',
