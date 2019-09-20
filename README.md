@@ -32,4 +32,4 @@ make
 python3.7 main.py -dbt text -s1
 ```
 
-Check [s1-get-metadata.log](./s1-get-metadata.log) for step 1.
+Check [s1-get-metadata.log](./log/s1-get-metadata.log) for step 1.

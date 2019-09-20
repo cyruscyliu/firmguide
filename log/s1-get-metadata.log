@@ -1,0 +1,382 @@
+2019-09-20 17:01:14,759 - INFO - there are 11 firmware in the repo
+2019-09-20 17:01:14,768 - INFO - [0] firmware 7276 at /tmp/7276/988a648617eab1121cc9893296dac74a06611561.bin
+2019-09-20 17:01:14,768 - INFO - extract kernel and dtb by binwalk
+2019-09-20 17:01:16,465 - INFO - [32mLegacy uImage found[0m, offset 0, uImage header, header size: 64 bytes, created: 2013-03-24 03:00:11, image size: 960520 bytes, Data Address: 0x8000, Entry Point: 0x8000, OS: Linux, CPU: ARM, image name: "Linux-3.3.8"
+2019-09-20 17:01:16,466 - INFO - extract kernel and dtb by uboot_tools
+2019-09-20 17:01:17,771 - INFO - [32mget kernel image 0.kernel at /tmp/7276/_988a648617eab1121cc9893296dac74a06611561.bin-196.extracted/0.kernel[0m
+2019-09-20 17:01:17,771 - INFO - get metadata by file
+2019-09-20 17:01:17,780 - INFO - [32mget the kernel version: Linux-3.3.8, confidence: 1[0m
+2019-09-20 17:01:17,781 - INFO - [32mget the operating system: Linux, confidence: 1[0m
+2019-09-20 17:01:17,781 - INFO - [32mget the architecture: ARM, confidence: 1[0m
+2019-09-20 17:01:17,781 - INFO - get metadata by kernel version
+2019-09-20 17:01:17,807 - INFO - [32mOpenWrt 12.09 Attitude Adjustment found[0m
+2019-09-20 17:01:17,807 - INFO - get metadata by strings
+2019-09-20 17:01:18,933 - INFO - search possible target(s) by strings
+2019-09-20 17:01:18,933 - INFO - >> mxs, confidence: 0.07, ['mxs']
+2019-09-20 17:01:18,933 - INFO - >> orion, confidence: 0.57, ['orion_irq', 'orion_clocksource', 'orion_tick', 'orion_spi', 'orion_wdt', 'orion-ehci', 'orion_gpio_irq', 'orion_gpio_set_blink']
+2019-09-20 17:01:18,933 - INFO - >> omap, confidence: 0.36, ['mtd-romap', 'pci_iomap', 'pcim_iomap_table', 'pcim_iomap_regions', 'pcim_iomap']
+2019-09-20 17:01:18,933 - INFO - [32mget the most possible target orion[0m
+2019-09-20 17:01:19,022 - INFO - search possible subtarget(s) by strings
+2019-09-20 17:01:19,022 - INFO - get nothing, however here are some options
+2019-09-20 17:01:19,067 - INFO - +-------+-------------+------------+-------------+-------------------+---------------------+--------+-----------+---------------------+------------+--------------------+
+2019-09-20 17:01:19,067 - INFO - |  pid  |  devicetype |   brand    |    model    | supportedsincerel | supportedcurrentrel | target | subtarget | packagearchitecture | bootloader |        cpu         |
+2019-09-20 17:01:19,067 - INFO - +-------+-------------+------------+-------------+-------------------+---------------------+--------+-----------+---------------------+------------+--------------------+
+2019-09-20 17:01:19,067 - INFO - | 16171 | WiFi Router | Airlink101 |    AR625W   |                   |                     | orion  |           |                     |     ?      |  Marvell 88F5181   |
+2019-09-20 17:01:19,068 - INFO - | 16333 | WiFi Router |  Buffalo   | WZR-AG300NH |                   |                     | orion  |           |                     |   U-Boot   |  Marvell 88F5181   |
+2019-09-20 17:01:19,068 - INFO - | 16823 | WiFi Router |  Netgear   |   WNR854T   |       10.03       |        12.09        | orion  |  generic  |                     |   U-Boot   | Marvell 88F5180NB1 |
+2019-09-20 17:01:19,068 - INFO - | 17406 | WiFi Router |  Linksys   |  WRT350N v2 |       10.03       |        10.03        | orion  |           |                     |   U-Boot   |  Marvell 88F5181L  |
+2019-09-20 17:01:19,068 - INFO - +-------+-------------+------------+-------------+-------------------+---------------------+--------+-----------+---------------------+------------+--------------------+
+2019-09-20 17:01:19,068 - INFO - filter out candidates by empty supportedcurrentrel
+2019-09-20 17:01:19,068 - INFO - filter out candidates by matching kernel version
+2019-09-20 17:01:19,068 - INFO - only one left, choose it for you automatically
+2019-09-20 17:01:19,068 - INFO - [32mget the most possible subtarget generic[0m
+2019-09-20 17:01:19,070 - INFO - get source code by openwrt table of hardware
+2019-09-20 17:01:19,093 - INFO - [32mdownload page found for OpenWrt project https://archive.openwrt.org/attitude_adjustment/12.09/orion/generic[0m
+2019-09-20 17:01:19,097 - INFO - [1] firmware 9692 at /tmp/9692/278a494b4a543f4a48dbb56d7ce226a23a3fbcc3.bin
+2019-09-20 17:01:19,097 - INFO - extract kernel and dtb by binwalk
+2019-09-20 17:01:21,046 - INFO - [32mFIT uImage found[0m, offset 655360, flattened image tree, total size: 3152444 bytes, timestamp: 2016-02-02 12:51:49, description: ARM OpenWrt FIT (Flattened Image Tree)
+2019-09-20 17:01:21,047 - INFO - extract kernel and dtb by uboot_tools
+2019-09-20 17:01:21,056 - INFO - [32mget kernel image A0000.kernel at /tmp/9692/_278a494b4a543f4a48dbb56d7ce226a23a3fbcc3.bin-92.extracted/A0000.kernel[0m
+2019-09-20 17:01:21,060 - INFO - [32mget device tree image A0000.kernel at /tmp/9692/_278a494b4a543f4a48dbb56d7ce226a23a3fbcc3.bin-92.extracted/A0000.dtb[0m
+2019-09-20 17:01:21,060 - INFO - get metadata by file
+2019-09-20 17:01:21,063 - INFO - [32mget the kernel version: Linux-3.18.23, confidence: 1[0m
+2019-09-20 17:01:21,063 - INFO - [32mget the operating system: Linux, confidence: 1[0m
+2019-09-20 17:01:21,063 - INFO - [32mget the architecture: ARM, confidence: 1[0m
+2019-09-20 17:01:21,063 - INFO - get metadata by kernel version
+2019-09-20 17:01:21,087 - INFO - [32mOpenWrt 15.05.1 Chaos Calmer found[0m
+2019-09-20 17:01:21,088 - INFO - search possible target(s) by device tree
+2019-09-20 17:01:21,094 - INFO - search possible openwrt toh record(s) by strings
+2019-09-20 17:01:21,194 - INFO - +-------+------------+---------+--------------+-------------------+---------------------+--------+-----------+---------------------+------------+-------------+
+2019-09-20 17:01:21,194 - INFO - |  pid  | devicetype |  brand  |    model     | supportedsincerel | supportedcurrentrel | target | subtarget | packagearchitecture | bootloader |     cpu     |
+2019-09-20 17:01:21,194 - INFO - +-------+------------+---------+--------------+-------------------+---------------------+--------+-----------+---------------------+------------+-------------+
+2019-09-20 17:01:21,194 - INFO - | 17479 |    NAS     | Shuttle | OMNINAS KD20 |      17.01.0      |       18.06.4       | oxnas  |   ox820   |      arm_mpcore     |   U-Boot   | PLX NAS7821 |
+2019-09-20 17:01:21,194 - INFO - +-------+------------+---------+--------------+-------------------+---------------------+--------+-----------+---------------------+------------+-------------+
+2019-09-20 17:01:21,194 - INFO - filter out candidates by matching kernel version
+2019-09-20 17:01:21,194 - INFO - nothing left
+2019-09-20 17:01:21,195 - INFO - get metadata by strings
+2019-09-20 17:01:25,554 - INFO - search possible target(s) by strings
+2019-09-20 17:01:25,554 - INFO - >> x86, confidence: 0.02, ['x86']
+2019-09-20 17:01:25,555 - INFO - >> oxnas, confidence: 0.78, ['oxnas-fiq', 'pinctrl-oxnas', 'gpio-oxnas', 'oxnas-pcie', 'oxnas-ehci', 'ehci_oxnas', 'ehci_oxnas_drv_probe', 'ehci_oxnas_drv_remove', 'ehci_oxnas_reset', 'oxnas-sata', 'sata_oxnas', 'sata_oxnas', 'sata_oxnas_interrupt', 'sata_oxnas_probe', 'sata_oxnas_remove', 'sata_oxnas_suspend', 'sata_oxnas_resume', 'sata_oxnas_qc_prep', 'sata_oxnas_qc_issue', 'sata_oxnas_qc_fill_rtf', 'sata_oxnas_qc_new', 'sata_oxnas_qc_free', 'sata_oxnas_freeze', 'sata_oxnas_thaw', 'sata_oxnas_softreset', 'sata_oxnas_postreset', 'sata_oxnas_error_handler', 'sata_oxnas_scr_read', 'sata_oxnas_scr_write', 'sata_oxnas_port_start', 'sata_oxnas_port_stop', 'sata_oxnas_host_stop', 'sata_oxnas_check_status', 'sata_oxnas_acquire_hw', 'sata_oxnas_check_link', 'sata_oxnas_link_read', 'sata_oxnas_thaw_host', 'sata_oxnas_link_write', 'sata_oxnas_freeze_host', 'sata_oxnas_set_mode', 'oxnas', 'ehci-oxnas', 'sata_oxnas']
+2019-09-20 17:01:25,555 - INFO - >> omap, confidence: 0.18, ['mtd-romap', 'vm_iomap_memory', 'pci_iomap', 'pcim_iomap_table', 'pcim_iomap_regions', 'pcim_iomap', 'of_iomap', 'of_iomap', 'pcim_iomap_regions', 'pcim_iomap_table']
+2019-09-20 17:01:25,555 - INFO - >> orion, confidence: 0.02, ['ehci-orion']
+2019-09-20 17:01:25,555 - INFO - [32mget the most possible target oxnas[0m
+2019-09-20 17:01:25,701 - INFO - search possible subtarget(s) by strings
+2019-09-20 17:01:25,701 - INFO - >> ox820, confidence: 1.00, ['Tox820_', 'Tox820_', 'Tox820_', 'Tox820_', 'Tox820_g', 'Tox820_g', 'Tox820_g', 'Tox820', 'Tox820_boo', 'Tox820', 'ox820-reset']
+2019-09-20 17:01:25,794 - INFO - [32mget the most possible subtarget ox820[0m
+2019-09-20 17:01:25,799 - INFO - get source code by openwrt table of hardware
+2019-09-20 17:01:25,824 - INFO - [32mdownload page found for OpenWrt project https://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/ox820[0m
+2019-09-20 17:01:25,830 - INFO - [2] firmware 9703 at /tmp/9703/95483e6f102fa1f462eeda09ed945325e5b1bfb9.bin
+2019-09-20 17:01:25,830 - INFO - extract kernel and dtb by binwalk
+2019-09-20 17:01:28,319 - INFO - [32mFIT uImage found[0m, offset 655360, flattened image tree, total size: 3151356 bytes, timestamp: 2016-02-02 12:51:27, description: ARM OpenWrt FIT (Flattened Image Tree)
+2019-09-20 17:01:28,319 - INFO - extract kernel and dtb by uboot_tools
+2019-09-20 17:01:28,324 - INFO - [32mget kernel image A0000.kernel at /tmp/9703/_95483e6f102fa1f462eeda09ed945325e5b1bfb9.bin-54.extracted/A0000.kernel[0m
+2019-09-20 17:01:28,327 - INFO - [32mget device tree image A0000.kernel at /tmp/9703/_95483e6f102fa1f462eeda09ed945325e5b1bfb9.bin-54.extracted/A0000.dtb[0m
+2019-09-20 17:01:28,327 - INFO - get metadata by file
+2019-09-20 17:01:28,333 - INFO - [32mget the kernel version: Linux-3.18.23, confidence: 1[0m
+2019-09-20 17:01:28,333 - INFO - [32mget the operating system: Linux, confidence: 1[0m
+2019-09-20 17:01:28,333 - INFO - [32mget the architecture: ARM, confidence: 1[0m
+2019-09-20 17:01:28,333 - INFO - get metadata by kernel version
+2019-09-20 17:01:28,358 - INFO - [32mOpenWrt 15.05.1 Chaos Calmer found[0m
+2019-09-20 17:01:28,358 - INFO - search possible target(s) by device tree
+2019-09-20 17:01:28,364 - INFO - search possible openwrt toh record(s) by strings
+2019-09-20 17:01:28,468 - INFO - +--------+-----------------------+-----------------+--------------------------+-------------------+---------------------+--------------+-----------+---------------------+------------+-------------------------------+
+2019-09-20 17:01:28,468 - INFO - |  pid   |       devicetype      |      brand      |          model           | supportedsincerel | supportedcurrentrel |    target    | subtarget | packagearchitecture | bootloader |              cpu              |
+2019-09-20 17:01:28,468 - INFO - +--------+-----------------------+-----------------+--------------------------+-------------------+---------------------+--------------+-----------+---------------------+------------+-------------------------------+
+2019-09-20 17:01:28,468 - INFO - | 16166  |      WiFi Router      | ADI Engineering |     Pronghorn SBC250     |        8.09       |       18.06.4       |    ixp4xx    |  generic  |     armeb_xscale    |  RedBoot   |          Intel IXP425         |
+2019-09-20 17:01:28,468 - INFO - | 16622  | Single Board Computer |     Lemaker     |        Banana Pro        |       15.05       |       18.06.4       |    sunxi     |  cortexa7 | arm_cortex-a8_vfpv3 |   U-Boot   |         Allwinner A20         |
+2019-09-20 17:01:28,469 - INFO - | 16910  |          NAS          |     Pogoplug    |       Pogoplug V2        |       15.05       |       18.06.4       |   kirkwood   |  generic  |      arm_xscale     |   U-Boot   |        Marvell 88F6281        |
+2019-09-20 17:01:28,469 - INFO - | 16912  |          NAS          |     Pogoplug    |       Pogoplug V4        |       15.05       |       18.06.4       |   kirkwood   |  generic  |      arm_xscale     |   U-Boot   |        Marvell 88F6192        |
+2019-09-20 17:01:28,469 - INFO - | 16913  |          NAS          |     Pogoplug    |     Pogoplug Mobile      |       15.05       |       18.06.4       |   kirkwood   |  generic  |      arm_xscale     |   U-Boot   |        Marvell 88F6192        |
+2019-09-20 17:01:28,469 - INFO - | 16919  |      WiFi Router      |     Prolink     |         PWH2004          |       15.05       |       18.06.4       |    ramips    |   rt305x  |     mipsel_24kc     |   U-Boot   |         Ralink RT3052         |
+2019-09-20 17:01:28,469 - INFO - | 16979  |         Router        |     SolidRun    |       ClearFog Pro       |      17.01.0      |       18.06.4       |    mvebu     |  cortexa9 | arm_cortex-a9_vfpv3 |   U-Boot   |       Marvell Armada 380      |
+2019-09-20 17:01:28,469 - INFO - | 17191  |      WiFi Router      |     Ubiquiti    |    RouterStation Pro     |       10.03       |       18.06.4       | ar71xx-ath79 |  generic  |      mips_24kc      |  RedBoot   |         Atheros AR7161        |
+2019-09-20 17:01:28,469 - INFO - | 17464  |      WiFi Router      |     Digineo     |        AC1200 Pro        |      17.01.0      |       17.01.4       |    ramips    |   mt7621  |     mipsel_24kc     |     ?      |       MediaTek MT7621AT       |
+2019-09-20 17:01:28,469 - INFO - | 17477  |          NAS          |     Pogoplug    |       Pogoplug V3        |       15.05       |       snapshot      |    oxnas     |   ox820   |      arm_mpcore     |   U-Boot   |          PLX NAS7820          |
+2019-09-20 17:01:28,469 - INFO - | 17478  |          NAS          |     Pogoplug    |     Pogoplug V3 Pro      |       15.05       |       snapshot      |    oxnas     |   ox820   |      arm_mpcore     |   U-Boot   |          PLX NAS7820          |
+2019-09-20 17:01:28,469 - INFO - | 79456  |        WiFi AP        |     Ubiquiti    | AirGateway Pro (AMG-PRO) |      17.01.0      |       18.06.4       |    ar71xx    |  generic  |      mips_24kc      |     ?      |         Atheros AR9344        |
+2019-09-20 17:01:28,469 - INFO - | 90581  | Single Board Computer |     SolidRun    |       CuBox i4Pro        |                   |       snapshot      |     imx6     |  generic  |  arm_cortex-a9_neon |   U-Boot   |         NXP i.MX6 Quad        |
+2019-09-20 17:01:28,469 - INFO - | 90831  |        WiFi AP        |     Ubiquiti    |    UniFi AC Mesh Pro     |                   |       snapshot      | ar71xx-ath79 |  generic  |      mips_24kc      |   U-Boot   | Qualcomm Atheros QCA9563-AL3A |
+2019-09-20 17:01:28,469 - INFO - | 710634 |      WiFi Router      |      Xiaomi     |     Mi Router 3 Pro      |                   |       snapshot      |    ramips    |   mt7621  |      mips_24kc      |   U-Boot   |       MediaTek MT7621AT       |
+2019-09-20 17:01:28,469 - INFO - +--------+-----------------------+-----------------+--------------------------+-------------------+---------------------+--------------+-----------+---------------------+------------+-------------------------------+
+2019-09-20 17:01:28,469 - INFO - filter out candidates by matching kernel version
+2019-09-20 17:01:28,470 - INFO - nothing left
+2019-09-20 17:01:28,470 - INFO - get metadata by strings
+2019-09-20 17:01:32,802 - INFO - search possible target(s) by strings
+2019-09-20 17:01:32,802 - INFO - >> x86, confidence: 0.02, ['x86']
+2019-09-20 17:01:32,802 - INFO - >> oxnas, confidence: 0.78, ['oxnas-fiq', 'pinctrl-oxnas', 'gpio-oxnas', 'oxnas-pcie', 'oxnas-ehci', 'ehci_oxnas', 'ehci_oxnas_drv_probe', 'ehci_oxnas_drv_remove', 'ehci_oxnas_reset', 'oxnas-sata', 'sata_oxnas', 'sata_oxnas', 'sata_oxnas_interrupt', 'sata_oxnas_probe', 'sata_oxnas_remove', 'sata_oxnas_suspend', 'sata_oxnas_resume', 'sata_oxnas_qc_prep', 'sata_oxnas_qc_issue', 'sata_oxnas_qc_fill_rtf', 'sata_oxnas_qc_new', 'sata_oxnas_qc_free', 'sata_oxnas_freeze', 'sata_oxnas_thaw', 'sata_oxnas_softreset', 'sata_oxnas_postreset', 'sata_oxnas_error_handler', 'sata_oxnas_scr_read', 'sata_oxnas_scr_write', 'sata_oxnas_port_start', 'sata_oxnas_port_stop', 'sata_oxnas_host_stop', 'sata_oxnas_check_status', 'sata_oxnas_acquire_hw', 'sata_oxnas_check_link', 'sata_oxnas_link_read', 'sata_oxnas_thaw_host', 'sata_oxnas_link_write', 'sata_oxnas_freeze_host', 'sata_oxnas_set_mode', 'oxnas', 'ehci-oxnas', 'sata_oxnas']
+2019-09-20 17:01:32,802 - INFO - >> omap, confidence: 0.18, ['mtd-romap', 'vm_iomap_memory', 'pci_iomap', 'pcim_iomap_table', 'pcim_iomap_regions', 'pcim_iomap', 'of_iomap', 'of_iomap', 'pcim_iomap_regions', 'pcim_iomap_table']
+2019-09-20 17:01:32,802 - INFO - >> orion, confidence: 0.02, ['ehci-orion']
+2019-09-20 17:01:32,803 - INFO - [32mget the most possible target oxnas[0m
+2019-09-20 17:01:32,948 - INFO - search possible subtarget(s) by strings
+2019-09-20 17:01:32,948 - INFO - >> ox820, confidence: 1.00, ['Tox820_', 'Tox820_', 'Tox820_', 'Tox820_', 'Tox820_g', 'Tox820_g', 'Tox820_g', 'Tox820', 'Tox820_boo', 'Tox820', 'ox820-reset']
+2019-09-20 17:01:32,948 - INFO - [32mget the most possible subtarget ox820[0m
+2019-09-20 17:01:32,953 - INFO - get source code by openwrt table of hardware
+2019-09-20 17:01:32,976 - INFO - [32mdownload page found for OpenWrt project https://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/ox820[0m
+2019-09-20 17:01:32,982 - INFO - [3] firmware 9715 at /tmp/9715/2da39a873a89312a9860cfe8785691944da6c00a.bin
+2019-09-20 17:01:32,982 - INFO - extract kernel and dtb by binwalk
+2019-09-20 17:01:37,455 - INFO - [32mFIT uImage found[0m, offset 655360, flattened image tree, total size: 3151576 bytes, timestamp: 2016-02-02 12:51:41, description: ARM OpenWrt FIT (Flattened Image Tree)
+2019-09-20 17:01:37,455 - INFO - extract kernel and dtb by uboot_tools
+2019-09-20 17:01:37,464 - INFO - [32mget kernel image A0000.kernel at /tmp/9715/_2da39a873a89312a9860cfe8785691944da6c00a.bin-46.extracted/A0000.kernel[0m
+2019-09-20 17:01:37,471 - INFO - [32mget device tree image A0000.kernel at /tmp/9715/_2da39a873a89312a9860cfe8785691944da6c00a.bin-46.extracted/A0000.dtb[0m
+2019-09-20 17:01:37,471 - INFO - get metadata by file
+2019-09-20 17:01:37,478 - INFO - [32mget the kernel version: Linux-3.18.23, confidence: 1[0m
+2019-09-20 17:01:37,479 - INFO - [32mget the operating system: Linux, confidence: 1[0m
+2019-09-20 17:01:37,479 - INFO - [32mget the architecture: ARM, confidence: 1[0m
+2019-09-20 17:01:37,479 - INFO - get metadata by kernel version
+2019-09-20 17:01:37,512 - INFO - [32mOpenWrt 15.05.1 Chaos Calmer found[0m
+2019-09-20 17:01:37,512 - INFO - search possible target(s) by device tree
+2019-09-20 17:01:37,519 - INFO - search possible openwrt toh record(s) by strings
+2019-09-20 17:01:37,633 - INFO - nothing left
+2019-09-20 17:01:37,634 - INFO - get metadata by strings
+2019-09-20 17:01:42,016 - INFO - search possible target(s) by strings
+2019-09-20 17:01:42,017 - INFO - >> x86, confidence: 0.02, ['x86']
+2019-09-20 17:01:42,017 - INFO - >> oxnas, confidence: 0.78, ['oxnas-fiq', 'pinctrl-oxnas', 'gpio-oxnas', 'oxnas-pcie', 'oxnas-ehci', 'ehci_oxnas', 'ehci_oxnas_drv_probe', 'ehci_oxnas_drv_remove', 'ehci_oxnas_reset', 'oxnas-sata', 'sata_oxnas', 'sata_oxnas', 'sata_oxnas_interrupt', 'sata_oxnas_probe', 'sata_oxnas_remove', 'sata_oxnas_suspend', 'sata_oxnas_resume', 'sata_oxnas_qc_prep', 'sata_oxnas_qc_issue', 'sata_oxnas_qc_fill_rtf', 'sata_oxnas_qc_new', 'sata_oxnas_qc_free', 'sata_oxnas_freeze', 'sata_oxnas_thaw', 'sata_oxnas_softreset', 'sata_oxnas_postreset', 'sata_oxnas_error_handler', 'sata_oxnas_scr_read', 'sata_oxnas_scr_write', 'sata_oxnas_port_start', 'sata_oxnas_port_stop', 'sata_oxnas_host_stop', 'sata_oxnas_check_status', 'sata_oxnas_acquire_hw', 'sata_oxnas_check_link', 'sata_oxnas_link_read', 'sata_oxnas_thaw_host', 'sata_oxnas_link_write', 'sata_oxnas_freeze_host', 'sata_oxnas_set_mode', 'oxnas', 'ehci-oxnas', 'sata_oxnas']
+2019-09-20 17:01:42,017 - INFO - >> omap, confidence: 0.18, ['mtd-romap', 'vm_iomap_memory', 'pci_iomap', 'pcim_iomap_table', 'pcim_iomap_regions', 'pcim_iomap', 'of_iomap', 'of_iomap', 'pcim_iomap_regions', 'pcim_iomap_table']
+2019-09-20 17:01:42,017 - INFO - >> orion, confidence: 0.02, ['ehci-orion']
+2019-09-20 17:01:42,017 - INFO - [32mget the most possible target oxnas[0m
+2019-09-20 17:01:42,162 - INFO - search possible subtarget(s) by strings
+2019-09-20 17:01:42,163 - INFO - >> ox820, confidence: 1.00, ['Tox820_', 'Tox820_', 'Tox820_', 'Tox820_', 'Tox820_g', 'Tox820_g', 'Tox820_g', 'Tox820', 'Tox820_boo', 'Tox820', 'ox820-reset']
+2019-09-20 17:01:42,163 - INFO - [32mget the most possible subtarget ox820[0m
+2019-09-20 17:01:42,169 - INFO - get source code by openwrt table of hardware
+2019-09-20 17:01:42,193 - INFO - [32mdownload page found for OpenWrt project https://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/ox820[0m
+2019-09-20 17:01:42,200 - INFO - [4] firmware 13893 at /tmp/13893/a8a659c598a79e7d37101470952bfca1ccc16f7e.bin
+2019-09-20 17:01:42,201 - INFO - extract kernel and dtb by binwalk
+2019-09-20 17:01:45,949 - INFO - [32mFIT uImage found[0m, offset 655360, flattened image tree, total size: 2996692 bytes, timestamp: 2015-09-11 17:13:36, description: ARM OpenWrt FIT (Flattened Image Tree)
+2019-09-20 17:01:45,949 - INFO - extract kernel and dtb by uboot_tools
+2019-09-20 17:01:45,954 - INFO - [32mget kernel image A0000.kernel at /tmp/13893/_a8a659c598a79e7d37101470952bfca1ccc16f7e.bin-42.extracted/A0000.kernel[0m
+2019-09-20 17:01:45,956 - INFO - [32mget device tree image A0000.kernel at /tmp/13893/_a8a659c598a79e7d37101470952bfca1ccc16f7e.bin-42.extracted/A0000.dtb[0m
+2019-09-20 17:01:45,956 - INFO - get metadata by file
+2019-09-20 17:01:45,959 - INFO - [32mget the kernel version: Linux-3.18.20, confidence: 1[0m
+2019-09-20 17:01:45,959 - INFO - [32mget the operating system: Linux, confidence: 1[0m
+2019-09-20 17:01:45,959 - INFO - [32mget the architecture: ARM, confidence: 1[0m
+2019-09-20 17:01:45,959 - INFO - get metadata by kernel version
+2019-09-20 17:01:45,983 - INFO - [32mOpenWrt 15.05 Chaos Calmer found[0m
+2019-09-20 17:01:45,983 - INFO - search possible target(s) by device tree
+2019-09-20 17:01:45,990 - INFO - search possible openwrt toh record(s) by strings
+2019-09-20 17:01:46,098 - INFO - +-------+------------+----------+-----------------+-------------------+---------------------+----------+-----------+---------------------+------------+-----------------+
+2019-09-20 17:01:46,098 - INFO - |  pid  | devicetype |  brand   |      model      | supportedsincerel | supportedcurrentrel |  target  | subtarget | packagearchitecture | bootloader |       cpu       |
+2019-09-20 17:01:46,098 - INFO - +-------+------------+----------+-----------------+-------------------+---------------------+----------+-----------+---------------------+------------+-----------------+
+2019-09-20 17:01:46,098 - INFO - | 16910 |    NAS     | Pogoplug |   Pogoplug V2   |       15.05       |       18.06.4       | kirkwood |  generic  |      arm_xscale     |   U-Boot   | Marvell 88F6281 |
+2019-09-20 17:01:46,098 - INFO - | 16912 |    NAS     | Pogoplug |   Pogoplug V4   |       15.05       |       18.06.4       | kirkwood |  generic  |      arm_xscale     |   U-Boot   | Marvell 88F6192 |
+2019-09-20 17:01:46,098 - INFO - | 16913 |    NAS     | Pogoplug | Pogoplug Mobile |       15.05       |       18.06.4       | kirkwood |  generic  |      arm_xscale     |   U-Boot   | Marvell 88F6192 |
+2019-09-20 17:01:46,099 - INFO - | 17477 |    NAS     | Pogoplug |   Pogoplug V3   |       15.05       |       snapshot      |  oxnas   |   ox820   |      arm_mpcore     |   U-Boot   |   PLX NAS7820   |
+2019-09-20 17:01:46,099 - INFO - | 17478 |    NAS     | Pogoplug | Pogoplug V3 Pro |       15.05       |       snapshot      |  oxnas   |   ox820   |      arm_mpcore     |   U-Boot   |   PLX NAS7820   |
+2019-09-20 17:01:46,099 - INFO - +-------+------------+----------+-----------------+-------------------+---------------------+----------+-----------+---------------------+------------+-----------------+
+2019-09-20 17:01:46,099 - INFO - filter out candidates by matching kernel version
+2019-09-20 17:01:46,099 - INFO - nothing left
+2019-09-20 17:01:46,099 - INFO - get metadata by strings
+2019-09-20 17:01:49,958 - INFO - search possible target(s) by strings
+2019-09-20 17:01:49,959 - INFO - >> oxnas, confidence: 0.52, ['oxnas-fiq', 'pinctrl-oxnas', 'gpio-oxnas', 'oxnas-pcie', 'oxnas-ehci', 'ehci_oxnas', 'oxnas-sata', 'sata_oxnas', 'sata_oxnas', 'oxnas', 'ehci-oxnas', 'sata_oxnas']
+2019-09-20 17:01:49,959 - INFO - >> omap, confidence: 0.43, ['mtd-romap', 'vm_iomap_memory', 'pci_iomap', 'pcim_iomap_table', 'pcim_iomap_regions', 'pcim_iomap', 'of_iomap', 'of_iomap', 'pcim_iomap_regions', 'pcim_iomap_table']
+2019-09-20 17:01:49,959 - INFO - >> orion, confidence: 0.04, ['ehci-orion']
+2019-09-20 17:01:49,959 - INFO - [32mget the most possible target oxnas[0m
+2019-09-20 17:01:50,093 - INFO - search possible subtarget(s) by strings
+2019-09-20 17:01:50,094 - INFO - >> ox820, confidence: 1.00, ['ox820-reset']
+2019-09-20 17:01:50,094 - INFO - [32mget the most possible subtarget ox820[0m
+2019-09-20 17:01:50,098 - INFO - get source code by openwrt table of hardware
+2019-09-20 17:01:50,123 - INFO - [32mdownload page found for OpenWrt project https://archive.openwrt.org/chaos_calmer/15.05/oxnas/ox820[0m
+2019-09-20 17:01:50,130 - INFO - [5] firmware 13901 at /tmp/13901/404b62b1d28d82b6420d28c2de39d55e7019b6d4.bin
+2019-09-20 17:01:50,131 - INFO - extract kernel and dtb by binwalk
+2019-09-20 17:01:54,496 - INFO - [32mFIT uImage found[0m, offset 655360, flattened image tree, total size: 2996912 bytes, timestamp: 2015-09-11 17:13:44, description: ARM OpenWrt FIT (Flattened Image Tree)
+2019-09-20 17:01:54,497 - INFO - extract kernel and dtb by uboot_tools
+2019-09-20 17:01:54,501 - INFO - [32mget kernel image A0000.kernel at /tmp/13901/_404b62b1d28d82b6420d28c2de39d55e7019b6d4.bin-40.extracted/A0000.kernel[0m
+2019-09-20 17:01:54,503 - INFO - [32mget device tree image A0000.kernel at /tmp/13901/_404b62b1d28d82b6420d28c2de39d55e7019b6d4.bin-40.extracted/A0000.dtb[0m
+2019-09-20 17:01:54,503 - INFO - get metadata by file
+2019-09-20 17:01:54,506 - INFO - [32mget the kernel version: Linux-3.18.20, confidence: 1[0m
+2019-09-20 17:01:54,506 - INFO - [32mget the operating system: Linux, confidence: 1[0m
+2019-09-20 17:01:54,506 - INFO - [32mget the architecture: ARM, confidence: 1[0m
+2019-09-20 17:01:54,506 - INFO - get metadata by kernel version
+2019-09-20 17:01:54,530 - INFO - [32mOpenWrt 15.05 Chaos Calmer found[0m
+2019-09-20 17:01:54,530 - INFO - search possible target(s) by device tree
+2019-09-20 17:01:54,536 - INFO - search possible openwrt toh record(s) by strings
+2019-09-20 17:01:54,649 - INFO - nothing left
+2019-09-20 17:01:54,651 - INFO - get metadata by strings
+2019-09-20 17:01:58,501 - INFO - search possible target(s) by strings
+2019-09-20 17:01:58,501 - INFO - >> oxnas, confidence: 0.52, ['oxnas-fiq', 'pinctrl-oxnas', 'gpio-oxnas', 'oxnas-pcie', 'oxnas-ehci', 'ehci_oxnas', 'oxnas-sata', 'sata_oxnas', 'sata_oxnas', 'oxnas', 'ehci-oxnas', 'sata_oxnas']
+2019-09-20 17:01:58,501 - INFO - >> omap, confidence: 0.43, ['mtd-romap', 'vm_iomap_memory', 'pci_iomap', 'pcim_iomap_table', 'pcim_iomap_regions', 'pcim_iomap', 'of_iomap', 'of_iomap', 'pcim_iomap_regions', 'pcim_iomap_table']
+2019-09-20 17:01:58,501 - INFO - >> orion, confidence: 0.04, ['ehci-orion']
+2019-09-20 17:01:58,501 - INFO - [32mget the most possible target oxnas[0m
+2019-09-20 17:01:58,631 - INFO - search possible subtarget(s) by strings
+2019-09-20 17:01:58,631 - INFO - >> ox820, confidence: 1.00, ['ox820-reset']
+2019-09-20 17:01:58,631 - INFO - [32mget the most possible subtarget ox820[0m
+2019-09-20 17:01:58,635 - INFO - get source code by openwrt table of hardware
+2019-09-20 17:01:58,659 - INFO - [32mdownload page found for OpenWrt project https://archive.openwrt.org/chaos_calmer/15.05/oxnas/ox820[0m
+2019-09-20 17:01:58,671 - INFO - [6] firmware 15007 at /tmp/15007/ec5859077831e078987ebb05461d4ec834896f3e.bin
+2019-09-20 17:01:58,672 - INFO - extract kernel and dtb by binwalk
+2019-09-20 17:02:06,683 - INFO - [32mLegacy uImage found[0m, offset 0, uImage header, header size: 64 bytes, created: 2010-04-06 14:58:29, image size: 889256 bytes, Data Address: 0x8000, Entry Point: 0x8000, OS: Linux, CPU: ARM, image name: "Linux-2.6.32.10"
+2019-09-20 17:02:06,683 - INFO - extract kernel and dtb by uboot_tools
+2019-09-20 17:02:07,893 - INFO - [32mget kernel image 0.kernel at /tmp/15007/_ec5859077831e078987ebb05461d4ec834896f3e.bin-34.extracted/0.kernel[0m
+2019-09-20 17:02:07,893 - INFO - get metadata by file
+2019-09-20 17:02:07,897 - INFO - [32mget the kernel version: Linux-2.6.32, confidence: 1[0m
+2019-09-20 17:02:07,897 - INFO - [32mget the operating system: Linux, confidence: 1[0m
+2019-09-20 17:02:07,897 - INFO - [32mget the architecture: ARM, confidence: 1[0m
+2019-09-20 17:02:07,898 - INFO - get metadata by kernel version
+2019-09-20 17:02:07,924 - INFO - [32mOpenWrt 10.03 Backfire found[0m
+2019-09-20 17:02:07,924 - INFO - get metadata by strings
+2019-09-20 17:02:08,961 - INFO - search possible target(s) by strings
+2019-09-20 17:02:08,961 - INFO - >> orion, confidence: 0.69, ['orion_wdt', 'orion_spi', 'orion-ehci', 'orion_irq', 'orion_clocksource', 'orion_tick', 'orion_gpio_irq', 'orion_gpio', 'orion_gpio_set_blink']
+2019-09-20 17:02:08,961 - INFO - >> omap, confidence: 0.31, ['pci_iomap', 'pcim_iomap_regions', 'pcim_iomap', 'pcim_iomap_table']
+2019-09-20 17:02:08,961 - INFO - [32mget the most possible target orion[0m
+2019-09-20 17:02:09,045 - INFO - search possible subtarget(s) by strings
+2019-09-20 17:02:09,045 - INFO - get nothing, however here are some options
+2019-09-20 17:02:09,086 - INFO - +-------+-------------+------------+-------------+-------------------+---------------------+--------+-----------+---------------------+------------+--------------------+
+2019-09-20 17:02:09,086 - INFO - |  pid  |  devicetype |   brand    |    model    | supportedsincerel | supportedcurrentrel | target | subtarget | packagearchitecture | bootloader |        cpu         |
+2019-09-20 17:02:09,086 - INFO - +-------+-------------+------------+-------------+-------------------+---------------------+--------+-----------+---------------------+------------+--------------------+
+2019-09-20 17:02:09,086 - INFO - | 16171 | WiFi Router | Airlink101 |    AR625W   |                   |                     | orion  |           |                     |     ?      |  Marvell 88F5181   |
+2019-09-20 17:02:09,086 - INFO - | 16333 | WiFi Router |  Buffalo   | WZR-AG300NH |                   |                     | orion  |           |                     |   U-Boot   |  Marvell 88F5181   |
+2019-09-20 17:02:09,086 - INFO - | 16823 | WiFi Router |  Netgear   |   WNR854T   |       10.03       |        12.09        | orion  |  generic  |                     |   U-Boot   | Marvell 88F5180NB1 |
+2019-09-20 17:02:09,086 - INFO - | 17406 | WiFi Router |  Linksys   |  WRT350N v2 |       10.03       |        10.03        | orion  |           |                     |   U-Boot   |  Marvell 88F5181L  |
+2019-09-20 17:02:09,086 - INFO - +-------+-------------+------------+-------------+-------------------+---------------------+--------+-----------+---------------------+------------+--------------------+
+2019-09-20 17:02:09,086 - INFO - filter out candidates by empty supportedcurrentrel
+2019-09-20 17:02:09,087 - INFO - filter out candidates by matching kernel version
+2019-09-20 17:02:09,087 - INFO - only one left, choose it for you automatically
+2019-09-20 17:02:09,087 - INFO - [32mget the most possible subtarget [0m
+2019-09-20 17:02:09,088 - INFO - get source code by openwrt table of hardware
+2019-09-20 17:02:09,114 - INFO - [32mdownload page found for OpenWrt project https://archive.openwrt.org/backfire/10.03/orion/[0m
+2019-09-20 17:02:09,118 - INFO - [7] firmware 13890 at /tmp/13890/e364e96ce9edaeab94ccd750cca20e03fcabad54.bin
+2019-09-20 17:02:09,119 - INFO - extract kernel and dtb by binwalk
+2019-09-20 17:02:17,525 - INFO - [32mFIT uImage found[0m, offset 655360, flattened image tree, total size: 2996692 bytes, timestamp: 2015-09-11 17:13:26, description: ARM OpenWrt FIT (Flattened Image Tree)
+2019-09-20 17:02:17,525 - INFO - extract kernel and dtb by uboot_tools
+2019-09-20 17:02:17,533 - INFO - [32mget kernel image A0000.kernel at /tmp/13890/_e364e96ce9edaeab94ccd750cca20e03fcabad54.bin-34.extracted/A0000.kernel[0m
+2019-09-20 17:02:17,539 - INFO - [32mget device tree image A0000.kernel at /tmp/13890/_e364e96ce9edaeab94ccd750cca20e03fcabad54.bin-34.extracted/A0000.dtb[0m
+2019-09-20 17:02:17,539 - INFO - get metadata by file
+2019-09-20 17:02:17,542 - INFO - [32mget the kernel version: Linux-3.18.20, confidence: 1[0m
+2019-09-20 17:02:17,542 - INFO - [32mget the operating system: Linux, confidence: 1[0m
+2019-09-20 17:02:17,543 - INFO - [32mget the architecture: ARM, confidence: 1[0m
+2019-09-20 17:02:17,543 - INFO - get metadata by kernel version
+2019-09-20 17:02:17,571 - INFO - [32mOpenWrt 15.05 Chaos Calmer found[0m
+2019-09-20 17:02:17,571 - INFO - search possible target(s) by device tree
+2019-09-20 17:02:17,577 - INFO - search possible openwrt toh record(s) by strings
+2019-09-20 17:02:17,681 - INFO - +--------+-----------------------+-----------------+--------------------------+-------------------+---------------------+--------------+-----------+---------------------+------------+-------------------------------+
+2019-09-20 17:02:17,681 - INFO - |  pid   |       devicetype      |      brand      |          model           | supportedsincerel | supportedcurrentrel |    target    | subtarget | packagearchitecture | bootloader |              cpu              |
+2019-09-20 17:02:17,681 - INFO - +--------+-----------------------+-----------------+--------------------------+-------------------+---------------------+--------------+-----------+---------------------+------------+-------------------------------+
+2019-09-20 17:02:17,681 - INFO - | 16166  |      WiFi Router      | ADI Engineering |     Pronghorn SBC250     |        8.09       |       18.06.4       |    ixp4xx    |  generic  |     armeb_xscale    |  RedBoot   |          Intel IXP425         |
+2019-09-20 17:02:17,681 - INFO - | 16622  | Single Board Computer |     Lemaker     |        Banana Pro        |       15.05       |       18.06.4       |    sunxi     |  cortexa7 | arm_cortex-a8_vfpv3 |   U-Boot   |         Allwinner A20         |
+2019-09-20 17:02:17,681 - INFO - | 16910  |          NAS          |     Pogoplug    |       Pogoplug V2        |       15.05       |       18.06.4       |   kirkwood   |  generic  |      arm_xscale     |   U-Boot   |        Marvell 88F6281        |
+2019-09-20 17:02:17,682 - INFO - | 16912  |          NAS          |     Pogoplug    |       Pogoplug V4        |       15.05       |       18.06.4       |   kirkwood   |  generic  |      arm_xscale     |   U-Boot   |        Marvell 88F6192        |
+2019-09-20 17:02:17,682 - INFO - | 16913  |          NAS          |     Pogoplug    |     Pogoplug Mobile      |       15.05       |       18.06.4       |   kirkwood   |  generic  |      arm_xscale     |   U-Boot   |        Marvell 88F6192        |
+2019-09-20 17:02:17,682 - INFO - | 16919  |      WiFi Router      |     Prolink     |         PWH2004          |       15.05       |       18.06.4       |    ramips    |   rt305x  |     mipsel_24kc     |   U-Boot   |         Ralink RT3052         |
+2019-09-20 17:02:17,682 - INFO - | 16979  |         Router        |     SolidRun    |       ClearFog Pro       |      17.01.0      |       18.06.4       |    mvebu     |  cortexa9 | arm_cortex-a9_vfpv3 |   U-Boot   |       Marvell Armada 380      |
+2019-09-20 17:02:17,682 - INFO - | 17191  |      WiFi Router      |     Ubiquiti    |    RouterStation Pro     |       10.03       |       18.06.4       | ar71xx-ath79 |  generic  |      mips_24kc      |  RedBoot   |         Atheros AR7161        |
+2019-09-20 17:02:17,682 - INFO - | 17464  |      WiFi Router      |     Digineo     |        AC1200 Pro        |      17.01.0      |       17.01.4       |    ramips    |   mt7621  |     mipsel_24kc     |     ?      |       MediaTek MT7621AT       |
+2019-09-20 17:02:17,682 - INFO - | 17477  |          NAS          |     Pogoplug    |       Pogoplug V3        |       15.05       |       snapshot      |    oxnas     |   ox820   |      arm_mpcore     |   U-Boot   |          PLX NAS7820          |
+2019-09-20 17:02:17,682 - INFO - | 17478  |          NAS          |     Pogoplug    |     Pogoplug V3 Pro      |       15.05       |       snapshot      |    oxnas     |   ox820   |      arm_mpcore     |   U-Boot   |          PLX NAS7820          |
+2019-09-20 17:02:17,682 - INFO - | 79456  |        WiFi AP        |     Ubiquiti    | AirGateway Pro (AMG-PRO) |      17.01.0      |       18.06.4       |    ar71xx    |  generic  |      mips_24kc      |     ?      |         Atheros AR9344        |
+2019-09-20 17:02:17,682 - INFO - | 90581  | Single Board Computer |     SolidRun    |       CuBox i4Pro        |                   |       snapshot      |     imx6     |  generic  |  arm_cortex-a9_neon |   U-Boot   |         NXP i.MX6 Quad        |
+2019-09-20 17:02:17,683 - INFO - | 90831  |        WiFi AP        |     Ubiquiti    |    UniFi AC Mesh Pro     |                   |       snapshot      | ar71xx-ath79 |  generic  |      mips_24kc      |   U-Boot   | Qualcomm Atheros QCA9563-AL3A |
+2019-09-20 17:02:17,683 - INFO - | 710634 |      WiFi Router      |      Xiaomi     |     Mi Router 3 Pro      |                   |       snapshot      |    ramips    |   mt7621  |      mips_24kc      |   U-Boot   |       MediaTek MT7621AT       |
+2019-09-20 17:02:17,683 - INFO - +--------+-----------------------+-----------------+--------------------------+-------------------+---------------------+--------------+-----------+---------------------+------------+-------------------------------+
+2019-09-20 17:02:17,683 - INFO - filter out candidates by matching kernel version
+2019-09-20 17:02:17,683 - INFO - nothing left
+2019-09-20 17:02:17,684 - INFO - get metadata by strings
+2019-09-20 17:02:21,462 - INFO - search possible target(s) by strings
+2019-09-20 17:02:21,462 - INFO - >> oxnas, confidence: 0.52, ['oxnas-fiq', 'pinctrl-oxnas', 'gpio-oxnas', 'oxnas-pcie', 'oxnas-ehci', 'ehci_oxnas', 'oxnas-sata', 'sata_oxnas', 'sata_oxnas', 'oxnas', 'ehci-oxnas', 'sata_oxnas']
+2019-09-20 17:02:21,462 - INFO - >> omap, confidence: 0.43, ['mtd-romap', 'vm_iomap_memory', 'pci_iomap', 'pcim_iomap_table', 'pcim_iomap_regions', 'pcim_iomap', 'of_iomap', 'of_iomap', 'pcim_iomap_regions', 'pcim_iomap_table']
+2019-09-20 17:02:21,462 - INFO - >> orion, confidence: 0.04, ['ehci-orion']
+2019-09-20 17:02:21,462 - INFO - [32mget the most possible target oxnas[0m
+2019-09-20 17:02:21,592 - INFO - search possible subtarget(s) by strings
+2019-09-20 17:02:21,592 - INFO - >> ox820, confidence: 1.00, ['ox820-reset']
+2019-09-20 17:02:21,592 - INFO - [32mget the most possible subtarget ox820[0m
+2019-09-20 17:02:21,598 - INFO - get source code by openwrt table of hardware
+2019-09-20 17:02:21,621 - INFO - [32mdownload page found for OpenWrt project https://archive.openwrt.org/chaos_calmer/15.05/oxnas/ox820[0m
+2019-09-20 17:02:21,632 - INFO - [8] firmware 7996 at /tmp/7996/e976bfc45172ce4705ff926b31d82bf39e0879a8.bin
+2019-09-20 17:02:21,633 - INFO - extract kernel and dtb by binwalk
+2019-09-20 17:02:31,975 - INFO - [32mLegacy uImage found[0m, offset 0, uImage header, header size: 64 bytes, created: 2011-12-21 06:10:48, image size: 892096 bytes, Data Address: 0x8000, Entry Point: 0x8000, OS: Linux, CPU: ARM, image name: "Linux-2.6.32.27"
+2019-09-20 17:02:31,975 - INFO - extract kernel and dtb by uboot_tools
+2019-09-20 17:02:33,196 - INFO - [32mget kernel image 0.kernel at /tmp/7996/_e976bfc45172ce4705ff926b31d82bf39e0879a8.bin-32.extracted/0.kernel[0m
+2019-09-20 17:02:33,197 - INFO - get metadata by file
+2019-09-20 17:02:33,200 - INFO - [32mget the kernel version: Linux-2.6.32, confidence: 1[0m
+2019-09-20 17:02:33,201 - INFO - [32mget the operating system: Linux, confidence: 1[0m
+2019-09-20 17:02:33,201 - INFO - [32mget the architecture: ARM, confidence: 1[0m
+2019-09-20 17:02:33,201 - INFO - get metadata by kernel version
+2019-09-20 17:02:33,225 - INFO - [32mOpenWrt 10.03 Backfire found[0m
+2019-09-20 17:02:33,226 - INFO - get metadata by strings
+2019-09-20 17:02:34,269 - INFO - search possible target(s) by strings
+2019-09-20 17:02:34,270 - INFO - >> orion, confidence: 0.69, ['orion_wdt', 'orion_spi', 'orion-ehci', 'orion_irq', 'orion_clocksource', 'orion_tick', 'orion_gpio_irq', 'orion_gpio', 'orion_gpio_set_blink']
+2019-09-20 17:02:34,270 - INFO - >> omap, confidence: 0.31, ['pci_iomap', 'pcim_iomap_regions', 'pcim_iomap', 'pcim_iomap_table']
+2019-09-20 17:02:34,270 - INFO - [32mget the most possible target orion[0m
+2019-09-20 17:02:34,360 - INFO - search possible subtarget(s) by strings
+2019-09-20 17:02:34,360 - INFO - get nothing, however here are some options
+2019-09-20 17:02:34,407 - INFO - +-------+-------------+------------+-------------+-------------------+---------------------+--------+-----------+---------------------+------------+--------------------+
+2019-09-20 17:02:34,407 - INFO - |  pid  |  devicetype |   brand    |    model    | supportedsincerel | supportedcurrentrel | target | subtarget | packagearchitecture | bootloader |        cpu         |
+2019-09-20 17:02:34,407 - INFO - +-------+-------------+------------+-------------+-------------------+---------------------+--------+-----------+---------------------+------------+--------------------+
+2019-09-20 17:02:34,408 - INFO - | 16171 | WiFi Router | Airlink101 |    AR625W   |                   |                     | orion  |           |                     |     ?      |  Marvell 88F5181   |
+2019-09-20 17:02:34,408 - INFO - | 16333 | WiFi Router |  Buffalo   | WZR-AG300NH |                   |                     | orion  |           |                     |   U-Boot   |  Marvell 88F5181   |
+2019-09-20 17:02:34,408 - INFO - | 16823 | WiFi Router |  Netgear   |   WNR854T   |       10.03       |        12.09        | orion  |  generic  |                     |   U-Boot   | Marvell 88F5180NB1 |
+2019-09-20 17:02:34,408 - INFO - | 17406 | WiFi Router |  Linksys   |  WRT350N v2 |       10.03       |        10.03        | orion  |           |                     |   U-Boot   |  Marvell 88F5181L  |
+2019-09-20 17:02:34,408 - INFO - +-------+-------------+------------+-------------+-------------------+---------------------+--------+-----------+---------------------+------------+--------------------+
+2019-09-20 17:02:34,408 - INFO - filter out candidates by empty supportedcurrentrel
+2019-09-20 17:02:34,408 - INFO - filter out candidates by matching kernel version
+2019-09-20 17:02:34,408 - INFO - only one left, choose it for you automatically
+2019-09-20 17:02:34,408 - INFO - [32mget the most possible subtarget [0m
+2019-09-20 17:02:34,410 - INFO - get source code by openwrt table of hardware
+2019-09-20 17:02:34,434 - INFO - [32mdownload page found for OpenWrt project https://archive.openwrt.org/backfire/10.03/orion/[0m
+2019-09-20 17:02:34,441 - INFO - [9] firmware 13882 at /tmp/13882/2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin
+2019-09-20 17:02:34,441 - INFO - extract kernel and dtb by binwalk
+2019-09-20 17:02:42,798 - INFO - [32mFIT uImage found[0m, offset 655360, flattened image tree, total size: 2997780 bytes, timestamp: 2015-09-11 17:13:52, description: ARM OpenWrt FIT (Flattened Image Tree)
+2019-09-20 17:02:42,798 - INFO - extract kernel and dtb by uboot_tools
+2019-09-20 17:02:42,803 - INFO - [32mget kernel image A0000.kernel at /tmp/13882/_2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin-31.extracted/A0000.kernel[0m
+2019-09-20 17:02:42,806 - INFO - [32mget device tree image A0000.kernel at /tmp/13882/_2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin-31.extracted/A0000.dtb[0m
+2019-09-20 17:02:42,807 - INFO - get metadata by file
+2019-09-20 17:02:42,812 - INFO - [32mget the kernel version: Linux-3.18.20, confidence: 1[0m
+2019-09-20 17:02:42,812 - INFO - [32mget the operating system: Linux, confidence: 1[0m
+2019-09-20 17:02:42,813 - INFO - [32mget the architecture: ARM, confidence: 1[0m
+2019-09-20 17:02:42,813 - INFO - get metadata by kernel version
+2019-09-20 17:02:42,844 - INFO - [32mOpenWrt 15.05 Chaos Calmer found[0m
+2019-09-20 17:02:42,844 - INFO - search possible target(s) by device tree
+2019-09-20 17:02:42,851 - INFO - search possible openwrt toh record(s) by strings
+2019-09-20 17:02:42,952 - INFO - +-------+------------+---------+--------------+-------------------+---------------------+--------+-----------+---------------------+------------+-------------+
+2019-09-20 17:02:42,952 - INFO - |  pid  | devicetype |  brand  |    model     | supportedsincerel | supportedcurrentrel | target | subtarget | packagearchitecture | bootloader |     cpu     |
+2019-09-20 17:02:42,952 - INFO - +-------+------------+---------+--------------+-------------------+---------------------+--------+-----------+---------------------+------------+-------------+
+2019-09-20 17:02:42,952 - INFO - | 17479 |    NAS     | Shuttle | OMNINAS KD20 |      17.01.0      |       18.06.4       | oxnas  |   ox820   |      arm_mpcore     |   U-Boot   | PLX NAS7821 |
+2019-09-20 17:02:42,952 - INFO - +-------+------------+---------+--------------+-------------------+---------------------+--------+-----------+---------------------+------------+-------------+
+2019-09-20 17:02:42,952 - INFO - filter out candidates by matching kernel version
+2019-09-20 17:02:42,952 - INFO - nothing left
+2019-09-20 17:02:42,953 - INFO - get metadata by strings
+2019-09-20 17:02:46,757 - INFO - search possible target(s) by strings
+2019-09-20 17:02:46,757 - INFO - >> oxnas, confidence: 0.52, ['oxnas-fiq', 'pinctrl-oxnas', 'gpio-oxnas', 'oxnas-pcie', 'oxnas-ehci', 'ehci_oxnas', 'oxnas-sata', 'sata_oxnas', 'sata_oxnas', 'oxnas', 'ehci-oxnas', 'sata_oxnas']
+2019-09-20 17:02:46,757 - INFO - >> omap, confidence: 0.43, ['mtd-romap', 'vm_iomap_memory', 'pci_iomap', 'pcim_iomap_table', 'pcim_iomap_regions', 'pcim_iomap', 'of_iomap', 'of_iomap', 'pcim_iomap_regions', 'pcim_iomap_table']
+2019-09-20 17:02:46,757 - INFO - >> orion, confidence: 0.04, ['ehci-orion']
+2019-09-20 17:02:46,758 - INFO - [32mget the most possible target oxnas[0m
+2019-09-20 17:02:46,887 - INFO - search possible subtarget(s) by strings
+2019-09-20 17:02:46,888 - INFO - >> ox820, confidence: 1.00, ['ox820-reset']
+2019-09-20 17:02:46,888 - INFO - [32mget the most possible subtarget ox820[0m
+2019-09-20 17:02:46,893 - INFO - get source code by openwrt table of hardware
+2019-09-20 17:02:46,919 - INFO - [32mdownload page found for OpenWrt project https://archive.openwrt.org/chaos_calmer/15.05/oxnas/ox820[0m
+2019-09-20 17:02:46,925 - INFO - [10] firmware 9707 at /tmp/9707/6b6385ae3faf9b99ec2a290a5fb153752de395de.bin
+2019-09-20 17:02:46,927 - INFO - extract kernel and dtb by binwalk
+2019-09-20 17:02:54,911 - INFO - [32mFIT uImage found[0m, offset 655360, flattened image tree, total size: 3151356 bytes, timestamp: 2016-02-02 12:51:34, description: ARM OpenWrt FIT (Flattened Image Tree)
+2019-09-20 17:02:54,911 - INFO - extract kernel and dtb by uboot_tools
+2019-09-20 17:02:54,916 - INFO - [32mget kernel image A0000.kernel at /tmp/9707/_6b6385ae3faf9b99ec2a290a5fb153752de395de.bin-27.extracted/A0000.kernel[0m
+2019-09-20 17:02:54,919 - INFO - [32mget device tree image A0000.kernel at /tmp/9707/_6b6385ae3faf9b99ec2a290a5fb153752de395de.bin-27.extracted/A0000.dtb[0m
+2019-09-20 17:02:54,919 - INFO - get metadata by file
+2019-09-20 17:02:54,925 - INFO - [32mget the kernel version: Linux-3.18.23, confidence: 1[0m
+2019-09-20 17:02:54,925 - INFO - [32mget the operating system: Linux, confidence: 1[0m
+2019-09-20 17:02:54,926 - INFO - [32mget the architecture: ARM, confidence: 1[0m
+2019-09-20 17:02:54,926 - INFO - get metadata by kernel version
+2019-09-20 17:02:54,951 - INFO - [32mOpenWrt 15.05.1 Chaos Calmer found[0m
+2019-09-20 17:02:54,951 - INFO - search possible target(s) by device tree
+2019-09-20 17:02:54,957 - INFO - search possible openwrt toh record(s) by strings
+2019-09-20 17:02:55,057 - INFO - +-------+------------+----------+-----------------+-------------------+---------------------+----------+-----------+---------------------+------------+-----------------+
+2019-09-20 17:02:55,057 - INFO - |  pid  | devicetype |  brand   |      model      | supportedsincerel | supportedcurrentrel |  target  | subtarget | packagearchitecture | bootloader |       cpu       |
+2019-09-20 17:02:55,058 - INFO - +-------+------------+----------+-----------------+-------------------+---------------------+----------+-----------+---------------------+------------+-----------------+
+2019-09-20 17:02:55,058 - INFO - | 16910 |    NAS     | Pogoplug |   Pogoplug V2   |       15.05       |       18.06.4       | kirkwood |  generic  |      arm_xscale     |   U-Boot   | Marvell 88F6281 |
+2019-09-20 17:02:55,058 - INFO - | 16912 |    NAS     | Pogoplug |   Pogoplug V4   |       15.05       |       18.06.4       | kirkwood |  generic  |      arm_xscale     |   U-Boot   | Marvell 88F6192 |
+2019-09-20 17:02:55,058 - INFO - | 16913 |    NAS     | Pogoplug | Pogoplug Mobile |       15.05       |       18.06.4       | kirkwood |  generic  |      arm_xscale     |   U-Boot   | Marvell 88F6192 |
+2019-09-20 17:02:55,058 - INFO - | 17477 |    NAS     | Pogoplug |   Pogoplug V3   |       15.05       |       snapshot      |  oxnas   |   ox820   |      arm_mpcore     |   U-Boot   |   PLX NAS7820   |
+2019-09-20 17:02:55,058 - INFO - | 17478 |    NAS     | Pogoplug | Pogoplug V3 Pro |       15.05       |       snapshot      |  oxnas   |   ox820   |      arm_mpcore     |   U-Boot   |   PLX NAS7820   |
+2019-09-20 17:02:55,058 - INFO - +-------+------------+----------+-----------------+-------------------+---------------------+----------+-----------+---------------------+------------+-----------------+
+2019-09-20 17:02:55,058 - INFO - filter out candidates by matching kernel version
+2019-09-20 17:02:55,058 - INFO - nothing left
+2019-09-20 17:02:55,059 - INFO - get metadata by strings
+2019-09-20 17:02:59,483 - INFO - search possible target(s) by strings
+2019-09-20 17:02:59,483 - INFO - >> x86, confidence: 0.02, ['x86']
+2019-09-20 17:02:59,484 - INFO - >> oxnas, confidence: 0.78, ['oxnas-fiq', 'pinctrl-oxnas', 'gpio-oxnas', 'oxnas-pcie', 'oxnas-ehci', 'ehci_oxnas', 'ehci_oxnas_drv_probe', 'ehci_oxnas_drv_remove', 'ehci_oxnas_reset', 'oxnas-sata', 'sata_oxnas', 'sata_oxnas', 'sata_oxnas_interrupt', 'sata_oxnas_probe', 'sata_oxnas_remove', 'sata_oxnas_suspend', 'sata_oxnas_resume', 'sata_oxnas_qc_prep', 'sata_oxnas_qc_issue', 'sata_oxnas_qc_fill_rtf', 'sata_oxnas_qc_new', 'sata_oxnas_qc_free', 'sata_oxnas_freeze', 'sata_oxnas_thaw', 'sata_oxnas_softreset', 'sata_oxnas_postreset', 'sata_oxnas_error_handler', 'sata_oxnas_scr_read', 'sata_oxnas_scr_write', 'sata_oxnas_port_start', 'sata_oxnas_port_stop', 'sata_oxnas_host_stop', 'sata_oxnas_check_status', 'sata_oxnas_acquire_hw', 'sata_oxnas_check_link', 'sata_oxnas_link_read', 'sata_oxnas_thaw_host', 'sata_oxnas_link_write', 'sata_oxnas_freeze_host', 'sata_oxnas_set_mode', 'oxnas', 'ehci-oxnas', 'sata_oxnas']
+2019-09-20 17:02:59,484 - INFO - >> omap, confidence: 0.18, ['mtd-romap', 'vm_iomap_memory', 'pci_iomap', 'pcim_iomap_table', 'pcim_iomap_regions', 'pcim_iomap', 'of_iomap', 'of_iomap', 'pcim_iomap_regions', 'pcim_iomap_table']
+2019-09-20 17:02:59,484 - INFO - >> orion, confidence: 0.02, ['ehci-orion']
+2019-09-20 17:02:59,484 - INFO - [32mget the most possible target oxnas[0m
+2019-09-20 17:02:59,629 - INFO - search possible subtarget(s) by strings
+2019-09-20 17:02:59,629 - INFO - >> ox820, confidence: 1.00, ['Tox820_', 'Tox820_', 'Tox820_', 'Tox820_', 'Tox820_g', 'Tox820_g', 'Tox820_g', 'Tox820', 'Tox820_boo', 'Tox820', 'ox820-reset']
+2019-09-20 17:02:59,630 - INFO - [32mget the most possible subtarget ox820[0m
+2019-09-20 17:02:59,635 - INFO - get source code by openwrt table of hardware
+2019-09-20 17:02:59,658 - INFO - [32mdownload page found for OpenWrt project https://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/ox820[0m
