@@ -10,7 +10,10 @@ import fdt
 import time
 import logging
 
-from database.dbf import get_database
+import yaml
+
+from analysis.common import search_most_possible_subtarget, search_most_possible_target, \
+    search_most_possible_toh_record, vote
 
 logger = logging.getLogger()
 
@@ -36,7 +39,7 @@ def by_file(firmware):
         info = os.popen('file -b {}'.format(firmware.image_path))
         metadata = info.readline().strip()
         items = metadata.split(', ')
-        kernel_version = items[1]
+        kernel_version = re.search(r'Linux-\d+.\d+.\d+', items[1]).group()
         _os = items[2].split('/')[0]
         arch = items[2].split('/')[1]
         kernel_created_time = time.strptime(items[5], "%a %b %d %H:%M:%S %Y")
@@ -192,6 +195,26 @@ def by_dumpimage(firmware):
                 firmware.metadata['kernel_entry_point'].append({'value': kernel_node['entry point'], 'confidence': 1})
 
 
+def by_kernel_version(firmware):
+    logger.info('get metadata by kernel version')
+    with open(os.path.join(os.getcwd(), 'database', 'openwrt.yaml')) as f:
+        openwrt_release_info = yaml.safe_load(f)
+    # vote for the kernel version, all should be of Linux-x.x.x format.
+    kernel_version = vote(firmware.metadata['kernel_version'], 'kernel version')
+    simple_kernel_version = kernel_version.split('-')[1]
+    openwrt_revision = None
+    for revision, info in openwrt_release_info.items():
+        if info['kernel'] == simple_kernel_version:
+            openwrt_revision = str(revision)
+            logger.info('\033[32mOpenWrt {} {} found\033[0m'.format(
+                revision, openwrt_release_info[revision]['code name']))
+    firmware.openwrt_revision = openwrt_revision
+    if openwrt_revision is None:
+        logger.info(
+            'no available OpenWrt revision found for {}, '
+            'please seek expertise for help'.format(kernel_version))
+
+
 def by_device_tree(firmware):
     if firmware.dtb is None:
         return
@@ -200,22 +223,28 @@ def by_device_tree(firmware):
     with open(firmware.dtb, 'rb') as f:
         dtb = f.read()
     dtc = fdt.parse_dtb(dtb)
-    compatible = dtc.get_property('compatible', '/')
-    logger.info('\033[32mget the platform {}, confidence: {}\033[0m'.format(compatible.data, 1))
-    model = dtc.get_property('model', '/')
-    logger.info('\033[32mget the model {}, confidence: {}\033[0m'.format(model.data, 1))
     firmware.dtc = dtc
-    firmware.compatible = compatible
-    firmware.model = model
-
+    compatibles = dtc.get_property('compatible', '/').data
+    # firmware.metadata['compatible'].append({'value': compatibles, 'confidence': 1})
+    # logger.info('\033[32mget the platform {}, confidence: {}\033[0m'.format(compatibles, 1))
+    models = dtc.get_property('model', '/').data
+    # firmware.metadata['model'].append({'value': compatible, 'confidence': 1})
+    # logger.info('\033[32mget the model {}, confidence: {}\033[0m'.format(model, 1))
+    strings = []
+    for compatible in compatibles:
+        strings += compatible.split(',')
+    for model in models:
+        strings += model.split(' ')
+    search_most_possible_toh_record(firmware, strings)
 
 
 def by_strings(firmware):
     """
     If no dtb available, we can infer target platform and machine by strings.
     """
-    if firmware.dtb is not None:
+    if firmware.openwrt is not None:
         return
+    logger.info('get metadata by strings')
     working_dir = os.path.dirname(firmware.kernel)
     candidates = [firmware.kernel]
     for file_ in os.listdir(working_dir):
@@ -223,58 +252,13 @@ def by_strings(firmware):
             zimage = os.path.join(working_dir, file_[:-3])
             if os.path.exists(zimage):
                 candidates.append(zimage)
-
-    openwrt = get_database('openwrt')
-    results = openwrt.select('supportedcurrentrel', 'target', 'subtarget', deduplicated=True)
-    supported_current_rels = results[openwrt.header.index('supportedcurrentrel')]
-    targets = results[openwrt.header.index('target')]
-    sub_targets = results[openwrt.header.index('subtarget')]
-
     strings = []
     for candidate in candidates:
         info = os.popen('strings {} -n 2 | grep -E "^[a-zA-Z]+[a-zA-Z0-9_-]{{1,20}}$"'.format(candidate))
         strings += info.readlines()
 
-    target_searched = {}
-    for string in strings:
-        for target in targets + sub_targets + supported_current_rels:
-            if target == '64':
-                target = 'x86_64'
-            if target.startswith('?'):
-                target = target[1:]
-            if len(target) > len(string) or len(target) < 2 or target == 'generic':
-                continue
-            # if target.find('_') == -1:
-            #     substrings = string.split('_')
-            # elif target.find('-') == -1:
-            #     substrings = string.split('-')
-            # else:
-            #     substrings = string
-            # for string in substrings:
-            if string.find(target) != -1:
-                if target not in target_searched:
-                    target_searched[target] = {'count': 0, 'strings': []}
-                target_searched[target]['count'] += 1
-                target_searched[target]['strings'].append(string.strip())
-                break
-    logger.info('search possible target(s) by strings')
-    sum_of_occurance = 0
-    for k, v in target_searched.items():
-        sum_of_occurance += v['count']
-    most_possible = None
-    max_count = 0
-    for k, v in target_searched.items():
-        count = v['count']
-        logger.info('>> {}, confidence: {:.2f}, {}'.format(
-            k, count / sum_of_occurance, v['strings']))
-        if count > max_count:
-            most_possible = k
-            max_count = count
-    logger.info('\033[32mget the most possible target {}\033[0m'.format(most_possible))
-    firmware.possible_targets = target_searched
-    firmware.most_possible_target = most_possible
-
-    openwrt.table.close()
+    search_most_possible_target(firmware, strings)
+    search_most_possible_subtarget(firmware, strings)
 
 
 def register_get_metadata(func):
@@ -283,6 +267,7 @@ def register_get_metadata(func):
 
 register_get_metadata(by_file)
 register_get_metadata(by_dumpimage)
+register_get_metadata(by_kernel_version)
 register_get_metadata(by_device_tree)
 register_get_metadata(by_strings)
 
