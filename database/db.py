@@ -84,16 +84,31 @@ class DatabaseOpenWrt(Database):
     def __init__(self):
         self.table = open(os.path.join(os.getcwd(), 'database', 'openwrt.csv'))
         self.header = None
+        self.header_last_selected = None
 
     def select(self, *args, **kwargs):
         columns = []
         results = {}
-        conditions = {'target': kwargs.pop('target', None)}
+        conditions = {
+            'target': kwargs.pop('target', None),
+            'pid': kwargs.pop('target', None),
+        }
+        return_column = kwargs.pop('column', True)
+        return_row = kwargs.pop('row', False)
+        deduplicated = kwargs.pop('deduplicated', False)
+        if return_row:
+            return_column = False
+            assert not deduplicated, 'deduplicated only for returning format of column'
         for line in csv.reader(self.table, delimiter='\t'):
             if self.header is None:
                 self.header = line
+            if not len(columns):
+                if len(args) == 1 and args[0] == '*':
+                    args = ['pid', 'devicetype', 'brand', 'model', 'supportedsincerel', 'supportedcurrentrel',
+                            'target', 'subtarget', 'packagearchitecture', 'bootloader', 'cpu']
                 for arg in args:
                     columns.append(self.header.index(arg))
+                self.header_last_selected = args
             valid = 1
             for k, v in conditions.items():
                 if v is None:
@@ -103,15 +118,18 @@ class DatabaseOpenWrt(Database):
                     break
             if not valid:
                 continue
-            for column in columns:
-                item = line[column]
-                if column not in results:
-                    results[column] = []
-                results[column].append(item)
-        deduplicated = kwargs.pop('deduplicated', False)
+            if return_row:
+                results[line[0]] = [line[column] for column in columns]
+            if return_column:
+                for column in columns:
+                    item = line[column]
+                    if column not in results:
+                        results[column] = []
+                    results[column].append(item)
         if deduplicated:
             for k, v in results.items():
                 results[k] = list(set(v))
+        self.table.seek(0)
         return results
 
     def add(self, *args, **kwargs):

@@ -8,8 +8,12 @@ import os
 import re
 import fdt
 import time
+import yaml
 import logging
 
+from prettytable import PrettyTable
+
+from analysis.common import vote
 from database.dbf import get_database
 
 logger = logging.getLogger()
@@ -209,47 +213,17 @@ def by_device_tree(firmware):
     logger.info('\033[32mget the model {}, confidence: {}\033[0m'.format(model.data, 1))
 
 
-def by_strings(firmware):
-    """
-    If no dtb available, we can infer target platform and machine by strings.
-    """
-    if firmware.dtb is not None:
-        return
-    working_dir = os.path.dirname(firmware.kernel)
-    candidates = [firmware.kernel]
-    for file_ in os.listdir(working_dir):
-        if file_.endswith('7z') or file_.endswith('xz'):
-            zimage = os.path.join(working_dir, file_[:-3])
-            if os.path.exists(zimage):
-                candidates.append(zimage)
-
+def search_most_possible_target(firmware, strings):
     openwrt = get_database('openwrt')
-    results = openwrt.select('supportedcurrentrel', 'target', 'subtarget', deduplicated=True)
-    supported_current_rels = results[openwrt.header.index('supportedcurrentrel')]
+    results = openwrt.select('target', deduplicated=True)
     targets = results[openwrt.header.index('target')]
-    sub_targets = results[openwrt.header.index('subtarget')]
-
-    strings = []
-    for candidate in candidates:
-        info = os.popen('strings {} -n 2 | grep -E "^[a-zA-Z]+[a-zA-Z0-9_-]{{1,20}}$"'.format(candidate))
-        strings += info.readlines()
-
     target_searched = {}
     for string in strings:
-        for target in targets + sub_targets + supported_current_rels:
-            if target == '64':
-                target = 'x86_64'
+        for target in targets:
             if target.startswith('?'):
                 target = target[1:]
-            if len(target) > len(string) or len(target) < 2 or target == 'generic':
+            if len(target) > len(string) or len(target) < 2:
                 continue
-            # if target.find('_') == -1:
-            #     substrings = string.split('_')
-            # elif target.find('-') == -1:
-            #     substrings = string.split('-')
-            # else:
-            #     substrings = string
-            # for string in substrings:
             if string.find(target) != -1:
                 if target not in target_searched:
                     target_searched[target] = {'count': 0, 'strings': []}
@@ -272,8 +246,131 @@ def by_strings(firmware):
         firmware.metadata['possible_targets'].append({'value': k, 'confidence': confidence})
     logger.info('\033[32mget the most possible target {}\033[0m'.format(most_possible))
     firmware.most_possible_target = most_possible
-
     openwrt.table.close()
+
+
+def search_most_possible_subtarget(firmware, strings):
+    if firmware.most_possible_target is None:
+        return
+
+    openwrt = get_database('openwrt')
+    results = openwrt.select('pid', 'subtarget', deduplicated=True, target=firmware.most_possible_target)
+    subtargets = results[openwrt.header.index('subtarget')]
+    subtarget_searched = {}
+    for string in strings:
+        for subtarget in subtargets:
+            if subtarget.startswith('?'):
+                subtarget = subtarget[1:]
+            if len(subtarget) > len(string) or len(subtarget) < 2 or subtarget == 'generic':
+                continue
+            if string.find(subtarget) != -1:
+                if subtarget not in subtarget_searched:
+                    subtarget_searched[subtarget] = {'count': 0, 'strings': []}
+                subtarget_searched[subtarget]['count'] += 1
+                subtarget_searched[subtarget]['strings'].append(string.strip())
+                break
+    logger.info('search possible subtarget(s) by strings')
+    sum_of_occurance = 0
+    for k, v in subtarget_searched.items():
+        sum_of_occurance += v['count']
+    if not sum_of_occurance:
+        logger.info('get nothing, however here are some options')
+        results = openwrt.select('*', target=firmware.most_possible_target, row=True)
+        table = PrettyTable(openwrt.header_last_selected)
+        filterd_results = []
+        for k, v in results.items():
+            table.add_row(v)
+            if v[openwrt.header_last_selected.index('supportedcurrentrel')] == '':
+                continue
+            filterd_results.append(v)
+        for line in table.__unicode__().split('\n'):
+            logger.info(line)
+        logger.info('filter out candidates by empty supportedcurrentrel')
+        if len(filterd_results) == 1:
+            logger.info('only one left, choose it automatically')
+            firmware.most_possible_subtarget = filterd_results[0][openwrt.header_last_selected.index('subtarget')]
+            firmware.openwrt = filterd_results[0]
+            logger.info('\033[32mget the most possible subtarget {}\033[0m'.format(firmware.most_possible_subtarget))
+            return
+
+        # use kernel version to infer supportedcurrentrel
+        logger.info('filter out candidates by matching kernel version')
+        with open(os.path.join(os.getcwd(), 'database', 'openwrt.yaml')) as f:
+            openwrt_release_info = yaml.safe_load(f)
+        # vote for the kernel version, all should be of Linux-x.x.x format.
+        kernel_version = vote(firmware.metadata['kernel_version'], 'kernel version')
+        simple_kernel_version = kernel_version.split('-')[1]
+        openwrt_revision = None
+        for revision, info in openwrt_release_info.items():
+            if info['kernel'] == simple_kernel_version:
+                openwrt_revision = str(revision)
+                logger.info('\033[32mOpenWrt {} {} found\033[0m'.format(
+                    revision, openwrt_release_info[revision]['code name']))
+        firmware.openwrt_revision = openwrt_revision
+        if openwrt_revision is None:
+            logger.info(
+                'no available OpenWrt revision found for {}, '
+                'please seek expertise for help'.format(kernel_version))
+            return
+
+        filterd_results_2 = []
+        for v in filterd_results:
+            if openwrt_revision == v[openwrt.header_last_selected.index('supportedcurrentrel')]:
+                filterd_results_2.append(v)
+        if len(filterd_results_2) == 1:
+            logger.info('only one left, choose it for you automatically')
+            firmware.most_possible_subtarget = filterd_results_2[0][openwrt.header_last_selected.index('subtarget')]
+            firmware.openwrt = filterd_results_2[0]
+            logger.info('\033[32mget the most possible subtarget {}\033[0m'.format(firmware.most_possible_subtarget))
+            return
+        # if firmware.most_possible_subtarget is None:
+        #     tries = 2
+        #     logger.info('please input the pid of what you choose: ')
+        #     while tries:
+        #         pid = input('please input the pid of what you choose: ')
+        #         result = openwrt.select('*', pid=pid, row=True)
+        #         if not len(result):
+        #             logger.info('one more time')
+        #             tries -= 1
+        #             continue
+        #         firmware.most_possible_subtarget = result[pid][openwrt.header_last_selected.index('subtarget')]
+        #         firmware.openwrt = result[pid]
+        #         break
+    most_possible = None
+    max_count = 0
+    for k, v in subtarget_searched.items():
+        count = v['count']
+        confidence = round(count / sum_of_occurance, 2)
+        logger.info('>> {}, confidence: {:.2f}, {}'.format(k, confidence, v['strings']))
+        if count > max_count:
+            most_possible = k
+            max_count = count
+        firmware.metadata['possible_subtargets'].append({'value': k, 'confidence': confidence})
+    logger.info('\033[32mget the most possible subtarget {}\033[0m'.format(most_possible))
+    firmware.most_possible_subtarget = most_possible
+    openwrt.table.close()
+
+
+def by_strings(firmware):
+    """
+    If no dtb available, we can infer target platform and machine by strings.
+    """
+    if firmware.dtb is not None:
+        return
+    working_dir = os.path.dirname(firmware.kernel)
+    candidates = [firmware.kernel]
+    for file_ in os.listdir(working_dir):
+        if file_.endswith('7z') or file_.endswith('xz'):
+            zimage = os.path.join(working_dir, file_[:-3])
+            if os.path.exists(zimage):
+                candidates.append(zimage)
+    strings = []
+    for candidate in candidates:
+        info = os.popen('strings {} -n 2 | grep -E "^[a-zA-Z]+[a-zA-Z0-9_-]{{1,20}}$"'.format(candidate))
+        strings += info.readlines()
+
+    search_most_possible_target(firmware, strings)
+    search_most_possible_subtarget(firmware, strings)
 
 
 def register_get_metadata(func):

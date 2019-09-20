@@ -43,8 +43,12 @@ class Firmware(object):
             'kernel_load_address': [],
             'kernel_entry_point': [],
             'possible_targets': [],
+            'possible_subtargets': [],
             'compatible': [],
             'model': []
         }
         self.brand = kwargs.pop('brand', None)
         self.most_possible_target = None
+        self.most_possible_subtarget = None
+        self.openwrt = None
+        self.openwrt_revision = None

@@ -20,6 +20,9 @@ class TestDatabaseOpenWrt(TestCase):
         columns = results.keys()
         for i, column in enumerate(columns):
             self.assertEqual(db.header[column], selects[i])
+        selects = ['*']
+        results = db.select(*selects, target='orion', row=True)
+        self.assertEqual(4, len(results))
         db.table.close()
 
     def test_format(self):
