@@ -45,6 +45,7 @@ Pillow==6.0.0
 pipreqs==0.4.9
 plainbox==0.25
 portalocker==0.5.7
+prettytable==0.7.2
 progressbar==2.5
 progressbar2==3.42.0
 ptyprocess==0.5
