@@ -3,6 +3,7 @@ from unittest import TestCase
 from database.db import DatabaseOpenWrt
 
 import os
+import csv
 
 
 class TestDatabaseOpenWrt(TestCase):
@@ -19,4 +20,14 @@ class TestDatabaseOpenWrt(TestCase):
         columns = results.keys()
         for i, column in enumerate(columns):
             self.assertEqual(db.header[column], selects[i])
+        db.table.close()
+
+    def test_format(self):
+        os.chdir(os.path.join(os.getcwd(), '..'))
+        db = DatabaseOpenWrt()
+        columns = None
+        for line in csv.reader(db.table, delimiter='\t'):
+            if columns is None:
+                columns = len(line)
+            self.assertEqual(columns, len(line))
         db.table.close()
