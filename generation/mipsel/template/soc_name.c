@@ -52,10 +52,18 @@ static void {{soc_name}}_realize(DeviceState *dev, Error **errp)
     /* realize the bridge  */
     object_property_set_bool(OBJECT(&s->bridge), true, "realized", &err);
     if (err) {
-        error_propagate(errp, err);
-        return;
+	    error_propagate(errp, err);
+	    return;
     }
-    sysbus_mmio_map_overlap(SYS_BUS_DEVICE(&s->bridge), 0, {{bridge_name|upper}}_MMIO_BASE, 1);{% endif %}
+    sysbus_mmio_map_overlap(SYS_BUS_DEVICE(&s->bridge), 0, {{bridge_name|upper}}_MMIO_BASE, -1);
+
+    /* attach the uart to 16550A(8250) */
+    if (serial_hd(0)) {
+	    serial_mm_init(get_system_memory(), {{uart_mmio_base}}, {{uart_reg_shift}},
+			    s->cpu->env.irq[{{uart_irq}}],
+			    {{uart_baud_rate}}, serial_hd(0), DEVICE_NATIVE_ENDIAN);
+    }
+    {% endif %}
 }
 
 static void {{soc_name}}_class_init(ObjectClass *oc, void *data) 

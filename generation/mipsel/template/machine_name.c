@@ -152,6 +152,7 @@ static void {{machine_name}}_init(MachineState *machine)
     //ram_addr_t ram_size;
     //MemoryRegion *iomem;
     ResetData *reset_info;
+    DriveInfo *dinfo;
 
     // get machine info
     //iomem = g_new(MemoryRegion, 1);
@@ -168,7 +169,7 @@ static void {{machine_name}}_init(MachineState *machine)
 
     /* allocate the ram */
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
-    memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, -1);
+    memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, -2);
     /* memory_region_allocate_system_memory do the same things as below */
     /* object_property_add_child(OBJECT(machine), "ram", OBJECT(&s->ram), &error_abort); */
     /* so, comment the line above */
@@ -192,6 +193,13 @@ static void {{machine_name}}_init(MachineState *machine)
     /* Init CPU internal devices */
     cpu_mips_irq_init_cpu(s->soc.cpu);
     cpu_mips_clock_init(s->soc.cpu);
+
+    {% if nor_flash %}
+    dinfo = drive_get(IF_PFLASH, 0, 0);
+    pflash_cfi01_register({{machine_name|upper}}_FLASH_ADDR, "flash", {{machine_name|upper}}_FLASH_SIZE,
+		    dinfo ? blk_by_legacy_dinfo(dinfo): NULL, {{machine_name|upper}}_FLASH_SECT_SIZE,
+		    4, 0, 0, 0, 0, 0);
+    {% endif %}
 }
 
 static void {{machine_name}}_machine_init(MachineClass *mc) 
