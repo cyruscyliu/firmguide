@@ -46,10 +46,11 @@ class DatabaseText(Database, DatabaseInterface):
     def __init__(self, path, **kwargs):
         super().__init__()
         self.dbtype = 'text'
-        self.path = os.path.join(os.getcwd(), 'database', path)
+        self.path = os.path.join(os.getcwd(), path)
         self.lazy_loading = False
         self.records = []
         self.count = None
+        self.header = None
 
         if not self.lazy_loading:
             self.load()
@@ -60,13 +61,16 @@ class DatabaseText(Database, DatabaseInterface):
         with open(self.path) as f:
             for line in f:
                 items = line.strip().split()
+                if self.header is None:
+                    self.header = items
+                    continue
                 record = {
-                    'uuid': items[0],
-                    'name': os.path.basename(items[1]),
-                    'path': items[1],
-                    'brand': 'OpenWrt',
-                    'arch': 'arm',
-                    'endian': 'el',
+                    'uuid': items[self.header.index('uuid')],
+                    'name': os.path.basename(items[self.header.index('path')]),
+                    'path': items[self.header.index('path')],
+                    'brand': items[self.header.index('brand')],
+                    'arch': items[self.header.index('arch')],
+                    'endian': items[self.header.index('endian')],
                 }
                 self.records.append(Firmware(**record))
         self.count = self.records.__len__()

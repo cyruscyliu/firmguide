@@ -1,10 +1,11 @@
+import os
+
 from database.db import DatabaseText, DatabaseOpenWrt
 
 
 def get_database(dbtype, **kwargs):
     if dbtype == 'text':
-        path = kwargs.pop('tdb', 'openwrt_arm_el')
-        return DatabaseText(path)
+        return DatabaseText(os.path.join('database', 'firmware'))
     elif dbtype == 'openwrt':
         return DatabaseOpenWrt()
     else:
