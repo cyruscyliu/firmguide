@@ -5,6 +5,7 @@ import shutil
 import tempfile
 import logging.config
 
+from analysis.cpu import get_cpu_model_info, check_qemu_support_for_cpu, make_cpu
 from analysis.metadata import get_metadata
 from analysis.extraction import extract_kernel_and_dtb, get_kernel_and_dtb
 from analysis.srcode import get_source_code
@@ -70,6 +71,9 @@ def run(args):
         get_kernel_and_dtb(firmware)
         if not args.s5:
             continue
+        get_cpu_model_info(firmware)
+        check_qemu_support_for_cpu(firmware)
+        make_cpu(firmware)
         if not args.s6:
             continue
         # generate_cpu(firmware)
