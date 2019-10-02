@@ -70,7 +70,6 @@ def run(args):
         get_kernel_and_dtb(firmware)
         if not args.s5:
             continue
-        # infer_cpu(firmware)
         if not args.s6:
             continue
         # generate_cpu(firmware)

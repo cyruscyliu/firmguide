@@ -109,4 +109,6 @@ def extract_kernel_and_dtb(firmware):
 
 
 def get_kernel_and_dtb(firmware):
-    pass
+    logger.info('\033[32mgot kernel image at {}\033[0m'.format(firmware.kernel))
+    if firmware.dtb is not None:
+        logger.info('\033[32mgot device tree at {}\033[0m'.format(firmware.dtb))
