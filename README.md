@@ -29,7 +29,9 @@ make
 
 ## start
 ```bash
-python3.7 main.py -dbt text -s1
+python3.7 main.py -dbt text -s1 -s2 -s5
 ```
 
 Check [s1-get-metadata.log](./log/s1-get-metadata.log) for step 1.
+Check [s2-get-dts.log](./log/s2-get-dts.log) for step 2.
+Check [s5-info-cpu.log](./log/s5-info-cpu.log) for step 5.

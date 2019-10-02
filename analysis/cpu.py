@@ -92,10 +92,17 @@ def by_qemu_support_lists(firmware):
         support_list = qemu['mips']
     else:
         raise NotImplementedError('have not support other archs except arm and mips')
+    support_cpu_priv = None
     for support_cpu in support_list:
+        if support_cpu.find('@') != -1:
+            support_cpu_priv = support_cpu.split('@')[1]
+            support_cpu = support_cpu.split('@')[0]
         if cpu.find(support_cpu) != -1:
             logger.info('\033[32mQEMU {} supports {}\033[0m'.format(support_cpu, cpu))
             firmware.cpu = support_cpu
+            if support_cpu_priv is not None:
+                firmware.cpu_priv = support_cpu_priv
+                logger.info('\033[32mQEMU also supports {}\033[0m'.format(support_cpu_priv))
             break
 
 
@@ -122,4 +129,5 @@ def check_qemu_support_for_cpu(firmware):
 
 
 def make_cpu(firmware):
-    pass
+    if firmware.cpu is None:
+        return

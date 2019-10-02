@@ -56,3 +56,4 @@ class Firmware(object):
         self.openwrt_revision = None
         self.src = None
         self.cpu = None
+        self.cpu_priv = None
