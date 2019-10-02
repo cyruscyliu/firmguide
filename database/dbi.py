@@ -47,6 +47,7 @@ class Firmware(object):
             'compatible': [],
             'model': [],
             'cpu': [],
+            'soc': [],
         }
         self.brand = kwargs.pop('brand', None)
         self.most_possible_target = None

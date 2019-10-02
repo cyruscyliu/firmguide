@@ -40,9 +40,14 @@ def by_toh(firmware):
     pid = firmware.openwrt[0]
     openwrt = get_database('openwrt')
     result = openwrt.select('*', pid=pid, row=True)
-    cpu = result[pid][openwrt.header_last_selected.index('cpu')]
-    firmware.metadata['cpu'].append({'value': cpu, 'confidence': 1})
-    logger.info('\033[32mget the cpu model: {}, confidence: {}\033[0m'.format(cpu, 1))
+    cpu = result[pid][openwrt.header_last_selected.index('packagearchitecture')]
+    if cpu != '':
+        firmware.metadata['cpu'].append({'value': cpu, 'confidence': 1})
+        logger.info('\033[32mget the cpu model: {}, confidence: {}\033[0m'.format(cpu, 1))
+    soc = result[pid][openwrt.header_last_selected.index('cpu')]
+    if soc != '':
+        firmware.metadata['soc'].append({'value': soc, 'confidence': 1})
+        logger.info('\033[32mget the soc: {}, confidence: {}\033[0m'.format(soc, 1))
     openwrt.table.close()
 
 
@@ -67,7 +72,18 @@ def get_cpu_model_info(firmware):
         func(firmware)
 
 
-def check_qemu_support_for_cpu(firmware):
+__check_qemu_support_for_cpu = []
+
+
+def register_check_qemu_support_for_cpu(func):
+    __check_qemu_support_for_cpu.append(func)
+
+
+def by_qemu_support_lists(firmware):
+    if firmware.cpu is not None:
+        return
+    if not len(firmware.metadata['cpu']):
+        return
     cpu = vote(firmware.metadata['cpu'], 'cpu')
     qemu = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'cpu.yaml')))
     if firmware.arch == 'arm':
@@ -81,8 +97,28 @@ def check_qemu_support_for_cpu(firmware):
             logger.info('\033[32mQEMU {} supports {}\033[0m'.format(support_cpu, cpu))
             firmware.cpu = support_cpu
             break
+
+
+def by_soc(firmware):
+    if firmware.cpu is not None:
+        return
+    soc = vote(firmware.metadata['soc'], 'soc')
+    socs = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'soc.yaml')))
+    if soc in socs:
+        support_cpu = socs[soc]['cpu']
+        logger.info('\033[32mQEMU {} supports {}\033[0m'.format(support_cpu, soc))
+        firmware.cpu = support_cpu
+
+
+register_check_qemu_support_for_cpu(by_qemu_support_lists)
+register_check_qemu_support_for_cpu(by_soc)
+
+
+def check_qemu_support_for_cpu(firmware):
+    for func in __check_qemu_support_for_cpu:
+        func(firmware)
     if firmware.cpu is None:
-        logger.info('\033[32mQEMU does not support {}\033[0m'.format(cpu))
+        logger.info('\033[32mQEMU does not support {}\033[0m'.format(firmware.metadata['cpu']))
 
 
 def make_cpu(firmware):
