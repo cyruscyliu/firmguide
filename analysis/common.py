@@ -1,4 +1,5 @@
 import os
+import re
 
 import yaml
 import logging
@@ -64,7 +65,7 @@ def search_most_possible_toh_record(firmware, strings, extent=None):
     if len(filterd_results) == 0:
         logger.info('nothing left')
         return
-    
+
     for line in table.__unicode__().split('\n'):
         logger.info(line)
 
@@ -130,12 +131,12 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
         for line in table.__unicode__().split('\n'):
             logger.info(line)
         logger.info('filter out candidates by empty supportedcurrentrel')
-        if len(filterd_results) == 1:
-            logger.info('only one left, choose it automatically')
-            firmware.most_possible_subtarget = filterd_results[0][openwrt.header_last_selected.index('subtarget')]
-            firmware.openwrt = filterd_results[0]
-            logger.info('\033[32mget the most possible subtarget {}\033[0m'.format(firmware.most_possible_subtarget))
-            return
+        # if len(filterd_results) == 1:
+        #     logger.info('only one left, choose it automatically')
+        #     firmware.most_possible_subtarget = filterd_results[0][openwrt.header_last_selected.index('subtarget')]
+        #     firmware.openwrt = filterd_results[0]
+        #     logger.info('\033[32mget the most possible subtarget {}\033[0m'.format(firmware.most_possible_subtarget))
+        #     return
 
         # use kernel version to infer supportedcurrentrel
         logger.info('filter out candidates by matching kernel version')
@@ -152,19 +153,27 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
             firmware.openwrt = filterd_results_2[0]
             logger.info('\033[32mget the most possible subtarget {}\033[0m'.format(firmware.most_possible_subtarget))
             return
-        # if firmware.most_possible_subtarget is None:
-        #     tries = 2
-        #     logger.info('please input the pid of what you choose: ')
-        #     while tries:
-        #         pid = input('please input the pid of what you choose: ')
-        #         result = openwrt.select('*', pid=pid, row=True)
-        #         if not len(result):
-        #             logger.info('one more time')
-        #             tries -= 1
-        #             continue
-        #         firmware.most_possible_subtarget = result[pid][openwrt.header_last_selected.index('subtarget')]
-        #         firmware.openwrt = result[pid]
-        #         break
+        if firmware.most_possible_subtarget is None:
+            tries = 2
+            logger.info('please input the pid of what you choose: ')
+            while tries:
+                pid = input()
+                result = openwrt.select('*', pid=pid, row=True)
+                if not len(result):
+                    logger.info('one more time')
+                    tries -= 1
+                    continue
+                firmware.most_possible_target = result[pid][openwrt.header_last_selected.index('target')]
+                logger.info('\033[32mcorrect the most possible target {}\033[0m'.format(firmware.most_possible_target))
+                firmware.most_possible_subtarget = result[pid][openwrt.header_last_selected.index('subtarget')]
+                logger.info(
+                    '\033[32mcorrect the most possible subtarget {}\033[0m'.format(firmware.most_possible_subtarget))
+                firmware.openwrt = result[pid]
+                table = PrettyTable(openwrt.header_last_selected)
+                table.add_row(firmware.openwrt)
+                for line in table.__unicode__().split('\n'):
+                    logger.info(line)
+                return
     most_possible = None
     max_count = 0
     for k, v in subtarget_searched.items():
@@ -218,3 +227,18 @@ def search_most_possible_target(firmware, strings, extent=None):
     logger.info('\033[32mget the most possible target {}\033[0m'.format(most_possible))
     firmware.most_possible_target = most_possible
     openwrt.table.close()
+
+
+def search_most_possible_kernel_version(firmware, strings):
+    for string in strings:
+        string = string.strip()
+        if len(string) < 20:
+            continue
+        if not string.startswith('Linux'):
+            continue
+        r = re.search(r'[lL]inux version ([1-5]+\.\d+\.\d+).*', string)
+        if r is not None:
+            kernel_version = r.groups()[0]
+            firmware.metadata['kernel_version'].append({'value': kernel_version, 'confidence': 1})
+            logger.info(
+                '\033[32mget the kernel version: {}, confidence: {}\033[0m'.format(kernel_version, 1))

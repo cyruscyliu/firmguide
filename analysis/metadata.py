@@ -13,7 +13,7 @@ import logging
 import yaml
 
 from analysis.common import search_most_possible_subtarget, search_most_possible_target, \
-    search_most_possible_toh_record, vote
+    search_most_possible_toh_record, vote, search_most_possible_kernel_version
 
 logger = logging.getLogger()
 
@@ -39,7 +39,7 @@ def by_file(firmware):
         info = os.popen('file -b {}'.format(firmware.image_path))
         metadata = info.readline().strip()
         items = metadata.split(', ')
-        kernel_version = re.search(r'Linux-\d+.\d+.\d+', items[1]).group()
+        kernel_version = re.search(r'Linux-(\d+\.\d+\.\d+)', items[1]).groups()[0]
         _os = items[2].split('/')[0]
         arch = items[2].split('/')[1]
         kernel_created_time = time.strptime(items[5], "%a %b %d %H:%M:%S %Y")
@@ -125,11 +125,12 @@ def fit_parser(dumpimage_lines):
 def description_parser(firmware, description):
     if description.find('OpenWrt') != -1:
         firmware.metadata['brand'].append({'value': 'OpenWrt', 'confidence': 1})
-    kernel_version = re.search(r'Linux-\d+.\d+.\d+', description)
+    kernel_version = re.search(r'Linux-(\d+\.\d+\.\d+)', description)
     if kernel_version:
-        firmware.metadata['kernel_version'].append({'value': kernel_version.group(), 'confidence': 1})
+        kernel_version = kernel_version.groups()[0]
+        firmware.metadata['kernel_version'].append({'value': kernel_version, 'confidence': 1})
         logger.info(
-            '\033[32mget the kernel version: {}, confidence: {}\033[0m'.format(kernel_version.group(), 1))
+            '\033[32mget the kernel version: {}, confidence: {}\033[0m'.format(kernel_version, 1))
 
 
 def by_dumpimage(firmware):
@@ -196,12 +197,14 @@ def by_dumpimage(firmware):
 
 
 def by_kernel_version(firmware):
+    if not len(firmware.metadata['kernel_version']):
+        return
     logger.info('get metadata by kernel version')
     with open(os.path.join(os.getcwd(), 'database', 'openwrt.yaml')) as f:
         openwrt_release_info = yaml.safe_load(f)
-    # vote for the kernel version, all should be of Linux-x.x.x format.
+    # vote for the kernel version, all should be of x.x.x format.
     kernel_version = vote(firmware.metadata['kernel_version'], 'kernel version')
-    simple_kernel_version = kernel_version.split('-')[1]
+    simple_kernel_version = kernel_version
     openwrt_revision = None
     for revision, info in openwrt_release_info.items():
         if info['kernel'] == simple_kernel_version:
@@ -254,9 +257,12 @@ def by_strings(firmware):
                 candidates.append(zimage)
     strings = []
     for candidate in candidates:
-        info = os.popen('strings {} -n 2 | grep -E "^[a-zA-Z]+[a-zA-Z0-9_-]{{1,20}}$"'.format(candidate))
+        info = os.popen('strings {} -n 2 | grep -E "^[a-zA-Z]+[a-zA-Z0-9_-]{{1,20}}"'.format(candidate))
         strings += info.readlines()
 
+    if firmware.openwrt_revision is None:
+        search_most_possible_kernel_version(firmware, strings)
+        by_kernel_version(firmware)
     search_most_possible_target(firmware, strings)
     search_most_possible_subtarget(firmware, strings)
 
