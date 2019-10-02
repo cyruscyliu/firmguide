@@ -13,3 +13,8 @@ class TestByDeviceTree(TestCase):
         self.assertListEqual(['plxtech,nas7820', 'plxtech,nas782x'], compatible.data)
         model = dtc.get_property('model', '/')
         self.assertListEqual(['Shuttle KD20'], model.data)
+        cpus = dtc.get_node('/cpus')
+        for cpu in cpus.nodes:
+            self.assertListEqual(
+                ['arm,arm11mpcore'],
+                dtc.get_property('compatible', '/cpus/{}'.format(cpu.name)).data)

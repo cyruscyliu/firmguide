@@ -45,10 +45,15 @@ class Firmware(object):
             'possible_targets': [],
             'possible_subtargets': [],
             'compatible': [],
-            'model': []
+            'model': [],
+            'cpu': [],
+            'soc': [],
         }
         self.brand = kwargs.pop('brand', None)
         self.most_possible_target = None
         self.most_possible_subtarget = None
         self.openwrt = None
         self.openwrt_revision = None
+        self.src = None
+        self.cpu = None
+        self.cpu_priv = None

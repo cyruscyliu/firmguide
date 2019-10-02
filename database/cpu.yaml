@@ -1,0 +1,68 @@
+# cpus that QEMU 4.0.0 supports
+# get the list by
+#   qemu-system-arm -M versatilepb -cpu help
+#   qemu-system-mips64 -M magnum -cpu help
+arm:
+  - arm926
+  - arm946
+  - arm1026
+  - arm1136
+  - arm1136-r2
+  - arm1176
+  - arm11mpcore@arm11mpcore-priv
+  - cortex-m0
+  - cortex-m3
+  - cortex-m33
+  - cortex-m4
+  - cortex-a7
+  - cortex-a8
+  - cortex-a9@arm-a9mp-priv
+  - cortex-a15@arm-a15mp-priv
+  - cortex-r5
+  - cortex-r5f
+  - ti925t
+  - pxa250
+  - pxa255
+  - pxa260
+  - pxa261
+  - pxa262
+  - pxa270-a0
+  - pxa270-a1
+  - pxa270
+  - pxa270-b0
+  - pxa270-b1
+  - pxa270-c0
+  - pxa270-c5
+  - sa1100
+  - sa1110
+  - max
+mips:
+  - 4Kc
+  - 4Km
+  - 4KEcR1
+  - 4KEmR1
+  - 4KEc
+  - 4KEm
+  - 24Kc
+  - 24KEc
+  - 24Kf
+  - 34Kf
+  - 74Kf
+  - M14K
+  - M14Kc
+  - P5600
+  - mips32r6-generic
+  - I7200
+  - R4000
+  - VR5432
+  - 5Kc
+  - 5Kf
+  - 20Kc
+  - mips64r2-generic
+  - 5KEc
+  - 5KEf
+  - I6400
+  - I6500
+  - Loongson-2E
+  - Loongson-2F
+  - mips64dspr2
