@@ -1,14 +1,14 @@
-From 64b7f696b72876bc48089cec037ff675b2244f3c Mon Sep 17 00:00:00 2001
+From 1499f9333a08b78f15e56d8076f2b1c527b4cd49 Mon Sep 17 00:00:00 2001
 From: cyrus <cyruscyliu@gmail.com>
-Date: Wed, 18 Sep 2019 13:00:23 +0800
+Date: Tue, 1 Oct 2019 22:43:16 +0800
 Subject: [PATCH] patch binwalk-2.1.1
 
 ---
  src/binwalk/core/magic.py        | 326 ++++++++++++++++++++++++---------------
- src/binwalk/magic/firmware       |  58 +++++--
+ src/binwalk/magic/firmware       |  75 ++++++---
  src/binwalk/modules/extractor.py |  13 +-
  src/binwalk/modules/general.py   |  44 +++---
- 4 files changed, 273 insertions(+), 168 deletions(-)
+ 4 files changed, 283 insertions(+), 175 deletions(-)
 
 diff --git a/src/binwalk/core/magic.py b/src/binwalk/core/magic.py
 index 0c398a4..a7a0757 100644
@@ -721,7 +721,7 @@ index 0c398a4..a7a0757 100644
          self.signatures.sort(key=lambda x: x.confidence, reverse=True)
 -
 diff --git a/src/binwalk/magic/firmware b/src/binwalk/magic/firmware
-index 53fc9cc..b0c5f55 100644
+index 53fc9cc..3d57a0a 100644
 --- a/src/binwalk/magic/firmware
 +++ b/src/binwalk/magic/firmware
 @@ -4,13 +4,14 @@
@@ -741,10 +741,11 @@ index 53fc9cc..b0c5f55 100644
  >28    byte      0              OS: {invalid}invalid OS,
  >28    byte      1              OS: OpenBSD,
  >28    byte      2              OS: NetBSD,
-@@ -52,19 +53,19 @@
+@@ -51,20 +52,20 @@
+ >29    byte      16             CPU: Blackfin,
  >29    byte      17             CPU: AVR,
  >29    byte      18             CPU: STMicroelectronics ST200,
- #>30    byte    x        image type: %d,
+-#>30    byte    x        image type: %d,
 ->30    byte      0              image type: {invalid} Image,
 ->30    byte      1              image type: Standalone Program,
 ->30    byte      2              image type: OS Kernel Image,
@@ -758,6 +759,7 @@ index 53fc9cc..b0c5f55 100644
 ->31    byte      1              compression type: gzip,
 ->31    byte      2              compression type: bzip2,
 ->31    byte      3              compression type: lzma,
++#>30   byte      x              image type: %d,
 +>30    byte      0              # image type: {invalid} Image,
 +>30    byte      1              # image type: Standalone Program,
 +>30    byte      2              # image type: OS Kernel Image,
@@ -774,10 +776,41 @@ index 53fc9cc..b0c5f55 100644
  >32    string    x              image name: "%s"
  
  #IMG0 header, found in VxWorks-based Mercury router firmware
-@@ -699,4 +700,31 @@
+@@ -91,20 +92,24 @@
+ # trx image file
+ 0       string        HDR0    TRX firmware header, little endian,
+ >4      lelong        <1      {invalid}
+->4      ulelong       x       image size: %d bytes,
+->8      ulelong       x       CRC32: 0x%X,
+->12     uleshort      x       flags: 0x%X,
++#>4     ulelong       x       image size: %d bytes,
++#>8     ulelong       x       CRC32: 0x%X,
++#>12    uleshort      x       flags: 0x%X,
+ >14     uleshort      !1
+ >>14    uleshort      !2      {invalid}
+ >14     uleshort      2       version: %d, header size: 32 bytes,
+ >>16    ulelong       x       loader offset: 0x%X,
+ >>20    ulelong       x       linux kernel offset: 0x%X,
++>>20    ulelong       x       {stub0:%d}
+ >>24    ulelong       x       rootfs offset: 0x%X,
+->>28    ulelong       x       bin-header offset: 0x%X
++>>24    ulelong       x       {stub1:%d}
++#>>28   ulelong       x       bin-header offset: 0x%X
+ >14     uleshort      1       version: %d, header size: 28 bytes,
+->>16    ulelong       x       loader offset: 0x%X,
++#>>16   ulelong       x       loader offset: 0x%X,
+ >>20    ulelong       x       linux kernel offset: 0x%X,
++>>20    ulelong       x       {stub0:%d}
+ >>24    ulelong       x       rootfs offset: 0x%X
++>>24    ulelong       x       {stub1:%d}
+ 
+ 14      string        U2ND      BIN-Header,
+ >4      ulelong       !0        {invalid}
+@@ -699,4 +704,30 @@
  >20   ulelong    x             \b, ramdisk addr: 0x%X
  >48   string     x             \b, product name: "%s"
  
+-
 +# flattened image tree
 +0                   ubelong   0xd00dfeed  flattened image tree, # fit_header
 +>4                  ubelong   x           total size: %d bytes,
@@ -805,7 +838,6 @@ index 53fc9cc..b0c5f55 100644
 +>>(8.L)+24+8        ubelong   x           # offset to name,
 +>>(12.L)+(>.L)      string    x           %s:
 +>>(8.L)+24+12       string    x           {string}%s
- 
 diff --git a/src/binwalk/modules/extractor.py b/src/binwalk/modules/extractor.py
 index 16c6f00..51e829a 100644
 --- a/src/binwalk/modules/extractor.py

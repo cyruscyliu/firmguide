@@ -28,7 +28,7 @@ def get_source_code(firmware):
     else:
         brand = firmware.brand
 
-    if brand == 'OpenWrt':
+    if brand == 'openwrt':
         logger.info('get source code by openwrt table of hardware')
         if firmware.openwrt is None:
             if firmware.most_possible_target is None or firmware.most_possible_subtarget is None:

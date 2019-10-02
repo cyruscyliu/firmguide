@@ -7,6 +7,7 @@ However, Binwalk is not enough for our analysis. We want Binwalk to support the 
 
 + extract legacy uImage directly
 + extract FIT uImage directly
++ extract TRX image directly
 
 ## install
 see project [README.md](../README.md).

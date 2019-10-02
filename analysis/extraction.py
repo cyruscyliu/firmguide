@@ -33,6 +33,15 @@ def by_binwalk(firmware):
                 firmware.image_type = 'legacy uImage'
                 firmware.image_path = module.extractor.output[result.file.path].carved[result.offset]
                 count += 1
+            elif str(result.description).find('TRX') != -1:
+                logger.info(
+                    '\033[32mTRX image found\033[0m, offset {}, {}'.format(result.offset, result.description)
+                )
+                firmware.image_type = 'trx kernel'
+                # because *.trx will be overwrote by *.7z, we replace 7z with trx here
+                firmware.image_path = module.extractor.output[result.file.path].carved[result.offset].replace('7z',
+                                                                                                              'trx')
+                count += 1
             else:
                 logger.debug("\t%s    0x%.8X    %s [%s]" % (
                     result.file.name, result.offset, result.description, str(result.valid)))
@@ -70,12 +79,28 @@ def by_uboot_tools(firmware):
         return
 
 
+def by_lzma_tools(firmware):
+    if firmware.image_type not in ['trx kernel']:
+        return
+    if firmware.image_path is None:
+        return
+    logger.info('extract kernel and dtb by lzma')
+
+    if firmware.image_type == 'trx kernel':
+        kernel = firmware.image_path.replace('trx', 'kernel')
+        os.system('lzma -d < {} > {} 2>/dev/null'.format(firmware.image_path, kernel))
+        logger.info('\033[32mget kernel image {} at {}\033[0m'.format(os.path.basename(kernel), kernel))
+        firmware.kernel = kernel
+        firmware.dtb = None
+
+
 def register_extract_kernel_and_dtb(func):
     __extract_kernel_and_dtb.append(func)
 
 
 register_extract_kernel_and_dtb(by_binwalk)
 register_extract_kernel_and_dtb(by_uboot_tools)
+register_extract_kernel_and_dtb(by_lzma_tools)
 
 
 def extract_kernel_and_dtb(firmware):
