@@ -76,10 +76,6 @@ def get_cpu_model_info(firmware):
 __check_qemu_support_for_cpu = []
 
 
-def register_check_qemu_support_for_cpu(func):
-    __check_qemu_support_for_cpu.append(func)
-
-
 def by_qemu_support_lists(firmware):
     if firmware.cpu is not None:
         return
@@ -116,6 +112,10 @@ def by_soc(firmware):
         support_cpu = socs[soc]['cpu']
         logger.info('\033[32mQEMU {} supports {}\033[0m'.format(support_cpu, soc))
         firmware.cpu = support_cpu
+
+
+def register_check_qemu_support_for_cpu(func):
+    __check_qemu_support_for_cpu.append(func)
 
 
 register_check_qemu_support_for_cpu(by_qemu_support_lists)

@@ -1,0 +1,9 @@
+nor:
+  - pflash_cfi01
+  - pflash_cfi02
+  - m25p80
+nand:
+  - tc58128
+  - onenand
+  - km29u128at
+  - kmf2808u0a

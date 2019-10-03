@@ -6,6 +6,7 @@ import tempfile
 import logging.config
 
 from analysis.cpu import get_cpu_model_info, check_qemu_support_for_cpu, make_cpu
+from analysis.flash import get_flash_info, make_flash, check_qemu_support_for_flash
 from analysis.metadata import get_metadata
 from analysis.extraction import extract_kernel_and_dtb, get_kernel_and_dtb
 from analysis.ram import get_ram_info, make_ram
@@ -82,6 +83,7 @@ def run(args):
         if not args.s9:
             continue
         get_flash_info(firmware)
+        check_qemu_support_for_flash(firmware)
         make_flash(firmware)
 
 
@@ -94,6 +96,7 @@ if __name__ == '__main__':
     parser.add_argument('-s2', action='store_true', help='s2: extract kernel, dtb if any')
     parser.add_argument('-s5', action='store_true', help='s5: get all info for cpu')
     parser.add_argument('-s7', action='store_true', help='s7: get all info for ram')
+    parser.add_argument('-s9', action='store_true', help='s9: get all info for flash')
     args = parser.parse_args()
     if args.debug:
         setup_logging(default_level=logging.DEBUG)
