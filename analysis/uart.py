@@ -60,4 +60,19 @@ def get_uart_info(firmware):
 
 
 def check_qemu_support_for_uart(firmware):
-    pass
+    if firmware.uart_model is None:
+        return
+    qemu = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'uart.yaml')))
+    for k, v in qemu.items():
+        if v is None:
+            continue
+        conditions = v['condition_or']
+        __flag = 0
+        for key in conditions:
+            if firmware.uart_model.find(key) != -1:
+                logger.info('\033[32mQEMU {} supports {}\033[0m'.format(k, firmware.uart_model))
+                __flag = 1
+                firmware.uart_model = k
+                break
+        if __flag:
+            break
