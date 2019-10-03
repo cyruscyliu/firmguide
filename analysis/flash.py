@@ -16,7 +16,7 @@ __get_flash_info = []
 def by_device_tree(firmware):
     if firmware.dtb is None:
         return
-    logger.info('get flash infor by device tree')
+    logger.info('get flash info by device tree')
     flash_type, flash_path = None, None
     for path, nodes, props in firmware.dtc.walk():
         if path.find('partition') != -1:
@@ -85,7 +85,7 @@ def by_qemu_support_list(firmware):
         return
     qemu = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'flash.yaml')))
     support_list = qemu[firmware.flash]
-    
+
 
 def reigster_check_qemu_support_for_flash(func):
     __check_qemu_support_for_flash.append(func)

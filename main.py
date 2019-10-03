@@ -11,6 +11,7 @@ from analysis.metadata import get_metadata
 from analysis.extraction import extract_kernel_and_dtb, get_kernel_and_dtb
 from analysis.ram import get_ram_info, make_ram
 from analysis.srcode import get_source_code
+from analysis.uart import get_uart_info, check_qemu_support_for_uart
 from database.dbf import get_database
 
 progress = 0
@@ -71,20 +72,21 @@ def run(args):
         if not args.s2:
             continue
         get_kernel_and_dtb(firmware)
-        if not args.s5:
+        if not args.s3:
             continue
         get_cpu_model_info(firmware)
         check_qemu_support_for_cpu(firmware)
-        make_cpu(firmware)
-        if not args.s7:
+        if not args.s6:
             continue
         get_ram_info(firmware)
-        make_ram(firmware)
-        if not args.s9:
+        if not args.s7:
             continue
         get_flash_info(firmware)
         check_qemu_support_for_flash(firmware)
-        make_flash(firmware)
+        if not args.s9:
+            continue
+        get_uart_info(firmware)
+        check_qemu_support_for_uart(firmware)
 
 
 if __name__ == '__main__':
@@ -94,9 +96,10 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--debug', action='store_true', help='show verbose logs')
     parser.add_argument('-s1', action='store_true', help='s1: get metadata and source code')
     parser.add_argument('-s2', action='store_true', help='s2: extract kernel, dtb if any')
-    parser.add_argument('-s5', action='store_true', help='s5: get all info for cpu')
-    parser.add_argument('-s7', action='store_true', help='s7: get all info for ram')
-    parser.add_argument('-s9', action='store_true', help='s9: get all info for flash')
+    parser.add_argument('-s3', action='store_true', help='s3: get all info for cpu')
+    parser.add_argument('-s6', action='store_true', help='s6: get all info for ram')
+    parser.add_argument('-s7', action='store_true', help='s7: get all info for flash')
+    parser.add_argument('-s9', action='store_true', help='s9: get all info for uart')
     args = parser.parse_args()
     if args.debug:
         setup_logging(default_level=logging.DEBUG)

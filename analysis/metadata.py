@@ -250,6 +250,16 @@ def by_strings(firmware):
     if firmware.openwrt is not None:
         return
     logger.info('get metadata by strings')
+    strings = get_strings(firmware)
+    if firmware.openwrt_revision is None:
+        search_most_possible_kernel_version(firmware, strings)
+        by_kernel_version(firmware)
+    search_most_possible_target(firmware, strings)
+    search_most_possible_subtarget(firmware, strings)
+
+
+def get_strings(firmware):
+    strings = []
     working_dir = os.path.dirname(firmware.kernel)
     candidates = [firmware.kernel]
     for file_ in os.listdir(working_dir):
@@ -257,16 +267,10 @@ def by_strings(firmware):
             zimage = os.path.join(working_dir, file_[:-3])
             if os.path.exists(zimage):
                 candidates.append(zimage)
-    strings = []
     for candidate in candidates:
         info = os.popen('strings {} -n 2 | grep -E "^[a-zA-Z]+[a-zA-Z0-9_-]{{1,20}}"'.format(candidate))
         strings += info.readlines()
-
-    if firmware.openwrt_revision is None:
-        search_most_possible_kernel_version(firmware, strings)
-        by_kernel_version(firmware)
-    search_most_possible_target(firmware, strings)
-    search_most_possible_subtarget(firmware, strings)
+    return strings
 
 
 def register_get_metadata(func):
