@@ -79,6 +79,10 @@ def run(args):
             continue
         get_ram_info(firmware)
         make_ram(firmware)
+        if not args.s9:
+            continue
+        get_flash_info(firmware)
+        make_flash(firmware)
 
 
 if __name__ == '__main__':

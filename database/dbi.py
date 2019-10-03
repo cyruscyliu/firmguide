@@ -59,3 +59,4 @@ class Firmware(object):
         self.cpu_priv = None
         self.ram_start = None
         self.ram_size = None
+        self.flash = None
