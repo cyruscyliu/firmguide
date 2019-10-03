@@ -7,6 +7,7 @@ import logging.config
 
 from analysis.cpu import get_cpu_model_info, check_qemu_support_for_cpu, make_cpu
 from analysis.flash import get_flash_info, make_flash, check_qemu_support_for_flash
+from analysis.ic import get_ic_info, check_qemu_support_for_ic
 from analysis.metadata import get_metadata
 from analysis.extraction import extract_kernel_and_dtb, get_kernel_and_dtb
 from analysis.ram import get_ram_info, make_ram
@@ -87,6 +88,10 @@ def run(args):
             continue
         get_uart_info(firmware)
         check_qemu_support_for_uart(firmware)
+        if not args.s11:
+            continue
+        get_ic_info(firmware)
+        check_qemu_support_for_ic(firmware)
 
 
 if __name__ == '__main__':
@@ -100,6 +105,7 @@ if __name__ == '__main__':
     parser.add_argument('-s6', action='store_true', help='s6: get all info for ram')
     parser.add_argument('-s7', action='store_true', help='s7: get all info for flash')
     parser.add_argument('-s9', action='store_true', help='s9: get all info for uart')
+    parser.add_argument('-s11', action='store_true', help='s11: get all info for ic')
     args = parser.parse_args()
     if args.debug:
         setup_logging(default_level=logging.DEBUG)

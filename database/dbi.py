@@ -62,3 +62,4 @@ class Firmware(object):
         self.flash = None
         self.flash_model = None
         self.uart_model = None
+        self.ic_model = None
