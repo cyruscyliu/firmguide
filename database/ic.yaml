@@ -1,0 +1,18 @@
+"Allwinner A10 PIC":
+"etraxfs,pic":
+"Heathrow PIC":
+"APIC":
+"ARM GIC":
+"MIPS GIC":
+"8259":
+"ARM NVIC":
+"ASPEED VIC":
+"BCM286X IC":
+"exynos4210 GIC":
+"ARM RealView":
+"GRLIB IRQMP":
+"i.MX31 VIC":
+"i.MX7 GPCv2":
+"QEMU Generic Interrupt Controller":
+"Xilinx I/O Module Interrupt Controller":
+"Xilinx IPI Inter Processor Interrupt block":

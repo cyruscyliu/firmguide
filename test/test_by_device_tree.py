@@ -29,4 +29,5 @@ class TestByDeviceTree(TestCase):
                 else:
                     flash_type = 'nor'
                 flash_path = os.path.join(flash_node.path, flash_node.name)
+                break
         self.assertListEqual([0, 0], dtc.get_property('reg', '/memory').data)
