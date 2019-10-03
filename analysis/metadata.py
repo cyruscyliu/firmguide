@@ -52,7 +52,8 @@ def by_file(firmware):
         firmware.metadata['arch'].append({'value': arch, 'confidence': 1})
         logger.info('\033[32mget the architecture: {}, confidence: {}\033[0m'.format(arch, 1))
         firmware.metadata['kernel_created_time'].append({'value': kernel_created_time, 'confidence': 1})
-        firmware.metadata['kernel_load_address'].append({'value': kernel_load_address, 'confidence': 1})
+        loading_address = re.search(r'.*(0x[0-9a-fA-F]+).*', kernel_load_address).groups()[0]
+        firmware.metadata['kernel_load_address'].append({'value': loading_address, 'confidence': 1})
         firmware.metadata['kernel_entry_point'].append({'value': kernel_entry_point, 'confidence': 1})
 
 
@@ -191,7 +192,8 @@ def by_dumpimage(firmware):
                 firmware.metadata['arch'].append({'value': kernel_node['arch'], 'confidence': 1})
                 logger.info('\033[32mget the architecture: {}, confidence: {}\033[0m'.format(kernel_node['arch'], 1))
             if 'load address' in kernel_node:
-                firmware.metadata['kernel_load_address'].append({'value': kernel_node['load address'], 'confidence': 1})
+                loading_address = re.search(r'.*(0x[0-9a-fA-F]+).*', kernel_node['load address']).groups()[0]
+                firmware.metadata['kernel_load_address'].append({'value': loading_address, 'confidence': 1})
             if 'entry point' in kernel_node:
                 firmware.metadata['kernel_entry_point'].append({'value': kernel_node['entry point'], 'confidence': 1})
 

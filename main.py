@@ -8,6 +8,7 @@ import logging.config
 from analysis.cpu import get_cpu_model_info, check_qemu_support_for_cpu, make_cpu
 from analysis.metadata import get_metadata
 from analysis.extraction import extract_kernel_and_dtb, get_kernel_and_dtb
+from analysis.ram import get_ram_info, make_ram
 from analysis.srcode import get_source_code
 from database.dbf import get_database
 
@@ -74,9 +75,10 @@ def run(args):
         get_cpu_model_info(firmware)
         check_qemu_support_for_cpu(firmware)
         make_cpu(firmware)
-        if not args.s6:
+        if not args.s7:
             continue
-        # generate_cpu(firmware)
+        get_ram_info(firmware)
+        make_ram(firmware)
 
 
 if __name__ == '__main__':
@@ -87,7 +89,7 @@ if __name__ == '__main__':
     parser.add_argument('-s1', action='store_true', help='s1: get metadata and source code')
     parser.add_argument('-s2', action='store_true', help='s2: extract kernel, dtb if any')
     parser.add_argument('-s5', action='store_true', help='s5: get all info for cpu')
-    parser.add_argument('-s6', action='store_true', help='s6: implement cpu')
+    parser.add_argument('-s7', action='store_true', help='s7: get all info for ram')
     args = parser.parse_args()
     if args.debug:
         setup_logging(default_level=logging.DEBUG)

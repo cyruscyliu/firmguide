@@ -57,3 +57,5 @@ class Firmware(object):
         self.src = None
         self.cpu = None
         self.cpu_priv = None
+        self.ram_start = None
+        self.ram_size = None
