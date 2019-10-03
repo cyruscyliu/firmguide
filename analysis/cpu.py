@@ -37,6 +37,7 @@ def by_source_code(firmware):
 def by_toh(firmware):
     if firmware.openwrt is None:
         return
+    logger.info('get ram info by table of hardware')
     pid = firmware.openwrt[0]
     openwrt = get_database('openwrt')
     result = openwrt.select('*', pid=pid, row=True)

@@ -18,3 +18,4 @@ class TestByDeviceTree(TestCase):
             self.assertListEqual(
                 ['arm,arm11mpcore'],
                 dtc.get_property('compatible', '/cpus/{}'.format(cpu.name)).data)
+        self.assertListEqual([0, 0], dtc.get_property('reg', '/memory').data)
