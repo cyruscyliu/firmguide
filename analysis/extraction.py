@@ -8,6 +8,8 @@ import os
 import binwalk
 import logging
 
+from manager import finish, finished
+
 logger = logging.getLogger()
 
 __extract_kernel_and_dtb = []
@@ -110,13 +112,7 @@ register_extract_kernel_and_dtb(by_lzma_tools)
 
 def extract_kernel_and_dtb(firmware):
     for func in __extract_kernel_and_dtb:
+        if finished(firmware, 'extract_kernel_and_dtb', func.__name__):
+            continue
         func(firmware)
-
-
-def get_kernel_and_dtb(firmware):
-    kernel = firmware.get('kernel')
-    if kernel is not None:
-        logger.info('\033[32mgot kernel image at {}\033[0m'.format(kernel))
-    dtb = firmware.get('dtb')
-    if dtb is not None:
-        logger.info('\033[32mgot device tree at {}\033[0m'.format(dtb))
+        finish(firmware, 'extract_kernel_and_dtb', func.__name__)

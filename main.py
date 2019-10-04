@@ -1,18 +1,20 @@
 import argparse
 import os
+import tempfile
+
 import yaml
 import logging.config
 
-from analysis.common import copy_to_tmp
-from analysis.cpu import get_cpu_model_info, check_qemu_support_for_cpu
-from analysis.flash import get_flash_info, check_qemu_support_for_flash
-from analysis.ic import get_ic_info, check_qemu_support_for_ic
+from analysis.cpu import get_cpu_model_info
+from analysis.flash import get_flash_info
+from analysis.ic import get_ic_info
 from analysis.metadata import get_metadata
-from analysis.extraction import extract_kernel_and_dtb, get_kernel_and_dtb
+from analysis.extraction import extract_kernel_and_dtb
 from analysis.ram import get_ram_info
 from analysis.srcode import get_source_code
-from analysis.uart import get_uart_info, check_qemu_support_for_uart
+from analysis.uart import get_uart_info
 from database.dbf import get_database
+from manager import check_and_restore_analysis, save_analysis
 
 
 def setup_logging(default_path="logging.yaml", default_level=logging.INFO, env_key="LOG_CFG"):
@@ -39,41 +41,29 @@ def run(args):
 
     logger.info('there are {} firmware in the repo'.format(count))
     for firmware in dbi.get_firmware():
-        if not args.s1:
-            continue
-        copy_to_tmp(firmware)
+        # set the working directory but not actually create the dir or copy the file
+        if args.working_directory is None:
+            working_dir = tempfile.gettempdir()
+        else:
+            working_dir = os.path.realpath(args.working_directory)
+        target_dir = os.path.join(working_dir, firmware.uuid)
+        target_path = os.path.join(working_dir, firmware.uuid, firmware.name)
+        firmware.set_working_env(target_dir, target_path)
+        # create or restore the analysis progress of this firmware
+        # then, instrument every func with finished() and finish()
+        check_and_restore_analysis(firmware)
+
+        # let's start
         extract_kernel_and_dtb(firmware)
         get_metadata(firmware)
-        try:
-            get_source_code(firmware)
-        except ValueError as e:
-            logging.warning(e)
-            continue
-        if not args.s2:
-            continue
-        get_kernel_and_dtb(firmware)
-        if not args.s3:
-            continue
+        # get_source_code(firmware)
         get_cpu_model_info(firmware)
-        try:
-            check_qemu_support_for_cpu(firmware)
-        except NotImplementedError:
-            continue
-        if not args.s6:
-            continue
         get_ram_info(firmware)
-        if not args.s7:
-            continue
         get_flash_info(firmware)
-        check_qemu_support_for_flash(firmware)
-        if not args.s9:
-            continue
         get_uart_info(firmware)
-        check_qemu_support_for_uart(firmware)
-        if not args.s11:
-            continue
         get_ic_info(firmware)
-        check_qemu_support_for_ic(firmware)
+        save_analysis(firmware)
+        exit(-1)
 
 
 if __name__ == '__main__':
@@ -90,6 +80,9 @@ if __name__ == '__main__':
     parser.add_argument('-s11', action='store_true', help='s11: get all info for ic')
     parser.add_argument('-p', '--profile', choices=['simple', 'dt', 'ipxact'], default='simple',
                         help='assign the device profile standard')
+    parser.add_argument('-wd', '--working_directory',
+                        help='assign the working directory for getting metadata, '
+                             'save and store mechanism is on except by default /tmp or %%TEMP%%')
     args = parser.parse_args()
     if args.debug:
         setup_logging(default_level=logging.DEBUG)

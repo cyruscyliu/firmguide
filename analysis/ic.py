@@ -35,6 +35,8 @@ def by_strings(firmware):
         return
     logger.info('get ic info by strings')
     strings = get_strings(firmware)
+    if strings is None:
+        return None
     for string in strings:
         if string.find('ic') != -1:
             break

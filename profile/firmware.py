@@ -10,6 +10,7 @@ class Firmware(object):
         self.size = kwargs.pop('size')
         self.working_dir = None
         self.working_path = None
+        self.analysis_progress = None
 
     def set_working_env(self, dir, path):
         self.working_dir = dir

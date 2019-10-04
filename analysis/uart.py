@@ -6,6 +6,7 @@ import yaml
 import logging
 
 from analysis.metadata import get_strings
+from manager import finished, finish
 
 logger = logging.getLogger()
 
@@ -33,6 +34,8 @@ def by_strings(firmware):
         return
     logger.info('get uart info by strings')
     strings = get_strings(firmware)
+    if strings is None:
+        return None
     for string in strings:
         if string.find('uart') != -1:
             if string.find('8250') != -1:
@@ -55,7 +58,10 @@ register_get_uart_info(by_strings)
 
 def get_uart_info(firmware):
     for func in __get_uart_info:
+        if finished(firmware, 'get_uart_info', func.__name__):
+            continue
         func(firmware)
+        finish(firmware, 'get_uart_info', func.__name__)
 
 
 def check_qemu_support_for_uart(firmware):

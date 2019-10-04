@@ -7,6 +7,7 @@ import logging
 
 from analysis.common import vote
 from database.dbf import get_database
+from manager import finished, finish
 
 logger = logging.getLogger()
 
@@ -67,7 +68,10 @@ register_get_cpu_model_info(by_strings)
 
 def get_cpu_model_info(firmware):
     for func in __get_cpu_model_info:
+        if finished(firmware, 'get_cpu_model_info', func.__name__):
+            continue
         func(firmware)
+        finish(firmware, 'get_cpu_model_info', func.__name__)
 
 
 __check_qemu_support_for_cpu = []
@@ -118,4 +122,7 @@ register_check_qemu_support_for_cpu(by_soc)
 
 def check_qemu_support_for_cpu(firmware):
     for func in __check_qemu_support_for_cpu:
+        if finished(firmware, 'check_qemu_support_for_cpu', func.__name__):
+            continue
         func(firmware)
+        finish(firmware, 'check_qemu_support_for_cpu', func.__name__)

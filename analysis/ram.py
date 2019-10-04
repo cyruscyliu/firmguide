@@ -4,6 +4,7 @@ Handle RAM
 import logging
 
 from database.dbf import get_database
+from manager import finished, finish
 
 logger = logging.getLogger()
 
@@ -56,7 +57,7 @@ def by_loading_address(firmware):
 
 
 def by_default(firmware):
-    if firmware.ram('get', 'size') is not None:
+    if firmware.get('ram', 'size') is not None:
         return
     logger.info('set ram info by default')
     firmware.set('ram', 'start', value=0, confidence=1)
@@ -75,4 +76,7 @@ register_get_ram_info(by_default)
 
 def get_ram_info(firmware):
     for func in __get_ram_info:
+        if finished(firmware, 'get_ram_info', func.__name__):
+            continue
         func(firmware)
+        finish(firmware, 'get_ram_info', func.__name__)

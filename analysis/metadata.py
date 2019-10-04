@@ -14,6 +14,7 @@ import yaml
 
 from analysis.common import search_most_possible_subtarget, search_most_possible_target, \
     search_most_possible_toh_record, search_most_possible_kernel_version, fit_parser, description_parser, get_candidates
+from manager import finished, finish
 
 logger = logging.getLogger()
 
@@ -211,4 +212,7 @@ register_get_metadata(by_strings)
 
 def get_metadata(firmware):
     for func in __get_metadata:
+        if finished(firmware, 'get_metadata', func.__name__):
+            continue
         func(firmware)
+        finish(firmware, 'get_metadata', func.__name__)

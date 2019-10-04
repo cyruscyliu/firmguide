@@ -7,6 +7,7 @@ import yaml
 import logging
 
 from database.dbf import get_database
+from manager import finished, finish
 
 logger = logging.getLogger()
 
@@ -75,7 +76,10 @@ register_get_flash_info(by_strings)
 
 def get_flash_info(firmware):
     for func in __get_flash_info:
+        if finished(firmware, 'get_flash_info', func.__name__):
+            continue
         func(firmware)
+        finish(firmware, 'get_flash_info', func.__name__)
 
 
 __check_qemu_support_for_flash = []
@@ -95,8 +99,7 @@ def reigster_check_qemu_support_for_flash(func):
 
 def check_qemu_support_for_flash(firmware):
     for func in __check_qemu_support_for_flash:
+        if finished(firmware, 'check_qemu_support_for_flash', func.__name__):
+            continue
         func(firmware)
-
-
-def make_flash(firmware):
-    pass
+        finish(firmware, 'check_qemu_support_for_flash', func.__name__)
