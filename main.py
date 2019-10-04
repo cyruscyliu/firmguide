@@ -30,7 +30,7 @@ def setup_logging(default_path="logging.yaml", default_level=logging.INFO, env_k
 def run(args):
     if args.dbt is None:
         raise ValueError('no database available')
-    dbi = get_database(args.dbt)
+    dbi = get_database(args.dbt, profile=args.profile)
     count = dbi.get_count()
     if not count:
         return ValueError('no firmware available')
@@ -88,6 +88,8 @@ if __name__ == '__main__':
     parser.add_argument('-s7', action='store_true', help='s7: get all info for flash')
     parser.add_argument('-s9', action='store_true', help='s9: get all info for uart')
     parser.add_argument('-s11', action='store_true', help='s11: get all info for ic')
+    parser.add_argument('-p', '--profile', choices=['simple', 'dt', 'ipxact'], default='simple',
+                        help='assign the device profile standard')
     args = parser.parse_args()
     if args.debug:
         setup_logging(default_level=logging.DEBUG)

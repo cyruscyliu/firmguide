@@ -52,6 +52,7 @@ class DatabaseText(Database, DatabaseInterface):
         self.records = []
         self.count = None
         self.header = None
+        self.profile = kwargs.pop('profile')
 
         if not self.lazy_loading:
             self.load()
@@ -68,7 +69,10 @@ class DatabaseText(Database, DatabaseInterface):
                 name = os.path.basename(items[self.header.index('path')])
                 path = items[self.header.index('path')]
                 size = os.path.getsize(path)
-                firmware = SimpleFirmware(uuid=uuid, name=name, path=path, size=size)
+                if self.profile == 'simple':
+                    firmware = SimpleFirmware(uuid=uuid, name=name, path=path, size=size)
+                else:
+                    raise NotImplementedError
 
                 brand = items[self.header.index('brand')]
                 arch = items[self.header.index('arch')]

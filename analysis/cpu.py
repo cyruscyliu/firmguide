@@ -51,8 +51,7 @@ def by_toh(firmware):
 
 
 def by_strings(firmware):
-    if firmware.src is not None:
-        return
+    pass
 
 
 def register_get_cpu_model_info(func):
