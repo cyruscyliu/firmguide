@@ -5,8 +5,6 @@ import os
 import yaml
 import logging
 
-from analysis.common import vote
-
 logger = logging.getLogger()
 
 __process_source_code = []
@@ -22,28 +20,24 @@ def process_source_code(firmware):
 
 
 def get_source_code(firmware):
-    # vote for the brand
-    if firmware.brand is None:
-        brand = vote(firmware.metadata['brand'], 'brand')
-    else:
-        brand = firmware.brand
-
+    brand = firmware.get('brand')
     if brand == 'openwrt':
         logger.info('get source code by openwrt table of hardware')
-        if firmware.openwrt is None:
-            if firmware.most_possible_target is None or firmware.most_possible_subtarget is None:
+        if firmware.get('toh') is None:
+            if firmware.get('target') is None or \
+                    firmware.get('subtarget') is None:
                 raise ValueError('incomplete information for finding source code')
         with open(os.path.join(os.getcwd(), 'database', 'openwrt.yaml')) as f:
             openwrt_release_info = yaml.safe_load(f)
         try:
-            url = openwrt_release_info[firmware.openwrt_revision]['url']
+            url = openwrt_release_info[firmware.get('revision')]['url']
         except KeyError:
-            logger.info('no available url for this version {}'.format(firmware.openwrt_revision))
+            logger.info('no available url for this version {}'.format(firmware.get('revision')))
             return
         possible_package = os.path.join(
             url,
-            firmware.most_possible_target,  # target
-            firmware.most_possible_subtarget,  # subtarget
+            firmware.get('target'),  # target
+            firmware.get('subtarget'),  # subtarget
         )
         logger.info(
             '\033[32mdownload page found for OpenWrt project {}\033[0m'.format(possible_package))

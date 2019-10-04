@@ -3,6 +3,7 @@ import csv
 import os
 
 from database.dbi import DatabaseInterface, Firmware
+from profile.simple import SimpleFirmware
 
 
 class Database(metaclass=abc.ABCMeta):
@@ -57,22 +58,25 @@ class DatabaseText(Database, DatabaseInterface):
 
     def load(self):
         # format for a record
-        # uuid, relative path, brand, architecture, endian
         with open(self.path) as f:
             for line in f:
                 items = line.strip().split()
                 if self.header is None:
                     self.header = items
                     continue
-                record = {
-                    'uuid': items[self.header.index('uuid')],
-                    'name': os.path.basename(items[self.header.index('path')]),
-                    'path': items[self.header.index('path')],
-                    'brand': items[self.header.index('brand')],
-                    'arch': items[self.header.index('arch')],
-                    'endian': items[self.header.index('endian')],
-                }
-                self.records.append(Firmware(**record))
+                uuid = items[self.header.index('uuid')]
+                name = os.path.basename(items[self.header.index('path')])
+                path = items[self.header.index('path')]
+                size = os.path.getsize(path)
+                firmware = SimpleFirmware(uuid=uuid, name=name, path=path, size=size)
+
+                brand = items[self.header.index('brand')]
+                arch = items[self.header.index('arch')]
+                endian = items[self.header.index('endian')]
+                firmware.set('brand', value=brand)
+                firmware.set('arch', value=arch)
+                firmware.set('endian', value=endian)
+                self.records.append(firmware)
         self.count = self.records.__len__()
 
 

@@ -1,10 +1,12 @@
 import os
 import re
+import shutil
+import tempfile
+import time
 
 import yaml
 import logging
 from prettytable import PrettyTable
-
 from database.dbf import get_database
 
 logger = logging.getLogger()
@@ -71,17 +73,18 @@ def search_most_possible_toh_record(firmware, strings, extent=None):
 
     # use kernel version to infer supportedcurrentrel
     logger.info('filter out candidates by matching kernel version')
-    if firmware.openwrt_revision is None:
+    if firmware.get('revision') is None:
         return
     filterd_results_2 = []
     for v in filterd_results:
-        if firmware.openwrt_revision == v[openwrt.header_last_selected.index('supportedcurrentrel')]:
+        if firmware.get('revision') == v[openwrt.header_last_selected.index('supportedcurrentrel')]:
             filterd_results_2.append(v)
     if len(filterd_results_2) == 1:
         logger.info('only one left, choose it automatically')
-        firmware.openwrt = filterd_results[0]
-        firmware.most_possible_target = filterd_results[0][openwrt.header_last_selected.index('target')]
-        firmware.most_possible_subtarget = filterd_results[0][openwrt.header_last_selected.index('subtarget')]
+        firmware.set('toh', value=filterd_results[0])
+        firmware.set('target', value=filterd_results[0][openwrt.header_last_selected.index('target')], confidence=1)
+        firmware.set('subtarget', value=filterd_results[0][openwrt.header_last_selected.index('subtarget')],
+                     confidence=1)
         logger.info('\033[32mget the most possible target {}\033[0m'.format(firmware.most_possible_target))
         logger.info('\033[32mget the most possible subtarget {}\033[0m'.format(firmware.most_possible_subtarget))
         return
@@ -91,13 +94,13 @@ def search_most_possible_toh_record(firmware, strings, extent=None):
 
 
 def search_most_possible_subtarget(firmware, strings, extent=None):
-    if firmware.most_possible_target is None:
+    if firmware.get('target') is None:
         return
 
     if extent is None:
         extent = ['subtarget']
     openwrt = get_database('openwrt')
-    results = openwrt.select(*extent, deduplicated=True, target=firmware.most_possible_target)
+    results = openwrt.select(*extent, deduplicated=True, target=firmware.get('target'))
     subtargets = []
     for ext in extent:
         subtargets += results[openwrt.header.index(ext)]
@@ -120,7 +123,7 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
         sum_of_occurrence += v['count']
     if not sum_of_occurrence:
         logger.info('get nothing, however here are some options')
-        results = openwrt.select('*', target=firmware.most_possible_target, row=True)
+        results = openwrt.select('*', target=firmware.get('target'), row=True)
         table = PrettyTable(openwrt.header_last_selected)
         filterd_results = []
         for k, v in results.items():
@@ -140,17 +143,17 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
 
         # use kernel version to infer supportedcurrentrel
         logger.info('filter out candidates by matching kernel version')
-        if firmware.openwrt_revision is None:
+        if firmware.get('revision') is None:
             return
 
         filterd_results_2 = []
         for v in filterd_results:
-            if firmware.openwrt_revision == v[openwrt.header_last_selected.index('supportedcurrentrel')]:
+            if firmware.get('revsion') == v[openwrt.header_last_selected.index('supportedcurrentrel')]:
                 filterd_results_2.append(v)
         if len(filterd_results_2) == 1:
             logger.info('only one left, choose it for you automatically')
-            firmware.most_possible_subtarget = filterd_results_2[0][openwrt.header_last_selected.index('subtarget')]
-            firmware.openwrt = filterd_results_2[0]
+            firmware.set('subtarget', value=filterd_results_2[0][openwrt.header_last_selected.index('subtarget')])
+            firmware.set('toh', value=filterd_results_2[0])
             logger.info('\033[32mget the most possible subtarget {}\033[0m'.format(firmware.most_possible_subtarget))
             return
         if firmware.most_possible_subtarget is None:
@@ -163,14 +166,14 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
                     logger.info('one more time')
                     tries -= 1
                     continue
-                firmware.most_possible_target = result[pid][openwrt.header_last_selected.index('target')]
+                firmware.set('target', value=result[pid][openwrt.header_last_selected.index('target')])
                 logger.info('\033[32mcorrect the most possible target {}\033[0m'.format(firmware.most_possible_target))
-                firmware.most_possible_subtarget = result[pid][openwrt.header_last_selected.index('subtarget')]
+                firmware.set('subtarget', value=result[pid][openwrt.header_last_selected.index('subtarget')])
                 logger.info(
                     '\033[32mcorrect the most possible subtarget {}\033[0m'.format(firmware.most_possible_subtarget))
-                firmware.openwrt = result[pid]
+                firmware.set('toh', value=result[pid])
                 table = PrettyTable(openwrt.header_last_selected)
-                table.add_row(firmware.openwrt)
+                table.add_row(firmware.get('toh'))
                 for line in table.__unicode__().split('\n'):
                     logger.info(line)
                 return
@@ -183,9 +186,9 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
         if count > max_count:
             most_possible = k
             max_count = count
-        firmware.metadata['possible_subtargets'].append({'value': k, 'confidence': confidence})
+        firmware.set('subtarget', value=k, confidence=confidence)
     logger.info('\033[32mget the most possible subtarget {}\033[0m'.format(most_possible))
-    firmware.most_possible_subtarget = most_possible
+    firmware.set('subtarget', value=most_possible, confidence=1)
     openwrt.table.close()
 
 
@@ -223,9 +226,9 @@ def search_most_possible_target(firmware, strings, extent=None):
         if count > max_count:
             most_possible = k
             max_count = count
-        firmware.metadata['possible_targets'].append({'value': k, 'confidence': confidence})
+        firmware.set('target', value=k, confidence=confidence)
     logger.info('\033[32mget the most possible target {}\033[0m'.format(most_possible))
-    firmware.most_possible_target = most_possible
+    firmware.set('target', value=most_possible, confidence=1)
     openwrt.table.close()
 
 
@@ -239,6 +242,115 @@ def search_most_possible_kernel_version(firmware, strings):
         r = re.search(r'[lL]inux version ([1-5]+\.\d+\.\d+).*', string)
         if r is not None:
             kernel_version = r.groups()[0]
-            firmware.metadata['kernel_version'].append({'value': kernel_version, 'confidence': 1})
-            logger.info(
-                '\033[32mget the kernel version: {}, confidence: {}\033[0m'.format(kernel_version, 1))
+            firmware.set('kernel_version', value=kernel_version, confidence=1)
+
+
+progress = 0
+
+
+def copy_to_tmp(firmware):
+    global progress
+    full_path = os.path.join(os.getcwd(), firmware.path)
+    working_dir = tempfile.gettempdir()
+    target_dir = os.path.join(working_dir, firmware.uuid)
+    if not os.path.exists(target_dir):
+        os.mkdir(os.path.join(working_dir, firmware.uuid))
+    target_path = shutil.copy(full_path, target_dir)
+    firmware.set_working_env(target_dir, target_path)
+    logger.info('[{}] firmware {} at {}'.format(progress, firmware.uuid, target_path))
+    progress += 1
+
+
+def fit_parser(dumpimage_lines):
+    fit = {
+        'properties': {
+            'timestamp': None
+        }, 'images': {
+        }, 'configurations': {
+            'default configuration': None,
+        }
+    }
+    level = 0
+    image_node = ''
+    conf_node = ''
+    config = False
+    for line in dumpimage_lines:
+        if not len(line):
+            continue
+        if line.startswith('  '):
+            level = 2
+        elif line.startswith(' '):
+            level = 1
+        else:
+            pass
+        items = line.strip().split(': ')
+        if level == 0 and line.startswith('FIT description'):
+            fit['properties']['description'] = items[1].strip()
+        elif level == 0 and line.startswith('Created'):
+            fit['properties']['timestamp'] = time.strptime(items[1].strip(), "%a %b %d %H:%M:%S %Y")
+        elif level == 1 and line.startswith(' Image'):
+            assert len(items) == 1
+            image_node = line.strip().split('(')[1].split(')')[0]
+            if image_node not in fit['images']:
+                fit['images'][image_node] = {'properties': {}, 'hash': {}}
+        elif level == 2 and line.startswith('  Description'):
+            fit['images'][image_node]['properties']['description'] = items[1].strip()
+        elif level == 2 and line.startswith('  Created'):
+            fit['images'][image_node]['properties']['timestamp'] = \
+                time.strptime(items[1].strip(), "%a %b %d %H:%M:%S %Y")
+        elif level == 2 and line.startswith('  Type'):
+            fit['images'][image_node]['properties']['type'] = items[1].strip()
+        elif level == 2 and line.startswith('  Compression'):
+            fit['images'][image_node]['properties']['compression'] = items[1].strip()
+        elif level == 2 and line.startswith('  Architecture'):
+            fit['images'][image_node]['properties']['arch'] = items[1].strip()
+        elif level == 2 and line.startswith('  OS'):
+            fit['images'][image_node]['properties']['os'] = items[1].strip()
+        elif level == 2 and line.startswith('  Load Address'):
+            fit['images'][image_node]['properties']['load address'] = items[1].strip()
+        elif level == 2 and line.startswith('  entry point'):
+            fit['images'][image_node]['properties']['entry point'] = items[1].strip()
+        elif level == 1 and line.startswith(' Default Configuration'):
+            fit['configurations']['default configuration'] = items[1].strip('\'')
+        elif level == 1 and line.startswith(' Configuration'):
+            assert len(items) == 1
+            conf_node = line.strip().split('(')[1].split(')')[0]
+            if conf_node not in fit['configurations']:
+                fit['configurations'][conf_node] = {}
+            config = True
+        elif level == 2 and config and line.startswith('  Kernel'):
+            fit['configurations'][conf_node]['kernel'] = items[1].strip()
+        elif level == 2 and config and line.startswith('  FDT'):
+            fit['configurations'][conf_node]['fdt'] = items[1].strip()
+        else:
+            logging.debug('not support line {}'.format(dumpimage_lines))
+    return fit
+
+
+def description_parser(firmware, description):
+    if description.find('OpenWrt') != -1:
+        firmware.set('brand', value='openwrt', confidence=1)
+    kernel_version = re.search(r'Linux-(\d+\.\d+\.\d+)', description)
+    if kernel_version:
+        kernel_version = kernel_version.groups()[0]
+        firmware.set('kernel_version', value=kernel_version, confidence=1)
+
+
+def get_candidates(firmware):
+    """
+    We can find useful strings in uncompressed binary.
+
+    :param firmware: the firmware.
+    :return: [paths/to/candidates] or None
+    """
+    kernel = firmware.get('kernel')
+    if kernel is None:
+        return None
+    working_dir = os.path.dirname(kernel)
+    candidates = [kernel]
+    for file_ in os.listdir(working_dir):
+        if file_.endswith('7z') or file_.endswith('xz'):
+            zimage = os.path.join(working_dir, file_[:-3])
+            if os.path.exists(zimage):
+                candidates.append(zimage)
+    return candidates

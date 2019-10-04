@@ -14,13 +14,15 @@ __get_flash_info = []
 
 
 def by_device_tree(firmware):
-    if firmware.dtb is None:
+    dtb = firmware.get('dtb')
+    if dtb is None:
         return
     logger.info('get flash info by device tree')
+    dtc = firmware.get('dtc')
     flash_type, flash_path = None, None
-    for path, nodes, props in firmware.dtc.walk():
+    for path, nodes, props in dtc.walk():
         if path.find('partition') != -1:
-            node = firmware.dtc.get_node(path)
+            node = dtc.get_node(path)
             flash_node = node.parent
             if flash_node.name.find('nand') != -1:
                 flash_type = 'nand'
@@ -28,30 +30,29 @@ def by_device_tree(firmware):
                 flash_type = 'nor'
             flash_path = os.path.join(flash_node.path, flash_node.name)
     if flash_path is not None:
-        flash_compatible = firmware.dtc.get_property('compatible', flash_path).data[0]
-        logger.info('\033[32mget the flash type: {}\033[0m'.format(flash_type))
-        logger.info('\033[32mget the flash model: {}\033[0m'.format(flash_compatible))
-        firmware.flash = flash_type
-        firmware.flash_model = flash_compatible
+        flash_compatible = dtc.get_property('compatible', flash_path).data[0]
+        firmware.set('flash', key='type', value=flash_type, confidence=1)
+        firmware.set('flash', key='model', value=flash_compatible, confidence=1)
 
 
 def by_toh(firmware):
-    if firmware.openwrt is None:
+    toh = firmware.get('toh')
+    if toh is None:
         return
-    if firmware.flash is not None:
+    flash = firmware.get('flash', key='type')
+    if flash is not None:
         return
     logger.info('get ram info by table of hardware')
-    pid = firmware.openwrt[0]
+    pid = toh[0]
     openwrt = get_database('openwrt')
     result = openwrt.select(*['pid', 'flashmb'], pid=pid, row=True)
     flash = result[pid][openwrt.header_last_selected.index('flashmb')]
     if flash != '' and flash != '?':
         # microSD, NAND, CF card, microSDXC, SDHC, eMMC
         if flash.find('NAND') != -1:
-            firmware.flash = 'nand'
+            firmware.set('flash', key='type', value='nand', confidence=1)
         else:
-            firmware.flash = 'nor'
-        logger.info('\033[32mget the flash type: {}\033[0m'.format(firmware.flash))
+            firmware.set('flash', key='type', value='nor', confidence=1)
 
 
 def by_source_code(firmware):
@@ -81,10 +82,11 @@ __check_qemu_support_for_flash = []
 
 
 def by_qemu_support_list(firmware):
-    if firmware.flash is None:
+    flash_type = firmware.get('flash', key='type')
+    if flash_type is None:
         return
     qemu = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'flash.yaml')))
-    support_list = qemu[firmware.flash]
+    support_list = qemu[flash_type]
 
 
 def reigster_check_qemu_support_for_flash(func):

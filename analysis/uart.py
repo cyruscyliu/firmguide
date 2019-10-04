@@ -13,34 +13,33 @@ __get_uart_info = []
 
 
 def by_device_tree(firmware):
-    if firmware.dtb is None:
+    dtc = firmware.get('dtc')
+    if dtc is None:
         return
     logger.info('get uart info by device tree')
     uart_type, uart_path = None, None
-    for path, nodes, props in firmware.dtc.walk():
+    for path, nodes, props in dtc.walk():
         if path.find('uart@') != -1:
-            uart_node = firmware.dtc.get_node(path)
+            uart_node = dtc.get_node(path)
             uart_path = os.path.join(uart_node.path, uart_node.name)
     if uart_path is not None:
-        uart_compatible = firmware.dtc.get_property('compatible', uart_path).data[0]
-        logger.info('\033[32mget the uart model: {}\033[0m'.format(uart_compatible))
-        firmware.uart_model = uart_compatible
+        uart_compatible = dtc.get_property('compatible', uart_path).data[0]
+        firmware.set('uart', key='model', value=uart_compatible, confidence=1)
 
 
 def by_strings(firmware):
-    if firmware.uart_model is not None:
+    uart_model = firmware.get('uart', key='model')
+    if uart_model is not None:
         return
     logger.info('get uart info by strings')
     strings = get_strings(firmware)
     for string in strings:
         if string.find('uart') != -1:
             if string.find('8250') != -1:
-                firmware.uart_model = '8250'
-                logger.info('\033[32mget the uart model: {}\033[0m'.format('uart8250'))
+                firmware.set('uart', key='model', value='8250', confidence=1)
                 break
             elif string.find('16550') != -1:
-                firmware.uart_model = '16550'
-                logger.info('\033[32mget the uart model: {}\033[0m'.format('uart16550'))
+                firmware.set('uart', key='model', value='16550', confidence=1)
                 break
             else:
                 pass
@@ -60,7 +59,8 @@ def get_uart_info(firmware):
 
 
 def check_qemu_support_for_uart(firmware):
-    if firmware.uart_model is None:
+    uart_model = firmware.get('uart', key='model')
+    if uart_model is None:
         return
     qemu = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'uart.yaml')))
     for k, v in qemu.items():
@@ -69,10 +69,9 @@ def check_qemu_support_for_uart(firmware):
         conditions = v['condition_or']
         __flag = 0
         for key in conditions:
-            if firmware.uart_model.find(key) != -1:
-                logger.info('\033[32mQEMU {} supports {}\033[0m'.format(k, firmware.uart_model))
+            if uart_model.find(key) != -1:
                 __flag = 1
-                firmware.uart_model = k
+                firmware.set('uart', key='qemu', value=k, confidence=1)
                 break
         if __flag:
             break

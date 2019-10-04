@@ -1,21 +1,18 @@
 import argparse
 import os
 import yaml
-import shutil
-import tempfile
 import logging.config
 
-from analysis.cpu import get_cpu_model_info, check_qemu_support_for_cpu, make_cpu
-from analysis.flash import get_flash_info, make_flash, check_qemu_support_for_flash
+from analysis.common import copy_to_tmp
+from analysis.cpu import get_cpu_model_info, check_qemu_support_for_cpu
+from analysis.flash import get_flash_info, check_qemu_support_for_flash
 from analysis.ic import get_ic_info, check_qemu_support_for_ic
 from analysis.metadata import get_metadata
 from analysis.extraction import extract_kernel_and_dtb, get_kernel_and_dtb
-from analysis.ram import get_ram_info, make_ram
+from analysis.ram import get_ram_info
 from analysis.srcode import get_source_code
 from analysis.uart import get_uart_info, check_qemu_support_for_uart
 from database.dbf import get_database
-
-progress = 0
 
 
 def setup_logging(default_path="logging.yaml", default_level=logging.INFO, env_key="LOG_CFG"):
@@ -28,24 +25,6 @@ def setup_logging(default_path="logging.yaml", default_level=logging.INFO, env_k
             logging.config.dictConfig(yaml.safe_load(f))
     else:
         logging.basicConfig(level=default_level)
-
-
-def copy_to_tmp(firmware):
-    global progress
-    if firmware.relative:
-        full_path = os.path.join(firmware.storage, firmware.path)
-    else:
-        full_path = firmware.path
-    working_dir = tempfile.gettempdir()
-    target_dir = os.path.join(working_dir, firmware.uuid)
-    if not os.path.exists(target_dir):
-        os.mkdir(os.path.join(working_dir, firmware.uuid))
-    target_full_path = shutil.copy(full_path, target_dir)
-    firmware.working_dir = target_dir
-    firmware.working_path = target_full_path
-    firmware.size = os.path.getsize(firmware.working_path)
-    logger.info('[{}] firmware {} at {}'.format(progress, firmware.uuid, target_full_path))
-    progress += 1
 
 
 def run(args):
@@ -76,7 +55,10 @@ def run(args):
         if not args.s3:
             continue
         get_cpu_model_info(firmware)
-        check_qemu_support_for_cpu(firmware)
+        try:
+            check_qemu_support_for_cpu(firmware)
+        except NotImplementedError:
+            continue
         if not args.s6:
             continue
         get_ram_info(firmware)
