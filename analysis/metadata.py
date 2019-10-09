@@ -13,16 +13,19 @@ import logging
 import yaml
 
 from analysis.common import search_most_possible_subtarget, search_most_possible_target, \
-    search_most_possible_toh_record, search_most_possible_kernel_version, fit_parser, description_parser, get_candidates
+    search_most_possible_toh_record, search_most_possible_kernel_version, fit_parser, description_parser, \
+    get_strings
 from manager import finished, finish
 
 logger = logging.getLogger()
+TASK_DESCRIPTION = 'we are firstly getting critical metadata as much as possible'
 
 __get_metadata = []
 
 
 def by_file(firmware):
-    image_type = firmware.get('image_type')
+    LOG_SUFFIX = '[FILE]'
+    image_type = firmware.get_format()
     if image_type == 'legacy uImage':
         """ 
         file uImage: delimiter=', '
@@ -37,7 +40,6 @@ def by_file(firmware):
             [8] Header CRC: 0xCC8FC8A7,
             [9] Data CRC: 0x90F6B42F
         """
-        logger.info('get metadata by file')
         info = os.popen('file -b {}'.format(firmware.image_path))
         metadata = info.readline().strip()
         items = metadata.split(', ')
@@ -45,20 +47,21 @@ def by_file(firmware):
         _os = items[2].split('/')[0]
         arch = items[2].split('/')[1]
         kernel_created_time = time.strptime(items[5], "%a %b %d %H:%M:%S %Y")
-        kernel_load_address = items[6]
+        kernel_load_address = re.search(r'.*(0x[0-9a-fA-F]+).*', items[6]).groups()[0]
         kernel_entry_point = items[7]
 
-        firmware.set('kernel_version', value=kernel_version, confidence=1)
-        firmware.set('os', value=_os, confidence=1)
-        firmware.set('arch', value=arch, confidence=1)
-        firmware.set('kernel_created_time', value=kernel_created_time, confidence=1)
-        loading_address = re.search(r'.*(0x[0-9a-fA-F]+).*', kernel_load_address).groups()[0]
-        firmware.set('kernel_load_address', value=loading_address, confidence=1)
-        firmware.set('kernel_entry_point', value=kernel_entry_point, confidence=1)
+        firmware.set_kernel_version(kernel_version)
+        logger.info('\033[32mget the kernel version: {}\033[0m {}'.format(kernel_version, LOG_SUFFIX))
+        firmware.set_kernel_created_time(kernel_created_time)
+        logger.info('\033[32mget the kernel created time: {}\033[0m {}'.format(kernel_created_time, LOG_SUFFIX))
+        firmware.set_kernel_load_address(kernel_load_address)
+        firmware.set_kernel_entry_point(kernel_entry_point)
 
 
 def by_dumpimage(firmware):
-    image_type = firmware.get('image_type')
+    image_type = firmware.get_format()
+    image_path = firmware.get_path_to_image()
+    LOG_SUFFIX = '[DUMPIMAGE]'
     if image_type == 'fit uImage':
         """
         FIT description: ARM OpenWrt FIT (Flattened Image Tree)
@@ -94,43 +97,42 @@ def by_dumpimage(firmware):
           Kernel:       kernel@1
           FDT:          fdt@1
         """
-        logger.info('get metadata by file')
-        info = os.popen('dumpimage -l {}'.format(firmware.image_path))
+        info = os.popen('dumpimage -l {}'.format(image_path))
         fit = fit_parser(info.readlines())
         config = fit['configurations']['default configuration']
         if 'description' in fit['properties']:
             description = fit['properties']['description']
             description_parser(firmware, description)
-        firmware.metadata['created_time'].append({'value': fit['properties']['timestamp'], 'confidence': 1})
+        firmware.set_kernel_created_time(fit['properties']['timestamp'])
         if 'kernel' in fit['configurations'][config]:
             kernel_node = fit['images'][fit['configurations'][config]['kernel']]['properties']
             description = kernel_node['description']
             description_parser(firmware, description)
-            if 'os' in kernel_node:
-                firmware.set('os', value=kernel_node['os'], confidence=1)
-            if 'arch' in kernel_node:
-                firmware.set('arch', value=kernel_node['arch'], confidence=1)
+            # if 'os' in kernel_node:
+            #     firmware.set('os', value=kernel_node['os'], confidence=1)
+            # if 'arch' in kernel_node:
+            #     firmware.set('arch', value=kernel_node['arch'], confidence=1)
             if 'load address' in kernel_node:
                 loading_address = re.search(r'.*(0x[0-9a-fA-F]+).*', kernel_node['load address']).groups()[0]
-                firmware.set('kernel_load_address', value=loading_address, confidence=1)
+                firmware.set_kernel_load_address(loading_address)
             if 'entry point' in kernel_node:
-                firmware.set('kernel_entry_point', value=kernel_node['entry point'], confidence=1)
+                firmware.set_kernel_entry_point(kernel_node['entry point'])
 
 
 def by_kernel_version(firmware):
-    kernel_version = firmware.get('kernel_version')
+    kernel_version = firmware.get_kernel_version()
     if kernel_version is None:
         return
-    logger.info('get metadata by kernel version')
+    LOG_SUFFIX = '[KERNEL VERSION]'
     with open(os.path.join(os.getcwd(), 'database', 'openwrt.yaml')) as f:
         openwrt_release_info = yaml.safe_load(f)
     openwrt_revision = None
     for revision, info in openwrt_release_info.items():
         if info['kernel'] == kernel_version:
             openwrt_revision = str(revision)
-            logger.info('\033[32mOpenWrt {} {} found\033[0m'.format(
-                revision, openwrt_release_info[revision]['code name']))
-    firmware.set('revision', value=openwrt_revision, confidence=1)
+            logger.info('\033[32mOpenWrt {} {} found\033[0m {}'.format(
+                revision, openwrt_release_info[revision]['code name'], LOG_SUFFIX))
+    firmware.set_revision(openwrt_revision)
     if openwrt_revision is None:
         logger.info(
             'no available OpenWrt revision found for {}, '
@@ -138,21 +140,15 @@ def by_kernel_version(firmware):
 
 
 def by_device_tree(firmware):
-    dtb = firmware.get('dtb')
+    dtb = firmware.get_path_to_dtb()
     if dtb is None:
         return
-    logger.info('search possible target(s) by device tree')
-    # thanks to https://github.com/molejar/pyFDT, a flattened device tree parser in Python
     with open(dtb, 'rb') as f:
         dtb = f.read()
-    dtc = fdt.parse_dtb(dtb)
-    firmware.set('dtc', value=dtc)
-    compatibles = dtc.get_property('compatible', '/').data
-    # firmware.metadata['compatible'].append({'value': compatibles, 'confidence': 1})
-    # logger.info('\033[32mget the platform {}, confidence: {}\033[0m'.format(compatibles, 1))
-    models = dtc.get_property('model', '/').data
-    # firmware.metadata['model'].append({'value': compatible, 'confidence': 1})
-    # logger.info('\033[32mget the model {}, confidence: {}\033[0m'.format(model, 1))
+    dts = fdt.parse_dtb(dtb)
+    firmware.set_dts(dts)
+    compatibles = dts.get_property('compatible', '/').data
+    models = dts.get_property('model', '/').data
     strings = []
     for compatible in compatibles:
         strings += compatible.split(',')
@@ -168,35 +164,15 @@ def by_strings(firmware):
     :param firmware: the firmware.
     :return: None
     """
-    if firmware.get('toh') is not None:
-        return
-    logger.info('get metadata by strings')
+    LOG_SUFFIX = '[STRINGS]'
     strings = get_strings(firmware)
     if strings is None:
         return None
-    if firmware.get('revision') is None:
+    if firmware.get_revision() is None:
         search_most_possible_kernel_version(firmware, strings)
         by_kernel_version(firmware)
     search_most_possible_target(firmware, strings)
     search_most_possible_subtarget(firmware, strings)
-
-
-def get_strings(firmware):
-    """
-    We get strings from uncompressed binary.
-
-    :param firmware:
-    :return: [strings] or None
-    """
-    strings = []
-    # get candidate files which contain useful strings
-    candidates = get_candidates(firmware)
-    if candidates is None:
-        return None
-    for candidate in candidates:
-        info = os.popen('strings {} -n 2 | grep -E "^[a-zA-Z]+[a-zA-Z0-9_-]{{1,20}}"'.format(candidate))
-        strings += info.readlines()
-    return strings
 
 
 def register_get_metadata(func):
@@ -211,6 +187,7 @@ register_get_metadata(by_strings)
 
 
 def get_metadata(firmware):
+    logger.info(TASK_DESCRIPTION)
     for func in __get_metadata:
         if finished(firmware, 'get_metadata', func.__name__):
             continue

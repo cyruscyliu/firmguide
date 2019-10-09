@@ -1,12 +1,24 @@
 # Profile APIs
 
 ##### normal
-firmware.get('dtc')    
-firmware.set('dtc', value=value)    
 firmware.get('dtb')    
 firmware.set('dtb', value=value)    
+firmware.get('kernel')  
+firmware.set('kernel', value=value)  
+
+firmware.get('image_type')  
+firmware.set('image_type', value=image_type)  
+firmware.get('image_path')  
+firmware.set('image_path', value=image_path)  
+
 firmware.get('toh')    
 firmware.set('toh', value=value)    
+
+firmware.get('profile')
+firmware.set('profile')
+firmware.get('architecture')  
+firmware.set('architecture', value=value, confidence=1)  
+
 firmware.get('brand')  
 firmware.set('brand', value=value)  
 firmware.get('revision')  
@@ -15,28 +27,15 @@ firmware.get('target')
 firmware.set('target', value=value)  
 firmware.get('subtarget')  
 firmware.set('subtarget', value=value)  
+
 firmware.get('kernel_load_address')  
 firmware.set('kernel_load_address', value=value)  
 firmware.get('kernel_version')  
 firmware.set('kernel_version', value=value )  
-firmware.get('kernel')  
-firmware.set('kernel', value=value)  
-firmware.get('os')  
-firmware.set('os', value=value, confidence=1)  
-firmware.get('arch')  
-firmware.set('arch', value=value, confidence=1)  
 firmware.get('kernel_created_time')  
 firmware.set('kernel_created_time', value=value, confidence=1)  
 firmware.get('kernel_entry_point')  
 firmware.set('kernel_entry_point', value=value, confidence=1)  
-firmware.set('revision', value=openwrt_revision, confidence=1)  
-firmware.get('image_type')  
-firmware.set('image_type', value=image_type)  
-firmware.get('image_path')  
-firmware.set('image_path', value=image_path)  
-##### SOC
-firmware.get('soc', key='model')  
-firmware.set('soc', key='model', value=value, confidence=1)  
 ##### CPU
 firmware.get('cpu', key='model')  
 firmware.set('cpu', key='model', value=value, confidence=1)  
