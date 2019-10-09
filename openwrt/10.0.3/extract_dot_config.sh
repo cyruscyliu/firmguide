@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Inputs Variable
+# Global Variable Needs to be inited
 #
 
 PATCH_DIR=
@@ -29,6 +29,39 @@ SHARED_LINUX_CONFIG=
 
 error() {
     printf "ERROR: %s" $1 && exit 1
+}
+
+fake-prepare() {
+    # fake prepare for testing, take openwrt 10.03 & linux 2.6.32.10 as an exampe
+    rm -rf build && mkdir build
+    cp backfire_10.03_source.tar.bz2 linux-2.6.32.10.tar.xz OpenWrt.config build
+    cp -r patches build
+
+    cd build
+    tar xf backfire_10.03_source.tar.bz2 || error "unzip openwrt 10.03 error"
+    tar xf linux-2.6.32.10.tar.xz || error "unzip kernel 2.6.32.10 error"
+    cp OpenWrt.config backfire_10.03/.config
+
+    PATCH_DIR="`realpath ./patches`"
+    OPENWRT_DIR="`realpath ./backfire_10.03`"
+    KERNEL_DIR="`realpath ./linux-2.6.32.10`"
+    OPENWRT_CFG="${OPENWRT_DIR}/.config"
+    KERNEL_VER="2.6"
+    KERNEL_PATCHVER="2.6.32"
+    BOARD="orion"
+    SUBTARGET=""
+    SHARED_LINUX_CONFIG=""
+}
+
+prepare() {
+    # TODO: interface with outside, now we use a fake one to test
+    # seems at least we need to know:
+    # 1. openwrt.tar
+    # 2. kernel.tar
+    # 3. kernel detail version
+    # 4. board info
+    # 5. subtarget info
+    fake-prepare
 }
 
 gen_packageinfo() {
@@ -125,9 +158,9 @@ dot_config_generation() {
 
     if [ -z "${linux_subconfig}" ]
     then
-        ${kconfig} + ${generic_cfg} ${linux_config} > ${dir}/.config.target
+        ${kconfig} + ${generic_linux_config} ${linux_config} > ${dir}/.config.target
     else
-        ${kconfig} + ${generic_cfg} + ${linux_config} ${linux_subconfig} > ${dir}/.config.target
+        ${kconfig} + ${generic_linux_config} + ${linux_config} ${linux_subconfig} > ${dir}/.config.target
     fi
 
     set_cfg "CONFIG_KERNEL_KALLSYMS" \
@@ -222,15 +255,25 @@ dot_config_generation() {
     fi
 }
 
+postprocess() {
+    # TODO: output interface with outside
+    return
+}
+
 get_dot_config() {
-    # 1. unzip kernel
-    # TODO: interface with outside
+    # 1. prepare, like set variable & unzip kernel
+    # input interface with outside
+    prepare
 
     # 2. gen .packageinfo
     gen_packageinfo 
 
     # 3. .config generation flow
     dot_config_generation
+
+    # 4. post process, like copy & rename the ouput to target place
+    # output interface with outside
+    postprocess
 }
 
 main() {
