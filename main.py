@@ -1,6 +1,5 @@
 import argparse
 import os
-import tempfile
 
 import yaml
 import logging.config
@@ -11,10 +10,10 @@ from analysis.ic import get_ic_info
 from analysis.metadata import get_metadata
 from analysis.extraction import extract_kernel_and_dtb
 from analysis.ram import get_ram_info
-from analysis.srcode import get_source_code
+from analysis.timer import get_timer_info
 from analysis.uart import get_uart_info
 from database.dbf import get_database
-from manager import check_and_restore_analysis, save_analysis
+from manager import check_and_restore, save_analysis, setup
 
 
 def setup_logging(default_path="logging.yaml", default_level=logging.INFO, env_key="LOG_CFG"):
@@ -41,17 +40,8 @@ def run(args):
 
     logger.info('there are {} firmware in the repo'.format(count))
     for firmware in dbi.get_firmware():
-        # set the working directory but not actually create the dir or copy the file
-        if args.working_directory is None:
-            working_dir = tempfile.gettempdir()
-        else:
-            working_dir = os.path.realpath(args.working_directory)
-        target_dir = os.path.join(working_dir, firmware.uuid)
-        target_path = os.path.join(working_dir, firmware.uuid, firmware.name)
-        firmware.set_working_env(target_dir, target_path)
-        # create or restore the analysis progress of this firmware
-        # then, instrument every func with finished() and finish()
-        check_and_restore_analysis(firmware)
+        setup(args, firmware)
+        check_and_restore(firmware)
 
         # let's start
         extract_kernel_and_dtb(firmware)
@@ -60,11 +50,10 @@ def run(args):
         get_cpu_model_info(firmware)
         get_ram_info(firmware)
         get_flash_info(firmware)
-        save_analysis(firmware)
         get_uart_info(firmware)
-        exit(-1)
         get_ic_info(firmware)
-        # get_timer_info(firmware)
+        get_timer_info(firmware)
+        save_analysis(firmware)
 
 
 if __name__ == '__main__':

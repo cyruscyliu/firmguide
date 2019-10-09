@@ -98,3 +98,22 @@ def check_qemu_support_for_uart(firmware):
                 break
         if __flag:
             break
+
+
+def check_qemu_support_for_ic(firmware):
+    ic_model = firmware.get('ic', key='model')
+    if ic_model is None:
+        return
+    qemu = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'ic.yaml')))
+    for k, v in qemu.items():
+        if v is None:
+            continue
+        conditions = v['condition_or']
+        __flag = 0
+        for key in conditions:
+            if ic_model.find(key) != -1:
+                __flag = 1
+                firmware.set('ic', key='qemu', value=k, confidenc=1)
+                break
+        if __flag:
+            break

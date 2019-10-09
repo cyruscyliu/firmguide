@@ -8,6 +8,18 @@ import fdt
 
 class DTFirmware(Firmware):
 
+    def get_timer_model(self, *args, **kwargs):
+        pass
+
+    def set_timer_model(self, *args, **kwargs):
+        pass
+
+    def get_interrupt_controller_model(self, *args, **kwargs):
+        pass
+
+    def set_interrupt_controller_model(self, *args, **kwargs):
+        pass
+
     def get_uart_model(self, *args, **kwargs):
         pass
 
@@ -230,15 +242,6 @@ class DTFirmware(Firmware):
         factor = 1024
         ram.remove_property('reg')
         ram.append(fdt.PropWords('reg', int(ram_base) * factor, int(ram_size) * factor))
-
-    def get_interrupt_controller(self, *args, **kwargs):
-        pass
-
-    def set_interrupt_controller(self, *args, **kwargs):
-        pass
-
-    def get_uart(self, *args, **kwargs):
-        pass
 
     def __init__(self, *args, **kwargs):
         super(DTFirmware, self).__init__(*args, **kwargs)

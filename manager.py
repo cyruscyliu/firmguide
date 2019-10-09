@@ -1,4 +1,6 @@
 import os
+import tempfile
+
 import yaml
 import shutil
 import logging
@@ -6,7 +8,7 @@ import logging
 logger = logging.getLogger()
 
 
-def check_and_restore_analysis(firmware):
+def check_and_restore(firmware):
     """
     1. Check whether the wd exists or not, if not let first_time be true.
     2. For the first time,
@@ -64,3 +66,14 @@ def finish(firmware, task, func):
     if task not in firmware.analysis_progress:
         firmware.analysis_progress[task] = {}
     firmware.analysis_progress[task][func] = 1
+
+
+def setup(args, firmware):
+    # set the working directory but not actually create the dir or copy the file
+    if args.working_directory is None:
+        working_dir = tempfile.gettempdir()
+    else:
+        working_dir = os.path.realpath(args.working_directory)
+    target_dir = os.path.join(working_dir, firmware.uuid)
+    target_path = os.path.join(working_dir, firmware.uuid, firmware.name)
+    firmware.set_working_env(target_dir, target_path)

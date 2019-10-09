@@ -205,11 +205,11 @@ class Firmware(object):
         pass
 
     @abc.abstractmethod
-    def get_interrupt_controller(self, *args, **kwargs):
+    def get_interrupt_controller_model(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_interrupt_controller(self, *args, **kwargs):
+    def set_interrupt_controller_model(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -242,4 +242,12 @@ class Firmware(object):
 
     @abc.abstractmethod
     def set_uart_model(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_timer_model(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_timer_model(self, *args, **kwargs):
         pass
