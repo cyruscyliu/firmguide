@@ -213,11 +213,27 @@ class Firmware(object):
         pass
 
     @abc.abstractmethod
-    def get_flash(self, *args, **kwargs):
+    def get_flash_model(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_flash(self, *args, **kwargs):
+    def set_flash_model(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_flash_size(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_flash_size(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_flash_type(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_flash_type(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod

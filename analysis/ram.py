@@ -13,7 +13,7 @@ __get_ram_info = []
 
 
 def by_toh(firmware):
-    LOG_SUFFIX = '[Toh]'
+    LOG_SUFFIX = '[ToH]'
     [ram] = firmware.get_toh('rammb')
     if ram is not None and ram != '':
         firmware.set_ram(0, ram, unit='MiB')

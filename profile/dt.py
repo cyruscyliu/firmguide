@@ -8,6 +8,50 @@ import fdt
 
 class DTFirmware(Firmware):
 
+    def set_flash_type(self, *args, **kwargs):
+        model = args[0]
+        flash_node = self.profile.get_node('/', create=True)
+        flash_node.append(fdt.PropStrings('compatible', model))
+        pass
+
+    def get_flash_type(self, *args, **kwargs):
+        type = args[0]
+        path_to_flash = None
+        for path, nodes, props in self.profile.walk():
+            if path.find('nand@') != -1 and path.find('partition@') == -1:
+                path_to_flash = path
+        if path_to_flash is None:
+            path_to_flash = '/flash@0'
+        flash_node = self.profile.get_node(path_to_flash, create=True)
+        flash_node.append(fdt.PropStrings('type', type))
+
+    def get_flash_model(self, *args, **kwargs):
+        path_to_flash = None
+        for path, nodes, props in self.profile.walk():
+            if path.find('nand@') != -1 and path.find('partition@') == -1:
+                path_to_flash = path
+        flash_node = self.profile.get_node(path_to_flash)
+        assert flash_node is not None
+        model = flash_node.get_property('compatible').data[0]
+        return model
+
+    def set_flash_model(self, *args, **kwargs):
+        model = args[0]
+        path_to_flash = None
+        for path, nodes, props in self.profile.walk():
+            if path.find('nand@') != -1 and path.find('partition@') == -1:
+                path_to_flash = path
+        if path_to_flash is None:
+            path_to_flash = '/flash@0'
+        flash_node = self.profile.get_node(path_to_flash, create=True)
+        flash_node.append(fdt.PropStrings('compatible', model))
+
+    def get_flash_size(self, *args, **kwargs):
+        pass
+
+    def set_flash_size(self, *args, **kwargs):
+        pass
+
     def get_soc_model(self, *args, **kwargs):
         root_node = self.profile.get_node('/')
         assert root_node is not None
@@ -185,12 +229,6 @@ class DTFirmware(Firmware):
         pass
 
     def set_interrupt_controller(self, *args, **kwargs):
-        pass
-
-    def get_flash(self, *args, **kwargs):
-        pass
-
-    def set_flash(self, *args, **kwargs):
         pass
 
     def get_uart(self, *args, **kwargs):
