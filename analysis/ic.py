@@ -5,7 +5,7 @@ import os
 import yaml
 import logging
 
-from analysis.metadata import get_strings
+from analysis.common import get_strings
 
 logger = logging.getLogger()
 

@@ -60,10 +60,11 @@ def run(args):
         get_cpu_model_info(firmware)
         get_ram_info(firmware)
         get_flash_info(firmware)
-        get_uart_info(firmware)
-        get_ic_info(firmware)
         save_analysis(firmware)
+        get_uart_info(firmware)
         exit(-1)
+        get_ic_info(firmware)
+        # get_timer_info(firmware)
 
 
 if __name__ == '__main__':
@@ -71,14 +72,7 @@ if __name__ == '__main__':
     parser.add_argument('-dbt', required=True, choices=['text'], type=str,
                         help='assign the firmware db type')
     parser.add_argument('-d', '--debug', action='store_true', help='show verbose logs')
-    parser.add_argument('-s1', action='store_true', help='s1: get metadata and source code')
-    parser.add_argument('-s2', action='store_true', help='s2: extract kernel, dtb if any')
-    parser.add_argument('-s3', action='store_true', help='s3: get all info for cpu')
-    parser.add_argument('-s6', action='store_true', help='s6: get all info for ram')
-    parser.add_argument('-s7', action='store_true', help='s7: get all info for flash')
-    parser.add_argument('-s9', action='store_true', help='s9: get all info for uart')
-    parser.add_argument('-s11', action='store_true', help='s11: get all info for ic')
-    parser.add_argument('-p', '--profile', choices=['simple', 'dt', 'ipxact'], default='simple',
+    parser.add_argument('-p', '--profile', choices=['simple', 'dt', 'ipxact'], default='dt',
                         help='assign the device profile standard')
     parser.add_argument('-wd', '--working_directory',
                         help='assign the working directory for getting metadata, '

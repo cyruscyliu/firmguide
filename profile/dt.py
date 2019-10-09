@@ -8,6 +8,12 @@ import fdt
 
 class DTFirmware(Firmware):
 
+    def get_uart_model(self, *args, **kwargs):
+        pass
+
+    def set_uart_model(self, *args, **kwargs):
+        pass
+
     def set_flash_type(self, *args, **kwargs):
         model = args[0]
         flash_node = self.profile.get_node('/', create=True)

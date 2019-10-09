@@ -237,5 +237,9 @@ class Firmware(object):
         pass
 
     @abc.abstractmethod
-    def get_uart(self, *args, **kwargs):
+    def get_uart_model(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_uart_model(self, *args, **kwargs):
         pass
