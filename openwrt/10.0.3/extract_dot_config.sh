@@ -126,7 +126,7 @@ prepare() {
 
     [ "${subtarget}" != "NULL" ] && SUBTARGET="${subtarget}"
 
-    OUTPUT_FILE="realpath ${output_file}"
+    OUTPUT_FILE=`realpath ${output_file}`
 }
 
 gen_packageinfo() {
