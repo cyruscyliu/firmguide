@@ -107,15 +107,15 @@ prepare() {
 
     cd ${WORK_DIR}
 
-    wget ${openwrt_url} || error "could not download openwrt tar from '${openwrt_url}'"
+    wget --no-use-server-timestamps ${openwrt_url} || error "could not download openwrt tar from '${openwrt_url}'"
     ls -t | head -n 1 | xargs tar --touch -xf || error "could not unzip openwrt tar"
     OPENWRT_DIR="`ls -t | head -n 1 | xargs realpath`"
 
-    wget ${kernel_url} || error "could not download openwrt tar from '${kernel_url}'"
+    wget --no-use-server-timestamps ${kernel_url} || error "could not download openwrt tar from '${kernel_url}'"
     ls -t | head -n 1 | xargs tar --touch -xf || error "could not unzip kernel tar"
     KERNEL_DIR="`ls -t | head -n 1 | xargs realpath`"
 
-    wget ${openwrt_cfg_url} || error "could not download openwrt tar from '${openwrt_cfg_url}'"
+    wget --no-use-server-timestamps ${openwrt_cfg_url} || error "could not download openwrt tar from '${openwrt_cfg_url}'"
     OPENWRT_CFG="`ls -t | head -n 1 | xargs realpath`"
 
     KERNEL_VER=`echo ${kernel_version} | awk -F"." '{printf("%s.%s", $1, $2);}'`
