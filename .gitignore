@@ -1,6 +1,7 @@
 firmware
 trace
 build
+log
 .idea
 __pycache__
 *.extracted
