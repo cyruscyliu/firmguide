@@ -168,10 +168,18 @@ class DTFirmware(Firmware):
         cpu.append(fdt.PropStrings('device_type', 'cpu'))
 
     def get_ram(self, *args, **kwargs):
-        pass
+        ram = self.profile.get_node('/memory')
+        assert ram is not None
+        ram_base, ram_size = ram.get_property('reg').data
+        return ram_base, ram_size / 1024  # to MiB
 
     def set_ram(self, *args, **kwargs):
-        pass
+        ram_base, ram_size = args
+        unit = kwargs.pop('unit', 'MiB')
+        ram = self.profile.get_node('/memory', create=True)
+        factor = 1024
+        ram.remove_property('reg')
+        ram.append(fdt.PropWords('reg', int(ram_base) * factor, int(ram_size) * factor))
 
     def get_interrupt_controller(self, *args, **kwargs):
         pass

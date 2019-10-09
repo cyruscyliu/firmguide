@@ -124,7 +124,7 @@ class DatabaseOpenWrt(Database):
             if not len(columns):
                 if len(args) == 1 and args[0] == '*':
                     args = ['pid', 'devicetype', 'brand', 'model', 'supportedsincerel', 'supportedcurrentrel',
-                            'target', 'subtarget', 'packagearchitecture', 'bootloader', 'cpu']
+                            'target', 'subtarget', 'packagearchitecture', 'bootloader', 'cpu', 'flashmb', 'rammb']
                 for arg in args:
                     columns.append(self.header.index(arg))
                 self.header_last_selected = args
