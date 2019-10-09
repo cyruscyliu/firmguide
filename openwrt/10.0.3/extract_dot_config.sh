@@ -119,9 +119,13 @@ prepare() {
     OPENWRT_CFG="`ls -t | head -n 1 | xargs realpath`"
 
     KERNEL_VER=`echo ${kernel_version} | awk -F"." '{printf("%s.%s", $1, $2);}'`
+
     KERNEL_PATCHVER=`echo ${kernel_version} | awk -F"." '{printf("%s.%s.%s", $1, $2, $3);}'`
+
     BOARD="${board}"
-    SUBTARGET="${subtarget}"
+
+    [ "${subtarget}" != "NULL" ] && SUBTARGET="${subtarget}"
+
     OUTPUT_FILE="realpath ${output_file}"
 }
 
