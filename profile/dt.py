@@ -26,8 +26,11 @@ class DTFirmware(Firmware):
         brand_node = self.profile.get_node('/brand')
         assert brand_node is not None
         for property_ in args:
-            value = brand_node.get_property(property_).data[0]
-            toh.append(value)
+            value = brand_node.get_property(property_)
+            if value is None:
+                toh.append(value)
+            else:
+                toh.append(value.data[0])
         return toh
 
     def set_toh(self, *args, **kwargs):
@@ -75,6 +78,12 @@ class DTFirmware(Firmware):
         with open(path_to_profile, 'r') as f:
             profile = f.read()
         self.profile = fdt.parse_dts(profile)
+
+    def save_profile(self, *args, **kwargs):
+        working_dir = kwargs.pop('working_dir', None)
+        path_to_profile = os.path.join(working_dir, 'profile.dt')
+        with open(path_to_profile, 'w') as f:
+            f.write(self.profile.to_dts())
 
     def get_profile(self, *args, **kwargs):
         return self.profile
@@ -146,10 +155,17 @@ class DTFirmware(Firmware):
         kernel_node.append(fdt.PropStrings('kernel_entry_point', kernel_entry_point))
 
     def get_cpu_model(self, *args, **kwargs):
-        pass
+        cpus = self.profile.get_node('/cpus')
+        assert cpus is not None
+        for cpu in cpus.nodes:
+            return cpu.get_property('compatible').data[0]
 
     def set_cpu_model(self, *args, **kwargs):
-        pass
+        cpu_model = args[0]
+        cpu = self.profile.get_node('/cpus/cpu@0', create=True)
+        cpu.append(fdt.PropBytes('reg', 0x0))
+        cpu.append(fdt.PropStrings('compatible', cpu_model))
+        cpu.append(fdt.PropStrings('device_type', 'cpu'))
 
     def get_ram(self, *args, **kwargs):
         pass

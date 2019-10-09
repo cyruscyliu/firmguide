@@ -48,12 +48,13 @@ def save_analysis(firmware):
     analysis = os.path.join(firmware.working_dir, 'analysis')
     with open(analysis, 'w') as f:
         yaml.safe_dump(firmware.analysis_progress, f)
+    firmware.save_profile(working_dir=firmware.working_dir)
 
 
 def finished(firmware, task, func):
     try:
         status = firmware.analysis_progress[task][func]
-        logger.info('{}_{} done before'.format(task, func))
+        logger.info('\033[34m{}_{} done before\033[0m'.format(task, func))
         return True
     except KeyError:
         return False

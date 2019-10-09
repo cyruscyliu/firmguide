@@ -5,6 +5,4 @@ import abc
 
 
 class CodeGenerationInterface(object):
-    @abc.abstractmethod
-    def create(self):
-        pass
+    pass

@@ -3,6 +3,8 @@ import csv
 import os
 
 from database.dbi import DatabaseInterface, Firmware
+from profile.dt import DTFirmware
+from profile.ipxact import IPXACTFirmware
 from profile.simple import SimpleFirmware
 
 
@@ -71,15 +73,19 @@ class DatabaseText(Database, DatabaseInterface):
                 size = os.path.getsize(path)
                 if self.profile == 'simple':
                     firmware = SimpleFirmware(uuid=uuid, name=name, path=path, size=size)
+                elif self.profile == 'dt':
+                    firmware = DTFirmware(uuid=uuid, name=name, path=path, size=size)
+                elif self.profile == 'ipxact':
+                    firmware = IPXACTFirmware(uuid=uuid, name=name, path=path, size=size)
                 else:
                     raise NotImplementedError
 
                 brand = items[self.header.index('brand')]
                 arch = items[self.header.index('arch')]
                 endian = items[self.header.index('endian')]
-                firmware.set('brand', value=brand)
-                firmware.set('arch', value=arch)
-                firmware.set('endian', value=endian)
+                firmware.set_brand(brand)
+                firmware.set_architecture(arch)
+                firmware.set_endian(endian)
                 self.records.append(firmware)
         self.count = self.records.__len__()
 

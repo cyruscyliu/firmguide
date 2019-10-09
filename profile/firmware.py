@@ -88,6 +88,10 @@ class Firmware(object):
     def get_profile(self, *args, **kwargs):
         pass
 
+    @abc.abstractmethod
+    def save_profile(self, *args, **kwargs):
+        pass
+
     def get_brand(self, *args, **kwargs):
         return self.brand
 
