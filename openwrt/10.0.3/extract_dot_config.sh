@@ -1,12 +1,31 @@
 #!/bin/bash
 
+#
+# Inputs Variable
+#
+
 PATCH_DIR=
 OPENWRT_DIR=
 KERNEL_DIR=
+
 OPENWRT_CFG=
+
 KERNEL_VER=
 KERNEL_PATCHVER=
+
+# can come from openwrt .config
 BOARD=
+# SUBTARGET:=$(strip $(foreach subdir,$(patsubst $(PLATFORM_DIR)/%/target.mk,%,$(wildcard $(PLATFORM_DIR)/*/target.mk)),$(if $(CONFIG_TARGET_$(call target_conf,$(BOARD)_$(subdir))),$(subdir))))
+# target_conf=$(subst .,_,$(subst -,_,$(subst /,_,$(1))))
+SUBTARGET=
+
+# TODO: I don't know where this env comes from, maybe is set before the most outside make command of openwrt, now left it empty
+SHARED_LINUX_CONFIG=
+
+
+#
+# Function
+#
 
 error() {
     printf "ERROR: %s" $1 && exit 1
@@ -15,13 +34,7 @@ error() {
 gen_packageinfo() {
     cp ${PATCH_DIR}/include/toplevel.mk ${OPENWRT_DIR}/include
 
-    cd ${OPENWRT_DIR}
-    make esv-prepare-tmpinfo
-
-    if [ $? -ne 0 ]
-    then
-        error "make esv-prepare-tmpinfo failed"
-    fi
+    cd ${OPENWRT_DIR} && make esv-prepare-tmpinfo || error "make esv-prepare-tmpinfo failed"
 }
 
 has_cfg() {
@@ -37,39 +50,85 @@ set_cfg() {
     fi
 }
 
-get_generic_cfg() {
-    for f in "${OPENWRT_DIR}/target/linux/generic-${KERNEL_VER}/config-${KERNEL_PATCHVER}" \
-             "${OPENWRT_DIR}/target/linux/generic-${KERNEL_VER}/config-default" 
+get_generic_linux_config() {
+    local generic_platform_dir=
+
+    generic_platform_dir="${OPENWRT_DIR}/target/linux/generic-${KERNEL_VER}"
+
+    for f in "${generic_platform_dir}/config-${KERNEL_PATCHVER}" \
+             "${generic_platform_dir}/config-default" 
     do
-        [ -f "$f" ] && echo "$f" && return
+        [ -f "$f" ] && echo "$f" && return 0
     done
+
+    return 1
 }
 
-get_platform_cfg() {
-    # TODO: this logic may not be 100% as the original one
-    # TODO: not finished yet
-    local conf=
-    local subconf=
+get_linux_config() {
+    local platform_dir=
+    local platform_subdir=
 
-    for f in "${OPENWRT_DIR}/target/linux/${BOARD}/config-${KERNEL_PATCHVER}" \
-             "${OPENWRT_DIR}/target/linux/${BOARD}/config-default" 
+    platform_dir="${OPENWRT_DIR}/target/linux/${BOARD}"
+    if [ "${SUBTARGET}" != "" ]
+    then
+        platform_subdir="${OPENWRT_DIR}/target/linux/${BOARD}/${SUBTARGET}"
+    fi
+
+    for f in "${platform_dir}/config-${KERNEL_PATCHVER}" \
+             "${platform_dir}/config-default" \
+             "${platform_subdir}/config-${KERNEL_PATCHVER}" \
+             "${platform_subdir}/config-default" 
     do
-        [ -f "$f" ] && echo "$f" && return
+        [ -f "$f" ] && echo "$f" && return 0
     done
+    
+    return 1
+}
+
+get_linux_subconfig() {
+    local linux_config="$1"
+    local platform_subdir=
+    local linux_subconfig=
+    
+    [ -n "${SHARED_LINUX_CONFIG}" ] && return 1
+
+    if [ "${SUBTARGET}" != "" ]
+    then
+        platform_subdir="${OPENWRT_DIR}/target/linux/${BOARD}/${SUBTARGET}"
+    fi
+
+    for f in "${platform_subdir}/config-${KERNEL_PATCHVER}" \
+             "${platform_subdir}/config-default" 
+    do
+        [ -f "$f" ] && linux_subconfig="$f" && break
+    done
+
+    [ "${linux_subconfig}" = "${linux_config}" ] && return 1
+
+    echo "${linux_subconfig}" && return 0
 }
 
 dot_config_generation() {
     local kconfig=${OPENWRT_DIR}/scripts/kconfig.pl
     local metadata=${OPENWRT_DIR}/scripts/metadata.pl
-    local generic_cfg=
+    local generic_linux_config=
+    local linux_config=
+    local linux_subconfig=
     local platform_cfg=
     local dir=${KERNEL_DIR}
 
-    generic_cfg=``
-    platform_cfg=``
-
     cd ${KERNEL_DIR}
-    ${kconfig} + ${generic_cfg} ${platform_cfg} > ${dir}/.config.target
+
+    generic_linux_config=`get_generic_linux_config`
+    linux_config=`get_linux_config`
+    linux_subconfig=`get_linux_subconfig "${linux_config}"`
+
+    if [ -z "${linux_subconfig}" ]
+    then
+        ${kconfig} + ${generic_cfg} ${linux_config} > ${dir}/.config.target
+    else
+        ${kconfig} + ${generic_cfg} + ${linux_config} ${linux_subconfig} > ${dir}/.config.target
+    fi
 
     set_cfg "CONFIG_KERNEL_KALLSYMS" \
             "CONFIG_KALLSYMS=y" \
@@ -121,10 +180,10 @@ dot_config_generation() {
 
             echo 'CONFIG_BLK_DEV_INITRD=y' >> ${dir}/.config
 
-            # TODO: for TARGET_DIR, we need to investigate more when we meet about this kind of firmware
+            # TODO: I don't know where this TARGET_DIR come from, we need to investigate more when we meet the firmware uses this config logic
             # INITRAMFS_EXTRA_FILES ?= $(GENERIC_PLATFORM_DIR)/image/initramfs-base-files.txt
             #echo 'CONFIG_INITRAMFS_SOURCE="$(strip $(TARGET_DIR) $(INITRAMFS_EXTRA_FILES))"' >> ${dir}/.config
-            echo "ERROR: meet a feature that is not fully supported" && exit 1
+            error "ERROR: meet a feature that is not fully supported"
 
             echo "CONFIG_INITRAMFS_ROOT_UID=`shell id -u`" >> ${dir}/.config
 
@@ -164,9 +223,8 @@ dot_config_generation() {
 }
 
 get_dot_config() {
-    local KERNEL_DIR=
-
     # 1. unzip kernel
+    # TODO: interface with outside
 
     # 2. gen .packageinfo
     gen_packageinfo 
@@ -178,5 +236,9 @@ get_dot_config() {
 main() {
     get_dot_config "$@"
 }
+
+#
+# Run
+#
 
 main "$@"
