@@ -61,6 +61,7 @@ prepare() {
     # 3. kernel detail version
     # 4. board info
     # 5. subtarget info
+    # 6. .config for openwrt
     fake-prepare
 }
 
