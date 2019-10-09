@@ -51,7 +51,7 @@ SHARED_LINUX_CONFIG=
 #
 
 error() {
-    printf "ERROR: %s" $1 && exit 1
+    printf "ERROR: %s\n" "$1" && exit 1
 }
 
 fake-prepare() {
