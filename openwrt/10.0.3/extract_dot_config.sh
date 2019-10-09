@@ -1,12 +1,33 @@
 #!/bin/bash
 
+##################################################################
+#
+# Params should be passed in:
+# 1. url for downloading openwrt.tar
+# 2. url for downloading kernel.tar
+# 3. url for downloading .config for openwrt
+# 4. kernel detail version (like "2.6.32")
+# 5. board info (like "orion")
+# 6. subtarget info (like "")
+# 7. output file name (the output file copy from final .config, 
+#                      if use relative path, it will base on
+#                      the working directory)
+# 8. working directory (if not set, will use "./build" as default
+#                       if default, will clean the ./build first
+#                       if set, assume it is an empty or not-exist
+#                       dir)
+#
+##################################################################
+
 #
 # Global Variable Needs to be inited
 #
 
+WORK_DIR=
 PATCH_DIR=
 OPENWRT_DIR=
 KERNEL_DIR=
+OUTPUT_FILE=
 
 OPENWRT_CFG=
 
@@ -33,18 +54,20 @@ error() {
 
 fake-prepare() {
     # fake prepare for testing, take openwrt 10.03 & linux 2.6.32.10 as an exampe
-    rm -rf build && mkdir build
-    cp backfire_10.03_source.tar.bz2 linux-2.6.32.10.tar.xz OpenWrt.config build
-    cp -r patches build
+    rm -rf ./build && mkdir ./build
+    WORK_DIR=`realpath ./build`
 
-    cd build
+    cp backfire_10.03_source.tar.bz2 linux-2.6.32.10.tar.xz OpenWrt.config ${WORK_DIR}
+    cp -r patches ${WORK_DIR}
+
+    cd ${WORK_DIR}
     tar xf backfire_10.03_source.tar.bz2 || error "unzip openwrt 10.03 error"
     tar xf linux-2.6.32.10.tar.xz || error "unzip kernel 2.6.32.10 error"
     cp OpenWrt.config backfire_10.03/.config
 
-    PATCH_DIR="`realpath ./patches`"
-    OPENWRT_DIR="`realpath ./backfire_10.03`"
-    KERNEL_DIR="`realpath ./linux-2.6.32.10`"
+    PATCH_DIR="`realpath ${WORK_DIR}/patches`"
+    OPENWRT_DIR="`realpath ${WORK_DIR}/backfire_10.03`"
+    KERNEL_DIR="`realpath ${WORK_DIR}/linux-2.6.32.10`"
     OPENWRT_CFG="${OPENWRT_DIR}/.config"
     KERNEL_VER="2.6"
     KERNEL_PATCHVER="2.6.32"
@@ -54,15 +77,50 @@ fake-prepare() {
 }
 
 prepare() {
-    # TODO: interface with outside, now we use a fake one to test
-    # seems at least we need to know:
-    # 1. openwrt.tar
-    # 2. kernel.tar
-    # 3. kernel detail version
-    # 4. board info
-    # 5. subtarget info
-    # 6. .config for openwrt
-    fake-prepare
+    local openwrt_url="$1"
+    local kernel_url="$2"
+    local openwrt_cfg_url="$3"
+    local kernel_version="$4"
+    local board="$5"
+    local subtarget="$6"
+    local output_file="$7"
+    local work_dir="$8"
+
+    [ $# -lt 7 ] && error "Should pass 7 or 8 parameters to this script"
+    [ $# -gt 8 ] && error "Should pass 7 or 8 parameters to this script"
+
+    # set up env
+    if [ -z "${work_dir}" ] 
+    then
+        rm -rf ./build && mkdir -p ./build
+        WORK_DIR="`realpath ./build`"
+    else
+        mkdir -p ${work_dir}
+        [ "`ls -A ${work_dir} | wc -l`" -ne 0 ] && error "param 8 work_dir '${work_dir}' not empty"
+        WORK_DIR="`realpath ${work_dir}`"
+    fi
+
+    cp -r patches "${WORK_DIR}"
+    PATCH_DIR="${WORK_DIR}/patches"
+
+    cd ${WORK_DIR}
+
+    wget ${openwrt_url} || error "could not download openwrt tar from '${openwrt_url}'"
+    ls -t | head -n 1 | xargs tar --touch -xf || error "could not unzip openwrt tar"
+    OPENWRT_DIR="`ls -t | head -n 1 | xargs realpath`"
+
+    wget ${kernel_url} || error "could not download openwrt tar from '${kernel_url}'"
+    ls -t | head -n 1 | xargs tar --touch -xf || error "could not unzip kernel tar"
+    KERNEL_DIR="`ls -t | head -n 1 | xargs realpath`"
+
+    wget ${openwrt_cfg_url} || error "could not download openwrt tar from '${openwrt_cfg_url}'"
+    OPENWRT_CFG="`ls -t | head -n 1 | xargs realpath`"
+
+    KERNEL_VER=`echo ${kernel_version} | awk -F"." '{printf("%s.%s", $1, $2);}'`
+    KERNEL_PATCHVER=`echo ${kernel_version} | awk -F"." '{printf("%s.%s.%s", $1, $2, $3);}'`
+    BOARD="${board}"
+    SUBTARGET="${subtarget}"
+    OUTPUT_FILE="realpath ${output_file}"
 }
 
 gen_packageinfo() {
@@ -254,17 +312,21 @@ dot_config_generation() {
             echo 'CONFIG_INITRAMFS_SOURCE=""' >> ${dir}/.config
         fi
     fi
+
+    [ -f "${dir}/.config" ] || error "generate final kernel config file ${dir}/.config failed"
 }
 
 postprocess() {
-    # TODO: output interface with outside
-    return
+    if [ -n "${OUTPUT_FILE}" ]
+    then
+        cp ${KERNEL_DIR}/.config ${OUTPUT_FILE}
+    fi
 }
 
 get_dot_config() {
     # 1. prepare, like set variable & unzip kernel
-    # input interface with outside
-    prepare
+    #fake-prepare "$@"
+    prepare "$@"
 
     # 2. gen .packageinfo
     gen_packageinfo 
@@ -273,7 +335,6 @@ get_dot_config() {
     dot_config_generation
 
     # 4. post process, like copy & rename the ouput to target place
-    # output interface with outside
     postprocess
 }
 
