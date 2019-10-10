@@ -10,4 +10,6 @@ subtarget="NULL"
 output_file="./wrt350nv2-kernel.config"
 work_dir="./build"
 
-bash -x extract_dot_config.sh "${openwrt_ver}" "${openwrt_url}" "${kernel_url}" "${openwrt_cfg_url}" "${kernel_version}" "${board}" "${subtarget}" "${output_file}" "${work_dir}"
+rm -rf build
+
+bash extract_dot_config.sh "${openwrt_ver}" "${openwrt_url}" "${kernel_url}" "${openwrt_cfg_url}" "${kernel_version}" "${board}" "${subtarget}" "${output_file}" "${work_dir}"
