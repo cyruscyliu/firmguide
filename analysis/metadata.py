@@ -26,6 +26,7 @@ __get_metadata = []
 def by_file(firmware):
     LOG_SUFFIX = '[FILE]'
     image_type = firmware.get_format()
+    image_path = firmware.get_path_to_image()
     if image_type == 'legacy uImage':
         """ 
         file uImage: delimiter=', '
@@ -40,13 +41,13 @@ def by_file(firmware):
             [8] Header CRC: 0xCC8FC8A7,
             [9] Data CRC: 0x90F6B42F
         """
-        info = os.popen('file -b {}'.format(firmware.image_path))
+        info = os.popen('file -b {}'.format(image_path))
         metadata = info.readline().strip()
         items = metadata.split(', ')
         kernel_version = re.search(r'Linux-(\d+\.\d+\.\d+)', items[1]).groups()[0]
         _os = items[2].split('/')[0]
         arch = items[2].split('/')[1]
-        kernel_created_time = time.strptime(items[5], "%a %b %d %H:%M:%S %Y")
+        kernel_created_time = items[5]  # time.strptime(items[5], "%a %b %d %H:%M:%S %Y")
         kernel_load_address = re.search(r'.*(0x[0-9a-fA-F]+).*', items[6]).groups()[0]
         kernel_entry_point = items[7]
 

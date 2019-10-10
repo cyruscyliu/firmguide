@@ -48,6 +48,8 @@ class DTFirmware(Firmware):
         for path, nodes, props in self.profile.walk():
             if path.find('nand@') != -1 and path.find('partition@') == -1:
                 path_to_flash = path
+        if path_to_flash is None:
+            return
         flash_node = self.profile.get_node(path_to_flash)
         assert flash_node is not None
         model = flash_node.get_property('compatible').data[0]
@@ -97,12 +99,21 @@ class DTFirmware(Firmware):
 
     def set_toh(self, *args, **kwargs):
         toh = args[0]
-        assert isinstance(toh, dict)
+        assert isinstance(toh, list)
+        header = kwargs.pop('header', None)
+        if header is None:
+            return
         brand_node = self.profile.get_node('/brand', create=True)
-        for k, v in toh.items():
+        for k, v in zip(header, toh):
+            if brand_node.exist_property(k):
+                brand_node.remove_property(k)
+            if not len(v):
+                continue
             brand_node.append(fdt.PropStrings(k, v))
 
     def get_revision(self, *args, **kwargs):
+        if not self.profile.exist_node('/brand'):
+            return
         brand_node = self.profile.get_node('/brand')
         assert brand_node is not None
         revision = brand_node.get_property('revision').data[0]
@@ -164,8 +175,11 @@ class DTFirmware(Firmware):
     def get_subtarget(self, *args, **kwargs):
         brand_node = self.profile.get_node('/brand')
         assert brand_node is not None
-        subtarget = brand_node.get_property('subtarget').data[0]
-        return subtarget
+        subtarget = brand_node.get_property('subtarget')
+        if subtarget is None:
+            return
+        else:
+            return subtarget.data[0]
 
     def set_subtarget(self, *args, **kwargs):
         subtarget = args[0]
@@ -184,6 +198,8 @@ class DTFirmware(Firmware):
         kernel_node.append(fdt.PropStrings('kernel_load_address', kernel_load_address))
 
     def get_kernel_version(self, *args, **kwargs):
+        if not self.profile.exist_node('/kernel'):
+            return
         kernel_node = self.profile.get_node('/kernel')
         assert kernel_node is not None
         kernel_version = kernel_node.get_property('kernel_version').data[0]
@@ -192,6 +208,8 @@ class DTFirmware(Firmware):
     def set_kernel_version(self, *args, **kwargs):
         kernel_version = args[0]
         kernel_node = self.profile.get_node('/kernel', create=True)
+        if kernel_node.exist_property('kernel_version'):
+            kernel_node.remove_property('kernel_version')
         kernel_node.append(fdt.PropStrings('kernel_version', kernel_version))
 
     def get_kernel_created_time(self, *args, **kwargs):
@@ -217,6 +235,8 @@ class DTFirmware(Firmware):
         kernel_node.append(fdt.PropStrings('kernel_entry_point', kernel_entry_point))
 
     def get_cpu_model(self, *args, **kwargs):
+        if not self.profile.exist_node('/cpus'):
+            return
         cpus = self.profile.get_node('/cpus')
         assert cpus is not None
         for cpu in cpus.nodes:
@@ -230,6 +250,8 @@ class DTFirmware(Firmware):
         cpu.append(fdt.PropStrings('device_type', 'cpu'))
 
     def get_ram(self, *args, **kwargs):
+        if not self.profile.exist_node('/memory'):
+            return None, None
         ram = self.profile.get_node('/memory')
         assert ram is not None
         ram_base, ram_size = ram.get_property('reg').data

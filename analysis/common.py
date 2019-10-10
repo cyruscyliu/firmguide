@@ -148,7 +148,7 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
         if len(filterd_results_2) == 1:
             logger.debug('only one left, choose it for you automatically')
             # firmware.set('subtarget', value=filterd_results_2[0][openwrt.header_last_selected.index('subtarget')])
-            firmware.set_toh(filterd_results_2[0])
+            firmware.set_toh(filterd_results_2[0], header=openwrt.header_last_selected)
             logger.info('\033[32mget the most possible subtarget {}\033[0m {}'.format(
                 firmware.get_subtarget(), LOG_SUFFIX))
             openwrt.table.close()
