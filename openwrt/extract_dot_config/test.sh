@@ -13,3 +13,5 @@ work_dir="./build"
 rm -rf build
 
 bash extract_dot_config.sh "${openwrt_ver}" "${openwrt_url}" "${kernel_url}" "${openwrt_cfg_url}" "${kernel_version}" "${board}" "${subtarget}" "${output_file}" "${work_dir}"
+
+[ $# -eq 0 ] && echo "test success" || echo "test failed"

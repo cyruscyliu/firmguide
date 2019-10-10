@@ -81,6 +81,20 @@ get_linux_subconfig() {
 # EXPORTED FUNCTIONS
 #
 
+module_openwrt_var_init() {
+	local kernel_version=$1
+	local board=$2
+	local subtarget=$3
+
+    KERNEL_VER=`echo ${kernel_version} | awk -F"." '{printf("%s.%s", $1, $2);}'`
+
+    KERNEL_PATCHVER=`echo ${kernel_version} | awk -F"." '{printf("%s.%s.%s", $1, $2, $3);}'`
+
+    BOARD="${board}"
+
+    [ "${subtarget}" != "NULL" ] && SUBTARGET="${subtarget}" || SUBTARGET=""
+}
+
 module_openwrt_patch_setup() {
     cp -r ${OPENWRT_VER}/patches "${WORK_DIR}"
     PATCH_DIR="${WORK_DIR}/patches"

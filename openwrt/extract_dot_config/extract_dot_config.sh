@@ -118,13 +118,7 @@ prepare() {
     wget --no-use-server-timestamps ${openwrt_cfg_url} || error "could not download openwrt tar from '${openwrt_cfg_url}'"
     OPENWRT_CFG="`ls -t | head -n 1 | xargs realpath`"
 
-    KERNEL_VER=`echo ${kernel_version} | awk -F"." '{printf("%s.%s", $1, $2);}'`
-
-    KERNEL_PATCHVER=`echo ${kernel_version} | awk -F"." '{printf("%s.%s.%s", $1, $2, $3);}'`
-
-    BOARD="${board}"
-
-    [ "${subtarget}" != "NULL" ] && SUBTARGET="${subtarget}"
+    module_openwrt_var_init "${kernel_version}" "${board}" "${subtarget}"
 
     OUTPUT_FILE=`realpath ${output_file}`
 }
