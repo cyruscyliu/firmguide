@@ -21,29 +21,32 @@ set -e
 #
 ##################################################################
 
+
 #
 # Global Variable Needs to be inited
 #
 
 WORK_DIR=
-PATCH_DIR=
-OPENWRT_DIR=
-KERNEL_DIR=
-OUTPUT_FILE=
-
-OPENWRT_CFG=
-
-KERNEL_VER=
-KERNEL_PATCHVER=
 
 # can come from openwrt .config
 BOARD=
 # SUBTARGET:=$(strip $(foreach subdir,$(patsubst $(PLATFORM_DIR)/%/target.mk,%,$(wildcard $(PLATFORM_DIR)/*/target.mk)),$(if $(CONFIG_TARGET_$(call target_conf,$(BOARD)_$(subdir))),$(subdir))))
 # target_conf=$(subst .,_,$(subst -,_,$(subst /,_,$(1))))
 SUBTARGET=
-
 # TODO: I don't know where this env comes from, maybe is set before the most outside make command of openwrt, now left it empty
 SHARED_LINUX_CONFIG=
+
+OPENWRT_DIR=
+OPENWRT_VER=10.0.3
+OPENWRT_CFG=
+
+KERNEL_DIR=
+KERNEL_VER=
+KERNEL_PATCHVER=
+
+PATCH_DIR=
+
+OUTPUT_FILE=
 
 
 #
@@ -52,30 +55,6 @@ SHARED_LINUX_CONFIG=
 
 error() {
     printf "ERROR: %s\n" "$1" && exit 1
-}
-
-fake-prepare() {
-    # fake prepare for testing, take openwrt 10.03 & linux 2.6.32.10 as an exampe
-    rm -rf ./build && mkdir ./build
-    WORK_DIR=`realpath ./build`
-
-    cp backfire_10.03_source.tar.bz2 linux-2.6.32.10.tar.xz OpenWrt.config ${WORK_DIR}
-    cp -r patches ${WORK_DIR}
-
-    cd ${WORK_DIR}
-    tar xf backfire_10.03_source.tar.bz2 || error "unzip openwrt 10.03 error"
-    tar xf linux-2.6.32.10.tar.xz || error "unzip kernel 2.6.32.10 error"
-    cp OpenWrt.config backfire_10.03/.config
-
-    PATCH_DIR="`realpath ${WORK_DIR}/patches`"
-    OPENWRT_DIR="`realpath ${WORK_DIR}/backfire_10.03`"
-    KERNEL_DIR="`realpath ${WORK_DIR}/linux-2.6.32.10`"
-    OPENWRT_CFG="${OPENWRT_DIR}/.config"
-    KERNEL_VER="2.6"
-    KERNEL_PATCHVER="2.6.32"
-    BOARD="orion"
-    SUBTARGET=""
-    SHARED_LINUX_CONFIG=""
 }
 
 prepare() {
@@ -102,7 +81,7 @@ prepare() {
         WORK_DIR="`realpath ${work_dir}`"
     fi
 
-    cp -r patches "${WORK_DIR}"
+    cp -r ${OPENWRT_VER}/patches "${WORK_DIR}"
     PATCH_DIR="${WORK_DIR}/patches"
 
     cd ${WORK_DIR}
@@ -283,8 +262,9 @@ dot_config_generation() {
             #echo 'CONFIG_INITRAMFS_SOURCE="$(strip $(TARGET_DIR) $(INITRAMFS_EXTRA_FILES))"' >> ${dir}/.config
             error "ERROR: meet a feature that is not fully supported"
 
+            # TODO: Maybe this 2 kernel config need more investigation?
+            # I briefly serach the related, seems harmless to set it like this
             echo "CONFIG_INITRAMFS_ROOT_UID=`shell id -u`" >> ${dir}/.config
-
             echo "CONFIG_INITRAMFS_ROOT_GID=`shell id -g`" >> ${dir}/.config
 
             set_cfg "CONFIG_TARGET_INITRAMFS_COMPRESSION_NONE" \
@@ -331,7 +311,6 @@ postprocess() {
 
 get_dot_config() {
     # 1. prepare, like set variable & unzip kernel
-    #fake-prepare "$@"
     prepare "$@"
 
     # 2. gen .packageinfo
@@ -347,6 +326,7 @@ get_dot_config() {
 main() {
     get_dot_config "$@"
 }
+
 
 #
 # Run
