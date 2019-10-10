@@ -62,7 +62,7 @@ class DatabaseText(Database, DatabaseInterface):
     def load(self):
         # format for a record
         with open(self.path) as f:
-            for line in f:
+            for id, line in enumerate(f):
                 items = line.strip().split()
                 if self.header is None:
                     self.header = items
@@ -86,6 +86,7 @@ class DatabaseText(Database, DatabaseInterface):
                 firmware.set_brand(brand)
                 firmware.set_architecture(arch)
                 firmware.set_endian(endian)
+                firmware.id = id
                 self.records.append(firmware)
         self.count = self.records.__len__()
 

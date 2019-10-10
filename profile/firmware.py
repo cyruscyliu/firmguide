@@ -4,6 +4,7 @@ import os
 
 class Firmware(object):
     def __init__(self, *args, **kwargs):
+        self.id = None
         self.uuid = kwargs.pop('uuid')
         self.name = kwargs.pop('name')
         self.path = kwargs.pop('path')  # path to firmware
@@ -24,6 +25,12 @@ class Firmware(object):
         self.path_to_image = None
         self.path_to_kernel = None
         self.path_to_dtb = None
+
+    def brief(self):
+        brief_introduction = "uuid: {}, name: {}, brand: {}, architecture: {}, working_dir: {}, endian: {}".format(
+            self.uuid, self.name, self.brand, self.architecture, self.working_dir, self.endian
+        )
+        return brief_introduction
 
     def set_working_env(self, dir, path):
         self.working_dir = dir

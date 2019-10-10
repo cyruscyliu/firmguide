@@ -45,12 +45,18 @@ def check_and_restore(firmware):
             os.path.join(firmware.working_path)
         )
 
+    if first_time:
+        logger.info('[{}] for the first time, {}'.format(firmware.id, firmware.brief()))
+    else:
+        logger.info('[{}] restore the analysis, {}'.format(firmware.id, firmware.brief()))
+
 
 def save_analysis(firmware):
     analysis = os.path.join(firmware.working_dir, 'analysis')
     with open(analysis, 'w') as f:
         yaml.safe_dump(firmware.analysis_progress, f)
     firmware.save_profile(working_dir=firmware.working_dir)
+    logger.info('[{}] saved the analysis'.format(firmware.id))
 
 
 def finished(firmware, task, func):
