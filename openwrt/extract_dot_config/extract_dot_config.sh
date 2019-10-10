@@ -5,16 +5,17 @@ set -e
 ##################################################################
 #
 # Params should be passed in:
-# 1. url for downloading openwrt.tar
-# 2. url for downloading kernel.tar
-# 3. url for downloading .config for openwrt
-# 4. kernel detail version (like "2.6.32")
-# 5. board info (like "orion")
-# 6. subtarget info (like "")
-# 7. output file name (the output file copy from final .config, 
+# 1. openwrt version (like "10.0.3" or "15.05")
+# 2. url for downloading openwrt.tar
+# 3. url for downloading kernel.tar
+# 4. url for downloading .config for openwrt
+# 5. kernel detail version (like "2.6.32")
+# 6. board info (like "orion")
+# 7. subtarget info (string, but notice that pass "NULL" means "")
+# 8. output file name (the output file copy from final .config, 
 #                      if use relative path, it will base on
 #                      the working directory)
-# 8. working directory (if not set, will use "./build" as default
+# 9. working directory (if not set, will use "./build" as default
 #                       if default, will clean the ./build first
 #                       if set, assume it is an empty or not-exist
 #                       dir)
@@ -37,7 +38,7 @@ SUBTARGET=
 SHARED_LINUX_CONFIG=
 
 OPENWRT_DIR=
-OPENWRT_VER=10.0.3
+OPENWRT_VER=
 OPENWRT_CFG=
 
 KERNEL_DIR=
@@ -58,17 +59,27 @@ error() {
 }
 
 prepare() {
-    local openwrt_url="$1"
-    local kernel_url="$2"
-    local openwrt_cfg_url="$3"
-    local kernel_version="$4"
-    local board="$5"
-    local subtarget="$6"
-    local output_file="$7"
-    local work_dir="$8"
+    local openwrt_ver="$1"
+    local openwrt_url="$2"
+    local kernel_url="$3"
+    local openwrt_cfg_url="$4"
+    local kernel_version="$5"
+    local board="$6"
+    local subtarget="$7"
+    local output_file="$8"
+    local work_dir="$9"
 
-    [ $# -lt 7 ] && error "Should pass 7 or 8 parameters to this script"
-    [ $# -gt 8 ] && error "Should pass 7 or 8 parameters to this script"
+    [ $# -lt 8 ] && error "Should pass 8 or 9 parameters to this script"
+    [ $# -gt 9 ] && error "Should pass 8 or 9 parameters to this script"
+
+    # load corresponding openwrt version code
+    if [ -d "${openwrt_ver}" ] 
+    then
+        . ${openwrt_ver}/extract-modules.sh
+        OPENWRT_VER="${openwrt_ver}"
+    else
+        error "not supported openwrt version '${openwrt_ver}'"
+    fi
 
     # set up env
     if [ -z "${work_dir}" ] 
@@ -81,8 +92,7 @@ prepare() {
         WORK_DIR="`realpath ${work_dir}`"
     fi
 
-    cp -r ${OPENWRT_VER}/patches "${WORK_DIR}"
-    PATCH_DIR="${WORK_DIR}/patches"
+    module_openwrt_patch_setup
 
     cd ${WORK_DIR}
 
@@ -109,7 +119,7 @@ prepare() {
 }
 
 gen_packageinfo() {
-    cp ${PATCH_DIR}/include/toplevel.mk ${OPENWRT_DIR}/include
+    module_openwrt_patch_do
 
     cd ${OPENWRT_DIR} && make esv-prepare-tmpinfo || error "make esv-prepare-tmpinfo failed"
 }
