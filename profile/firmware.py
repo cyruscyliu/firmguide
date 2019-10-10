@@ -8,7 +8,6 @@ class Firmware(object):
         self.uuid = kwargs.pop('uuid')
         self.name = kwargs.pop('name')
         self.path = kwargs.pop('path')  # path to firmware
-        self.size = kwargs.pop('size')
         self.working_dir = None
         self.working_path = None
 
@@ -16,15 +15,32 @@ class Firmware(object):
 
         self.profile = None
         # basics
+        self.size = None
         self.brand = None
+        self.description = None
         self.format = None
         self.architecture = None
         self.endian = None
+        self.url = None
 
         # components
         self.path_to_image = None
         self.path_to_kernel = None
         self.path_to_dtb = None
+
+    def set_description(self, *args, **kwargs):
+        description = args[0]
+        self.description = description
+
+    def get_description(self, *args, **kwargs):
+        return self.description
+
+    def set_url(self, *args, **kwargs):
+        url = args[0]
+        self.url = url
+
+    def get_url(self, *args, **kwargs):
+        return self.url
 
     def brief(self):
         brief_introduction = "uuid: {}, name: {}, brand: {}, architecture: {}, working_dir: {}, endian: {}".format(

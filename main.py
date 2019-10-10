@@ -32,13 +32,6 @@ def run(args):
     if args.dbt is None:
         raise ValueError('no database available')
     dbi = get_database(args.dbt, profile=args.profile)
-    count = dbi.get_count()
-    if not count:
-        return ValueError('no firmware available')
-    if count > 100:
-        raise NotImplementedError('multi threads not implemented yet')
-
-    logger.info('there are {} firmware in the repo'.format(count))
     for firmware in dbi.get_firmware():
         setup(args, firmware)
         check_and_restore(firmware)
@@ -58,7 +51,7 @@ def run(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-dbt', required=True, choices=['text'], type=str,
+    parser.add_argument('-dbt', required=True, choices=['text', 'firmadyne'], type=str,
                         help='assign the firmware db type')
     parser.add_argument('-d', '--debug', action='store_true', help='show verbose logs')
     parser.add_argument('-p', '--profile', choices=['simple', 'dt', 'ipxact'], default='dt',

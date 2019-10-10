@@ -1,11 +1,9 @@
+import os
+import re
 import abc
 import csv
-import os
 
-from database.dbi import DatabaseInterface, Firmware
-from profile.dt import DTFirmware
-from profile.ipxact import IPXACTFirmware
-from profile.simple import SimpleFirmware
+from database.dbi import DatabaseInterface
 
 
 class Database(metaclass=abc.ABCMeta):
@@ -26,69 +24,81 @@ class Database(metaclass=abc.ABCMeta):
         pass
 
 
-class DatabaseText(Database, DatabaseInterface):
-    def get_count(self, *args, **kwargs):
-        return self.count
+class DatabaseFirmadyne(DatabaseInterface):
 
-    def get_firmware(self, *args, **kwargs):
-        for firmware in self.records:
-            yield firmware
+    def parse_pre(self, line, **kwargs):
+        items = line.split(',')
+        if self.header is None:
+            self.header = items
+            return
+        kernel_extracted = items[self.header.index('kernel_extracted')]
+        if kernel_extracted != 't':
+            return
+        uuid = items[self.header.index('id')]
+        name = os.path.basename(items[self.header.index('filename')])
+        path = items[self.header.index('filename')]
+        brand = items[self.header.index('brand')]
+        if not len(items[self.header.index('arch')]):
+            arch = None
+            endian = None
+        else:
+            arch = items[self.header.index('arch')][:-2]
+            endian = items[self.header.index('arch')][-1:]
+        # kernel_version: hard to use
+        # kernel_version = items[self.header.index('kernel_version')]
+        # if kernel_version:
+        #     kernel_version = re.search(r'Linux kernel version (\d+\.\d+\.\d+)', kernel_version)
+        # if kernel_version:
+        #     kernel_version = kernel_version.groups()[0]
+        description = items[self.header.index('description')]
+        url = items[self.header.index('url')]
+        self.items = {
+            'uuid': uuid, 'name': name, 'path': path,
+            'brand': brand, 'arch': arch, 'endian': endian,
+            'description': description, 'url': url
+        }
+        return self.items
 
-    def select(self, *args, **kwargs):
-        pass
+    def handle_post(self, firmware, **kwargs):
+        firmware.set_brand(self.items['brand'])
+        arch = self.items['arch']
+        if arch is not None:
+            firmware.set_architecture(arch)
+            firmware.set_endian(self.items['endian'])
 
-    def add(self, *args, **kwargs):
-        pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dbtype = 'firmadyne'
 
-    def delete(self, *args, **kwargs):
-        pass
 
-    def update(self, *args, **kwargs):
-        pass
+class DatabaseText(DatabaseInterface):
+    def handle_post(self, firmware, **kwargs):
+        firmware.set_brand(self.items['brand'])
+        firmware.set_architecture(self.items['arch'])
+        firmware.set_endian(self.items['endian'])
+        firmware.set_description(self.items['description'])
+        firmware.set_url(self.items['url'])
 
-    def __init__(self, path, **kwargs):
-        super().__init__()
+    def parse_pre(self, line, **kwargs):
+        items = line.split()
+        if self.header is None:
+            self.header = items
+            return
+        uuid = items[self.header.index('uuid')]
+        name = os.path.basename(items[self.header.index('path')])
+        path = items[self.header.index('path')]
+        brand = items[self.header.index('brand')]
+        arch = items[self.header.index('arch')]
+        endian = items[self.header.index('endian')]
+        self.items = {
+            'uuid': uuid, 'name': name, 'path': path,
+            'brand': brand, 'arch': arch, 'endian': endian
+        }
+        return self.items
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.dbtype = 'text'
-        self.path = os.path.join(os.getcwd(), path)
-        self.lazy_loading = False
-        self.records = []
-        self.count = None
-        self.header = None
-        self.profile = kwargs.pop('profile')
-
-        if not self.lazy_loading:
-            self.load()
-
-    def load(self):
-        # format for a record
-        with open(self.path) as f:
-            for id, line in enumerate(f):
-                items = line.strip().split()
-                if self.header is None:
-                    self.header = items
-                    continue
-                uuid = items[self.header.index('uuid')]
-                name = os.path.basename(items[self.header.index('path')])
-                path = items[self.header.index('path')]
-                size = os.path.getsize(path)
-                if self.profile == 'simple':
-                    firmware = SimpleFirmware(uuid=uuid, name=name, path=path, size=size)
-                elif self.profile == 'dt':
-                    firmware = DTFirmware(uuid=uuid, name=name, path=path, size=size)
-                elif self.profile == 'ipxact':
-                    firmware = IPXACTFirmware(uuid=uuid, name=name, path=path, size=size)
-                else:
-                    raise NotImplementedError
-
-                brand = items[self.header.index('brand')]
-                arch = items[self.header.index('arch')]
-                endian = items[self.header.index('endian')]
-                firmware.set_brand(brand)
-                firmware.set_architecture(arch)
-                firmware.set_endian(endian)
-                firmware.id = id
-                self.records.append(firmware)
-        self.count = self.records.__len__()
 
 
 class DatabaseOpenWrt(Database):
