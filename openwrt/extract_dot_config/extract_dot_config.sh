@@ -4,6 +4,12 @@ set -e
 
 
 #
+# Fixed Variables
+#
+
+DEFAULT_WORK_DIR=extract_tmp
+
+#
 # Global Variable Needs to be initialized
 #
 
@@ -27,7 +33,7 @@ KERNEL_PATCHVER=
 
 PATCH_DIR=
 
-OUTPUT_FILE=
+OUTPUT_DIR=
 
 
 #
@@ -41,17 +47,20 @@ usage() {
 #
 # Params should be passed in:
 # 1. openwrt version (like "10.0.3" or "15.05")
-# 2. url for downloading openwrt.tar
-# 3. url for downloading kernel.tar
-# 4. url for downloading .config for openwrt
+# 2. url for downloading or file path of openwrt.tar
+# 3. url for downloading or file path of kernel.tar
+# 4. url for downloading or file path of .config for openwrt
 # 5. kernel detail version (like "2.6.32")
 # 6. board info (like "orion")
 # 7. subtarget info (string, but notice that pass "NULL" means "")
-# 8. output file name (the output file copy from final .config, 
+# 8. output directory (the final kernel source copy from work dir, 
 #                      if use relative path, it will base on
-#                      the working directory)
-# 9. working directory (if not set, will use "./build" as default
-#                       if default, will clean the ./build first
+#                      the working directory;
+#                      if pass "NULL", means "";)
+# 9. working directory (if not set, will use "./${DEFAULT_WORK_DIR}" 
+#                       as default
+#                       if default, will clean the ./${DEFAULT_WORK_DIR}
+#                       first;
 #                       if set, assume it is an empty or not-exist
 #                       dir)
 #
@@ -64,6 +73,11 @@ error() {
     printf "ERROR: %s\n" "$1" && exit 1
 }
 
+latest() {
+    cd "$1" > /dev/null 2>&1
+    ls -t "$1" | head -n 1 | xargs realpath
+    cd - > /dev/null 2>&1
+}
 
 #
 # Function
@@ -78,7 +92,7 @@ prepare() {
     local kernel_version="$5"
     local board="$6"
     local subtarget="$7"
-    local output_file="$8"
+    local output_dir="$8"
     local work_dir="$9"
 
     # 1. setup openwrt version specific env
@@ -93,8 +107,8 @@ prepare() {
     # 2. setup work dir
     if [ -z "${work_dir}" ] 
     then
-        rm -rf ./build && mkdir -p ./build
-        WORK_DIR="`realpath ./build`"
+        rm -rf "${DEFAULT_WORK_DIR}" && mkdir -p "${DEFAULT_WORK_DIR}"
+        WORK_DIR="`realpath ${DEFAULT_WORK_DIR}`"
     else
         mkdir -p ${work_dir}
         [ "`ls -A ${work_dir} | wc -l`" -ne 0 ] && error "param 8 work_dir '${work_dir}' not empty"
@@ -105,22 +119,40 @@ prepare() {
     module_openwrt_patch_setup
 
     # 4. setup all the rest global variables
-    cd ${WORK_DIR}
+    if [[ "${openwrt_url}" =~ ^http[s]?://.*$ ]] || [[ "${openwrt_url}" =~ ^ftp://.*$ ]]
+    then
+        wget -P "${WORK_DIR}" --no-use-server-timestamps ${openwrt_url} || error "could not download openwrt tar from '${openwrt_url}'"
+        latest "${WORK_DIR}" | xargs tar --touch -C "${WORK_DIR}" -xf || error "could not unzip openwrt tar"
+    else
+        cp "${openwrt_url}" "${WORK_DIR}" || error "could not make a copy of '${openwrt_url}' to work dir '${WORK_DIR}'"
+        latest "${WORK_DIR}" | xargs tar --touch -C "${WORK_DIR}" -xf || error "could not unzip openwrt tar"
+    fi
+    OPENWRT_DIR="`latest ${WORK_DIR}`"
 
-    wget --no-use-server-timestamps ${openwrt_url} || error "could not download openwrt tar from '${openwrt_url}'"
-    ls -t | head -n 1 | xargs tar --touch -xf || error "could not unzip openwrt tar"
-    OPENWRT_DIR="`ls -t | head -n 1 | xargs realpath`"
+    if [[ "${kernel_url}" =~ ^http[s]?://.*$ ]] || [[ "${kernel_url}" =~ ^ftp://.*$ ]]
+    then
+        wget -P "${WORK_DIR}" --no-use-server-timestamps ${kernel_url} || error "could not download kernel tar from '${kernel_url}'"
+        latest "${WORK_DIR}" | xargs tar --touch -C "${WORK_DIR}" -xf || error "could not unzip kernel tar"
+    else
+        cp "${kernel_url}" "${WORK_DIR}" || error "could not make a copy of '${kernel_url}' to work dir '${WORK_DIR}'"
+        latest "${WORK_DIR}" | xargs tar --touch -C "${WORK_DIR}" -xf || error "could not unzip kernel tar"
+    fi
+    KERNEL_DIR="`latest ${WORK_DIR}`"
 
-    wget --no-use-server-timestamps ${kernel_url} || error "could not download openwrt tar from '${kernel_url}'"
-    ls -t | head -n 1 | xargs tar --touch -xf || error "could not unzip kernel tar"
-    KERNEL_DIR="`ls -t | head -n 1 | xargs realpath`"
-
-    wget --no-use-server-timestamps ${openwrt_cfg_url} || error "could not download openwrt tar from '${openwrt_cfg_url}'"
-    OPENWRT_CFG="`ls -t | head -n 1 | xargs realpath`"
+    if [[ "${openwrt_cfg_url}" =~ ^http[s]?://.*$ ]] || [[ "${openwrt_cfg_url}" =~ ^ftp://.*$ ]]
+    then
+        wget -P "${WORK_DIR}" --no-use-server-timestamps ${openwrt_cfg_url} || error "could not download openwrt config file from '${openwrt_cfg_url}'"
+    else
+        cp "${openwrt_cfg_url}" "${WORK_DIR}" || error "could not make a copy of '${openwrt_cfg_url}' to work dir '${WORK_DIR}'"
+    fi
+    OPENWRT_CFG="`latest ${WORK_DIR}`"
 
     module_openwrt_var_init "${kernel_version}" "${board}" "${subtarget}"
 
-    OUTPUT_FILE=`realpath ${output_file}`
+    if [ "${output_dir}" != "" ] && [ "${output_dir}" != "NULL" ] 
+    then
+        OUTPUT_DIR=`realpath ${output_dir}`
+    fi
 }
 
 gen_packageinfo() {
@@ -134,9 +166,9 @@ dot_config_generation() {
 }
 
 postprocess() {
-    if [ -n "${OUTPUT_FILE}" ]
+    if [ -n "${OUTPUT_DIR}" ] 
     then
-        cp ${KERNEL_DIR}/.config ${OUTPUT_FILE}
+        cp -r ${KERNEL_DIR} ${OUTPUT_DIR}
     fi
 }
 

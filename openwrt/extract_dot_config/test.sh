@@ -7,11 +7,8 @@ openwrt_cfg_url="http://archive.openwrt.org/backfire/10.03/orion/OpenWrt.config"
 kernel_version="2.6.32.10"
 board="orion"
 subtarget="NULL"
-output_file="./wrt350nv2-kernel.config"
-work_dir="./build"
+output_dir="NULL"
+work_dir=""
 
-rm -rf build
+bash -x extract_dot_config.sh "${openwrt_ver}" "${openwrt_url}" "${kernel_url}" "${openwrt_cfg_url}" "${kernel_version}" "${board}" "${subtarget}" "${output_dir}" "${work_dir}"
 
-bash extract_dot_config.sh "${openwrt_ver}" "${openwrt_url}" "${kernel_url}" "${openwrt_cfg_url}" "${kernel_version}" "${board}" "${subtarget}" "${output_file}" "${work_dir}"
-
-[ $# -eq 0 ] && echo "test success" || echo "test failed"
