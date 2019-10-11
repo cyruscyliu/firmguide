@@ -54,6 +54,7 @@ class DatabaseFirmadyne(DatabaseInterface):
         uuid = items[self.header.index('id')]
         name = os.path.basename(items[self.header.index('filename')])
         path = items[self.header.index('filename')].replace('openwrt', 'firmware')
+        size = os.path.getsize(path)
         brand = items[self.header.index('brand')]
         if not len(items[self.header.index('arch')]):
             arch = None
@@ -70,7 +71,7 @@ class DatabaseFirmadyne(DatabaseInterface):
         description = items[self.header.index('description')]
         url = items[self.header.index('url')]
         self.items = {
-            'uuid': uuid, 'name': name, 'path': path,
+            'uuid': uuid, 'name': name, 'path': path, 'size': size,
             'brand': brand, 'arch': arch, 'endian': endian,
             'description': description, 'url': url
         }
@@ -104,11 +105,12 @@ class DatabaseText(DatabaseInterface):
         uuid = items[self.header.index('uuid')]
         name = os.path.basename(items[self.header.index('path')])
         path = items[self.header.index('path')]
+        size = os.path.getsize(path)
         brand = items[self.header.index('brand')]
         arch = items[self.header.index('arch')]
         endian = items[self.header.index('endian')]
         self.items = {
-            'uuid': uuid, 'name': name, 'path': path,
+            'uuid': uuid, 'name': name, 'path': path, 'size': size,
             'brand': brand, 'arch': arch, 'endian': endian
         }
         return self.items

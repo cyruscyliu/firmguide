@@ -8,6 +8,7 @@ class Firmware(object):
         self.uuid = kwargs.pop('uuid')
         self.name = kwargs.pop('name')
         self.path = kwargs.pop('path')  # path to firmware
+        self.size = kwargs.pop('size')
         self.working_dir = None
         self.working_path = None
 
@@ -15,7 +16,6 @@ class Firmware(object):
 
         self.profile = None
         # basics
-        self.size = None
         self.brand = None
         self.description = None
         self.format = None
