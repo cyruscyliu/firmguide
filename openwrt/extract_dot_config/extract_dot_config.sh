@@ -52,11 +52,11 @@ usage() {
 # 4. url for downloading or file path of .config for openwrt
 # 5. kernel detail version (like "2.6.32")
 # 6. board info (like "orion")
-# 7. subtarget info (string, but notice that pass "NULL" means "")
+# 7. subtarget info (string, but notice that pass "NULL" means '')
 # 8. output directory (the final kernel source copy from work dir, 
 #                      if use relative path, it will base on
 #                      the working directory;
-#                      if pass "NULL", means "";)
+#                      if pass "NULL", means '';)
 # 9. working directory (if not set, will use "./${DEFAULT_WORK_DIR}" 
 #                       as default
 #                       if default, will clean the ./${DEFAULT_WORK_DIR}
@@ -75,7 +75,7 @@ error() {
 
 latest() {
     cd "$1" > /dev/null 2>&1
-    ls -t "$1" | head -n 1 | xargs realpath
+    ls -At "$1" | head -n 1 | xargs realpath
     cd - > /dev/null 2>&1
 }
 
