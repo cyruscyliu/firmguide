@@ -24,6 +24,19 @@ class Database(metaclass=abc.ABCMeta):
         pass
 
 
+class DatabasePaused(DatabaseInterface):
+
+    def parse_pre(self, line, **kwargs):
+        pass
+
+    def handle_post(self, firmware, **kwargs):
+        pass
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dbtype = 'paused'
+
+
 class DatabaseFirmadyne(DatabaseInterface):
 
     def parse_pre(self, line, **kwargs):
