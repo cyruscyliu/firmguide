@@ -18,62 +18,81 @@ set_cfg() {
     fi
 }
 
+find_kernel_config() {
+    local dir=$1
+    local __config_list=
+    local __config_name_list=
+
+    __config_name_list="${dir}/config-${KERNEL_PATCHVER} ${dir}/config-default"
+    for f in ${__config_name_list}
+    do 
+        if [ -f "$f" ]
+        then
+            __config_list="$f"
+            break
+        fi
+    done
+
+    echo -n ${__config_list}
+}
+
 get_generic_linux_config() {
+    local generic_linux_config=
     local generic_platform_dir=
 
-    generic_platform_dir="${OPENWRT_DIR}/target/linux/generic-${KERNEL_VER}"
+    generic_platform_dir="${OPENWRT_DIR}/target/linux/generic"
+    generic_linux_config=`find_kernel_config $generic_platform_dir`
 
-    for f in "${generic_platform_dir}/config-${KERNEL_PATCHVER}" \
-             "${generic_platform_dir}/config-default"
-    do
-        [ -f "$f" ] && echo "$f" && return 0
-    done
-
-    return 1
+    echo -n $generic_linux_config
 }
 
-get_linux_config() {
+get_linux_target_config() {
+    local linux_target_config=
     local platform_dir=
-    local platform_subdir=
 
     platform_dir="${OPENWRT_DIR}/target/linux/${BOARD}"
-    if [ "${SUBTARGET}" != "" ]
-    then
-        platform_subdir="${OPENWRT_DIR}/target/linux/${BOARD}/${SUBTARGET}"
-    fi
+    linux_target_config=`find_kernel_config $platform_dir`
 
-    for f in "${platform_dir}/config-${KERNEL_PATCHVER}" \
-             "${platform_dir}/config-default" \
-             "${platform_subdir}/config-${KERNEL_PATCHVER}" \
-             "${platform_subdir}/config-default"
-    do
-        [ -f "$f" ] && echo "$f" && return 0
-    done
-
-    return 1
+    echo -n $linux_target_config
 }
 
-get_linux_subconfig() {
-    local linux_config="$1"
+get_linux_subtarget_config() {
+    local linux_subtarget_config=
     local platform_subdir=
-    local linux_subconfig=
-
-    [ -n "${SHARED_LINUX_CONFIG}" ] && return 1
 
     if [ "${SUBTARGET}" != "" ]
     then
         platform_subdir="${OPENWRT_DIR}/target/linux/${BOARD}/${SUBTARGET}"
+        linux_subtarget_config=`find_kernel_config $platform_subdir`
     fi
 
-    for f in "${platform_subdir}/config-${KERNEL_PATCHVER}" \
-             "${platform_subdir}/config-default"
-    do
-        [ -f "$f" ] && linux_subconfig="$f" && break
-    done
+    echo -n $linux_subtarget_config
+}
 
-    [ "${linux_subconfig}" = "${linux_config}" ] && return 1
+get_kernel_kconfig_list() {
+    local kconfig_list=
 
-    echo "${linux_subconfig}" && return 0
+    kconfig_list="${kconfig_list} `get_generic_linux_config`"
+    kconfig_list="${kconfig_list} `get_linux_target_config`"
+    kconfig_list="${kconfig_list} `get_linux_subtarget_config`"
+
+    if [ -f ${OPENWRT_DIR}/env/kernel-config ]
+    then
+        kconfig_list="${kconfig_list} ${OPENWRT_DIR}/env/kernel-config"
+    fi
+
+    echo -n $kconfig_list
+}
+
+get_config_cmd() {
+    local kernel_kconfig_list=
+    local config_cmd=
+
+    kernel_kconfig_list=`get_kernel_kconfig_list`
+
+    config_cmd=`echo -n ${kernel_kconfig_list} | awk -F' ' 'END{for (i=1; i<NF; i++) {printf("%s ", "+");} printf("%s", $0)}'`
+
+    echo -n $config_cmd
 }
 
 
@@ -89,7 +108,7 @@ module_openwrt_var_init() {
 
     KERNEL_VER=`echo ${kernel_version} | awk -F"." '{printf("%s.%s", $1, $2);}'`
 
-    KERNEL_PATCHVER=`echo ${kernel_version} | awk -F"." '{printf("%s.%s.%s", $1, $2, $3);}'`
+    KERNEL_PATCHVER=${KERNEL_VER}
 
     BOARD="${board}"
 
@@ -108,25 +127,11 @@ module_openwrt_patch_do() {
 module_dot_config_generation() {
     local kconfig=${OPENWRT_DIR}/scripts/kconfig.pl
     local metadata=${OPENWRT_DIR}/scripts/metadata.pl
-    local generic_linux_config=
-    local linux_config=
-    local linux_subconfig=
-    local platform_cfg=
     local dir=${KERNEL_DIR}
 
     cd ${KERNEL_DIR}
 
-    generic_linux_config=`get_generic_linux_config`
-    linux_config=`get_linux_config`
-    linux_subconfig=`get_linux_subconfig "${linux_config}"`
-
-    # TODO: fix the LINUX_CONF_CMD
-    if [ -z "${linux_subconfig}" ]
-    then
-        ${kconfig} + ${generic_linux_config} ${linux_config} > ${dir}/.config.target
-    else
-        ${kconfig} + ${generic_linux_config} + ${linux_config} ${linux_subconfig} > ${dir}/.config.target
-    fi
+    ${kconfig} `get_config_cmd` > ${dir}/.config.target
 
     awk '/^(#[[:space:]]+)?CONFIG_KERNEL/{sub("CONFIG_KERNEL_","CONFIG_");print}' ${OPENWRT_CFG} >> ${dir}/.config.target
 
