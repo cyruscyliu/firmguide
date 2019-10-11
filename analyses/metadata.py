@@ -176,6 +176,24 @@ def by_strings(firmware):
     search_most_possible_subtarget(firmware, strings)
 
 
+def by_url(firmware):
+    LOG_SUFFIX = '[URL]'
+    if firmware.get_brand() == 'openwrt':
+        homepage = os.path.dirname(firmware.url)
+        firmware.homepage = homepage
+        logger.info('\033[32mdownload page found {}\033[0m {}'.format(homepage, LOG_SUFFIX))
+        subtarget = os.path.basename(homepage)
+        target = os.path.basename(os.path.dirname(homepage))
+        firmware.set_target(target)
+        logger.info('\033[32mget the most possible target {}\033[0m {}'.format(target, LOG_SUFFIX))
+        firmware.set_subtarget(subtarget)
+        logger.info('\033[32mget the most subpossible target {}\033[0m {}'.format(subtarget, LOG_SUFFIX))
+
+
+def by_description(firmware):
+    pass
+
+
 def register_get_metadata(func):
     __get_metadata.append(func)
 
@@ -185,6 +203,8 @@ register_get_metadata(by_dumpimage)
 register_get_metadata(by_kernel_version)
 register_get_metadata(by_device_tree)
 register_get_metadata(by_strings)
+register_get_metadata(by_description)
+register_get_metadata(by_url)
 
 
 def get_metadata(firmware):

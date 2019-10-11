@@ -83,6 +83,8 @@ class DatabaseFirmadyne(DatabaseInterface):
         if arch is not None:
             firmware.set_architecture(arch)
             firmware.set_endian(self.items['endian'])
+        firmware.set_description(self.items['description'])
+        firmware.set_url(self.items['url'])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

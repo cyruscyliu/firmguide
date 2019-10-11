@@ -17,6 +17,7 @@ class Firmware(object):
         self.profile = None
         # basics
         self.brand = None
+        self.homepage = None
         self.description = None
         self.format = None
         self.architecture = None

@@ -170,6 +170,8 @@ class DTFirmware(Firmware):
     def set_target(self, *args, **kwargs):
         target = args[0]
         brand_node = self.profile.get_node('/brand', create=True)
+        if brand_node.exist_property('target'):
+            brand_node.remove_property('target')
         brand_node.append(fdt.PropStrings('target', target))
 
     def get_subtarget(self, *args, **kwargs):
@@ -184,6 +186,8 @@ class DTFirmware(Firmware):
     def set_subtarget(self, *args, **kwargs):
         subtarget = args[0]
         brand_node = self.profile.get_node('/brand', create=True)
+        if brand_node.exist_property('subtarget'):
+            brand_node.remove_property('subtarget')
         brand_node.append(fdt.PropStrings('subtarget', subtarget))
 
     def get_kernel_load_address(self, *args, **kwargs):
