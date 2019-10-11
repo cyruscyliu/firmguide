@@ -4,7 +4,7 @@ Handle IC.
 import os
 import logging
 
-from analysis.common import get_strings
+from analyses.common import get_strings
 from manager import finished
 
 logger = logging.getLogger()

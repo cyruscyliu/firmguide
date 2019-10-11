@@ -12,7 +12,7 @@ import logging
 
 import yaml
 
-from analysis.common import search_most_possible_subtarget, search_most_possible_target, \
+from analyses.common import search_most_possible_subtarget, search_most_possible_target, \
     search_most_possible_toh_record, search_most_possible_kernel_version, fit_parser, description_parser, \
     get_strings
 from manager import finished, finish

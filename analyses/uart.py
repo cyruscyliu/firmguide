@@ -4,7 +4,7 @@ Handle UART.
 import os
 import logging
 
-from analysis.common import get_strings
+from analyses.common import get_strings
 from manager import finished, finish
 
 logger = logging.getLogger()

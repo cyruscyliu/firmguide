@@ -39,7 +39,7 @@ class DatabaseInterface(object):
         return self.count
 
     def get_firmware(self, *args, **kwargs):
-        for firmware in self.load():
+        for firmware in self.load(*args, **kwargs):
             yield firmware
 
 

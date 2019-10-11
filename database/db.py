@@ -24,17 +24,21 @@ class Database(metaclass=abc.ABCMeta):
         pass
 
 
-class DatabasePaused(DatabaseInterface):
-
-    def parse_pre(self, line, **kwargs):
+class DatabasePaused(Database):
+    def __init__(self):
         pass
 
-    def handle_post(self, firmware, **kwargs):
+    def select(self, *args, **kwargs):
         pass
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.dbtype = 'paused'
+    def add(self, *args, **kwargs):
+        pass
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    def update(self, *args, **kwargs):
+        pass
 
 
 class DatabaseFirmadyne(DatabaseInterface):
@@ -49,7 +53,7 @@ class DatabaseFirmadyne(DatabaseInterface):
             return
         uuid = items[self.header.index('id')]
         name = os.path.basename(items[self.header.index('filename')])
-        path = items[self.header.index('filename')]
+        path = items[self.header.index('filename')].replace('openwrt', 'firmware')
         brand = items[self.header.index('brand')]
         if not len(items[self.header.index('arch')]):
             arch = None
