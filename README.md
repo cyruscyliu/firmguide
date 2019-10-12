@@ -59,8 +59,8 @@ make # make clean first if fails
 #### for a single firmware blob
 #### for tons of firmware blob
 
-Prepare a file or a table with firmware information in, say [firmware.text](./database/firmware.text).
-The firmware.text is in CSV format(space not comma, in fact), and you can use any other formats your like. 
+Prepare a file or a table with firmware information in it, say [firmware.text](./database/firmware.text).
+The firmware.text is in CSV format(in fact, space not comma), and you can use any other formats your like. 
 This file shows a least set of attributes you should put in your own file or table for your firmware:
 uuid, path, arch, endian, and brand.
 
@@ -111,9 +111,15 @@ python3.7 main.py -dbt text -p dt -wd ./build -f all
 Add more tools and test one specific analysis.
 
 ```shell script
-python3.7 main.py -dbt text -p dt -wd ./build -u UUID_TO_RERUN
+python3.7 main.py -dbt text -p dt -wd ./build -u UUID
 ```
 
-NOTE: `-l LIMIT` and `-r` still work.
+NOTE: `-l LIMIT` and `-r` still work.  
 NOTE: `-f` and `-u` are mutually exclusive.
+
+For more help.
+```shell script
+python3.7 main.py --help
+```
+
 
