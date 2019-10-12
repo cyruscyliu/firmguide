@@ -33,8 +33,7 @@ bash extract_dot_config.sh [params]...
 #                       as default
 #                       if default, will clean the ./${DEFAULT_WORK_DIR}
 #                       first;
-#                       if set, assume it is an empty or not-exist
-#                       dir)
+#                       NOTICE: will clean the target directory first)
 #
 ##################################################################
 
