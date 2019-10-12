@@ -21,6 +21,7 @@ def by_binwalk(firmware):
     The patched binwalk must be available.
     """
     LOG_SUFFIX = '[BINWALK]'
+    context = {'hint': '', 'input': 'you must tell binwalk to handle this new format'}
     for module in binwalk.scan(firmware.working_path, signature=True, extract=True,
                                quiet=True, block=firmware.size, directory=firmware.working_dir):
         count = 0
@@ -56,11 +57,10 @@ def by_binwalk(firmware):
             else:
                 image_type = 'unknown'
                 firmware.set_format(image_type)
-                logger.debug("\t%s    0x%.8X    %s [%s]" % (
-                    result.file.name, result.offset, result.description, str(result.valid)))
-
+            context['hint'] += '\t0x%.8X    %s\n' % (
+                result.offset, result.description)
         if not count:
-            raise NotImplementedError('no support for other firmware header')
+            raise NotImplementedError(context)
 
 
 def by_uboot_tools(firmware):

@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger()
 
 
-def check_and_restore(firmware):
+def check_and_restore(firmware, **kwargs):
     """
     1. Check whether the wd exists or not, if not let first_time be true.
     2. For the first time,
@@ -27,9 +27,12 @@ def check_and_restore(firmware):
     first_time = True
     if os.path.exists(firmware.working_dir):
         first_time = False
+    rerun = kwargs.pop('rerun', False)
+    if rerun:
+        first_time = True
     analysis = os.path.join(firmware.working_dir, 'analysis')
     if first_time:
-        os.mkdir(firmware.working_dir)
+        os.makedirs(firmware.working_dir, exist_ok=True)
         with open(analysis, 'w') as f:
             f.close()
         firmware.set_profile(working_dir=firmware.working_dir, first=True)
