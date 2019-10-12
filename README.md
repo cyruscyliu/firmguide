@@ -1,6 +1,32 @@
-# Embedded System Virtualization 
+# Salamander
 
-## dependency
+This is a project aiming to run and test any given firmware blob dynamically in a pure software way.
+That is to say, the given firmware becomes a traditional program that can be run smoothly
+and instrumented easily. Moreover, any dynamic analysis approaches can be extended and there is no gap at all.
+
+BTW, this project has a name `Salamander` which is from `Fantastic Beasts: The Crimes of Grindelwald` :).
+
+>Newt (to Tian): You have eyes like a salamander
+
+## Features
+
+We are very happy to release the `Salamander 0.5` with following features:
++ support thousands of linux-based firmware among several brands
++ [SPECIAL] provide lots of summary to embedded system fragmentation
++ build-in dozens of metadata extractors and a static analysis tool
++ [SPECIAL] a light and effective static analysis tool for hardware things in linux kernel
++ support 3 device profiles, device tree, ipxact, and a custom simple protocol
++ [SPECIAL] extend device tree to support virtualization
++ generate QEMU code with device profiles as input
++ [SPECAIL] interface messy QEMU code to developer, and redefine the way to write a new machine
++ build-in a dynamic engine to track and solve peripheral register initial values
++ [SPECIAL] guarantee several peripheral' functionality
+
+## Quick Start
+
+This section is not QUICK at all, make sure to follow us.
+ 
+### dependency
 
 ```bash
 sudo add-apt-repository ppa:deadsnakes/ppa
@@ -23,7 +49,7 @@ sudo apt-get install -y u-boot-tools
 sudo apt-get install -y gawk
 ```
 
-## install
+### install
 ```bash
 make
 ```

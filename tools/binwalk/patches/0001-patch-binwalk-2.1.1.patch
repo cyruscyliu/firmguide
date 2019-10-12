@@ -1,15 +1,54 @@
-From 1499f9333a08b78f15e56d8076f2b1c527b4cd49 Mon Sep 17 00:00:00 2001
+From b652c03a23c018cfdf5fb8baf720a9e813603004 Mon Sep 17 00:00:00 2001
 From: cyrus <cyruscyliu@gmail.com>
-Date: Tue, 1 Oct 2019 22:43:16 +0800
+Date: Sat, 12 Oct 2019 22:22:57 +0800
 Subject: [PATCH] patch binwalk-2.1.1
 
 ---
- src/binwalk/core/magic.py        | 326 ++++++++++++++++++++++++---------------
- src/binwalk/magic/firmware       |  75 ++++++---
- src/binwalk/modules/extractor.py |  13 +-
- src/binwalk/modules/general.py   |  44 +++---
- 4 files changed, 283 insertions(+), 175 deletions(-)
+ src/binwalk/core/exceptions.py       |  25 +++
+ src/binwalk/core/magic.py            | 326 +++++++++++++++++++++--------------
+ src/binwalk/modules/extractor.py     |  13 +-
+ src/binwalk/modules/general.py       |  44 ++---
+ src/binwalk/plugins/trxextract.py    |  25 +++
+ src/binwalk/plugins/uimageextract.py |  23 +++
+ src/scripts/extract_uimage.py        |  11 ++
+ 7 files changed, 314 insertions(+), 153 deletions(-)
+ create mode 100644 src/binwalk/core/exceptions.py
+ create mode 100644 src/binwalk/plugins/trxextract.py
+ create mode 100644 src/binwalk/plugins/uimageextract.py
+ create mode 100644 src/scripts/extract_uimage.py
 
+diff --git a/src/binwalk/core/exceptions.py b/src/binwalk/core/exceptions.py
+new file mode 100644
+index 0000000..a032c39
+--- /dev/null
++++ b/src/binwalk/core/exceptions.py
+@@ -0,0 +1,25 @@
++class ParserException(Exception):
++
++    '''
++    Exception thrown specifically for signature file parsing errors.
++    '''
++    pass
++
++
++class ModuleException(Exception):
++
++    '''
++    Module exception class.
++    Nothing special here except the name.
++    '''
++    pass
++
++
++class IgnoreFileException(Exception):
++
++    '''
++    Special exception class used by the load_file plugin method
++    to indicate that the file that we are attempting to load
++    should be ignored.
++    '''
++    pass
+\ No newline at end of file
 diff --git a/src/binwalk/core/magic.py b/src/binwalk/core/magic.py
 index 0c398a4..a7a0757 100644
 --- a/src/binwalk/core/magic.py
@@ -720,124 +759,6 @@ index 0c398a4..a7a0757 100644
 +        # largest first
          self.signatures.sort(key=lambda x: x.confidence, reverse=True)
 -
-diff --git a/src/binwalk/magic/firmware b/src/binwalk/magic/firmware
-index 53fc9cc..3d57a0a 100644
---- a/src/binwalk/magic/firmware
-+++ b/src/binwalk/magic/firmware
-@@ -4,13 +4,14 @@
- # uImage file     
- # From: Craig Heffner, U-Boot image.h header definitions file
- 0      belong    0x27051956     uImage header, header size: 64 bytes,
-->4     ubelong   x              header CRC: 0x%X,
-+>4     ubelong   x              # header CRC: 0x%X,
- >8     bedate    x              created: %s,
- >12    belong    <1             {invalid}
- >12    ubelong   x              image size: %d bytes,
-+>12    ubelong   x              {size:%d+64}
- >16    ubelong   x              Data Address: 0x%X,
- >20    ubelong   x              Entry Point: 0x%X,
-->24    ubelong   x              data CRC: 0x%X,
-+>24    ubelong   x              # data CRC: 0x%X,
- >28    byte      0              OS: {invalid}invalid OS,
- >28    byte      1              OS: OpenBSD,
- >28    byte      2              OS: NetBSD,
-@@ -51,20 +52,20 @@
- >29    byte      16             CPU: Blackfin,
- >29    byte      17             CPU: AVR,
- >29    byte      18             CPU: STMicroelectronics ST200,
--#>30    byte    x        image type: %d,
-->30    byte      0              image type: {invalid} Image,
-->30    byte      1              image type: Standalone Program,
-->30    byte      2              image type: OS Kernel Image,
-->30    byte      3              image type: RAMDisk Image,
-->30    byte      4              image type: Multi-File Image,
-->30    byte      5              image type: Firmware Image,
-->30    byte      6              image type: Script file,
-->30    byte      7              image type: Filesystem Image,
-->30    byte      8              image type: Binary Flat Device Tree Blob
-->31    byte      0              compression type: none,
-->31    byte      1              compression type: gzip,
-->31    byte      2              compression type: bzip2,
-->31    byte      3              compression type: lzma,
-+#>30   byte      x              image type: %d,
-+>30    byte      0              # image type: {invalid} Image,
-+>30    byte      1              # image type: Standalone Program,
-+>30    byte      2              # image type: OS Kernel Image,
-+>30    byte      3              # image type: RAMDisk Image,
-+>30    byte      4              # image type: Multi-File Image,
-+>30    byte      5              # image type: Firmware Image,
-+>30    byte      6              # image type: Script file,
-+>30    byte      7              # image type: Filesystem Image,
-+>30    byte      8              # image type: Binary Flat Device Tree Blob
-+>31    byte      0              # compression type: none,
-+>31    byte      1              # compression type: gzip,
-+>31    byte      2              # compression type: bzip2,
-+>31    byte      3              # compression type: lzma,
- >32    string    x              image name: "%s"
- 
- #IMG0 header, found in VxWorks-based Mercury router firmware
-@@ -91,20 +92,24 @@
- # trx image file
- 0       string        HDR0    TRX firmware header, little endian,
- >4      lelong        <1      {invalid}
-->4      ulelong       x       image size: %d bytes,
-->8      ulelong       x       CRC32: 0x%X,
-->12     uleshort      x       flags: 0x%X,
-+#>4     ulelong       x       image size: %d bytes,
-+#>8     ulelong       x       CRC32: 0x%X,
-+#>12    uleshort      x       flags: 0x%X,
- >14     uleshort      !1
- >>14    uleshort      !2      {invalid}
- >14     uleshort      2       version: %d, header size: 32 bytes,
- >>16    ulelong       x       loader offset: 0x%X,
- >>20    ulelong       x       linux kernel offset: 0x%X,
-+>>20    ulelong       x       {stub0:%d}
- >>24    ulelong       x       rootfs offset: 0x%X,
-->>28    ulelong       x       bin-header offset: 0x%X
-+>>24    ulelong       x       {stub1:%d}
-+#>>28   ulelong       x       bin-header offset: 0x%X
- >14     uleshort      1       version: %d, header size: 28 bytes,
-->>16    ulelong       x       loader offset: 0x%X,
-+#>>16   ulelong       x       loader offset: 0x%X,
- >>20    ulelong       x       linux kernel offset: 0x%X,
-+>>20    ulelong       x       {stub0:%d}
- >>24    ulelong       x       rootfs offset: 0x%X
-+>>24    ulelong       x       {stub1:%d}
- 
- 14      string        U2ND      BIN-Header,
- >4      ulelong       !0        {invalid}
-@@ -699,4 +704,30 @@
- >20   ulelong    x             \b, ramdisk addr: 0x%X
- >48   string     x             \b, product name: "%s"
- 
--
-+# flattened image tree
-+0                   ubelong   0xd00dfeed  flattened image tree, # fit_header
-+>4                  ubelong   x           total size: %d bytes,
-+>4                  ubelong   x           {size:%d}
-+>(8.L)              ubelong   0           {invalid}
-+# >8                ubelong   x           offset to dt_struct: 0x%x,
-+>(12.L)             ubelong   0           {invalid} # enlarge block size and try again, default=0x100000 (1M)
-+# >12               ubelong   x           offset to strings: 0x%x,
-+>(16.L)             ubelong   !0          {invalid}
-+# >16               ubelong   x           offset to memory reserve map: 0x%x,
-+# >20               ubelong   x           version: %d,
-+# >24               ubelong   x           last compatiable version: %d,
-+# >28               ubelong   x           booting on CPU %d,
-+>(32.L)             ubelong   0           {invalid}
-+# >32               ubelong   x           size of the strings block: %d bytes,
-+>(36.L)             ubelong   0           {invalid}
-+# >36               ubelong   x           size of the structure block: %d bytes,
-+>(8.L)+0            ubelong   !1          {invalid} # fit_structure->root_node_header
-+>(8.L)+8+0          ubelong   !3          {invalid} # fit_structure->root_timestamp
-+>(8.L)+8+8          ubelong   x           # offset to name,
-+>(12.L)+(>.L)       string    !timestamp  {invalid}
-+>(8.L)+8+12         ubedate   x           timestamp: %s,
-+>(8.L)+24+0         ubelong   3           # fit_structure->root_description
-+>>(8.L)+24+4        ubelong   x           {strlen:(%d+3)&~3}
-+>>(8.L)+24+8        ubelong   x           # offset to name,
-+>>(12.L)+(>.L)      string    x           %s:
-+>>(8.L)+24+12       string    x           {string}%s
 diff --git a/src/binwalk/modules/extractor.py b/src/binwalk/modules/extractor.py
 index 16c6f00..51e829a 100644
 --- a/src/binwalk/modules/extractor.py
@@ -1001,6 +922,83 @@ index 0549a97..49205c2 100644
 -                    self.error(description="Cannot open file : %s" % str(e))
 -
 +                    self.error(description="Cannot open file %s (CWD: %s) : %s" % (tfile, os.getcwd(), str(e)))
+diff --git a/src/binwalk/plugins/trxextract.py b/src/binwalk/plugins/trxextract.py
+new file mode 100644
+index 0000000..d8477e9
+--- /dev/null
++++ b/src/binwalk/plugins/trxextract.py
+@@ -0,0 +1,25 @@
++import binwalk.core.plugin
++
++
++class TRXExtractPlugin(binwalk.core.plugin.Plugin):
++    """
++    uImage extractor plugin.
++    """
++    MODULES = ['Signature']
++
++    def init(self):
++        if self.module.extractor.enabled:
++            self.module.extractor.add_rule(txtrule=None,
++                                           regex='^trx',
++                                           extension='trx',
++                                           cmd=self.extractor)
++
++    def extractor(self, fname):
++        pass
++
++    def scan(self, result):
++        if result.description.lower().startswith('trx'):
++            kernel_start = result.stub0 + result.offset
++            kernel_end = result.stub1 + result.offset
++            result.offset = kernel_start
++            result.size = kernel_end - kernel_start
+diff --git a/src/binwalk/plugins/uimageextract.py b/src/binwalk/plugins/uimageextract.py
+new file mode 100644
+index 0000000..d703a25
+--- /dev/null
++++ b/src/binwalk/plugins/uimageextract.py
+@@ -0,0 +1,23 @@
++import os
++import binwalk.core.plugin
++
++
++class uImageExtractPlugin(binwalk.core.plugin.Plugin):
++    """
++    uImage extractor plugin.
++    """
++    MODULES = ['Signature']
++
++    def init(self):
++        if self.module.extractor.enabled:
++            self.module.extractor.add_rule(txtrule=None,
++                                           regex='^uimage',
++                                           extension='uimage',
++                                           cmd=self.extractor)
++            self.module.extractor.add_rule(txtrule=None,
++                                           regex='^flattened image tree',
++                                           extension='uimage.fit',
++                                           cmd=self.extractor)
++
++    def extractor(self, fname):
++        pass
+diff --git a/src/scripts/extract_uimage.py b/src/scripts/extract_uimage.py
+new file mode 100644
+index 0000000..3a1f657
+--- /dev/null
++++ b/src/scripts/extract_uimage.py
+@@ -0,0 +1,11 @@
++#!/usr/bin/env python
++
++import sys
++import binwalk
++
++for module in binwalk.scan(*sys.argv[1:], signature=True, quit=False, extract=False):
++    print('%s Results:' % module.name)
++    # for result in module.results:
++    #     if result.file.path in module.extractor.output:
++    #         if module.extractor.output[result.file.path].extracted.has_key(result.offset):
++    #             pass
 -- 
 2.7.4
 

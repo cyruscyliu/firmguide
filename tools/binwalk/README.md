@@ -9,12 +9,5 @@ However, Binwalk is not enough for our analysis. We want Binwalk to support the 
 + extract FIT uImage directly
 + extract TRX image directly
 
-## install
+## Install
 see project [README.md](../README.md).
-
-## start
-Use binwalk as usual except, to support FIT uImage, adding --block size_in_byte to load all FIT uImage.
-
-```shell script
-binwalk --block size_in_byte path/to/firmware
-```
