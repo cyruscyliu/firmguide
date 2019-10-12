@@ -2,6 +2,8 @@ import os
 import re
 import abc
 import csv
+import yaml
+import fcntl
 
 from database.dbi import DatabaseInterface
 
@@ -26,13 +28,31 @@ class Database(metaclass=abc.ABCMeta):
 
 class DatabasePaused(Database):
     def __init__(self):
-        pass
+        self.path = os.path.join(os.getcwd(), 'database', 'pause.yaml')
+        self.last_paused_analyses = yaml.safe_load(open(self.path))
+        self.new_paused_analyses = {}
+        # clear the database
+        with open(self.path, 'w'):
+            pass
 
     def select(self, *args, **kwargs):
-        pass
+        if self.last_paused_analyses:
+            return [key for key in self.last_paused_analyses.keys()]
 
     def add(self, *args, **kwargs):
-        pass
+        uuid = kwargs.pop('uuid')
+        name = kwargs.pop('name')
+        hint = kwargs.pop('hint')
+        input_ = kwargs.pop('input')
+        self.new_paused_analyses[uuid] = {
+            'name': name,
+            'hint': hint,
+            'input': input_
+        }
+        with open(self.path, 'a') as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+            yaml.safe_dump(self.new_paused_analyses, f)
+            fcntl.flock(f, fcntl.LOCK_UN)
 
     def delete(self, *args, **kwargs):
         pass

@@ -1,0 +1,39 @@
+'12919':
+  hint: "\t0x00000310    LZMA compressed data, properties: 0x6D, dictionary size:\
+    \ 8388608 bytes, uncompressed size: -1 bytes\n"
+  input: you must tell binwalk to handle this new format
+  name: 15c9f5813981c8aea66252c488a711b12128c128.bin
+'12952':
+  hint: "\t0x00000000    BIN-Header, board ID: AG1A, hardware version: 4702, firmware\
+    \ version: 3.37.37, build date: 2017-12-09\n\t0x0000030C    LZMA compressed data,\
+    \ properties: 0x6D, dictionary size: 8388608 bytes, uncompressed size: -1 bytes\n\
+    \t0x0013EA08    Squashfs filesystem, little endian, version 4.0, compression:xz,\
+    \ size: 2417030 bytes, 661 inodes, blocksize: 65536 bytes, created: 2017-11-04\
+    \ 21:15:13\n"
+  input: you must tell binwalk to handle this new format
+  name: d0920eaaee827d4c9eaa72df0f5c2a5b5510ab01.bin
+'12956':
+  hint: "\t0x00000000    BIN-Header, board ID: AG1B, hardware version: 4702, firmware\
+    \ version: 3.37.37, build date: 2017-12-09\n\t0x0000030C    LZMA compressed data,\
+    \ properties: 0x6D, dictionary size: 8388608 bytes, uncompressed size: -1 bytes\n\
+    \t0x0013EA08    Squashfs filesystem, little endian, version 4.0, compression:xz,\
+    \ size: 2417030 bytes, 661 inodes, blocksize: 65536 bytes, created: 2017-11-04\
+    \ 21:15:13\n"
+  input: you must tell binwalk to handle this new format
+  name: 291f04134241f38e43fb64360d870befede39618.bin
+'12910':
+  hint: "\t0x00000000    gzip compressed data, from Unix, last modified: 2017-12-08\
+    \ 16:28:27\n\t0x0014389E    xz compressed data\n\t0x00157164    xz compressed\
+    \ data\n\t0x0016A993    xz compressed data\n\t0x0017F101    xz compressed data\n\
+    \t0x00196828    xz compressed data\n\t0x0019EB19    xz compressed data\n\t0x001B0C78\
+    \    xz compressed data\n\t0x001C3952    xz compressed data\n\t0x001C424A    xz\
+    \ compressed data\n\t0x001CB08F    xz compressed data\n\t0x001DD491    xz compressed\
+    \ data\n\t0x001F56B4    xz compressed data\n\t0x002064FA    xz compressed data\n\
+    \t0x0021D141    xz compressed data\n\t0x002350BC    xz compressed data\n\t0x0023B885\
+    \    xz compressed data\n\t0x0024CF2B    xz compressed data\n\t0x0025D8A1    xz\
+    \ compressed data\n\t0x0026E46B    xz compressed data\n\t0x0027DA05    xz compressed\
+    \ data\n\t0x0028EA73    xz compressed data\n\t0x002A14B2    xz compressed data\n\
+    \t0x002B6678    xz compressed data\n\t0x002C67E2    xz compressed data\n\t0x002D7038\
+    \    xz compressed data\n\t0x002EB9DB    xz compressed data\n"
+  input: you must tell binwalk to handle this new format
+  name: 5f3ee0ba6b15781461d690a7a345d70943efa0a8.bin
