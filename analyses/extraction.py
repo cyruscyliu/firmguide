@@ -57,7 +57,7 @@ def by_binwalk(firmware):
             else:
                 image_type = 'unknown'
                 firmware.set_format(image_type)
-            context['hint'] += '\t0x%.8X    %s\n' % (
+            context['hint'] += '0x%.8X    %s\n' % (
                 result.offset, result.description)
         if not count:
             raise NotImplementedError(context)
