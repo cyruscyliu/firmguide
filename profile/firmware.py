@@ -22,12 +22,13 @@ class Firmware(object):
         self.format = None
         self.architecture = None
         self.endian = None
-        self.url = None
+        self.url = None  # where this firmware is download
 
         # components
         self.path_to_image = None
         self.path_to_kernel = None
         self.path_to_dtb = None
+        self.path_to_source_code = None
 
     def set_description(self, *args, **kwargs):
         description = args[0]
@@ -73,6 +74,13 @@ class Firmware(object):
 
     def get_path_to_dtb(self, *args, **kwargs):
         return self.path_to_dtb
+
+    def set_path_to_source_code(self, *args, **kwargs):
+        path = args[0]
+        self.path_to_source_code = path
+
+    def get_path_to_source_code(self, *args, **kwargs):
+        return self.path_to_source_code
 
     def set_format(self, *args, **kwargs):
         format_ = args[0]
