@@ -39,6 +39,14 @@ def find_url_for_kernel(version):
     return os.path.join(root, l1, l2)
 
 
+def find_url_for_openwrt(revision):
+    # 15.05
+    if revision == '15.05':
+        return "https://github.com/openwrt/chaos_calmer/archive/v15.05.tar.gz"
+    else:
+        raise NotImplementedError()
+
+
 def cache_package(url, adjust):
     package_name = os.path.basename(url)
     cached_directory = os.path.join(os.getcwd(), 'cache', adjust)
@@ -76,18 +84,21 @@ def get_source_code(firmware):
         else:
             homepage = firmware.homepage
         image_builder, dot_config = find_urls_in_openwrt_homepage(homepage)  # 2, 4
-        image_builder = cache_package(image_builder, os.path.join('openwrt', revision, target, subtarget))
+        # image_builder = cache_package(image_builder, os.path.join('openwrt', revision, target, subtarget))
+        image_builder = find_url_for_openwrt(revision)
+        image_builder = cache_package(image_builder, os.path.join('openwrt', revision))
         dot_config = cache_package(dot_config, os.path.join('openwrt', revision, target, subtarget))
     else:
         raise NotImplementedError()
-    source_code = os.path.join(firmware.working_dir, 'linux-{}'.format(kernel_version))  # 8
+    source_code = os.path.join(firmware.working_dir, 'source_code', 'linux-{}'.format(kernel_version))  # 8
     firmware.set_path_to_source_code(source_code)
-    cmd = 'bash extract_dot_config.sh "{}" "{}" "{}" "{}" "{}" "{}" "{}" "{}"'.format(
-        revision, image_builder, kernel, dot_config, kernel_version, target, subtarget, source_code
+    working_dir = os.path.join(firmware.working_dir, 'source_code')
+    cmd = 'bash extract_dot_config.sh "{}" "{}" "{}" "{}" "{}" "{}" "{}" "{}" "{}"'.format(
+        revision, image_builder, kernel, dot_config, kernel_version, target, subtarget, source_code, working_dir
     )
     logger.info('{} [BASH]'.format(cmd))
     pwd = os.getcwd()
     os.chdir(os.path.join(pwd, 'openwrt', 'extract_dot_config'))
-    os.system(cmd)
+    os.system('{} >/dev/null 2>&1'.format(cmd))
     os.chdir(pwd)
-    # finish(firmware, 'get_source_code', 'by_default')
+    finish(firmware, 'get_source_code', 'by_default')

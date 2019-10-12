@@ -20,6 +20,7 @@ sudo apt-get install -y libnfs-dev libiscsi-dev
 sudo apt-get install -y bison flex
 sudo apt-get install -y libcapstone3 libcapstone-dev
 sudo apt-get install -y u-boot-tools
+sudo apt-get install -y gawk
 ```
 
 ## install
