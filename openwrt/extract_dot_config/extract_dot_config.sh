@@ -61,8 +61,7 @@ usage() {
 #                       as default
 #                       if default, will clean the ./${DEFAULT_WORK_DIR}
 #                       first;
-#                       if set, assume it is an empty or not-exist
-#                       dir)
+#                       NOTICE: will clean the target directory first)
 #
 ##################################################################
 "
@@ -111,8 +110,10 @@ prepare() {
         WORK_DIR="`realpath ${DEFAULT_WORK_DIR}`"
     else
         mkdir -p ${work_dir}
-        [ "`ls -A ${work_dir} | wc -l`" -ne 0 ] && error "param 8 work_dir '${work_dir}' not empty"
-        WORK_DIR="`realpath ${work_dir}`"
+        #[ "`ls -A ${work_dir} | wc -l`" -ne 0 ] && error "param 8 work_dir '${work_dir}' not empty"
+        local path=`realpath ${work_dir}`
+        [ -d "${path}" ] && rm -rf ${path}/* || error "the param 9 is weird, realpath of '${work_dir}' is ${path} which doesn't exist & cannot been created"
+        WORK_DIR="${path}"
     fi
 
     # 3. setup patch env
