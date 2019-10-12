@@ -97,7 +97,10 @@ prepare() {
     # 1. setup openwrt version specific env
     if [ -d "${openwrt_ver}" ] 
     then
-        . ${openwrt_ver}/extract-modules.sh
+        for sh in ${openwrt_ver}/*.sh
+        do
+            . ${sh}
+        done
         OPENWRT_VER="${openwrt_ver}"
     else
         error "not supported openwrt version '${openwrt_ver}'"
@@ -180,10 +183,13 @@ get_dot_config() {
     # 2. gen .packageinfo
     gen_packageinfo 
 
-    # 3. .config generation flow
+    # 3. patch kernel source code
+    module_kernel_patch_do
+
+    # 4. .config generation flow
     dot_config_generation
 
-    # 4. post process, like copy & rename the ouput to target place
+    # 5. post process, like copy & rename the ouput to target place
     postprocess
 }
 
