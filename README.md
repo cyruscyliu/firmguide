@@ -2,7 +2,7 @@
 
 This is a project aiming to run and test any given firmware blob dynamically in a pure software way.
 That is to say, the given firmware becomes a traditional program that can be run smoothly
-and instrumented easily. Moreover, any dynamic analysis approaches can be extended and there is no gap at all.
+and instrumented easily. Moreover, any dynamic analysis approaches can be extended in Salamander and there is no gap at all.
 
 BTW, this project has a name `Salamander` which is from `Fantastic Beasts: The Crimes of Grindelwald` :).
 
@@ -51,10 +51,69 @@ sudo apt-get install -y gawk
 
 ### install
 ```bash
-make
+make # make clean first if fails
 ```
 
-## start
-```bash
-python3.7 main.py -dbt text -wd ./build
+### start 
+
+#### for a single firmware blob
+#### for tons of firmware blob
+
+Prepare a file or a table with firmware information in, say [firmware.text](./database/firmware.text).
+The firmware.text is in CSV format(space not comma, in fact), and you can use any other formats your like. 
+This file shows a least set of attributes you should put in your own file or table for your firmware:
+uuid, path, arch, endian, and brand.
+
+```text
+uuid path arch endian brand
+9692 firmware/278a494b4a543f4a48dbb56d7ce226a23a3fbcc3.bin arm l openwrt
 ```
+
+Create a class for your file or table, say `DatabaseText`. The class must inherit `DatabaseInterface`, and you
+have to realize two functions: `parse_pre` and `handle_post`. You are expect to parse your file or table in
+`parse_pre` and save what you get in `handle_post`.
+
+Don\'t forget to tell the database factory [dbf.py](./database/dbf.py) the name of your file or table.
+
+```python
+def get_database(dbtype, **kwargs):
+    if dbtype == 'text':
+        return DatabaseText(os.path.join('database', 'firmware.text'), **kwargs)
+```
+
+NOTE: COPY YOUR FIRMWARE TO RIGHT POSITION
+
+Test all firmware.
+
+```shell script
+python3.7 main.py -dbt text -p dt -wd ./build
+```
+
+Test limited firmware.
+
+```shell script
+python3.7 main.py -dbt text -p dt -wd ./build -l 2
+```
+
+NOTE: To disable `save and restore`, please use `-r`.
+
+We regard testing a firmware as an analysis. Any failure will raise NotImplementedError to the top routine, 
+and all failed analyses are by default stored in [pause.yaml](./database/pause.yaml).
+Read it and find out why these analyses are failed.
+
+
+Add more tools and test all failed analyses.
+
+```shell script
+python3.7 main.py -dbt text -p dt -wd ./build -f all
+```
+
+Add more tools and test one specific analysis.
+
+```shell script
+python3.7 main.py -dbt text -p dt -wd ./build -u UUID_TO_RERUN
+```
+
+NOTE: `-l LIMIT` and `-r` still work.
+NOTE: `-f` and `-u` are mutually exclusive.
+
