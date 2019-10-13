@@ -16,8 +16,6 @@ __get_uart_info = []
 def by_strings(firmware):
     LOG_SUFFIX = '[STRINGS]'
     uart_model = firmware.get_uart_model()
-    if uart_model is not None:
-        return
     strings = get_strings(firmware)
     if strings is None:
         return None

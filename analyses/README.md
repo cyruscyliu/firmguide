@@ -1,99 +1,138 @@
-# analysis module
+# Analysis
 
-put analysis scripts here
+## Programming Model
 
-## extraction
-
-### by binwalk
-+ requirements
-    - firmware.working_dir NOT NONE
-    - firmware.working_path NOT NONE
-    - firmware.size  NOT NONE
-+ settings
-    - firmware.image_type = see conventions below
-    - firmware.image_path = extracted_path
+In this module, you are expected to follow the programming model below
+to reduce log, and to support save and restore mechanism. Add and register a function, 
+then the function will be called automatically. At the beginning, the model describes this task 
+by `TASK_DESCRIPTION`,  and the `do_a` function must define a `LOG_SUFFIX` to label itself. Doing 
+all above, we will get less logs and boost the performance. The model instruments every `do_a` function
+by `finished` and `finish` to decide whether to execute it or not. The save and restore mechanism saves
+lots of time and is friendly to debugging.
  
- ### by uboot tools
- + requirements
-    - firmware.image_type 'fit uImage' OR 'legacy uImage'
-    - firmware.image_path NOT NONE
- + settings
-    - firmware.kernel
-    - firmware.dtb = NONE if 'lagacy uImage'
+Each function you add and register should define its own preconditions which the firmware must be provide, 
+and check these preconditions by itself. At the same time, each function should raise NotImplementationError
+when the whole routine must stop because this firmware has not been supported yet.
 
-### by lzma tools
-+ requirements
-    - firmware.image_type 'trx kernel'
-    - firmware.image_path NOT NONE
-+ settings
-    - firmware.kernel
-    - firmware.dtb = NONE
+```python
+import logging
+from manager import finished, finish
+
+logger = logging.getLogger()
+TASK_DESCRIPTION = 'do something'
+
+__do_something = []
+
+def do_a(firmware): # add a function, the one and only one parameter is firmware
+    LOG_SUFFIX = 'do_a'
+    logger.info('xxx {}'.format(LOG_SUFFIX))
+    pass
+
+def register_do_something(func):
+    __do_something.append(func)
     
-## metadata
+register_do_something(do_a) # register the function
 
-### by file
-+ requirements
-    - firmware.image_type 'legacy uImage'
-    - firmware.image_path NOT NONE
-+ settings
-    - firmware.metadata
-        + kernel_version: 1
-        + os: 1
-        + arch: 1
-        + kernel_created_time: 1
-        + kernel_load_address: 1
-        + kernel_entry_point: 1  
-        
-### by dumpimage
-+ requirements
-    - firmware.image_type 'fit uImage'
-    - firmware.image_path NOT NONE
-+ settings
-    - firmware.metadata
-        + created_time: 1
-        + os: 1
-        + arch: 1
-        + kernel_load_address: 1
-        + kernel_entry_point: 1
-        + brand: 1
-        + kernel_version: 1
+def do_something(firmware): # called by top routine
+    logger.info(TASK_DESCRIPTION)
+    for func in __do_something:
+        if finished(firmware, 'do_something', func.__name__):
+            continue
+        func(firmware) # call it automatically
+        finish(firmware, 'do_something', func.__name__)
+```
 
-### by kernel version
-+ requirements
-    - firmware.metadata.kernel_version
-+ settings
-    - firmware.openwrt_revision
+## Preconditions and Exception
 
-### by device tree
-+ requirements
-    - firmware.dtb NOT NONE
-    - firmware.openwrt_revision
-+ settings
-    - firmware.openwrt
-    - firmware.most_possible_target
-    - firmware.most_possible_subtarget
+### extract kernel and dtb [extraction.py](.|extraction.py)
 
-### by strings
-+ requirements
-    - firmware.kernel
-    - firmware.most_possible_target
-    - firmware.openwrt_revision
-+ settings
-    - firmware.metadata
-        + possible_targets
-        + possible_subtargets
-    - firmware.most_possible_target
-    - firmware.most_subpossible_target
-    - firmware.openwrt
+|                | preconditions | settings | exception |
+|:--------------:|:---:|:---:|:---:|
+|   by binwalk   | firmware.working_dir is not None | firmware.format | Y |
+|                | firmware.working_path is not None | firmware.path_to_image| |
+|                | firmware.size is not None | | |
+| by uboot tools | firmware.format is 'fit uImage' or 'legacy uImage' | firmware.path_to_kernel | |
+|                | firmware.path_to_image is not None | firmware.path_to_dtb | |
+|  by lzma tools | firmware.format is 'trx kernel' | firmware.path_to_kernel | |
+|                | firmware.path_to_image is not None | firmware.path_to_dtb | |
     
+### get metadata [metadata.py](.|metadata.py)
+
+|                   | preconditions | settings | exception |
+|:-----------------:|:---:|:---:|:---:|
+|      by file      | firmware.format is 'legacy uImage' | firmware.kernel_version | |
+|                   | firmware.path_to_image is not None | firmware.kernel_created_time | |
+|                   |                                    | firmware.kernel_load_address | |
+|                   |                                    | firmware.kernel_entry_point | |
+|    by dumpimage   | firmware.format is 'fit uImage' | firmware.kernel_created_time | |
+|                   | firmware.path_to_image is not None | firmware.kernel_load_address | |
+|                   |                                    | firmware.kernel_entry_point | |
+| by kernel version | firmware.kernel_version | firmware.revision | |
+|   by device tree  | firmware.path_to_dtb is not None | firmware.dts | |
+|                   | firmware.revision is not None | firmware.toh | |
+|     by strings    | firmware.revision is not None | firmware.target | |
+|                   |                               | firmware.subtarget | |
+|       by url      | firmware.brand is 'openwrt' | firmware.homepage | |
+|                   |                             | firmware.target | |
+|                   |                             | firmware.subtarget | |
     
+### get source code [srcode.py](./srcode.py)
+
+|                   | preconditions | settings | exception |
+|:-----------------:|:---:|:---:|:---:|
+|                   | firmware.brand is not None | firmware.path_to_source_code | Y |
+|                   | firmware.revision is not None | | |
+|                   | firmware.kernel_version is not None | | |
+|                   | firmware.target is not None | | |
+|                   | firmware.subtarget is not None | | |
+|                   | firmware.working_dir is not None | | |
+
+### get cpu info [cpu.py](./cpu.py)
+
+|                   | preconditions | settings | exception |
+|:-----------------:|:---:|:---:|:---:|
+|      global       | firmware.cpu_model is None | | | 
+|      by toh       | firmware.toh is not None | firmware.cpu_model | |
+|                   |                          | firmware.soc_model | |
+
+### get ram info [ram.py](./ram.py)
+
+|                   | preconditions | settings | exception |
+|:-----------------:|:---:|:---:|:---:|
+|      global       | firmware.ram is None | | | 
+|      by toh       | firmware.toh is not None | firmware.ram | |
+|    by default     | firmware.ram_size is not 0 | firmware.ram | |
+
+### get flash info [flash.py](./flash.py)
+
+|                   | preconditions | settings | exception |
+|:-----------------:|:---:|:---:|:---:|
+|      global       | firmware.flash_model is None | | |
+|      by toh       | firmware.toh is not None | firmware.flash_type | |
+
+### get uart info [uart.py](./uart.py)
+
+|                   | preconditions | settings | exception |
+|:-----------------:|:---:|:---:|:---:|
+|      global       | firmware.uart_model is None | | |
+|    by strings     | | firmware.uart_model | |
+
+### get ic info [ic.py](./ic.py)
+
+|                   | preconditions | settings | exception |
+|:-----------------:|:---:|:---:|:---:|
+|      global       | firmware.ic_model is None | | |
+|    by strings     | | firmware.uart_model | |
+
+### get timer info [timer.py](./timer.py)
+
+|                   | preconditions | settings | exception |
+|:-----------------:|:---:|:---:|:---:|
+|      global       | firmware.timer_model is None | | |
+
 ## conventions
 
-### firmware.image_type
 |support|convention name|
 |:---:|:---:|
 |legacy uImage|legecy uImage|
 |FIT uImage|fit uImage|
-|TRX image|trx kernel|
-
-

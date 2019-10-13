@@ -15,9 +15,6 @@ __get_ic_info = []
 
 def by_strings(firmware):
     LOG_SUFFIX = '[STRINGS]'
-    ic_model = firmware.get_interrupt_controller_model()
-    if ic_model is not None:
-        return
     strings = get_strings(firmware)
     if strings is None:
         return None
