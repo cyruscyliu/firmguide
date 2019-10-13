@@ -3,7 +3,7 @@
 ## Programming Model
 
 In this module, you are expected to follow the programming model below
-to reduce log, and to support save and restore mechanism. Add and register a function, 
+to reduce logs, and to support save and restore mechanism. Add and register a function, 
 then the function will be called automatically. At the beginning, the model describes this task 
 by `TASK_DESCRIPTION`,  and the `do_a` function must define a `LOG_SUFFIX` to label itself. Doing 
 all above, we will get less logs and boost the performance. The model instruments every `do_a` function
@@ -51,8 +51,10 @@ def do_something(firmware): # called by top routine
 |   by binwalk   | firmware.working_dir is not None | firmware.format | Y |
 |                | firmware.working_path is not None | firmware.path_to_image| |
 |                | firmware.size is not None | | |
+||||
 | by uboot tools | firmware.format is 'fit uImage' or 'legacy uImage' | firmware.path_to_kernel | |
 |                | firmware.path_to_image is not None | firmware.path_to_dtb | |
+||||
 |  by lzma tools | firmware.format is 'trx kernel' | firmware.path_to_kernel | |
 |                | firmware.path_to_image is not None | firmware.path_to_dtb | |
     
@@ -64,14 +66,19 @@ def do_something(firmware): # called by top routine
 |                   | firmware.path_to_image is not None | firmware.kernel_created_time | |
 |                   |                                    | firmware.kernel_load_address | |
 |                   |                                    | firmware.kernel_entry_point | |
+||||
 |    by dumpimage   | firmware.format is 'fit uImage' | firmware.kernel_created_time | |
 |                   | firmware.path_to_image is not None | firmware.kernel_load_address | |
 |                   |                                    | firmware.kernel_entry_point | |
+||||
 | by kernel version | firmware.kernel_version | firmware.revision | |
+||||
 |   by device tree  | firmware.path_to_dtb is not None | firmware.dts | |
 |                   | firmware.revision is not None | firmware.toh | |
+||||
 |     by strings    | firmware.revision is not None | firmware.target | |
 |                   |                               | firmware.subtarget | |
+||||
 |       by url      | firmware.brand is 'openwrt' | firmware.homepage | |
 |                   |                             | firmware.target | |
 |                   |                             | firmware.subtarget | |
@@ -92,6 +99,7 @@ def do_something(firmware): # called by top routine
 |                   | preconditions | settings | exception |
 |:-----------------:|:---:|:---:|:---:|
 |      global       | firmware.cpu_model is None | | | 
+||||
 |      by toh       | firmware.toh is not None | firmware.cpu_model | |
 |                   |                          | firmware.soc_model | |
 
@@ -100,7 +108,9 @@ def do_something(firmware): # called by top routine
 |                   | preconditions | settings | exception |
 |:-----------------:|:---:|:---:|:---:|
 |      global       | firmware.ram is None | | | 
+||||
 |      by toh       | firmware.toh is not None | firmware.ram | |
+||||
 |    by default     | firmware.ram_size is not 0 | firmware.ram | |
 
 ### get flash info [flash.py](./flash.py)
@@ -108,6 +118,7 @@ def do_something(firmware): # called by top routine
 |                   | preconditions | settings | exception |
 |:-----------------:|:---:|:---:|:---:|
 |      global       | firmware.flash_model is None | | |
+||||
 |      by toh       | firmware.toh is not None | firmware.flash_type | |
 
 ### get uart info [uart.py](./uart.py)
@@ -115,6 +126,7 @@ def do_something(firmware): # called by top routine
 |                   | preconditions | settings | exception |
 |:-----------------:|:---:|:---:|:---:|
 |      global       | firmware.uart_model is None | | |
+||||
 |    by strings     | | firmware.uart_model | |
 
 ### get ic info [ic.py](./ic.py)
@@ -122,6 +134,7 @@ def do_something(firmware): # called by top routine
 |                   | preconditions | settings | exception |
 |:-----------------:|:---:|:---:|:---:|
 |      global       | firmware.ic_model is None | | |
+||||
 |    by strings     | | firmware.uart_model | |
 
 ### get timer info [timer.py](./timer.py)
