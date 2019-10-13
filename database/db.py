@@ -29,7 +29,10 @@ class Database(metaclass=abc.ABCMeta):
 class DatabasePaused(Database):
     def __init__(self):
         self.path = os.path.join(os.getcwd(), 'database', 'pause.yaml')
-        self.last_paused_analyses = yaml.safe_load(open(self.path))
+        if os.path.exists(self.path):
+            self.last_paused_analyses = yaml.safe_load(open(self.path))
+        else:
+            self.last_paused_analyses = {}
         self.new_paused_analyses = {}
         # clear the database
         with open(self.path, 'w'):

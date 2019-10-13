@@ -44,7 +44,13 @@ def by_file(firmware):
         info = os.popen('file -b {}'.format(image_path))
         metadata = info.readline().strip()
         items = metadata.split(', ')
-        kernel_version = re.search(r'Linux-(\d+\.\d+\.\d+)', items[1]).groups()[0]
+        kernel_version = re.search(r'Linux-(\d+\.\d+\.\d+)', items[1])
+        if kernel_version is not None:
+            kernel_version = kernel_version.groups()[0]
+        else:
+            kernel_version = re.search(r'.*\((\d+\.\d+\.\d+)\)', items[1])
+        if not isinstance(kernel_version, str) and kernel_version is not None:
+            kernel_version = kernel_version.groups()[0]
         _os = items[2].split('/')[0]
         arch = items[2].split('/')[1]
         kernel_created_time = items[5]  # time.strptime(items[5], "%a %b %d %H:%M:%S %Y")

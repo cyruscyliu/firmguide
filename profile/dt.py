@@ -52,7 +52,6 @@ class DTFirmware(Firmware):
 
     def set_path_to_dtb(self, *args, **kwargs):
         path_to_dtb = args[0]
-        print(path_to_dtb)
         self.set_node_property('/components', 'path_to_dtb', path_to_dtb)
 
     def get_path_to_dtb(self, *args, **kwargs):

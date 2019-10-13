@@ -16,28 +16,35 @@ from database.dbf import get_database
 from manager import setup_logging, setup, check_and_restore, save_analysis
 
 
+def error_callback(e):
+    try:
+        raise e
+    except Exception as e:
+        logger.exception(e)
+
+
 def run(args):
     dbp = get_database('paused')
     if args.fix:
         args.uuid = dbp.select('uuid')
     dbi = get_database(args.database_type, profile=args.profile)
-    # analysis_pool = multiprocessing.Pool(4)
+    analysis_pool = multiprocessing.Pool(4)
     for firmware in dbi.get_firmware():
         if args.uuid is not None and firmware.uuid not in args.uuid:
             continue
         if args.limit and firmware.id > args.limit:
             continue
-        analysis_wrapper(firmware, dbp, args.rerun)
-        # analysis_pool.apply_async(analysis_wrapper, (firmware, dbp, args.rerun))
-    # analysis_pool.close()
-    # analysis_pool.join()
+        analysis_pool.apply_async(
+            analysis_wrapper, (firmware, dbp, args.rerun), error_callback=error_callback)
+    analysis_pool.close()
+    analysis_pool.join()
 
 
 def analysis(firmware):
     # let's start
     extract_kernel_and_dtb(firmware)
     get_metadata(firmware)
-    get_source_code(firmware)
+    # get_source_code(firmware)
     get_cpu_model_info(firmware)
     get_ram_info(firmware)
     get_flash_info(firmware)
