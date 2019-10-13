@@ -7,3 +7,4 @@ cache
 __pycache__
 *.extracted
 *.pyc
+pause.yaml
