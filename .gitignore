@@ -8,3 +8,4 @@ __pycache__
 *.extracted
 *.pyc
 pause.yaml
+*.html
