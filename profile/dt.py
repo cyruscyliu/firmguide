@@ -8,63 +8,155 @@ import fdt
 
 class DTFirmware(Firmware):
 
+    def set_url(self, *args, **kwargs):
+        url = args[0]
+        self.set_node_property('/basics', 'url', url)
+
+    def get_url(self, *args, **kwargs):
+        return self.get_node_property('/basics', 'url')
+
+    def set_format(self, *args, **kwargs):
+        format_ = args[0]
+        self.set_node_property('/basics', 'format', format_)
+
+    def get_format(self, *args, **kwargs):
+        return self.get_node_property('/basics', 'format')
+
+    def set_homepage(self, *args, **kwargs):
+        homepage = args[0]
+        self.set_node_property('/basics', 'homepage', homepage)
+
+    def get_homepage(self, *args, **kwargs):
+        return self.get_node_property('/basics', 'homepage')
+
+    def set_description(self, *args, **kwargs):
+        description = args[0]
+        self.set_node_property('/basics', 'description', description)
+
+    def get_description(self, *args, **kwargs):
+        return self.get_node_property('/basics', 'description')
+
+    def set_path_to_image(self, *args, **kwargs):
+        path_to_image = args[0]
+        self.set_node_property('/components', 'path_to_image', path_to_image)
+
+    def get_path_to_image(self, *args, **kwargs):
+        return self.get_node_property('/components', 'path_to_image')
+
+    def set_path_to_kernel(self, *args, **kwargs):
+        path_to_kernel = args[0]
+        self.set_node_property('/components', 'path_to_kernel', path_to_kernel)
+
+    def get_path_to_kernel(self, *args, **kwargs):
+        return self.get_node_property('/components', 'path_to_kenrel')
+
+    def set_path_to_dtb(self, *args, **kwargs):
+        path_to_dtb = args[0]
+        print(path_to_dtb)
+        self.set_node_property('/components', 'path_to_dtb', path_to_dtb)
+
+    def get_path_to_dtb(self, *args, **kwargs):
+        return self.get_node_property('/components', 'path_to_dtb')
+
+    def set_path_to_source_code(self, *args, **kwargs):
+        path_to_source_code = args[0]
+        self.set_node_property('/components', 'path_to_source_code', path_to_source_code)
+
+    def get_path_to_source_code(self, *args, **kwargs):
+        return self.get_node_property('/components', 'path_to_source_code')
+
+    def get_brand(self, *args, **kwargs):
+        return self.get_node_property('/basics', 'brand')
+
+    def set_brand(self, *args, **kwargs):
+        brand = args[0]
+        self.set_node_property('/basics', 'brand', brand)
+
+    def get_endian(self, *args, **kwargs):
+        return self.get_node_property('/basics', 'endian')
+
+    def set_endian(self, *args, **kwargs):
+        endian = args[0]
+        self.set_node_property('/basics', 'endian', endian)
+
+    def get_architecture(self, *args, **kwargs):
+        return self.get_node_property('/basics', 'architecture')
+
+    def set_architecture(self, *args, **kwargs):
+        architecture = args[0]
+        self.set_node_property('/basics', 'architecture', architecture)
+
     def get_timer_model(self, *args, **kwargs):
-        pass
+        return self.get_node_property('timer', 'compatible')
 
     def set_timer_model(self, *args, **kwargs):
-        pass
+        timer_model = args[0]
+        self.set_node_property('timer', 'compatible', timer_model)
 
     def get_interrupt_controller_model(self, *args, **kwargs):
-        pass
+        return self.get_node_property('ic', 'compatible')
 
     def set_interrupt_controller_model(self, *args, **kwargs):
-        pass
+        ic_model = args[0]
+        self.set_node_property('ic', 'compatible', ic_model)
 
     def get_uart_model(self, *args, **kwargs):
-        pass
+        return self.get_node_property('uart', 'compatible')
 
     def set_uart_model(self, *args, **kwargs):
-        pass
+        uart_model = args[0]
+        self.set_node_property('uart', 'compatible', uart_model)
 
     def set_flash_type(self, *args, **kwargs):
-        model = args[0]
-        flash_node = self.profile.get_node('/', create=True)
-        flash_node.append(fdt.PropStrings('compatible', model))
-        pass
+        flash_type = args[0]
+        self.set_node_property('flash', 'type', flash_type)
 
     def get_flash_type(self, *args, **kwargs):
-        type = args[0]
+        self.get_node_property('flash', 'type')
+
+    def get_flash_model(self, *args, **kwargs):
+        return self.get_node_property('flash', 'compatible')
+
+    def find_flash_node(self):
         path_to_flash = None
         for path, nodes, props in self.profile.walk():
             if path.find('nand@') != -1 and path.find('partition@') == -1:
                 path_to_flash = path
         if path_to_flash is None:
             path_to_flash = '/flash@0'
-        flash_node = self.profile.get_node(path_to_flash, create=True)
-        flash_node.append(fdt.PropStrings('type', type))
+        return path_to_flash
 
-    def get_flash_model(self, *args, **kwargs):
-        path_to_flash = None
-        for path, nodes, props in self.profile.walk():
-            if path.find('nand@') != -1 and path.find('partition@') == -1:
-                path_to_flash = path
-        if path_to_flash is None:
+    def find_cpu_node(self):
+        return '/cpus/cpu@0'
+
+    def set_node_property(self, path_to_node, property_, *values):
+        for value in values:
+            if value is None:
+                return
+        if path_to_node == 'flash':
+            path_to_node = self.find_flash_node()
+        elif path_to_node == 'cpu':
+            path_to_node = self.find_cpu_node()
+        node = self.profile.get_node(path_to_node, create=True)
+        if node.exist_property(property_):
+            node.remove_property(property_)
+        node.append(fdt.PropStrings(property_, *values))
+
+    def get_node_property(self, path_to_node, property_):
+        if not self.profile.exist_node(path_to_node):
             return
-        flash_node = self.profile.get_node(path_to_flash)
-        assert flash_node is not None
-        model = flash_node.get_property('compatible').data[0]
-        return model
+        node = self.profile.get_node(path_to_node)
+        if not node.exist_property(property_):
+            return
+        value = node.get_property(property_)
+        if value is None:
+            return
+        else:
+            return value.data[0]
 
     def set_flash_model(self, *args, **kwargs):
         model = args[0]
-        path_to_flash = None
-        for path, nodes, props in self.profile.walk():
-            if path.find('nand@') != -1 and path.find('partition@') == -1:
-                path_to_flash = path
-        if path_to_flash is None:
-            path_to_flash = '/flash@0'
-        flash_node = self.profile.get_node(path_to_flash, create=True)
-        flash_node.append(fdt.PropStrings('compatible', model))
+        self.set_node_property('flash', 'compatible', model)
 
     def get_flash_size(self, *args, **kwargs):
         pass
@@ -73,15 +165,11 @@ class DTFirmware(Firmware):
         pass
 
     def get_soc_model(self, *args, **kwargs):
-        root_node = self.profile.get_node('/')
-        assert root_node is not None
-        model = root_node.get_property('model').data[0]
-        return model
+        return self.get_node_property('/', 'model')
 
     def set_soc_model(self, *args, **kwargs):
         soc = args[0]
-        root_node = self.profile.get_node('/', create=True)
-        root_node.append(fdt.PropStrings('model', soc))
+        self.set_node_property('/', 'model', soc)
 
     def get_toh(self, *args, **kwargs):
         if not len(args):
@@ -112,17 +200,11 @@ class DTFirmware(Firmware):
             brand_node.append(fdt.PropStrings(k, v))
 
     def get_revision(self, *args, **kwargs):
-        if not self.profile.exist_node('/brand'):
-            return
-        brand_node = self.profile.get_node('/brand')
-        assert brand_node is not None
-        revision = brand_node.get_property('revision').data[0]
-        return revision
+        return self.get_node_property('/brand', 'revision')
 
     def set_revision(self, *args, **kwargs):
         revision = args[0]
-        brand_node = self.profile.get_node('/brand', create=True)
-        brand_node.append(fdt.PropStrings('revision', revision))
+        self.set_node_property('/brand', 'revision', revision)
 
     def get_dts(self, *args, **kwargs):
         return None
@@ -162,112 +244,68 @@ class DTFirmware(Firmware):
         return self.profile
 
     def get_target(self, *args, **kwargs):
-        brand_node = self.profile.get_node('/brand')
-        assert brand_node is not None
-        target = brand_node.get_property('target').data[0]
-        return target
+        return self.get_node_property('/brand', 'target')
 
     def set_target(self, *args, **kwargs):
         target = args[0]
-        brand_node = self.profile.get_node('/brand', create=True)
-        if brand_node.exist_property('target'):
-            brand_node.remove_property('target')
-        brand_node.append(fdt.PropStrings('target', target))
+        self.set_node_property('/brand', 'target', target)
 
     def get_subtarget(self, *args, **kwargs):
-        brand_node = self.profile.get_node('/brand')
-        assert brand_node is not None
-        subtarget = brand_node.get_property('subtarget')
-        if subtarget is None:
-            return
-        else:
-            return subtarget.data[0]
+        return self.get_node_property('/brand', 'subtarget')
 
     def set_subtarget(self, *args, **kwargs):
         subtarget = args[0]
-        brand_node = self.profile.get_node('/brand', create=True)
-        if brand_node.exist_property('subtarget'):
-            brand_node.remove_property('subtarget')
-        brand_node.append(fdt.PropStrings('subtarget', subtarget))
+        self.set_node_property('/brand', 'subtarget', subtarget)
 
     def get_kernel_load_address(self, *args, **kwargs):
-        kernel_node = self.profile.get_node('/kernel')
-        assert kernel_node is not None
-        kernel_load_address = kernel_node.get_property('kernel_load_address').data[0]
-        return kernel_load_address
+        return self.get_node_property('kernel', 'kernel_load_address')
 
     def set_kernel_load_address(self, *args, **kwargs):
         kernel_load_address = args[0]
-        kernel_node = self.profile.get_node('/kernel', create=True)
-        kernel_node.append(fdt.PropStrings('kernel_load_address', kernel_load_address))
+        self.set_node_property('/kernel', 'kernel_load_address', kernel_load_address)
 
     def get_kernel_version(self, *args, **kwargs):
-        if not self.profile.exist_node('/kernel'):
-            return
-        kernel_node = self.profile.get_node('/kernel')
-        assert kernel_node is not None
-        kernel_version = kernel_node.get_property('kernel_version').data[0]
-        return kernel_version
+        return self.get_node_property('/kernel', 'kernel_version')
 
     def set_kernel_version(self, *args, **kwargs):
         kernel_version = args[0]
-        kernel_node = self.profile.get_node('/kernel', create=True)
-        if kernel_node.exist_property('kernel_version'):
-            kernel_node.remove_property('kernel_version')
-        kernel_node.append(fdt.PropStrings('kernel_version', kernel_version))
+        self.set_node_property('/kernel', 'kernel_version', kernel_version)
 
     def get_kernel_created_time(self, *args, **kwargs):
-        kernel_node = self.profile.get_node('/kernel')
-        assert kernel_node is not None
-        kernel_created_time = kernel_node.get_property('kernel_created_time').data[0]
-        return kernel_created_time
+        return self.get_node_property('/kernel', 'kernel_created_time')
 
     def set_kernel_created_time(self, *args, **kwargs):
         kernel_created_time = args[0]
-        kernel_node = self.profile.get_node('/kernel', create=True)
-        kernel_node.append(fdt.PropStrings('kernel_created_time', kernel_created_time))
+        self.set_node_property('/kernel', 'kernel_created_time', kernel_created_time)
 
     def get_kernel_entry_point(self, *args, **kwargs):
-        kernel_node = self.profile.get_node('/kernel')
-        assert kernel_node is not None
-        kernel_entry_point = kernel_node.get_property('kernel_entry_point').data[0]
-        return kernel_entry_point
+        return self.get_node_property('/kernel', 'kernel_entry_point')
 
     def set_kernel_entry_point(self, *args, **kwargs):
         kernel_entry_point = args[0]
-        kernel_node = self.profile.get_node('/kernel', create=True)
-        kernel_node.append(fdt.PropStrings('kernel_entry_point', kernel_entry_point))
+        self.set_node_property('/kernel', 'kernel_entry_point', kernel_entry_point)
 
     def get_cpu_model(self, *args, **kwargs):
-        if not self.profile.exist_node('/cpus'):
-            return
-        cpus = self.profile.get_node('/cpus')
-        assert cpus is not None
-        for cpu in cpus.nodes:
-            return cpu.get_property('compatible').data[0]
+        return self.get_node_property('cpu', 'compatible')
 
     def set_cpu_model(self, *args, **kwargs):
         cpu_model = args[0]
-        cpu = self.profile.get_node('/cpus/cpu@0', create=True)
-        cpu.append(fdt.PropBytes('reg', 0x0))
-        cpu.append(fdt.PropStrings('compatible', cpu_model))
-        cpu.append(fdt.PropStrings('device_type', 'cpu'))
+        self.set_node_property('cpu', 'reg', 0x0)
+        self.set_node_property('cpu', 'compatible', cpu_model)
+        self.set_node_property('cpu', 'device_type', 'cpu')
 
     def get_ram(self, *args, **kwargs):
-        if not self.profile.exist_node('/memory'):
+        ram = self.get_node_property('/memory', 'reg')
+        if ram is None:
             return None, None
-        ram = self.profile.get_node('/memory')
-        assert ram is not None
-        ram_base, ram_size = ram.get_property('reg').data
+        ram_base, ram_size = ram
         return ram_base, ram_size / 1024  # to MiB
 
     def set_ram(self, *args, **kwargs):
         ram_base, ram_size = args
         unit = kwargs.pop('unit', 'MiB')
-        ram = self.profile.get_node('/memory', create=True)
         factor = 1024
-        ram.remove_property('reg')
-        ram.append(fdt.PropWords('reg', int(ram_base) * factor, int(ram_size) * factor))
+        self.set_node_property('/memory', 'reg', int(ram_base) * factor, int(ram_size) * factor)
 
     def __init__(self, *args, **kwargs):
         super(DTFirmware, self).__init__(*args, **kwargs)

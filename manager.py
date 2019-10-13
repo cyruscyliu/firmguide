@@ -43,6 +43,7 @@ def check_and_restore(firmware, **kwargs):
         else:
             firmware.analysis_progress = analysis_progress
     firmware.set_profile(working_dir=firmware.working_dir)
+    firmware.handle_preset()
     if not os.path.exists(firmware.working_path):
         shutil.copy(
             os.path.join(os.getcwd(), firmware.path),

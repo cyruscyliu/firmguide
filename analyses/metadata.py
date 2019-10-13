@@ -179,7 +179,7 @@ def by_strings(firmware):
 def by_url(firmware):
     LOG_SUFFIX = '[URL]'
     if firmware.get_brand() == 'openwrt':
-        homepage = os.path.dirname(firmware.url)
+        homepage = os.path.dirname(firmware.get_url())
         firmware.homepage = homepage
         logger.info('\033[32mdownload page found {}\033[0m {}'.format(homepage, LOG_SUFFIX))
         subtarget = os.path.basename(homepage)

@@ -98,13 +98,13 @@ class DatabaseFirmadyne(DatabaseInterface):
         return self.items
 
     def handle_post(self, firmware, **kwargs):
-        firmware.set_brand(self.items['brand'])
-        arch = self.items['arch']
-        if arch is not None:
-            firmware.set_architecture(arch)
-            firmware.set_endian(self.items['endian'])
-        firmware.set_description(self.items['description'])
-        firmware.set_url(self.items['url'])
+        firmware.preset_cache = [
+            (firmware.set_brand, self.items['brand']),
+            (firmware.set_description, self.items['description']),
+            (firmware.set_url, self.items['url']),
+            (firmware.set_architecture, self.items['arch']),
+            (firmware.set_endian, self.items['endian'])
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -113,11 +113,12 @@ class DatabaseFirmadyne(DatabaseInterface):
 
 class DatabaseText(DatabaseInterface):
     def handle_post(self, firmware, **kwargs):
-        firmware.set_brand(self.items['brand'])
-        firmware.set_architecture(self.items['arch'])
-        firmware.set_endian(self.items['endian'])
-        firmware.set_description(self.items['description'])
-        firmware.set_url(self.items['url'])
+        firmware.preset_cache = [
+            (firmware.set_brand, self.items['brand']),
+            (firmware.set_url, self.items['url']),
+            (firmware.set_architecture, self.items['arch']),
+            (firmware.set_endian, self.items['endian'])
+        ]
 
     def parse_pre(self, line, **kwargs):
         items = line.split()

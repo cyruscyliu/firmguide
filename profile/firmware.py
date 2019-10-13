@@ -1,5 +1,4 @@
 import abc
-import os
 
 
 class Firmware(object):
@@ -13,40 +12,56 @@ class Firmware(object):
         self.working_path = None
 
         self.analysis_progress = None
-
         self.profile = None
+        self.preset_cache = []
+
         # basics
-        self.brand = None
-        self.homepage = None
-        self.description = None
-        self.format = None
-        self.architecture = None
-        self.endian = None
-        self.url = None  # where this firmware is download
-
+        # brand, homepage, description, format, architecture, endian, url
         # components
-        self.path_to_image = None
-        self.path_to_kernel = None
-        self.path_to_dtb = None
-        self.path_to_source_code = None
+        # path_to_image, path_to_kernel, path_to_dtb, path_to_source_code
 
-    def set_description(self, *args, **kwargs):
-        description = args[0]
-        self.description = description
+    def handle_preset(self):
+        for func, param in self.preset_cache:
+            if param is None:
+                continue
+            func(param)
 
-    def get_description(self, *args, **kwargs):
-        return self.description
-
+    @abc.abstractmethod
     def set_url(self, *args, **kwargs):
-        url = args[0]
-        self.url = url
+        # where this firmware is download
+        pass
 
+    @abc.abstractmethod
     def get_url(self, *args, **kwargs):
-        return self.url
+        pass
+
+    @abc.abstractmethod
+    def set_format(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_format(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_homepage(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_homepage(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_description(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_description(self, *args, **kwargs):
+        pass
 
     def brief(self):
         brief_introduction = "uuid: {}, name: {}, brand: {}, architecture: {}, working_dir: {}, endian: {}".format(
-            self.uuid, self.name, self.brand, self.architecture, self.working_dir, self.endian
+            self.uuid, self.name, self.get_brand(), self.get_architecture(), self.working_dir, self.get_endian()
         )
         return brief_introduction
 
@@ -54,41 +69,37 @@ class Firmware(object):
         self.working_dir = dir
         self.working_path = path
 
+    @abc.abstractmethod
     def set_path_to_image(self, *args, **kwargs):
-        path = args[0]
-        self.path_to_image = path
+        pass
 
+    @abc.abstractmethod
     def get_path_to_image(self, *args, **kwargs):
-        return self.path_to_image
+        pass
 
+    @abc.abstractmethod
     def set_path_to_kernel(self, *args, **kwargs):
-        path = args[0]
-        self.path_to_kernel = path
+        pass
 
+    @abc.abstractmethod
     def get_path_to_kernel(self, *args, **kwargs):
-        return self.path_to_kernel
+        pass
 
+    @abc.abstractmethod
     def set_path_to_dtb(self, *args, **kwargs):
-        path = args[0]
-        self.path_to_dtb = path
+        pass
 
+    @abc.abstractmethod
     def get_path_to_dtb(self, *args, **kwargs):
-        return self.path_to_dtb
+        pass
 
+    @abc.abstractmethod
     def set_path_to_source_code(self, *args, **kwargs):
-        path = args[0]
-        self.path_to_source_code = path
+        pass
 
+    @abc.abstractmethod
     def get_path_to_source_code(self, *args, **kwargs):
-        return self.path_to_source_code
-
-    def set_format(self, *args, **kwargs):
-        format_ = args[0]
-        assert format_ in ['legacy uImage', 'fit uImage', 'trx kernel', 'unknown']
-        self.format = format_
-
-    def get_format(self, *args, **kwargs):
-        return self.format
+        pass
 
     @abc.abstractmethod
     def set_toh(self, *args, **kwargs):
@@ -124,29 +135,29 @@ class Firmware(object):
     def save_profile(self, *args, **kwargs):
         pass
 
+    @abc.abstractmethod
     def get_brand(self, *args, **kwargs):
-        return self.brand
+        pass
 
+    @abc.abstractmethod
     def set_brand(self, *args, **kwargs):
-        brand = args[0]
-        assert brand in ['openwrt']
-        self.brand = brand
+        pass
 
+    @abc.abstractmethod
     def get_endian(self, *args, **kwargs):
-        return self.endian
+        pass
 
+    @abc.abstractmethod
     def set_endian(self, *args, **kwargs):
-        endian = args[0]
-        assert endian in ['l', 'b']
-        self.endian = endian
+        pass
 
+    @abc.abstractmethod
     def get_architecture(self, *args, **kwargs):
-        return self.architecture
+        pass
 
+    @abc.abstractmethod
     def set_architecture(self, *args, **kwargs):
-        architecture = args[0]
-        assert architecture in ['arm', 'mips']
-        self.architecture = architecture
+        pass
 
     @abc.abstractmethod
     def get_revision(self, *args, **kwargs):

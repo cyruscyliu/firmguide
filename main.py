@@ -21,15 +21,16 @@ def run(args):
     if args.fix:
         args.uuid = dbp.select('uuid')
     dbi = get_database(args.database_type, profile=args.profile)
-    analysis_pool = multiprocessing.Pool(4)
+    # analysis_pool = multiprocessing.Pool(4)
     for firmware in dbi.get_firmware():
         if args.uuid is not None and firmware.uuid not in args.uuid:
             continue
-        if firmware.id > args.limit:
+        if args.limit and firmware.id > args.limit:
             continue
-        analysis_pool.apply_async(analysis_wrapper, (firmware, dbp, args.rerun))
-    analysis_pool.close()
-    analysis_pool.join()
+        analysis_wrapper(firmware, dbp, args.rerun)
+        # analysis_pool.apply_async(analysis_wrapper, (firmware, dbp, args.rerun))
+    # analysis_pool.close()
+    # analysis_pool.join()
 
 
 def analysis(firmware):
