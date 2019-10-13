@@ -10,10 +10,10 @@
 <table border="1">
     {% for analysis in analyses %}<tr>
         <th>{{ analysis.uuid }}</th>
-        <th>{{ analysis.md5 }}</th>
-        <th>{{ analysis.start }}</th>
-        <th>{{ analysis.duration }}</th>
-        <th>{{ analysis.ERROR }}</th>
+        <th>{{ analysis.stime }}</th>
+        <th>{{ analysis.etime }}</th>
+        <th>{{ analysis.level }}</th>
+        <th align="left">{{ analysis.info }}</th>
     </tr>{% endfor %}
 </table>
 

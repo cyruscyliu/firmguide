@@ -117,6 +117,12 @@ python3.7 main.py -dbt text -p dt -wd ./build -u UUID
 NOTE: `-l LIMIT` and `-r` still work.  
 NOTE: `-f` and `-u` are mutually exclusive.
 
+Visisualize analyses.
+
+```shell script
+python3.7 tools/web/easy.py # then, open tools/web/statistics.html
+```
+
 For more help.
 ```shell script
 python3.7 main.py --help
