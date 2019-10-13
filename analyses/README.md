@@ -142,10 +142,3 @@ def do_something(firmware): # called by top routine
 |                   | preconditions | settings | exception |
 |:-----------------:|:---:|:---:|:---:|
 |      global       | firmware.timer_model is None | | |
-
-## conventions
-
-|support|convention name|
-|:---:|:---:|
-|legacy uImage|legecy uImage|
-|FIT uImage|fit uImage|
