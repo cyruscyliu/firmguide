@@ -1,15 +1,46 @@
 import abc
 import os
 
+from profile.pff import get_firmware_in_profile
 
-class DatabaseInterface(metaclass=abc.ABCMeta):
+
+class DatabaseInterface(object):
+    def __init__(self, *args, **kwargs):
+        self.dbtype = None
+        self.path = os.path.join(os.getcwd(), args[0])
+        self.profile = kwargs.pop('profile')
+        self.records = []
+        self.count = 1
+        self.header = None
+        self.items = None  # for current line
+
     @abc.abstractmethod
+    def parse_pre(self, line, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def handle_post(self, firmware, **kwargs):
+        pass
+
+    def load(self, *args, **kwargs):
+        with open(self.path) as f:
+            for line in f:
+                context = self.parse_pre(line.strip())
+                # uuid, name, path, size
+                if context is None:
+                    continue
+                firmware = get_firmware_in_profile(self.profile, **context)
+                firmware.id = self.count
+                self.handle_post(firmware)
+                yield firmware
+                self.count += 1
+
     def get_count(self, *args, **kwargs):
-        pass
+        return self.count
 
-    @abc.abstractmethod
     def get_firmware(self, *args, **kwargs):
-        pass
+        for firmware in self.load(*args, **kwargs):
+            yield firmware
 
 
 class Firmware(object):

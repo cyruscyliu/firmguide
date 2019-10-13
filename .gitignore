@@ -1,7 +1,11 @@
 firmware
 trace
 build
+log
+cache
 .idea
 __pycache__
 *.extracted
 *.pyc
+pause.yaml
+*.html
