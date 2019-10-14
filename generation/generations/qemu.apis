@@ -1,0 +1,8 @@
+serial_mm_init:
+  address_space: 'get_system_memory()',
+  base': 'device_mmio_base',
+  it_shift': 'device_mmio_shift',
+  irq': 'device@gpio@number',
+  baudbase': 'device_baud_rate',
+  chr': 'serial_hd(0)',
+  device_edian': 'device_mmio_endian'
