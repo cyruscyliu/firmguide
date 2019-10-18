@@ -5,19 +5,8 @@ endian: "l"
 board_id: "0x480"
 cpu:
   cpu_type: "arm11mpcore"
-  cpu_pp: 1
-  cpu_pp_type: "TYPE_ARM11MPCORE_PRIV"
-  cpu_pp_struct: "ARM11MPCorePriveState"
+cpu_pp:
   cpu_pp_mmio_base: "0x47000000"
-  ic: 0
-  timer: 0
-  bridge: 0
-interrupt_controller:
-  ic_name: ~
-bridge:
-  bridge_name: ~
-timer:
-  timer_name: ~
 uart:
   uart_name: "ns16550a"
   uart_mmio_base: "0x44200000"
@@ -28,15 +17,11 @@ uart:
 ram:
   ram_size: "2 * GiB"
 flash:
-  nor_flash: 0
-  nand_flash: 1
+  flash_type: "nand"
   # for nand flash, you might need a customized nand controller
   # move register info into bamboo temporarily
-  flash_addr: ~
-  flash_sect_size: ~
   flash_size: "128 * MiB"
 bamboo:
-  # the second class devices that must have registers callbacks
   - name: "oxmas782x_gpioa_0"
     id: "0"
     mmio_base: "0x44000000"

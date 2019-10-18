@@ -2,7 +2,7 @@ import os
 import abc
 
 from generation.generations.common import to_state, to_mmio, to_ops, indent, to_type, to_read, to_write, to_update, \
-    to_header, to_upper
+    to_header, to_upper, to_cpu_pp_state, to_cpu_pp_type
 
 
 class CompilerToQEMU(object):
@@ -27,6 +27,9 @@ class CompilerToQEMU(object):
 
     @staticmethod
     def render_includings(lines):
+        """
+        example: ['a.h', 'b.h', 'c.h']
+        """
         lines_ = []
         for line in lines:
             lines_.append('#include "{}"\n'.format(line))
@@ -34,13 +37,16 @@ class CompilerToQEMU(object):
 
     @staticmethod
     def render_function(function):
+        """
+        example: {'signature': ['void a()'], 'declaration': ['    int a = 0;'],
+                'body': ['    a = 1;', '    return;']}
+        """
         lines = []
         lines.extend(function['signature'])
-        lines.append('\n')
-        lines.append('{\n')
+        lines.append('\n{\n')
         for line in function['declaration']:
             lines.append(line + '\n')
-        if len(function['body']):
+        if len(function['declaration']) and len(function['body']):
             lines.append('\n')
         for line in function['body']:
             lines.append(line + '\n')
@@ -137,6 +143,7 @@ class CompilerToQEMUMachine(CompilerToQEMU):
         super().__init__()
         self.machine = {'includings': [], 'defines': [], 'define_machine': []}
         self.machine_mmio_ops = []
+        self.machine_reset = {'signature': [], 'declaration': [], 'body': []}
         self.machine_struct = {'declaration': [], 'fields': []}
         self.machine_class_init = {'signature': [], 'declaration': [], 'body': []}
         self.machine_init = {'signature': [], 'declaration': [], 'body': []}
@@ -174,6 +181,20 @@ class CompilerToQEMUMachine(CompilerToQEMU):
             self.machine_init['body'].extend([indent('s->cpu = MIPS_CPU(object_new(machine->default_cpu_type));')])
         else:
             raise NotImplementedError()
+        self.machine_init['body'].extend([
+            indent('object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);', 1)])
+        # cpu_pp
+        cpu_model = firmware.sget_cpu_model()
+        cpu_pp_model = firmware.probe_cpu_pp_model()
+        if cpu_pp_model is not None:
+            cpu_pp_mmio_base = firmware.sget_cpu_pp_mmio_base()
+            self.machine['includings'].extend(['hw/cpu/arm11mpcore.h'])
+            self.machine_struct['fields'].extend([indent('{} cpu_pp;'.format(to_cpu_pp_state(cpu_model)), 1)])
+            self.machine_init['body'].extend([
+                indent('object_initialize(&s->cpu_pp, sizeof(s->cpu), {});'.format(to_cpu_pp_type(cpu_model))),
+                indent('object_property_set_bool(OBJECT(&s->cpu_pp), true, "realized", &err);', 1),
+                indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_pp), 0, {});'.format(cpu_pp_mmio_base), 1)
+            ])
         # ram
         self.machine['includings'].extend(['exec/address-spaces.h'])
         self.machine_struct['fields'].extend([indent('MemoryRegion ram;', 1)])
@@ -181,9 +202,40 @@ class CompilerToQEMUMachine(CompilerToQEMU):
             indent('memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);'),
             indent('memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, -1);'),
         ])
+        # uart
+        uart_mmio_base = firmware.sget_uart_mmio_base()
+        self.machine['includings'].extend(['hw/char/serial.h'])
+        self.machine_init['body'].extend([
+            indent('serial_mm_init(get_system_memory(), {}, 0, qdev_get_gpio_in(DEVICE(&s->cpu_pp), 23), '
+                   '115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);'.format(uart_mmio_base))
+        ])
+        # flash
+        flash_type = firmware.sget_flash_type()
+        self.machine['includings'].extend(['sysemu/blockdev.h', 'hw/block/flash.h'])
+        self.machine_init['declaration'].extend([indent('DriveInfo *dinfo;', 1)])
+        if flash_type == 'nor':
+            flash_base = firmware.sget_flash_base()
+            flash_size = firmware.sget_flash_size()
+            flash_section_size = firmware.sget_flash_section_size()
+            self.machine_init['body'].extend([
+                indent('dinfo = drive_get(IF_PFLASH, 0, 0);', 1),
+                indent('pflash_cfi01_register({}, "flash", {}, dinfo ? blk_by_legacy_dinfo(dinfo): NULL, '
+                       '{}, 4, 0, 0, 0, 0, 0);'.format(flash_base, flash_size, flash_section_size), 1)
+            ])
+        elif flash_type == 'nand':
+            self.machine_init['body'].extend([
+                indent('dinfo = drive_get(IF_MTD, 0, 0);', 1),
+                indent('nand_init(dinfo ? blk_by_legacy_dinfo(dinfo): NULL, 0xec, 0x73);')
+            ])
+        else:
+            raise NotImplementedError()
 
     def solve_bamboo_devices(self, firmware):
         machine_name = firmware.sget_machine_name()
+        #
+        self.machine_reset['signature'].extend(['static void {}_reset(void *opaque)'.format(machine_name)])
+        self.machine_reset['declaration'].extend([indent('{} *s = opaque;'.format(to_state(machine_name)), 1)])
+        #
         bamboos = firmware.lget_bamboo_devices()
         for id_, bamboo in enumerate(bamboos):
             name = bamboo['name']
@@ -194,10 +246,11 @@ class CompilerToQEMUMachine(CompilerToQEMU):
             #
             for register in registers:
                 self.machine_struct['fields'].extend([indent('uint32_t {};'.format(register['name']))])
+                self.machine_reset['body'].extend([indent('s->{} = {};'.format(register['name'], register['value']))])
             self.machine_init['body'].extend([
                 indent('memory_region_init_io(&s->{}, NULL, &{}, s, {}, {});'.format(
                     to_mmio(name), to_ops(name), to_type(machine_name), mmio_size), 1),
-                indent('memory_region_add_subregion(get_system_memory(), {}, &s->{});'.format(
+                indent('memory_region_add_subregion_overlap(get_system_memory(), {}, &s->{}, 0);'.format(
                     bamboo['mmio_base'], to_mmio(name)), 1)
             ])
             #
@@ -268,6 +321,20 @@ class CompilerToQEMUMachine(CompilerToQEMU):
             ])
             self.machine_mmio_ops.append(ops)
 
+    def solve_irq_to_cpu(self, firmware):
+        cpu_pp_model = firmware.probe_cpu_pp_model()
+        if cpu_pp_model:
+            self.machine_init['body'].extend([
+                indent('sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 0, '
+                       'qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));', 1),
+                indent('sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 1, '
+                       'qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_FIQ));', 1),
+                indent('sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 2, '
+                       'qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_VIRQ));', 1),
+                indent('sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 3, '
+                       'qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_VFIQ));', 1),
+            ])
+
     def solve_load_kernel(self, firmware):
         architecture = firmware.sget_architecture()
         if architecture == 'arm':
@@ -297,11 +364,17 @@ class CompilerToQEMUMachine(CompilerToQEMU):
     def solve_machine_init(self, firmware):
         machine_name = firmware.sget_machine_name()
         self.machine_init['signature'].extend(['static void {}_init(MachineState *machine)'.format(machine_name)])
-        self.machine_init['declaration'].extend([indent('{0} *s = g_new0({0}, 1);'.format(to_state(machine_name)), 1)])
+        self.machine_init['declaration'].extend([
+            indent('{0} *s = g_new0({0}, 1);'.format(to_state(machine_name)), 1),
+            indent('Error *err = NULL;', 1)
+        ])
         self.solve_abelia_devices(firmware)
         self.machine_init['body'].extend([''])
         self.solve_bamboo_devices(firmware)
         self.machine_init['body'].extend([''])
+        self.machine_init['body'].extend([indent('{}_reset(s);'.format(machine_name), 1)])
+        self.machine_init['body'].extend([''])
+        self.solve_irq_to_cpu(firmware)
         self.solve_load_kernel(firmware)
 
     def solve_machine_class_init(self, firmware):
@@ -386,6 +459,8 @@ class CompilerToQEMUMachine(CompilerToQEMU):
             except KeyError:
                 source.extend(self.render_structure(item))
             source.append('\n')
+        source.extend(self.render_function(self.machine_reset))
+        source.append('\n')
         source.extend(self.render_function(self.machine_init))
         source.append('\n')
         source.extend(self.render_function(self.machine_class_init))

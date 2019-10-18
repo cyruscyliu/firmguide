@@ -23,6 +23,18 @@ class CodeGenerationInterface(object):
         pass
 
     @abc.abstractmethod
+    def probe_cpu_pp_model(self):
+        pass
+
+    @abc.abstractmethod
+    def sget_cpu_pp_mmio_base(self):
+        pass
+
+    @abc.abstractmethod
+    def sget_uart_mmio_base(self):
+        pass
+    
+    @abc.abstractmethod
     def lget_bamboo_devices(self):
         pass
 
@@ -32,4 +44,16 @@ class CodeGenerationInterface(object):
 
     @abc.abstractmethod
     def sget_path_to_kernel(self):
+        pass
+
+    @abc.abstractmethod
+    def sget_flash_type(self):
+        pass
+
+    @abc.abstractmethod
+    def sget_flash_size(self):
+        pass
+
+    @abc.abstractmethod
+    def sget_flash_section_size(self):
         pass
