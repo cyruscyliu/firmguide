@@ -1,10 +1,164 @@
 """
 Our ugly solution.
 """
+from generation.generations.generatori import CodeGenerationInterface
 from profile.firmware import Firmware
 
 
-class SimpleFirmware(Firmware):
+class SimpleFirmware(Firmware, CodeGenerationInterface):
+    def sget_uart_mmio_base(self):
+        return self.profile['uart']['uart_mmio_base']
+
+    def sget_cpu_pp_mmio_base(self):
+        return self.profile['cpu_pp']['cpu_pp_mmio_base']
+
+    def probe_cpu_pp_model(self):
+        return 'cpu_pp' in self.profile
+
+    def sget_flash_type(self):
+        return self.profile['flash']['flash_type']
+
+    def sget_flash_size(self):
+        return self.profile['flash']['flash_size']
+
+    def sget_flash_section_size(self):
+        return self.profile['flash']['flash_section_size']
+
+    def sget_path_to_kernel(self):
+        return ''
+        # return self.get_path_to_kernel()
+
+    def sget_board_id(self):
+        return self.profile['board_id']
+
+    def lget_bamboo_devices(self):
+        return self.profile['bamboo']
+
+    def sget_machine_description(self):
+        return self.profile['machine_desc']
+
+    def sget_machine_name(self):
+        return self.profile['machine_name']
+
+    def sget_architecture(self):
+        return self.profile['architecture']
+
+    def sget_ram_size(self):
+        return '2 * GiB'
+
+    def sget_cpu_model(self):
+        return self.profile['cpu']['cpu_type']
+
+    def set_url(self, *args, **kwargs):
+        pass
+
+    def get_url(self, *args, **kwargs):
+        pass
+
+    def set_format(self, *args, **kwargs):
+        pass
+
+    def get_format(self, *args, **kwargs):
+        pass
+
+    def set_homepage(self, *args, **kwargs):
+        pass
+
+    def get_homepage(self, *args, **kwargs):
+        pass
+
+    def set_description(self, *args, **kwargs):
+        pass
+
+    def get_description(self, *args, **kwargs):
+        pass
+
+    def set_path_to_image(self, *args, **kwargs):
+        pass
+
+    def get_path_to_image(self, *args, **kwargs):
+        pass
+
+    def set_path_to_kernel(self, *args, **kwargs):
+        pass
+
+    def get_path_to_kernel(self, *args, **kwargs):
+        pass
+
+    def set_path_to_dtb(self, *args, **kwargs):
+        pass
+
+    def get_path_to_dtb(self, *args, **kwargs):
+        pass
+
+    def set_path_to_source_code(self, *args, **kwargs):
+        pass
+
+    def get_path_to_source_code(self, *args, **kwargs):
+        pass
+
+    def set_toh(self, *args, **kwargs):
+        pass
+
+    def get_toh(self, *args, **kwargs):
+        pass
+
+    def save_profile(self, *args, **kwargs):
+        pass
+
+    def get_endian(self, *args, **kwargs):
+        pass
+
+    def set_endian(self, *args, **kwargs):
+        pass
+
+    def get_dts(self, *args, **kwargs):
+        pass
+
+    def set_dts(self, *args, **kwargs):
+        pass
+
+    def get_soc_model(self, *args, **kwargs):
+        pass
+
+    def set_soc_model(self, *args, **kwargs):
+        pass
+
+    def get_interrupt_controller_model(self, *args, **kwargs):
+        pass
+
+    def set_interrupt_controller_model(self, *args, **kwargs):
+        pass
+
+    def get_flash_model(self, *args, **kwargs):
+        pass
+
+    def set_flash_model(self, *args, **kwargs):
+        pass
+
+    def get_flash_size(self, *args, **kwargs):
+        pass
+
+    def set_flash_size(self, *args, **kwargs):
+        pass
+
+    def set_flash_type(self, *args, **kwargs):
+        pass
+
+    def get_flash_type(self, *args, **kwargs):
+        pass
+
+    def get_uart_model(self, *args, **kwargs):
+        pass
+
+    def set_uart_model(self, *args, **kwargs):
+        pass
+
+    def get_timer_model(self, *args, **kwargs):
+        pass
+
+    def set_timer_model(self, *args, **kwargs):
+        pass
 
     def set_profile(self, *args, **kwargs):
         pass

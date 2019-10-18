@@ -122,10 +122,7 @@ class CompilerToQEMU(object):
         machine_name = firmware.sget_machine_name()
         path_to_kernel = firmware.sget_path_to_kernel()
         if architecture == 'arm':
-            print('./configure --target-list=arm-softmmu')
-        print('make -j4')
-        if architecture == 'arm':
-            print('qemu-system-arm -M {} -kernel {}'.format(machine_name, path_to_kernel, ))
+            print('./configure --target-list=arm-softmmu && make -j4')
 
 
 class CompilerToQEMUMachine(CompilerToQEMU):
@@ -191,7 +188,7 @@ class CompilerToQEMUMachine(CompilerToQEMU):
             self.machine['includings'].extend(['hw/cpu/arm11mpcore.h'])
             self.machine_struct['fields'].extend([indent('{} cpu_pp;'.format(to_cpu_pp_state(cpu_model)), 1)])
             self.machine_init['body'].extend([
-                indent('object_initialize(&s->cpu_pp, sizeof(s->cpu), {});'.format(to_cpu_pp_type(cpu_model))),
+                indent('object_initialize(&s->cpu_pp, sizeof(s->cpu_pp), {});'.format(to_cpu_pp_type(cpu_model))),
                 indent('object_property_set_bool(OBJECT(&s->cpu_pp), true, "realized", &err);', 1),
                 indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_pp), 0, {});'.format(cpu_pp_mmio_base), 1)
             ])
