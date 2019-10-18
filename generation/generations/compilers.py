@@ -1,9 +1,36 @@
+import os
 import abc
+
+from generation.generations.common import to_state, to_mmio, to_ops, indent, to_type, to_read, to_write, to_update, \
+    to_header, to_upper
 
 
 class CompilerToQEMU(object):
     def __init__(self):
         self.license = ['/* \n * automatically generated, don\'t change\n */\n']
+        self.source = None
+        self.header = None
+        self.location = {
+            'root': '../../build/qemu-4.0.0',
+            'machine': {'arm': 'hw/arm', 'mips': 'hw/mips'},
+            'configs': {'arm': 'default-configs/arm-softmmu.mak', 'mips': 'default-configs/mipsel-softmmu.mak'},
+            'kconfig': {'arm': 'hw/arm/Kconfig', 'mips': 'hw/mips/Kconfig'},
+            'makefile': {'arm': 'hw/arm/Makefile.objs', 'mips': 'hw/mips/Makefile.objs'}
+        }
+
+    @staticmethod
+    def render_lines(lines):
+        lines_ = []
+        for line in lines:
+            lines_.append(line + '\n')
+        return lines_
+
+    @staticmethod
+    def render_includings(lines):
+        lines_ = []
+        for line in lines:
+            lines_.append('#include "{}"\n'.format(line))
+        return lines_
 
     @staticmethod
     def render_function(function):
@@ -11,16 +38,61 @@ class CompilerToQEMU(object):
         lines.extend(function['signature'])
         lines.append('\n')
         lines.append('{\n')
-        if function['declaration']:
-            lines.extend(function['declaration'])
+        for line in function['declaration']:
+            lines.append(line + '\n')
+        if len(function['body']):
+            lines.append('\n')
         for line in function['body']:
             lines.append(line + '\n')
         lines.append('}\n')
         return lines
 
-    @abc.abstractmethod
+    @staticmethod
+    def render_struct(struct):
+        lines = [struct['declaration'][0], '\n']
+        for line in struct['fields']:
+            lines.append(line + '\n')
+        lines.append(struct['declaration'][1] + '\n')
+        return lines
+
+    @staticmethod
+    def render_structure(structure):
+        lines = [structure['declaration'][0], ' = {\n']
+        for line in structure['values']:
+            lines.append(line + '\n')
+        lines.append('};\n')
+        return lines
+
     def solve_makefile(self, firmware):
-        pass
+        machine_name = firmware.sget_machine_name()
+        architecture = firmware.sget_architecture()
+        #
+        config = 'CONFIG_{}=y\n'.format(to_upper(machine_name))
+        with open(os.path.join(self.location['root'], self.location['configs'][architecture])) as f:
+            configs = f.readlines()
+        if config not in configs:
+            configs.append(config)
+        with open(os.path.join(self.location['root'], self.location['configs'][architecture]), 'w') as f:
+            f.writelines(configs)
+            f.flush()
+        #
+        kconfig = 'config {}\n'.format(to_upper(machine_name))
+        with open(os.path.join(self.location['root'], self.location['kconfig'][architecture])) as f:
+            kconfigs = f.readlines()
+        if kconfig not in kconfigs:
+            kconfigs.extend(['\n', kconfig, '    bool\n'])
+        with open(os.path.join(self.location['root'], self.location['kconfig'][architecture]), 'w') as f:
+            f.writelines(kconfigs)
+            f.flush()
+        #
+        makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(to_upper(machine_name), machine_name)
+        with open(os.path.join(self.location['root'], self.location['makefile'][architecture])) as f:
+            makefiles = f.readlines()
+        if makefile not in makefiles:
+            makefiles.append(makefile)
+        with open(os.path.join(self.location['root'], self.location['makefile'][architecture]), 'w') as f:
+            f.writelines(makefiles)
+            f.flush()
 
     @abc.abstractmethod
     def solve(self, firmware):
@@ -30,46 +102,220 @@ class CompilerToQEMU(object):
     def link(self, firmware):
         pass
 
-    @abc.abstractmethod
     def install(self, firmware):
-        pass
+        machine_name = firmware.sget_machine_name()
+        architecture = firmware.sget_architecture()
+        source_target = os.path.join(
+            self.location['root'], self.location['machine'][architecture], machine_name + '.c')
+        with open(source_target, 'w') as f:
+            f.write(self.source)
+            f.flush()
 
-    @abc.abstractmethod
     def run(self, firmware):
-        pass
+        architecture = firmware.sget_architecture()
+        machine_name = firmware.sget_machine_name()
+        path_to_kernel = firmware.sget_path_to_kernel()
+        if architecture == 'arm':
+            print('./configure --target-list=arm-softmmu')
+        print('make -j4')
+        if architecture == 'arm':
+            print('qemu-system-arm -M {} -kernel {}'.format(machine_name, path_to_kernel, ))
 
 
 class CompilerToQEMUMachine(CompilerToQEMU):
-    def install(self, firmware):
-        pass
-
-    def run(self, firmware):
-        pass
-
-    def solve_makefile(self, firmware):
-        pass
 
     def solve(self, firmware):
-        self.solve_define_machine(firmware)
+        self.solve_machine_includings(firmware)
+        self.solve_machine_defines(firmware)
+        self.solve_machine_struct(firmware)
+        self.solve_machine_init(firmware)
         self.solve_machine_class_init(firmware)
+        self.solve_define_machine(firmware)
+        self.solve_makefile(firmware)
 
     def __init__(self):
         super().__init__()
-        self.machine = {'fields': [], 'headers': []}
-        self.machine_macro = {}
+        self.machine = {'includings': [], 'defines': [], 'define_machine': []}
+        self.machine_mmio_ops = []
+        self.machine_struct = {'declaration': [], 'fields': []}
         self.machine_class_init = {'signature': [], 'declaration': [], 'body': []}
         self.machine_init = {'signature': [], 'declaration': [], 'body': []}
+
+    def solve_machine_struct(self, firmware):
+        machine_name = firmware.sget_machine_name()
+        self.machine_struct['declaration'].extend([
+            'typedef struct {} {{'.format(to_state(machine_name)), '}} {};'.format(to_state(machine_name))
+        ])
+
+    def solve_machine_defines(self, firmware):
+        machine_name = firmware.sget_machine_name()
+        self.machine['defines'].extend([
+            '#define {} "{}"'.format(to_type(machine_name), machine_name),
+            '#define {}(obj) \\\n    OBJECT_CHECK({}, (obj), {})'.format(
+                machine_name.upper(), to_state(machine_name), to_type(machine_name))
+        ])
+
+    def solve_machine_includings(self, firmware):
+        self.machine['includings'].extend(['qemu/osdep.h'])
+        self.machine['includings'].extend(['qemu/log.h'])
+        self.machine['includings'].extend(['hw/sysbus.h'])
+
+    def solve_abelia_devices(self, firmware):
+        # cpu
+        architecture = firmware.sget_architecture()
+        if architecture == 'arm':
+            self.machine['includings'].extend(['target/arm/cpu-qom.h'])
+            self.machine_struct['fields'].extend([indent('ARMCPU *cpu;', 1)])
+            self.machine_init['body'].extend([
+                indent('s->cpu = ARM_CPU(object_new(machine->cpu_type));')
+            ])
+        elif architecture == 'mips':
+            self.machine_struct['fields'].extend([indent('MIPSCPU *cpu;', 1)])
+            self.machine_init['body'].extend([indent('s->cpu = MIPS_CPU(object_new(machine->default_cpu_type));')])
+        else:
+            raise NotImplementedError()
+        # ram
+        self.machine['includings'].extend(['exec/address-spaces.h'])
+        self.machine_struct['fields'].extend([indent('MemoryRegion ram;', 1)])
+        self.machine_init['body'].extend([
+            indent('memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);'),
+            indent('memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, -1);'),
+        ])
+
+    def solve_bamboo_devices(self, firmware):
+        machine_name = firmware.sget_machine_name()
+        bamboos = firmware.lget_bamboo_devices()
+        for id_, bamboo in enumerate(bamboos):
+            name = bamboo['name']
+            mmio_size = bamboo['mmio_size']
+            registers = bamboo['registers']
+            #
+            self.machine_struct['fields'].extend([indent('MemoryRegion {};'.format(to_mmio(name), 1))])
+            #
+            for register in registers:
+                self.machine_struct['fields'].extend([indent('uint32_t {};'.format(register['name']))])
+            self.machine_init['body'].extend([
+                indent('memory_region_init_io(&s->{}, NULL, &{}, s, {}, {});'.format(
+                    to_mmio(name), to_ops(name), to_type(machine_name), mmio_size), 1),
+                indent('memory_region_add_subregion(get_system_memory(), {}, &s->{});'.format(
+                    bamboo['mmio_base'], to_mmio(name)), 1)
+            ])
+            #
+            update = {'signature': [], 'declaration': [], 'body': []}
+            update['signature'].extend([
+                'static void {}(void *opaque)'.format(to_update(name))
+            ])
+            update['declaration'].extend([
+                indent('/* {} *s = opaque; */'.format(to_state(machine_name)), 1),
+            ])
+            self.machine_mmio_ops.append(update)
+            #
+            read = {'signature': [], 'declaration': [], 'body': []}
+            read['signature'].extend([
+                'static uint64_t {}(void *opaque, hwaddr offset, unsigned size)'.format(to_read(name))
+            ])
+            read['declaration'].extend([
+                indent('{} *s = opaque;'.format(to_state(machine_name)), 1),
+                indent('uint32_t res = 0;', 1),
+            ])
+            read['body'].extend([
+                indent('switch (offset) {', 1),
+                indent('default:', 1),
+                indent('qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\\n", __func__, offset);', 2),
+                indent('return 0;', 2),
+            ])
+            for register in registers:
+                read['body'].extend([
+                    indent('case {}:'.format(register['offset']), 1),
+                    indent('res = s->{};'.format(register['name']), 2),
+                    indent('break;', 2),
+                ])
+            read['body'].extend([indent('}', 1)])
+            read['body'].extend([indent('return res;', 1)])
+            self.machine_mmio_ops.append(read)
+            #
+            write = {'signature': [], 'declaration': [], 'body': []}
+            write['signature'].extend([
+                'static void {}(void *opaque, hwaddr offset, uint64_t val, unsigned size)'.format(to_write(name))
+            ])
+            write['declaration'].extend([
+                indent('{} *s = opaque;'.format(to_state(machine_name)), 1),
+            ])
+            write['body'].extend([
+                indent('switch (offset) {', 1),
+                indent('default:', 1),
+                indent('qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\\n", __func__, offset);', 2),
+                indent('return;', 2),
+            ])
+            for register in registers:
+                write['body'].extend([
+                    indent('case {}:'.format(register['offset']), 1),
+                    indent('s->{} = val;'.format(register['name']), 2),
+                    indent('break;', 2),
+                ])
+            write['body'].extend([indent('}', 1)])
+            write['body'].extend([indent('{}(s);'.format(to_update(name)), 1)])
+            self.machine_mmio_ops.append(write)
+            # 
+            ops = {'declaration': [], 'values': []}
+            ops['declaration'].extend([
+                'static const MemoryRegionOps {}'.format(to_ops(name))
+            ])
+            ops['values'].extend([
+                indent('.read = {},'.format(to_read(name)), 1),
+                indent('.write = {},'.format(to_write(name)), 1),
+                indent('.endianness = DEVICE_NATIVE_ENDIAN,', 1)
+            ])
+            self.machine_mmio_ops.append(ops)
+
+    def solve_load_kernel(self, firmware):
+        architecture = firmware.sget_architecture()
+        if architecture == 'arm':
+            self.machine['includings'].extend(['hw/arm/arm.h'])
+            self.machine_init['declaration'].extend([indent('static struct arm_boot_info binfo;', 1)])
+        elif architecture == 'mips':
+            self.machine_init['declaration'].extend([indent('static struct mips_boot_info binfo;', 1)])
+        else:
+            raise NotImplementedError()
+
+        board_id = firmware.sget_board_id()
+        self.machine_init['body'].extend([
+            indent('binfo.board_id = {};'.format(board_id), 1),
+            indent('binfo.ram_size = machine->ram_size;', 1),
+            indent('binfo.kernel_filename = machine->kernel_filename;', 1),
+            indent('binfo.kernel_cmdline = machine->kernel_cmdline;', 1),
+            indent('binfo.initrd_filename = machine->initrd_filename;', 1),
+        ])
+
+        if architecture == 'arm':
+            self.machine_init['body'].extend([indent('arm_load_kernel(ARM_CPU(first_cpu), &binfo);', 1)])
+        elif architecture == 'mips':
+            self.machine_init['body'].extend([indent('mips_load_kernel(MIPS_CPU(first_cpu), &binfo);', 1)])
+        else:
+            raise NotImplementedError()
+
+    def solve_machine_init(self, firmware):
+        machine_name = firmware.sget_machine_name()
+        self.machine_init['signature'].extend(['static void {}_init(MachineState *machine)'.format(machine_name)])
+        self.machine_init['declaration'].extend([indent('{0} *s = g_new0({0}, 1);'.format(to_state(machine_name)), 1)])
+        self.solve_abelia_devices(firmware)
+        self.machine_init['body'].extend([''])
+        self.solve_bamboo_devices(firmware)
+        self.machine_init['body'].extend([''])
+        self.solve_load_kernel(firmware)
 
     def solve_machine_class_init(self, firmware):
         machine_desc = firmware.sget_machine_description()
         machine_name = firmware.sget_machine_name()
         architecture = firmware.sget_architecture()
-        ram_size = firmware.iget_ram_size()
+        ram_size = firmware.sget_ram_size()
         cpu_model = firmware.sget_cpu_model()
 
-        self.machine_class_init['signature'] = ['static void {}_machine_init(MachineClass *mc)'.format(machine_name)]
-        self.machine_class_init['declaration'] = None
-        self.machine_class_init['body'] = [
+        self.machine['includings'].extend(['qemu/units.h'])
+        self.machine['includings'].extend(['target/arm/cpu.h'])
+        self.machine_class_init['signature'].extend(
+            ['static void {}_machine_init(MachineClass *mc)'.format(machine_name)])
+        self.machine_class_init['body'].extend([
             '    /* mc->family = ; */',
             '    /* mc->name = "{}"; */'.format(machine_name),
             '    /* mc->alias = ; */',
@@ -116,35 +362,34 @@ class CompilerToQEMUMachine(CompilerToQEMU):
             '    /* mc->cpu_index_to_instance_props = ; */',
             '    /* mc->CPuArchIdList = ; */',
             '    /* mc->get_default_cpu_node_id = ; */',
-        ]
+        ])
 
     def solve_define_machine(self, firmware):
         machine_name = firmware.sget_machine_name()
-        self.machine_macro['define_machine'] = [
-            'DEFINE_MACHINE(\"{}\", {}_machine_init)'.format(machine_name, machine_name)]
-
-    def render_device(self, **context):
-        context = {'device_state': 'XXXState', 'device_filed': 'xxx', 'device_header': 'xxx.h',
-                   'device_type': 'TYPE_XXX',
-                   'device_mmio_base': 0}
-        self.machine['fields'].append('    {} {};'.format(context['device_state'], context['device_filed']))
-        self.machine['headers'].append('#include "{}"'.format(context['device_header']))
-        error = 'Error *err = NULL;'
-        if error not in self.machine_init['declaration']:
-            self.machine_init['declaration'].append(error)
-        self.machine_init['body'].extend([
-            'sysbus_init_child_obj(obj, "{0}", &s->{0}, sizeof(s->{0}), {1});'.format(
-                context['device_filed'], context['device_type']),
-            'object_property_set_bool(OBJECT(&s->{}), true, "realized", &err);'.format(context['device_filed']),
-            'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{}), 0, {});'.format(context['device_filed'],
-                                                                     context['device_mmio_base']),
-        ])
+        self.machine['define_machine'].extend([
+            'DEFINE_MACHINE(\"{}\", {}_machine_init)'.format(machine_name, machine_name)])
+        self.machine['includings'].extend(['hw/boards.h'])
 
     def link(self, firmware):
-        lines = []
-        lines.extend(self.license)
-        lines.append('\n')
-        lines.extend(self.render_function(self.machine_class_init))
-        lines.append('\n')
-        lines.extend(self.machine_macro['define_machine'])
-        return ''.join(lines)
+        source = []
+        source.extend(self.license)
+        source.append('\n')
+        source.extend(self.render_includings(self.machine['includings']))
+        source.append('\n')
+        source.extend(self.render_lines(self.machine['defines']))
+        source.append('\n')
+        source.extend(self.render_struct(self.machine_struct))
+        source.append('\n')
+        for item in self.machine_mmio_ops:
+            try:
+                source.extend(self.render_function(item))
+            except KeyError:
+                source.extend(self.render_structure(item))
+            source.append('\n')
+        source.extend(self.render_function(self.machine_init))
+        source.append('\n')
+        source.extend(self.render_function(self.machine_class_init))
+        source.append('\n')
+        source.extend(self.machine['define_machine'])
+
+        self.source = ''.join(source)
