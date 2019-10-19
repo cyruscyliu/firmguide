@@ -122,8 +122,6 @@ class CompilerToQEMU(object):
         architecture = firmware.sget_architecture()
         machine_name = firmware.sget_machine_name()
         path_to_kernel = firmware.sget_path_to_kernel()
-        if architecture == 'arm':
-            print('./configure --target-list=arm-softmmu && make -j4')
 
 
 class CompilerToQEMUMachine(CompilerToQEMU):
