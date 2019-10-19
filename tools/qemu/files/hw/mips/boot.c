@@ -1,42 +1,22 @@
 #include "qemu/osdep.h"
+#include "qapi/error.h"
+#include "qemu/error-report.h"
+#include "qemu/units.h"
+#include "qemu-common.h"
 #include "hw/mips/mips.h"
+#include "hw/mips/cpudevs.h"
+#include "target/mips/cpu-qom.h"
 #include "target/mips/cpu.h"
-
-struct mips_boot_info {
-    uint64_t ram_size;
-    const char *kernel_filename;
-    const char *kernel_cmdline;
-    const char *initrd_filename;
-};
-
-typedef struct ResetData {
-    MIPSCPU *cpu;
-    uint64_t vector;
-}
+#include "hw/loader.h"
+#include "elf.h"
 
 static void do_cpu_reset(void *opaque)
 {
-    ResetData *reset_data = (ResetData *)opaque;
-    MIPSCPU cpu = reset_data->cpu;
+    CommonResetData *reset_data = (CommonResetData *)opaque;
+    MIPSCPU *cpu = reset_data->cpu;
 
     cpu_reset(CPU(cpu));
-    cpu->env->active_tc.PC = reset_data->vector;
-}
-
-void mips_load_kernel(MIPSCPU *cpu, struct mips_boot_info *info)
-{
-    ResetData *reset_data;
-    int64_t entry;
-
-    if (info->kernel_filename) {
-        entry = mips_setup_direct_kernel_boot(cpu, info);
-    }
-
-    reset_data = g_malloc0(sizeof(ResetData));
-    reset_data->cpu = cpu;
-    reset_data->vector = entry;
-
-    qemu_register_reset(do_cpu_reset, ResetData);
+    cpu->env.active_tc.PC = reset_data->vector;
 }
 
 static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info *info)
@@ -53,7 +33,7 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
 #else
     big_endian = 0;
 #endif
-    kernel_size = load_elf(info.kernel_filename, NULL,
+    kernel_size = load_elf(info->kernel_filename, NULL,
                            cpu_mips_kseg0_to_phys, NULL,
                            (uint64_t *)&entry, NULL,
                            (uint64_t *)&kernel_high, big_endian,
@@ -63,7 +43,7 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
             entry = (int32_t)entry;
     } else {
         error_report("could not load kernel '%s': %s",
-                     info.kernel_filename,
+                     info->kernel_filename,
                      load_elf_strerror(kernel_size));
         exit(1);
     }
@@ -71,22 +51,22 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
     /* load initrd */
     initrd_size = 0;
     initrd_offset = 0;
-    if (info.initrd_filename) {
-        initrd_size = get_image_size (info.initrd_filename);
+    if (info->initrd_filename) {
+        initrd_size = get_image_size (info->initrd_filename);
         if (initrd_size > 0) {
             initrd_offset = (kernel_high + ~INITRD_PAGE_MASK) & INITRD_PAGE_MASK;
             if (initrd_offset + initrd_size > ram_size) {
                 error_report("memory too small for initial ram disk '%s'",
-                             info.initrd_filename);
+                             info->initrd_filename);
                 exit(1);
             }
-            initrd_size = load_image_targphys(info.initrd_filename,
+            initrd_size = load_image_targphys(info->initrd_filename,
                                               initrd_offset,
                                               ram_size - initrd_offset);
         }
         if (initrd_size == (target_ulong) -1) {
             error_report("could not load initial ram disk '%s'",
-                         info.initrd_filename);
+                         info->initrd_filename);
             exit(1);
         }
     }
@@ -101,9 +81,9 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
     if (initrd_size > 0) {
         snprintf((char *)params_buf + 8, 256, "rd_start=0x%" PRIx64 " rd_size=%" PRId64 " %s",
                  cpu_mips_phys_to_kseg0(NULL, initrd_offset),
-                 initrd_size, info.kernel_cmdline);
+                 initrd_size, info->kernel_cmdline);
     } else {
-        snprintf((char *)params_buf + 8, 256, "%s", info.kernel_cmdline);
+        snprintf((char *)params_buf + 8, 256, "%s", info->kernel_cmdline);
     }
 
     rom_add_blob_fixed("params", params_buf, params_size,
@@ -112,3 +92,21 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
     g_free(params_buf);
     return entry;
 }
+
+void mips_load_kernel(MIPSCPU *cpu, struct mips_boot_info *info)
+{
+    CommonResetData *reset_data;
+    int64_t entry;
+
+    if (info->kernel_filename) {
+        entry = mips_setup_direct_kernel_boot(cpu, info);
+    }
+
+    reset_data = g_malloc0(sizeof(CommonResetData));
+    reset_data->cpu = cpu;
+    reset_data->vector = entry;
+
+    qemu_register_reset(do_cpu_reset, reset_data);
+}
+
+

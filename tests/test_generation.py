@@ -33,7 +33,8 @@ class TestGeneration(TestCase):
 
     def test_wrt320n_n1(self):
         firmware = SimpleFirmware(uuid=0, name=None, path=None, size=0)
-        firmware.profile = yaml.safe_load(open('samples/wrt320n_v1.yaml'))
+        with open('tests/machines/wrt320n_v1.yaml') as f:
+            firmware.profile = yaml.safe_load(f)
         machine_compiler = CompilerToQEMUMachine()
         machine_compiler.solve(firmware)
         machine_compiler.link(firmware)

@@ -1,211 +1,183 @@
-From 3b963e191111cef2f2dc7bc2dfb628bb7bc140e4 Mon Sep 17 00:00:00 2001
+From e74ef8c0adf5765db9f69c334acfbcf827803819 Mon Sep 17 00:00:00 2001
 From: cyrus <cyruscyliu@gmail.com>
-Date: Sat, 12 Oct 2019 22:23:19 +0800
+Date: Sat, 19 Oct 2019 23:58:07 +0800
 Subject: [PATCH] patch qemu-4.0.0
 
 ---
- accel/tcg/cpu-exec.c | 146 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 146 insertions(+)
+ hw/mips/Makefile.objs  |   4 +-
+ hw/mips/boot.c         | 112 +++++++++++++++++++++++++++++++++++++++++++++++++
+ include/hw/mips/mips.h |  17 ++++++++
+ 3 files changed, 131 insertions(+), 2 deletions(-)
+ create mode 100644 hw/mips/boot.c
 
-diff --git a/accel/tcg/cpu-exec.c b/accel/tcg/cpu-exec.c
-index 45ef41e..b0180a9 100644
---- a/accel/tcg/cpu-exec.c
-+++ b/accel/tcg/cpu-exec.c
-@@ -16,6 +16,10 @@
-  * You should have received a copy of the GNU Lesser General Public
-  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  */
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <inttypes.h>
-+#include <capstone/capstone.h>
- #include "qemu/osdep.h"
- #include "cpu.h"
- #include "trace.h"
-@@ -29,6 +33,7 @@
- #include "exec/tb-hash.h"
- #include "exec/tb-lookup.h"
- #include "exec/log.h"
-+#include "exec/address-spaces.h"
- #include "qemu/main-loop.h"
- #if defined(TARGET_I386) && !defined(CONFIG_USER_ONLY)
- #include "hw/i386/apic.h"
-@@ -36,6 +41,32 @@
- #include "sysemu/cpus.h"
- #include "sysemu/replay.h"
- 
-+typedef struct Record {
-+    uint32_t n_regs;
-+    uint32_t *regs;
-+    uint32_t code_size;
-+    uint8_t *code;
-+} Record;
+diff --git a/hw/mips/Makefile.objs b/hw/mips/Makefile.objs
+index 525809a..6f17fcd 100644
+--- a/hw/mips/Makefile.objs
++++ b/hw/mips/Makefile.objs
+@@ -1,8 +1,8 @@
+-obj-y += addr.o mips_int.o
++obj-y += addr.o mips_int.o boot.o
+ obj-$(CONFIG_R4K) += mips_r4k.o
+ obj-$(CONFIG_MALTA) += gt64xxx_pci.o mips_malta.o
+ obj-$(CONFIG_MIPSSIM) += mips_mipssim.o
+ obj-$(CONFIG_JAZZ) += mips_jazz.o
+ obj-$(CONFIG_FULONG) += mips_fulong2e.o
+ obj-$(CONFIG_MIPS_CPS) += cps.o
+-obj-$(CONFIG_MIPS_BOSTON) += boston.o
++obj-$(CONFIG_MIPS_BOSTON) += boston.o
+\ No newline at end of file
+diff --git a/hw/mips/boot.c b/hw/mips/boot.c
+new file mode 100644
+index 0000000..2e0db67
+--- /dev/null
++++ b/hw/mips/boot.c
+@@ -0,0 +1,112 @@
++#include "qemu/osdep.h"
++#include "qapi/error.h"
++#include "qemu/error-report.h"
++#include "qemu/units.h"
++#include "qemu-common.h"
++#include "hw/mips/mips.h"
++#include "hw/mips/cpudevs.h"
++#include "target/mips/cpu-qom.h"
++#include "target/mips/cpu.h"
++#include "hw/loader.h"
++#include "elf.h"
 +
-+/* output */
-+FILE *output;
-+
-+/* capstone */
-+csh handle;
-+bool init_capstone_done = false;
-+
-+static bool init_capstone(CPUState *cs)
++static void do_cpu_reset(void *opaque)
 +{
-+    CPUArchState *env = (CPUArchState *) cs->env_ptr;
-+    cs_arch arch = CS_ARCH_ARM;
-+    cs_mode mode = env->thumb ? CS_MODE_THUMB : CS_MODE_ARM;
-+    if (cs_open(arch, mode, &handle) != CS_ERR_OK) {
-+        cs_close(&handle);
-+        return false;
-+    }
-+    return true;
++    CommonResetData *reset_data = (CommonResetData *)opaque;
++    MIPSCPU *cpu = reset_data->cpu;
++
++    cpu_reset(CPU(cpu));
++    cpu->env.active_tc.PC = reset_data->vector;
 +}
 +
- /* -icount align implementation. */
- 
- typedef struct SyncClocks {
-@@ -54,6 +85,8 @@ typedef struct SyncClocks {
- #define MAX_DELAY_PRINT_RATE 2000000000LL
- #define MAX_NB_PRINTS 100
- 
-+bool panda_please_flush_tb = true;
-+
- static void align_clocks(SyncClocks *sc, const CPUState *cpu)
- {
-     int64_t cpu_icount;
-@@ -135,6 +168,113 @@ static void init_delay_params(SyncClocks *sc, const CPUState *cpu)
- }
- #endif /* CONFIG USER ONLY */
- 
-+static inline int panda_physical_memory_rw(hwaddr addr, uint8_t *buf, int len,
-+                                           bool is_write)
++static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info *info)
 +{
-+    hwaddr l = len;
-+    hwaddr addr1;
-+    MemoryRegion *mr = address_space_translate(&address_space_memory, addr,
-+                                               &addr1, &l, is_write, MEMTXATTRS_UNSPECIFIED);
++    const size_t params_size = 264;
++    int64_t entry, kernel_high, initrd_size;
++    long kernel_size;
++    ram_addr_t initrd_offset;
++    uint32_t *params_buf;
++    int big_endian;
 +
-+    if (!memory_access_is_direct(mr, is_write)) {
-+        // fail for MMIO regions of physical address space
-+        return MEMTX_ERROR;
-+    }
-+    void *ram_ptr = qemu_map_ram_ptr(mr->ram_block, addr1);
-+
-+    if (is_write) {
-+        memcpy(ram_ptr, buf, len);
++#ifdef TARGET_WORDS_BIGENDIAN
++    big_endian = 1;
++#else
++    big_endian = 0;
++#endif
++    kernel_size = load_elf(info->kernel_filename, NULL,
++                           cpu_mips_kseg0_to_phys, NULL,
++                           (uint64_t *)&entry, NULL,
++                           (uint64_t *)&kernel_high, big_endian,
++                           EM_MIPS, 1, 0);
++    if (kernel_size >= 0) {
++        if ((entry & ~0x7fffffffULL) == 0x80000000)
++            entry = (int32_t)entry;
 +    } else {
-+        memcpy(buf, ram_ptr, len);
++        error_report("could not load kernel '%s': %s",
++                     info->kernel_filename,
++                     load_elf_strerror(kernel_size));
++        exit(1);
 +    }
-+    return MEMTX_OK;
-+}
 +
-+static inline int panda_virtual_memory_rw(CPUState *env, target_ulong addr,
-+                                          uint8_t *buf, int len, bool is_write)
-+{
-+    int l;
-+    int ret;
-+    hwaddr phys_addr;
-+    target_ulong page;
-+
-+    while (len > 0) {
-+        page = addr & TARGET_PAGE_MASK;
-+        phys_addr = cpu_get_phys_page_debug(env, page);
-+        if (phys_addr == -1) {
-+            // no physical page mapped
-+            return -1;
-+        }
-+        l = (page + TARGET_PAGE_SIZE) - addr;
-+        if (l > len) {
-+            l = len;
-+        }
-+        phys_addr += (addr & ~TARGET_PAGE_MASK);
-+        ret = panda_physical_memory_rw(phys_addr, buf, l, is_write);
-+        if (ret != MEMTX_OK) {
-+            return ret;
-+        }
-+        len -= l;
-+        buf += l;
-+        addr += l;
-+    }
-+    return 0;
-+}
-+
-+static size_t disassemble_block(CPUState *cs, TranslationBlock *tb, uint8_t **code)
-+{
-+    size_t count, length = 0;
-+    cs_insn *insn;
-+    uint8_t *mem = (uint8_t *) malloc(10240 * sizeof(uint8_t));
-+
-+    panda_virtual_memory_rw(cs, tb->pc, mem, tb->size, false);
-+    count = cs_disasm(handle, mem, tb->size, tb->pc, 0, &insn);
-+    for (size_t i = 0; i < count; i++) {
-+        length += sprintf(
-+                (char *) mem + length,
-+                "0x%x :%s\t\t%s\n", (unsigned int) insn[i].address, insn[i].mnemonic, insn[i].op_str
-+        );
-+    }
-+    *code = (uint8_t *) malloc(length * sizeof(uint8_t));
-+    memcpy(*code, mem, length);
-+    free(mem);
-+    cs_free(insn, count);
-+    return length;
-+}
-+
-+static int before_block_exec(CPUState *cs, TranslationBlock *tb)
-+{
-+    CPUArchState *env = (CPUArchState *) cs->env_ptr;
-+    Record record; 
-+    if (!output) {
-+        output = fopen("/tmp/log", "w");
-+        if (!output) {
-+            exit(-1);
-+        }
-+    }
-+    if (!init_capstone_done) {
-+        if (!init_capstone(cs)) return -1;
-+        init_capstone_done = true;
-+    }
-+    record.n_regs = 18;
-+    // add r0 to r12, sp(r13), lr(r14), pc(r15)
-+    record.regs = (uint32_t *)malloc(record.n_regs * sizeof(uint32_t));
-+    for (size_t i = 0; i < 16; i++) {
-+        record.regs[i] = env->regs[i];
-+    }
-+    // add others
-+    record.regs[16] = cpsr_read(env);
-+    record.regs[17] = xpsr_read(env);
-+    fwrite(&record.n_regs, sizeof(uint32_t), 1, output);
-+    fwrite(record.regs, record.n_regs * sizeof(uint32_t), 1, output);
-+    record.code_size = disassemble_block(cs, tb, &record.code);
-+    fwrite(&record.code_size, sizeof(uint32_t), 1, output);
-+    fwrite(record.code, record.code_size, 1, output);
-+    free(record.regs);
-+    free(record.code);
-+    return 0;
-+}
-+
- /* Execute a TB, and fix up the CPU state afterwards if necessary */
- static inline tcg_target_ulong cpu_tb_exec(CPUState *cpu, TranslationBlock *itb)
- {
-@@ -168,6 +308,7 @@ static inline tcg_target_ulong cpu_tb_exec(CPUState *cpu, TranslationBlock *itb)
- #endif /* DEBUG_DISAS */
- 
-     cpu->can_do_io = !use_icount;
-+    before_block_exec(cpu, itb);
-     ret = tcg_qemu_tb_exec(env, tb_ptr);
-     cpu->can_do_io = 1;
-     last_tb = (TranslationBlock *)(ret & ~TB_EXIT_MASK);
-@@ -725,6 +866,11 @@ int cpu_exec(CPUState *cpu)
-                 cpu->cflags_next_tb = -1;
-             }
- 
-+            if (panda_please_flush_tb) {
-+                tb_flush(first_cpu);
-+                panda_please_flush_tb = false;
++    /* load initrd */
++    initrd_size = 0;
++    initrd_offset = 0;
++    if (info->initrd_filename) {
++        initrd_size = get_image_size (info->initrd_filename);
++        if (initrd_size > 0) {
++            initrd_offset = (kernel_high + ~INITRD_PAGE_MASK) & INITRD_PAGE_MASK;
++            if (initrd_offset + initrd_size > ram_size) {
++                error_report("memory too small for initial ram disk '%s'",
++                             info->initrd_filename);
++                exit(1);
 +            }
++            initrd_size = load_image_targphys(info->initrd_filename,
++                                              initrd_offset,
++                                              ram_size - initrd_offset);
++        }
++        if (initrd_size == (target_ulong) -1) {
++            error_report("could not load initial ram disk '%s'",
++                         info->initrd_filename);
++            exit(1);
++        }
++    }
 +
-             tb = tb_find(cpu, last_tb, tb_exit, cflags);
-             cpu_loop_exec_tb(cpu, tb, &last_tb, &tb_exit);
-             /* Try to align the host and virtual clocks
++    /* Store command line.  */
++    params_buf = g_malloc(params_size);
++
++    params_buf[0] = tswap32(ram_size);
++    params_buf[1] = tswap32(0x12345678);
++
++
++    if (initrd_size > 0) {
++        snprintf((char *)params_buf + 8, 256, "rd_start=0x%" PRIx64 " rd_size=%" PRId64 " %s",
++                 cpu_mips_phys_to_kseg0(NULL, initrd_offset),
++                 initrd_size, info->kernel_cmdline);
++    } else {
++        snprintf((char *)params_buf + 8, 256, "%s", info->kernel_cmdline);
++    }
++
++    rom_add_blob_fixed("params", params_buf, params_size,
++                       16 * MiB - params_size);
++
++    g_free(params_buf);
++    return entry;
++}
++
++void mips_load_kernel(MIPSCPU *cpu, struct mips_boot_info *info)
++{
++    CommonResetData *reset_data;
++    int64_t entry;
++
++    if (info->kernel_filename) {
++        entry = mips_setup_direct_kernel_boot(cpu, info);
++    }
++
++    reset_data = g_malloc0(sizeof(CommonResetData));
++    reset_data->cpu = cpu;
++    reset_data->vector = entry;
++
++    qemu_register_reset(do_cpu_reset, reset_data);
++}
++
++
+diff --git a/include/hw/mips/mips.h b/include/hw/mips/mips.h
+index 2f6774d..8e458df 100644
+--- a/include/hw/mips/mips.h
++++ b/include/hw/mips/mips.h
+@@ -6,7 +6,9 @@
+ #define INITRD_PAGE_MASK (~((1 << 16) - 1))
+ 
+ #include "exec/memory.h"
++#include "target/mips/cpu-qom.h"
+ #include "hw/irq.h"
++#include "qemu/notify.h"
+ 
+ /* gt64xxx.c */
+ PCIBus *gt64120_register(qemu_irq *pic);
+@@ -21,4 +23,19 @@ void rc4030_dma_write(void *dma, uint8_t *buf, int len);
+ 
+ DeviceState *rc4030_init(rc4030_dma **dmas, IOMMUMemoryRegion **dma_mr);
+ 
++struct mips_boot_info {
++    uint64_t ram_size;
++    const char *kernel_filename;
++    const char *kernel_cmdline;
++    const char *initrd_filename;
++};
++
++typedef struct CommonResetData {
++    MIPSCPU *cpu;
++    uint64_t vector;
++} CommonResetData;
++
++
++void mips_load_kernel(MIPSCPU *cpu, struct mips_boot_info *info);
++
+ #endif
 -- 
 2.7.4
 
