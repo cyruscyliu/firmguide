@@ -1,11 +1,38 @@
 """
 Our ugly solution.
 """
-from generation.generations.generatori import CodeGenerationInterface
+from generation.generatori import CodeGenerationInterface
 from profile.firmware import Firmware
 
 
 class SimpleFirmware(Firmware, CodeGenerationInterface):
+    def sget_interrupt_controller_name(self):
+        return self.profile['interrupt_controller']['ic_name']
+
+    def lget_interrupt_controller_registers(self):
+        return self.profile['interrupt_controller']['ic_registers']
+
+    def sget_interrupt_controller_mmio_size(self):
+        return self.profile['interrupt_controller']['ic_mmio_size']
+
+    def sget_interrupt_controller_mmio_base(self):
+        return self.profile['interrupt_controller']['ic_mmio_base']
+
+    def sget_n_irqs(self):
+        return self.profile['interrupt_controller']['ic_n_irqs']
+
+    def sget_timer_name(self):
+        return self.profile['timer']['timer_name']
+
+    def lget_timer_registers(self):
+        return self.profile['timer']['timer_registers']
+
+    def sget_timer_mmio_size(self):
+        return self.profile['timer']['timer_mmio_size']
+
+    def sget_timer_mmio_base(self):
+        return self.profile['timer']['timer_mmio_base']
+
     def sget_uart_baud_rate(self):
         return self.profile['uart']['uart_baud_rate']
 
