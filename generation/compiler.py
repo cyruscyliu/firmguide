@@ -3,7 +3,7 @@ import abc
 
 from generation.common import to_state, to_mmio, to_ops, indent, to_type, to_read, to_write, to_update, \
     to_header, to_upper, to_cpu_pp_state, to_cpu_pp_type, concat, to_irq
-from render import Template
+from generation.render import Template
 
 
 class CompilerToQEMUMachine(object):
@@ -12,7 +12,7 @@ class CompilerToQEMUMachine(object):
         self.source = None
         self.header = None
         self.location = {
-            'root': '../../build/qemu-4.0.0',
+            'root': 'build/qemu-4.0.0',
             'machine': {'arm': 'hw/arm', 'mips': 'hw/mips'},
             'configs': {'arm': 'default-configs/arm-softmmu.mak', 'mips': 'default-configs/mipsel-softmmu.mak'},
             'kconfig': {'arm': 'hw/arm/Kconfig', 'mips': 'hw/mips/Kconfig'},
@@ -159,9 +159,8 @@ class CompilerToQEMUMachine(object):
     def install(self, firmware):
         machine_name = firmware.sget_machine_name()
         architecture = firmware.sget_architecture()
-        # source_target = os.path.join(
-        #     self.location['root'], self.location['machine'][architecture], machine_name + '.c')
-        source_target = machine_name + '.c'
+        source_target = os.path.join(
+            self.location['root'], self.location['machine'][architecture], machine_name + '.c')
         with open(source_target, 'w') as f:
             f.write(self.source)
             f.flush()
@@ -250,11 +249,13 @@ class CompilerToQEMUMachine(object):
         irq = ''
         if cpu_pp_model:
             if architecture == 'arm':
-                irq = 'qdev_get_gpio_in(DEVICE(&s->cpu_pp), {}'.format(uart_irq)
+                irq = 'qdev_get_gpio_in(DEVICE(&s->cpu_pp), {})'.format(uart_irq)
             elif architecture == 'mips':
                 irq = 's->cpu->env.irq[{}]'.format(uart_irq)
             else:
                 raise NotImplementedError()
+        else:
+            irq = 'qdev_get_gpio_in(DEVICE(&s->cpu_pp), {})'.format(uart_irq)
 
         self.machine['includings'].extend(['hw/char/serial.h'])
         self.machine_init['body'].extend([
@@ -316,12 +317,11 @@ class CompilerToQEMUMachine(object):
                         connection['input']['input']
                     ))])
         # bridge
-        if firmware.probe_bridge():
-            bridge_name = firmware.sget_bridge_name()
-            bridge_mmio_base = firmware.sget_bridge_mmio_base()
-            bridge_mmio_size = firmware.sget_bridge_mmio_size()
-            bridge_registers = firmware.lget_bridge_registers()
-
+        # if firmware.probe_bridge():
+        #     bridge_name = firmware.sget_bridge_name()
+        #     bridge_mmio_base = firmware.sget_bridge_mmio_base()
+        #     bridge_mmio_size = firmware.sget_bridge_mmio_size()
+        #     bridge_registers = firmware.lget_bridge_registers()
         # sysbus_connect_irq(SYS_BUS_DEVICE(bridge), 0,
         #         qdev_get_gpio_in_named(DEVICE(s), {{ic_name|upper}}_IRQ, 0));
 
