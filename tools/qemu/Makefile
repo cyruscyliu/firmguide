@@ -13,7 +13,7 @@ build:
 	cp -r files/* $(DIR_TO_BUILD)/$(PACKAGE_DIR_NAME)/
 	cd $(DIR_TO_BUILD)/$(PACKAGE_DIR_NAME) && git add * && git commit -q -m "patch $(PACKAGE_DIR_NAME)" && git format-patch -q HEAD^1
 	mv $(DIR_TO_BUILD)/$(PACKAGE_DIR_NAME)/*.patch ./patches/
-	cd $(DIR_TO_BUILD)/$(PACKAGE_DIR_NAME) && ./configure --target-list=arm-softmmu,mips-softmmu --enable-debug >/dev/null
+	cd $(DIR_TO_BUILD)/$(PACKAGE_DIR_NAME) && ./configure --target-list=arm-softmmu,mipsel-softmmu --enable-debug >/dev/null
 	cd $(DIR_TO_BUILD)/$(PACKAGE_DIR_NAME) && make -j4
 
 clean:

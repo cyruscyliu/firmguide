@@ -117,6 +117,8 @@ class CompilerToQEMUMachine(object):
         """
         with open(path) as f:
             lines = f.readlines()
+        if not lines[-1].endswith('\n'):
+            lines[-1] = lines[-1] + '\n'
         if label not in lines:
             lines.extend(content)
         with open(path, 'w') as f:
@@ -208,6 +210,7 @@ class CompilerToQEMUMachine(object):
                 indent('s->cpu = ARM_CPU(object_new(machine->cpu_type));')
             ])
         elif architecture == 'mips':
+            self.machine['includings'].extend(['target/arm/cpu-qom.h'])
             self.machine_struct['fields'].extend([indent('MIPSCPU *cpu;', 1)])
             self.machine_init['body'].extend([
                 indent('s->cpu = MIPS_CPU(object_new(machine->cpu_type));')])
@@ -505,7 +508,13 @@ class CompilerToQEMUMachine(object):
         cpu_model = firmware.sget_cpu_model()
 
         self.machine['includings'].extend(['qemu/units.h'])
-        self.machine['includings'].extend(['target/arm/cpu.h'])
+        if architecture == 'arm':
+            self.machine['includings'].extend(['target/arm/cpu.h'])
+        elif architecture == 'mips':
+            self.machine['includings'].extend(['target/mips/cpu.h'])
+        else:
+            raise NotImplementedError()
+
         self.machine_class_init['signature'].extend(
             ['static void {}_machine_init(MachineClass *mc)'.format(machine_name)])
         self.machine_class_init['body'].extend([
