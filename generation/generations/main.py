@@ -15,10 +15,16 @@ if __name__ == '__main__':
                       './arm-softmmu/qemu-system-arm -M nas7820 -kernel ../13882/nas7820.uImage -dtb ../13882/nas7820.dtb -nographic'
     firmware = SimpleFirmware(uuid=0, name=None, path=None, size=0)
     firmware.profile = yaml.safe_load(open('samples/nas7820.yaml'))
-    # after get_timer_info
     machine_compiler = CompilerToQEMUMachine()
     machine_compiler.solve(firmware)
     machine_compiler.link(firmware)
     machine_compiler.install(firmware)
     machine_compiler.run(firmware)
     print(prepare_nas7820)
+    firmware.profile = yaml.safe_load(open('samples/wrt320n_v1.yaml'))
+    machine_compiler = CompilerToQEMUMachine()
+    machine_compiler.solve(firmware)
+    machine_compiler.link(firmware)
+    machine_compiler.install(firmware)
+    machine_compiler.run(firmware)
+    # print(prepare_nas7820)

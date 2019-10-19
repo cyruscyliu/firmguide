@@ -6,6 +6,18 @@ from profile.firmware import Firmware
 
 
 class SimpleFirmware(Firmware, CodeGenerationInterface):
+    def sget_uart_baud_rate(self):
+        return self.profile['uart']['uart_baud_rate']
+
+    def sget_uart_reg_shift(self):
+        return self.profile['uart']['uart_reg_shift']
+
+    def sget_uart_irq(self):
+        return self.profile['uart']['uart_irq']
+
+    def sget_flash_base(self):
+        return self.profile['flash']['flash_base']
+
     def sget_uart_mmio_base(self):
         return self.profile['uart']['uart_mmio_base']
 
@@ -32,7 +44,10 @@ class SimpleFirmware(Firmware, CodeGenerationInterface):
         return self.profile['board_id']
 
     def lget_bamboo_devices(self):
-        return self.profile['bamboo']
+        if 'bamboo' in self.profile:
+            return self.profile['bamboo']
+        else:
+            return []
 
     def sget_machine_description(self):
         return self.profile['machine_desc']
@@ -44,7 +59,7 @@ class SimpleFirmware(Firmware, CodeGenerationInterface):
         return self.profile['architecture']
 
     def sget_ram_size(self):
-        return '2 * GiB'
+        return self.profile['ram']['ram_size']
 
     def sget_cpu_model(self):
         return self.profile['cpu']['cpu_type']

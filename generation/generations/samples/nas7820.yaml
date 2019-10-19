@@ -23,7 +23,6 @@ flash:
   flash_size: "128 * MiB"
 bamboo:
   - name: "oxmas782x_gpioa_0"
-    id: "0"
     mmio_base: "0x44000000"
     mmio_size: "0x100"
     registers:
@@ -31,7 +30,6 @@ bamboo:
         offset: "0x0 ... 0x100"
         value: "0x0"
   - name: "oxmas782x_gpioa_1"
-    id: "1"
     mmio_base: "0x44E00000"
     mmio_size: "0x200"
     registers:
@@ -39,7 +37,6 @@ bamboo:
         offset: "0x0 ... 0x200"
         value: "0x0"
   - name: "oxmas782x_gpiob_0"
-    id: "2"
     mmio_base: "0x44100000"
     mmio_size: "0x100"
     registers:
@@ -47,7 +44,6 @@ bamboo:
         offset: "0x0 ... 0x100"
         value: "0x0"
   - name: "oxmas782x_gpiob_1"
-    id: "3"
     mmio_base: "0x44F00000"
     mmio_size: "0x200"
     registers:
@@ -55,7 +51,6 @@ bamboo:
         offset: "0x0 ... 0x200"
         value: "0x0"
   - name: "nas782x_pcie0_cfg"
-    id: "4"
     mmio_base: "0x47C00000"
     mmio_size: "0x1000"
     registers:
@@ -63,7 +58,6 @@ bamboo:
         offset: "0x0 ... 0x1000"
         value: "0x0"
   - name: "nas782x_pcie0_it"
-    id: "5"
     mmio_base: "0x47D00000"
     mmio_size: "0x100"
     registers:
@@ -71,7 +65,6 @@ bamboo:
         offset: "0x0 ... 0x100"
         value: "0x0"
   - name: "nas782x_pcie0_phy"
-    id: "6"
     mmio_base: "0x47A00000"
     mmio_size: "0x10"
     registers:
@@ -79,7 +72,6 @@ bamboo:
         offset: "0x0 ... 0x10"
         value: "0x0"
   - name: "nas782x_pcie1_cfg"
-    id: "7"
     mmio_base: "0x47E00000"
     mmio_size: "0x1000"
     registers:
@@ -87,7 +79,6 @@ bamboo:
         offset: "0x0 ... 0x1000"
         value: "0x0"
   - name: "nas782x_pcie1_it" # inbound translator
-    id: "8"
     mmio_base: "0x47F00000"
     mmio_size: "0x100"
     registers:
@@ -95,7 +86,6 @@ bamboo:
         offset: "0x0 ... 0x100"
         value: "0x0"
   - name: "nas782x_pcie1_phy"
-    id: "9"
     mmio_base: "0x44A00000"
     mmio_size: "0x10"
     registers:
@@ -103,7 +93,6 @@ bamboo:
         offset: "0x0 ... 0x10"
         value: "0x0"
   - name: "nas782x_sata_ports"
-    id: "10"
     mmio_base: "0x45900000"
     mmio_size: "0x20000"
     registers:
@@ -111,7 +100,6 @@ bamboo:
         offset: "0x0 ... 0x20000"
         value: "0x0"
   - name: "nas782x_sata_dmactl"
-    id: "11"
     mmio_base: "0x459A0000"
     mmio_size: "0x40"
     registers:
@@ -119,7 +107,6 @@ bamboo:
         offset: "0x0 ... 0x40"
         value: "0x0"
   - name: "nas782x_sata_sgdma"
-    id: "12"
     mmio_base: "0x459B0000"
     mmio_size: "0x20"
     registers:
@@ -127,7 +114,6 @@ bamboo:
         offset: "0x0 ... 0x20"
         value: "0x0"
   - name: "nas782x_sata_core"
-    id: "13"
     mmio_base: "0x459E0000"
     mmio_size: "0x2000"
     registers:
@@ -135,7 +121,6 @@ bamboo:
         offset: "0x0 ... 0x2000"
         value: "0x0"
   - name: "nas782x_sata_pyh"
-    id: "14"
     mmio_base: "0x44900000"
     mmio_size: "0xC"
     registers:
@@ -143,7 +128,6 @@ bamboo:
         offset: "0x0 ... 0xC"
         value: "0x0"
   - name: "nas782x_sata_descriptors"
-    id: "15"
     mmio_base: "0x50000000"
     mmio_size: "0x1000"
     registers:
@@ -151,7 +135,6 @@ bamboo:
         offset: "0x0 ... 0x1000"
         value: "0x0"
   - name: "nas782x_gmac"
-    id: "16"
     mmio_base: "0x40400000"
     mmio_size: "0x2000"
     registers:
@@ -159,7 +142,6 @@ bamboo:
         offset: "0x0 ... 0x2000"
         value: "0x0"
   - name: "nas782x_ehci"
-    id: "17"
     mmio_base: "0x40200100"
     mmio_size: "0xf00"
     registers:
@@ -167,7 +149,6 @@ bamboo:
         offset: "0x0 ... 0xf00"
         value: "0x0"
   - name: "nas782x_plla"
-    id: "18"
     mmio_base: "0x44e001f0"
     mmio_size: "0x10"
     registers:
@@ -181,7 +162,6 @@ bamboo:
         offset: "0x8 ... 0x10"
         value: "0x0"
   - name: "nas782x_pllb"
-    id: "19"
     mmio_base: "0x44f001f0"
     mmio_size: "0x10"
     registers:
@@ -189,7 +169,6 @@ bamboo:
         offset: "0x0 ... 0x10"
         value: "0x0"
   - name: "nas782x_reset"
-    id: "20"
     mmio_base: "0x44e00034"
     mmio_size: "0x8"
     registers:
@@ -197,7 +176,6 @@ bamboo:
         offset: "0x0 ... 0x8"
         value: "0x0"
   - name: "nas782x_rps_timer"
-    id: "21"
     mmio_base: "0x44400200"
     mmio_size: "0x40"
     registers:
@@ -205,7 +183,6 @@ bamboo:
         offset: "0x0 ... 0x40"
         value: "0x0"
   - name: "nas782x_rps"
-    id: "22"
     mmio_base: "0x44400000"
     mmio_size: "0x14"
     registers:
@@ -213,7 +190,6 @@ bamboo:
         offset: "0x0 ... 0x14"
         value: "0x0"
   - name: "nas782x_nand_0"
-    id: "23"
     mmio_base: "0x41000000"
     mmio_size: "0x100000"
     registers:
@@ -224,7 +200,6 @@ bamboo:
         offset: "0x4 ... 0x100000"
         value: "0x0"
   - name: "nas782x_nand_1"
-    id: "24"
     mmio_base: "0x41C00000"
     mmio_size: "0x20"
     registers:

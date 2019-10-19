@@ -3,6 +3,10 @@ import abc
 
 class CodeGenerationInterface(object):
     @abc.abstractmethod
+    def sget_flash_base(self):
+        pass
+
+    @abc.abstractmethod
     def sget_machine_description(self):
         pass
 
@@ -33,7 +37,19 @@ class CodeGenerationInterface(object):
     @abc.abstractmethod
     def sget_uart_mmio_base(self):
         pass
-    
+
+    @abc.abstractmethod
+    def sget_uart_baud_rate(self):
+        pass
+
+    @abc.abstractmethod
+    def sget_uart_reg_shift(self):
+        pass
+
+    @abc.abstractmethod
+    def sget_uart_irq(self):
+        pass
+
     @abc.abstractmethod
     def lget_bamboo_devices(self):
         pass

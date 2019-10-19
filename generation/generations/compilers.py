@@ -113,6 +113,7 @@ class CompilerToQEMU(object):
         architecture = firmware.sget_architecture()
         source_target = os.path.join(
             self.location['root'], self.location['machine'][architecture], machine_name + '.c')
+        print(source_target)
         with open(source_target, 'w') as f:
             f.write(self.source)
             f.flush()
@@ -175,7 +176,8 @@ class CompilerToQEMUMachine(CompilerToQEMU):
             ])
         elif architecture == 'mips':
             self.machine_struct['fields'].extend([indent('MIPSCPU *cpu;', 1)])
-            self.machine_init['body'].extend([indent('s->cpu = MIPS_CPU(object_new(machine->default_cpu_type));')])
+            self.machine_init['body'].extend([
+                indent('s->cpu = MIPS_CPU(object_new(machine->cpu_type));')])
         else:
             raise NotImplementedError()
         self.machine_init['body'].extend([
@@ -183,15 +185,22 @@ class CompilerToQEMUMachine(CompilerToQEMU):
         # cpu_pp
         cpu_model = firmware.sget_cpu_model()
         cpu_pp_model = firmware.probe_cpu_pp_model()
-        if cpu_pp_model is not None:
-            cpu_pp_mmio_base = firmware.sget_cpu_pp_mmio_base()
-            self.machine['includings'].extend(['hw/cpu/arm11mpcore.h'])
-            self.machine_struct['fields'].extend([indent('{} cpu_pp;'.format(to_cpu_pp_state(cpu_model)), 1)])
-            self.machine_init['body'].extend([
-                indent('object_initialize(&s->cpu_pp, sizeof(s->cpu_pp), {});'.format(to_cpu_pp_type(cpu_model))),
-                indent('object_property_set_bool(OBJECT(&s->cpu_pp), true, "realized", &err);', 1),
-                indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_pp), 0, {});'.format(cpu_pp_mmio_base), 1)
-            ])
+        if cpu_pp_model:
+            if architecture == 'arm':
+                cpu_pp_mmio_base = firmware.sget_cpu_pp_mmio_base()
+                self.machine['includings'].extend(['hw/cpu/arm11mpcore.h'])
+                self.machine_struct['fields'].extend([indent('{} cpu_pp;'.format(to_cpu_pp_state(cpu_model)), 1)])
+                self.machine_init['body'].extend([
+                    indent('object_initialize(&s->cpu_pp, sizeof(s->cpu_pp), {});'.format(to_cpu_pp_type(cpu_model))),
+                    indent('object_property_set_bool(OBJECT(&s->cpu_pp), true, "realized", &err);', 1),
+                    indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_pp), 0, {});'.format(cpu_pp_mmio_base), 1)
+                ])
+            elif architecture == 'mips':
+                self.machine['includings'].extend(['hw/mips/cpudevs.h'])
+                self.machine_init['body'].extend([
+                    indent('cpu_mips_irq_init_cpu(s->cpu);', 1),
+                    indent('cpu_mips_clock_init(s->cpu);', 1)
+                ])
         # ram
         self.machine['includings'].extend(['exec/address-spaces.h'])
         self.machine_struct['fields'].extend([indent('MemoryRegion ram;', 1)])
@@ -201,10 +210,22 @@ class CompilerToQEMUMachine(CompilerToQEMU):
         ])
         # uart
         uart_mmio_base = firmware.sget_uart_mmio_base()
+        uart_baud_rate = firmware.sget_uart_baud_rate()
+        uart_reg_shift = firmware.sget_uart_reg_shift()
+        uart_irq = firmware.sget_uart_irq()
+        irq = ''
+        if cpu_pp_model:
+            if architecture == 'arm':
+                irq = 'qdev_get_gpio_in(DEVICE(&s->cpu_pp), {}'.format(uart_irq)
+            elif architecture == 'mips':
+                irq = 's->cpu->env.irq[{}]'.format(uart_irq)
+            else:
+                raise NotImplementedError()
+
         self.machine['includings'].extend(['hw/char/serial.h'])
         self.machine_init['body'].extend([
-            indent('serial_mm_init(get_system_memory(), {}, 0, qdev_get_gpio_in(DEVICE(&s->cpu_pp), 23), '
-                   '115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);'.format(uart_mmio_base))
+            indent('serial_mm_init(get_system_memory(), {}, {}, {}, {}, serial_hd(0), DEVICE_LITTLE_ENDIAN);'.format(
+                uart_mmio_base, uart_reg_shift, irq, uart_baud_rate))
         ])
         # flash
         flash_type = firmware.sget_flash_type()
@@ -320,7 +341,8 @@ class CompilerToQEMUMachine(CompilerToQEMU):
 
     def solve_irq_to_cpu(self, firmware):
         cpu_pp_model = firmware.probe_cpu_pp_model()
-        if cpu_pp_model:
+        architecture = firmware.sget_architecture()
+        if cpu_pp_model and architecture == 'arm':
             self.machine_init['body'].extend([
                 indent('sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 0, '
                        'qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));', 1),
@@ -336,15 +358,18 @@ class CompilerToQEMUMachine(CompilerToQEMU):
         architecture = firmware.sget_architecture()
         if architecture == 'arm':
             self.machine['includings'].extend(['hw/arm/arm.h'])
-            self.machine_init['declaration'].extend([indent('static struct arm_boot_info binfo;', 1)])
+            self.machine_init['declaration'].extend([indent('struct arm_boot_info binfo;', 1)])
+            board_id = firmware.sget_board_id()
+            self.machine_init['body'].extend([
+                indent('binfo.board_id = {};'.format(board_id), 1),
+            ])
         elif architecture == 'mips':
-            self.machine_init['declaration'].extend([indent('static struct mips_boot_info binfo;', 1)])
+            self.machine['includings'].extend(['hw/mips/mips.h'])
+            self.machine_init['declaration'].extend([indent('struct mips_boot_info binfo;', 1)])
         else:
             raise NotImplementedError()
 
-        board_id = firmware.sget_board_id()
         self.machine_init['body'].extend([
-            indent('binfo.board_id = {};'.format(board_id), 1),
             indent('binfo.ram_size = machine->ram_size;', 1),
             indent('binfo.kernel_filename = machine->kernel_filename;', 1),
             indent('binfo.kernel_cmdline = machine->kernel_cmdline;', 1),
