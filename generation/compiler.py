@@ -456,14 +456,14 @@ class CompilerToQEMUMachine(object):
         architecture = firmware.sget_architecture()
         if architecture == 'arm':
             self.machine['includings'].extend(['hw/arm/arm.h'])
-            self.machine_init['declaration'].extend([indent('struct arm_boot_info binfo;', 1)])
+            self.machine_init['declaration'].extend([indent('static struct arm_boot_info binfo;', 1)])
             board_id = firmware.sget_board_id()
             self.machine_init['body'].extend([
                 indent('binfo.board_id = {};'.format(board_id), 1),
             ])
         elif architecture == 'mips':
             self.machine['includings'].extend(['hw/mips/mips.h'])
-            self.machine_init['declaration'].extend([indent('struct mips_boot_info binfo;', 1)])
+            self.machine_init['declaration'].extend([indent('static struct mips_boot_info binfo;', 1)])
         else:
             raise NotImplementedError()
 
