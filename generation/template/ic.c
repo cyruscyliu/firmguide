@@ -4,7 +4,6 @@
 #include "qemu/log.h"
 #include "qapi/error.h"
 #include "hw/intc/{{ic_name}}.h"
-#include "qemu/log.h"
 
 static void {{ic_name}}_update(void *opaque)
 {
