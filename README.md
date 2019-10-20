@@ -6,7 +6,7 @@ and instrumented easily. Moreover, any dynamic analysis approaches can be extend
 
 BTW, this project has a name `Salamander` which is from `Fantastic Beasts: The Crimes of Grindelwald` :).
 
->Newt (to Tian): You have eyes like a salamander
+>Newt (to Tina): You have eyes like a salamander
 
 ## Features
 
