@@ -54,10 +54,10 @@ class TestGeneration(TestCase):
         # machine_compiler.run(firmware)
         # os.system(
         #     'dd if=tests/files/ec5859077831e078987ebb05461d4ec834896f3e.bin of=tests/files/uImage bs=1 count=889320')
-        os.system(
-            'build/qemu-4.0.0/arm-softmmu/qemu-system-arm '
-            '-M wrt350n_v2 '
-            '-kernel tests/files/uImage '
-            '-drive file=tests/files/ec5859077831e078987ebb05461d4ec834896f3e.bin,format=raw,if=pflash '
-            '-nographic'
-        )
+        # os.system(
+        #     'build/qemu-4.0.0/arm-softmmu/qemu-system-arm '
+        #     '-M wrt350n_v2 '
+        #     '-kernel tests/files/uImage '
+        #     '-drive file=tests/files/ec5859077831e078987ebb05461d4ec834896f3e.bin,format=raw,if=pflash '
+        #     '-nographic'
+        # )
