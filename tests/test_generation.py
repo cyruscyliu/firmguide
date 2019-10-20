@@ -2,8 +2,6 @@ from unittest import TestCase
 
 import os
 import yaml
-import signal
-import subprocess
 
 from generation.compiler import CompilerToQEMUMachine
 from profile.simple import SimpleFirmware
@@ -26,10 +24,9 @@ class TestGeneration(TestCase):
         os.system('dumpimage -T flat_dt -i tests/files/fitimage -p 1 tests/files/nas7820.dtb >/dev/null 2>&1')
         os.system('mkimage -A arm -C none -O linux -T kernel -d tests/files/nas7820.kernel -a 0x8000 -e 0x8000 '
                   'tests/files/nas7820.uImage >/dev/null 2>&1')
-        # os.system('cd build/qemu-4.0.0 && make -j4')
-        process = subprocess.Popen(
-            'build/qemu-4.0.0/arm-softmmu/qemu-system-arm '
-            '-M nas7820 -kernel tests/files/nas7820.uImage -dtb tests/files/nas7820.dtb -nographic', shell=True)
+        os.system('cd build/qemu-4.0.0 && make -j4')
+        os.system('build/qemu-4.0.0/arm-softmmu/qemu-system-arm '
+                  '-M nas7820 -kernel tests/files/nas7820.uImage -dtb tests/files/nas7820.dtb -nographic')
 
     def test_wrt320n_n1(self):
         firmware = SimpleFirmware(uuid=0, name=None, path=None, size=0)
@@ -40,12 +37,11 @@ class TestGeneration(TestCase):
         machine_compiler.link(firmware)
         machine_compiler.install(firmware)
         # machine_compiler.run(firmware)
-        # os.system('cd build/qemu-4.0.0 && make -j4')
-        os.system('')
-        process = subprocess.Popen(
-            'build/qemu-4.0.0/mipsel-softmmu/qemu-system-mipsel '
-            '-M wrt320n_v1 -kernel tests/files/vmlinux.elf -drive file=tests/files/rootfs.fill,if=pflash,format=raw'
-            ' -nographic', shell=True)
+        os.system('cd build/qemu-4.0.0 && make -j4')
+        os.system('build/qemu-4.0.0/mipsel-softmmu/qemu-system-mipsel '
+                  '-M wrt320n_v1 -kernel tests/files/vmlinux.elf '
+                  '-drive file=tests/files/rootfs.fill,if=pflash,format=raw'
+                  ' -nographic')
 
     def test_wrt350n_v2(self):
         firmware = SimpleFirmware(uuid=0, name=None, path=None, size=0)

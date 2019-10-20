@@ -6,6 +6,12 @@ from profile.firmware import Firmware
 
 
 class SimpleFirmware(Firmware, CodeGenerationInterface):
+    def sget_ram_priority(self):
+        if 'ram_priority' in self.profile['ram']:
+            return self.profile['ram']['ram_priority']
+        else:
+            return '-1'
+
     def sget_interrupt_controller_name(self):
         return self.profile['interrupt_controller']['ic_name']
 

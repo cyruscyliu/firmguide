@@ -3,6 +3,10 @@ import abc
 
 class CodeGenerationInterface(object):
     @abc.abstractmethod
+    def sget_ram_priority(self):
+        pass
+
+    @abc.abstractmethod
     def sget_interrupt_controller_name(self):
         pass
 

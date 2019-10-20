@@ -238,11 +238,12 @@ class CompilerToQEMUMachine(object):
                     indent('cpu_mips_clock_init(s->cpu);', 1)
                 ])
         # ram
+        ram_priority = firmware.sget_ram_priority()
         self.machine['includings'].extend(['exec/address-spaces.h'])
         self.machine_struct['fields'].extend([indent('MemoryRegion ram;', 1)])
         self.machine_init['body'].extend([
             indent('memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);'),
-            indent('memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, -1);'),
+            indent('memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, {});'.format(ram_priority)),
         ])
         # uart
         uart_mmio_base = firmware.sget_uart_mmio_base()
@@ -366,11 +367,15 @@ class CompilerToQEMUMachine(object):
             for register in registers:
                 self.machine_struct['fields'].extend([indent('uint32_t {};'.format(register['name']))])
                 self.machine_reset['body'].extend([indent('s->{} = {};'.format(register['name'], register['value']))])
+            if 'mmio_priority' in bamboo:
+                mmio_priority = bamboo['mmio_priority']
+            else:
+                mmio_priority = 0
             self.machine_init['body'].extend([
                 indent('memory_region_init_io(&s->{}, NULL, &{}, s, {}, {});'.format(
                     to_mmio(name), to_ops(name), to_type(machine_name), mmio_size), 1),
-                indent('memory_region_add_subregion_overlap(get_system_memory(), {}, &s->{}, 0);'.format(
-                    bamboo['mmio_base'], to_mmio(name)), 1)
+                indent('memory_region_add_subregion_overlap(get_system_memory(), {}, &s->{}, {});'.format(
+                    bamboo['mmio_base'], to_mmio(name), mmio_priority), 1)
             ])
             #
             update = {'signature': [], 'declaration': [], 'body': []}
@@ -539,7 +544,7 @@ class CompilerToQEMUMachine(object):
             '    /* mc->no_sdcard = 1; */',
             '    /* mc->pci_allow_0_address = 1; */',
             '    /* mc->legacy_fw_cfg_order = 1; */',
-            '    /* mc->is_dault = ; */',
+            '    /* mc->is_default = ; */',
             '    /* mc->default_machine_opts = ; */',
             '    /* mc->default_boot_order = ; */',
             '    /* mc->default_display = ; */',

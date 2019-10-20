@@ -4,6 +4,7 @@ architecture: "mips"
 endian: "l"
 ram:
   ram_size: "1024 * MiB"
+  ram_priority: "-2"
 cpu:
   cpu_name: "74Kf"
   cpu_type: "74Kf"
@@ -25,6 +26,7 @@ bamboo:
   - name: "bcma"
     mmio_base: "0x18000000"
     mmio_size: "0x5000"
+    mmio_priority: "-1"
     registers:
       # common_core's registers part 1 (bus->drv_cc->io_addr)
       - name: "bcma_cc_id_register"
