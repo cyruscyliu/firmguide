@@ -5,6 +5,7 @@ endian: "l"
 board_id: "0x661"
 ram:
   ram_size: "32 * MiB"
+  ram_priority: "0"
 flash:
   flash_type: "nor"
   flash_base: "0xf4000000"

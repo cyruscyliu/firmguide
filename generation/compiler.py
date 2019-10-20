@@ -323,6 +323,7 @@ class CompilerToQEMUMachine(object):
             self.machine_struct['fields'].extend([indent('{} ic;'.format(to_state(ic_name)), 1)])
             self.machine_init['body'].extend([
                 indent('object_initialize(&s->ic, sizeof(s->ic), {});'.format(to_type(ic_name))),
+                indent('qdev_set_parent_bus(DEVICE(&s->ic), sysbus_get_default());'),
                 indent('object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);', 1),
                 indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {});'.format(ic_mmio_base), 1)
             ])
@@ -349,6 +350,7 @@ class CompilerToQEMUMachine(object):
             self.machine_struct['fields'].extend([indent('{} bridge;'.format(to_state(bridge_name)))])
             self.machine_init['body'].extend([
                 indent('object_initialize(&s->bridge, sizeof(s->bridge), {});'.format(to_type(bridge_name))),
+                indent('qdev_set_parent_bus(DEVICE(&s->bridge), sysbus_get_default());'),
                 indent('object_property_set_bool(OBJECT(&s->bridge), true, "realized", &err);', 1),
                 indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->bridge), 0, {});'.format(bridge_mmio_base), 1)
             ])
@@ -390,6 +392,7 @@ class CompilerToQEMUMachine(object):
             self.machine_struct['fields'].extend([indent('{} timer;'.format(to_state(timer_name)))])
             self.machine_init['body'].extend([
                 indent('object_initialize(&s->timer, sizeof(s->timer), {});'.format(to_type(timer_name))),
+                indent('qdev_set_parent_bus(DEVICE(&s->timer), sysbus_get_default());'),
                 indent('object_property_set_bool(OBJECT(&s->timer), true, "realized", &err);', 1),
                 indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {});'.format(timer_mmio_base), 1)
             ])
@@ -660,7 +663,7 @@ class CompilerToQEMUMachine(object):
             '    /* mc->option_rom_has_mr = ; */',
             '    /* mc->minimum_page_bits = ; */',
             '    /* mc->has_hotpluggable_cpus = ; */',
-            '    mc->ignore_memory_transaction_failures = false;',
+            '    mc->ignore_memory_transaction_failures = true;',
             '    /* mc->numa_mem_align_shift = ; */',
             '    /* mc->valid_cpu_types = ; */',
             '    /* mc->allowed_dynamic_sysbus_devices = ; */',
