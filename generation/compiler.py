@@ -561,6 +561,8 @@ class CompilerToQEMUMachine(object):
                 indent('sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 3, '
                        'qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_VFIQ));', 1),
             ])
+        elif cpu_pp_model and architecture == 'mips':
+            pass
         else:
             self.machine_init['body'].extend([
                 indent('qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0, '

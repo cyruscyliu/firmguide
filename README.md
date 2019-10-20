@@ -51,7 +51,7 @@ sudo apt-get install -y gawk
 
 ### install
 ```bash
-make # make clean first if fails
+make # sudo make clean first if fails
 ```
 
 ### start 
@@ -129,6 +129,11 @@ python3.7 main.py --help
 ```
 
 # Testing
+
+## test code generation
+
+```shell script
+./test.sh
+```
 # Authors
 # License
-
