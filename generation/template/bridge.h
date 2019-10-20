@@ -14,7 +14,7 @@
 
 #define {{bridge_name|upper}}_MMIO_SIZE {{bridge_mmio_size}}
 #define {{bridge_name|upper}}_MMIO_BASE {{bridge_mmio_base}}
-#define {{bridge_name|upper}}_IRQ "{{bridge_name}}_irq"
+#define BRIDGE_IRQ "{{bridge_name}}_irq"
 
 typedef struct {{bridge_name|upper|concat}}State {
     /*< private >*/

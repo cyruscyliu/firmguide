@@ -17,7 +17,7 @@ def to_cpu_pp_state(name):
 
 
 def to_state(name):
-    return '{}State'.format(name.upper())
+    return '{}State'.format(concat(name.upper()))
 
 
 def to_mmio(name):

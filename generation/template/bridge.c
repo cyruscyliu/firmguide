@@ -3,9 +3,9 @@
 #include "qemu/osdep.h"
 #include "qemu/log.h"
 #include "qapi/error.h"
-#include "hw/arm/{{bridge_name}}.h"{% if timer %}
-#include "hw/timer/{{timer_name}}.h"{% endif %}
+#include "hw/arm/{{bridge_name}}.h"
 
+static void mv88f5181l_bridge_update(void *opaque)
 {
     {{bridge_name|upper|concat}}State *s = opaque;
     if (extract32(s->bridge_interrupt_cause_register, 1, 1)) {
@@ -84,7 +84,7 @@ static void {{bridge_name}}_init(Object *obj)
     sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
 
     /* initialize GPIO in */
-    qdev_init_gpio_in_named(DEVICE(s), {{bridge_name}}_set_irq, {{bridge_name|upper}}_IRQ, 32);
+    qdev_init_gpio_in_named(DEVICE(s), {{bridge_name}}_set_irq, BRIDGE_IRQ, 32);
 }
 
 static void {{bridge_name}}_reset(DeviceState *d)

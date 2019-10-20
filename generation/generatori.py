@@ -3,6 +3,26 @@ import abc
 
 class CodeGenerationInterface(object):
     @abc.abstractmethod
+    def probe_bridge(self):
+        pass
+
+    @abc.abstractmethod
+    def sget_bridge_name(self):
+        pass
+
+    @abc.abstractmethod
+    def sget_bridge_mmio_base(self):
+        pass
+
+    @abc.abstractmethod
+    def sget_bridge_mmio_size(self):
+        pass
+
+    @abc.abstractmethod
+    def lget_bridge_registers(self):
+        pass
+
+    @abc.abstractmethod
     def sget_ram_priority(self):
         pass
 

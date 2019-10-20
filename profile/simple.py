@@ -6,6 +6,21 @@ from profile.firmware import Firmware
 
 
 class SimpleFirmware(Firmware, CodeGenerationInterface):
+    def sget_bridge_name(self):
+        return self.profile['bridge']['bridge_name']
+
+    def sget_bridge_mmio_base(self):
+        return self.profile['bridge']['bridge_mmio_base']
+
+    def sget_bridge_mmio_size(self):
+        return self.profile['bridge']['bridge_mmio_size']
+
+    def lget_bridge_registers(self):
+        return self.profile['bridge']['bridge_registers']
+
+    def probe_bridge(self):
+        return 'bridge' in self.profile
+
     def sget_ram_priority(self):
         if 'ram_priority' in self.profile['ram']:
             return self.profile['ram']['ram_priority']
