@@ -141,7 +141,7 @@ class DTFirmware(Firmware):
             node.remove_property(property_)
         node.append(fdt.PropStrings(property_, *values))
 
-    def get_node_property(self, path_to_node, property_):
+    def get_node_property(self, path_to_node, property_, end=1):
         if not self.profile.exist_node(path_to_node):
             return
         node = self.profile.get_node(path_to_node)
@@ -151,7 +151,10 @@ class DTFirmware(Firmware):
         if value is None:
             return
         else:
-            return value.data[0]
+            if end == 1:
+                return value.data[0]
+            else:
+                return value.data[0: end]
 
     def set_flash_model(self, *args, **kwargs):
         model = args[0]
@@ -294,7 +297,7 @@ class DTFirmware(Firmware):
         self.set_node_property('cpu', 'device_type', 'cpu')
 
     def get_ram(self, *args, **kwargs):
-        ram = self.get_node_property('/memory', 'reg')
+        ram = self.get_node_property('/memory', 'reg', end=2)
         if ram is None:
             return None, None
         ram_base, ram_size = ram
@@ -304,7 +307,7 @@ class DTFirmware(Firmware):
         ram_base, ram_size = args
         unit = kwargs.pop('unit', 'MiB')
         factor = 1024
-        self.set_node_property('/memory', 'reg', int(ram_base) * factor, int(ram_size) * factor)
+        self.set_node_property('/memory', 'reg', str(int(ram_base) * factor), str(int(ram_size) * factor))
 
     def __init__(self, *args, **kwargs):
         super(DTFirmware, self).__init__(*args, **kwargs)
