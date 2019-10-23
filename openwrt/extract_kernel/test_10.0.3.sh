@@ -10,5 +10,5 @@ subtarget="NULL"
 output_dir="NULL"
 work_dir=""
 
-bash extract_dot_config.sh "${openwrt_ver}" "${openwrt_url}" "${kernel_url}" "${openwrt_cfg_url}" "${kernel_version}" "${board}" "${subtarget}" "${output_dir}" "${work_dir}"
+bash extract_kernel.sh "${openwrt_ver}" "${openwrt_url}" "${kernel_url}" "${openwrt_cfg_url}" "${kernel_version}" "${board}" "${subtarget}" "${output_dir}" "${work_dir}"
 
