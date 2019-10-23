@@ -186,14 +186,17 @@ def by_url(firmware):
     LOG_SUFFIX = '[URL]'
     if firmware.get_brand() == 'openwrt':
         homepage = os.path.dirname(firmware.get_url())
-        firmware.homepage = homepage
+        firmware.set_homepage(homepage)
         logger.info('\033[32mdownload page found {}\033[0m {}'.format(homepage, LOG_SUFFIX))
         subtarget = os.path.basename(homepage)
         target = os.path.basename(os.path.dirname(homepage))
+        if target.find('.') != -1:
+            target = subtarget
+            subtarget = None
         firmware.set_target(target)
         logger.info('\033[32mget the most possible target {}\033[0m {}'.format(target, LOG_SUFFIX))
         firmware.set_subtarget(subtarget)
-        logger.info('\033[32mget the most subpossible target {}\033[0m {}'.format(subtarget, LOG_SUFFIX))
+        logger.info('\033[32mget the most possible subtarget {}\033[0m {}'.format(subtarget, LOG_SUFFIX))
 
 
 def by_description(firmware):

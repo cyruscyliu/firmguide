@@ -181,7 +181,7 @@ get_dot_config() {
     prepare "$@"
 
     # 2. gen .packageinfo
-    gen_packageinfo 
+    gen_packageinfo
 
     # 3. patch kernel source code
     module_kernel_patch_do

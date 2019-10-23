@@ -9,3 +9,5 @@ __pycache__
 *.pyc
 pause.yaml
 *.html
+extract_tmp
+*.swp

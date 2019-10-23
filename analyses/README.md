@@ -142,3 +142,25 @@ def do_something(firmware): # called by top routine
 |                   | preconditions | settings | exception |
 |:-----------------:|:---:|:---:|:---:|
 |      global       | firmware.timer_model is None | | |
+
+## source code
+
+To manage source code, we provide several interfaces to fetch and cache them.
+
+`find_url_for_kernel` accepts a kernel version string, say `2.6.30` and returns
+its download link, `https://mirrors.edge.kernel.org/pub/linux/kernel/v2.6/linux-2.6.32.tar.gz`.
+By default, the compression format is `tar.gz`.
+
+'find_url_for_openwrt' accepts an openwrt reversion string, say `15.05` and returns
+its source code download link, `https://github.com/openwrt/chaos_calmer/archive/v15.05.tar.gz`.
+
+
+It is recommended to call `cache_package` which accepts a download link and cache
+target directory. The function will check the cache target directory first, if the
+package has not been cached, then this function will download the package. Finally, this
+function will return the real path of the package.
+
+```python
+url = find_url_for_openwrt('15.05')
+path_to_openwrt = cache_package(url, 'cache/openwrt')
+```

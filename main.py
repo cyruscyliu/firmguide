@@ -44,7 +44,7 @@ def analysis(firmware):
     # let's start
     extract_kernel_and_dtb(firmware)
     get_metadata(firmware)
-    # get_source_code(firmware)
+    get_source_code(firmware)
     get_cpu_model_info(firmware)
     get_ram_info(firmware)
     get_flash_info(firmware)
