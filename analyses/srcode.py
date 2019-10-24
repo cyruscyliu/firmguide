@@ -110,4 +110,5 @@ def get_source_code(firmware):
     os.chdir(os.path.join(pwd, 'openwrt'))
     os.system('{} >/dev/null 2>&1'.format(cmd))
     os.chdir(pwd)
+    logger.info('\033[32mthe patched source code is at {} [BASH]\033[0m'.format(source_code))
     finish(firmware, 'get_source_code', 'by_default')

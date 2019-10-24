@@ -5,7 +5,6 @@
 # UTIL FUNCTIONS
 #
 
-
 get_kernel_files() {
     local kernel_files=
     local generic_platform_dir=
@@ -13,7 +12,7 @@ get_kernel_files() {
     local files_dir=
 
     generic_platform_dir="${OPENWRT_DIR}/target/linux/generic-${KERNEL_VER}"
-    
+
     for dir in "${generic_platform_dir}/files" "${generic_platform_dir}/files-${KERNEL_PATCHVER}"
     do
         if [ -d "${dir}" ]
@@ -105,7 +104,7 @@ patch_part() {
     for dir in  "${OPENWRT_DIR}/target/linux/${BOARD}/${subtarget_path}patches-${KERNEL_PATCHVER}" \
                 "${OPENWRT_DIR}/target/linux/${BOARD}/${subtarget_path}patches" \
                 "${OPENWRT_DIR}/target/linux/${BOARD}/patches-${KERNEL_PATCHVER}" \
-                "${OPENWRT_DIR}/target/linux/${BOARD}/patches" 
+                "${OPENWRT_DIR}/target/linux/${BOARD}/patches"
     do
         if [ -d "${dir}" ]
         then

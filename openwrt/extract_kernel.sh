@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 
 #
 # Fixed Variables
@@ -53,11 +51,11 @@ usage() {
 # 5. kernel detail version (like "2.6.32")
 # 6. board info (like "orion")
 # 7. subtarget info (string, but notice that pass "NULL" means '')
-# 8. output directory (the final kernel source copy from work dir, 
+# 8. output directory (the final kernel source copy from work dir,
 #                      if use relative path, it will base on
 #                      the working directory;
 #                      if pass "NULL", means '';)
-# 9. working directory (if not set, will use "./${DEFAULT_WORK_DIR}" 
+# 9. working directory (if not set, will use "./${DEFAULT_WORK_DIR}"
 #                       as default
 #                       if default, will clean the ./${DEFAULT_WORK_DIR}
 #                       first;
@@ -95,7 +93,7 @@ prepare() {
     local work_dir="$9"
 
     # 1. setup openwrt version specific env
-    if [ -d "${openwrt_ver}" ] 
+    if [ -d "${openwrt_ver}" ]
     then
         for sh in ${openwrt_ver}/*.sh
         do
@@ -107,7 +105,7 @@ prepare() {
     fi
 
     # 2. setup work dir
-    if [ -z "${work_dir}" ] 
+    if [ -z "${work_dir}" ]
     then
         rm -rf "${DEFAULT_WORK_DIR}" && mkdir -p "${DEFAULT_WORK_DIR}"
         WORK_DIR="`realpath ${DEFAULT_WORK_DIR}`"
@@ -153,7 +151,7 @@ prepare() {
 
     module_openwrt_var_init "${kernel_version}" "${board}" "${subtarget}"
 
-    if [ "${output_dir}" != "" ] && [ "${output_dir}" != "NULL" ] 
+    if [ "${output_dir}" != "" ] && [ "${output_dir}" != "NULL" ]
     then
         OUTPUT_DIR=`realpath ${output_dir}`
     fi
@@ -170,9 +168,12 @@ dot_config_generation() {
 }
 
 postprocess() {
-    if [ -n "${OUTPUT_DIR}" ] 
+    if [ -n "${OUTPUT_DIR}" ]
     then
-        cp -r ${KERNEL_DIR} ${OUTPUT_DIR}
+        if [ "${KERNEL_DIR}" != "${OUTPUT_DIR}" ]
+        then
+            cp -r ${KERNEL_DIR} ${OUTPUT_DIR}
+        fi
     fi
 }
 
