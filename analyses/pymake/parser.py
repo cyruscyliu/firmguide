@@ -22,7 +22,7 @@ Four iterator functions are available:
 * itermakefilechars
 * itercommandchars
 
-The iterators handle line continuations and comments in different ways, but share a common calling
+The iterators handle line continuations and comments in different ways, but share a lib calling
 convention:
 
 Called with (data, startoffset, tokenlist, finditer)

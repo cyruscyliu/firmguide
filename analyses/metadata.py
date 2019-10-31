@@ -12,9 +12,10 @@ import logging
 
 import yaml
 
-from analyses.common import search_most_possible_subtarget, search_most_possible_target, \
+from analyses.lib.common import search_most_possible_subtarget, search_most_possible_target, \
     search_most_possible_toh_record, search_most_possible_kernel_version, fit_parser, description_parser, \
     get_strings
+from analyses.lib.openwrt_toh import find_openwrt_toh
 from manager import finished, finish
 
 logger = logging.getLogger()
@@ -183,20 +184,35 @@ def by_strings(firmware):
 
 
 def by_url(firmware):
+    """
+    Example:
+        http://archive.openwrt.org/chaos_calmer/15.05/ar71xx/generic/openwrt-15.05-ar71xx-generic-bxu2000n-2-a1-kernel.bin
+                                                  ^     ^       ^
+                                              revision      subtarget
+                                                      target
+        http://archive.openwrt.org/backfire/10.03/orion/openwrt-wrt350nv2-squashfs-recovery.bin
+                                              ^     ^
+                                            revision
+                                                  target
+    """
     LOG_SUFFIX = '[URL]'
     if firmware.get_brand() == 'openwrt':
         homepage = os.path.dirname(firmware.get_url())
         firmware.set_homepage(homepage)
         logger.info('\033[32mdownload page found {}\033[0m {}'.format(homepage, LOG_SUFFIX))
-        subtarget = os.path.basename(homepage)
-        target = os.path.basename(os.path.dirname(homepage))
-        if target.find('.') != -1:
-            target = subtarget
-            subtarget = None
+        items = homepage.split('/')
+        revision = items[4]
+        target = items[5]
+        subtarget = None
+        if len(items) == 7:
+            subtarget = items[6]
         firmware.set_target(target)
         logger.info('\033[32mget the most possible target {}\033[0m {}'.format(target, LOG_SUFFIX))
         firmware.set_subtarget(subtarget)
         logger.info('\033[32mget the most possible subtarget {}\033[0m {}'.format(subtarget, LOG_SUFFIX))
+        firmware.set_revision(revision)
+        logger.info('\033[32mget the revision {}\033[0m {}'.format(revision, LOG_SUFFIX))
+        toh = find_openwrt_toh(revision, target, subtarget)
 
 
 def by_description(firmware):

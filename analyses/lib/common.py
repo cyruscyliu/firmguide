@@ -48,10 +48,10 @@ def search_most_possible_toh_record(firmware, strings, extent=None):
     if extent is None:
         extent = ['*']
     openwrt = get_database('openwrt')
-    results = openwrt.select(*extent, row=True)
+    results = openwrt.select(*extent)
     table = PrettyTable(openwrt.header_last_selected)
     filterd_results = []
-    for k, vs in results.items():
+    for vs in results:
         possible = False
         for v in vs:
             for string in strings:
@@ -95,7 +95,7 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
     if extent is None:
         extent = ['subtarget']
     openwrt = get_database('openwrt')
-    results = openwrt.select(*extent, deduplicated=True, target=firmware.get_target())
+    results = openwrt.select(*extent, transpose=True, deduplicated=True, target=firmware.get_target())
     subtargets = []
     for ext in extent:
         subtargets += results[openwrt.header.index(ext)]
@@ -117,10 +117,10 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
         sum_of_occurrence += v['count']
     if not sum_of_occurrence:
         logger.info('get nothing, however here are some options {}'.format(LOG_SUFFIX))
-        results = openwrt.select('*', target=firmware.get_target(), row=True)
+        results = openwrt.select('*', target=firmware.get_target())
         table = PrettyTable(openwrt.header_last_selected)
         filterd_results = []
-        for k, v in results.items():
+        for v in results:
             table.add_row(v)
             if v[openwrt.header_last_selected.index('supportedcurrentrel')] == '':
                 continue
@@ -138,7 +138,6 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
         # use kernel version to infer supportedcurrentrel
         logger.debug('filter out candidates by matching kernel version')
         if firmware.get_revision() is None:
-            openwrt.table.close()
             return
 
         filterd_results_2 = []
@@ -151,28 +150,26 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
             firmware.set_toh(filterd_results_2[0], header=openwrt.header_last_selected)
             logger.info('\033[32mget the most possible subtarget {}\033[0m {}'.format(
                 firmware.get_subtarget(), LOG_SUFFIX))
-            openwrt.table.close()
             return
         if firmware.get_subtarget() is None:
             tries = 2
             logger.info('please input the pid of what you choose: ')
             while tries:
                 pid = input()
-                result = openwrt.select('*', pid=pid, row=True)
+                result = openwrt.select('*', pid=pid)
                 if not len(result):
                     logger.info('one more time')
                     tries -= 1
                     continue
-                firmware.set_toh(result[pid])
+                firmware.set_toh(result[0])
                 logger.info('\033[32mcorrect the most possible target {}\033[0m'.format(
                     firmware.get_target(), LOG_SUFFIX))
                 logger.info('\033[32mcorrect the most possible subtarget {}\033[0m'.format(
                     firmware.get_subtarget(), LOG_SUFFIX))
                 table = PrettyTable(openwrt.header_last_selected)
-                table.add_row(result[pid])
+                table.add_row(result[0])
                 for line in table.__unicode__().split('\n'):
                     logger.info(line)
-                openwrt.table.close()
                 return
     most_possible = None
     max_count = 0
@@ -185,7 +182,6 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
             max_count = count
     logger.info('\033[32mget the most possible subtarget {}\033[0m {}'.format(most_possible, LOG_SUFFIX))
     firmware.set_subtarget(most_possible)
-    openwrt.table.close()
 
 
 def search_most_possible_target(firmware, strings, extent=None):
@@ -224,7 +220,6 @@ def search_most_possible_target(firmware, strings, extent=None):
             max_count = count
     logger.info('\033[32mget the most possible target {}\033[0m {}'.format(most_possible, LOG_SUFFIX))
     firmware.set_target(most_possible)
-    openwrt.table.close()
 
 
 def search_most_possible_kernel_version(firmware, strings):
