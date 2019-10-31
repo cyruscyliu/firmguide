@@ -47,9 +47,10 @@ def by_dot_config(firmware):
             if cpus is None:
                 continue
             for cpu, properties in cpus.items():
-                logger.info('\033[32mget cpu: {} \033[0m {}'.format(properties, LOG_PREFIX))
+                logger.info('\033[32mget cpu model: {} \033[0m {}'.format(properties, LOG_PREFIX))
+                path_to_cpu = firmware.find_cpu_nodes(new=True)
                 for k, v in properties.items():
-                    firmware.set_node_property('cpu', k, v)
+                    firmware.set_node_property(path_to_cpu, k, v)
 
 
 def by_toh(firmware):
@@ -57,14 +58,10 @@ def by_toh(firmware):
     cpu, soc = firmware.get_toh('packagearchitecture', 'cpu')
     if cpu is not None and cpu != '':
         firmware.set_cpu_model(cpu)
-        logger.info('\033[32mget the cpu model: {}\033[0m {}'.format(cpu, LOG_SUFFIX))
+        logger.info('\033[32mget cpu model: {}\033[0m {}'.format(cpu, LOG_SUFFIX))
     if soc is not None and cpu != '':
         firmware.set_soc_model(soc)
-        logger.info('\033[32mget the soc model: {}\033[0m {}'.format(soc, LOG_SUFFIX))
-
-
-def by_strings(firmware):
-    pass
+        logger.info('\033[32mget soc model: {}\033[0m {}'.format(soc, LOG_SUFFIX))
 
 
 def register_get_cpu_model_info(func):
@@ -73,17 +70,16 @@ def register_get_cpu_model_info(func):
 
 register_get_cpu_model_info(by_dot_config)
 register_get_cpu_model_info(by_toh)
-register_get_cpu_model_info(by_strings)
 
 
 def get_cpu_model_info(firmware):
     logger.info(TASK_DESCRIPTION)
-    cpu_model = firmware.get_cpu_model()
-    if cpu_model is not None:
-        logger.info('\033[32mcpu model {} found\033[0m [DEVICE TREE]'.format(cpu_model))
+    cpus = firmware.find_cpu_nodes()
+    if len(cpus):
+        logger.info('\033[32mcpu model has been already found\033[0m')
         return
     for func in __get_cpu_model_info:
         if finished(firmware, 'get_cpu_model_info', func.__name__):
             continue
         func(firmware)
-        # finish(firmware, 'get_cpu_model_info', func.__name__)
+        finish(firmware, 'get_cpu_model_info', func.__name__)

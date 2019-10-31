@@ -125,8 +125,20 @@ class DTFirmware(Firmware):
             path_to_flash = '/flash@0'
         return path_to_flash
 
-    def find_cpu_node(self):
-        return '/cpus/cpu@0'
+    def find_cpu_nodes(self, new=False):
+        # cpu nodes must follow the path convention below
+        # /cpus/cpu@0, /cpus/cpu@1, ..., /cpus/@cpu@n
+        # and this is the only api to assign a cpu path
+        # call this api before your call set_node_property
+        path = []
+        cpus = self.profile.get_node('/cpus', create=True)
+        nodes = cpus.nodes
+        for node in nodes:
+            path.append(os.path.join(node.path, node.name))
+        if not new:
+            return path
+        else:
+            return os.path.join('/cpus', 'cpu@{}'.format(len(path)))
 
     def set_node_property(self, path_to_node, property_, *values):
         for value in values:
@@ -134,8 +146,6 @@ class DTFirmware(Firmware):
                 return
         if path_to_node == 'flash':
             path_to_node = self.find_flash_node()
-        elif path_to_node == 'cpu':
-            path_to_node = self.find_cpu_node()
         node = self.profile.get_node(path_to_node, create=True)
         if node.exist_property(property_):
             node.remove_property(property_)
@@ -292,9 +302,10 @@ class DTFirmware(Firmware):
 
     def set_cpu_model(self, *args, **kwargs):
         cpu_model = args[0]
-        self.set_node_property('cpu', 'reg', 0x0)
-        self.set_node_property('cpu', 'compatible', cpu_model)
-        self.set_node_property('cpu', 'device_type', 'cpu')
+        path_to_cpu = self.find_cpu_nodes(new=True)
+        self.set_node_property(path_to_cpu, 'reg', 0x0)
+        self.set_node_property(path_to_cpu, 'compatible', cpu_model)
+        self.set_node_property(path_to_cpu, 'device_type', 'cpu')
 
     def get_ram(self, *args, **kwargs):
         ram = self.get_node_property('/memory', 'reg', end=2)
