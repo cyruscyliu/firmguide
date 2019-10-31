@@ -212,7 +212,10 @@ def by_url(firmware):
         logger.info('\033[32mget the most possible subtarget {}\033[0m {}'.format(subtarget, LOG_SUFFIX))
         firmware.set_revision(revision)
         logger.info('\033[32mget the revision {}\033[0m {}'.format(revision, LOG_SUFFIX))
-        toh = find_openwrt_toh(revision, target, subtarget)
+        toh, header = find_openwrt_toh(revision, target, subtarget)
+        if toh:
+            firmware.set_toh(toh, header=header)
+            logger.info('\033[32mget the toh {}\033[0m {}'.format(toh, LOG_SUFFIX))
 
 
 def by_description(firmware):

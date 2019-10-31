@@ -82,6 +82,7 @@ def do_something(firmware): # called by top routine
 |       by url      | firmware.brand is 'openwrt' | firmware.homepage | |
 |                   |                             | firmware.target | |
 |                   |                             | firmware.subtarget | |
+|                   |                             | firmware.toh | |
     
 ### get source code [srcode.py](./srcode.py)
 
