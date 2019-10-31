@@ -26,5 +26,15 @@
     </tr>{% endfor %}
 </table>
 
+<h1>analyses summary</h1>
+<table border="1" cellpadding="10">
+    {% for firmware in emulation %}<tr>
+        <th>{{ firmware.uuid }}</th>
+        <th>{{ firmware.dt }}</th>
+        <th>{{ firmware.cpu }}</th>
+        <th>{{ firmware.ram }}</th>
+    </tr>{% endfor %}
+</table>
+
 </body>
 </html>

@@ -1,5 +1,6 @@
 import os
 import yaml
+import fdt
 
 from render import Template
 
@@ -15,9 +16,11 @@ def p_wrapper(string, indent):
 
 def main():
     context = {
-        'paused_analyses': [],
-        'analyses': [
+        'paused_analyses': [
+        ], 'analyses': [
             # {'uuid': 'uuid', 'stime': 'start time', 'etime': 'end time', 'level': 'level', 'info': 'info'}
+        ], 'emulation': [
+            {'uuid': 'uuid', 'dt': 'dt', 'cpu': 'cpu', 'ram': 'ram'},
         ]}
     paused_analyses = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'pause.yaml')))
     f = open(os.path.join(os.getcwd(), 'tools', 'pause'), 'w')
@@ -53,6 +56,24 @@ def main():
                 {'uuid': id, 'stime': vv['stime'], 'etime': vv['etime'], 'level': vv['level'], 'info': vv['info']}
             )
     context['analyses'].sort(key=sort_analyses)
+
+    for uuid in os.listdir(os.path.join(os.getcwd(), 'build')):
+        if uuid in ['binwalk-2.1.1', 'qemu-4.0.0', 'qemu-4.0.0.tar.xz', 'v2.1.1.tar.gz']:
+            continue
+        dt = os.path.join(os.getcwd(), 'build', uuid, 'profile.dt')
+        with open(dt, 'r') as f:
+            profile = f.read()
+        profile_dt = fdt.parse_dts(profile)
+        cpu = 0
+        if profile_dt.exist_node('/cpus'):
+            cpu = 1
+        ram = 0
+        if profile_dt.exist_node('/memory'):
+            ram = 1
+        dt = 0
+        if profile_dt.exist_node('/chosen'):
+            dt = 1
+        context['emulation'].append({'uuid': uuid, 'dt': dt, 'cpu': cpu, 'ram': ram})
 
     lines = ''
     with open(os.path.join(os.getcwd(), 'tools', 'web', 'statistics.template')) as f:
