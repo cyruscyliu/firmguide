@@ -128,7 +128,7 @@ class DTFirmware(Firmware):
     def find_cpu_nodes(self, new=False):
         # cpu nodes must follow the path convention below
         # /cpus/cpu@0, /cpus/cpu@1, ..., /cpus/@cpu@n
-        # and this is the only api to assign a cpu path
+        # and this is the only api to create new cpu node
         # call this api before your call set_node_property
         path = []
         cpus = self.profile.get_node('/cpus', create=True)
@@ -139,6 +139,13 @@ class DTFirmware(Firmware):
             return path
         else:
             return os.path.join('/cpus', 'cpu@{}'.format(len(path)))
+
+    def find_memory_node(self):
+        # there should be one and only one memory node
+        # and this is the only api to create new memory node
+        memory = self.profile.get_node('/memory', create=True)
+        self.set_node_property('/memory', 'device_type', 'memory')
+        return '/memory'
 
     def set_node_property(self, path_to_node, property_, *values):
         for value in values:
@@ -308,11 +315,12 @@ class DTFirmware(Firmware):
         self.set_node_property(path_to_cpu, 'device_type', 'cpu')
 
     def get_ram(self, *args, **kwargs):
-        ram = self.get_node_property('/memory', 'reg', end=2)
+        path_to_ram = self.find_memory_node()
+        ram = self.get_node_property(path_to_ram, 'reg', end=2)
         if ram is None:
             return None, None
         ram_base, ram_size = ram
-        return ram_base, ram_size / 1024  # to MiB
+        return ram_base, int(ram_size) / 1024  # to MiB
 
     def set_ram(self, *args, **kwargs):
         ram_base, ram_size = args

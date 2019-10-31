@@ -3,7 +3,6 @@ Handle RAM
 """
 import logging
 
-from database.dbf import get_database
 from manager import finished, finish
 
 logger = logging.getLogger()
@@ -23,7 +22,7 @@ def by_toh(firmware):
 def by_default(firmware):
     LOG_SUFFIX = 'DEFAULT'
     ram_base, ram_size = firmware.get_ram()
-    if ram_size != 0:
+    if ram_size is not None:
         return
     firmware.set_ram(0, 1024, unit='MiB')
     logger.info('\033[32mget memory info, base: {}, size: {}MB\033[0m {}'.format(0, 1024, LOG_SUFFIX))
@@ -40,7 +39,7 @@ register_get_ram_info(by_default)
 def get_ram_info(firmware):
     logger.info(TASK_DESCRIPTION)
     ram_base, ram_size = firmware.get_ram()
-    if ram_size != 0:
+    if ram_size is not None:
         logger.info('\033[32mhave got memory info, base: {}, size: {}MB\033[0m [DEVICE TREE]'.format(
             0, ram_size))
         return
