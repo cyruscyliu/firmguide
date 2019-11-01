@@ -47,10 +47,6 @@ register_get_uart_info(by_strings)
 
 def get_uart_info(firmware):
     logger.info(TASK_DESCRIPTION)
-    uart_model = firmware.get_uart_model()
-    if uart_model is not None:
-        logger.info('\033[32muart model {} found\033[0m'.format(uart_model))
-        return
     for func in __get_uart_info:
         if finished(firmware, 'get_uart_info', func.__name__):
             continue

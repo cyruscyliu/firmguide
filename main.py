@@ -47,10 +47,10 @@ def analysis(firmware):
     get_source_code(firmware)
     get_cpu_model_info(firmware)
     get_ram_info(firmware)
-    get_flash_info(firmware)
-    get_uart_info(firmware)
     get_ic_info(firmware)
     get_timer_info(firmware)
+    get_uart_info(firmware)
+    get_flash_info(firmware)
 
 
 def analysis_wrapper(firmware, dbp, rerun):
