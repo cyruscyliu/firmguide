@@ -11,10 +11,12 @@ import time
 import logging
 
 import yaml
+from prettytable import PrettyTable
 
 from analyses.lib.common import search_most_possible_subtarget, search_most_possible_target, \
     search_most_possible_toh_record, search_most_possible_kernel_version, fit_parser, description_parser, \
     get_strings
+from analyses.lib.display import print_table
 from analyses.lib.openwrt_toh import find_openwrt_toh
 from manager import finished, finish
 
@@ -216,6 +218,7 @@ def by_url(firmware):
         if toh:
             firmware.set_toh(toh, header=header)
             logger.info('\033[32mget the toh {}\033[0m {}'.format(toh, LOG_SUFFIX))
+            print_table(header, toh)
 
 
 def by_description(firmware):

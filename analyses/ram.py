@@ -40,7 +40,7 @@ def get_ram_info(firmware):
     logger.info(TASK_DESCRIPTION)
     ram_base, ram_size = firmware.get_ram()
     if ram_size is not None:
-        logger.info('\033[32mhave got memory info, base: {}, size: {}MB\033[0m [DEVICE TREE]'.format(
+        logger.info('\033[32mhave got memory info, base: {}, size: {}MB\033[0m'.format(
             0, ram_size))
         return
     for func in __get_ram_info:
