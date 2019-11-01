@@ -14,12 +14,24 @@ TASK_DESCRIPTION = 'we\'re gonna infer what CPU model the firmware use'
 __get_cpu_model_info = []
 
 
+def cpu_done(firmware):
+    cpus = firmware.find_cpu_nodes()
+    if len(cpus):
+        return True
+    else:
+        return False
+
+
 def by_dot_config(firmware):
+    if cpu_done(firmware):
+        return
     LOG_PREFIX = '[.config]'
     architecture = firmware.get_architecture()
     if architecture != 'arm':
         return
     path_to_source_code = firmware.get_path_to_source_code()
+    if path_to_source_code is None:
+        return
     path_to_mm = os.path.join(path_to_source_code, 'arch/{}/mm'.format(architecture))
     path_to_mm_makefile = os.path.join(path_to_mm, 'Makefile')
     path_to_dot_config = os.path.join(path_to_source_code, '.config')
@@ -54,6 +66,8 @@ def by_dot_config(firmware):
 
 
 def by_toh(firmware):
+    if cpu_done(firmware):
+        return
     LOG_SUFFIX = '[ToH]'
     cpu, soc = firmware.get_toh('packagearchitecture', 'cpu')
     if cpu is not None and cpu != '':
@@ -64,18 +78,22 @@ def by_toh(firmware):
         logger.info('\033[32mget soc model: {}\033[0m {}'.format(soc, LOG_SUFFIX))
 
 
+def by_strings(firmware):
+    pass
+
+
 def register_get_cpu_model_info(func):
     __get_cpu_model_info.append(func)
 
 
 register_get_cpu_model_info(by_dot_config)
 register_get_cpu_model_info(by_toh)
+register_get_cpu_model_info(by_strings)
 
 
 def get_cpu_model_info(firmware):
     logger.info(TASK_DESCRIPTION)
-    cpus = firmware.find_cpu_nodes()
-    if len(cpus):
+    if cpu_done(firmware):
         logger.info('\033[32mcpu model has been already found\033[0m')
         return
     for func in __get_cpu_model_info:

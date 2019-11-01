@@ -310,9 +310,9 @@ class DTFirmware(Firmware):
     def set_cpu_model(self, *args, **kwargs):
         cpu_model = args[0]
         path_to_cpu = self.find_cpu_nodes(new=True)
-        self.set_node_property(path_to_cpu, 'reg', 0x0)
-        self.set_node_property(path_to_cpu, 'compatible', cpu_model)
+        self.set_node_property(path_to_cpu, 'reg', '0x0')
         self.set_node_property(path_to_cpu, 'device_type', 'cpu')
+        self.set_node_property(path_to_cpu, 'compatible', cpu_model)
 
     def get_ram(self, *args, **kwargs):
         path_to_ram = self.find_memory_node()

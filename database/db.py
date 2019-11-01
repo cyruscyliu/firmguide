@@ -85,9 +85,6 @@ class DatabaseFirmadyne(DatabaseInterface):
         else:
             arch = items[self.header.index('arch')][:-2]
             endian = items[self.header.index('arch')][-1:]
-        # TODO remove in the future
-        if arch != 'arm':
-            return None
         # kernel_version: hard to use
         # kernel_version = items[self.header.index('kernel_version')]
         # if kernel_version:
