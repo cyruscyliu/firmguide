@@ -2,9 +2,11 @@
 Handle CPU.
 """
 import os
+import yaml
 import logging
 
 from analyses.asm.gnu import parser_proc_info_init
+from analyses.lib.strings import get_strings
 from analyses.makefile import obj_definition_filter
 from manager import finished, finish
 
@@ -23,6 +25,7 @@ def cpu_done(firmware):
 
 
 def by_dot_config(firmware):
+    # TODO must pre-process .S file, expand macro etc.
     if cpu_done(firmware):
         return
     LOG_PREFIX = '[.config]'
@@ -79,7 +82,42 @@ def by_toh(firmware):
 
 
 def by_strings(firmware):
-    pass
+    if cpu_done(firmware):
+        return
+    architecture = firmware.get_architecture()
+    if architecture != 'arm':
+        return
+    LOG_SUFFIX = '[STRINGS]'
+    candidates = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'arm32.cpu.yaml')))
+    # construct
+    target_strings = {}
+    votes = {}
+    for k, cpus in candidates.items():
+        target_strings[k] = []
+        votes[k] = 0
+        for cpu in cpus:
+            target_strings[k].append(cpu['cpu_arch_name'])
+            target_strings[k].append(cpu['cpu_name'])
+        target_strings[k] = list(set(target_strings[k]))
+    strings = get_strings(firmware)
+    if strings is None:
+        return
+    for string in strings:
+        string = string.strip()
+        for k, v in target_strings.items():
+            if string in v:
+                votes[k] += 1
+    vote = 0
+    model = ''
+    for k, v in votes.items():
+        if v > vote:
+            vote = v
+            model = k
+    logger.info('\033[32mget cpu model: {} \033[0m {}'.format(candidates[model], LOG_SUFFIX))
+    for cpu in candidates[model]:
+        path_to_cpu = firmware.find_cpu_nodes(new=True)
+        for k, v in cpu.items():
+            firmware.set_node_property(path_to_cpu, k, v)
 
 
 def register_get_cpu_model_info(func):
