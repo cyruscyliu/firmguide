@@ -14,8 +14,8 @@ import yaml
 from prettytable import PrettyTable
 
 from analyses.lib.common import search_most_possible_subtarget, search_most_possible_target, \
-    search_most_possible_toh_record, search_most_possible_kernel_version, fit_parser, description_parser, \
-    get_strings
+    search_most_possible_toh_record, search_most_possible_kernel_version, fit_parser, description_parser
+from analyses.lib.strings import get_strings
 from analyses.lib.display import print_table
 from analyses.lib.openwrt_toh import find_openwrt_toh
 from manager import finished, finish
@@ -221,10 +221,6 @@ def by_url(firmware):
             print_table(header, toh)
 
 
-def by_description(firmware):
-    pass
-
-
 def register_get_metadata(func):
     __get_metadata.append(func)
 
@@ -234,7 +230,6 @@ register_get_metadata(by_dumpimage)
 register_get_metadata(by_kernel_version)
 register_get_metadata(by_device_tree)
 register_get_metadata(by_strings)
-register_get_metadata(by_description)
 register_get_metadata(by_url)
 
 

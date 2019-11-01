@@ -8,6 +8,13 @@ import fdt
 
 class DTFirmware(Firmware):
 
+    def set_uart_baud(self, *args, **kwargs):
+        uart_baud = args[0]
+        self.set_node_property('uart', 'baud', uart_baud)
+
+    def get_uart_baud(self, *args, **kwargs):
+        return self.get_node_property('uart', 'baud')
+
     def set_url(self, *args, **kwargs):
         url = args[0]
         self.set_node_property('/basics', 'url', url)
@@ -48,7 +55,7 @@ class DTFirmware(Firmware):
         self.set_node_property('/components', 'path_to_kernel', path_to_kernel)
 
     def get_path_to_kernel(self, *args, **kwargs):
-        return self.get_node_property('/components', 'path_to_kenrel')
+        return self.get_node_property('/components', 'path_to_kernel')
 
     def set_path_to_dtb(self, *args, **kwargs):
         path_to_dtb = args[0]

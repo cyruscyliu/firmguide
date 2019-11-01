@@ -93,9 +93,6 @@ register_get_cpu_model_info(by_strings)
 
 def get_cpu_model_info(firmware):
     logger.info(TASK_DESCRIPTION)
-    if cpu_done(firmware):
-        logger.info('\033[32mcpu model has been already found\033[0m')
-        return
     for func in __get_cpu_model_info:
         if finished(firmware, 'get_cpu_model_info', func.__name__):
             continue
