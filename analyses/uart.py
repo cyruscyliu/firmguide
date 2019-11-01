@@ -29,7 +29,7 @@ def by_strings(firmware):
         if string.find('root=') != -1:
             # root=/dev/mtdblock1 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200\n
             a, _, b = string.partition('console=')
-            if _ is None:
+            if _ is '':
                 continue
             else:
                 uart_baud = b.split(',')[1].strip()

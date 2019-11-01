@@ -220,19 +220,6 @@ def search_most_possible_target(firmware, strings, extent=None):
     firmware.set_target(most_possible)
 
 
-def search_most_possible_kernel_version(firmware, strings):
-    for string in strings:
-        string = string.strip()
-        if len(string) < 20:
-            continue
-        if not string.startswith('Linux'):
-            continue
-        r = re.search(r'[lL]inux version ([1-5]+\.\d+\.\d+).*', string)
-        if r is not None:
-            kernel_version = r.groups()[0]
-            firmware.set_kernel_version(kernel_version)
-
-
 progress = 0
 
 

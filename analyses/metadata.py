@@ -11,10 +11,9 @@ import time
 import logging
 
 import yaml
-from prettytable import PrettyTable
 
 from analyses.lib.common import search_most_possible_subtarget, search_most_possible_target, \
-    search_most_possible_toh_record, search_most_possible_kernel_version, fit_parser, description_parser
+    search_most_possible_toh_record, fit_parser, description_parser
 from analyses.lib.strings import get_strings
 from analyses.lib.display import print_table
 from analyses.lib.openwrt_toh import find_openwrt_toh
@@ -178,11 +177,22 @@ def by_strings(firmware):
     strings = get_strings(firmware)
     if strings is None:
         return None
+    # kernel version is very critical
+    for string in strings:
+        string = string.strip()
+        if len(string) < 20:
+            continue
+        r = re.search(r'[lL]inux version ([1-5]+\.\d+\.\d+).*', string)
+        if r is not None:
+            kernel_version = r.groups()[0]
+            firmware.set_kernel_version(kernel_version)
+            logger.info('\033[32mget the kernel version: {}\033[0m {}'.format(kernel_version, LOG_SUFFIX))
+            break
     if firmware.get_revision() is None:
-        search_most_possible_kernel_version(firmware, strings)
         by_kernel_version(firmware)
-    search_most_possible_target(firmware, strings)
-    search_most_possible_subtarget(firmware, strings)
+    # TODO: refactor the following 2 methods
+    # search_most_possible_target(firmware, strings)
+    # search_most_possible_subtarget(firmware, strings)
 
 
 def by_url(firmware):
@@ -229,8 +239,8 @@ register_get_metadata(by_file)
 register_get_metadata(by_dumpimage)
 register_get_metadata(by_kernel_version)
 register_get_metadata(by_device_tree)
-register_get_metadata(by_strings)
 register_get_metadata(by_url)
+register_get_metadata(by_strings)
 
 
 def get_metadata(firmware):
