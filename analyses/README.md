@@ -169,3 +169,5 @@ path_to_openwrt = cache_package(url, 'cache/openwrt')
 Tools for source code analysis.
 + [pymake](https://github.com/mozilla/pymake), an implementation of the make tool
 which are mostly compatible with makefiles written for GNU make, Mozilla.
++ [dr_checker](https://github.com/ucsb-seclab/dr_checker), a soundy vulnerability 
+detection tool for Linux kernel drivers, ucsb.
