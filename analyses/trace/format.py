@@ -6,7 +6,8 @@ class Trace(object):
     def __init__(self, *args, **kwargs):
         self.trace_tool = None
         self.path_to_trace = args[0]
-        self.cpus = {}  # 1: {'id': 1, 'ln': 0, 'pc': '00000000'}
+        self.bbs = {}  # 0x000000000: {'lines': []}
+        self.cpus = {}  # 1: {'id': 1, 'ln': 0, 'pc': '00000000', 'lines':[]}
         self.loops = {}  # 1: {'id': 1, 'start': 0, 'length':1, 'iteration': 1}
         self.suspicious_loops = {}
 
@@ -152,7 +153,31 @@ class QEMUDebug(Trace):
         return not not_find_user_level
 
     def load_in_asm(self, *args, **kwargs):
-        pass
+        """
+        ----------------                                1
+        IN:                                             2
+        0x00000000:  e3a00000  mov      r0, #0          3
+        0x00000004:  e59f1004  ldr      r1, [pc, #4]    4
+        0x00000008:  e59f2004  ldr      r2, [pc, #4]    4
+        0x0000000c:  e59ff004  ldr      pc, [pc, #4]    4
+                                                        4
+        """
+        ln = 0
+        with open(self.path_to_trace) as f:
+            new = 0
+            for line in f:
+                if new == 0 and line.startswith('---'):
+                    new = 1
+                if new == 3:
+                    bb_id = line.strip().split(':')[0]
+                    self.bbs[bb_id] = {'lines': [line.strip()]}
+                if new == 4 and len(line.strip()):
+                    self.bbs[bb_id]['lines'].append(line.strip())
+                if new in [1, 2, 3]:
+                    new += 1
+                if new == 4 and not len(line.strip()):
+                    new = 0
+            ln += 1
 
     def load_cpu(self, *args, **kwargs):
         """
@@ -169,7 +194,9 @@ class QEMUDebug(Trace):
             for line in f:
                 if new == 0 and line.startswith('R00'):
                     new = 1
-                    self.cpus[id_] = {'id': id_, 'ln': ln}
+                    self.cpus[id_] = {'id': id_, 'ln': ln, 'lines': []}
+                if new in [1, 2, 3, 4, 5]:
+                    self.cpus[id_]['lines'].append(line.strip())
                 if new == 4:
                     self.cpus[id_]['pc'] = line.strip().split()[-1].partition('=')[2]
                 if new in [1, 2, 3, 4]:
@@ -192,6 +219,12 @@ class QEMUDebug(Trace):
 
 
 class KTracer(Trace):
+    def load(self, *args, **kwargs):
+        pass
+
+    def scan_user_level(self, *args, **kwargs):
+        pass
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.trace_tool = 'ktracer'

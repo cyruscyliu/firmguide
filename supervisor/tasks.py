@@ -41,11 +41,27 @@ def trace_diagnosis(path_to_trace, trace_format):
         trace = KTracer(path_to_trace)
     if trace.scan_user_level():
         logger.info('GOOD! Have entered the user level!')
-    trace.load_cpu()
+    trace.load()
     trace.cycle_detection_all()
     trace.scan_suspicious_loop()
     ratio = len(trace.suspicious_loops) / len(trace.loops)
     if ratio > 0.2:
-        logger.info('BAD! Have {:.4f} suspicious infinite loops!'.format(ratio * 100))
+        logger.info('BAD! Have {:.4f}% suspicious infinite loops!'.format(ratio * 100))
     else:
         logger.info('GOOD! Have {} suspicious infinite loops!'.format(len(trace.suspicious_loops)))
+    if not len(trace.suspicious_loops):
+        return
+    for suspicious_loop in trace.suspicious_loops.values():
+        logger.info('This suspicious starts at line {}, repeated {} times!'.format(
+            suspicious_loop['start'], suspicious_loop['iteration']))
+        start = suspicious_loop['start']
+        length = suspicious_loop['length']
+        for i in range(start, start + length + 1):
+            pc = '0x' + trace.cpus[i]['pc']
+            bb = trace.bbs[pc]
+            for line in bb['lines']:
+                logger.info(line)
+            for line in trace.cpus[i]['lines']:
+                logger.info(line)
+            logger.info('')
+        break

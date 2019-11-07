@@ -25,3 +25,5 @@ class TraceAnalysisTest(TestCase):
         trace.load_cpu()
         trace.cycle_detection_all()
         self.assertEqual(trace.loops.__len__(), 77)
+        trace.load_in_asm()
+        self.assertEqual(trace.bbs.__len__(), 5016)
