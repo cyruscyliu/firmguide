@@ -2,7 +2,7 @@ import os
 
 import yaml
 
-from manager import finished, finish
+from supervisor.save_and_restore import finished, finish
 
 __check_qemu_support_for_cpu = []
 

@@ -16,7 +16,7 @@ when the whole routine must stop because this firmware has not been supported ye
 
 ```python
 import logging
-from manager import finished, finish
+from supervisor.save_and_restore import finished, finish
 
 logger = logging.getLogger()
 TASK_DESCRIPTION = 'do something'

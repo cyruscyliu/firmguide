@@ -8,7 +8,7 @@ import os
 import binwalk
 import logging
 
-from manager import finish, finished
+from supervisor.save_and_restore import finish, finished
 
 logger = logging.getLogger()
 TASK_DESCRIPTION = 'we are going to extract kernel, and dtb if any'

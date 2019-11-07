@@ -1,4 +1,3 @@
-import logging.config
 import os
 import tempfile
 
@@ -89,14 +88,3 @@ def setup(args, firmware):
     target_path = os.path.join(working_dir, firmware.uuid, firmware.name)
     firmware.set_working_env(target_dir, target_path)
 
-
-def setup_logging(default_path="logging.yaml", default_level=logging.INFO, env_key="LOG_CFG"):
-    path = default_path
-    value = os.getenv(env_key, None)
-    if value:
-        path = value
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            logging.config.dictConfig(yaml.safe_load(f))
-    else:
-        logging.basicConfig(level=default_level)

@@ -3,7 +3,7 @@ Handle Timer.
 """
 import logging
 
-from manager import finished, finish
+from supervisor.save_and_restore import finished
 
 logger = logging.getLogger()
 TASK_DESCRIPTION = 'we are inferring the timer'

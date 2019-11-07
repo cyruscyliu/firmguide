@@ -8,7 +8,7 @@ import logging
 from analyses.asm.gnu import parser_proc_info_init
 from analyses.lib.strings import get_strings
 from analyses.makefile import obj_definition_filter
-from manager import finished, finish
+from supervisor.save_and_restore import finished, finish
 
 logger = logging.getLogger()
 TASK_DESCRIPTION = 'we\'re gonna infer what CPU model the firmware use'

@@ -1,11 +1,10 @@
 """
 Handle IC.
 """
-import os
 import logging
 
 from analyses.lib.strings import get_strings
-from manager import finished
+from supervisor.save_and_restore import finished
 
 logger = logging.getLogger()
 TASK_DESCRIPTION = 'we are inferring the interrupt controller'
