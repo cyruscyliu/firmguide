@@ -5,7 +5,7 @@ import multiprocessing
 from database.dbf import get_database
 from supervisor.error_handling import error_callback
 from supervisor.save_and_restore import setup, check_and_restore, save_analysis
-from supervisor.task import analysis
+from supervisor.tasks import analysis
 
 logger = logging.getLogger()
 

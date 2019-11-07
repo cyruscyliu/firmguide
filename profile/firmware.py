@@ -27,6 +27,14 @@ class Firmware(object):
             func(param)
 
     @abc.abstractmethod
+    def set_running_command(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_running_command(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def set_url(self, *args, **kwargs):
         # where this firmware is download
         pass

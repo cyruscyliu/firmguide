@@ -8,6 +8,13 @@ import fdt
 
 class DTFirmware(Firmware):
 
+    def get_running_command(self, *args, **kwargs):
+        return self.get_node_property('/basics', 'running_command')
+
+    def set_running_command(self, *args, **kwargs):
+        running_command = args[0]
+        self.set_node_property('/basics', running_command)
+
     def set_uart_baud(self, *args, **kwargs):
         uart_baud = args[0]
         self.set_node_property('uart', 'baud', uart_baud)
