@@ -5,7 +5,7 @@ import os
 import yaml
 import logging
 
-from manager import finished, finish
+from supervisor.save_and_restore import finished, finish
 from pyquery import PyQuery as pq
 
 logger = logging.getLogger()

@@ -1,11 +1,10 @@
 """
 Handle UART.
 """
-import os
 import logging
 
 from analyses.lib.strings import get_strings
-from manager import finished, finish
+from supervisor.save_and_restore import finished, finish
 
 logger = logging.getLogger()
 TASK_DESCRIPTION = 'we are inferring the uart'

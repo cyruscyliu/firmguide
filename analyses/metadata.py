@@ -7,17 +7,15 @@ Add your own function by register_get_metadata(your_func).
 import os
 import re
 import fdt
-import time
 import logging
 
 import yaml
 
-from analyses.lib.common import search_most_possible_subtarget, search_most_possible_target, \
-    search_most_possible_toh_record, fit_parser, description_parser
+from analyses.lib.common import search_most_possible_toh_record, fit_parser, description_parser
 from analyses.lib.strings import get_strings
 from analyses.lib.display import print_table
 from analyses.lib.openwrt_toh import find_openwrt_toh
-from manager import finished, finish
+from supervisor.save_and_restore import finished, finish
 
 logger = logging.getLogger()
 TASK_DESCRIPTION = 'we are firstly getting critical metadata as much as possible'

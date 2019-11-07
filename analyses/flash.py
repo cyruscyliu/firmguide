@@ -4,8 +4,7 @@ Handle flash.
 
 import logging
 
-from database.dbf import get_database
-from manager import finished, finish
+from supervisor.save_and_restore import finished, finish
 
 logger = logging.getLogger()
 TASK_DESCRIPTION = 'let us infer the flash'
