@@ -8,6 +8,7 @@ class Trace(object):
         self.path_to_trace = args[0]
         self.cpus = {}  # 1: {'id': 1, 'ln': 0, 'pc': '00000000'}
         self.loops = {}  # 1: {'id': 1, 'start': 0, 'length':1, 'iteration': 1}
+        self.suspicious_loops = {}
 
     @abc.abstractmethod
     def load(self, *args, **kwargs):
@@ -20,6 +21,11 @@ class Trace(object):
     @abc.abstractmethod
     def scan_user_level(self, *args, **kwargs):
         pass
+
+    def scan_suspicious_loop(self, *args, **kwargs):
+        for k, v in self.loops.items():
+            if v['iteration'] > 2000:
+                self.suspicious_loops[k] = v
 
     def brent_cycle_detection(self, start):
         """

@@ -11,6 +11,10 @@ from analyses.trace.format import QEMUDebug, KTracer
 from analyses.trace.policies import policy_checking
 from analyses.uart import get_uart_info
 
+import logging
+
+logger = logging.getLogger()
+
 
 def analysis(firmware):
     # let's start
@@ -33,8 +37,15 @@ def dynamic_analysis(firmware):
 def trace_diagnosis(path_to_trace, trace_format):
     if trace_format == 'qemudebug':
         trace = QEMUDebug(path_to_trace)
-    else:
+    else:  # 'ktracer'
         trace = KTracer(path_to_trace)
+    if trace.scan_user_level():
+        logger.info('GOOD! Have entered the user level!')
     trace.load_cpu()
     trace.cycle_detection_all()
-    print(trace.loops)
+    trace.scan_suspicious_loop()
+    ratio = len(trace.suspicious_loops) / len(trace.loops)
+    if ratio > 0.2:
+        logger.info('BAD! Have {:.4f} suspicious infinite loops!'.format(ratio * 100))
+    else:
+        logger.info('GOOD! Have {} suspicious infinite loops!'.format(len(trace.suspicious_loops)))
