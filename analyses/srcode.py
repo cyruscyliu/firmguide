@@ -75,6 +75,8 @@ def get_source_code(firmware):
     kernel = cache_package(kernel, 'linux')  # 3
     target = firmware.get_target()  # 6
     subtarget = firmware.get_subtarget()  # 7
+    if target is None or subtarget is None:
+        return
     if brand == 'openwrt':
         if firmware.get_homepage() is None:
             with open(os.path.join(os.getcwd(), 'database', 'openwrt.yaml')) as f:

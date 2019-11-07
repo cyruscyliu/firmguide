@@ -20,7 +20,7 @@ def static_analysis(firmware):
     # let's start
     extract_kernel_and_dtb(firmware)
     get_metadata(firmware)
-    get_source_code(firmware)
+    # get_source_code(firmware)
     get_cpu_model_info(firmware)
     get_ram_info(firmware)
     get_ic_info(firmware)
@@ -60,4 +60,3 @@ def trace_diagnosis(trace):
             for j, line in enumerate(trace.cpus[i]['content']):
                 reg_offset = trace.cpus[i]['offset']
                 logger.info('{} {}'.format(reg_offset, line))
-        break

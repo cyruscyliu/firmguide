@@ -207,7 +207,10 @@ def by_url(firmware):
     """
     LOG_SUFFIX = '[URL]'
     if firmware.get_brand() == 'openwrt':
-        homepage = os.path.dirname(firmware.get_url())
+        url = firmware.get_url()
+        if url is None:
+            return
+        homepage = os.path.dirname(url)
         firmware.set_homepage(homepage)
         logger.info('\033[32mdownload page found {}\033[0m {}'.format(homepage, LOG_SUFFIX))
         items = homepage.split('/')

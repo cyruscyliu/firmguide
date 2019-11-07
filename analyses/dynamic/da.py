@@ -146,7 +146,7 @@ class DynamicAnalysis(object):
                 uuid = start['uuid'] + offset
                 self.loops[uuid] = {
                     'uuid': uuid, 'length': length, 'iteration': iteration}
-                start = self.cpus[offset + length * iteration + 2]
+                start = self.cpus[offset + length * iteration]
         except OverflowError:
             pass
 

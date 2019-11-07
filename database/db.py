@@ -118,7 +118,6 @@ class DatabaseText(DatabaseInterface):
     def handle_post(self, firmware, **kwargs):
         firmware.preset_cache = [
             (firmware.set_brand, self.items['brand']),
-            (firmware.set_url, self.items['url']),
             (firmware.set_architecture, self.items['arch']),
             (firmware.set_endian, self.items['endian'])
         ]

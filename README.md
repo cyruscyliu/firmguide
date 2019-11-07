@@ -37,30 +37,6 @@ not supported yet
 
 #### for tons of firmware blob
 
-Prepare a file or a table with firmware information in it, say [firmware.text](./database/firmware.text).
-The firmware.text is in CSV format(in fact, space not comma), and you can use any other formats your like. 
-This file shows a least set of attributes you should put in your own file or table for your firmware:
-uuid, path, arch, endian, and brand.
-
-```text
-uuid path arch endian brand
-9692 firmware/278a494b4a543f4a48dbb56d7ce226a23a3fbcc3.bin arm l openwrt
-```
-
-Create a class for your file or table, say `DatabaseText`. The class must inherit `DatabaseInterface`, and you
-have to realize two functions: `parse_pre` and `handle_post`. You are expect to parse your file or table in
-`parse_pre` and save what you get in `handle_post`.
-
-Don\'t forget to tell the database factory [dbf.py](./database/dbf.py) the name of your file or table.
-
-```python
-def get_database(dbtype, **kwargs):
-    if dbtype == 'text':
-        return DatabaseText(os.path.join('database', 'firmware.text'), **kwargs)
-```
-
-NOTE: COPY YOUR FIRMWARE TO RIGHT POSITION
-
 Test all firmware.
 
 ```shell script
@@ -82,12 +58,6 @@ Test one specific analysis in the database.
 ```
 
 NOTE: `-l LIMIT` and `-r` still work.  
-
-Visualize analyses.
-
-```shell script
-python tools/web/easy.py # then, open tools/web/statistics.html
-```
 
 For more help.
 ```shell script
