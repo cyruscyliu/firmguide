@@ -8,7 +8,6 @@ from analyses.srcode import get_source_code
 from analyses.timer import get_timer_info
 from analyses.trace.collection import trace_collection
 from analyses.trace.format import QEMUDebug, KTracer
-from analyses.trace.policies import policy_checking
 from analyses.uart import get_uart_info
 
 import logging
@@ -31,7 +30,6 @@ def analysis(firmware):
 
 def dynamic_analysis(firmware):
     trace_collection(firmware)
-    policy_checking(firmware)
 
 
 def trace_diagnosis(path_to_trace, trace_format):
