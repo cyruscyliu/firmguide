@@ -4,6 +4,8 @@ from analyses.trace.format import QEMUDebug
 from profile.tinyft import TinyForTestFirmware
 from analyses.trace.collection import trace_collection
 
+import math
+
 
 class TraceAnalysisTest(TestCase):
     def test_trace_collection(self):
@@ -23,7 +25,23 @@ class TraceAnalysisTest(TestCase):
         path_to_trace = 'tests/files/trace.qemudebug'
         trace = QEMUDebug(path_to_trace)
         trace.load_cpu()
-        trace.cycle_detection_all()
+        trace.detect_dead_loop()
         self.assertEqual(trace.loops.__len__(), 77)
         trace.load_in_asm()
         self.assertEqual(trace.bbs.__len__(), 5016)
+        for uuid, loop in trace.loops.items():
+            reg_offset = trace.cpus[uuid]['offset']
+            c = math.floor(math.log(reg_offset, 10)) + 1
+            length = loop['length']
+            iteration = loop['iteration']
+            print('This loop starts at line {}, repeated {} times!'.format(reg_offset, iteration))
+            for i in range(uuid, uuid + length + 1):
+                pc = trace.cpus[i]['pc']
+                bb_offset = trace.bbs[pc]['offset']
+                for j, line in enumerate(trace.bbs[pc]['content']):
+                    print('{} {}'.format('-' * c, line))
+                for j, line in enumerate(trace.cpus[i]['content']):
+                    reg_offset = trace.cpus[i]['offset']
+                    print('{} {}'.format(reg_offset, line))
+                print()
+            break

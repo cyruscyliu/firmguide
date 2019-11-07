@@ -1,15 +1,14 @@
 import os
 import abc
 
+from analyses.dynamic.da import DynamicAnalysis
 
-class Trace(object):
+
+class Trace(DynamicAnalysis):
     def __init__(self, *args, **kwargs):
+        super().__init__()
         self.trace_tool = None
         self.path_to_trace = args[0]
-        self.bbs = {}  # 0x000000000: {'lines': []}
-        self.cpus = {}  # 1: {'id': 1, 'ln': 0, 'pc': '00000000', 'lines':[]}
-        self.loops = {}  # 1: {'id': 1, 'start': 0, 'length':1, 'iteration': 1}
-        self.suspicious_loops = {}
 
     @abc.abstractmethod
     def load(self, *args, **kwargs):
@@ -18,132 +17,6 @@ class Trace(object):
         :return:
         """
         pass
-
-    @abc.abstractmethod
-    def scan_user_level(self, *args, **kwargs):
-        pass
-
-    def scan_suspicious_loop(self, *args, **kwargs):
-        for k, v in self.loops.items():
-            if v['iteration'] > 2000:
-                self.suspicious_loops[k] = v
-
-    def brent_cycle_detection(self, start):
-        """
-        The lam (length of cycle) found may not be the least.
-        But this one is obviously faster than Floyd's one.
-        """
-
-        def f(cpu):
-            if cpu['id'] + 1 >= self.cpus.__len__():
-                raise OverflowError('no more registers files')
-            return self.cpus[cpu['id'] + 1]
-
-        # main phase: search successive powers of two
-        power = lam = 1
-        tortoise = start
-        hare = f(start)  # f(start) is the element/node next to start.
-        while tortoise != hare:
-            if power == lam:  # time to start a new power of two?
-                tortoise = hare
-                power *= 2
-                lam = 0
-            hare = f(hare)
-            lam += 1
-
-        # Find the position of the first repetition of length λ
-        tortoise = hare = start
-        for i in range(lam):
-            # range(lam) produces a list with the values 0, 1, ... , lam-1
-            hare = f(hare)
-        # The distance between the hare and tortoise is now λ.
-
-        # Next, the hare and tortoise move at same speed until they agree
-        mu = start['id']
-        while tortoise != hare:
-            tortoise = f(tortoise)
-            hare = f(hare)
-            mu += 1
-
-        # Find the length of all cycles.
-        iteration = lam
-        while tortoise['pc'] == hare['pc']:
-            iteration += 1
-            tortoise = f(tortoise)
-            hare = f(hare)
-
-        return mu, lam, iteration // lam
-
-    def floyd_cycle_detection(self, start):
-        def f(cpu):
-            if cpu['id'] + 1 >= self.cpus.__len__():
-                raise OverflowError('no more registers files')
-            return self.cpus[cpu['id'] + 1]
-
-        # Main phase of algorithm: finding a repetition x_i = x_2i.
-        # The hare moves twice as quickly as the tortoise and
-        # the distance between them increases by 1 at each step.
-        # Eventually they will both be inside the cycle and then,
-        # at some point, the distance between them will be
-        # divisible by the period λ.
-        tortoise = f(start)  # f(start) is the element/node next to start.
-        hare = f(f(start))
-        while tortoise['pc'] != hare['pc']:
-            tortoise = f(tortoise)
-            hare = f(f(hare))
-
-        # At this point the tortoise position, ν, which is also equal
-        # to the distance between hare and tortoise, is divisible by
-        # the period λ. So hare moving in circle one step at a time,
-        # and tortoise (reset to x0) moving towards the circle, will
-        # intersect at the beginning of the circle. Because the
-        # distance between them is constant at 2ν, a multiple of λ,
-        # they will agree as soon as the tortoise reaches index μ.
-
-        # Find the position μ of first repetition.
-        mu = start['id']
-        tortoise = start
-        while tortoise['pc'] != hare['pc']:
-            tortoise = f(tortoise)
-            hare = f(hare)
-            mu += 1
-
-        # Find the length of the shortest cycle starting from x_μ
-        # The hare moves one step at a time while tortoise is still.
-        # lam is incremented until λ is found.
-        lam = 1
-        hare = f(tortoise)
-        while tortoise['pc'] != hare['pc']:
-            hare = f(hare)
-            lam += 1
-
-        # Find the length of all cycles.
-        iteration = lam
-        while tortoise['pc'] == hare['pc']:
-            iteration += 1
-            tortoise = f(tortoise)
-            hare = f(hare)
-
-        return mu, lam, iteration // lam
-
-    def cycle_detection(self, start, algorithm='floyd'):
-        if algorithm == 'floyd':
-            return self.floyd_cycle_detection(start)
-        elif algorithm == 'brent':
-            return self.brent_cycle_detection(start)
-        else:
-            # TODO add incremental cycle detection
-            raise NotImplementedError('only support floyd and brent\'s cycle detection algorithms')
-
-    def cycle_detection_all(self):
-        try:
-            x0 = self.cpus[0]
-            while 1:
-                start, length, iteration = self.cycle_detection(x0)
-                self.loops[x0['id']] = {'id': x0['id'], 'start': start, 'length': length, 'iteration': iteration}
-                x0 = self.cpus[start + length * iteration + 2]
-        except OverflowError:
-            pass
 
 
 class QEMUDebug(Trace):
@@ -170,14 +43,14 @@ class QEMUDebug(Trace):
                     new = 1
                 if new == 3:
                     bb_id = line.strip().split(':')[0]
-                    self.bbs[bb_id] = {'lines': [line.strip()]}
+                    self.bbs[bb_id] = {'content': [line.strip()], 'offset': ln + 1}
                 if new == 4 and len(line.strip()):
-                    self.bbs[bb_id]['lines'].append(line.strip())
+                    self.bbs[bb_id]['content'].append(line.strip())
                 if new in [1, 2, 3]:
                     new += 1
                 if new == 4 and not len(line.strip()):
                     new = 0
-            ln += 1
+                ln += 1
 
     def load_cpu(self, *args, **kwargs):
         """
@@ -194,11 +67,11 @@ class QEMUDebug(Trace):
             for line in f:
                 if new == 0 and line.startswith('R00'):
                     new = 1
-                    self.cpus[id_] = {'id': id_, 'ln': ln, 'lines': []}
+                    self.cpus[id_] = {'uuid': id_, 'offset': ln + 1, 'content': []}
                 if new in [1, 2, 3, 4, 5]:
-                    self.cpus[id_]['lines'].append(line.strip())
+                    self.cpus[id_]['content'].append(line.strip())
                 if new == 4:
-                    self.cpus[id_]['pc'] = line.strip().split()[-1].partition('=')[2]
+                    self.cpus[id_]['pc'] = '0x' + line.strip().split()[-1].partition('=')[2]
                 if new in [1, 2, 3, 4]:
                     new += 1
                 if new == 5:

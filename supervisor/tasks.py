@@ -11,6 +11,7 @@ from analyses.trace.format import QEMUDebug, KTracer
 from analyses.uart import get_uart_info
 
 import logging
+import math
 
 logger = logging.getLogger()
 
@@ -40,8 +41,7 @@ def trace_diagnosis(path_to_trace, trace_format):
     if trace.scan_user_level():
         logger.info('GOOD! Have entered the user level!')
     trace.load()
-    trace.cycle_detection_all()
-    trace.scan_suspicious_loop()
+    trace.detect_dead_loop()
     ratio = len(trace.suspicious_loops) / len(trace.loops)
     if ratio > 0.2:
         logger.info('BAD! Have {:.4f}% suspicious infinite loops!'.format(ratio * 100))
@@ -49,17 +49,19 @@ def trace_diagnosis(path_to_trace, trace_format):
         logger.info('GOOD! Have {} suspicious infinite loops!'.format(len(trace.suspicious_loops)))
     if not len(trace.suspicious_loops):
         return
-    for suspicious_loop in trace.suspicious_loops.values():
-        logger.info('This suspicious starts at line {}, repeated {} times!'.format(
-            suspicious_loop['start'], suspicious_loop['iteration']))
-        start = suspicious_loop['start']
+    for uuid, suspicious_loop in trace.suspicious_loops.items():
+        reg_offset = trace.cpus[uuid]['offset']
+        c = math.floor(math.log(reg_offset, 10)) + 1
+        iteration = suspicious_loop['iteration']
         length = suspicious_loop['length']
-        for i in range(start, start + length + 1):
-            pc = '0x' + trace.cpus[i]['pc']
-            bb = trace.bbs[pc]
-            for line in bb['lines']:
-                logger.info(line)
-            for line in trace.cpus[i]['lines']:
-                logger.info(line)
-            logger.info('')
+        logger.info('This suspicious log starts at line {}, repeated {} times!'.format(
+            reg_offset, iteration))
+        for i in range(uuid, uuid + length + 1):
+            pc = trace.cpus[i]['pc']
+            bb_offset = trace.bbs[pc]['offset']
+            for j, line in enumerate(trace.bbs[pc]['content']):
+                logger.info('{} {}'.format('-' * c, line))
+            for j, line in enumerate(trace.cpus[i]['content']):
+                reg_offset = trace.cpus[i]['offset']
+                logger.info('{} {}'.format(reg_offset, line))
         break
