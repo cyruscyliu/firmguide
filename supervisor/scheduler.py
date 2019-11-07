@@ -5,12 +5,16 @@ import multiprocessing
 from database.dbf import get_database
 from supervisor.error_handling import error_callback
 from supervisor.save_and_restore import setup, check_and_restore, save_analysis
-from supervisor.tasks import analysis
+from supervisor.tasks import analysis, trace_diagnosis
 
 logger = logging.getLogger()
 
 
 def run(args):
+    if args.trace:
+        trace_diagnosis(args.trace, args.trace_format)
+        return
+
     dbp = get_database('paused')
     if args.fix:
         args.uuid = dbp.select('uuid')
