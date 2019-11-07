@@ -156,62 +156,80 @@ class DatabaseOpenWrt(Database):
     """
 
     def __init__(self):
-        self.table = open(os.path.join(os.getcwd(), 'database', 'openwrt.csv'))
-        self.header = None
         self.header_last_selected = None
 
     def select(self, *args, **kwargs):
-        columns = []
-        results = {}
-        conditions = {
-            'target': kwargs.pop('target', None),
-            'pid': kwargs.pop('target', None),
-        }
-        return_column = kwargs.pop('column', True)
-        return_row = kwargs.pop('row', False)
+        """
+        select * where conditions [[transpose], [deduplicated]]
+        select a, b, c where conditions [[transpose], [deduplicated]]
+        check tests/test_openwrt_toh.py for more information
+        return format
+        """
+        # parse control parameters
+        transpose = kwargs.pop('transpose', False)
         deduplicated = kwargs.pop('deduplicated', False)
-        if return_row:
-            return_column = False
-            assert not deduplicated, 'deduplicated only for returning format of column'
-        for line in csv.reader(self.table, delimiter='\t'):
-            if self.header is None:
-                self.header = line
-                continue
-            if not len(columns):
-                if len(args) == 1 and args[0] == '*':
-                    args = ['pid', 'devicetype', 'brand', 'model', 'supportedsincerel', 'supportedcurrentrel',
-                            'target', 'subtarget', 'packagearchitecture', 'bootloader', 'cpu', 'flashmb', 'rammb']
+        # the rest are conditions
+        conditions = kwargs
+        # parse what you want to select
+        if len(args) == 1 and args[0] == '*':
+            args = ['pid', 'devicetype', 'brand', 'model', 'supportedsincerel', 'supportedcurrentrel',
+                    'target', 'subtarget', 'packagearchitecture', 'bootloader', 'cpu', 'flashmb', 'rammb']
+        # let's begin to execute the command
+        columns = []
+        records = []
+        header = None
+        table = open(os.path.join(os.getcwd(), 'database', 'openwrt.csv'))
+        for line in csv.reader(table, delimiter='\t'):
+            # save the header first
+            if header is None:
+                header = line
                 for arg in args:
-                    columns.append(self.header.index(arg))
+                    columns.append(header.index(arg))
                 self.header_last_selected = args
+                continue
+            # check conditions, then
             valid = 1
             for k, v in conditions.items():
                 if v is None:
                     continue
-                if line[self.header.index(k)] != v:
+                if line[header.index(k)] != v:
                     valid = 0
                     break
             if not valid:
                 continue
-            if return_row:
-                results[line[0]] = [line[column] for column in columns]
-            if return_column:
-                for column in columns:
-                    item = line[column]
-                    if column not in results:
-                        results[column] = []
-                    results[column].append(item)
-        if deduplicated:
-            for k, v in results.items():
-                results[k] = list(set(v))
-        self.table.seek(0)
-        return results
+            # select columns what we need
+            record = []
+            for column in columns:
+                item = line[column]
+                record.append(item)
+            records.append(record)
+        # transpose if required
+        if transpose:
+            x = len(records)  # row -> column
+            y = len(records[0])  # column -> row
+            # construct
+            records_t = []
+            for yy in range(0, y):
+                records_t.append([])
+                for xx in range(0, x):
+                    records_t[yy].append([])
+            # fill
+            for yy in range(0, y):
+                for xx in range(0, x):
+                    records_t[yy][xx] = records[xx][yy]
+            # deduplicate
+            if deduplicated:
+                for i in range(len(records_t)):
+                    records_t[i] = list(set(records_t[i]))
+            records = records_t
+        table.close()
+        return records
 
     def add(self, *args, **kwargs):
-        pass
+        raise NotImplementedError('you are not expected to modify this table')
 
     def delete(self, *args, **kwargs):
-        pass
+        raise NotImplementedError('you are not expected to modify this table')
 
     def update(self, *args, **kwargs):
-        pass
+        raise NotImplementedError('you are not expected to modify this table')

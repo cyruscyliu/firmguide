@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from analyses.common import fit_parser
+from analyses.lib import fit_parser
 
 example = """
 FIT description: ARM OpenWrt FIT (Flattened Image Tree)

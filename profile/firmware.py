@@ -288,6 +288,14 @@ class Firmware(object):
         pass
 
     @abc.abstractmethod
+    def set_uart_baud(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_uart_baud(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def get_timer_model(self, *args, **kwargs):
         pass
 

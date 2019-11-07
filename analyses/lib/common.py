@@ -2,9 +2,7 @@ import os
 import re
 import shutil
 import tempfile
-import time
 
-import yaml
 import logging
 from prettytable import PrettyTable
 from database.dbf import get_database
@@ -48,10 +46,10 @@ def search_most_possible_toh_record(firmware, strings, extent=None):
     if extent is None:
         extent = ['*']
     openwrt = get_database('openwrt')
-    results = openwrt.select(*extent, row=True)
+    results = openwrt.select(*extent)
     table = PrettyTable(openwrt.header_last_selected)
     filterd_results = []
-    for k, vs in results.items():
+    for vs in results:
         possible = False
         for v in vs:
             for string in strings:
@@ -95,7 +93,7 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
     if extent is None:
         extent = ['subtarget']
     openwrt = get_database('openwrt')
-    results = openwrt.select(*extent, deduplicated=True, target=firmware.get_target())
+    results = openwrt.select(*extent, transpose=True, deduplicated=True, target=firmware.get_target())
     subtargets = []
     for ext in extent:
         subtargets += results[openwrt.header.index(ext)]
@@ -117,10 +115,10 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
         sum_of_occurrence += v['count']
     if not sum_of_occurrence:
         logger.info('get nothing, however here are some options {}'.format(LOG_SUFFIX))
-        results = openwrt.select('*', target=firmware.get_target(), row=True)
+        results = openwrt.select('*', target=firmware.get_target())
         table = PrettyTable(openwrt.header_last_selected)
         filterd_results = []
-        for k, v in results.items():
+        for v in results:
             table.add_row(v)
             if v[openwrt.header_last_selected.index('supportedcurrentrel')] == '':
                 continue
@@ -138,7 +136,6 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
         # use kernel version to infer supportedcurrentrel
         logger.debug('filter out candidates by matching kernel version')
         if firmware.get_revision() is None:
-            openwrt.table.close()
             return
 
         filterd_results_2 = []
@@ -151,28 +148,26 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
             firmware.set_toh(filterd_results_2[0], header=openwrt.header_last_selected)
             logger.info('\033[32mget the most possible subtarget {}\033[0m {}'.format(
                 firmware.get_subtarget(), LOG_SUFFIX))
-            openwrt.table.close()
             return
         if firmware.get_subtarget() is None:
             tries = 2
             logger.info('please input the pid of what you choose: ')
             while tries:
                 pid = input()
-                result = openwrt.select('*', pid=pid, row=True)
+                result = openwrt.select('*', pid=pid)
                 if not len(result):
                     logger.info('one more time')
                     tries -= 1
                     continue
-                firmware.set_toh(result[pid])
+                firmware.set_toh(result[0])
                 logger.info('\033[32mcorrect the most possible target {}\033[0m'.format(
                     firmware.get_target(), LOG_SUFFIX))
                 logger.info('\033[32mcorrect the most possible subtarget {}\033[0m'.format(
                     firmware.get_subtarget(), LOG_SUFFIX))
                 table = PrettyTable(openwrt.header_last_selected)
-                table.add_row(result[pid])
+                table.add_row(result[0])
                 for line in table.__unicode__().split('\n'):
                     logger.info(line)
-                openwrt.table.close()
                 return
     most_possible = None
     max_count = 0
@@ -185,7 +180,6 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
             max_count = count
     logger.info('\033[32mget the most possible subtarget {}\033[0m {}'.format(most_possible, LOG_SUFFIX))
     firmware.set_subtarget(most_possible)
-    openwrt.table.close()
 
 
 def search_most_possible_target(firmware, strings, extent=None):
@@ -224,20 +218,6 @@ def search_most_possible_target(firmware, strings, extent=None):
             max_count = count
     logger.info('\033[32mget the most possible target {}\033[0m {}'.format(most_possible, LOG_SUFFIX))
     firmware.set_target(most_possible)
-    openwrt.table.close()
-
-
-def search_most_possible_kernel_version(firmware, strings):
-    for string in strings:
-        string = string.strip()
-        if len(string) < 20:
-            continue
-        if not string.startswith('Linux'):
-            continue
-        r = re.search(r'[lL]inux version ([1-5]+\.\d+\.\d+).*', string)
-        if r is not None:
-            kernel_version = r.groups()[0]
-            firmware.set_kernel_version(kernel_version)
 
 
 progress = 0
@@ -328,41 +308,3 @@ def description_parser(firmware, description):
     if kernel_version:
         kernel_version = kernel_version.groups()[0]
         firmware.set_kernel_version(kernel_version)
-
-
-def get_candidates(firmware):
-    """
-    We can find useful strings in uncompressed binary.
-
-    :param firmware: the firmware.
-    :return: [paths/to/candidates] or None
-    """
-    kernel = firmware.get_path_to_kernel()
-    if kernel is None:
-        return None
-    working_dir = os.path.dirname(kernel)
-    candidates = [kernel]
-    for file_ in os.listdir(working_dir):
-        if file_.endswith('7z') or file_.endswith('xz'):
-            zimage = os.path.join(working_dir, file_[:-3])
-            if os.path.exists(zimage):
-                candidates.append(zimage)
-    return candidates
-
-
-def get_strings(firmware):
-    """
-    We get strings from uncompressed binary.
-
-    :param firmware:
-    :return: [strings] or None
-    """
-    strings = []
-    # get candidate files which contain useful strings
-    candidates = get_candidates(firmware)
-    if candidates is None:
-        return None
-    for candidate in candidates:
-        info = os.popen('strings {} -n 2 | grep -E "^[a-zA-Z]+[a-zA-Z0-9_-]{{1,20}}"'.format(candidate))
-        strings += info.readlines()
-    return strings

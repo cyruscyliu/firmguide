@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 
 #
 # Fixed Variables
@@ -53,11 +51,11 @@ usage() {
 # 5. kernel detail version (like "2.6.32")
 # 6. board info (like "orion")
 # 7. subtarget info (string, but notice that pass "NULL" means '')
-# 8. output directory (the final kernel source copy from work dir, 
+# 8. output directory (the final kernel source copy from work dir,
 #                      if use relative path, it will base on
 #                      the working directory;
 #                      if pass "NULL", means '';)
-# 9. working directory (if not set, will use "./${DEFAULT_WORK_DIR}" 
+# 9. working directory (if not set, will use "./${DEFAULT_WORK_DIR}"
 #                       as default
 #                       if default, will clean the ./${DEFAULT_WORK_DIR}
 #                       first;
@@ -95,16 +93,19 @@ prepare() {
     local work_dir="$9"
 
     # 1. setup openwrt version specific env
-    if [ -d "${openwrt_ver}" ] 
+    if [ -d "${openwrt_ver}" ]
     then
-        . ${openwrt_ver}/extract-modules.sh
+        for sh in ${openwrt_ver}/*.sh
+        do
+            . ${sh}
+        done
         OPENWRT_VER="${openwrt_ver}"
     else
         error "not supported openwrt version '${openwrt_ver}'"
     fi
 
     # 2. setup work dir
-    if [ -z "${work_dir}" ] 
+    if [ -z "${work_dir}" ]
     then
         rm -rf "${DEFAULT_WORK_DIR}" && mkdir -p "${DEFAULT_WORK_DIR}"
         WORK_DIR="`realpath ${DEFAULT_WORK_DIR}`"
@@ -150,7 +151,7 @@ prepare() {
 
     module_openwrt_var_init "${kernel_version}" "${board}" "${subtarget}"
 
-    if [ "${output_dir}" != "" ] && [ "${output_dir}" != "NULL" ] 
+    if [ "${output_dir}" != "" ] && [ "${output_dir}" != "NULL" ]
     then
         OUTPUT_DIR=`realpath ${output_dir}`
     fi
@@ -167,9 +168,12 @@ dot_config_generation() {
 }
 
 postprocess() {
-    if [ -n "${OUTPUT_DIR}" ] 
+    if [ -n "${OUTPUT_DIR}" ]
     then
-        cp -r ${KERNEL_DIR} ${OUTPUT_DIR}
+        if [ "${KERNEL_DIR}" != "${OUTPUT_DIR}" ]
+        then
+            cp -r ${KERNEL_DIR} ${OUTPUT_DIR}
+        fi
     fi
 }
 
@@ -178,12 +182,15 @@ get_dot_config() {
     prepare "$@"
 
     # 2. gen .packageinfo
-    gen_packageinfo 
+    gen_packageinfo
 
-    # 3. .config generation flow
+    # 3. patch kernel source code
+    module_kernel_patch_do
+
+    # 4. .config generation flow
     dot_config_generation
 
-    # 4. post process, like copy & rename the ouput to target place
+    # 5. post process, like copy & rename the ouput to target place
     postprocess
 }
 

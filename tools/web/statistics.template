@@ -7,22 +7,12 @@
 <body>
 
 <h1>analyses summary</h1>
-<table border="1">
-    {% for analysis in analyses %}<tr>
-        <th>{{ analysis.uuid }}</th>
-        <th>{{ analysis.stime }}</th>
-        <th>{{ analysis.etime }}</th>
-        <th>{{ analysis.level }}</th>
-        <th align="left">{{ analysis.info }}</th>
-    </tr>{% endfor %}
-</table>
-
-<h1>analyses summary</h1>
 <table border="1" cellpadding="10">
-    {% for paused_analysis in paused_analyses %}<tr>
-        <th>{{ paused_analysis.uuid }}</th>
-        <th align="left">{{ paused_analysis.hint }}</th>
-        <th width="20%">{{ paused_analysis.input }}</th>
+    {% for firmware in emulation %}<tr>
+        <th>{{ firmware.uuid }}</th>
+        <th>{{ firmware.dt }}</th>
+        <th>{{ firmware.cpu }}</th>
+        <th>{{ firmware.ram }}</th>
     </tr>{% endfor %}
 </table>
 

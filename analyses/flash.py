@@ -20,8 +20,10 @@ def by_toh(firmware):
         # microSD, NAND, CF card, microSDXC, SDHC, eMMC
         if flash.find('NAND') != -1:
             firmware.set_flash_type('nand')
+            logger.info('\033[32mflash type {} found\033[0m {}'.format('nand flash', LOG_SUFFIX))
         else:
             firmware.set_flash_type('nor')
+            logger.info('\033[32mflash type {} found\033[0m {}'.format('nor flash', LOG_SUFFIX))
 
 
 def by_source_code(firmware):
@@ -43,10 +45,6 @@ register_get_flash_info(by_strings)
 
 def get_flash_info(firmware):
     logger.info(TASK_DESCRIPTION)
-    flash_model = firmware.get_flash_model()
-    if flash_model is not None:
-        logger.info('\033[32mflash model {} found\033[0m [DEVICE TREE]'.format(flash_model))
-        return
     for func in __get_flash_info:
         if finished(firmware, 'get_flash_info', func.__name__):
             continue

@@ -12,9 +12,11 @@ import logging
 
 import yaml
 
-from analyses.common import search_most_possible_subtarget, search_most_possible_target, \
-    search_most_possible_toh_record, search_most_possible_kernel_version, fit_parser, description_parser, \
-    get_strings
+from analyses.lib.common import search_most_possible_subtarget, search_most_possible_target, \
+    search_most_possible_toh_record, fit_parser, description_parser
+from analyses.lib.strings import get_strings
+from analyses.lib.display import print_table
+from analyses.lib.openwrt_toh import find_openwrt_toh
 from manager import finished, finish
 
 logger = logging.getLogger()
@@ -175,29 +177,58 @@ def by_strings(firmware):
     strings = get_strings(firmware)
     if strings is None:
         return None
+    # kernel version is very critical
+    for string in strings:
+        string = string.strip()
+        if len(string) < 20:
+            continue
+        r = re.search(r'[lL]inux version ([1-5]+\.\d+\.\d+).*', string)
+        if r is not None:
+            kernel_version = r.groups()[0]
+            firmware.set_kernel_version(kernel_version)
+            logger.info('\033[32mget the kernel version: {}\033[0m {}'.format(kernel_version, LOG_SUFFIX))
+            break
     if firmware.get_revision() is None:
-        search_most_possible_kernel_version(firmware, strings)
         by_kernel_version(firmware)
-    search_most_possible_target(firmware, strings)
-    search_most_possible_subtarget(firmware, strings)
+    # TODO: refactor the following 2 methods
+    # search_most_possible_target(firmware, strings)
+    # search_most_possible_subtarget(firmware, strings)
 
 
 def by_url(firmware):
+    """
+    Example:
+        http://archive.openwrt.org/chaos_calmer/15.05/ar71xx/generic/openwrt-15.05-ar71xx-generic-bxu2000n-2-a1-kernel.bin
+                                                  ^     ^       ^
+                                              revision      subtarget
+                                                      target
+        http://archive.openwrt.org/backfire/10.03/orion/openwrt-wrt350nv2-squashfs-recovery.bin
+                                              ^     ^
+                                            revision
+                                                  target
+    """
     LOG_SUFFIX = '[URL]'
     if firmware.get_brand() == 'openwrt':
         homepage = os.path.dirname(firmware.get_url())
-        firmware.homepage = homepage
+        firmware.set_homepage(homepage)
         logger.info('\033[32mdownload page found {}\033[0m {}'.format(homepage, LOG_SUFFIX))
-        subtarget = os.path.basename(homepage)
-        target = os.path.basename(os.path.dirname(homepage))
+        items = homepage.split('/')
+        revision = items[4]
+        target = items[5]
+        subtarget = None
+        if len(items) == 7:
+            subtarget = items[6]
         firmware.set_target(target)
         logger.info('\033[32mget the most possible target {}\033[0m {}'.format(target, LOG_SUFFIX))
         firmware.set_subtarget(subtarget)
-        logger.info('\033[32mget the most subpossible target {}\033[0m {}'.format(subtarget, LOG_SUFFIX))
-
-
-def by_description(firmware):
-    pass
+        logger.info('\033[32mget the most possible subtarget {}\033[0m {}'.format(subtarget, LOG_SUFFIX))
+        firmware.set_revision(revision)
+        logger.info('\033[32mget the revision {}\033[0m {}'.format(revision, LOG_SUFFIX))
+        toh, header = find_openwrt_toh(revision, target, subtarget)
+        if toh:
+            firmware.set_toh(toh, header=header)
+            logger.info('\033[32mget the toh {}\033[0m {}'.format(toh, LOG_SUFFIX))
+            print_table(header, toh)
 
 
 def register_get_metadata(func):
@@ -208,9 +239,8 @@ register_get_metadata(by_file)
 register_get_metadata(by_dumpimage)
 register_get_metadata(by_kernel_version)
 register_get_metadata(by_device_tree)
-register_get_metadata(by_strings)
-register_get_metadata(by_description)
 register_get_metadata(by_url)
+register_get_metadata(by_strings)
 
 
 def get_metadata(firmware):
