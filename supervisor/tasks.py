@@ -6,10 +6,9 @@ from analyses.metadata import get_metadata
 from analyses.ram import get_ram_info
 from analyses.srcode import get_source_code
 from analyses.timer import get_timer_info
+from analyses.trace.collection import trace_collection
+from analyses.trace.policies import policy_checking
 from analyses.uart import get_uart_info
-
-import qmp
-import subprocess
 
 
 def analysis(firmware):
@@ -25,15 +24,6 @@ def analysis(firmware):
     get_flash_info(firmware)
 
 
-def trace_collection(firmware):
-    running_command = firmware.get_running_command()
-    trace_flags = '-d in_asm,cpu -D log/{}.trace'.format(firmware.uuid)
-    qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
-    full_command = ' '.join([running_command, trace_flags, qmp_flags])
-    try:
-        subprocess.run(full_command, timeout=60, shell=True)
-    except subprocess.TimeoutExpired:
-        qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
-        qemu.connect()
-        qemu.cmd('quit')
-        qemu.close()
+def dynamic_analysis(firmware):
+    trace_collection(firmware)
+    policy_checking(firmware)

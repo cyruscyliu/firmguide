@@ -1,7 +1,8 @@
 from unittest import TestCase
 
+from analyses.trace.format import QEMUDebug
 from profile.tinyft import TinyForTestFirmware
-from supervisor.tasks import trace_collection
+from analyses.trace.collection import trace_collection
 
 
 class SupervisorTest(TestCase):
@@ -12,3 +13,11 @@ class SupervisorTest(TestCase):
                           '-nographic'
         firmware.set_running_command(running_command)
         trace_collection(firmware)
+
+    def test_trace_analysis(self):
+        path_to_trace = 'log/12345678.trace'
+        trace = QEMUDebug(path_to_trace)
+        if trace.scan_user_level():
+            print('have entered user level')
+        else:
+            print('have not entered user level')
