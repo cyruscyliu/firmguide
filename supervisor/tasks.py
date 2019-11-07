@@ -16,7 +16,7 @@ import math
 logger = logging.getLogger()
 
 
-def analysis(firmware):
+def static_analysis(firmware):
     # let's start
     extract_kernel_and_dtb(firmware)
     get_metadata(firmware)
@@ -33,11 +33,7 @@ def dynamic_analysis(firmware):
     trace_collection(firmware)
 
 
-def trace_diagnosis(path_to_trace, trace_format):
-    if trace_format == 'qemudebug':
-        trace = QEMUDebug(path_to_trace)
-    else:  # 'ktracer'
-        trace = KTracer(path_to_trace)
+def trace_diagnosis(trace):
     if trace.scan_user_level():
         logger.info('GOOD! Have entered the user level!')
     trace.load()

@@ -19,11 +19,8 @@ if __name__ == '__main__':
                         help='rerun all analysis')
     parser.add_argument('-p', '--profile', choices=['simple', 'dt', 'ipxact'], default='dt',
                         help='assign the device profile standard')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-u', '--uuid', type=str, nargs='+',
-                       help='assign a uuid to an paused analysis')
-    group.add_argument('-f', '--fix', type=str, choices=['all'],
-                       help='assign a file to paused analyses')
+    parser.add_argument('-u', '--uuid', type=str, nargs='+',
+                        help='assign a uuid to an paused analysis')
     parser.add_argument('-wd', '--working_directory',
                         help='assign the working directory for getting metadata, '
                              'save and store mechanism is on except by default /tmp or %%TEMP%%')
