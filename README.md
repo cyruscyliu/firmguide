@@ -1,32 +1,8 @@
 # Salamander
 
 This is a project aiming to run and test any given firmware blob dynamically in a pure software way.
-That is to say, the given firmware becomes a traditional program that can be run smoothly
-and instrumented easily. Moreover, any dynamic analysis approaches can be extended in Salamander and there is no gap at all.
 
-BTW, this project has a name `Salamander` which is from `Fantastic Beasts: The Crimes of Grindelwald` :).
-
->Newt (to Tina): You have eyes like a salamander
-
-## Features
-
-We are very happy to release the `Salamander 0.5` with following features:
-+ support thousands of linux-based firmware among several brands
-+ [SPECIAL] provide lots of summary to embedded system fragmentation
-+ build-in dozens of metadata extractors and a static analysis tool
-+ [SPECIAL] a light and effective static analysis tool for hardware things in linux kernel
-+ support 3 device profiles, device tree, ipxact, and a custom simple protocol
-+ [SPECIAL] extend device tree to support virtualization
-+ generate QEMU code with device profiles as input
-+ [SPECAIL] interface messy QEMU code to developer, and redefine the way to write a new machine
-+ build-in a dynamic engine to track and solve peripheral register initial values
-+ [SPECIAL] guarantee several peripheral' functionality
-
-## Quick Start
-
-This section is not QUICK at all, make sure to follow us.
- 
-### dependency
+## dependency
 
 ```bash
 sudo add-apt-repository ppa:deadsnakes/ppa
@@ -35,7 +11,6 @@ sudo apt-get install -y python3.7
 sudo -H python3.7 -m pip install --upgrade pip
 sudo -H pip3.7 install -r requirements.txt
 sudo apt-get install -y git libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev
-sudo apt-get install -y git-email
 sudo apt-get install -y libaio-dev libbluetooth-dev libbrlapi-dev libbz2-dev
 sudo apt-get install -y libcap-dev libcap-ng-dev libcurl4-gnutls-dev libgtk-3-dev
 sudo apt-get install -y libibverbs-dev libjpeg8-dev libncurses5-dev libnuma-dev
@@ -49,14 +24,17 @@ sudo apt-get install -y u-boot-tools
 sudo apt-get install -y gawk
 ```
 
-### install
+## install
 ```bash
 make # sudo make clean first if fails
 ```
 
-### start 
+## start 
 
 #### for a single firmware blob
+
+not supported yet
+
 #### for tons of firmware blob
 
 Prepare a file or a table with firmware information in it, say [firmware.text](./database/firmware.text).
@@ -86,54 +64,45 @@ NOTE: COPY YOUR FIRMWARE TO RIGHT POSITION
 Test all firmware.
 
 ```shell script
-python3.7 main.py -dbt text -p dt -wd ./build
+./salamander.py -dbt text -p dt -wd ./build
 ```
 
 Test limited firmware.
 
 ```shell script
-python3.7 main.py -dbt text -p dt -wd ./build -l 2
+./salamander.py -dbt text -p dt -wd ./build -l 2
 ```
 
 NOTE: To disable `save and restore`, please use `-r`.
 
-We regard testing a firmware as an analysis. Any failure will raise NotImplementedError to the top routine, 
-and all failed analyses are by default stored in [pause.yaml](./database/pause.yaml).
-Read it and find out why these analyses are failed.
-
-
-Add more tools and test all failed analyses.
+Test one specific analysis in the database.
 
 ```shell script
-python3.7 main.py -dbt text -p dt -wd ./build -f all
-```
-
-Add more tools and test one specific analysis.
-
-```shell script
-python3.7 main.py -dbt text -p dt -wd ./build -u UUID
+./salamander.py -dbt text -p dt -wd ./build -u UUID
 ```
 
 NOTE: `-l LIMIT` and `-r` still work.  
-NOTE: `-f` and `-u` are mutually exclusive.
 
-Visisualize analyses.
+Visualize analyses.
 
 ```shell script
-python3.7 tools/web/easy.py # then, open tools/web/statistics.html
+python tools/web/easy.py # then, open tools/web/statistics.html
 ```
 
 For more help.
 ```shell script
-python3.7 main.py --help
+./salamander.py --help
 ```
 
 # Testing
 
-## test code generation
+empty
 
-```shell script
-./test.sh
-```
 # Authors
+
+empty
+
 # License
+
+empty
+
