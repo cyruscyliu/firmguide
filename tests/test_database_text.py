@@ -2,7 +2,7 @@ import os
 
 from unittest import TestCase
 
-from database.db import DatabaseText
+from database.firmware import DatabaseText
 
 
 class TestDatabaseText(TestCase):

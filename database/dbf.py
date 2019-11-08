@@ -1,6 +1,7 @@
 import os
 
-from database.db import DatabaseText, DatabaseOpenWrt, DatabaseFirmadyne, DatabasePaused
+from database.db import DatabaseOpenWrt, DatabasePaused
+from database.firmware import DatabaseFirmadyne, DatabaseText
 
 
 def get_database(dbtype, **kwargs):

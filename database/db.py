@@ -5,8 +5,6 @@ import csv
 import yaml
 import fcntl
 
-from database.dbi import DatabaseInterface
-
 
 class Database(metaclass=abc.ABCMeta):
     @abc.abstractmethod
@@ -62,87 +60,6 @@ class DatabasePaused(Database):
 
     def update(self, *args, **kwargs):
         pass
-
-
-class DatabaseFirmadyne(DatabaseInterface):
-
-    def parse_pre(self, line, **kwargs):
-        items = line.split(',')
-        if self.header is None:
-            self.header = items
-            return
-        kernel_extracted = items[self.header.index('kernel_extracted')]
-        if kernel_extracted != 't':
-            return
-        uuid = items[self.header.index('id')]
-        name = os.path.basename(items[self.header.index('filename')])
-        path = items[self.header.index('filename')].replace('openwrt', 'firmware')
-        size = os.path.getsize(path)
-        brand = items[self.header.index('brand')]
-        if not len(items[self.header.index('arch')]):
-            arch = None
-            endian = None
-        else:
-            arch = items[self.header.index('arch')][:-2]
-            endian = items[self.header.index('arch')][-1:]
-        # kernel_version: hard to use
-        # kernel_version = items[self.header.index('kernel_version')]
-        # if kernel_version:
-        #     kernel_version = re.search(r'Linux kernel version (\d+\.\d+\.\d+)', kernel_version)
-        # if kernel_version:
-        #     kernel_version = kernel_version.groups()[0]
-        description = items[self.header.index('description')]
-        url = items[self.header.index('url')]
-        self.items = {
-            'uuid': uuid, 'name': name, 'path': path, 'size': size,
-            'brand': brand, 'arch': arch, 'endian': endian,
-            'description': description, 'url': url
-        }
-        return self.items
-
-    def handle_post(self, firmware, **kwargs):
-        firmware.preset_cache = [
-            (firmware.set_brand, self.items['brand']),
-            (firmware.set_description, self.items['description']),
-            (firmware.set_url, self.items['url']),
-            (firmware.set_architecture, self.items['arch']),
-            (firmware.set_endian, self.items['endian'])
-        ]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.dbtype = 'firmadyne'
-
-
-class DatabaseText(DatabaseInterface):
-    def handle_post(self, firmware, **kwargs):
-        firmware.preset_cache = [
-            (firmware.set_brand, self.items['brand']),
-            (firmware.set_architecture, self.items['arch']),
-            (firmware.set_endian, self.items['endian'])
-        ]
-
-    def parse_pre(self, line, **kwargs):
-        items = line.split()
-        if self.header is None:
-            self.header = items
-            return
-        uuid = items[self.header.index('uuid')]
-        name = os.path.basename(items[self.header.index('path')])
-        path = items[self.header.index('path')]
-        size = os.path.getsize(path)
-        brand = items[self.header.index('brand')]
-        arch = items[self.header.index('arch')]
-        endian = items[self.header.index('endian')]
-        self.items = {
-            'uuid': uuid, 'name': name, 'path': path, 'size': size,
-            'brand': brand, 'arch': arch, 'endian': endian
-        }
-        return self.items
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.dbtype = 'text'
 
 
 class DatabaseOpenWrt(Database):

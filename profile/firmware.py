@@ -4,10 +4,10 @@ import abc
 class Firmware(object):
     def __init__(self, *args, **kwargs):
         self.id = None
-        self.uuid = kwargs.pop('uuid')
-        self.name = kwargs.pop('name')
-        self.path = kwargs.pop('path')  # path to firmware
-        self.size = kwargs.pop('size')
+        self.uuid = kwargs.pop('uuid', None)
+        self.name = kwargs.pop('name', None)
+        self.path = kwargs.pop('path', None)  # path to firmware
+        self.size = kwargs.pop('size', None)
         self.working_dir = None
         self.working_path = None
 
