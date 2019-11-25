@@ -1,6 +1,6 @@
 import os
 
-from database.db import DatabaseOpenWrt, DatabasePaused
+from database.db import DatabaseOpenWRTToH, DatabasePaused
 from database.firmware import DatabaseFirmadyne, DatabaseText
 
 
@@ -10,7 +10,7 @@ def get_database(dbtype, **kwargs):
     elif dbtype == 'firmadyne':
         return DatabaseFirmadyne(os.path.join('database', 'firmware.firmadyne'), **kwargs)
     elif dbtype == 'openwrt':
-        return DatabaseOpenWrt()
+        return DatabaseOpenWRTToH()
     elif dbtype == 'paused':
         return DatabasePaused()
     else:

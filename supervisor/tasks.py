@@ -1,32 +1,40 @@
-from analyses.cpu import get_cpu_model_info
-from analyses.extraction import extract_kernel_and_dtb
-from analyses.flash import get_flash_info
-from analyses.ic import get_ic_info
-from analyses.metadata import get_metadata
-from analyses.ram import get_ram_info
-from analyses.srcode import get_source_code
-from analyses.timer import get_timer_info
-from analyses.trace.collection import trace_collection
-from analyses.trace.format import QEMUDebug, KTracer
-from analyses.uart import get_uart_info
-
 import logging
 import math
+
+from analyses.device_tree import DeviceTree
+from analyses.dot_config import DotConfig
+from analyses.extraction import Extraction
+from analyses.format import Format
+from analyses.kernel import Kernel
+from analyses.common.analysis import AnalysesManager
+from analyses.openwrt import OpenWRTURL, OpenWRTRevision, OpenWRTToH
+from analyses.srcode import SRCode
+from analyses.strings import Strings
 
 logger = logging.getLogger()
 
 
 def static_analysis(firmware):
-    # let's start
-    extract_kernel_and_dtb(firmware)
-    get_metadata(firmware)
-    # get_source_code(firmware)
-    get_cpu_model_info(firmware)
-    get_ram_info(firmware)
-    get_ic_info(firmware)
-    get_timer_info(firmware)
-    get_uart_info(firmware)
-    get_flash_info(firmware)
+    analyses_manager = AnalysesManager()
+    # format <- extraction
+    analyses_manager.register_analysis(Format())
+    analyses_manager.register_analysis(Extraction())
+    # extraction <- kernel
+    analyses_manager.register_analysis(Kernel())
+    # extraction <- dt
+    analyses_manager.register_analysis(DeviceTree())
+    # extraction, revision <- strings
+    analyses_manager.register_analysis(Strings())
+    # kernel <- revision
+    analyses_manager.register_analysis(OpenWRTRevision())
+    # revision, url <- toh
+    analyses_manager.register_analysis(OpenWRTURL())
+    analyses_manager.register_analysis(OpenWRTToH())
+    # srcode <- .config
+    analyses_manager.register_analysis(SRCode())
+    analyses_manager.register_analysis(DotConfig())
+    # run them all
+    analyses_manager.run(firmware)
 
 
 def dynamic_analysis(firmware):

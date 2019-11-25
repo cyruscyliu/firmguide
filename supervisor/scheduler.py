@@ -46,9 +46,9 @@ def analysis_wrapper(firmware, args, dbp):
     try:
         static_analysis(firmware)
     except NotImplementedError as e:
-        # e.args[0] = {'hint': 'the hint', 'input': 'what is the input'}
+        firmware, analysis = e.args
         logger.warning('\033[31mcan not support firmware {}, fix and rerun\033[0m'.format(firmware.uuid))
-        dbp.add(uuid=firmware.uuid, name=firmware.name, hint=e.args[0]['hint'], input=e.args[0]['input'])
+        dbp.add(uuid=firmware.uuid, name=firmware.name, hint=analysis.context['hint'], input=analysis.context['input'])
     save_analysis(firmware)
 
     # the following code are not tested, so we return here
@@ -70,12 +70,3 @@ def analysis_wrapper(firmware, args, dbp):
         logger.info('GOOD! Have entered the user level!')
         trace_collection(firmware)
         trace_diagnosis(trace)
-
-
-class INPUT(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        fixes = {}
-        for value in values:
-            k, v = value.split('=')
-            fixes[k] = v
-        setattr(namespace, self.dest, fixes)

@@ -63,19 +63,18 @@ def save_analysis(firmware):
     logger.info('[{}] saved the analysis'.format(firmware.id))
 
 
-def finished(firmware, task, func):
+def finished(firmware, analysis):
     try:
-        status = firmware.analysis_progress[task][func]
-        logger.info('\033[34m{}_{} done before\033[0m'.format(task, func))
+        status = firmware.analysis_progress[analysis.name]
+        logger.info('\033[34m{} done before\033[0m'.format(analysis.name))
         return True
     except KeyError:
         return False
 
 
-def finish(firmware, task, func):
-    if task not in firmware.analysis_progress:
-        firmware.analysis_progress[task] = {}
-    firmware.analysis_progress[task][func] = 1
+def finish(firmware, analysis):
+    if analysis.name not in firmware.analysis_progress:
+        firmware.analysis_progress[analysis.name] = 1
 
 
 def setup(args, firmware):
@@ -87,4 +86,3 @@ def setup(args, firmware):
     target_dir = os.path.join(working_dir, firmware.uuid)
     target_path = os.path.join(working_dir, firmware.uuid, firmware.name)
     firmware.set_working_env(target_dir, target_path)
-

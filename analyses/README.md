@@ -1,150 +1,49 @@
 # Analysis
 
-## Programming Model
+## Static Analysis
 
-In this module, you are expected to follow the programming model below
-to reduce logs, and to support save and restore mechanism. Add and register a function, 
-then the function will be called automatically. At the beginning, the model describes this task 
-by `TASK_DESCRIPTION`,  and the `do_a` function must define a `LOG_SUFFIX` to label itself. Doing 
-all above, we will get less logs and boost the performance. The model instruments every `do_a` function
-by `finished` and `finish` to decide whether to execute it or not. The save and restore mechanism saves
-lots of time and is friendly to debugging.
- 
-Each function you add and register should define its own preconditions which the firmware must be provide, 
-and check these preconditions by itself. At the same time, each function should raise NotImplementationError
-when the whole routine must stop because this firmware has not been supported yet.
+### Programming Model
 
-```python
-import logging
-from supervisor.save_and_restore import finished, finish
+#### Analysis
 
-logger = logging.getLogger()
-TASK_DESCRIPTION = 'do something'
+All analysis except `Analysis Group` must extend `Analysis` and set its `name`, `description`, 
+`log_suffix`, `required`, and `context hint`. 
++ `name` the identification of an analysis which should be universal unique
++ `description` the description of the analysis which helps debug
++ `log_suffix` the suffix of the log of this analysis which helps debug
++ `required` **the names of analyses which must be run before this analysis**
++ [WIP] `context hint` the exception hint for this analysis which helps debug
++ [WIP] and put more specific requirement in `context input` to solve the exception
 
-__do_something = []
+#### Analysis Worker
 
-def do_a(firmware): # add a function, the one and only one parameter is firmware
-    LOG_SUFFIX = 'do_a'
-    logger.info('xxx {}'.format(LOG_SUFFIX))
-    pass
+Sub-analyses run in order. Not declared explicitly.
 
-def register_do_something(func):
-    __do_something.append(func)
-    
-register_do_something(do_a) # register the function
+#### Analysis Group
 
-def do_something(firmware): # called by top routine
-    logger.info(TASK_DESCRIPTION)
-    for func in __do_something:
-        if finished(firmware, 'do_something', func.__name__):
-            continue
-        func(firmware) # call it automatically
-        finish(firmware, 'do_something', func.__name__)
-```
+[WIP] Multiple analyses as a group but only one is valid. Extend `AnalysisGroup` in stead of `Analysis`.
 
-## Preconditions and Exception
+#### Analysis Manager
 
-### extract kernel and dtb [extraction.py](.|extraction.py)
+Call `register_analysis` to register an analysis and call `run` to run them all. 
+The details are transparent to developers and all analyses will be run in topology order according to their requirements.
 
-|                | preconditions | settings | exception |
-|:--------------:|:---:|:---:|:---:|
-|   by binwalk   | firmware.working_dir is not None | firmware.format | Y |
-|                | firmware.working_path is not None | firmware.path_to_image| |
-|                | firmware.size is not None | | |
-||||
-| by uboot tools | firmware.format is 'fit uImage' or 'legacy uImage' | firmware.path_to_kernel | |
-|                | firmware.path_to_image is not None | firmware.path_to_dtb | |
-||||
-|  by lzma tools | firmware.format is 'trx kernel' | firmware.path_to_kernel | |
-|                | firmware.path_to_image is not None | firmware.path_to_dtb | |
-    
-### get metadata [metadata.py](.|metadata.py)
+### Analysis Dependency and Exception
 
-|                   | preconditions | settings | exception |
-|:-----------------:|:---:|:---:|:---:|
-|      by file      | firmware.format is 'legacy uImage' | firmware.kernel_version | |
-|                   | firmware.path_to_image is not None | firmware.kernel_created_time | |
-|                   |                                    | firmware.kernel_load_address | |
-|                   |                                    | firmware.kernel_entry_point | |
-||||
-|    by dumpimage   | firmware.format is 'fit uImage' | firmware.kernel_created_time | |
-|                   | firmware.path_to_image is not None | firmware.kernel_load_address | |
-|                   |                                    | firmware.kernel_entry_point | |
-||||
-| by kernel version | firmware.kernel_version | firmware.revision | |
-||||
-|   by device tree  | firmware.path_to_dtb is not None | firmware.dts | |
-|                   | firmware.revision is not None | firmware.toh | |
-||||
-|     by strings    | firmware.revision is not None | firmware.target | |
-|                   |                               | firmware.subtarget | |
-||||
-|       by url      | firmware.brand is 'openwrt' | firmware.homepage | |
-|                   |                             | firmware.target | |
-|                   |                             | firmware.subtarget | |
-|                   |                             | firmware.toh | |
-    
-### get source code [srcode.py](./srcode.py)
+|name|file|class|dependent on|settings|exception|
+|:---:|:---:|:---:|:---:|:---:|:---:|
+|format|[format.py](./format.py)|Format()|-|format, path_to_image|binwalk does not recognize this new format|
+|extraction|[extraction.py](./extraction.py)|Extraction()|format|path_to_kernel, path_to_dbt|the image type is unsupported|
+|kernel|[kernel.py](./kernel.py)|Kernel()|extraction|kernel_version, kernel_created_time, kernel_load_address, kernel_entry_point|-|
+|dt|[device_tree.py](./device_tree)|DeviceTree()|extraction|dtc|device tree is not found|
+|revision|[openwrt.py](./openwrt.py)|OpenWRTRevision()|kernel|revision|no kernel version available or no handler for this kernel version|
+|strings|[strings.py](./strings.py)|Strings()|extraction, revision|toh, target, subtarget, cpu, uart, ic |-|
+|url|[openwrt.py](./openwrt.py)|OpenWRTURL()|-|homepage, target, subtarget, revision|update download url for this firmware|
+|toh|[openwrt.py](./openwrt.py)|OpenWRTToH()|revision, url|toh, cpu, ram, flash|-|
+|srocde|[srcode.py](./srcopy.py)|SRCode()|strings, revision, url|path_to_source_code|-|
+|.config|[dot_config.py](./dot_config.py)|DotConfig()|srcode|cpu|-|
 
-|                   | preconditions | settings | exception |
-|:-----------------:|:---:|:---:|:---:|
-|                   | firmware.brand is not None | firmware.path_to_source_code | Y |
-|                   | firmware.revision is not None | | |
-|                   | firmware.kernel_version is not None | | |
-|                   | firmware.target is not None | | |
-|                   | firmware.subtarget is not None | | |
-|                   | firmware.working_dir is not None | | |
-
-### get cpu info [cpu.py](./cpu.py)
-
-|                   | preconditions | settings | exception |
-|:-----------------:|:---:|:---:|:---:|
-|      global       | firmware.cpu_model is None | | | 
-||||
-|      by toh       | firmware.toh is not None | firmware.cpu_model | |
-|                   |                          | firmware.soc_model | |
-
-### get ram info [ram.py](./ram.py)
-
-|                   | preconditions | settings | exception |
-|:-----------------:|:---:|:---:|:---:|
-|      global       | firmware.ram is None | | | 
-||||
-|      by toh       | firmware.toh is not None | firmware.ram | |
-||||
-|    by default     | firmware.ram_size is not 0 | firmware.ram | |
-
-### get flash info [flash.py](./flash.py)
-
-|                   | preconditions | settings | exception |
-|:-----------------:|:---:|:---:|:---:|
-|      global       | firmware.flash_model is None | | |
-||||
-|      by toh       | firmware.toh is not None | firmware.flash_type | |
-
-### get uart info [uart.py](./uart.py)
-
-|                   | preconditions | settings | exception |
-|:-----------------:|:---:|:---:|:---:|
-|      global       | firmware.uart_model is None | | |
-||||
-|    by strings     | | firmware.uart_model | |
-
-### get ic info [ic.py](./ic.py)
-
-|                   | preconditions | settings | exception |
-|:-----------------:|:---:|:---:|:---:|
-|      global       | firmware.ic_model is None | | |
-||||
-|    by strings     | | firmware.uart_model | |
-
-### get timer info [timer.py](./timer.py)
-
-|                   | preconditions | settings | exception |
-|:-----------------:|:---:|:---:|:---:|
-|      global       | firmware.timer_model is None | | |
-
-## source code
+### Source Code
 
 To manage source code, we provide several interfaces to fetch and cache them.
 
@@ -171,3 +70,5 @@ Tools for source code analysis.
 which are mostly compatible with makefiles written for GNU make, Mozilla.
 + [dr_checker](https://github.com/ucsb-seclab/dr_checker), a soundy vulnerability 
 detection tool for Linux kernel drivers, ucsb.
+
+## Dynamic Analysis

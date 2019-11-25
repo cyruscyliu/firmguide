@@ -1,44 +1,156 @@
-import os
 import re
-import shutil
-import tempfile
+import os
+import yaml
 
-import logging
 from prettytable import PrettyTable
+
+from analyses.common.analysis import Analysis
 from database.dbf import get_database
 
-logger = logging.getLogger()
+
+def get_strings(firmware):
+    """
+    We get strings from uncompressed binary.
+
+    :param firmware:
+    :return: [strings] or None
+    """
+    strings = []
+    # get candidate files which contain useful strings
+    candidates = get_candidates(firmware)
+    if candidates is None:
+        return None
+    for candidate in candidates:
+        info = os.popen('strings {} -n 2 | grep -E "^[a-zA-Z]+[a-zA-Z0-9_-]{{1,20}}"'.format(candidate))
+        strings += info.readlines()
+    return strings
 
 
-def vote(to_be_voted, comments):
+def get_candidates(firmware):
     """
-    to_be_voted = [
-        {"value": value1, "confidence": confidence1},
-        {"value": value2, "confidence": confidence2},
-        {"value": value3, "confidence": confidence3},
-    ]
-    Same confidence should has same value, or expertise is needed.
+    We can find useful strings in uncompressed binary.
+
+    :param firmware: the firmware.
+    :return: [paths/to/candidates] or None
     """
-    highest = {'value': None, 'confidence': 0, 'count': 0}
-    if len(to_be_voted) == 0:
-        raise ValueError('has not found any information on {}'.format(comments))
-    elif len(to_be_voted) == 1:
-        return to_be_voted[0]['value']
-    else:
-        for vote in to_be_voted:
-            if vote['confidence'] > highest['confidence']:
-                highest = {'value': vote['value'], 'confidence': vote['confidence'], 'count': 0}
-            elif vote['confidence'] == highest['confidence']:
-                if highest['count'] == 0:
-                    highest['value'] = vote['value']
-                    highest['confidence'] = vote['confidence']
-                else:
-                    if highest['value'] != vote['value']:
-                        raise ValueError('bad votes: {}'.format(to_be_voted))
-                highest['count'] += 1
+    kernel = firmware.get_path_to_kernel()
+    if kernel is None:
+        return None
+    working_dir = os.path.dirname(kernel)
+    candidates = [kernel]
+    for file_ in os.listdir(working_dir):
+        if file_.endswith('7z') or file_.endswith('xz'):
+            zimage = os.path.join(working_dir, file_[:-3])
+            if os.path.exists(zimage):
+                candidates.append(zimage)
+    return candidates
+
+
+class Strings(Analysis):
+    def get_all_strings(self, firmware):
+        self.strings = get_strings(firmware)
+
+    def get_toh_by_strings(self, firmware):
+        search_most_possible_toh_record(firmware, self.strings)
+
+    def run(self, firmware):
+        self.get_all_strings(firmware)
+
+        if self.strings is None:
+            return None
+        # kernel version is very critical
+        for string in self.strings:
+            string = string.strip()
+            if len(string) < 20:
+                continue
+            r = re.search(r'[lL]inux version ([1-5]+\.\d+\.\d+).*', string)
+            if r is not None:
+                kernel_version = r.groups()[0]
+                firmware.set_kernel_version(kernel_version)
+                self.info('\033[32mget the kernel version: {}\033[0m'.format(kernel_version))
+                break
+        # TODO: refactor the following 2 methods
+        # search_most_possible_target(firmware, strings)
+        # search_most_possible_subtarget(firmware, strings)
+        # uart
+        strings = get_strings(firmware)
+        if strings is None:
+            return None
+        for string in strings:
+            if string.find('8250') != -1 or string.find('16550') != -1:
+                firmware.set_uart_model('ns16550A')
+                self.info('\033[32muart model {} found\033[0m'.format('ns16550A'))
+                break
             else:
                 pass
-    return highest['value']
+        for string in strings:
+            if string.find('root=') != -1:
+                # root=/dev/mtdblock1 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200\n
+                a, _, b = string.partition('console=')
+                if _ is '':
+                    continue
+                else:
+                    uart_baud = b.split(',')[1].strip()
+                    firmware.set_uart_baud(uart_baud)
+                    self.info('\033[32muart baud {} found\033[0m'.format(uart_baud))
+                    break
+        # ic
+        strings = get_strings(firmware)
+        if strings is None:
+            return None
+        for string in strings:
+            if string.find('ic') != -1:
+                break
+        # cpu
+        architecture = firmware.get_architecture()
+        if architecture != 'arm':
+            return
+        candidates = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'arm32.cpu.yaml')))
+        # construct
+        target_strings = {}
+        votes = {}
+        for k, cpus in candidates.items():
+            target_strings[k] = []
+            votes[k] = 0
+            for cpu in cpus:
+                target_strings[k].append(cpu['cpu_arch_name'])
+                target_strings[k].append(cpu['cpu_name'])
+            target_strings[k] = list(set(target_strings[k]))
+        strings = get_strings(firmware)
+        if strings is None:
+            return
+        for string in strings:
+            string = string.strip()
+            for k, v in target_strings.items():
+                if string in v:
+                    votes[k] += 1
+        vote = 0
+        model = ''
+        for k, v in votes.items():
+            if v > vote:
+                vote = v
+                model = k
+        self.info('\033[32mget cpu model: {} \033[0m'.format(candidates[model]))
+        for cpu in candidates[model]:
+            path_to_cpu = firmware.find_cpu_nodes(new=True)
+            for k, v in cpu.items():
+                firmware.set_node_property(path_to_cpu, k, v)
+
+    def __init__(self):
+        super().__init__()
+        self.name = 'strings'
+        self.description = 'handle strings'
+        self.log_suffix = '[STRINGS]'
+        self.required = ['extraction', 'revision']
+        self.context['hint'] = 'lack of strings'
+        self.critical = False
+        #
+        self.strings = []
+
+
+import logging
+
+logger = logging.getLogger()
 
 
 def search_most_possible_toh_record(firmware, strings, extent=None):
@@ -218,93 +330,3 @@ def search_most_possible_target(firmware, strings, extent=None):
             max_count = count
     logger.info('\033[32mget the most possible target {}\033[0m {}'.format(most_possible, LOG_SUFFIX))
     firmware.set_target(most_possible)
-
-
-progress = 0
-
-
-def copy_to_tmp(firmware):
-    global progress
-    full_path = os.path.join(os.getcwd(), firmware.path)
-    working_dir = tempfile.gettempdir()
-    target_dir = os.path.join(working_dir, firmware.uuid)
-    if not os.path.exists(target_dir):
-        os.mkdir(os.path.join(working_dir, firmware.uuid))
-    target_path = shutil.copy(full_path, target_dir)
-    firmware.set_working_env(target_dir, target_path)
-    logger.info('[{}] firmware {} at {}'.format(progress, firmware.uuid, target_path))
-    progress += 1
-
-
-def fit_parser(dumpimage_lines):
-    fit = {
-        'properties': {
-            'timestamp': None
-        }, 'images': {
-        }, 'configurations': {
-            'default configuration': None,
-        }
-    }
-    level = 0
-    image_node = ''
-    conf_node = ''
-    config = False
-    for line in dumpimage_lines:
-        if not len(line):
-            continue
-        if line.startswith('  '):
-            level = 2
-        elif line.startswith(' '):
-            level = 1
-        else:
-            pass
-        items = line.strip().split(': ')
-        if level == 0 and line.startswith('FIT description'):
-            fit['properties']['description'] = items[1].strip()
-        elif level == 0 and line.startswith('Created'):
-            # fit['properties']['timestamp'] = time.strptime(items[1].strip(), "%a %b %d %H:%M:%S %Y")
-            fit['properties']['timestamp'] = items[1].strip()
-        elif level == 1 and line.startswith(' Image'):
-            assert len(items) == 1
-            image_node = line.strip().split('(')[1].split(')')[0]
-            if image_node not in fit['images']:
-                fit['images'][image_node] = {'properties': {}, 'hash': {}}
-        elif level == 2 and line.startswith('  Description'):
-            fit['images'][image_node]['properties']['description'] = items[1].strip()
-        elif level == 2 and line.startswith('  Created'):
-            fit['images'][image_node]['properties']['timestamp'] = items[1].strip()
-            # time.strptime(items[1].strip(), "%a %b %d %H:%M:%S %Y")
-        elif level == 2 and line.startswith('  Type'):
-            fit['images'][image_node]['properties']['type'] = items[1].strip()
-        elif level == 2 and line.startswith('  Compression'):
-            fit['images'][image_node]['properties']['compression'] = items[1].strip()
-        elif level == 2 and line.startswith('  Architecture'):
-            fit['images'][image_node]['properties']['arch'] = items[1].strip()
-        elif level == 2 and line.startswith('  OS'):
-            fit['images'][image_node]['properties']['os'] = items[1].strip()
-        elif level == 2 and line.startswith('  Load Address'):
-            fit['images'][image_node]['properties']['load address'] = items[1].strip()
-        elif level == 2 and line.startswith('  entry point'):
-            fit['images'][image_node]['properties']['entry point'] = items[1].strip()
-        elif level == 1 and line.startswith(' Default Configuration'):
-            fit['configurations']['default configuration'] = items[1].strip('\'')
-        elif level == 1 and line.startswith(' Configuration'):
-            assert len(items) == 1
-            conf_node = line.strip().split('(')[1].split(')')[0]
-            if conf_node not in fit['configurations']:
-                fit['configurations'][conf_node] = {}
-            config = True
-        elif level == 2 and config and line.startswith('  Kernel'):
-            fit['configurations'][conf_node]['kernel'] = items[1].strip()
-        elif level == 2 and config and line.startswith('  FDT'):
-            fit['configurations'][conf_node]['fdt'] = items[1].strip()
-        else:
-            logging.debug('not support line {}'.format(dumpimage_lines))
-    return fit
-
-
-def description_parser(firmware, description):
-    kernel_version = re.search(r'Linux-(\d+\.\d+\.\d+)', description)
-    if kernel_version:
-        kernel_version = kernel_version.groups()[0]
-        firmware.set_kernel_version(kernel_version)
