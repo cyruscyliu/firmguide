@@ -8,6 +8,7 @@ from analyses.kernel import Kernel
 from analyses.common.analysis import AnalysesManager
 from analyses.openwrt import OpenWRTURL, OpenWRTRevision, OpenWRTToH
 from analyses.srcode import SRCode
+from analyses.strings import Strings
 
 
 class TestAnalysesManager(TestCase):
@@ -22,6 +23,8 @@ class TestAnalysesManager(TestCase):
         analyses_manager.register_analysis(Kernel())
         # extraction <- dt
         analyses_manager.register_analysis(DeviceTree())
+        # extraction, revision <- strings
+        analyses_manager.register_analysis(Strings())
         # kernel <- revision
         analyses_manager.register_analysis(OpenWRTRevision())
         # revision, url <- toh
@@ -30,9 +33,8 @@ class TestAnalysesManager(TestCase):
         # srcode <- .config
         analyses_manager.register_analysis(SRCode())
         analyses_manager.register_analysis(DotConfig())
-        print(analyses_manager.analyses_forest)
         for analyses_tree_name, analyses_tree in analyses_manager.analyses_forest.items():
-            root = AnalysesManager.find_analyses_tree_root(analyses_tree)
-            res = analyses_manager.traverse_analyses_tree(analyses_tree, root)
-            print(res)
-        print(analyses_manager.analyses_remaining)
+            res = analyses_manager.topological_traversal(analyses_tree)
+            # ['format', 'extraction', 'dt', 'kernel', 'revision', 'strings', 'url', 'srcode', '.config', 'toh']
+            self.assertEqual('format', res[0])
+        self.assertEqual(0, len(analyses_manager.analyses_remaining))

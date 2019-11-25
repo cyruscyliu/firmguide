@@ -66,30 +66,44 @@ class AnalysesManager(object):
             if requirement in self.analyses_remaining:
                 self.remove_analyses_from_remaining_analyses(requirement)
 
-    @staticmethod
-    def find_analyses_tree_root(analyses_tree):
-        keys = analyses_tree.keys()
-        values = analyses_tree.values()
-        values_flat = []
-        for value in values:
-            values_flat.extend(value)
-        root = None
-        for key in keys:
-            if key not in values_flat:
-                root = key
-                break
-        return root
+    def topological_sort(self, graph, v, visited, stack):
+        # mark the current node as visited
+        visited[v] = True
 
-    def traverse_analyses_tree(self, analyses_tree, root):
-        analyses_chain = []
-        if root:
-            try:
-                for leaf in analyses_tree[root]:
-                    analyses_chain += self.traverse_analyses_tree(analyses_tree, leaf)
-            except KeyError:
-                analyses_chain += self.traverse_analyses_tree(analyses_tree, None)
-            analyses_chain.append(root)
-        return analyses_chain
+        # recur for all the vertices adjacent to this vertex
+        try:
+            for i in graph[v]:
+                if not visited[i]:
+                    self.topological_sort(graph, i, visited, stack)
+        except KeyError:
+            pass
+
+        # push current vertex to stack which stores result
+        stack.insert(0, v)
+        # the function to do Topological Sort. It uses recursive
+
+    def topological_traversal(self, analyses_tree):
+        # mark all the vertices as not visited
+        vertices = list(analyses_tree.keys())
+        for value in analyses_tree.values():
+            vertices.extend(list(value))
+        vertices = list(set(vertices))
+
+        visited = {}
+        for vertex in vertices:
+            visited[vertex] = False
+
+        stack = []
+
+        # call the recursive helper function to store topological
+        # sort starting from all vertices one by one
+        for i in vertices:
+            if not visited[i]:
+                self.topological_sort(analyses_tree, i, visited, stack)
+
+        # fix the order
+        stack.reverse()
+        return stack
 
     def remove_analyses_from_remaining_analyses(self, name):
         self.analyses_remaining.pop(name)
@@ -113,8 +127,7 @@ class AnalysesManager(object):
 
     def run(self):
         for analyses_tree_name, analyses_tree in self.analyses_forest.items():
-            root = AnalysesManager.find_analyses_tree_root(analyses_tree)
-            analyses_chain = self.traverse_analyses_tree(analyses_tree, root)
+            analyses_chain = self.topology_traversal(analyses_tree)
             for analysis in analyses_chain:
                 analysis.run()
         for analysis in self.analyses_remaining:
