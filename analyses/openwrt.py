@@ -103,6 +103,12 @@ class OpenWRTToh(Analysis):
             firmware.set_ram(0, ram, unit='MiB')
             self.info('\033[32mget memory info, base: {}, size: {}MB\033[0m'.format(0, ram))
 
+    def get_ram_by_openwrt_toh(self, firmware):
+        [ram] = firmware.get_toh('rammb')
+        if ram is not None and ram != '':
+            firmware.set_ram(0, ram, unit='MiB')
+            self.info('\033[32mget memory info, base: {}, size: {}MB\033[0m'.format(0, ram))
+
     def get_flash_by_openwrt_toh(self, firmware):
         [flash] = firmware.get_toh('flashmb')
         if flash is not None and flash != '' and flash != '?':
