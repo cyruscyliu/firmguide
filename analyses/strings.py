@@ -1,4 +1,6 @@
+import re
 import os
+import yaml
 import logging
 
 from prettytable import PrettyTable
@@ -52,15 +54,15 @@ class Strings(Analysis):
         self.strings = get_strings(firmware)
 
     def get_toh_by_strings(self, firmware):
-        search_most_possible_toh_record(firmware, strings)
+        search_most_possible_toh_record(firmware, self.strings)
 
     def run(self, firmware):
         self.get_all_strings(firmware)
 
-        if strings is None:
+        if self.strings is None:
             return None
         # kernel version is very critical
-        for string in strings:
+        for string in self.strings:
             string = string.strip()
             if len(string) < 20:
                 continue
@@ -70,8 +72,6 @@ class Strings(Analysis):
                 firmware.set_kernel_version(kernel_version)
                 logger.info('\033[32mget the kernel version: {}\033[0m {}'.format(kernel_version, LOG_SUFFIX))
                 break
-        if firmware.get_revision() is None:
-            by_kernel_version(firmware)
         # TODO: refactor the following 2 methods
         # search_most_possible_target(firmware, strings)
         # search_most_possible_subtarget(firmware, strings)
@@ -147,7 +147,7 @@ class Strings(Analysis):
         self.name = 'strings'
         self.description = 'handle strings'
         self.log_suffix = ['STINGS']
-        self.required = ['extraction']
+        self.required = ['extraction', 'revision']
         self.context['hint'] = ''
         #
         self.strings = []

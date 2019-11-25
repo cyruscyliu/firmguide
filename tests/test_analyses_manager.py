@@ -30,7 +30,7 @@ class TestAnalysesManager(TestCase):
         # srcode <- .config
         analyses_manager.register_analysis(SRCode())
         analyses_manager.register_analysis(DotConfig())
-
+        print(analyses_manager.analyses_forest)
         for analyses_tree_name, analyses_tree in analyses_manager.analyses_forest.items():
             root = AnalysesManager.find_analyses_tree_root(analyses_tree)
             res = analyses_manager.traverse_analyses_tree(analyses_tree, root)

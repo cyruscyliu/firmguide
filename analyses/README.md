@@ -30,16 +30,17 @@ The details are transparent to developers and all analyses will be run in topolo
 
 ### Analysis Dependency and Exception
 
-|name|file|class|settings|dependent on|exception|
+|name|file|class|dependent on|settings|exception|
 |:---:|:---:|:---:|:---:|:---:|:---:|
-|format|[format.py](./format.py)|Format()|format, path_to_image|-|you must tell binwalk to recognize this new format|
-|extraction|[extraction.py](./extraction.py)|Extraction()|path_to_kernel, path_to_dbt|format|-|
-|kernel|[kernel.py](./kernel.py)|Kernel()|kernel_version, kernel_created_time, kernel_load_address, kernel_entry_point|extraction|-|
-|revision|[openwrt.py](./openwrt.py)|OpenWRTRevision()|revision|kernel|-|
-|dt|[device_tree.py](./device_tree)|DeviceTree()|dtc|extraction|-|
-|url|[openwrt.py](./openwrt.py)|OpenWRTURL()|homepage, target, subtarget, revision|-|update download url for this firmware|
-|toh|[openwrt.py](./openwrt.py)|OpenWRTToH()|toh, cpu, ram, flash|revision, url|-|
-|srocde|[srcode.py](./srcopy.py)|SRCode()|path_to_source_code|strings, revision, url|-|
+|format|[format.py](./format.py)|Format()|-|format, path_to_image|you must tell binwalk to recognize this new format|
+|extraction|[extraction.py](./extraction.py)|Extraction()|format|path_to_kernel, path_to_dbt|-|
+|kernel|[kernel.py](./kernel.py)|Kernel()|extraction|kernel_version, kernel_created_time, kernel_load_address, kernel_entry_point|-|
+|dt|[device_tree.py](./device_tree)|DeviceTree()|extraction|dtc|-|
+|revision|[openwrt.py](./openwrt.py)|OpenWRTRevision()|kernel|revision|-|
+|strings|[strings.py](./strings.py)|Strings()|extraction, revision|toh, target, subtarget, cpu, uart, ic |-|
+|url|[openwrt.py](./openwrt.py)|OpenWRTURL()|-|homepage, target, subtarget, revision|update download url for this firmware|
+|toh|[openwrt.py](./openwrt.py)|OpenWRTToH()|revision, url|toh, cpu, ram, flash|-|
+|srocde|[srcode.py](./srcopy.py)|SRCode()|strings, revision, url|path_to_source_code|-|
 |.config|[dot_config.py](./dot_config.py)|DotConfig()|srcode|cpu|-|
 
 ### Source Code
