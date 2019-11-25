@@ -52,3 +52,4 @@ class DotConfig(Analysis):
         self.log_suffix = '[.CONFIG]'
         self.required = ['srcode']
         self.context['hint'] = ''
+        self.critical = False

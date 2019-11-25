@@ -15,7 +15,7 @@ TASK_DESCRIPTION = 'let\'s get its source code'
 
 class SRCode(Analysis):
     def run(self, firmware):
-        pass
+        return True
 
     def __init__(self):
         super().__init__()
@@ -24,6 +24,7 @@ class SRCode(Analysis):
         self.log_suffix = '[SRCODE]'
         self.required = ['strings', 'revision', 'url']
         self.context['hint'] = ''
+        self.critical = True
 
 
 def find_urls_in_openwrt_homepage(homepage):

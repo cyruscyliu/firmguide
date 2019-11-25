@@ -142,7 +142,8 @@ class Strings(Analysis):
         self.description = 'handle strings'
         self.log_suffix = '[STRINGS]'
         self.required = ['extraction', 'revision']
-        self.context['hint'] = ''
+        self.context['hint'] = 'lack of strings'
+        self.critical = False
         #
         self.strings = []
 

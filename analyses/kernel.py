@@ -105,6 +105,7 @@ class Kernel(Analysis):
                 if 'entry point' in kernel_node:
                     kernel_entry_point = kernel_node['entry point']
         else:
+            self.context['input'] = 'this image type {} is not supported'.format(image_type)
             return False
         firmware.set_kernel_version(kernel_version)
         self.info('\033[32mget the kernel version: {}\033[0m'.format(kernel_version))
@@ -115,12 +116,9 @@ class Kernel(Analysis):
 
     def __init__(self):
         super().__init__()
-        # basic
-        self.description = 'extract kernel related information from mthe given firmware'
         self.name = 'kernel'
-        # logging
+        self.description = 'extract kernel related information from mthe given firmware'
         self.log_suffix = '[KERNEL]'
-        # exception
         self.context['hint'] = 'you must add strings parsers'
-        # requirement
         self.required = ['extraction']
+        self.critical = False

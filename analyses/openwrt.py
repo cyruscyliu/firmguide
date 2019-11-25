@@ -23,6 +23,7 @@ class OpenWRTURL(Analysis):
             return True
         url = firmware.get_url()
         if url is None:
+            self.context['input'] = 'assign the download url for this firmware'
             return False
         homepage = os.path.dirname(url)
 
@@ -50,17 +51,20 @@ class OpenWRTURL(Analysis):
         self.log_suffix = '[URL]'
         self.required = []
         self.context['hint'] = 'update download url for this firmware'
+        self.critical = False
 
 
 class OpenWRTRevision(Analysis):
     def run(self, firmware):
         kernel_version = firmware.get_kernel_version()
         if kernel_version is None:
+            self.context['input'] = 'kernel version is not available'
             return False
         openwrt_mapping = DatabaseOpenWRTMapping()
         openwrt_revision = openwrt_mapping.select('revision', kernel_version=kernel_version)
         firmware.set_revision(openwrt_revision)
         if openwrt_revision is None:
+            self.context['input'] = 'update the database to handle this kernel version'
             return False
 
     def __init__(self):
@@ -70,6 +74,7 @@ class OpenWRTRevision(Analysis):
         self.log_suffix = '[KERNEL VERSION]'
         self.required = ['kernel']
         self.context['hint'] = 'no kernel version available or no handler for this kernel version'
+        self.critical = False
 
 
 class OpenWRTToH(Analysis):
@@ -132,3 +137,4 @@ class OpenWRTToH(Analysis):
         self.log_suffix = '[OpenWRT ToH]'
         self.required = ['kernel', 'url']
         self.context['hint'] = ''
+        self.critical = False

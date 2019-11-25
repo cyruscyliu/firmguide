@@ -8,6 +8,7 @@ class Extraction(Analysis):
         image_type = firmware.get_format()
         image_path = firmware.get_path_to_image()
         if image_type not in ['fit uImage', 'legacy uImage', 'trx kernel']:
+            self.context['input'] = 'add support to this image type {}'.format(image_type)
             return False
         if image_type == 'legacy uImage':
             kernel = image_path.replace('uimage', 'kernel')
@@ -31,6 +32,7 @@ class Extraction(Analysis):
             self.info('\033[32mget kernel image {} at {}\033[0m'.format(os.path.basename(kernel), kernel))
             firmware.set_path_to_dtb(None)
         else:
+            self.context['input'] = 'add support to this image type {}'.format(image_type)
             return False
         return True
 
@@ -39,5 +41,6 @@ class Extraction(Analysis):
         self.name = 'extraction'
         self.description = 'extract kernel and dbt from the given firmware'
         self.log_suffix = '[EXTRACTION]'
-        self.context['hint'] = ''
+        self.context['hint'] = 'the image type is unsupported'
         self.required = ['format']
+        self.critical = True

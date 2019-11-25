@@ -32,11 +32,11 @@ The details are transparent to developers and all analyses will be run in topolo
 
 |name|file|class|dependent on|settings|exception|
 |:---:|:---:|:---:|:---:|:---:|:---:|
-|format|[format.py](./format.py)|Format()|-|format, path_to_image|you must tell binwalk to recognize this new format|
-|extraction|[extraction.py](./extraction.py)|Extraction()|format|path_to_kernel, path_to_dbt|-|
+|format|[format.py](./format.py)|Format()|-|format, path_to_image|binwalk does not recognize this new format|
+|extraction|[extraction.py](./extraction.py)|Extraction()|format|path_to_kernel, path_to_dbt|the image type is unsupported|
 |kernel|[kernel.py](./kernel.py)|Kernel()|extraction|kernel_version, kernel_created_time, kernel_load_address, kernel_entry_point|-|
-|dt|[device_tree.py](./device_tree)|DeviceTree()|extraction|dtc|-|
-|revision|[openwrt.py](./openwrt.py)|OpenWRTRevision()|kernel|revision|-|
+|dt|[device_tree.py](./device_tree)|DeviceTree()|extraction|dtc|device tree is not found|
+|revision|[openwrt.py](./openwrt.py)|OpenWRTRevision()|kernel|revision|no kernel version available or no handler for this kernel version|
 |strings|[strings.py](./strings.py)|Strings()|extraction, revision|toh, target, subtarget, cpu, uart, ic |-|
 |url|[openwrt.py](./openwrt.py)|OpenWRTURL()|-|homepage, target, subtarget, revision|update download url for this firmware|
 |toh|[openwrt.py](./openwrt.py)|OpenWRTToH()|revision, url|toh, cpu, ram, flash|-|

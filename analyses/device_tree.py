@@ -7,6 +7,7 @@ class DeviceTree(Analysis):
     def run(self, firmware):
         dtb = firmware.get_path_to_dtb()
         if dtb is None:
+            self.context['input'] = 'assign the path to the device tree blob'
             return False
         with open(dtb, 'rb') as f:
             dtb = f.read()
@@ -20,4 +21,5 @@ class DeviceTree(Analysis):
         self.description = 'parse firmware\'s device tree'
         self.log_suffix = '[DEVICE TREE]'
         self.required = ['extraction']
-        self.context['hint'] = ''
+        self.context['hint'] = 'device tree is not available'
+        self.critical = False

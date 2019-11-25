@@ -55,5 +55,6 @@ class Format(Analysis):
         self.name = 'format'
         self.description = 'check the format of the given firmware by binwalk'
         self.log_suffix = '[BINWALK]'
-        self.context['hint'] = 'you must tell binwalk to handle this new format'
+        self.context['hint'] = 'binwalk does not recognize this new format'
+        self.critical = True
         self.required = []

@@ -12,6 +12,10 @@ class Analysis(object):
         self.logger = logging.getLogger()
         self.required = []
         self.context = {'hint': '', 'input': ''}
+        self.critical = False
+
+    def is_critical(self):
+        return self.critical
 
     def has_required(self):
         return len(self.required)
@@ -25,6 +29,9 @@ class Analysis(object):
 
     def info(self, message):
         self.logger.info('{} {}'.format(message, self.log_suffix))
+
+    def error(self):
+        self.logger.warning('{} {}'.format(self.context['hint'], self.context['input']))
 
 
 class AnalysisGroup(object):
@@ -132,9 +139,14 @@ class AnalysesManager(object):
             analyses_chain = self.topological_traversal(analyses_tree)
             for analysis in analyses_chain:
                 a = self.analyses_flat[analysis]
+                # save and restore
                 if finished(firmware, a):
                     continue
-                a.run(firmware)
+                res = a.run(firmware)
+                if not res:
+                    a.error()
+                if a.is_critical():
+                    raise NotImplementedError(firmware, a)
                 finish(firmware, a)
         for analysis in self.analyses_remaining:
             analysis.run()
