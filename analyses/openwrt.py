@@ -72,7 +72,7 @@ class OpenWRTRevision(Analysis):
         self.context['hint'] = 'no kernel version available or no handler for this kernel version'
 
 
-class OpenWRTToh(Analysis):
+class OpenWRTToH(Analysis):
     def get_openwrt_toh(self, firmware):
         revision = firmware.get_revision()
         target = firmware.get_target()
@@ -130,5 +130,5 @@ class OpenWRTToh(Analysis):
         self.description = 'extract information from OpenWRT table of hardware'
         self.name = 'toh'
         self.log_suffix = '[OpenWRT ToH]'
-        self.required = ['url']
+        self.required = ['kernel', 'url']
         self.context['hint'] = ''

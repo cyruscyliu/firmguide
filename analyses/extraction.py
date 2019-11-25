@@ -36,12 +36,8 @@ class Extraction(Analysis):
 
     def __init__(self):
         super().__init__()
-        # basic
-        self.description = 'extract kernel and dbt from the given firmware'
         self.name = 'extraction'
-        # logging
+        self.description = 'extract kernel and dbt from the given firmware'
         self.log_suffix = '[EXTRACTION]'
-        # exception
-        self.context['hint'] = 'you must add a tool to handle this new format'
-        # requirement
+        self.context['hint'] = ''
         self.required = ['format']

@@ -2,7 +2,18 @@ import os
 import re
 
 from analyses.common.analysis import Analysis
-from analyses.common.common import fit_parser, find_kernel_version
+from analyses.common.fit import fit_parser
+
+
+def find_kernel_version(strings_to_kernel_version):
+    kernel_version = re.search(r'Linux-(\d+\.\d+\.\d+)', strings_to_kernel_version)
+    if kernel_version is not None:
+        kernel_version = kernel_version.groups()[0]
+    else:
+        kernel_version = re.search(r'.*\((\d+\.\d+\.\d+)\)', strings_to_kernel_version)
+    if not isinstance(kernel_version, str) and kernel_version is not None:
+        kernel_version = kernel_version.groups()[0]
+    return kernel_version
 
 
 class Kernel(Analysis):

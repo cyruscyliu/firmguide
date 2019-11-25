@@ -52,10 +52,8 @@ class Format(Analysis):
 
     def __init__(self):
         super().__init__()
-        # basic
-        self.description = 'check the format of the given firmware by binwalk'
         self.name = 'format'
-        # logging
+        self.description = 'check the format of the given firmware by binwalk'
         self.log_suffix = '[BINWALK]'
-        # exception
         self.context['hint'] = 'you must tell binwalk to handle this new format'
+        self.required = []

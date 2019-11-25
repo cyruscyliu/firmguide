@@ -44,17 +44,11 @@ class DotConfig(Analysis):
                     path_to_cpu = firmware.find_cpu_nodes(new=True)
                     for k, v in properties.items():
                         firmware.set_node_property(path_to_cpu, k, v)
-        pass
 
     def __init__(self):
         super().__init__()
-        # basic
-        self.description = 'extract information from .config'
         self.name = '.config'
-        # logging
+        self.description = 'extract information from .config'
         self.log_suffix = '[.CONFIG]'
-        # exception
+        self.required = ['srcode']
         self.context['hint'] = ''
-        # requirement
-        self.required = []
-

@@ -2,16 +2,16 @@
 
 ## Analysis Dependency and Exception
 
-|file|analysis|settings|dependent on|exception|
-|:---:|:---:|:---:|:---:|:---:|
-|[format.py](./format.py)|format|format, path_to_image|-|you must tell binwalk to handle this new format|
-|[extraction.py](./extraction.py)|extraction|path_to_kernel, path_to_dbt|format|you must add a tool to handle this new format|
-|[kernel.py](./kernel.py)|kernel|kernel_version, kernel_created_time, kernel_load_address, kernel_entry_point|extraction|-|
-|[device_tree.py](./device_tree)|dt|dtc|extraction|-|
-|[openwrt.py](./openwrt.py)|url|homepage, target, subtarget, revision|-|update download url for this firmware|
-|[openwrt.py](./openwrt.py)|revision|revision|kernel|no kernel version available or no handler for this kernel version|
-|[openwrt.py](./openwrt.py)|toh|url|toh, cpu, ram, flash|-|
-|[dot_config.py](./dot_config.py)|.config|cpu|srcode|-|
+|name|file|class|settings|dependent on|exception|
+|:---:|:---:|:---:|:---:|:---:|:---:|
+|format|[format.py](./format.py)|Format()|format, path_to_image|-|you must tell binwalk to recognize this new format|
+|extraction|[extraction.py](./extraction.py)|Extraction()|path_to_kernel, path_to_dbt|format|-|
+|kernel|[kernel.py](./kernel.py)|Kernel()|kernel_version, kernel_created_time, kernel_load_address, kernel_entry_point|extraction|-|
+|revision|[openwrt.py](./openwrt.py)|OpenWRTRevision()|revision|kernel|-|
+|dt|[device_tree.py](./device_tree)|DeviceTree()|dtc|extraction|-|
+|url|[openwrt.py](./openwrt.py)|url|homepage, target, subtarget, revision|-|update download url for this firmware|
+|toh|[openwrt.py](./openwrt.py)|OpenWRTToH|toh, cpu, ram, flash|revision, url|-|
+|.config|[dot_config.py](./dot_config.py)|DotConfig()|srcode|cpu|-|
 
 ### get source code [srcode.py](./srcode.py)
 

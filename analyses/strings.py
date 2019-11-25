@@ -1,21 +1,13 @@
 import os
+import logging
 
 from prettytable import PrettyTable
 
 from analyses.common.analysis import Analysis
-from analyses.common.common import logger
 from database.dbf import get_database
 
+logger = logging.getLogger()
 
-def find_kernel_version(strings_to_kernel_version):
-    kernel_version = re.search(r'Linux-(\d+\.\d+\.\d+)', strings_to_kernel_version)
-    if kernel_version is not None:
-        kernel_version = kernel_version.groups()[0]
-    else:
-        kernel_version = re.search(r'.*\((\d+\.\d+\.\d+)\)', strings_to_kernel_version)
-    if not isinstance(kernel_version, str) and kernel_version is not None:
-        kernel_version = kernel_version.groups()[0]
-    return kernel_version
 
 def get_strings(firmware):
     """
@@ -54,6 +46,7 @@ def get_candidates(firmware):
                 candidates.append(zimage)
     return candidates
 
+
 class Strings(Analysis):
     def get_all_strings(self, firmware):
         self.strings = get_strings(firmware)
@@ -63,7 +56,6 @@ class Strings(Analysis):
 
     def run(self, firmware):
         self.get_all_strings(firmware)
-
 
         if strings is None:
             return None
