@@ -12,8 +12,19 @@ from pyquery import PyQuery as pq
 logger = logging.getLogger()
 TASK_DESCRIPTION = 'let\'s get its source code'
 
+
 class SRCode(Analysis):
-    pass
+    def run(self, firmware):
+        pass
+
+    def __init__(self):
+        super().__init__()
+        self.name = 'srcode'
+        self.description = 'process source code'
+        self.log_suffix = '[SRCODE]'
+        self.required = ['strings', 'revision', 'url']
+        self.context['hint'] = ''
+
 
 def find_urls_in_openwrt_homepage(homepage):
     """

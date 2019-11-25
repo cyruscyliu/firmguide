@@ -1,16 +1,33 @@
 # Analysis
 
-## Programming Model
+## Static Analysis
+
+### Programming Model
 
 #### Analysis
 
-### Analysis Worker
+All analysis except `Analysis Group` must extend `Analysis` and set its `name`, `description`, 
+`log_suffix`, `required`, and `context hint`. 
++ `name` the identification of an analysis which should be universal unique
++ `description` the description of the analysis which helps debug
++ `log_suffix` the suffix of the log of this analysis which helps debug
++ `required` the names of analyses which must be run before this analysis
++ `context hint` the exception hint for this analysis which helps debug and put more specific requirement in `context input` to solve the exception.
 
-### Analysis Group
+#### Analysis Worker
 
-### Analysis Manager
+Sub-analyses run in order. Not declared explicitly.
 
-## Analysis Dependency and Exception
+#### Analysis Group
+
+Multiple analyses as a group but only one is valid. Extend `AnalysisGroup` in stead of `Analysis`.
+
+#### Analysis Manager
+
+Call `register_analysis` to register an analysis and call `run` to run them all, which is transparent to developers.
+Analyses will be run in topology order according to their requirements.
+
+### Analysis Dependency and Exception
 
 |name|file|class|settings|dependent on|exception|
 |:---:|:---:|:---:|:---:|:---:|:---:|
@@ -24,7 +41,7 @@
 |srocde|[srcode.py](./srcopy.py)|SRCode()|path_to_source_code|strings, revision, url|-|
 |.config|[dot_config.py](./dot_config.py)|DotConfig()|srcode|cpu|-|
 
-## Source Code
+### Source Code
 
 To manage source code, we provide several interfaces to fetch and cache them.
 
@@ -51,3 +68,5 @@ Tools for source code analysis.
 which are mostly compatible with makefiles written for GNU make, Mozilla.
 + [dr_checker](https://github.com/ucsb-seclab/dr_checker), a soundy vulnerability 
 detection tool for Linux kernel drivers, ucsb.
+
+## Dynamic Analysis
