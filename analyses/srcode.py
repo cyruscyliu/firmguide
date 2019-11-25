@@ -5,12 +5,15 @@ import os
 import yaml
 import logging
 
+from analyses.common.analysis import Analysis
 from supervisor.save_and_restore import finished, finish
 from pyquery import PyQuery as pq
 
 logger = logging.getLogger()
 TASK_DESCRIPTION = 'let\'s get its source code'
 
+class SRCode(Analysis):
+    pass
 
 def find_urls_in_openwrt_homepage(homepage):
     """

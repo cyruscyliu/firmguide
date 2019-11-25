@@ -1,11 +1,13 @@
 from unittest import TestCase
 
 from analyses.device_tree import DeviceTree
+from analyses.dot_config import DotConfig
 from analyses.extraction import Extraction
 from analyses.format import Format
 from analyses.kernel import Kernel
 from analyses.common.analysis import AnalysesManager
 from analyses.openwrt import OpenWRTURL, OpenWRTRevision, OpenWRTToH
+from analyses.srcode import SRCode
 
 
 class TestAnalysesManager(TestCase):
@@ -25,7 +27,9 @@ class TestAnalysesManager(TestCase):
         # revision, url <- toh
         analyses_manager.register_analysis(OpenWRTURL())
         analyses_manager.register_analysis(OpenWRTToH())
-        #
+        # srcode <- .config
+        analyses_manager.register_analysis(SRCode())
+        analyses_manager.register_analysis(DotConfig())
 
         for analyses_tree_name, analyses_tree in analyses_manager.analyses_forest.items():
             root = AnalysesManager.find_analyses_tree_root(analyses_tree)

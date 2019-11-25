@@ -1,5 +1,15 @@
 # Analysis
 
+## Programming Model
+
+#### Analysis
+
+### Analysis Worker
+
+### Analysis Group
+
+### Analysis Manager
+
 ## Analysis Dependency and Exception
 
 |name|file|class|settings|dependent on|exception|
@@ -9,23 +19,12 @@
 |kernel|[kernel.py](./kernel.py)|Kernel()|kernel_version, kernel_created_time, kernel_load_address, kernel_entry_point|extraction|-|
 |revision|[openwrt.py](./openwrt.py)|OpenWRTRevision()|revision|kernel|-|
 |dt|[device_tree.py](./device_tree)|DeviceTree()|dtc|extraction|-|
-|url|[openwrt.py](./openwrt.py)|url|homepage, target, subtarget, revision|-|update download url for this firmware|
-|toh|[openwrt.py](./openwrt.py)|OpenWRTToH|toh, cpu, ram, flash|revision, url|-|
+|url|[openwrt.py](./openwrt.py)|OpenWRTURL()|homepage, target, subtarget, revision|-|update download url for this firmware|
+|toh|[openwrt.py](./openwrt.py)|OpenWRTToH()|toh, cpu, ram, flash|revision, url|-|
+|srocde|[srcode.py](./srcopy.py)|SRCode()|path_to_source_code|strings, revision, url|-|
 |.config|[dot_config.py](./dot_config.py)|DotConfig()|srcode|cpu|-|
 
-### get source code [srcode.py](./srcode.py)
-
-|                   | preconditions | settings | exception |
-|:-----------------:|:---:|:---:|:---:|
-|                   | firmware.brand is not None | firmware.path_to_source_code | Y |
-|                   | firmware.revision is not None | | |
-|                   | firmware.kernel_version is not None | | |
-|                   | firmware.target is not None | | |
-|                   | firmware.subtarget is not None | | |
-|                   | firmware.working_dir is not None | | |
-
-
-## source code
+## Source Code
 
 To manage source code, we provide several interfaces to fetch and cache them.
 
