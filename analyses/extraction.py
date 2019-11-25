@@ -1,6 +1,6 @@
 import os
 
-from analyses.lib.analysis import Analysis
+from analyses.common.analysis import Analysis
 
 
 class Extraction(Analysis):

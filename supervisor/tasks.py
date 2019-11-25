@@ -1,7 +1,10 @@
 from analyses.cpu import get_cpu_model_info
 from analyses.extraction import extract_kernel_and_dtb
+from analyses.extraction_new import Extraction
 from analyses.flash import get_flash_info
+from analyses.format import Format
 from analyses.ic import get_ic_info
+from analyses.common.analysis import AnalysesManager
 from analyses.metadata import get_metadata
 from analyses.ram import get_ram_info
 from analyses.srcode import get_source_code
@@ -14,6 +17,12 @@ import logging
 import math
 
 logger = logging.getLogger()
+
+
+def new_analysis(firmware):
+    analyses_manager = AnalysesManager()
+    analyses_manager.register_analysis(Format())
+    analyses_manager.register_analysis(Extraction())
 
 
 def static_analysis(firmware):

@@ -1,7 +1,7 @@
 import os
 
-from analyses.lib.analysis import AnalysisGroup, Analysis
-from analyses.lib.display import print_table
+from analyses.common.analysis import AnalysisGroup, Analysis
+from analyses.common.display import print_table
 from database.db import DatabaseOpenWRTMapping
 from database.dbf import get_database
 

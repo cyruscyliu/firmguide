@@ -1,8 +1,8 @@
 import os
 import re
 
-from analyses.lib.analysis import Analysis
-from analyses.lib.common import fit_parser, find_kernel_version
+from analyses.common.analysis import Analysis
+from analyses.common.common import fit_parser, find_kernel_version
 
 
 class Kernel(Analysis):

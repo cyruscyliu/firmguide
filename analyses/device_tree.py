@@ -1,6 +1,6 @@
 import fdt
 
-from analyses.lib.analysis import Analysis
+from analyses.common.analysis import Analysis
 
 
 class DeviceTree(Analysis):
