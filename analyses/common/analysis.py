@@ -31,7 +31,7 @@ class Analysis(object):
         self.logger.info('{} {}'.format(message, self.log_suffix))
 
     def error(self):
-        self.logger.warning('{} {}'.format(self.context['hint'], self.context['input']))
+        self.logger.warning('{}, {}'.format(self.context['hint'], self.context['input']))
 
 
 class AnalysisGroup(object):
