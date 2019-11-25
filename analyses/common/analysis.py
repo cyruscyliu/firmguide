@@ -1,6 +1,8 @@
 import abc
 import logging
 
+from supervisor.save_and_restore import finished, finish
+
 
 class Analysis(object):
     def __init__(self):
@@ -125,10 +127,13 @@ class AnalysesManager(object):
             analyses_tree = self.new_analyses_tree()
             self.add_analysis_to_tree(analyses_tree, analysis)
 
-    def run(self):
+    def run(self, firmware):
         for analyses_tree_name, analyses_tree in self.analyses_forest.items():
-            analyses_chain = self.topology_traversal(analyses_tree)
+            analyses_chain = self.topological_traversal(analyses_tree)
             for analysis in analyses_chain:
-                analysis.run()
+                if finished(firmware, analysis):
+                    continue
+                analysis.run(firmware)
+                finish(firmware, analysis)
         for analysis in self.analyses_remaining:
             analysis.run()
