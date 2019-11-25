@@ -62,7 +62,38 @@ class DatabasePaused(Database):
         pass
 
 
-class DatabaseOpenWrt(Database):
+class DatabaseOpenWRTMapping(Database):
+    def select(self, *args, **kwargs):
+        """
+        select revision where kernel_version='2.6.32'
+        select url where revision='10.03'
+        select url where kernel_version='2.6.32'
+        """
+        action = args[0]
+        table = open(os.path.join(os.getcwd(), 'database', 'openwrt.yaml'))
+
+        if action == 'revision':
+            kernel_version = kwargs.pop('kernel_version')
+            openwrt_release_info = yaml.safe_load(table)
+            for revision, info in openwrt_release_info.items():
+                if info['kernel'] == kernel_version:
+                    return revision
+            return None
+
+    def add(self, *args, **kwargs):
+        raise NotImplementedError('you are not expected to modify this table')
+        pass
+
+    def delete(self, *args, **kwargs):
+        raise NotImplementedError('you are not expected to modify this table')
+        pass
+
+    def update(self, *args, **kwargs):
+        raise NotImplementedError('you are not expected to modify this table')
+        pass
+
+
+class DatabaseOpenWRTToH(Database):
     """
     Will load openwrt.csv which is the official table of hardware from OpenWrt.
     Download it from https://openwrt.org/_media/toh_dump_tab_separated_csv.zip.
