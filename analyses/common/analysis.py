@@ -131,9 +131,10 @@ class AnalysesManager(object):
         for analyses_tree_name, analyses_tree in self.analyses_forest.items():
             analyses_chain = self.topological_traversal(analyses_tree)
             for analysis in analyses_chain:
-                if finished(firmware, analysis):
+                a = self.analyses_flat[analysis]
+                if finished(firmware, a):
                     continue
-                analysis.run(firmware)
-                finish(firmware, analysis)
+                a.run(firmware)
+                finish(firmware, a)
         for analysis in self.analyses_remaining:
             analysis.run()

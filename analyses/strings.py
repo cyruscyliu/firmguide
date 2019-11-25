@@ -1,14 +1,11 @@
 import re
 import os
 import yaml
-import logging
 
 from prettytable import PrettyTable
 
 from analyses.common.analysis import Analysis
 from database.dbf import get_database
-
-logger = logging.getLogger()
 
 
 def get_strings(firmware):
@@ -70,20 +67,19 @@ class Strings(Analysis):
             if r is not None:
                 kernel_version = r.groups()[0]
                 firmware.set_kernel_version(kernel_version)
-                logger.info('\033[32mget the kernel version: {}\033[0m {}'.format(kernel_version, LOG_SUFFIX))
+                self.info('\033[32mget the kernel version: {}\033[0m'.format(kernel_version))
                 break
         # TODO: refactor the following 2 methods
         # search_most_possible_target(firmware, strings)
         # search_most_possible_subtarget(firmware, strings)
         # uart
-        LOG_SUFFIX = '[STRINGS]'
         strings = get_strings(firmware)
         if strings is None:
             return None
         for string in strings:
             if string.find('8250') != -1 or string.find('16550') != -1:
                 firmware.set_uart_model('ns16550A')
-                logger.info('\033[32muart model {} found\033[0m {}'.format('ns16550A', LOG_SUFFIX))
+                self.info('\033[32muart model {} found\033[0m'.format('ns16550A'))
                 break
             else:
                 pass
@@ -96,10 +92,9 @@ class Strings(Analysis):
                 else:
                     uart_baud = b.split(',')[1].strip()
                     firmware.set_uart_baud(uart_baud)
-                    logger.info('\033[32muart baud {} found\033[0m {}'.format(uart_baud, LOG_SUFFIX))
+                    self.info('\033[32muart baud {} found\033[0m'.format(uart_baud))
                     break
         # ic
-        LOG_SUFFIX = '[STRINGS]'
         strings = get_strings(firmware)
         if strings is None:
             return None
@@ -110,7 +105,6 @@ class Strings(Analysis):
         architecture = firmware.get_architecture()
         if architecture != 'arm':
             return
-        LOG_SUFFIX = '[STRINGS]'
         candidates = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'arm32.cpu.yaml')))
         # construct
         target_strings = {}
@@ -136,7 +130,7 @@ class Strings(Analysis):
             if v > vote:
                 vote = v
                 model = k
-        logger.info('\033[32mget cpu model: {} \033[0m {}'.format(candidates[model], LOG_SUFFIX))
+        self.info('\033[32mget cpu model: {} \033[0m'.format(candidates[model]))
         for cpu in candidates[model]:
             path_to_cpu = firmware.find_cpu_nodes(new=True)
             for k, v in cpu.items():
@@ -146,11 +140,16 @@ class Strings(Analysis):
         super().__init__()
         self.name = 'strings'
         self.description = 'handle strings'
-        self.log_suffix = ['STINGS']
+        self.log_suffix = '[STRINGS]'
         self.required = ['extraction', 'revision']
         self.context['hint'] = ''
         #
         self.strings = []
+
+
+import logging
+
+logger = logging.getLogger()
 
 
 def search_most_possible_toh_record(firmware, strings, extent=None):

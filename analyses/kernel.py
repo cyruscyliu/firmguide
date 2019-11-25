@@ -20,6 +20,9 @@ class Kernel(Analysis):
     def run(self, firmware):
         image_type = firmware.get_format()
         image_path = firmware.get_path_to_image()
+
+        kernel_load_address = None  # not critical, to avoid referenced before assignment
+        kernel_entry_point = None  # not critical, to avoid referenced before assignment
         if image_type == 'legacy uImage':
             """ 
             file uImage: delimiter=', '

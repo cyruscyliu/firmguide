@@ -12,8 +12,8 @@ All analysis except `Analysis Group` must extend `Analysis` and set its `name`, 
 + `description` the description of the analysis which helps debug
 + `log_suffix` the suffix of the log of this analysis which helps debug
 + `required` **the names of analyses which must be run before this analysis**
-+ `context hint` the exception hint for this analysis which helps debug
-+ and put more specific requirement in `context input` to solve the exception
++ [WIP] `context hint` the exception hint for this analysis which helps debug
++ [WIP] and put more specific requirement in `context input` to solve the exception
 
 #### Analysis Worker
 

@@ -70,12 +70,3 @@ def analysis_wrapper(firmware, args, dbp):
         logger.info('GOOD! Have entered the user level!')
         trace_collection(firmware)
         trace_diagnosis(trace)
-
-
-class INPUT(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        fixes = {}
-        for value in values:
-            k, v = value.split('=')
-            fixes[k] = v
-        setattr(namespace, self.dest, fixes)
