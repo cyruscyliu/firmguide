@@ -2,7 +2,7 @@
 
 This is a project aiming to run and test any given firmware blob dynamically in a pure software way.
 
-## dependency
+## Install
 
 ```bash
 sudo add-apt-repository ppa:deadsnakes/ppa
@@ -22,57 +22,65 @@ sudo apt-get install -y bison flex
 sudo apt-get install -y libcapstone3 libcapstone-dev
 sudo apt-get install -y u-boot-tools
 sudo apt-get install -y gawk
-```
-
-## install
-```bash
 make # sudo make clean first if fails
 ```
 
-## start 
+## Start 
 
-#### for a single firmware blob
+```shell script
+usage: salamander.py [-h] [-p {simple,dt,ipxact}] [-wd WORKING_DIRECTORY] [-r]
+                     [-d] [-f FIRMWARE] [-i ID] [-a--architecture {arm,mips}]
+                     [-e {b,l}] [-b {openwrt}] [-dbt {text,firmadyne}]
+                     [-l LIMIT] [-u UUID [UUID ...]] [-t TRACE]
+                     [-tf {ktracer,qemudebug}]
 
-not supported yet
+optional arguments:
+  -h, --help            show this help message and exit
+  -p {simple,dt,ipxact}, --profile {simple,dt,ipxact}
+                        assign the device profile standard
+  -wd WORKING_DIRECTORY, --working_directory WORKING_DIRECTORY
+                        assign the working directory for getting metadata, by default /tmp or %TEMP%
+  -r, --rerun           ingore save and restore and rerun all analysis
+  -d, --debug           show verbose logs
 
-#### for tons of firmware blob
+single analysis:
+  -f FIRMWARE, --firmware FIRMWARE
+                        path to firmware
+  -i ID, --id ID        assign a id to the firmware
+  -a--architecture {arm,mips}
+                        assign the architecture
+  -e {b,l}, --endian {b,l}
+                        assign the endian
+  -b {openwrt}, --brand {openwrt}
+                        assign the brand of this firmware
 
-Test all firmware.
+massive analyses:
+  -dbt {text,firmadyne}, --database_type {text,firmadyne}
+                        assign the firmware db type
+  -l LIMIT, --limit LIMIT
+                        limit the amount of firmware to test
+  -u UUID [UUID ...], --uuid UUID [UUID ...]
+                        assign a uuid to a firmware in the firmware db
+
+diagnosis:
+  -t TRACE, --trace TRACE
+                        assign a trace file
+  -tf {ktracer,qemudebug}, --trace_format {ktracer,qemudebug}
+                        assign a trace file format
+```
+
+To test your firmware.
+```shell script
+./salamander.py -f path/to/firmware -i 1 -a arm -e l -b openwrt
+```
+
+To test plenty of firmware.
 
 ```shell script
 ./salamander.py -dbt text -p dt -wd ./build
-```
-
-Test limited firmware.
-
-```shell script
-./salamander.py -dbt text -p dt -wd ./build -l 2
+./salamander.py -dbt text -p dt -wd ./build -l 2 # run first 2
+./salamander.py -dbt text -p dt -wd ./build -u UUID # run UUID in the database
 ```
 
 NOTE: To disable `save and restore`, please use `-r`.
-
-Test one specific analysis in the database.
-
-```shell script
-./salamander.py -dbt text -p dt -wd ./build -u UUID
-```
-
-NOTE: `-l LIMIT` and `-r` still work.  
-
-For more help.
-```shell script
-./salamander.py --help
-```
-
-# Testing
-
-empty
-
-# Authors
-
-empty
-
-# License
-
-empty
 
