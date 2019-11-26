@@ -8,8 +8,20 @@ import fdt
 
 
 class DTFirmware(Firmware, CodeGenerationInterface):
+    def probe_flash(self):
+        return False
+
+    def probe_uart(self):
+        return False
+
+    def probe_timer(self):
+        return False
+
+    def probe_interrupt_controller(self):
+        return False
+
     def probe_bridge(self):
-        pass
+        return False
 
     def sget_bridge_name(self):
         pass
@@ -24,7 +36,7 @@ class DTFirmware(Firmware, CodeGenerationInterface):
         pass
 
     def sget_ram_priority(self):
-        pass
+        return '0'
 
     def sget_interrupt_controller_name(self):
         pass
@@ -57,22 +69,24 @@ class DTFirmware(Firmware, CodeGenerationInterface):
         pass
 
     def sget_machine_description(self):
-        pass
+        return self.get_node_property('/basics', 'description')
 
     def sget_machine_name(self):
-        pass
+        return self.get_node_property('/brand', 'model')
 
     def sget_architecture(self):
-        pass
+        return self.get_node_property('/basics', 'architecture')
 
     def sget_ram_size(self):
-        pass
+        _, ram_size = self.get_ram()
+        return '{} MiB'.format(ram_size)
 
     def sget_cpu_model(self):
-        pass
+        # TODO solve this
+        return 'arm926'
 
     def probe_cpu_pp_model(self):
-        pass
+        return False
 
     def sget_cpu_pp_mmio_base(self):
         pass
@@ -90,10 +104,11 @@ class DTFirmware(Firmware, CodeGenerationInterface):
         pass
 
     def lget_bamboo_devices(self):
-        pass
+        return []
 
     def sget_board_id(self):
-        pass
+        # TODO fix this
+        return '0x661'
 
     def sget_path_to_kernel(self):
         pass
