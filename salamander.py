@@ -42,4 +42,4 @@ if __name__ == '__main__':
     else:
         setup_logging(default_level=logging.INFO)
     logger = logging.getLogger()
-    run(args)
+    run(parser, args)

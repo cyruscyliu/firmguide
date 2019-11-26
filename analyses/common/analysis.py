@@ -13,6 +13,7 @@ class Analysis(object):
         self.required = []
         self.context = {'hint': '', 'input': ''}
         self.critical = False
+        self.args = None
 
     def is_critical(self):
         return self.critical
@@ -134,6 +135,11 @@ class AnalysesManager(object):
             analyses_tree = self.new_analyses_tree()
             self.add_analysis_to_tree(analyses_tree, analysis)
 
+    def run_analysis(self, firmware, name, args):
+        analysis = self.analyses_flat[name]
+        analysis.args = args
+        self.analyses_flat[name].run(firmware)
+
     def run(self, firmware):
         for analyses_tree_name, analyses_tree in self.analyses_forest.items():
             analyses_chain = self.topological_traversal(analyses_tree)
@@ -149,4 +155,4 @@ class AnalysesManager(object):
                     raise NotImplementedError(firmware, a)
                 finish(firmware, a)
         for analysis in self.analyses_remaining:
-            analysis.run()
+            analysis.run(firmware)

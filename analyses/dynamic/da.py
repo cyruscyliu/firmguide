@@ -1,6 +1,3 @@
-import abc
-
-
 class DynamicAnalysis(object):
     def __init__(self):
         # A basic block should be indexed by its first PC.
@@ -23,13 +20,6 @@ class DynamicAnalysis(object):
         # 0: {'length':1, 'iteration': 1, 'uuid': 0}
         self.loops = {}
         self.suspicious_loops = {}
-
-    @abc.abstractmethod
-    def scan_user_level(self):
-        """
-        Would be different in different trace format.
-        """
-        pass
 
     def brent_cycle_detection(self, start):
         """

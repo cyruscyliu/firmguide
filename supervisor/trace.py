@@ -1,14 +1,43 @@
 import os
 import abc
+import qmp
+import math
+import logging
+import subprocess
 
 from analyses.dynamic.da import DynamicAnalysis
 
 
-class Trace(DynamicAnalysis):
+def trace_collection(firmware):
+    running_command = firmware.get_running_command()
+    # nochain is too too slow
+    trace_flags = '-d in_asm,cpu -D log/{}.trace'.format(firmware.uuid)
+    qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
+    full_command = ' '.join([running_command, trace_flags, qmp_flags])
+    try:
+        subprocess.run(full_command, timeout=60, shell=True)
+    except subprocess.TimeoutExpired:
+        qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
+        qemu.connect()
+        qemu.cmd('quit')
+        qemu.close()
+
+
+class CriticalChecking(object):
+    @abc.abstractmethod
+    def scan_user_level(self):
+        pass
+
+    def critical_check(self):
+        return self.scan_user_level()
+
+
+class Trace(CriticalChecking, DynamicAnalysis):
     def __init__(self, *args, **kwargs):
         super().__init__()
         self.trace_tool = None
         self.path_to_trace = args[0]
+        self.logger = logging.getLogger()
 
     @abc.abstractmethod
     def load(self, *args, **kwargs):
@@ -17,6 +46,32 @@ class Trace(DynamicAnalysis):
         :return:
         """
         pass
+
+    def diagnosis(self):
+        self.load()
+        self.detect_dead_loop()
+        ratio = len(self.suspicious_loops) / len(self.loops)
+        if ratio > 0.2:
+            self.logger.info('BAD! Have {:.4f}% suspicious infinite loops!'.format(ratio * 100))
+        else:
+            self.logger.info('GOOD! Have {} suspicious infinite loops!'.format(len(self.suspicious_loops)))
+        if not len(self.suspicious_loops):
+            return
+        for uuid, suspicious_loop in self.suspicious_loops.items():
+            reg_offset = self.cpus[uuid]['offset']
+            c = math.floor(math.log(reg_offset, 10)) + 1
+            iteration = suspicious_loop['iteration']
+            length = suspicious_loop['length']
+            self.logger.info('This suspicious log starts at line {}, repeated {} times!'.format(
+                reg_offset, iteration))
+            for i in range(uuid, uuid + length + 1):
+                pc = self.cpus[i]['pc']
+                bb_offset = self.bbs[pc]['offset']
+                for j, line in enumerate(self.bbs[pc]['content']):
+                    self.logger.info('{} {}'.format('-' * c, line))
+                for j, line in enumerate(self.cpus[i]['content']):
+                    reg_offset = self.cpus[i]['offset']
+                    self.logger.info('{} {}'.format(reg_offset, line))
 
 
 class QEMUDebug(Trace):
