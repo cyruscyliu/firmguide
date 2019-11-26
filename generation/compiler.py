@@ -232,6 +232,12 @@ class CompilerToQEMUMachine(object):
         architecture = firmware.sget_architecture()
         machine_name = firmware.sget_machine_name()
         path_to_kernel = firmware.sget_path_to_kernel()
+        os.system('cd build/qemu-4.0.0 && make -j4 && cd -')
+        running_command = 'build/qemu-4.0.0/arm-softmmu/qemu-system-arm ' \
+                          '-M nas7820 -kernel tests/files/nas7820.uImage ' \
+                          '-dtb tests/files/nas7820.dtb -nographic'
+        firmware.set_running_command(running_command)
+        self.info(running_command, 'run')
 
     def solve(self, firmware):
         self.solve_machine_includings(firmware)
@@ -553,7 +559,7 @@ class CompilerToQEMUMachine(object):
             write['body'].extend([indent('}', 1)])
             write['body'].extend([indent('{}(s);'.format(to_update(name)), 1)])
             self.machine_mmio_ops.append(write)
-            # 
+            #
             ops = {'declaration': [], 'values': []}
             ops['declaration'].extend([
                 'static const MemoryRegionOps {}'.format(to_ops(name))

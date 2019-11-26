@@ -109,15 +109,14 @@ def analysis_wrapper(firmware, args):
             machine_compiler.solve(firmware)
             machine_compiler.link(firmware)
             machine_compiler.install(firmware)
+            machine_compiler.run(firmware)
             break
-
             # perform dynamic checking
             trace_collection(firmware)
+            if trace.critical_check():
+                break
             analysis, args = trace.diagnosis()
             analyses_manager.run_analysis(firmware, analysis, args)
-            if trace.critical_check():
-                logger.info('GOOD! Have entered the user level!')
-                break
     except NotImplementedError as e:
         firmware, analysis = e.args
         logger.warning('\033[31mcan not support firmware {}, fix and rerun\033[0m'.format(firmware.uuid))
