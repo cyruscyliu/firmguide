@@ -14,15 +14,14 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--profile', choices=['simple', 'dt', 'ipxact'], default='dt',
                         help='assign the device profile standard')
     parser.add_argument('-wd', '--working_directory',
-                        help='assign the working directory for getting metadata, '
-                             'save and store mechanism is on except by default /tmp or %%TEMP%%')
+                        help='assign the working directory for getting metadata, by default /tmp or %%TEMP%%')
     # precise control
     parser.add_argument('-l', '--limit', type=int, default=0,
-                        help='limit the amount of firmware we test')
+                        help='limit the amount of firmware to test')
     parser.add_argument('-r', '--rerun', action='store_true', default=False,
-                        help='rerun all analysis')
+                        help='ingore save and restore and rerun all analysis')
     parser.add_argument('-u', '--uuid', type=str, nargs='+',
-                        help='assign a uuid to an paused analysis')
+                        help='assign a uuid to a firmware in the firmware db')
     # debug
     parser.add_argument('-d', '--debug', action='store_true', help='show verbose logs')
     # diagnosis group
