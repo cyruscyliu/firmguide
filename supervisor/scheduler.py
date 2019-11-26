@@ -103,7 +103,7 @@ def analysis_wrapper(firmware, args):
     analyses_manager.run(firmware)
 
     try:
-        while 1:
+        while 0:
             # perform code generation
             machine_compiler = CompilerToQEMUMachine()
             machine_compiler.solve(firmware)

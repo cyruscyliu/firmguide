@@ -9,9 +9,11 @@ class DotConfig(Analysis):
     def run(self, firmware):
         architecture = firmware.get_architecture()
         if architecture != 'arm':
+            self.context['input'] = 'only support arm now'
             return False
         path_to_source_code = firmware.get_path_to_source_code()
         if path_to_source_code is None:
+            self.context['input'] = 'no source code available'
             return False
         path_to_mm = os.path.join(path_to_source_code, 'arch/{}/mm'.format(architecture))
         path_to_mm_makefile = os.path.join(path_to_mm, 'Makefile')
@@ -51,5 +53,5 @@ class DotConfig(Analysis):
         self.description = 'extract information from .config'
         self.log_suffix = '[.CONFIG]'
         self.required = ['srcode']
-        self.context['hint'] = ''
+        self.context['hint'] = 'no .config available'
         self.critical = False

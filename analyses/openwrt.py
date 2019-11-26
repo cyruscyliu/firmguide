@@ -63,15 +63,17 @@ class OpenWRTRevision(Analysis):
         openwrt_mapping = DatabaseOpenWRTMapping()
         openwrt_revision = openwrt_mapping.select('revision', kernel_version=kernel_version)
         firmware.set_revision(openwrt_revision)
+        self.info('\033[32mget the revision {}\033[0m'.format(openwrt_revision))
         if openwrt_revision is None:
             self.context['input'] = 'update the database to handle this kernel version'
             return False
+        return True
 
     def __init__(self):
         super().__init__()
         self.name = 'revision'
         self.description = 'parse OpenWRT revision by kernel version'
-        self.log_suffix = '[KERNEL VERSION]'
+        self.log_suffix = '[OpenWRT REVISION]'
         self.required = ['kernel']
         self.context['hint'] = 'no kernel version available or no handler for this kernel version'
         self.critical = False
@@ -94,6 +96,10 @@ class OpenWRTToH(Analysis):
             firmware.set_toh(toh, header=header)
             self.info('\033[32mget the toh {}\033[0m'.format(toh))
             print_table(header, toh)
+            return True
+        else:
+            self.context['input'] = 'information for toh is not enough'
+            return False
 
     def get_cpu_by_openwrt_toh(self, firmware):
         cpu, soc = firmware.get_toh('packagearchitecture', 'cpu')
@@ -107,12 +113,14 @@ class OpenWRTToH(Analysis):
         if ram is not None and ram != '':
             firmware.set_ram(0, ram, unit='MiB')
             self.info('\033[32mget memory info, base: {}, size: {}MB\033[0m'.format(0, ram))
+        return True
 
     def get_ram_by_openwrt_toh(self, firmware):
         [ram] = firmware.get_toh('rammb')
         if ram is not None and ram != '':
             firmware.set_ram(0, ram, unit='MiB')
             self.info('\033[32mget memory info, base: {}, size: {}MB\033[0m'.format(0, ram))
+        return True
 
     def get_flash_by_openwrt_toh(self, firmware):
         [flash] = firmware.get_toh('flashmb')
@@ -124,11 +132,16 @@ class OpenWRTToH(Analysis):
             else:
                 firmware.set_flash_type('nor')
                 self.info('\033[32mflash type {} found\033[0m'.format('nor flash'))
+        return True
 
     def run(self, firmware):
-        self.get_openwrt_toh(firmware)
-        self.get_cpu_by_openwrt_toh(firmware)
-        self.get_flash_by_openwrt_toh(firmware)
+        if self.get_openwrt_toh(firmware) and \
+                self.get_cpu_by_openwrt_toh(firmware) and \
+                self.get_ram_by_openwrt_toh(firmware) and \
+                self.get_flash_by_openwrt_toh(firmware):
+            return True
+        else:
+            return False
 
     def __init__(self):
         super().__init__()

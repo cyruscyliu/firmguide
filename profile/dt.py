@@ -1,12 +1,111 @@
 """
 Device tree solution.
 """
+from generation.generatori import CodeGenerationInterface
 from profile.firmware import Firmware
 import os
 import fdt
 
 
-class DTFirmware(Firmware):
+class DTFirmware(Firmware, CodeGenerationInterface):
+    def probe_bridge(self):
+        pass
+
+    def sget_bridge_name(self):
+        pass
+
+    def sget_bridge_mmio_base(self):
+        pass
+
+    def sget_bridge_mmio_size(self):
+        pass
+
+    def lget_bridge_registers(self):
+        pass
+
+    def sget_ram_priority(self):
+        pass
+
+    def sget_interrupt_controller_name(self):
+        pass
+
+    def lget_interrupt_controller_registers(self):
+        pass
+
+    def sget_interrupt_controller_mmio_size(self):
+        pass
+
+    def sget_interrupt_controller_mmio_base(self):
+        pass
+
+    def sget_n_irqs(self):
+        pass
+
+    def sget_timer_name(self):
+        pass
+
+    def lget_timer_registers(self):
+        pass
+
+    def sget_timer_mmio_size(self):
+        pass
+
+    def sget_timer_mmio_base(self):
+        pass
+
+    def sget_flash_base(self):
+        pass
+
+    def sget_machine_description(self):
+        pass
+
+    def sget_machine_name(self):
+        pass
+
+    def sget_architecture(self):
+        pass
+
+    def sget_ram_size(self):
+        pass
+
+    def sget_cpu_model(self):
+        pass
+
+    def probe_cpu_pp_model(self):
+        pass
+
+    def sget_cpu_pp_mmio_base(self):
+        pass
+
+    def sget_uart_mmio_base(self):
+        pass
+
+    def sget_uart_baud_rate(self):
+        pass
+
+    def sget_uart_reg_shift(self):
+        pass
+
+    def sget_uart_irq(self):
+        pass
+
+    def lget_bamboo_devices(self):
+        pass
+
+    def sget_board_id(self):
+        pass
+
+    def sget_path_to_kernel(self):
+        pass
+
+    def sget_flash_type(self):
+        pass
+
+    def sget_flash_size(self):
+        pass
+
+    def sget_flash_section_size(self):
+        pass
 
     def get_running_command(self, *args, **kwargs):
         return self.get_node_property('/basics', 'running_command')

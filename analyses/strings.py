@@ -1,11 +1,13 @@
 import re
 import os
 import yaml
+import logging
 
 from prettytable import PrettyTable
-
 from analyses.common.analysis import Analysis
 from database.dbf import get_database
+
+logger = logging.getLogger()
 
 
 def get_strings(firmware):
@@ -57,7 +59,8 @@ class Strings(Analysis):
         self.get_all_strings(firmware)
 
         if self.strings is None:
-            return None
+            self.context['input'] = 'no strings at all'
+            return False
         # kernel version is very critical
         for string in self.strings:
             string = string.strip()
@@ -73,17 +76,14 @@ class Strings(Analysis):
         # search_most_possible_target(firmware, strings)
         # search_most_possible_subtarget(firmware, strings)
         # uart
-        strings = get_strings(firmware)
-        if strings is None:
-            return None
-        for string in strings:
+        for string in self.strings:
             if string.find('8250') != -1 or string.find('16550') != -1:
                 firmware.set_uart_model('ns16550A')
                 self.info('\033[32muart model {} found\033[0m'.format('ns16550A'))
                 break
             else:
                 pass
-        for string in strings:
+        for string in self.strings:
             if string.find('root=') != -1:
                 # root=/dev/mtdblock1 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200\n
                 a, _, b = string.partition('console=')
@@ -95,16 +95,14 @@ class Strings(Analysis):
                     self.info('\033[32muart baud {} found\033[0m'.format(uart_baud))
                     break
         # ic
-        strings = get_strings(firmware)
-        if strings is None:
-            return None
-        for string in strings:
+        for string in self.strings:
             if string.find('ic') != -1:
                 break
         # cpu
         architecture = firmware.get_architecture()
         if architecture != 'arm':
-            return
+            self.context['input'] = 'search strings to find CPU only valid for ARM'
+            return False
         candidates = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'arm32.cpu.yaml')))
         # construct
         target_strings = {}
@@ -116,10 +114,7 @@ class Strings(Analysis):
                 target_strings[k].append(cpu['cpu_arch_name'])
                 target_strings[k].append(cpu['cpu_name'])
             target_strings[k] = list(set(target_strings[k]))
-        strings = get_strings(firmware)
-        if strings is None:
-            return
-        for string in strings:
+        for string in self.strings:
             string = string.strip()
             for k, v in target_strings.items():
                 if string in v:
@@ -135,6 +130,7 @@ class Strings(Analysis):
             path_to_cpu = firmware.find_cpu_nodes(new=True)
             for k, v in cpu.items():
                 firmware.set_node_property(path_to_cpu, k, v)
+        return True
 
     def __init__(self):
         super().__init__()
@@ -146,11 +142,6 @@ class Strings(Analysis):
         self.critical = False
         #
         self.strings = []
-
-
-import logging
-
-logger = logging.getLogger()
 
 
 def search_most_possible_toh_record(firmware, strings, extent=None):
