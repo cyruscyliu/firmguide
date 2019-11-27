@@ -4,3 +4,6 @@
 [submodule "asm2xml"]
 	path = asm2xml
 	url = git@github.com:cyruscyliu/asm2xml.git
+[submodule "openwrt-build-docker"]
+	path = openwrt-build-docker
+	url = git@github.com:cyruscyliu/openwrt-build-docker.git
