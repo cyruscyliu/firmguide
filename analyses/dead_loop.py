@@ -1,4 +1,6 @@
 import math
+import pydot
+import networkx as nx
 
 from analyses.common.analysis import Analysis
 
@@ -144,12 +146,33 @@ class DeadLoop(Analysis):
             # TODO add incremental cycle detection
             raise NotImplementedError('only support floyd and brent\'s cycle detection algorithms')
 
+    def detect_dead_loop_by_graph(self):
+        # construct the weighted graph
+        graph = nx.DiGraph()
+        last_pc = None
+        for register_file in self.cpus.values():
+            pc = register_file['pc']
+            if last_pc is not None:
+                edge = graph.get_edge_data(last_pc, pc)
+                if edge is None:
+                    graph.add_edge(last_pc, pc, weight=1)
+                else:
+                    graph.add_edge(last_pc, pc, weight=edge['weight'] + 1)
+            last_pc = pc
+
+        # find heavy edge
+        dead_loop_candidates = []
+        for edge in graph.edges:
+            weight = graph.get_edge_data(*edge)['weight']
+            if weight > 2000:
+                dead_loop_candidates.append([edge[0], edge[1], weight])
+
     def detect_dead_loop(self):
         try:
             start = self.cpus[0]
             while 1:
                 offset, length, iteration = self.cycle_detection(start)
-                uuid = start['uuid'] + offset
+                uuid = offset
                 self.loops[uuid] = {
                     'uuid': uuid, 'length': length, 'iteration': iteration}
                 start = self.cpus[offset + length * iteration]
@@ -180,7 +203,8 @@ class DeadLoop(Analysis):
         else:  # 'ktracer'
             self.trace_tool = 'ktracer'
 
-        self.detect_dead_loop()
+        self.detect_dead_loop()  # does not work well
+        # self.detect_dead_loop_by_graph() # does not work well
         ratio = len(self.suspicious_loops) / len(self.loops)
         if ratio > 0.2:
             self.info('BAD! Have {:.4f}% suspicious infinite loops!'.format(ratio * 100))
@@ -195,7 +219,7 @@ class DeadLoop(Analysis):
             length = suspicious_loop['length']
             self.info('This suspicious log starts at line {}, repeated {} times!'.format(
                 reg_offset, iteration))
-            for i in range(uuid, uuid + length + 1):
+            for i in range(uuid, uuid + length):
                 pc = self.cpus[i]['pc']
                 bb_offset = self.bbs[pc]['offset']
                 for j, line in enumerate(self.bbs[pc]['content']):
