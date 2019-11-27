@@ -1,7 +1,6 @@
 firmware
 build
 log
-cache
 .idea
 __pycache__
 *.extracted

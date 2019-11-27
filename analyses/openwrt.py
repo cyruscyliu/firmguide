@@ -1,9 +1,28 @@
 import os
 
+from pyquery import PyQuery as pq
 from analyses.common.analysis import AnalysisGroup, Analysis
 from analyses.common.display import print_table
 from database.db import DatabaseOpenWRTMapping
 from database.dbf import get_database
+
+
+def find_urls_in_openwrt_homepage(homepage):
+    """
+    The url for ImageBuilder must include "ImageBuilder".
+    The url for config includes, OpenWrt.config(10.03), config.diff(15.05).
+    """
+    html = pq(url=homepage)
+    a = html('a')
+    image_builder = None
+    dot_config = None
+    for item in a.items():
+        href = item.attr('href')
+        if image_builder is None and href.find('ImageBuilder') != -1:
+            image_builder = os.path.join(homepage, href)
+        if dot_config is None and (href.find('config.diff') != -1 or href.find('OpenWrt.config') != -1):
+            dot_config = os.path.join(homepage, href)
+    return image_builder, dot_config
 
 
 class OpenWRTURL(Analysis):
@@ -42,6 +61,14 @@ class OpenWRTURL(Analysis):
         self.info('\033[32mget the most possible subtarget {}\033[0m'.format(subtarget))
         firmware.set_revision(revision)
         self.info('\033[32mget the revision {}\033[0m'.format(revision))
+        _, dot_config = find_urls_in_openwrt_homepage(homepage)  # 2, 4
+        path_to_dot_config = os.path.join(firmware.working_dir, 'openwrt.config')
+        os.system('wget -nc {} -O {} >/dev/null 2>&1'.format(url, path_to_dot_config))
+        if dot_config is None:
+            self.context['input'] = 'you must find the source code for this new openwrt version'
+            return False
+        firmware.set_path_to_dot_config(path_to_dot_config)
+        self.info('get the openwrt config at {}'.format(path_to_dot_config))
         return True
 
     def __init__(self):

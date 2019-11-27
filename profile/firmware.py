@@ -78,6 +78,22 @@ class Firmware(object):
         self.working_path = path
 
     @abc.abstractmethod
+    def set_path_to_llvm_bitcode(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path_to_llvm_bitcode(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_path_to_dot_config(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path_to_dot_config(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def set_path_to_image(self, *args, **kwargs):
         pass
 

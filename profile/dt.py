@@ -8,6 +8,20 @@ import fdt
 
 
 class DTFirmware(Firmware, CodeGenerationInterface):
+    def set_path_to_llvm_bitcode(self, *args, **kwargs):
+        path_to_llvm_bitcode = args[0]
+        self.set_node_property('/components', 'path_to_llvm_bitcode', path_to_llvm_bitcode)
+
+    def get_path_to_llvm_bitcode(self, *args, **kwargs):
+        return self.get_node_property('/components', 'path_to_llvm_bitcode')
+
+    def set_path_to_dot_config(self, *args, **kwargs):
+        path_to_dot_image = args[0]
+        self.set_node_property('/components', 'path_to_uimage', path_to_dot_image)
+
+    def get_path_to_dot_config(self, *args, **kwargs):
+        return self.get_node_property('/components', 'path_to_dot_config')
+
     def sget_path_to_dtb(self):
         return self.get_path_to_dtb()
 
