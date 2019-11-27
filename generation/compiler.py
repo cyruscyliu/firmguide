@@ -228,16 +228,25 @@ class CompilerToQEMUMachine(object):
                 f.write(self.custom_devices['bridge']['header'])
                 f.flush()
 
-    def run(self, firmware):
-        architecture = firmware.sget_architecture()
-        machine_name = firmware.sget_machine_name()
-        path_to_kernel = firmware.sget_path_to_kernel()
+    def run(self, firmware, lazy=True):
+        # compile first
         os.system('cd build/qemu-4.0.0 && make -j4 && cd -')
-        running_command = 'build/qemu-4.0.0/arm-softmmu/qemu-system-arm ' \
-                          '-M nas7820 -kernel tests/files/nas7820.uImage ' \
-                          '-dtb tests/files/nas7820.dtb -nographic'
+        # construct the command
+        running_command = 'build/qemu-4.0.0/arm-softmmu/qemu-system-arm'
+        machine_name = firmware.sget_machine_name()
+        running_command += ' -M {}'.format(machine_name)
+        path_to_uimage = firmware.sget_path_to_uimage()
+        running_command += ' -kernel {}'.format(path_to_uimage)
+        path_to_dtb = firmware.sget_path_to_dtb()
+        if path_to_dtb:
+            running_command += ' -dtb {}'.format(path_to_dtb)
+        if firmware.probe_flash():
+            running_command += ' -drive file={},if=pflash,format=raw'.format(firmware.working_path)
+        running_command += ' -nographic'
         firmware.set_running_command(running_command)
         self.info(running_command, 'run')
+        if not lazy:
+            os.system(running_command)
 
     def solve(self, firmware):
         self.solve_machine_includings(firmware)

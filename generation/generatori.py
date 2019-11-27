@@ -135,7 +135,11 @@ class CodeGenerationInterface(object):
         pass
 
     @abc.abstractmethod
-    def sget_path_to_kernel(self):
+    def sget_path_to_uimage(self):
+        pass
+
+    @abc.abstractmethod
+    def sget_path_to_dtb(self):
         pass
 
     @abc.abstractmethod

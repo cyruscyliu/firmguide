@@ -8,6 +8,12 @@ import fdt
 
 
 class DTFirmware(Firmware, CodeGenerationInterface):
+    def sget_path_to_dtb(self):
+        return self.get_path_to_dtb()
+
+    def sget_path_to_uimage(self):
+        return self.get_path_to_uimage()
+
     def get_path_to_uimage(self, *args, **kwargs):
         return self.get_node_property('/components', 'path_to_uimage')
 
@@ -117,9 +123,6 @@ class DTFirmware(Firmware, CodeGenerationInterface):
         # TODO fix this
         return '0x661'
 
-    def sget_path_to_kernel(self):
-        pass
-
     def sget_flash_type(self):
         pass
 
@@ -134,7 +137,7 @@ class DTFirmware(Firmware, CodeGenerationInterface):
 
     def set_running_command(self, *args, **kwargs):
         running_command = args[0]
-        self.set_node_property('/basics', running_command)
+        self.set_node_property('/basics', 'running_command', running_command)
 
     def set_uart_baud(self, *args, **kwargs):
         uart_baud = args[0]
