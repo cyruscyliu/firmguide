@@ -29,7 +29,7 @@ class Analysis(object):
         pass
 
     def info(self, message):
-        self.logger.info('{} {}'.format(message, self.log_suffix))
+        self.logger.info('\033[32m{}\033[0m {}'.format(message, self.log_suffix))
 
     def error(self):
         self.logger.warning('{}, {} {}'.format(self.context['hint'], self.context['input'], self.log_suffix))

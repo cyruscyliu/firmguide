@@ -14,7 +14,7 @@ from analyses.kernel import Kernel
 from analyses.openwrt import OpenWRTRevision, OpenWRTURL, OpenWRTToH
 from analyses.srcode import SRCode
 from analyses.strings import Strings
-from supervisor.trace import QEMUDebug, KTracer
+from analyses.dead_loop import DeadLoop
 from database.dbf import get_database
 from generation.compiler import CompilerToQEMUMachine
 from profile.pff import get_firmware_in_profile
@@ -25,11 +25,11 @@ logger = logging.getLogger()
 
 
 def run_diagnosis(args):
-    if args.trace_format == 'qemudebug':
-        trace = QEMUDebug(args.trace)
-    else:  # 'ktracer'
-        trace = KTracer(args.trace)
-    trace.diagnosis()
+    trace_format = args.trace_format
+    path_to_trace = args.trace
+    analyses_manager = AnalysesManager()
+    analyses_manager.register_analysis(DeadLoop(), no_chained=True)
+    analyses_manager.run_analysis(None, 'dead_loop', trace_format, path_to_trace)
 
 
 def run_single_analysis(args):
@@ -79,10 +79,6 @@ def analysis_wrapper(firmware, args):
 
     trace_format = args.trace_format
     path_to_trace = 'log/{}.trace'.format(firmware.uuid)
-    if trace_format == 'qemudebug':
-        trace = QEMUDebug(path_to_trace)
-    else:  # 'ktracer'
-        trace = KTracer(path_to_trace)
 
     analyses_manager = AnalysesManager()
     # format <- extraction
@@ -107,6 +103,7 @@ def analysis_wrapper(firmware, args):
 
     # other analysis
     analyses_manager.register_analysis(Checking(), no_chained=True)
+    analyses_manager.register_analysis(DeadLoop(), no_chained=True)
     try:
         while 1:
             # perform code generation
@@ -120,6 +117,7 @@ def analysis_wrapper(firmware, args):
             if analyses_manager.run_analysis(firmware, 'check', trace_format, path_to_trace):
                 break
             logger.info('BAAD! Have not entered the user level!')
+            analyses_manager.run_analysis(firmware, 'dead_loop', trace_format, path_to_trace)
             # analysis, args = trace.diagnosis()
             # analyses_manager.run_analysis(firmware, analysis, args)
     except NotImplementedError as e:
