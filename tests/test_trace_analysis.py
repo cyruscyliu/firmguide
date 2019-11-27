@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from analyses.trace.format import QEMUDebug
 from profile.tinyft import TinyForTestFirmware
-from supervisor.trace import trace_collection
+from supervisor.scheduler import trace_collection
 
 import math
 

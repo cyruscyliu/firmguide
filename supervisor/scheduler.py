@@ -1,7 +1,10 @@
 import os
 import logging
 import multiprocessing
+import subprocess
+import qmp
 
+from analyses.check import Checking
 from analyses.common.analysis import AnalysesManager
 from analyses.device_tree import DeviceTree
 from analyses.dot_config import DotConfig
@@ -11,7 +14,7 @@ from analyses.kernel import Kernel
 from analyses.openwrt import OpenWRTRevision, OpenWRTURL, OpenWRTToH
 from analyses.srcode import SRCode
 from analyses.strings import Strings
-from supervisor.trace import trace_collection, QEMUDebug, KTracer
+from supervisor.trace import QEMUDebug, KTracer
 from database.dbf import get_database
 from generation.compiler import CompilerToQEMUMachine
 from profile.pff import get_firmware_in_profile
@@ -102,6 +105,8 @@ def analysis_wrapper(firmware, args):
     # run them all
     analyses_manager.run(firmware)
 
+    # other analysis
+    analyses_manager.register_analysis(Checking(), no_chained=True)
     try:
         while 1:
             # perform code generation
@@ -110,13 +115,13 @@ def analysis_wrapper(firmware, args):
             machine_compiler.link(firmware)
             machine_compiler.install(firmware)
             machine_compiler.run(firmware)
-            break
             # perform dynamic checking
             trace_collection(firmware)
-            if trace.critical_check():
+            if analyses_manager.run_analysis(firmware, 'check', trace_format, path_to_trace):
                 break
-            analysis, args = trace.diagnosis()
-            analyses_manager.run_analysis(firmware, analysis, args)
+            logger.info('BAAD! Have not entered the user level!')
+            # analysis, args = trace.diagnosis()
+            # analyses_manager.run_analysis(firmware, analysis, args)
     except NotImplementedError as e:
         firmware, analysis = e.args
         logger.warning('\033[31mcan not support firmware {}, fix and rerun\033[0m'.format(firmware.uuid))
@@ -125,3 +130,20 @@ def analysis_wrapper(firmware, args):
 
     logger.info('GOOD! Have entered the user level!')
     save_analysis(firmware)
+
+
+def trace_collection(firmware):
+    running_command = firmware.get_running_command()
+    # nochain is too too slow
+    trace_flags = '-d in_asm,cpu -D log/{}.trace'.format(firmware.uuid)
+    qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
+    full_command = ' '.join([running_command, trace_flags, qmp_flags])
+    try:
+        logger.info('tracing ...')
+        subprocess.run(full_command, timeout=30, shell=True)
+    except subprocess.TimeoutExpired:
+        qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
+        qemu.connect()
+        qemu.cmd('quit')
+        qemu.close()
+    logger.info('trace at log/{}.trace'.format(firmware.uuid))

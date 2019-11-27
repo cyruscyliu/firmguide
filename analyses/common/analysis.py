@@ -118,9 +118,12 @@ class AnalysesManager(object):
     def remove_analyses_from_remaining_analyses(self, name):
         self.analyses_remaining.pop(name)
 
-    def register_analysis(self, analysis):
+    def register_analysis(self, analysis, no_chained=False):
         assert isinstance(analysis, Analysis) or isinstance(analysis, AnalysisGroup)
         self.analyses_flat[analysis.name] = analysis
+
+        if no_chained:
+            return
 
         if not analysis.has_required():
             self.analyses_remaining[analysis.name] = analysis
@@ -135,7 +138,7 @@ class AnalysesManager(object):
             analyses_tree = self.new_analyses_tree()
             self.add_analysis_to_tree(analyses_tree, analysis)
 
-    def run_analysis(self, firmware, name, args):
+    def run_analysis(self, firmware, name, *args):
         analysis = self.analyses_flat[name]
         analysis.args = args
         self.analyses_flat[name].run(firmware)

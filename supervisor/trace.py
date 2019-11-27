@@ -1,38 +1,13 @@
-import os
 import abc
-import qmp
 import math
 import logging
-import subprocess
 
-from analyses.dynamic.da import DynamicAnalysis
+from analyses.dead_loop import DynamicAnalysis
 
-
-def trace_collection(firmware):
-    running_command = firmware.get_running_command()
-    # nochain is too too slow
-    trace_flags = '-d in_asm,cpu -D log/{}.trace'.format(firmware.uuid)
-    qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
-    full_command = ' '.join([running_command, trace_flags, qmp_flags])
-    try:
-        subprocess.run(full_command, timeout=60, shell=True)
-    except subprocess.TimeoutExpired:
-        qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
-        qemu.connect()
-        qemu.cmd('quit')
-        qemu.close()
+logger = logging.getLogger()
 
 
-class CriticalChecking(object):
-    @abc.abstractmethod
-    def scan_user_level(self):
-        pass
-
-    def critical_check(self):
-        return self.scan_user_level()
-
-
-class Trace(CriticalChecking, DynamicAnalysis):
+class Trace(DynamicAnalysis):
     def __init__(self, *args, **kwargs):
         super().__init__()
         self.trace_tool = None
@@ -75,11 +50,6 @@ class Trace(CriticalChecking, DynamicAnalysis):
 
 
 class QEMUDebug(Trace):
-    def scan_user_level(self, *args, **kwargs):
-        cmd = 'grep usr {} >/dev/null 2>&1'.format(self.path_to_trace)
-        not_find_user_level = os.system(cmd)
-        return not not_find_user_level
-
     def load_in_asm(self, *args, **kwargs):
         """
         ----------------                                1
@@ -148,9 +118,6 @@ class QEMUDebug(Trace):
 
 class KTracer(Trace):
     def load(self, *args, **kwargs):
-        pass
-
-    def scan_user_level(self, *args, **kwargs):
         pass
 
     def __init__(self, *args, **kwargs):
