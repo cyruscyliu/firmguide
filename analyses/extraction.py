@@ -15,6 +15,7 @@ class Extraction(Analysis):
             os.system('dd if={} of={} bs=1 skip=64 >/dev/null 2>&1'.format(image_path, kernel))
             firmware.set_path_to_kernel(kernel)
             self.info('\033[32mget kernel image {} at {}\033[0m'.format(os.path.basename(kernel), kernel))
+            firmware.set_path_to_uimage(image_path)
             firmware.set_path_to_dtb(None)
         elif image_type == 'fit uImage':
             kernel = image_path.replace('uimage.fit', 'kernel')
@@ -22,6 +23,11 @@ class Extraction(Analysis):
             os.system('dumpimage -T flat_dt -i {} -p 0 {} >/dev/null 2>&1'.format(image_path, kernel))
             firmware.set_path_to_kernel(kernel)
             self.info('\033[32mget kernel image {} at {}\033[0m'.format(os.path.basename(kernel), kernel))
+            uimage = image_path.replace('uimage.fit', 'uimage')
+            # mkimage -A arm -C none -O linux -T kernel -d path/to/zImage -a 0x8000 -e 0x8000
+            #     path/to/uImage >/dev/null 2>&1
+            os.system('mkimage -A {} -C none -O linux -T kernel -d {} '
+                      '-a 0x8000 -e 0x8000 {} >/dev/null 2>&1'.format(firmware.get_architecture(), kernel, uimage))
             os.system('dumpimage -T flat_dt -i {} -p 1 {} >/dev/null 2>&1'.format(image_path, dtb))
             firmware.set_path_to_dtb(dtb)
             self.info('\033[32mget device tree image {} at {}\033[0m'.format(os.path.basename(kernel), dtb))
@@ -30,6 +36,9 @@ class Extraction(Analysis):
             os.system('lzma -d < {} > {} 2>/dev/null'.format(image_path, kernel))
             firmware.set_path_to_kernel(kernel)
             self.info('\033[32mget kernel image {} at {}\033[0m'.format(os.path.basename(kernel), kernel))
+            uimage = image_path.replace('trx', 'uimage')
+            os.system('mkimage -A {} -C none -O linux -T kernel -d {} '
+                      '-a 0x8000 -e 0x8000 {} >/dev/null 2>&1'.format(firmware.get_architecture(), kernel, uimage))
             firmware.set_path_to_dtb(None)
         else:
             self.context['input'] = 'add support to this image type {}'.format(image_type)

@@ -8,6 +8,13 @@ import fdt
 
 
 class DTFirmware(Firmware, CodeGenerationInterface):
+    def get_path_to_uimage(self, *args, **kwargs):
+        return self.get_node_property('/components', 'path_to_uimage')
+
+    def set_path_to_uimage(self, *args, **kwargs):
+        path_to_uimage = args[0]
+        self.set_node_property('/components', 'path_to_uimage', path_to_uimage)
+
     def probe_flash(self):
         return False
 

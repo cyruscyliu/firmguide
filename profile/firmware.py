@@ -86,6 +86,14 @@ class Firmware(object):
         pass
 
     @abc.abstractmethod
+    def set_path_to_uimage(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path_to_uimage(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def set_path_to_kernel(self, *args, **kwargs):
         pass
 
