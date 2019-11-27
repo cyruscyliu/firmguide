@@ -85,14 +85,14 @@ class DTFirmware(Firmware, CodeGenerationInterface):
         return self.get_node_property('/basics', 'description')
 
     def sget_machine_name(self):
-        return self.get_node_property('/brand', 'model')
+        return self.get_node_property('/brand', 'model').lower().replace(' ', '_')
 
     def sget_architecture(self):
         return self.get_node_property('/basics', 'architecture')
 
     def sget_ram_size(self):
         _, ram_size = self.get_ram()
-        return '{} MiB'.format(ram_size)
+        return '{} * MiB'.format(int(ram_size))
 
     def sget_cpu_model(self):
         # TODO solve this

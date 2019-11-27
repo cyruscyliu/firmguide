@@ -22,7 +22,7 @@ sudo apt-get install -y bison flex
 sudo apt-get install -y libcapstone3 libcapstone-dev
 sudo apt-get install -y u-boot-tools
 sudo apt-get install -y gawk
-make # sudo make clean first if fails
+sudo make clean && make
 ```
 
 ## Start 
