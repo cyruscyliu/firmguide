@@ -52,6 +52,7 @@ class AnalysesManager(object):
         self.analyses_flat = {}  # name:analysis
         self.analyses_forest = {}
         self.analyses_remaining = {}  # name:analysis
+        self.last_analysis_status = True
 
     @staticmethod
     def find_analysis_in_tree(analyses_tree, analysis):
@@ -141,7 +142,7 @@ class AnalysesManager(object):
     def run_analysis(self, firmware, name, *args):
         analysis = self.analyses_flat[name]
         analysis.args = args
-        self.analyses_flat[name].run(firmware)
+        self.last_analysis_status = self.analyses_flat[name].run(firmware)
 
     def run(self, firmware):
         for analyses_tree_name, analyses_tree in self.analyses_forest.items():
@@ -152,10 +153,11 @@ class AnalysesManager(object):
                 if finished(firmware, a):
                     continue
                 res = a.run(firmware)
+                self.last_analysis_status = res
                 if not res:
                     a.error()
                 if not res and a.is_critical():
                     raise NotImplementedError(firmware, a)
                 finish(firmware, a)
         for analysis in self.analyses_remaining:
-            analysis.run(firmware)
+            self.last_analysis_status = analysis.run(firmware)
