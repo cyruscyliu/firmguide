@@ -31,7 +31,8 @@ if __name__ == '__main__':
                        help='limit the amount of firmware to test')
     group.add_argument('-u', '--uuid', type=str, nargs='+',
                        help='assign a uuid to a firmware in the firmware db')
-    group.add_argument('-q', '--quick', help='disable tracing and diagnosis')
+    group.add_argument('-q', '--quick', action='store_true', default=False,
+                       help='disable tracing and diagnosis')
 
     # diagnosis
     group = parser.add_argument_group('diagnosis')

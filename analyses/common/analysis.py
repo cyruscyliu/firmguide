@@ -32,7 +32,14 @@ class Analysis(object):
         self.logger.info('\033[32m{}\033[0m {}'.format(message, self.log_suffix))
 
     def error(self):
-        self.logger.warning('{}, {} {}'.format(self.context['hint'], self.context['input'], self.log_suffix))
+        if self.context['input'].find('\n') != -1:
+            self.logger.warning('{} {}'.format(self.context['hint'], self.log_suffix))
+            lines = self.context['input'].split('\n')
+            for line in lines:
+                if len(line):
+                    self.logger.warning('{} {}'.format(line, self.log_suffix))
+        else:
+            self.logger.warning('{}, {} {}'.format(self.context['hint'], self.context['input'], self.log_suffix))
 
 
 class AnalysisGroup(object):

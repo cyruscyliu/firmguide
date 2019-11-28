@@ -43,7 +43,7 @@ class Format(Analysis):
                 else:
                     image_type = 'unknown'
                     firmware.set_format(image_type)
-                self.context['hint'] += '0x%.8X    %s\n' % (
+                self.context['input'] += '0x%.8X    %s\n' % (
                     result.offset, result.description)
             if not count:
                 return False

@@ -18,10 +18,14 @@ from analyses.dead_loop import DeadLoop
 from database.dbf import get_database
 from generation.compiler import CompilerToQEMUMachine
 from profile.pff import get_firmware_in_profile
-from supervisor.error_handling import error_callback
 from supervisor.save_and_restore import setup, check_and_restore, save_analysis
 
 logger = logging.getLogger()
+
+
+def error_callback(e):
+    # keep this
+    pass
 
 
 def run_diagnosis(args):
