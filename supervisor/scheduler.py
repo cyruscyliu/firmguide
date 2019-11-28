@@ -112,6 +112,8 @@ def analysis_wrapper(firmware, args):
             machine_compiler.link(firmware)
             machine_compiler.install(firmware)
             machine_compiler.run(firmware)
+            if args.quick:  # exit early
+                break
             # perform dynamic checking
             trace_collection(firmware)
             analyses_manager.run_analysis(firmware, 'check', trace_format, path_to_trace)
@@ -119,7 +121,6 @@ def analysis_wrapper(firmware, args):
                 break
             logger.info('BAAD! Have not entered the user level!')
             analyses_manager.run_analysis(firmware, 'dead_loop', trace_format, path_to_trace)
-            break
     except NotImplementedError as e:
         firmware, analysis = e.args
         logger.warning('\033[31mcan not support firmware {}, fix and rerun\033[0m'.format(firmware.uuid))
