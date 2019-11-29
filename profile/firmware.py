@@ -15,6 +15,10 @@ class Firmware(object):
         self.profile = None
         self.preset_cache = []
 
+        self.trace_format = None
+        self.path_to_trace = 'log/{}.trace'.format(self.uuid)
+        self.do_not_diagnosis = False
+
         # basics
         # brand, homepage, description, format, architecture, endian, url
         # components

@@ -189,16 +189,13 @@ class DeadLoop(Analysis):
         pass
 
     def run(self, firmware):
-        # arguments
-        # args[0] = trace_format
-        # args[1] = path_to_trace
-        if self.args[0] == 'qemudebug':
+        if firmware.trace_format == 'qemudebug':
             self.trace_tool = 'qemu debug'
             self.flags = ['in_asm', 'cpu']
             if 'in_asm' in self.flags:
-                self.load_in_asm()
+                self.load_in_asm(firmware)
             if 'cpu' in self.flags:
-                self.load_cpu()
+                self.load_cpu(firmware)
         else:  # 'ktracer'
             self.trace_tool = 'ktracer'
 
@@ -227,7 +224,7 @@ class DeadLoop(Analysis):
                     reg_offset = self.cpus[i]['offset']
                     self.info(firmware, '{} {}'.format(reg_offset, line), 0)
 
-    def load_in_asm(self, *args, **kwargs):
+    def load_in_asm(self, firmware):
         """
         ----------------                                1
         IN:                                             2
@@ -238,7 +235,7 @@ class DeadLoop(Analysis):
                                                         4
         """
         ln = 0
-        with open(self.args[1]) as f:
+        with open(firmware.path_to_trace) as f:
             new = 0
             for line in f:
                 if new == 0 and line.startswith('---'):
@@ -254,7 +251,7 @@ class DeadLoop(Analysis):
                     new = 0
                 ln += 1
 
-    def load_cpu(self, *args, **kwargs):
+    def load_cpu(self, firmware):
         """
         R00=00000000 R01=00000000 R02=00000000 R03=00000000 1
         R04=00000000 R05=00000000 R06=00000000 R07=00000000 2
@@ -264,7 +261,7 @@ class DeadLoop(Analysis):
         """
         ln = 0
         id_ = 0
-        with open(self.args[1]) as f:
+        with open(firmware.path_to_trace) as f:
             new = 0
             for line in f:
                 if new == 0 and line.startswith('R00'):

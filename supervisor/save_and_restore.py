@@ -24,7 +24,7 @@ def check_and_restore(firmware, **kwargs):
     first_time = True
     if os.path.exists(firmware.working_dir):
         first_time = False
-    rerun = kwargs.pop('rerun', False)
+    rerun = firmware.rerun
     if rerun:
         first_time = True
     analysis = os.path.join(firmware.working_dir, 'analysis')
@@ -83,3 +83,8 @@ def setup(args, firmware):
     target_dir = os.path.join(working_dir, firmware.uuid)
     target_path = os.path.join(working_dir, firmware.uuid, firmware.name)
     firmware.set_working_env(target_dir, target_path)
+    # set the trace format
+    firmware.trace_format = args.trace_format
+    firmware.do_not_diagnosis = args.quick
+    # set the rerun control
+    firmware.rerun = args.rerun

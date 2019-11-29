@@ -9,6 +9,7 @@ from analyses.device_tree import DeviceTree
 from analyses.dot_config import DotConfig
 from analyses.extraction import Extraction
 from analyses.format import Format
+from analyses.init_value import InitValue
 from analyses.kernel import Kernel
 from analyses.openwrt import OpenWRTRevision, OpenWRTURL, OpenWRTToH
 from analyses.srcode import SRCode
@@ -60,9 +61,10 @@ def run_massive_analyses(args):
             continue
         if args.limit and firmware.id > args.limit:
             continue
+        setup(args, firmware)
         # analysis_pool.apply_async(
-        #     analysis_wrapper, (firmware, args), error_callback=error_callback)
-        analysis_wrapper(firmware, args)
+        #     analysis_wrapper, (firmware), error_callback=error_callback)
+        analysis_wrapper(firmware)
     analysis_pool.close()
     analysis_pool.join()
 
@@ -78,12 +80,8 @@ def run(parser, args):
         parser.print_help()
 
 
-def analysis_wrapper(firmware, args):
-    setup(args, firmware)
-    check_and_restore(firmware, rerun=args.rerun)
-
-    trace_format = args.trace_format
-    path_to_trace = 'log/{}.trace'.format(firmware.uuid)
+def analysis_wrapper(firmware):
+    check_and_restore(firmware)
 
     analyses_manager = AnalysesManager()
     # format <- extraction
@@ -109,6 +107,7 @@ def analysis_wrapper(firmware, args):
     # other analysis
     analyses_manager.register_analysis(Checking(), no_chained=True)
     analyses_manager.register_analysis(DeadLoop(), no_chained=True)
+    analyses_manager.register_analysis(InitValue(), no_chained=True)
     try:
         while 1:
             # perform code generation
@@ -117,15 +116,16 @@ def analysis_wrapper(firmware, args):
             machine_compiler.link(firmware)
             machine_compiler.install(firmware)
             machine_compiler.run(firmware)
-            if args.quick:  # exit early
+            if firmware.do_not_diagnosis:  # exit early
                 break
             # perform dynamic checking
             trace_collection(firmware)
-            analyses_manager.run_analysis(firmware, 'check', trace_format, path_to_trace)
+            analyses_manager.run_analysis(firmware, 'check')
             if analyses_manager.last_analysis_status:
                 break
             logger_info(firmware.uuid, 'analysis', 'checking analysis', 'BAAD! Have not entered the user level!', 0)
-            analyses_manager.run_analysis(firmware, 'dead_loop', trace_format, path_to_trace)
+            analyses_manager.run_analysis(firmware, 'dead_loop')
+            analyses_manager.run_analysis(firmware, 'init_value')
             break
     except NotImplementedError as e:
         firmware, analysis = e.args

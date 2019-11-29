@@ -145,9 +145,8 @@ class AnalysesManager(object):
             analyses_tree = self.new_analyses_tree()
             self.add_analysis_to_tree(analyses_tree, analysis)
 
-    def run_analysis(self, firmware, name, *args):
+    def run_analysis(self, firmware, name):
         analysis = self.analyses_flat[name]
-        analysis.args = args
         self.last_analysis_status = self.analyses_flat[name].run(firmware)
 
     def run(self, firmware):

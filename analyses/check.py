@@ -4,8 +4,8 @@ from analyses.common.analysis import Analysis
 
 
 class Checking(Analysis):
-    def scan_user_level_qemudebug(self):
-        cmd = 'grep usr {} >/dev/null 2>&1'.format(self.args[1])
+    def scan_user_level_qemudebug(self, firmware):
+        cmd = 'grep usr {} >/dev/null 2>&1'.format(firmware.path_to_trace)
         not_find_user_level = os.system(cmd)
         return not not_find_user_level
 
@@ -13,14 +13,11 @@ class Checking(Analysis):
         return False
 
     def run(self, firmware):
-        # arguments
-        # args[0] = trace_format
-        # args[1] = path_to_trace
-        self.info(firmware, 'scan user level indicators in {}'.format(self.args[1]), 1)
-        if self.args[0] == 'qemudebug':
-            return self.scan_user_level_qemudebug()
+        self.info(firmware, 'scan user level indicators in {}'.format(firmware.path_to_trace), 1)
+        if firmware.trace_format == 'qemudebug':
+            return self.scan_user_level_qemudebug(firmware)
         else:
-            return self.scan_user_level_ktracer()
+            return self.scan_user_level_ktracer(firmware)
 
     def __init__(self):
         super().__init__()
