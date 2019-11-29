@@ -85,6 +85,7 @@ def setup(args, firmware):
     firmware.set_working_env(target_dir, target_path)
     # set the trace format
     firmware.trace_format = args.trace_format
+    firmware.path_to_trace = args.trace
     firmware.do_not_diagnosis = args.quick
     # set the rerun control
     firmware.rerun = args.rerun

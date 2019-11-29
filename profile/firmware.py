@@ -16,7 +16,7 @@ class Firmware(object):
         self.preset_cache = []
 
         self.trace_format = None
-        self.path_to_trace = 'log/{}.trace'.format(self.uuid)
+        self.path_to_trace = None
         self.do_not_diagnosis = False
 
         # basics

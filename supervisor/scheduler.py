@@ -29,12 +29,11 @@ def error_callback(e):
 
 
 def run_diagnosis(args):
-    trace_format = args.trace_format
-    path_to_trace = args.trace
+    firmware = TinyForTestFirmware(**{'uuid': '0', 'path': 'no/path', 'size': 0, 'name': 'TinyForTestFirmware'})
+    setup(args, firmware)
     analyses_manager = AnalysesManager()
     analyses_manager.register_analysis(DeadLoop(), no_chained=True)
-    firmware = TinyForTestFirmware(**{'uuid': '0', 'path': None, 'size': 0, 'name': 'TinyForTestFirmware'})
-    analyses_manager.run_analysis(firmware, 'dead_loop', trace_format, path_to_trace)
+    analyses_manager.run_analysis(firmware, 'dead_loop')
 
 
 def run_single_analysis(args):
@@ -49,7 +48,8 @@ def run_single_analysis(args):
         (firmware.set_architecture, args.arch),
         (firmware.set_endian, args.endian)
     ]
-    analysis_wrapper(firmware, args)
+    setup(args, firmware)
+    analysis_wrapper(firmware)
 
 
 def run_massive_analyses(args):
