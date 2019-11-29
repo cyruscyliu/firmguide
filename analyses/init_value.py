@@ -9,6 +9,6 @@ class InitValue(Analysis):
         super().__init__()
         self.name = 'init_value'
         self.description = 'solve the init value for a certain register'
-        self.context['hint'] = 'undecidable problem'
+        self.context['hint'] = 'very difficult program analysis'
         self.critical = False
         self.required = []

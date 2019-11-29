@@ -2,7 +2,7 @@
 
 ## QEMU Programming Model
 
-### Layered Device 
+### Layered Devices 
 
 ```text
                                         /-> SysBusDeviceClass/State
