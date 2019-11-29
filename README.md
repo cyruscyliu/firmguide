@@ -1,10 +1,10 @@
 # Salamander
 
-This is a project aiming to run and test any given firmware blob dynamically in a pure software way.
+Salamander is a project aiming to run and test any given firmware blob dynamically in a pure software way.
 
 ## Install
 
-```bash
+```shell script
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get update
 sudo apt-get install -y python3.7
@@ -84,3 +84,13 @@ To test plenty of firmware.
 
 NOTE: To disable `save and restore`, please use `-r`.
 
+## Visualization
+
+```shell script
+python dashboard/__init__.py
+```
+
+![dashboard](./dashboard/dashboard.png)
+
+
+## License
