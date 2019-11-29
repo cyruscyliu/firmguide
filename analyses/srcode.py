@@ -4,6 +4,7 @@ Handle all about source code.
 import os
 
 from analyses.common.analysis import Analysis
+from openwrtd.openwrt import get_openwrt_source_code
 
 
 class SRCode(Analysis):
@@ -12,16 +13,20 @@ class SRCode(Analysis):
         if brand != 'openwrt':
             self.context['input'] = 'we can only support OpenWRT'
             return False
-        # first, we tell openwrt-build-docker to build our machine
-        # we need a openwrt_revision, a machine_name, and an openwrt .config
-        revision = firmware.get_revision()  # 1
-        machine_name = firmware.sget_machine_name()
-        path_to_dot_config = firmware.get_path_to_dot_config()
-        # TODO tell openwrt-build-docker and it should return the path to source code
-        # and path to vmlinux
-        path_to_source_code = None
+        # first, get the source code the vmlinux only by its uuid
+        cwd = os.getcwd()
+        os.chdir('openwrtd')
+        path_to_source_code, path_to_vmlinux = get_openwrt_source_code(firmware.uuid)
+        os.chdir(cwd)
+        path_to_vmlinux = os.path.join('openwrtd', path_to_vmlinux)
+        path_to_source_code = os.path.join('openwrtd', path_to_source_code)
+        path_to_dot_config = os.path.join(path_to_source_code, '.config')
         firmware.set_path_to_source_code(path_to_source_code)
-        self.info(firmware, 'get path to source {}'.format(path_to_source_code), 1)
+        self.info(firmware, 'get path to source code {}'.format(path_to_source_code), 1)
+        firmware.set_path_to_vmlinux(path_to_vmlinux)
+        self.info(firmware, 'get path to vmlinux {}'.format(path_to_vmlinux), 1)
+        firmware.set_path_to_dot_config(path_to_dot_config)
+        self.info(firmware, 'get path to .config {}'.format(path_to_dot_config), 1)
         # then, we are supposed to tell llbic to compile the source code to bitcode
         # TODO tell llbic and it should returen the path to llvm bitcode
         path_to_llvm_bitcode = None

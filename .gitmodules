@@ -4,9 +4,9 @@
 [submodule "asm2xml"]
 	path = asm2xml
 	url = git@github.com:cyruscyliu/asm2xml.git
-[submodule "openwrt-build-docker"]
-	path = openwrt-build-docker
-	url = git@github.com:cyruscyliu/openwrt-build-docker.git
 [submodule "pymake"]
 	path = pymake
 	url = https://github.com/mozilla/pymake.git
+[submodule "openwrtd"]
+	path = openwrtd
+	url = git@github.com:cyruscyliu/openwrt-build-docker.git
