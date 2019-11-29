@@ -17,12 +17,16 @@ def parse_record(global_context, record):
         if record['object'] != 'save':
             # new record
             global_context[record['uuid']] = {
-                'uuid': record['uuid'], 'analysis': 0, 'saved': False}
+                'uuid': record['uuid'], 'analysis': 0, 'saved': False, 'code_generation': False, 'tracing': 0}
         else:
             # done
             global_context[record['uuid']]['saved'] = True
     elif record['group'] == 'analysis':
         global_context[record['uuid']]['analysis'] += 1
+    elif record['group'] == 'code_generation' and record['object'] == 'link':
+        global_context[record['uuid']]['code_generation'] = True
+    elif record['group'] == 'tracing':
+        global_context[record['uuid']]['tracing'] += 1
 
 
 def parse_log_file(path_to_log_file):
