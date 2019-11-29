@@ -15,6 +15,10 @@ class Firmware(object):
         self.profile = None
         self.preset_cache = []
 
+        self.trace_format = None
+        self.path_to_trace = None
+        self.do_not_diagnosis = False
+
         # basics
         # brand, homepage, description, format, architecture, endian, url
         # components
@@ -73,9 +77,28 @@ class Firmware(object):
         )
         return brief_introduction
 
+    def summary(self):
+        return 'summary placeholder'
+
     def set_working_env(self, dir, path):
         self.working_dir = dir
         self.working_path = path
+
+    @abc.abstractmethod
+    def set_path_to_llvm_bitcode(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path_to_llvm_bitcode(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_path_to_dot_config(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path_to_dot_config(self, *args, **kwargs):
+        pass
 
     @abc.abstractmethod
     def set_path_to_image(self, *args, **kwargs):
@@ -83,6 +106,14 @@ class Firmware(object):
 
     @abc.abstractmethod
     def get_path_to_image(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_path_to_uimage(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path_to_uimage(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -99,6 +130,14 @@ class Firmware(object):
 
     @abc.abstractmethod
     def get_path_to_dtb(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_path_to_vmlinux(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path_to_vmlinux(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod

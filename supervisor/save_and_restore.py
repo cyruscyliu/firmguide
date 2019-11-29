@@ -1,11 +1,9 @@
 import os
 import tempfile
-
 import yaml
 import shutil
-import logging
 
-logger = logging.getLogger()
+from supervisor.logging_setup import logger_info
 
 
 def check_and_restore(firmware, **kwargs):
@@ -26,7 +24,7 @@ def check_and_restore(firmware, **kwargs):
     first_time = True
     if os.path.exists(firmware.working_dir):
         first_time = False
-    rerun = kwargs.pop('rerun', False)
+    rerun = firmware.rerun
     if rerun:
         first_time = True
     analysis = os.path.join(firmware.working_dir, 'analysis')
@@ -50,9 +48,9 @@ def check_and_restore(firmware, **kwargs):
         )
 
     if first_time:
-        logger.info('[{}] for the first time, {}'.format(firmware.id, firmware.brief()))
+        logger_info(firmware.uuid, 'save_and_restore', 'first', firmware.brief(), 0)
     else:
-        logger.info('[{}] restore the analysis, {}'.format(firmware.id, firmware.brief()))
+        logger_info(firmware.uuid, 'save_and_restore', 'restore', firmware.brief(), 0)
 
 
 def save_analysis(firmware):
@@ -60,13 +58,12 @@ def save_analysis(firmware):
     with open(analysis, 'w') as f:
         yaml.safe_dump(firmware.analysis_progress, f)
     firmware.save_profile(working_dir=firmware.working_dir)
-    logger.info('[{}] saved the analysis'.format(firmware.id))
+    logger_info(firmware.uuid, 'save_and_restore', 'save', firmware.summary(), 0)
 
 
 def finished(firmware, analysis):
     try:
         status = firmware.analysis_progress[analysis.name]
-        logger.info('\033[34m{} done before\033[0m'.format(analysis.name))
         return True
     except KeyError:
         return False
@@ -86,3 +83,9 @@ def setup(args, firmware):
     target_dir = os.path.join(working_dir, firmware.uuid)
     target_path = os.path.join(working_dir, firmware.uuid, firmware.name)
     firmware.set_working_env(target_dir, target_path)
+    # set the trace format
+    firmware.trace_format = args.trace_format
+    firmware.path_to_trace = args.trace
+    firmware.do_not_diagnosis = args.quick
+    # set the rerun control
+    firmware.rerun = args.rerun

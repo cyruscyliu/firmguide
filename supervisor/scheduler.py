@@ -1,32 +1,39 @@
 import os
-import logging
 import multiprocessing
+import subprocess
+import qmp
 
+from analyses.check import Checking
 from analyses.common.analysis import AnalysesManager
 from analyses.device_tree import DeviceTree
 from analyses.dot_config import DotConfig
 from analyses.extraction import Extraction
 from analyses.format import Format
+from analyses.init_value import InitValue
 from analyses.kernel import Kernel
 from analyses.openwrt import OpenWRTRevision, OpenWRTURL, OpenWRTToH
 from analyses.srcode import SRCode
 from analyses.strings import Strings
-from supervisor.trace import trace_collection, QEMUDebug, KTracer
+from analyses.dead_loop import DeadLoop
 from database.dbf import get_database
 from generation.compiler import CompilerToQEMUMachine
 from profile.pff import get_firmware_in_profile
-from supervisor.error_handling import error_callback
+from profile.tinyft import TinyForTestFirmware
+from supervisor.logging_setup import logger_info, logger_warning
 from supervisor.save_and_restore import setup, check_and_restore, save_analysis
 
-logger = logging.getLogger()
+
+def error_callback(e):
+    # keep this
+    pass
 
 
 def run_diagnosis(args):
-    if args.trace_format == 'qemudebug':
-        trace = QEMUDebug(args.trace)
-    else:  # 'ktracer'
-        trace = KTracer(args.trace)
-    trace.diagnosis()
+    firmware = TinyForTestFirmware(**{'uuid': '0', 'path': 'no/path', 'size': 0, 'name': 'TinyForTestFirmware'})
+    setup(args, firmware)
+    analyses_manager = AnalysesManager()
+    analyses_manager.register_analysis(DeadLoop(), no_chained=True)
+    analyses_manager.run_analysis(firmware, 'dead_loop')
 
 
 def run_single_analysis(args):
@@ -41,7 +48,8 @@ def run_single_analysis(args):
         (firmware.set_architecture, args.arch),
         (firmware.set_endian, args.endian)
     ]
-    analysis_wrapper(firmware, args)
+    setup(args, firmware)
+    analysis_wrapper(firmware)
 
 
 def run_massive_analyses(args):
@@ -53,8 +61,10 @@ def run_massive_analyses(args):
             continue
         if args.limit and firmware.id > args.limit:
             continue
-        analysis_pool.apply_async(
-            analysis_wrapper, (firmware, args), error_callback=error_callback)
+        setup(args, firmware)
+        # analysis_pool.apply_async(
+        #     analysis_wrapper, (firmware), error_callback=error_callback)
+        analysis_wrapper(firmware)
     analysis_pool.close()
     analysis_pool.join()
 
@@ -70,16 +80,8 @@ def run(parser, args):
         parser.print_help()
 
 
-def analysis_wrapper(firmware, args):
-    setup(args, firmware)
-    check_and_restore(firmware, rerun=args.rerun)
-
-    trace_format = args.trace_format
-    path_to_trace = 'log/{}.trace'.format(firmware.uuid)
-    if trace_format == 'qemudebug':
-        trace = QEMUDebug(path_to_trace)
-    else:  # 'ktracer'
-        trace = KTracer(path_to_trace)
+def analysis_wrapper(firmware):
+    check_and_restore(firmware)
 
     analyses_manager = AnalysesManager()
     # format <- extraction
@@ -102,6 +104,10 @@ def analysis_wrapper(firmware, args):
     # run them all
     analyses_manager.run(firmware)
 
+    # other analysis
+    analyses_manager.register_analysis(Checking(), no_chained=True)
+    analyses_manager.register_analysis(DeadLoop(), no_chained=True)
+    analyses_manager.register_analysis(InitValue(), no_chained=True)
     try:
         while 1:
             # perform code generation
@@ -109,19 +115,37 @@ def analysis_wrapper(firmware, args):
             machine_compiler.solve(firmware)
             machine_compiler.link(firmware)
             machine_compiler.install(firmware)
-
+            machine_compiler.run(firmware)
+            if firmware.do_not_diagnosis:  # exit early
+                break
             # perform dynamic checking
             trace_collection(firmware)
-            analysis, args = trace.diagnosis()
-            analyses_manager.run_analysis(firmware, analysis, args)
-            if trace.critical_check():
-                logger.info('GOOD! Have entered the user level!')
+            analyses_manager.run_analysis(firmware, 'check')
+            if analyses_manager.last_analysis_status:
                 break
+            logger_info(firmware.uuid, 'analysis', 'checking analysis', 'BAAD! Have not entered the user level!', 0)
+            analyses_manager.run_analysis(firmware, 'dead_loop')
+            analyses_manager.run_analysis(firmware, 'init_value')
+            break
     except NotImplementedError as e:
         firmware, analysis = e.args
-        logger.warning('\033[31mcan not support firmware {}, fix and rerun\033[0m'.format(firmware.uuid))
-        # dbp.add(uuid=firmware.uuid, name=firmware.name, hint=analysis.context['hint'],
-        #         input=analysis.context['input'])
+        logger_warning(firmware.uuid, 'scheduler', 'exception', 'can not support this firmware, fix and rerun', 0)
 
-    logger.info('GOOD! Have entered the user level!')
+    logger_info(firmware.uuid, 'analysis', 'checking analysis', 'GOOD! Have entered the user level!', 1)
     save_analysis(firmware)
+
+
+def trace_collection(firmware):
+    running_command = firmware.get_running_command()
+    # nochain is too too slow
+    trace_flags = '-d in_asm,cpu -D log/{}.trace'.format(firmware.uuid)
+    qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
+    full_command = ' '.join([running_command, trace_flags, qmp_flags])
+    try:
+        logger_info(firmware.uuid, 'tracing', 'qemudebug', full_command, 0)
+        subprocess.run(full_command, timeout=60, shell=True)
+    except subprocess.TimeoutExpired:
+        qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
+        qemu.connect()
+        qemu.cmd('quit')
+        qemu.close()

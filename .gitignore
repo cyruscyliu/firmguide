@@ -1,7 +1,6 @@
 firmware
 build
 log
-cache
 .idea
 __pycache__
 *.extracted
@@ -10,3 +9,5 @@ pause.yaml
 *.html
 extract_tmp
 *.swp
+.pytest_cache
+.coverage

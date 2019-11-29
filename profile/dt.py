@@ -1,19 +1,164 @@
 """
 Device tree solution.
 """
+from generation.generatori import CodeGenerationInterface
 from profile.firmware import Firmware
 import os
 import fdt
 
 
-class DTFirmware(Firmware):
+class DTFirmware(Firmware, CodeGenerationInterface):
+    def set_path_to_vmlinux(self, *args, **kwargs):
+        path_to_vmlinux = args[0]
+        self.set_node_property('/components', 'path_to_vmlinux', path_to_vmlinux)
+
+    def get_path_to_vmlinux(self, *args, **kwargs):
+        return self.get_node_property('/components', 'path_to_vmlinux')
+
+    def set_path_to_llvm_bitcode(self, *args, **kwargs):
+        path_to_llvm_bitcode = args[0]
+        self.set_node_property('/components', 'path_to_llvm_bitcode', path_to_llvm_bitcode)
+
+    def get_path_to_llvm_bitcode(self, *args, **kwargs):
+        return self.get_node_property('/components', 'path_to_llvm_bitcode')
+
+    def set_path_to_dot_config(self, *args, **kwargs):
+        path_to_dot_image = args[0]
+        self.set_node_property('/components', 'path_to_dot_config', path_to_dot_image)
+
+    def get_path_to_dot_config(self, *args, **kwargs):
+        return self.get_node_property('/components', 'path_to_dot_config')
+
+    def sget_path_to_dtb(self):
+        return self.get_path_to_dtb()
+
+    def sget_path_to_uimage(self):
+        return self.get_path_to_uimage()
+
+    def get_path_to_uimage(self, *args, **kwargs):
+        return self.get_node_property('/components', 'path_to_uimage')
+
+    def set_path_to_uimage(self, *args, **kwargs):
+        path_to_uimage = args[0]
+        self.set_node_property('/components', 'path_to_uimage', path_to_uimage)
+
+    def probe_flash(self):
+        return False
+
+    def probe_uart(self):
+        return False
+
+    def probe_timer(self):
+        return False
+
+    def probe_interrupt_controller(self):
+        return False
+
+    def probe_bridge(self):
+        return False
+
+    def sget_bridge_name(self):
+        pass
+
+    def sget_bridge_mmio_base(self):
+        pass
+
+    def sget_bridge_mmio_size(self):
+        pass
+
+    def lget_bridge_registers(self):
+        pass
+
+    def sget_ram_priority(self):
+        return '0'
+
+    def sget_interrupt_controller_name(self):
+        pass
+
+    def lget_interrupt_controller_registers(self):
+        pass
+
+    def sget_interrupt_controller_mmio_size(self):
+        pass
+
+    def sget_interrupt_controller_mmio_base(self):
+        pass
+
+    def sget_n_irqs(self):
+        pass
+
+    def sget_timer_name(self):
+        pass
+
+    def lget_timer_registers(self):
+        pass
+
+    def sget_timer_mmio_size(self):
+        pass
+
+    def sget_timer_mmio_base(self):
+        pass
+
+    def sget_flash_base(self):
+        pass
+
+    def sget_machine_description(self):
+        return self.get_node_property('/basics', 'description')
+
+    def sget_machine_name(self):
+        return self.get_node_property('/brand', 'model').lower().replace(' ', '_')
+
+    def sget_architecture(self):
+        return self.get_node_property('/basics', 'architecture')
+
+    def sget_ram_size(self):
+        _, ram_size = self.get_ram()
+        return '{} * MiB'.format(int(ram_size))
+
+    def sget_cpu_model(self):
+        # TODO solve this
+        return 'arm926'
+
+    def probe_cpu_pp_model(self):
+        return False
+
+    def sget_cpu_pp_mmio_base(self):
+        pass
+
+    def sget_uart_mmio_base(self):
+        pass
+
+    def sget_uart_baud_rate(self):
+        pass
+
+    def sget_uart_reg_shift(self):
+        pass
+
+    def sget_uart_irq(self):
+        pass
+
+    def lget_bamboo_devices(self):
+        return []
+
+    def sget_board_id(self):
+        # TODO fix this
+        return '0x661'
+
+    def sget_flash_type(self):
+        pass
+
+    def sget_flash_size(self):
+        pass
+
+    def sget_flash_section_size(self):
+        pass
 
     def get_running_command(self, *args, **kwargs):
         return self.get_node_property('/basics', 'running_command')
 
     def set_running_command(self, *args, **kwargs):
         running_command = args[0]
-        self.set_node_property('/basics', running_command)
+        self.set_node_property('/basics', 'running_command', running_command)
 
     def set_uart_baud(self, *args, **kwargs):
         uart_baud = args[0]

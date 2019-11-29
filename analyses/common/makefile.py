@@ -1,6 +1,5 @@
-import os
-import analyses.pymake.parser as parser
-from analyses.pymake.parserdata import SetVariable
+import pymake.pymake.parser as parser
+from pymake.pymake.parserdata import SetVariable
 
 
 def definition_filter(target, path_to_makefile, configs):

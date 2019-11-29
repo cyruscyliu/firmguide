@@ -1,6 +1,6 @@
 import abc
-import logging
 
+from supervisor.logging_setup import logger_info, logger_warning
 from supervisor.save_and_restore import finished, finish
 
 
@@ -8,8 +8,6 @@ class Analysis(object):
     def __init__(self):
         self.name = None
         self.description = None
-        self.log_suffix = None
-        self.logger = logging.getLogger()
         self.required = []
         self.context = {'hint': '', 'input': ''}
         self.critical = False
@@ -28,11 +26,19 @@ class Analysis(object):
     def run(self, firmware):
         pass
 
-    def info(self, message):
-        self.logger.info('{} {}'.format(message, self.log_suffix))
+    def info(self, firmware, message, status):
+        logger_info(firmware.uuid, 'analysis', self.name, message, status)
 
-    def error(self):
-        self.logger.warning('{}, {}'.format(self.context['hint'], self.context['input']))
+    def error(self, firmware):
+        if self.context['input'].find('\n') != -1:
+            logger_warning(firmware.uuid, 'analysis', self.name, self.context['hint'], 0)
+            lines = self.context['input'].split('\n')
+            for line in lines:
+                if len(line):
+                    logger_warning(firmware.uuid, 'analysis', self.name, line, 0)
+        else:
+            logger_warning(
+                firmware.uuid, 'analysis', self.name, ', '.join([self.context['hint'], self.context['input']]), 0)
 
 
 class AnalysisGroup(object):
@@ -52,6 +58,7 @@ class AnalysesManager(object):
         self.analyses_flat = {}  # name:analysis
         self.analyses_forest = {}
         self.analyses_remaining = {}  # name:analysis
+        self.last_analysis_status = True
 
     @staticmethod
     def find_analysis_in_tree(analyses_tree, analysis):
@@ -118,9 +125,12 @@ class AnalysesManager(object):
     def remove_analyses_from_remaining_analyses(self, name):
         self.analyses_remaining.pop(name)
 
-    def register_analysis(self, analysis):
+    def register_analysis(self, analysis, no_chained=False):
         assert isinstance(analysis, Analysis) or isinstance(analysis, AnalysisGroup)
         self.analyses_flat[analysis.name] = analysis
+
+        if no_chained:
+            return
 
         if not analysis.has_required():
             self.analyses_remaining[analysis.name] = analysis
@@ -135,10 +145,9 @@ class AnalysesManager(object):
             analyses_tree = self.new_analyses_tree()
             self.add_analysis_to_tree(analyses_tree, analysis)
 
-    def run_analysis(self, firmware, name, args):
+    def run_analysis(self, firmware, name):
         analysis = self.analyses_flat[name]
-        analysis.args = args
-        self.analyses_flat[name].run(firmware)
+        self.last_analysis_status = self.analyses_flat[name].run(firmware)
 
     def run(self, firmware):
         for analyses_tree_name, analyses_tree in self.analyses_forest.items():
@@ -147,12 +156,14 @@ class AnalysesManager(object):
                 a = self.analyses_flat[analysis]
                 # save and restore
                 if finished(firmware, a):
+                    logger_info(firmware.uuid, 'analysis', 'done before', a.name, 0)
                     continue
                 res = a.run(firmware)
+                self.last_analysis_status = res
                 if not res:
-                    a.error()
+                    a.error(firmware)
                 if not res and a.is_critical():
                     raise NotImplementedError(firmware, a)
                 finish(firmware, a)
         for analysis in self.analyses_remaining:
-            analysis.run(firmware)
+            self.last_analysis_status = analysis.run(firmware)

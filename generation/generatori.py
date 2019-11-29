@@ -3,6 +3,18 @@ import abc
 
 class CodeGenerationInterface(object):
     @abc.abstractmethod
+    def probe_flash(self):
+        pass
+
+    @abc.abstractmethod
+    def probe_uart(self):
+        pass
+
+    @abc.abstractmethod
+    def probe_timer(self):
+        pass
+
+    @abc.abstractmethod
     def probe_bridge(self):
         pass
 
@@ -24,6 +36,10 @@ class CodeGenerationInterface(object):
 
     @abc.abstractmethod
     def sget_ram_priority(self):
+        pass
+
+    @abc.abstractmethod
+    def probe_interrupt_controller(self):
         pass
 
     @abc.abstractmethod
@@ -119,7 +135,11 @@ class CodeGenerationInterface(object):
         pass
 
     @abc.abstractmethod
-    def sget_path_to_kernel(self):
+    def sget_path_to_uimage(self):
+        pass
+
+    @abc.abstractmethod
+    def sget_path_to_dtb(self):
         pass
 
     @abc.abstractmethod

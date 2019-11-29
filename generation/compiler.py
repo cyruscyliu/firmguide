@@ -4,6 +4,7 @@ import abc
 from generation.common import to_state, to_mmio, to_ops, indent, to_type, to_read, to_write, to_update, \
     to_header, to_upper, to_cpu_pp_state, to_cpu_pp_type, concat, to_irq
 from generation.render import Template
+from supervisor.logging_setup import logger_info
 
 
 class CompilerToQEMUMachine(object):
@@ -29,6 +30,9 @@ class CompilerToQEMUMachine(object):
         self.custom_devices = {'timer': {'source': [], 'header': []},
                                'interrupt_controller': {'source': [], 'header': []},
                                'bridge': {'source': [], 'header': []}}
+
+    def info(self, firmware, message, action):
+        logger_info(firmware.uuid, 'code_generation', action, message, 0)
 
     @staticmethod
     def render_lines(lines):
@@ -166,66 +170,28 @@ class CompilerToQEMUMachine(object):
             self.solve_makefile(path, makefile, content)
 
     def install(self, firmware):
+        os.system('cp -r {}/qemu/* {}'.format(firmware.working_dir, self.location['root']))
+        self.solve_makefiles(firmware)
+
+    def run(self, firmware, lazy=True):
+        # compile first
+        os.system('cd build/qemu-4.0.0 && make -j4 && cd -')
+        # construct the command
+        running_command = 'build/qemu-4.0.0/arm-softmmu/qemu-system-arm'
         machine_name = firmware.sget_machine_name()
-        architecture = firmware.sget_architecture()
-        source_target = os.path.join(
-            self.location['root'], self.location['machine'][architecture], machine_name + '.c')
-        with open(source_target, 'w') as f:
-            f.write(self.source)
-            f.flush()
-        if len(self.custom_devices['timer']['source']):
-            timer_name = firmware.sget_timer_name()
-            source_target = os.path.join(
-                self.location['root'], self.location['machine']['timer'], timer_name + '.c'
-            )
-            with open(source_target, 'w') as f:
-                f.write(self.custom_devices['timer']['source'])
-                f.flush()
-            header_target = os.path.join(
-                self.location['root'], 'include', self.location['machine']['timer'], timer_name + '.h'
-            )
-            with open(header_target, 'w') as f:
-                f.write(self.custom_devices['timer']['header'])
-                f.flush()
-
-        if len(self.custom_devices['interrupt_controller']['source']):
-            interrupt_controller_name = firmware.sget_interrupt_controller_name()
-            source_target = os.path.join(
-                self.location['root'], self.location['machine']['interrupt_controller'],
-                interrupt_controller_name + '.c'
-            )
-            with open(source_target, 'w') as f:
-                f.write(self.custom_devices['interrupt_controller']['source'])
-                f.flush()
-            header_target = os.path.join(
-                self.location['root'], 'include', self.location['machine']['interrupt_controller'],
-                interrupt_controller_name + '.h'
-            )
-            with open(header_target, 'w') as f:
-                f.write(self.custom_devices['interrupt_controller']['header'])
-                f.flush()
-
-        if len(self.custom_devices['bridge']['source']):
-            bridge_name = firmware.sget_bridge_name()
-            source_target = os.path.join(
-                self.location['root'], self.location['machine']['bridge'],
-                bridge_name + '.c'
-            )
-            with open(source_target, 'w') as f:
-                f.write(self.custom_devices['bridge']['source'])
-                f.flush()
-            header_target = os.path.join(
-                self.location['root'], 'include', self.location['machine']['bridge'],
-                bridge_name + '.h'
-            )
-            with open(header_target, 'w') as f:
-                f.write(self.custom_devices['bridge']['header'])
-                f.flush()
-
-    def run(self, firmware):
-        architecture = firmware.sget_architecture()
-        machine_name = firmware.sget_machine_name()
-        path_to_kernel = firmware.sget_path_to_kernel()
+        running_command += ' -M {}'.format(machine_name)
+        path_to_uimage = firmware.sget_path_to_uimage()
+        running_command += ' -kernel {}'.format(path_to_uimage)
+        path_to_dtb = firmware.sget_path_to_dtb()
+        if path_to_dtb:
+            running_command += ' -dtb {}'.format(path_to_dtb)
+        if firmware.probe_flash():
+            running_command += ' -drive file={},if=pflash,format=raw'.format(firmware.working_path)
+        running_command += ' -nographic'
+        firmware.set_running_command(running_command)
+        self.info(firmware, running_command, 'run')
+        if not lazy:
+            os.system(running_command)
 
     def solve(self, firmware):
         self.solve_machine_includings(firmware)
@@ -234,13 +200,13 @@ class CompilerToQEMUMachine(object):
         self.solve_machine_init(firmware)
         self.solve_machine_class_init(firmware)
         self.solve_define_machine(firmware)
-        self.solve_makefiles(firmware)
 
     def solve_machine_struct(self, firmware):
         machine_name = firmware.sget_machine_name()
         self.machine_struct['declaration'].extend([
             'typedef struct {} {{'.format(to_state(machine_name)), '}} {};'.format(to_state(machine_name))
         ])
+        self.info(firmware, 'solved machine struct', 'compile')
 
     def solve_machine_defines(self, firmware):
         machine_name = firmware.sget_machine_name()
@@ -249,11 +215,13 @@ class CompilerToQEMUMachine(object):
             '#define {}(obj) \\\n    OBJECT_CHECK({}, (obj), {})'.format(
                 machine_name.upper(), to_state(machine_name), to_type(machine_name))
         ])
+        self.info(firmware, 'solved machine defines', 'compile')
 
     def solve_machine_includings(self, firmware):
         self.machine['includings'].extend(['qemu/osdep.h'])
         self.machine['includings'].extend(['qemu/log.h'])
         self.machine['includings'].extend(['hw/sysbus.h'])
+        self.info(firmware, 'solved machine includings', 'compile')
 
     def solve_abelia_devices(self, firmware):
         # cpu
@@ -273,6 +241,7 @@ class CompilerToQEMUMachine(object):
             raise NotImplementedError()
         self.machine_init['body'].extend([
             indent('object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);', 1)])
+        self.info(firmware, 'solved abelia cpu', 'compile')
         # cpu_pp
         cpu_model = firmware.sget_cpu_model()
         cpu_pp_model = firmware.probe_cpu_pp_model()
@@ -292,6 +261,7 @@ class CompilerToQEMUMachine(object):
                     indent('cpu_mips_irq_init_cpu(s->cpu);', 1),
                     indent('cpu_mips_clock_init(s->cpu);', 1)
                 ])
+            self.info(firmware, 'solved abelia cpu private peripheral', 'compile')
         # ram
         ram_priority = firmware.sget_ram_priority()
         self.machine['includings'].extend(['exec/address-spaces.h'])
@@ -300,8 +270,9 @@ class CompilerToQEMUMachine(object):
             indent('memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);'),
             indent('memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, {});'.format(ram_priority)),
         ])
+        self.info(firmware, 'solved abelia ram', 'compile')
         # interrupt controller
-        if not cpu_pp_model:
+        if not cpu_pp_model and firmware.probe_interrupt_controller():
             ic_name = firmware.sget_interrupt_controller_name()
             ic_registers = firmware.lget_interrupt_controller_registers()
             ic_mmio_size = firmware.sget_interrupt_controller_mmio_size()
@@ -327,6 +298,7 @@ class CompilerToQEMUMachine(object):
                 indent('object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);', 1),
                 indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {});'.format(ic_mmio_base), 1)
             ])
+            self.info(firmware, 'solved abelia interrupt controller', 'compile')
         # bridge
         if firmware.probe_bridge():
             bridge_name = firmware.sget_bridge_name()
@@ -370,8 +342,9 @@ class CompilerToQEMUMachine(object):
                     'sysbus_connect_irq(SYS_BUS_DEVICE(&s->bridge), 0, '
                     'qdev_get_gpio_in_named(DEVICE(&s->ic), {}, 0));'.format(to_irq(ic_name))
                 )])
+            self.info(firmware, 'solved abelia bridge', 'compile')
         # timer
-        if not cpu_pp_model:
+        if not cpu_pp_model and firmware.probe_timer():
             timer_name = firmware.sget_timer_name()
             timer_registers = firmware.lget_timer_registers()
             timer_mmio_size = firmware.sget_timer_mmio_size()
@@ -408,57 +381,62 @@ class CompilerToQEMUMachine(object):
                         connection['output'], connection['input']['device'], to_irq(connection['input']['device']),
                         connection['input']['input']
                     ))])
+            self.info(firmware, 'solved abelia timer', 'compile')
         # uart
-        uart_mmio_base = firmware.sget_uart_mmio_base()
-        uart_baud_rate = firmware.sget_uart_baud_rate()
-        uart_reg_shift = firmware.sget_uart_reg_shift()
-        uart_irq = firmware.sget_uart_irq()
-        uart_irq_api = ''
-        if cpu_pp_model:
-            if architecture == 'arm':
-                uart_irq_api = 'qdev_get_gpio_in(DEVICE(&s->cpu_pp), {})'.format(uart_irq)
-            elif architecture == 'mips':
-                uart_irq_api = 's->cpu->env.irq[{}]'.format(uart_irq)
+        if firmware.probe_uart():
+            uart_mmio_base = firmware.sget_uart_mmio_base()
+            uart_baud_rate = firmware.sget_uart_baud_rate()
+            uart_reg_shift = firmware.sget_uart_reg_shift()
+            uart_irq = firmware.sget_uart_irq()
+            uart_irq_api = ''
+            if cpu_pp_model:
+                if architecture == 'arm':
+                    uart_irq_api = 'qdev_get_gpio_in(DEVICE(&s->cpu_pp), {})'.format(uart_irq)
+                elif architecture == 'mips':
+                    uart_irq_api = 's->cpu->env.irq[{}]'.format(uart_irq)
+                else:
+                    raise NotImplementedError()
+            else:
+                uart_irq_api = 'qdev_get_gpio_in_named(DEVICE(&s->ic), {}, {})'.format(to_irq(ic_name), uart_irq)
+
+            self.machine['includings'].extend(['hw/char/serial.h'])
+            self.machine_init['body'].extend([
+                indent(
+                    'serial_mm_init(get_system_memory(), {}, {}, {}, {}, serial_hd(0), DEVICE_LITTLE_ENDIAN);'.format(
+                        uart_mmio_base, uart_reg_shift, uart_irq_api, uart_baud_rate))
+            ])
+            self.info(firmware, 'solved abelia uart', 'compile')
+        # flash
+        if firmware.probe_flash():
+            flash_type = firmware.sget_flash_type()
+            self.machine['includings'].extend(['sysemu/blockdev.h', 'hw/block/flash.h'])
+            self.machine_init['declaration'].extend([indent('DriveInfo *dinfo;', 1)])
+            if flash_type == 'nor':
+                flash_base = firmware.sget_flash_base()
+                flash_size = firmware.sget_flash_size()
+                flash_section_size = firmware.sget_flash_section_size()
+                self.machine_init['body'].extend([
+                    indent('dinfo = drive_get(IF_PFLASH, 0, 0);', 1),
+                    indent('pflash_cfi01_register({}, "flash", {}, dinfo ? blk_by_legacy_dinfo(dinfo): NULL, '
+                           '{}, 4, 0, 0, 0, 0, 0);'.format(flash_base, flash_size, flash_section_size), 1)
+                ])
+            elif flash_type == 'nand':
+                self.machine_init['body'].extend([
+                    indent('dinfo = drive_get(IF_MTD, 0, 0);', 1),
+                    indent('nand_init(dinfo ? blk_by_legacy_dinfo(dinfo): NULL, 0xec, 0x73);')
+                ])
             else:
                 raise NotImplementedError()
-        else:
-            uart_irq_api = 'qdev_get_gpio_in_named(DEVICE(&s->ic), {}, {})'.format(to_irq(ic_name), uart_irq)
-
-        self.machine['includings'].extend(['hw/char/serial.h'])
-        self.machine_init['body'].extend([
-            indent(
-                'serial_mm_init(get_system_memory(), {}, {}, {}, {}, serial_hd(0), DEVICE_LITTLE_ENDIAN);'.format(
-                    uart_mmio_base, uart_reg_shift, uart_irq_api, uart_baud_rate))
-        ])
-
-        # flash
-        flash_type = firmware.sget_flash_type()
-        self.machine['includings'].extend(['sysemu/blockdev.h', 'hw/block/flash.h'])
-        self.machine_init['declaration'].extend([indent('DriveInfo *dinfo;', 1)])
-        if flash_type == 'nor':
-            flash_base = firmware.sget_flash_base()
-            flash_size = firmware.sget_flash_size()
-            flash_section_size = firmware.sget_flash_section_size()
-            self.machine_init['body'].extend([
-                indent('dinfo = drive_get(IF_PFLASH, 0, 0);', 1),
-                indent('pflash_cfi01_register({}, "flash", {}, dinfo ? blk_by_legacy_dinfo(dinfo): NULL, '
-                       '{}, 4, 0, 0, 0, 0, 0);'.format(flash_base, flash_size, flash_section_size), 1)
-            ])
-        elif flash_type == 'nand':
-            self.machine_init['body'].extend([
-                indent('dinfo = drive_get(IF_MTD, 0, 0);', 1),
-                indent('nand_init(dinfo ? blk_by_legacy_dinfo(dinfo): NULL, 0xec, 0x73);')
-            ])
-        else:
-            raise NotImplementedError()
+            self.info(firmware, 'soved abelia flash', 'compile')
 
     def solve_bamboo_devices(self, firmware):
         machine_name = firmware.sget_machine_name()
         #
         self.machine_reset['signature'].extend(['static void {}_reset(void *opaque)'.format(machine_name)])
-        self.machine_reset['declaration'].extend([indent('{} *s = opaque;'.format(to_state(machine_name)), 1)])
         #
         bamboos = firmware.lget_bamboo_devices()
+        if len(bamboos):
+            self.machine_reset['declaration'].extend([indent('{} *s = opaque;'.format(to_state(machine_name)), 1)])
         for id_, bamboo in enumerate(bamboos):
             name = bamboo['name']
             mmio_size = bamboo['mmio_size']
@@ -535,7 +513,7 @@ class CompilerToQEMUMachine(object):
             write['body'].extend([indent('}', 1)])
             write['body'].extend([indent('{}(s);'.format(to_update(name)), 1)])
             self.machine_mmio_ops.append(write)
-            # 
+            #
             ops = {'declaration': [], 'values': []}
             ops['declaration'].extend([
                 'static const MemoryRegionOps {}'.format(to_ops(name))
@@ -550,6 +528,8 @@ class CompilerToQEMUMachine(object):
     def solve_irq_to_cpu(self, firmware):
         cpu_pp_model = firmware.probe_cpu_pp_model()
         architecture = firmware.sget_architecture()
+        if not firmware.probe_interrupt_controller():
+            return
         if cpu_pp_model and architecture == 'arm':
             self.machine_init['body'].extend([
                 indent('sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 0, '
@@ -613,6 +593,7 @@ class CompilerToQEMUMachine(object):
         self.machine_init['body'].extend([''])
         self.solve_irq_to_cpu(firmware)
         self.solve_load_kernel(firmware)
+        self.info(firmware, 'solved machine init', 'compile')
 
     def solve_machine_class_init(self, firmware):
         machine_desc = firmware.sget_machine_description()
@@ -679,12 +660,14 @@ class CompilerToQEMUMachine(object):
             '    /* mc->CPuArchIdList = ; */',
             '    /* mc->get_default_cpu_node_id = ; */',
         ])
+        self.info(firmware, 'solved machine class init', 'compile')
 
     def solve_define_machine(self, firmware):
         machine_name = firmware.sget_machine_name()
         self.machine['define_machine'].extend([
             'DEFINE_MACHINE(\"{}\", {}_machine_init)'.format(machine_name, machine_name)])
         self.machine['includings'].extend(['hw/boards.h'])
+        self.info(firmware, 'solved define machine', 'compile')
 
     def link(self, firmware):
         #
@@ -715,3 +698,68 @@ class CompilerToQEMUMachine(object):
         for k, v in self.custom_devices.items():
             v['source'] = ''.join(v['source'])
             v['header'] = ''.join(v['header'])
+        #
+        machine_name = firmware.sget_machine_name()
+        architecture = firmware.sget_architecture()
+        os.makedirs(os.path.join(firmware.working_dir, 'qemu'), exist_ok=True)
+        source_target = os.path.join(
+            firmware.working_dir, 'qemu', self.location['machine'][architecture], machine_name + '.c')
+        os.makedirs(os.path.dirname(source_target), exist_ok=True)
+        with open(source_target, 'w') as f:
+            f.write(self.source)
+            f.flush()
+        if len(self.custom_devices['timer']['source']):
+            timer_name = firmware.sget_timer_name()
+            source_target = os.path.join(
+                firmware.working_dir, 'qemu', self.location['machine']['timer'], timer_name + '.c'
+            )
+            os.makedirs(os.path.dirname(source_target), exist_ok=True)
+            with open(source_target, 'w') as f:
+                f.write(self.custom_devices['timer']['source'])
+                f.flush()
+            header_target = os.path.join(
+                firmware.working_dir, 'qemu', 'include', self.location['machine']['timer'], timer_name + '.h'
+            )
+            os.makedirs(os.path.dirname(header_target), exist_ok=True)
+            with open(header_target, 'w') as f:
+                f.write(self.custom_devices['timer']['header'])
+                f.flush()
+
+        if len(self.custom_devices['interrupt_controller']['source']):
+            interrupt_controller_name = firmware.sget_interrupt_controller_name()
+            source_target = os.path.join(
+                firmware.working_dir, 'qemu', self.location['machine']['interrupt_controller'],
+                interrupt_controller_name + '.c'
+            )
+            os.makedirs(os.path.dirname(source_target), exist_ok=True)
+            with open(source_target, 'w') as f:
+                f.write(self.custom_devices['interrupt_controller']['source'])
+                f.flush()
+            header_target = os.path.join(
+                firmware.working_dir, 'qemu', 'include', self.location['machine']['interrupt_controller'],
+                interrupt_controller_name + '.h'
+            )
+            os.makedirs(os.path.dirname(header_target), exist_ok=True)
+            with open(header_target, 'w') as f:
+                f.write(self.custom_devices['interrupt_controller']['header'])
+                f.flush()
+
+        if len(self.custom_devices['bridge']['source']):
+            bridge_name = firmware.sget_bridge_name()
+            source_target = os.path.join(
+                firmware.working_dir, 'qemu', self.location['machine']['bridge'],
+                bridge_name + '.c'
+            )
+            os.makedirs(os.path.dirname(source_target), exist_ok=True)
+            with open(source_target, 'w') as f:
+                f.write(self.custom_devices['bridge']['source'])
+                f.flush()
+            header_target = os.path.join(
+                firmware.working_dir, 'qemu', 'include', self.location['machine']['bridge'],
+                bridge_name + '.h'
+            )
+            os.makedirs(os.path.dirname(header_target), exist_ok=True)
+            with open(header_target, 'w') as f:
+                f.write(self.custom_devices['bridge']['header'])
+                f.flush()
+        self.info(firmware, 'have linked them all at {}'.format(os.path.join(firmware.working_dir, 'qemu')), 'link')

@@ -13,8 +13,8 @@ class Format(Analysis):
             count = 0
             for result in module.results:
                 if str(result.description).find('flattened image tree') != -1:
-                    self.info('\033[32mFIT uImage found, offset {}, {}\033[0m'.format(
-                        result.offset, result.description))
+                    self.info(firmware, 'FIT uImage found, offset {}, {}'.format(
+                        result.offset, result.description), 1)
                     image_type = 'fit uImage'
                     image_path = module.extractor.output[result.file.path].carved[result.offset]
                     firmware.set_format(image_type)
@@ -22,8 +22,8 @@ class Format(Analysis):
                     count += 1
                     break
                 elif str(result.description).find('uImage') != -1:
-                    self.info('\033[32mLegacy uImage found, offset {}, {}\033[0m'.format(
-                        result.offset, result.description))
+                    self.info(firmware, 'Legacy uImage found, offset {}, {}'.format(
+                        result.offset, result.description), 1)
                     image_type = 'legacy uImage'
                     image_path = module.extractor.output[result.file.path].carved[result.offset]
                     firmware.set_format(image_type)
@@ -31,8 +31,8 @@ class Format(Analysis):
                     count += 1
                     break
                 elif str(result.description).find('TRX') != -1:
-                    self.info('\033[32mTRX image found, offset {}, {}\033[0m'.format(
-                        result.offset, result.description))
+                    self.info(firmware, 'TRX image found, offset {}, {}'.format(
+                        result.offset, result.description), 1)
                     image_type = 'trx kernel'
                     # because *.trx will be overwrote by *.7z, we replace 7z with trx here
                     image_path = module.extractor.output[result.file.path].carved[result.offset].replace('7z', 'trx')
@@ -43,7 +43,7 @@ class Format(Analysis):
                 else:
                     image_type = 'unknown'
                     firmware.set_format(image_type)
-                self.context['hint'] += '0x%.8X    %s\n' % (
+                self.context['input'] += '0x%.8X    %s\n' % (
                     result.offset, result.description)
             if not count:
                 return False
@@ -54,7 +54,6 @@ class Format(Analysis):
         super().__init__()
         self.name = 'format'
         self.description = 'check the format of the given firmware by binwalk'
-        self.log_suffix = '[BINWALK]'
         self.context['hint'] = 'binwalk does not recognize this new format'
         self.critical = True
         self.required = []

@@ -26,11 +26,14 @@ if __name__ == '__main__':
     # massive analyses
     group = parser.add_argument_group('massive analyses')
     group.add_argument('-dbt', '--database_type', choices=['text', 'firmadyne'], default='text',
-                        type=str, help='assign the firmware db type')
+                       type=str, help='assign the firmware db type')
     group.add_argument('-l', '--limit', type=int, default=0,
-                        help='limit the amount of firmware to test')
+                       help='limit the amount of firmware to test')
     group.add_argument('-u', '--uuid', type=str, nargs='+',
-                        help='assign a uuid to a firmware in the firmware db')
+                       help='assign a uuid to a firmware in the firmware db')
+    group.add_argument('-q', '--quick', action='store_true', default=False,
+                       help='disable tracing and diagnosis')
+
     # diagnosis
     group = parser.add_argument_group('diagnosis')
     group.add_argument('-t', '--trace', type=str, help='assign a trace file')

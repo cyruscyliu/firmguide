@@ -1,10 +1,10 @@
 # Salamander
 
-This is a project aiming to run and test any given firmware blob dynamically in a pure software way.
+Salamander is a project aiming to run and test any given firmware blob dynamically in a pure software way.
 
 ## Install
 
-```bash
+```shell script
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get update
 sudo apt-get install -y python3.7
@@ -22,7 +22,7 @@ sudo apt-get install -y bison flex
 sudo apt-get install -y libcapstone3 libcapstone-dev
 sudo apt-get install -y u-boot-tools
 sudo apt-get install -y gawk
-make # sudo make clean first if fails
+sudo make clean && make
 ```
 
 ## Start 
@@ -84,3 +84,13 @@ To test plenty of firmware.
 
 NOTE: To disable `save and restore`, please use `-r`.
 
+## Visualization
+
+```shell script
+python dashboard/__init__.py
+```
+
+![dashboard](./dashboard/dashboard.png)
+
+
+## License

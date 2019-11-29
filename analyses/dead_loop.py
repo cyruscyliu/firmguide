@@ -1,5 +1,13 @@
-class DynamicAnalysis(object):
+import math
+import pydot
+import networkx as nx
+
+from analyses.common.analysis import Analysis
+
+
+class DeadLoop(Analysis):
     def __init__(self):
+        super().__init__()
         # A basic block should be indexed by its first PC.
         # PC string must start with 0x.
         # For string trace, `content` is `lines`,
@@ -20,6 +28,15 @@ class DynamicAnalysis(object):
         # 0: {'length':1, 'iteration': 1, 'uuid': 0}
         self.loops = {}
         self.suspicious_loops = {}
+
+        self.flags = []
+        self.trace_tool = None
+
+        self.name = 'dead_loop'
+        self.description = 'find dead loop in the given trace'
+        self.context['hint'] = 'bad bad bad trace'
+        self.critical = True
+        self.required = []
 
     def brent_cycle_detection(self, start):
         """
@@ -128,12 +145,33 @@ class DynamicAnalysis(object):
             # TODO add incremental cycle detection
             raise NotImplementedError('only support floyd and brent\'s cycle detection algorithms')
 
+    def detect_dead_loop_by_graph(self):
+        # construct the weighted graph
+        graph = nx.DiGraph()
+        last_pc = None
+        for register_file in self.cpus.values():
+            pc = register_file['pc']
+            if last_pc is not None:
+                edge = graph.get_edge_data(last_pc, pc)
+                if edge is None:
+                    graph.add_edge(last_pc, pc, weight=1)
+                else:
+                    graph.add_edge(last_pc, pc, weight=edge['weight'] + 1)
+            last_pc = pc
+
+        # find heavy edge
+        dead_loop_candidates = []
+        for edge in graph.edges:
+            weight = graph.get_edge_data(*edge)['weight']
+            if weight > 2000:
+                dead_loop_candidates.append([edge[0], edge[1], weight])
+
     def detect_dead_loop(self):
         try:
             start = self.cpus[0]
             while 1:
                 offset, length, iteration = self.cycle_detection(start)
-                uuid = start['uuid'] + offset
+                uuid = offset
                 self.loops[uuid] = {
                     'uuid': uuid, 'length': length, 'iteration': iteration}
                 start = self.cpus[offset + length * iteration]
@@ -149,3 +187,93 @@ class DynamicAnalysis(object):
 
     def solve_constraints(self):
         pass
+
+    def run(self, firmware):
+        if firmware.trace_format == 'qemudebug':
+            self.trace_tool = 'qemu debug'
+            self.flags = ['in_asm', 'cpu']
+            if 'in_asm' in self.flags:
+                self.load_in_asm(firmware)
+            if 'cpu' in self.flags:
+                self.load_cpu(firmware)
+        else:  # 'ktracer'
+            self.trace_tool = 'ktracer'
+
+        self.detect_dead_loop()  # does not work well
+        # self.detect_dead_loop_by_graph() # does not work well
+        ratio = len(self.suspicious_loops) / len(self.loops)
+        if ratio > 0.2:
+            self.info(firmware, 'BAD! Have {:.4f}% suspicious infinite loops!'.format(ratio * 100), 0)
+        else:
+            self.info(firmware, 'GOOD! Have {} suspicious infinite loops!'.format(len(self.suspicious_loops)), 1)
+        if not len(self.suspicious_loops):
+            return
+        for uuid, suspicious_loop in self.suspicious_loops.items():
+            reg_offset = self.cpus[uuid]['offset']
+            c = math.floor(math.log(reg_offset, 10)) + 1
+            iteration = suspicious_loop['iteration']
+            length = suspicious_loop['length']
+            self.info(firmware, 'This suspicious log starts at line {}, repeated {} times!'.format(
+                reg_offset, iteration), 1)
+            for i in range(uuid, uuid + length):
+                pc = self.cpus[i]['pc']
+                bb_offset = self.bbs[pc]['offset']
+                for j, line in enumerate(self.bbs[pc]['content']):
+                    self.info(firmware, '{} {}'.format('-' * c, line), 0)
+                for j, line in enumerate(self.cpus[i]['content']):
+                    reg_offset = self.cpus[i]['offset']
+                    self.info(firmware, '{} {}'.format(reg_offset, line), 0)
+
+    def load_in_asm(self, firmware):
+        """
+        ----------------                                1
+        IN:                                             2
+        0x00000000:  e3a00000  mov      r0, #0          3
+        0x00000004:  e59f1004  ldr      r1, [pc, #4]    4
+        0x00000008:  e59f2004  ldr      r2, [pc, #4]    4
+        0x0000000c:  e59ff004  ldr      pc, [pc, #4]    4
+                                                        4
+        """
+        ln = 0
+        with open(firmware.path_to_trace) as f:
+            new = 0
+            for line in f:
+                if new == 0 and line.startswith('---'):
+                    new = 1
+                if new == 3:
+                    bb_id = line.strip().split(':')[0]
+                    self.bbs[bb_id] = {'content': [line.strip()], 'offset': ln + 1}
+                if new == 4 and len(line.strip()):
+                    self.bbs[bb_id]['content'].append(line.strip())
+                if new in [1, 2, 3]:
+                    new += 1
+                if new == 4 and not len(line.strip()):
+                    new = 0
+                ln += 1
+
+    def load_cpu(self, firmware):
+        """
+        R00=00000000 R01=00000000 R02=00000000 R03=00000000 1
+        R04=00000000 R05=00000000 R06=00000000 R07=00000000 2
+        R08=00000000 R09=00000000 R10=00000000 R11=00000000 3
+        R12=00000000 R13=00000000 R14=00000000 R15=00000000 4
+        PSR=400001d3 -Z-- A svc32                           5
+        """
+        ln = 0
+        id_ = 0
+        with open(firmware.path_to_trace) as f:
+            new = 0
+            for line in f:
+                if new == 0 and line.startswith('R00'):
+                    new = 1
+                    self.cpus[id_] = {'uuid': id_, 'offset': ln + 1, 'content': []}
+                if new in [1, 2, 3, 4, 5]:
+                    self.cpus[id_]['content'].append(line.strip())
+                if new == 4:
+                    self.cpus[id_]['pc'] = '0x' + line.strip().split()[-1].partition('=')[2]
+                if new in [1, 2, 3, 4]:
+                    new += 1
+                if new == 5:
+                    new = 0
+                    id_ += 1
+                ln += 1
