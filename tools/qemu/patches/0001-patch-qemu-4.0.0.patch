@@ -1,6 +1,6 @@
-From 4ce97627c09b413082437b3c6f709d9f555d1e1b Mon Sep 17 00:00:00 2001
+From b7ce2eb67f2d765134a5866660e2057e9a8f4920 Mon Sep 17 00:00:00 2001
 From: cyrus <cyruscyliu@gmail.com>
-Date: Wed, 27 Nov 2019 18:34:00 +0800
+Date: Fri, 29 Nov 2019 15:11:56 +0800
 Subject: [PATCH] patch qemu-4.0.0
 
 ---

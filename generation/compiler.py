@@ -31,8 +31,8 @@ class CompilerToQEMUMachine(object):
                                'interrupt_controller': {'source': [], 'header': []},
                                'bridge': {'source': [], 'header': []}}
 
-    def info(self, message, compile_or_link):
-        logger_info(None, 'code_generation', 'link', message, 0)
+    def info(self, firmware, message, action):
+        logger_info(firmware.uuid, 'code_generation', action, message, 0)
 
     @staticmethod
     def render_lines(lines):
@@ -189,7 +189,7 @@ class CompilerToQEMUMachine(object):
             running_command += ' -drive file={},if=pflash,format=raw'.format(firmware.working_path)
         running_command += ' -nographic'
         firmware.set_running_command(running_command)
-        self.info(running_command, 'run')
+        self.info(firmware, running_command, 'run')
         if not lazy:
             os.system(running_command)
 
@@ -206,7 +206,7 @@ class CompilerToQEMUMachine(object):
         self.machine_struct['declaration'].extend([
             'typedef struct {} {{'.format(to_state(machine_name)), '}} {};'.format(to_state(machine_name))
         ])
-        self.info('solved machine struct', 'compile')
+        self.info(firmware, 'solved machine struct', 'compile')
 
     def solve_machine_defines(self, firmware):
         machine_name = firmware.sget_machine_name()
@@ -215,13 +215,13 @@ class CompilerToQEMUMachine(object):
             '#define {}(obj) \\\n    OBJECT_CHECK({}, (obj), {})'.format(
                 machine_name.upper(), to_state(machine_name), to_type(machine_name))
         ])
-        self.info('solved machine defines', 'compile')
+        self.info(firmware, 'solved machine defines', 'compile')
 
     def solve_machine_includings(self, firmware):
         self.machine['includings'].extend(['qemu/osdep.h'])
         self.machine['includings'].extend(['qemu/log.h'])
         self.machine['includings'].extend(['hw/sysbus.h'])
-        self.info('solved machine includings', 'compile')
+        self.info(firmware, 'solved machine includings', 'compile')
 
     def solve_abelia_devices(self, firmware):
         # cpu
@@ -241,7 +241,7 @@ class CompilerToQEMUMachine(object):
             raise NotImplementedError()
         self.machine_init['body'].extend([
             indent('object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);', 1)])
-        self.info('solved abelia cpu', 'compile')
+        self.info(firmware, 'solved abelia cpu', 'compile')
         # cpu_pp
         cpu_model = firmware.sget_cpu_model()
         cpu_pp_model = firmware.probe_cpu_pp_model()
@@ -261,7 +261,7 @@ class CompilerToQEMUMachine(object):
                     indent('cpu_mips_irq_init_cpu(s->cpu);', 1),
                     indent('cpu_mips_clock_init(s->cpu);', 1)
                 ])
-            self.info('solved abelia cpu private peripheral', 'compile')
+            self.info(firmware, 'solved abelia cpu private peripheral', 'compile')
         # ram
         ram_priority = firmware.sget_ram_priority()
         self.machine['includings'].extend(['exec/address-spaces.h'])
@@ -270,7 +270,7 @@ class CompilerToQEMUMachine(object):
             indent('memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);'),
             indent('memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, {});'.format(ram_priority)),
         ])
-        self.info('solved abelia ram', 'compile')
+        self.info(firmware, 'solved abelia ram', 'compile')
         # interrupt controller
         if not cpu_pp_model and firmware.probe_interrupt_controller():
             ic_name = firmware.sget_interrupt_controller_name()
@@ -298,7 +298,7 @@ class CompilerToQEMUMachine(object):
                 indent('object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);', 1),
                 indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {});'.format(ic_mmio_base), 1)
             ])
-            self.info('solved abelia interrupt controller', 'compile')
+            self.info(firmware, 'solved abelia interrupt controller', 'compile')
         # bridge
         if firmware.probe_bridge():
             bridge_name = firmware.sget_bridge_name()
@@ -342,7 +342,7 @@ class CompilerToQEMUMachine(object):
                     'sysbus_connect_irq(SYS_BUS_DEVICE(&s->bridge), 0, '
                     'qdev_get_gpio_in_named(DEVICE(&s->ic), {}, 0));'.format(to_irq(ic_name))
                 )])
-            self.info('solved abelia bridge', 'compile')
+            self.info(firmware, 'solved abelia bridge', 'compile')
         # timer
         if not cpu_pp_model and firmware.probe_timer():
             timer_name = firmware.sget_timer_name()
@@ -381,7 +381,7 @@ class CompilerToQEMUMachine(object):
                         connection['output'], connection['input']['device'], to_irq(connection['input']['device']),
                         connection['input']['input']
                     ))])
-            self.info('solved abelia timer', 'compile')
+            self.info(firmware, 'solved abelia timer', 'compile')
         # uart
         if firmware.probe_uart():
             uart_mmio_base = firmware.sget_uart_mmio_base()
@@ -405,7 +405,7 @@ class CompilerToQEMUMachine(object):
                     'serial_mm_init(get_system_memory(), {}, {}, {}, {}, serial_hd(0), DEVICE_LITTLE_ENDIAN);'.format(
                         uart_mmio_base, uart_reg_shift, uart_irq_api, uart_baud_rate))
             ])
-            self.info('solved abelia uart', 'compile')
+            self.info(firmware, 'solved abelia uart', 'compile')
         # flash
         if firmware.probe_flash():
             flash_type = firmware.sget_flash_type()
@@ -427,7 +427,7 @@ class CompilerToQEMUMachine(object):
                 ])
             else:
                 raise NotImplementedError()
-            self.info('soved abelia flash', 'compile')
+            self.info(firmware, 'soved abelia flash', 'compile')
 
     def solve_bamboo_devices(self, firmware):
         machine_name = firmware.sget_machine_name()
@@ -593,7 +593,7 @@ class CompilerToQEMUMachine(object):
         self.machine_init['body'].extend([''])
         self.solve_irq_to_cpu(firmware)
         self.solve_load_kernel(firmware)
-        self.info('solved machine init', 'compile')
+        self.info(firmware, 'solved machine init', 'compile')
 
     def solve_machine_class_init(self, firmware):
         machine_desc = firmware.sget_machine_description()
@@ -660,14 +660,14 @@ class CompilerToQEMUMachine(object):
             '    /* mc->CPuArchIdList = ; */',
             '    /* mc->get_default_cpu_node_id = ; */',
         ])
-        self.info('solved machine class init', 'compile')
+        self.info(firmware, 'solved machine class init', 'compile')
 
     def solve_define_machine(self, firmware):
         machine_name = firmware.sget_machine_name()
         self.machine['define_machine'].extend([
             'DEFINE_MACHINE(\"{}\", {}_machine_init)'.format(machine_name, machine_name)])
         self.machine['includings'].extend(['hw/boards.h'])
-        self.info('solved define machine', 'compile')
+        self.info(firmware, 'solved define machine', 'compile')
 
     def link(self, firmware):
         #
@@ -762,4 +762,4 @@ class CompilerToQEMUMachine(object):
             with open(header_target, 'w') as f:
                 f.write(self.custom_devices['bridge']['header'])
                 f.flush()
-        self.info('have linked them all at {}'.format(os.path.join(firmware.working_dir, 'qemu')), 'link')
+        self.info(firmware, 'have linked them all at {}'.format(os.path.join(firmware.working_dir, 'qemu')), 'link')

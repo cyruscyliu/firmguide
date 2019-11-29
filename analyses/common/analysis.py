@@ -38,7 +38,7 @@ class Analysis(object):
                     logger_warning(firmware.uuid, 'analysis', self.name, line, 0)
         else:
             logger_warning(
-                firmware.uuid, 'analysis', self.name, ','.join([self.context['hint'], self.context['input']]), 0)
+                firmware.uuid, 'analysis', self.name, ', '.join([self.context['hint'], self.context['input']]), 0)
 
 
 class AnalysisGroup(object):
@@ -161,7 +161,7 @@ class AnalysesManager(object):
                 res = a.run(firmware)
                 self.last_analysis_status = res
                 if not res:
-                    a.error()
+                    a.error(firmware)
                 if not res and a.is_critical():
                     raise NotImplementedError(firmware, a)
                 finish(firmware, a)

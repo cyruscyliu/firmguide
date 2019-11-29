@@ -17,6 +17,7 @@ from analyses.dead_loop import DeadLoop
 from database.dbf import get_database
 from generation.compiler import CompilerToQEMUMachine
 from profile.pff import get_firmware_in_profile
+from profile.tinyft import TinyForTestFirmware
 from supervisor.logging_setup import logger_info, logger_warning
 from supervisor.save_and_restore import setup, check_and_restore, save_analysis
 
@@ -31,7 +32,8 @@ def run_diagnosis(args):
     path_to_trace = args.trace
     analyses_manager = AnalysesManager()
     analyses_manager.register_analysis(DeadLoop(), no_chained=True)
-    analyses_manager.run_analysis(None, 'dead_loop', trace_format, path_to_trace)
+    firmware = TinyForTestFirmware(**{'uuid': '0', 'path': None, 'size': 0, 'name': 'TinyForTestFirmware'})
+    analyses_manager.run_analysis(firmware, 'dead_loop', trace_format, path_to_trace)
 
 
 def run_single_analysis(args):
@@ -58,8 +60,9 @@ def run_massive_analyses(args):
             continue
         if args.limit and firmware.id > args.limit:
             continue
-        analysis_pool.apply_async(
-            analysis_wrapper, (firmware, args), error_callback=error_callback)
+        # analysis_pool.apply_async(
+        #     analysis_wrapper, (firmware, args), error_callback=error_callback)
+        analysis_wrapper(firmware, args)
     analysis_pool.close()
     analysis_pool.join()
 
@@ -123,6 +126,7 @@ def analysis_wrapper(firmware, args):
                 break
             logger_info(firmware.uuid, 'analysis', 'checking analysis', 'BAAD! Have not entered the user level!', 0)
             analyses_manager.run_analysis(firmware, 'dead_loop', trace_format, path_to_trace)
+            break
     except NotImplementedError as e:
         firmware, analysis = e.args
         logger_warning(firmware.uuid, 'scheduler', 'exception', 'can not support this firmware, fix and rerun', 0)
@@ -138,6 +142,7 @@ def trace_collection(firmware):
     qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
     full_command = ' '.join([running_command, trace_flags, qmp_flags])
     try:
+        logger_info(firmware.uuid, 'tracing', 'qemudebug', full_command, 0)
         subprocess.run(full_command, timeout=60, shell=True)
     except subprocess.TimeoutExpired:
         qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
