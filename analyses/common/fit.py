@@ -1,9 +1,5 @@
 import re
 
-import logging
-
-logger = logging.getLogger()
-
 
 def fit_parser(dumpimage_lines):
     fit = {
@@ -68,6 +64,7 @@ def fit_parser(dumpimage_lines):
         elif level == 2 and config and line.startswith('  FDT'):
             fit['configurations'][conf_node]['fdt'] = items[1].strip()
         else:
-            logging.debug('not support line {}'.format(dumpimage_lines))
+            # logging.debug('not support line {}'.format(dumpimage_lines))
+            pass
     return fit
 

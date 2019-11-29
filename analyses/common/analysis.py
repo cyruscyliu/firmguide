@@ -1,6 +1,6 @@
 import abc
-import logging
 
+from supervisor.logging_setup import logger_info, logger_warning
 from supervisor.save_and_restore import finished, finish
 
 
@@ -8,8 +8,6 @@ class Analysis(object):
     def __init__(self):
         self.name = None
         self.description = None
-        self.log_suffix = None
-        self.logger = logging.getLogger()
         self.required = []
         self.context = {'hint': '', 'input': ''}
         self.critical = False
@@ -28,18 +26,19 @@ class Analysis(object):
     def run(self, firmware):
         pass
 
-    def info(self, message):
-        self.logger.info('\033[32m{}\033[0m {}'.format(message, self.log_suffix))
+    def info(self, firmware, message, status):
+        logger_info(firmware.uuid, 'analysis', self.name, message, status)
 
-    def error(self):
+    def error(self, firmware):
         if self.context['input'].find('\n') != -1:
-            self.logger.warning('{} {}'.format(self.context['hint'], self.log_suffix))
+            logger_warning(firmware.uuid, 'analysis', self.name, self.context['hint'], 0)
             lines = self.context['input'].split('\n')
             for line in lines:
                 if len(line):
-                    self.logger.warning('{} {}'.format(line, self.log_suffix))
+                    logger_warning(firmware.uuid, 'analysis', self.name, line, 0)
         else:
-            self.logger.warning('{}, {} {}'.format(self.context['hint'], self.context['input'], self.log_suffix))
+            logger_warning(
+                firmware.uuid, 'analysis', self.name, ','.join([self.context['hint'], self.context['input']]), 0)
 
 
 class AnalysisGroup(object):

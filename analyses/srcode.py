@@ -2,11 +2,8 @@
 Handle all about source code.
 """
 import os
-import logging
 
 from analyses.common.analysis import Analysis
-
-logger = logging.getLogger()
 
 
 class SRCode(Analysis):
@@ -24,19 +21,18 @@ class SRCode(Analysis):
         # and path to vmlinux
         path_to_source_code = None
         firmware.set_path_to_source_code(path_to_source_code)
-        self.info('get path to source {}'.format(path_to_source_code))
+        self.info(firmware, 'get path to source {}'.format(path_to_source_code), 1)
         # then, we are supposed to tell llbic to compile the source code to bitcode
         # TODO tell llbic and it should returen the path to llvm bitcode
         path_to_llvm_bitcode = None
         firmware.set_path_to_llvm_bitcode(path_to_source_code)
-        self.info('get path to llvm bitcode {}'.format(path_to_llvm_bitcode))
+        self.info(firmware, 'get path to llvm bitcode {}'.format(path_to_llvm_bitcode), 1)
         return True
 
     def __init__(self):
         super().__init__()
         self.name = 'srcode'
         self.description = 'process source code'
-        self.log_suffix = '[SRCODE]'
         self.required = ['strings', 'revision', 'url', 'toh']
         self.context['hint'] = ''
         self.critical = True

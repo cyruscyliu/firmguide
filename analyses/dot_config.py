@@ -42,7 +42,7 @@ class DotConfig(Analysis):
                 if cpus is None:
                     continue
                 for cpu, properties in cpus.items():
-                    self.info('\033[32mget cpu model: {} \033[0m'.format(properties))
+                    self.info(firmware, '\033[32mget cpu model: {} \033[0m'.format(properties), 1)
                     path_to_cpu = firmware.find_cpu_nodes(new=True)
                     for k, v in properties.items():
                         firmware.set_node_property(path_to_cpu, k, v)
@@ -51,7 +51,6 @@ class DotConfig(Analysis):
         super().__init__()
         self.name = '.config'
         self.description = 'extract information from .config'
-        self.log_suffix = '[.CONFIG]'
         self.required = ['srcode']
         self.context['hint'] = 'no .config available'
         self.critical = False

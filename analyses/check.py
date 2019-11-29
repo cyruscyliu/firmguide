@@ -16,7 +16,7 @@ class Checking(Analysis):
         # arguments
         # args[0] = trace_format
         # args[1] = path_to_trace
-        self.info('scan user level indicators in {}'.format(self.args[1]))
+        self.info(firmware, 'scan user level indicators in {}'.format(self.args[1]), 1)
         if self.args[0] == 'qemudebug':
             return self.scan_user_level_qemudebug()
         else:
@@ -26,7 +26,6 @@ class Checking(Analysis):
         super().__init__()
         self.name = 'check'
         self.description = 'check whether we have done our job'
-        self.log_suffix = '[CHECKING]'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = True
         self.required = []

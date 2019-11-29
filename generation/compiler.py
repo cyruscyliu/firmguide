@@ -1,12 +1,10 @@
 import os
 import abc
-import logging
 
 from generation.common import to_state, to_mmio, to_ops, indent, to_type, to_read, to_write, to_update, \
     to_header, to_upper, to_cpu_pp_state, to_cpu_pp_type, concat, to_irq
 from generation.render import Template
-
-logger = logging.getLogger()
+from supervisor.logging_setup import logger_info
 
 
 class CompilerToQEMUMachine(object):
@@ -34,7 +32,7 @@ class CompilerToQEMUMachine(object):
                                'bridge': {'source': [], 'header': []}}
 
     def info(self, message, compile_or_link):
-        logger.info('\033[32m{}\033[0m [{}]'.format(message, compile_or_link.upper()))
+        logger_info(None, 'code_generation', 'link', message, 0)
 
     @staticmethod
     def render_lines(lines):

@@ -1,5 +1,4 @@
 import os
-import logging
 import multiprocessing
 import subprocess
 import qmp
@@ -18,9 +17,8 @@ from analyses.dead_loop import DeadLoop
 from database.dbf import get_database
 from generation.compiler import CompilerToQEMUMachine
 from profile.pff import get_firmware_in_profile
+from supervisor.logging_setup import logger_info, logger_warning
 from supervisor.save_and_restore import setup, check_and_restore, save_analysis
-
-logger = logging.getLogger()
 
 
 def error_callback(e):
@@ -123,15 +121,13 @@ def analysis_wrapper(firmware, args):
             analyses_manager.run_analysis(firmware, 'check', trace_format, path_to_trace)
             if analyses_manager.last_analysis_status:
                 break
-            logger.info('BAAD! Have not entered the user level!')
+            logger_info(firmware.uuid, 'analysis', 'checking analysis', 'BAAD! Have not entered the user level!', 0)
             analyses_manager.run_analysis(firmware, 'dead_loop', trace_format, path_to_trace)
     except NotImplementedError as e:
         firmware, analysis = e.args
-        logger.warning('\033[31mcan not support firmware {}, fix and rerun\033[0m'.format(firmware.uuid))
-        # dbp.add(uuid=firmware.uuid, name=firmware.name, hint=analysis.context['hint'],
-        #         input=analysis.context['input'])
+        logger_warning(firmware.uuid, 'scheduler', 'exception', 'can not support this firmware, fix and rerun', 0)
 
-    logger.info('GOOD! Have entered the user level!')
+    logger_info(firmware.uuid, 'analysis', 'checking analysis', 'GOOD! Have entered the user level!', 1)
     save_analysis(firmware)
 
 
@@ -142,11 +138,9 @@ def trace_collection(firmware):
     qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
     full_command = ' '.join([running_command, trace_flags, qmp_flags])
     try:
-        logger.info('tracing ...')
         subprocess.run(full_command, timeout=60, shell=True)
     except subprocess.TimeoutExpired:
         qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
         qemu.connect()
         qemu.cmd('quit')
         qemu.close()
-    logger.info('trace at log/{}.trace'.format(firmware.uuid))

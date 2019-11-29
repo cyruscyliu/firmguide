@@ -108,7 +108,7 @@ class Kernel(Analysis):
             self.context['input'] = 'this image type {} is not supported'.format(image_type)
             return False
         firmware.set_kernel_version(kernel_version)
-        self.info('\033[32mget the kernel version: {}\033[0m'.format(kernel_version))
+        self.info(firmware, 'get the kernel version: {}'.format(kernel_version), 1)
         firmware.set_kernel_created_time(kernel_created_time)
         firmware.set_kernel_load_address(kernel_load_address)
         firmware.set_kernel_entry_point(kernel_entry_point)
@@ -118,7 +118,6 @@ class Kernel(Analysis):
         super().__init__()
         self.name = 'kernel'
         self.description = 'extract kernel related information from mthe given firmware'
-        self.log_suffix = '[KERNEL]'
         self.context['hint'] = 'you must add strings parsers'
         self.required = ['extraction']
         self.critical = False

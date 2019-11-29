@@ -1,11 +1,9 @@
 import os
 import tempfile
-
 import yaml
 import shutil
-import logging
 
-logger = logging.getLogger()
+from supervisor.logging_setup import logger_info
 
 
 def check_and_restore(firmware, **kwargs):
@@ -50,9 +48,9 @@ def check_and_restore(firmware, **kwargs):
         )
 
     if first_time:
-        logger.info('[{}] for the first time, {}'.format(firmware.id, firmware.brief()))
+        logger_info(firmware.uuid, 'save_and_restore', 'first', firmware.brief(), 0)
     else:
-        logger.info('[{}] restore the analysis, {}'.format(firmware.id, firmware.brief()))
+        logger_info(firmware.uuid, 'save_and_restore', 'restore', firmware.brief(), 0)
 
 
 def save_analysis(firmware):
@@ -60,13 +58,13 @@ def save_analysis(firmware):
     with open(analysis, 'w') as f:
         yaml.safe_dump(firmware.analysis_progress, f)
     firmware.save_profile(working_dir=firmware.working_dir)
-    logger.info('[{}] saved the analysis'.format(firmware.id))
+    logger_info(firmware.uuid, 'save_and_restore', 'save', '', 0)
 
 
 def finished(firmware, analysis):
     try:
         status = firmware.analysis_progress[analysis.name]
-        logger.info('\033[34m{} done before\033[0m'.format(analysis.name))
+        logger_info(firmware.uuid, 'save_and_restore', 'done before', analysis.name, 0)
         return True
     except KeyError:
         return False

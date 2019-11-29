@@ -1,13 +1,11 @@
 import re
 import os
 import yaml
-import logging
 
 from prettytable import PrettyTable
 from analyses.common.analysis import Analysis
 from database.dbf import get_database
-
-logger = logging.getLogger()
+from supervisor.logging_setup import logger_info
 
 
 def get_strings(firmware):
@@ -70,7 +68,7 @@ class Strings(Analysis):
             if r is not None:
                 kernel_version = r.groups()[0]
                 firmware.set_kernel_version(kernel_version)
-                self.info('\033[32mget the kernel version: {}\033[0m'.format(kernel_version))
+                self.info(firmware, 'get the kernel version: {}'.format(kernel_version), 1)
                 break
         # TODO: refactor the following 2 methods
         # search_most_possible_target(firmware, strings)
@@ -79,7 +77,7 @@ class Strings(Analysis):
         for string in self.strings:
             if string.find('8250') != -1 or string.find('16550') != -1:
                 firmware.set_uart_model('ns16550A')
-                self.info('\033[32muart model {} found\033[0m'.format('ns16550A'))
+                self.info(firmware, 'uart model {} found'.format('ns16550A'), 1)
                 break
             else:
                 pass
@@ -92,7 +90,7 @@ class Strings(Analysis):
                 else:
                     uart_baud = b.split(',')[1].strip()
                     firmware.set_uart_baud(uart_baud)
-                    self.info('\033[32muart baud {} found\033[0m'.format(uart_baud))
+                    self.info(firmware, 'uart baud {} found'.format(uart_baud), 1)
                     break
         # ic
         for string in self.strings:
@@ -125,7 +123,7 @@ class Strings(Analysis):
             if v > vote:
                 vote = v
                 model = k
-        self.info('\033[32mget cpu model: {} \033[0m'.format(candidates[model]))
+        self.info(firmware, 'get cpu model: {}'.format(candidates[model]), 1)
         for cpu in candidates[model]:
             path_to_cpu = firmware.find_cpu_nodes(new=True)
             for k, v in cpu.items():
@@ -136,7 +134,6 @@ class Strings(Analysis):
         super().__init__()
         self.name = 'strings'
         self.description = 'handle strings'
-        self.log_suffix = '[STRINGS]'
         self.required = ['extraction', 'revision']
         self.context['hint'] = 'lack of strings'
         self.critical = False
@@ -166,14 +163,14 @@ def search_most_possible_toh_record(firmware, strings, extent=None):
             if possible:
                 break
     if len(filterd_results) == 0:
-        logger.info('nothing left {}'.format(LOG_SUFFIX))
+        # logger.info('nothing left {}'.format(LOG_SUFFIX))
         return
 
-    for line in table.__unicode__().split('\n'):
-        logger.debug(line)
+    # for line in table.__unicode__().split('\n'):
+    #     logger.debug(line)
 
     # use kernel version to infer supportedcurrentrel
-    logger.debug('filter out candidates by matching kernel version {}'.format(LOG_SUFFIX))
+    # logger.debug('filter out candidates by matching kernel version {}'.format(LOG_SUFFIX))
     if firmware.get_revision() is None:
         return
     filterd_results_2 = []
@@ -181,11 +178,11 @@ def search_most_possible_toh_record(firmware, strings, extent=None):
         if firmware.get_revision() == v[openwrt.header_last_selected.index('supportedcurrentrel')]:
             filterd_results_2.append(v)
     if len(filterd_results_2) == 1:
-        logger.info('only one left, choose it automatically {}'.format(LOG_SUFFIX))
+        # logger.info('only one left, choose it automatically {}'.format(LOG_SUFFIX))
         firmware.set_toh(filterd_results[0])
         return
     if len(filterd_results_2) == 0:
-        logger.info('nothing left {}'.format(LOG_SUFFIX))
+        # logger.info('nothing left {}'.format(LOG_SUFFIX))
         return
 
 
@@ -217,7 +214,7 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
     for k, v in subtarget_searched.items():
         sum_of_occurrence += v['count']
     if not sum_of_occurrence:
-        logger.info('get nothing, however here are some options {}'.format(LOG_SUFFIX))
+        # logger.info('get nothing, however here are some options {}'.format(LOG_SUFFIX))
         results = openwrt.select('*', target=firmware.get_target())
         table = PrettyTable(openwrt.header_last_selected)
         filterd_results = []
@@ -226,9 +223,9 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
             if v[openwrt.header_last_selected.index('supportedcurrentrel')] == '':
                 continue
             filterd_results.append(v)
-        for line in table.__unicode__().split('\n'):
-            logger.info(line)
-        logger.debug('filter out candidates by empty supportedcurrentrel')
+        # for line in table.__unicode__().split('\n'):
+        #     logger.info(line)
+        # logger.debug('filter out candidates by empty supportedcurrentrel')
         # if len(filterd_results) == 1:
         #     logger.info('only one left, choose it automatically')
         #     firmware.most_possible_subtarget = filterd_results[0][openwrt.header_last_selected.index('subtarget')]
@@ -237,7 +234,7 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
         #     return
 
         # use kernel version to infer supportedcurrentrel
-        logger.debug('filter out candidates by matching kernel version')
+        # logger.debug('filter out candidates by matching kernel version')
         if firmware.get_revision() is None:
             return
 
@@ -246,42 +243,42 @@ def search_most_possible_subtarget(firmware, strings, extent=None):
             if firmware.get_revision() == v[openwrt.header_last_selected.index('supportedcurrentrel')]:
                 filterd_results_2.append(v)
         if len(filterd_results_2) == 1:
-            logger.debug('only one left, choose it for you automatically')
+            # logger.debug('only one left, choose it for you automatically')
             # firmware.set('subtarget', value=filterd_results_2[0][openwrt.header_last_selected.index('subtarget')])
             firmware.set_toh(filterd_results_2[0], header=openwrt.header_last_selected)
-            logger.info('\033[32mget the most possible subtarget {}\033[0m {}'.format(
-                firmware.get_subtarget(), LOG_SUFFIX))
+            # logger.info('\033[32mget the most possible subtarget {}\033[0m {}'.format(
+            #     firmware.get_subtarget(), LOG_SUFFIX))
             return
         if firmware.get_subtarget() is None:
             tries = 2
-            logger.info('please input the pid of what you choose: ')
+            # logger.info('please input the pid of what you choose: ')
             while tries:
                 pid = input()
                 result = openwrt.select('*', pid=pid)
                 if not len(result):
-                    logger.info('one more time')
+                    # logger.info('one more time')
                     tries -= 1
                     continue
                 firmware.set_toh(result[0])
-                logger.info('\033[32mcorrect the most possible target {}\033[0m'.format(
-                    firmware.get_target(), LOG_SUFFIX))
-                logger.info('\033[32mcorrect the most possible subtarget {}\033[0m'.format(
-                    firmware.get_subtarget(), LOG_SUFFIX))
+                # logger.info('\033[32mcorrect the most possible target {}\033[0m'.format(
+                #     firmware.get_target(), LOG_SUFFIX))
+                # logger.info('\033[32mcorrect the most possible subtarget {}\033[0m'.format(
+                #     firmware.get_subtarget(), LOG_SUFFIX))
                 table = PrettyTable(openwrt.header_last_selected)
                 table.add_row(result[0])
-                for line in table.__unicode__().split('\n'):
-                    logger.info(line)
+                # for line in table.__unicode__().split('\n'):
+                #     logger.info(line)
                 return
     most_possible = None
     max_count = 0
     for k, v in subtarget_searched.items():
         count = v['count']
         confidence = round(count / sum_of_occurrence, 2)
-        logger.debug('>> {}, confidence: {:.2f}, {}'.format(k, confidence, v['strings']))
+        # logger.debug('>> {}, confidence: {:.2f}, {}'.format(k, confidence, v['strings']))
         if count > max_count:
             most_possible = k
             max_count = count
-    logger.info('\033[32mget the most possible subtarget {}\033[0m {}'.format(most_possible, LOG_SUFFIX))
+    logger_info(firmware.uuid, 'analysis', 'strings', 'get the most possible subtarget {}'.format(most_possible), 1)
     firmware.set_subtarget(most_possible)
 
 
@@ -315,9 +312,9 @@ def search_most_possible_target(firmware, strings, extent=None):
     for k, v in target_searched.items():
         count = v['count']
         confidence = round(count / sum_of_occurrence, 2)
-        logger.debug('>> {}, confidence: {:.2f}, {}'.format(k, confidence, v['strings']))
+        # logger.debug('>> {}, confidence: {:.2f}, {}'.format(k, confidence, v['strings']))
         if count > max_count:
             most_possible = k
             max_count = count
-    logger.info('\033[32mget the most possible target {}\033[0m {}'.format(most_possible, LOG_SUFFIX))
+    logger_info(firmware.uuid, 'analysis', 'strings', 'get the most possible target {}'.format(most_possible), 1)
     firmware.set_target(most_possible)

@@ -19,7 +19,6 @@ class DeviceTree(Analysis):
         super().__init__()
         self.name = 'dt'
         self.description = 'parse firmware\'s device tree'
-        self.log_suffix = '[DEVICE TREE]'
         self.required = ['extraction']
         self.context['hint'] = 'device tree is not available'
         self.critical = False

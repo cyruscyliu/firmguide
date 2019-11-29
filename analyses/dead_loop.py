@@ -34,7 +34,6 @@ class DeadLoop(Analysis):
 
         self.name = 'dead_loop'
         self.description = 'find dead loop in the given trace'
-        self.log_suffix = '[DEAD LOOP]'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = True
         self.required = []
@@ -217,16 +216,16 @@ class DeadLoop(Analysis):
             c = math.floor(math.log(reg_offset, 10)) + 1
             iteration = suspicious_loop['iteration']
             length = suspicious_loop['length']
-            self.info('This suspicious log starts at line {}, repeated {} times!'.format(
-                reg_offset, iteration))
+            self.info(firmware, 'This suspicious log starts at line {}, repeated {} times!'.format(
+                reg_offset, iteration), 1)
             for i in range(uuid, uuid + length):
                 pc = self.cpus[i]['pc']
                 bb_offset = self.bbs[pc]['offset']
                 for j, line in enumerate(self.bbs[pc]['content']):
-                    self.logger.info('{} {}'.format('-' * c, line))
+                    self.info(firmware, '{} {}'.format('-' * c, line), 0)
                 for j, line in enumerate(self.cpus[i]['content']):
                     reg_offset = self.cpus[i]['offset']
-                    self.logger.info('{} {}'.format(reg_offset, line))
+                    self.info(firmware, '{} {}'.format(reg_offset, line), 0)
 
     def load_in_asm(self, *args, **kwargs):
         """
