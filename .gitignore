@@ -9,3 +9,5 @@ pause.yaml
 *.html
 extract_tmp
 *.swp
+.pytest_cache
+.coverage

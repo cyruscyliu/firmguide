@@ -62,6 +62,8 @@ def parse_proc_info_init(firmware, path_to_mm, filename):
 
 class DotConfig(Analysis):
     def run(self, firmware):
+        # https://lwn.net/Articles/426006/
+        # https://github.com/ulfalizer/Kconfiglib
         architecture = firmware.get_architecture()
         if architecture != 'arm':
             self.context['input'] = 'only support arm now'

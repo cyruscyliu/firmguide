@@ -157,6 +157,7 @@ class AnalysesManager(object):
                 a = self.analyses_flat[analysis]
                 # save and restore
                 if finished(firmware, a):
+                    logger_info(firmware.uuid, 'analysis', 'done before', a.name, 0)
                     continue
                 res = a.run(firmware)
                 self.last_analysis_status = res

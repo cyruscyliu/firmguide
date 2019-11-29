@@ -1,7 +1,7 @@
 """Tests for templite."""
 
 import re
-from render import Template, TemplateSyntaxError
+from tests.files.render import Template, TemplateSyntaxError
 from unittest import TestCase
 
 

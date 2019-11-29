@@ -58,13 +58,12 @@ def save_analysis(firmware):
     with open(analysis, 'w') as f:
         yaml.safe_dump(firmware.analysis_progress, f)
     firmware.save_profile(working_dir=firmware.working_dir)
-    logger_info(firmware.uuid, 'save_and_restore', 'save', '', 0)
+    logger_info(firmware.uuid, 'save_and_restore', 'save', firmware.summary(), 0)
 
 
 def finished(firmware, analysis):
     try:
         status = firmware.analysis_progress[analysis.name]
-        logger_info(firmware.uuid, 'save_and_restore', 'done before', analysis.name, 0)
         return True
     except KeyError:
         return False

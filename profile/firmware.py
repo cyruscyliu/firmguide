@@ -73,6 +73,9 @@ class Firmware(object):
         )
         return brief_introduction
 
+    def summary(self):
+        return 'summary placeholder'
+
     def set_working_env(self, dir, path):
         self.working_dir = dir
         self.working_path = path
