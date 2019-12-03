@@ -20,7 +20,7 @@ sudo apt-get install -y python3.7
 sudo -H python3.7 -m pip install --upgrade pip
 ```
 
-####### install required python packages
+###### install required python packages
 
 ```shell script
 sudo -H pip3.7 install -r requirements.txt
@@ -56,8 +56,8 @@ Before using salamander, you must prepare your firmware and provide information 
 + the brand of the firmware [required]
 + the source code to the firmware [optional]
 
-To test your firmware, simply run as shown in the example.
-```
+To test your firmware, simply run your command as shown in the example.
+
 ```shell script
  ./salamander.py -f /mnt/salamander/firmware/9874f62ffd1d5d1ccdfa919cc29794f03d1f08db.bin -u 14292 -a mips -e l -b openwrt
 ```
@@ -71,7 +71,7 @@ To test your firmware, simply run as shown in the example.
 ## Visualization
 
 After running, it is better to have a page to show the analysis results rather than checking massive logs. Simply run
-`python dashboard/__init__.py` and follow its instructions you will see the statistics of your analysis.
+`python dashboard/__init__.py` and follow its instructions you will see the statistics of your analysis in your browser.
 
 ![dashboard](./dashboard/dashboard.png)
 
