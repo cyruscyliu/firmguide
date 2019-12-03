@@ -205,7 +205,7 @@ class DeadLoop(Analysis):
         if ratio > 0.2:
             self.info(firmware, 'BAD! Have {:.4f}% suspicious infinite loops!'.format(ratio * 100), 0)
         else:
-            self.info(firmware, 'GOOD! Have {} suspicious infinite loops!'.format(len(self.suspicious_loops)), 1)
+            self.info(firmware, 'HH! Have {} suspicious infinite loops!'.format(len(self.suspicious_loops)), 1)
         if not len(self.suspicious_loops):
             return
         for uuid, suspicious_loop in self.suspicious_loops.items():

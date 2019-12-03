@@ -136,12 +136,12 @@ class CompilerToQEMUMachine(object):
         architecture = firmware.sget_architecture()
         #
         config = 'CONFIG_{}=y\n'.format(to_upper(machine_name))
-        path = os.path.join(self.location['root'], self.location['configs'][architecture])
+        path = os.path.join(firmware.working_dir, 'qemu-4.0.0', self.location['configs'][architecture])
         content = [config]
         self.solve_makefile(path, config, content)
         #
         kconfig = 'config {}\n'.format(to_upper(machine_name))
-        path = os.path.join(self.location['root'], self.location['kconfig'][architecture])
+        path = os.path.join(firmware.working_dir, 'qemu-4.0.0', self.location['kconfig'][architecture])
         content = ['\n', kconfig, '    bool\n']
         self.solve_makefile(path, kconfig, content)
         #
@@ -151,33 +151,32 @@ class CompilerToQEMUMachine(object):
                 to_upper(machine_name), machine_name, bridge_name)
         else:
             makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(to_upper(machine_name), machine_name)
-        path = os.path.join(self.location['root'], self.location['makefile'][architecture])
+        path = os.path.join(firmware.working_dir, 'qemu-4.0.0', ['root'], self.location['makefile'][architecture])
         content = [makefile]
         self.solve_makefile(path, makefile, content)
         #
         if len(self.custom_devices['timer']['source']):
             timer_name = firmware.sget_timer_name()
             makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(to_upper(machine_name), timer_name)
-            path = os.path.join(self.location['root'], self.location['makefile']['timer'])
+            path = os.path.join(firmware.working_dir, 'qemu-4.0.0', self.location['makefile']['timer'])
             content = [makefile]
             self.solve_makefile(path, makefile, content)
         #
         if len(self.custom_devices['interrupt_controller']['source']):
             ic_name = firmware.sget_interrupt_controller_name()
             makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(to_upper(machine_name), ic_name)
-            path = os.path.join(self.location['root'], self.location['makefile']['interrupt_controller'])
+            path = os.path.join(firmware.working_dir, 'qemu-4.0.0', self.location['makefile']['interrupt_controller'])
             content = [makefile]
             self.solve_makefile(path, makefile, content)
 
     def install(self, firmware):
         os.system('cp -r {}/qemu/* {}'.format(firmware.working_dir, self.location['root']))
-        self.solve_makefiles(firmware)
 
-    def run(self, firmware, lazy=True):
+    def make(self, firmware):
         # compile first
-        os.system('cd build/qemu-4.0.0 && make -j4 && cd -')
+        os.system('cd {}/qemu-4.0.0 && make -j4 && cd -'.format(firmware.working_dir))
         # construct the command
-        running_command = 'build/qemu-4.0.0/arm-softmmu/qemu-system-arm'
+        running_command = '{}/qemu-4.0.0/arm-softmmu/qemu-system-arm'.format(firmware.working_dir)
         machine_name = firmware.sget_machine_name()
         running_command += ' -M {}'.format(machine_name)
         path_to_uimage = firmware.sget_path_to_uimage()
@@ -190,8 +189,7 @@ class CompilerToQEMUMachine(object):
         running_command += ' -nographic'
         firmware.set_running_command(running_command)
         self.info(firmware, running_command, 'run')
-        if not lazy:
-            os.system(running_command)
+        return os.system(running_command)
 
     def solve(self, firmware):
         self.solve_machine_includings(firmware)
@@ -669,7 +667,7 @@ class CompilerToQEMUMachine(object):
         self.machine['includings'].extend(['hw/boards.h'])
         self.info(firmware, 'solved define machine', 'compile')
 
-    def link(self, firmware):
+    def link_and_install(self, firmware):
         #
         source = []
         source.extend(self.license)
@@ -701,9 +699,9 @@ class CompilerToQEMUMachine(object):
         #
         machine_name = firmware.sget_machine_name()
         architecture = firmware.sget_architecture()
-        os.makedirs(os.path.join(firmware.working_dir, 'qemu'), exist_ok=True)
+        os.makedirs(os.path.join(firmware.working_dir, 'qemu-4.0.0'), exist_ok=True)
         source_target = os.path.join(
-            firmware.working_dir, 'qemu', self.location['machine'][architecture], machine_name + '.c')
+            firmware.working_dir, 'qemu-4.0.0', self.location['machine'][architecture], machine_name + '.c')
         os.makedirs(os.path.dirname(source_target), exist_ok=True)
         with open(source_target, 'w') as f:
             f.write(self.source)
@@ -711,14 +709,14 @@ class CompilerToQEMUMachine(object):
         if len(self.custom_devices['timer']['source']):
             timer_name = firmware.sget_timer_name()
             source_target = os.path.join(
-                firmware.working_dir, 'qemu', self.location['machine']['timer'], timer_name + '.c'
+                firmware.working_dir, 'qemu-4.0.0', self.location['machine']['timer'], timer_name + '.c'
             )
             os.makedirs(os.path.dirname(source_target), exist_ok=True)
             with open(source_target, 'w') as f:
                 f.write(self.custom_devices['timer']['source'])
                 f.flush()
             header_target = os.path.join(
-                firmware.working_dir, 'qemu', 'include', self.location['machine']['timer'], timer_name + '.h'
+                firmware.working_dir, 'qemu-4.0.0', 'include', self.location['machine']['timer'], timer_name + '.h'
             )
             os.makedirs(os.path.dirname(header_target), exist_ok=True)
             with open(header_target, 'w') as f:
@@ -728,7 +726,7 @@ class CompilerToQEMUMachine(object):
         if len(self.custom_devices['interrupt_controller']['source']):
             interrupt_controller_name = firmware.sget_interrupt_controller_name()
             source_target = os.path.join(
-                firmware.working_dir, 'qemu', self.location['machine']['interrupt_controller'],
+                firmware.working_dir, 'qemu-4.0.0', self.location['machine']['interrupt_controller'],
                 interrupt_controller_name + '.c'
             )
             os.makedirs(os.path.dirname(source_target), exist_ok=True)
@@ -736,7 +734,7 @@ class CompilerToQEMUMachine(object):
                 f.write(self.custom_devices['interrupt_controller']['source'])
                 f.flush()
             header_target = os.path.join(
-                firmware.working_dir, 'qemu', 'include', self.location['machine']['interrupt_controller'],
+                firmware.working_dir, 'qemu-4.0.0', 'include', self.location['machine']['interrupt_controller'],
                 interrupt_controller_name + '.h'
             )
             os.makedirs(os.path.dirname(header_target), exist_ok=True)
@@ -747,7 +745,7 @@ class CompilerToQEMUMachine(object):
         if len(self.custom_devices['bridge']['source']):
             bridge_name = firmware.sget_bridge_name()
             source_target = os.path.join(
-                firmware.working_dir, 'qemu', self.location['machine']['bridge'],
+                firmware.working_dir, 'qemu-4.0.0', self.location['machine']['bridge'],
                 bridge_name + '.c'
             )
             os.makedirs(os.path.dirname(source_target), exist_ok=True)
@@ -755,7 +753,7 @@ class CompilerToQEMUMachine(object):
                 f.write(self.custom_devices['bridge']['source'])
                 f.flush()
             header_target = os.path.join(
-                firmware.working_dir, 'qemu', 'include', self.location['machine']['bridge'],
+                firmware.working_dir, 'qemu-4.0.0', 'include', self.location['machine']['bridge'],
                 bridge_name + '.h'
             )
             os.makedirs(os.path.dirname(header_target), exist_ok=True)
@@ -763,3 +761,4 @@ class CompilerToQEMUMachine(object):
                 f.write(self.custom_devices['bridge']['header'])
                 f.flush()
         self.info(firmware, 'have linked them all at {}'.format(os.path.join(firmware.working_dir, 'qemu')), 'link')
+        self.solve_makefiles(firmware)

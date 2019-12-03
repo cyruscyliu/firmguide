@@ -24,44 +24,6 @@ class Database(metaclass=abc.ABCMeta):
         pass
 
 
-class DatabasePaused(Database):
-    def __init__(self):
-        self.path = os.path.join(os.getcwd(), 'database', 'pause.yaml')
-        if os.path.exists(self.path):
-            self.last_paused_analyses = yaml.safe_load(open(self.path))
-        else:
-            self.last_paused_analyses = {}
-        self.new_paused_analyses = {}
-        # clear the database
-        with open(self.path, 'w'):
-            pass
-
-    def select(self, *args, **kwargs):
-        if self.last_paused_analyses:
-            return [key for key in self.last_paused_analyses.keys()]
-
-    def add(self, *args, **kwargs):
-        uuid = kwargs.pop('uuid')
-        name = kwargs.pop('name')
-        hint = kwargs.pop('hint')
-        input_ = kwargs.pop('input')
-        self.new_paused_analyses[uuid] = {
-            'name': name,
-            'hint': hint,
-            'input': input_
-        }
-        with open(self.path, 'a') as f:
-            fcntl.flock(f, fcntl.LOCK_EX)
-            yaml.safe_dump(self.new_paused_analyses, f)
-            fcntl.flock(f, fcntl.LOCK_UN)
-
-    def delete(self, *args, **kwargs):
-        pass
-
-    def update(self, *args, **kwargs):
-        pass
-
-
 class DatabaseOpenWRTMapping(Database):
     def select(self, *args, **kwargs):
         """

@@ -4,7 +4,6 @@ Handle all about source code.
 import os
 
 from analyses.common.analysis import Analysis
-from openwrtd.openwrt import get_openwrt_source_code
 
 
 class SRCode(Analysis):
@@ -16,7 +15,7 @@ class SRCode(Analysis):
         # first, get the source code the vmlinux only by its uuid
         cwd = os.getcwd()
         os.chdir('openwrtd')
-        path_to_source_code, path_to_vmlinux = get_openwrt_source_code(firmware.uuid)
+        path_to_source_code, path_to_vmlinux = firmware.get()
         os.chdir(cwd)
         path_to_vmlinux = os.path.join('openwrtd', path_to_vmlinux)
         path_to_source_code = os.path.join('openwrtd', path_to_source_code)

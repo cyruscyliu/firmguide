@@ -40,11 +40,15 @@ def check_and_restore(firmware, **kwargs):
         else:
             firmware.analysis_progress = analysis_progress
     firmware.set_profile(working_dir=firmware.working_dir)
-    firmware.handle_preset()
     if not os.path.exists(firmware.working_path):
         shutil.copy(
             os.path.join(os.getcwd(), firmware.path),
             os.path.join(firmware.working_path)
+        )
+    if not os.path.exists(os.path.join(firmware.working_dir, 'qemu-4.0.0')):
+        shutil.copytree(
+            os.path.join(os.getcwd(), 'build', 'qemu-4.0.0'),
+            os.path.join(firmware.working_dir, 'qemu-4.0.0')
         )
 
     if first_time:
@@ -75,6 +79,35 @@ def finish(firmware, analysis):
 
 
 def setup(args, firmware):
+    # set firmware name, path, uuid
+    if args.firmware:
+        firmware.path = args.firmware
+        firmware.name = os.path.basename(args.firmware)
+        firmware.size = os.path.getsize(args.firmware)
+        if not args.uuid:
+            print('you must assign a uuid for this firmware')
+            exit(-1)
+        firmware.uuid = args.uuid
+    else:
+        firmware.path = 'no/path'
+        firmware.name = 'TinyForTestFirmware'
+        firmware.uuid = 'test'
+    # set architecture and endian
+    firmware.architecture = args.architecture
+    firmware.endian = args.endian
+    # set brand
+    firmware.brand = args.brand
+    # set source code
+    firmware.path_to_source_code = args.source_code
+    # set diagnosis
+    firmware.trace_format = args.trace_format
+    if args.trace:
+        firmware.path_to_trace = args.trace  # diagnosis
+    else:
+        firmware.path_to_trace = 'log/{}.trace'.format(firmware.uuid)
+    firmware.do_not_diagnosis = args.quick
+    # set the rerun control
+    firmware.rerun = args.rerun
     # set the working directory but not actually create the dir or copy the file
     if args.working_directory is None:
         working_dir = tempfile.gettempdir()
@@ -83,9 +116,3 @@ def setup(args, firmware):
     target_dir = os.path.join(working_dir, firmware.uuid)
     target_path = os.path.join(working_dir, firmware.uuid, firmware.name)
     firmware.set_working_env(target_dir, target_path)
-    # set the trace format
-    firmware.trace_format = args.trace_format
-    firmware.path_to_trace = args.trace
-    firmware.do_not_diagnosis = args.quick
-    # set the rerun control
-    firmware.rerun = args.rerun
