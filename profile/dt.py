@@ -106,7 +106,10 @@ class DTFirmware(Firmware, CodeGenerationInterface):
         return self.get_node_property('/basics', 'description')
 
     def sget_machine_name(self):
-        return self.get_node_property('/brand', 'model').lower().replace(' ', '_')
+        machine_name = self.get_node_property('/brand', 'model')
+        if machine_name is None:
+            raise NotImplementedError('please add an analysis to provide machine name for this firmware')
+        return machine_name.lower().replace(' ', '_')
 
     def sget_architecture(self):
         return self.get_node_property('/basics', 'architecture')
@@ -215,34 +218,6 @@ class DTFirmware(Firmware, CodeGenerationInterface):
 
     def get_path_to_dtb(self, *args, **kwargs):
         return self.get_node_property('/components', 'path_to_dtb')
-
-    def set_path_to_source_code(self, *args, **kwargs):
-        path_to_source_code = args[0]
-        self.set_node_property('/components', 'path_to_source_code', path_to_source_code)
-
-    def get_path_to_source_code(self, *args, **kwargs):
-        return self.get_node_property('/components', 'path_to_source_code')
-
-    def get_brand(self, *args, **kwargs):
-        return self.get_node_property('/basics', 'brand')
-
-    def set_brand(self, *args, **kwargs):
-        brand = args[0]
-        self.set_node_property('/basics', 'brand', brand)
-
-    def get_endian(self, *args, **kwargs):
-        return self.get_node_property('/basics', 'endian')
-
-    def set_endian(self, *args, **kwargs):
-        endian = args[0]
-        self.set_node_property('/basics', 'endian', endian)
-
-    def get_architecture(self, *args, **kwargs):
-        return self.get_node_property('/basics', 'architecture')
-
-    def set_architecture(self, *args, **kwargs):
-        architecture = args[0]
-        self.set_node_property('/basics', 'architecture', architecture)
 
     def get_timer_model(self, *args, **kwargs):
         return self.get_node_property('timer', 'compatible')

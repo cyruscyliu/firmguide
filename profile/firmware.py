@@ -3,11 +3,10 @@ import abc
 
 class Firmware(object):
     def __init__(self, *args, **kwargs):
-        self.id = None
-        self.uuid = kwargs.pop('uuid', None)
-        self.name = kwargs.pop('name', None)
-        self.path = kwargs.pop('path', None)  # path to firmware
-        self.size = kwargs.pop('size', None)
+        self.uuid = None
+        self.name = None
+        self.path = None
+        self.size = None
         self.working_dir = None
         self.working_path = None
 
@@ -19,16 +18,15 @@ class Firmware(object):
         self.path_to_trace = None
         self.do_not_diagnosis = False
 
+        self.path_to_source_code = None
+        self.architecture = None
+        self.endian = None
+        self.brand = None
+
         # basics
         # brand, homepage, description, format, architecture, endian, url
         # components
-        # path_to_image, path_to_kernel, path_to_dtb, path_to_source_code
-
-    def handle_preset(self):
-        for func, param in self.preset_cache:
-            if param is None:
-                continue
-            func(param)
+        # path_to_image, path_to_kernel, path_to_dtb
 
     @abc.abstractmethod
     def set_running_command(self, *args, **kwargs):
@@ -140,13 +138,12 @@ class Firmware(object):
     def get_path_to_vmlinux(self, *args, **kwargs):
         pass
 
-    @abc.abstractmethod
     def set_path_to_source_code(self, *args, **kwargs):
-        pass
+        path_to_source_code = args[0]
+        self.path_to_source_code = path_to_source_code
 
-    @abc.abstractmethod
     def get_path_to_source_code(self, *args, **kwargs):
-        pass
+        return self.path_to_source_code
 
     @abc.abstractmethod
     def set_toh(self, *args, **kwargs):
@@ -182,29 +179,26 @@ class Firmware(object):
     def save_profile(self, *args, **kwargs):
         pass
 
-    @abc.abstractmethod
     def get_brand(self, *args, **kwargs):
-        pass
+        return self.brand
 
-    @abc.abstractmethod
     def set_brand(self, *args, **kwargs):
-        pass
+        brand = args[0]
+        self.brand = brand
 
-    @abc.abstractmethod
     def get_endian(self, *args, **kwargs):
-        pass
+        return self.endian
 
-    @abc.abstractmethod
     def set_endian(self, *args, **kwargs):
-        pass
+        endian = args[0]
+        self.endian = endian
 
-    @abc.abstractmethod
     def get_architecture(self, *args, **kwargs):
-        pass
+        return self.architecture
 
-    @abc.abstractmethod
     def set_architecture(self, *args, **kwargs):
-        pass
+        architecture = args[0]
+        self.architecture = architecture
 
     @abc.abstractmethod
     def get_revision(self, *args, **kwargs):
