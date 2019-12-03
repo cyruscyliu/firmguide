@@ -106,7 +106,10 @@ class DTFirmware(Firmware, CodeGenerationInterface):
         return self.get_node_property('/basics', 'description')
 
     def sget_machine_name(self):
-        return self.get_node_property('/brand', 'model').lower().replace(' ', '_')
+        machine_name = self.get_node_property('/brand', 'model')
+        if machine_name is None:
+            raise NotImplementedError('please add an analysis to provide machine name for this firmware')
+        return machine_name.lower().replace(' ', '_')
 
     def sget_architecture(self):
         return self.get_node_property('/basics', 'architecture')

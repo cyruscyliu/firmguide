@@ -93,8 +93,11 @@ def analysis_wrapper(firmware):
             analyses_manager.run_analysis(firmware, 'init_value')
             break
     except NotImplementedError as e:
-        analysis = e.args[0]
-        logger_warning(firmware.uuid, 'scheduler', 'exception', 'can not support this firmware, fix and rerun', 0)
+        exception = e.args[0]
+        if isinstance(exception, str):
+            logger_warning(firmware.uuid, 'scheduler', 'exception', '{}, fix and rerun'.format(exception), 0)
+        else:
+            logger_warning(firmware.uuid, 'scheduler', 'exception', 'can not support firmware, fix and rerun', 0)
     except SystemError as e:
         logger_warning(firmware.uuid, 'scheduler', 'exception', e.message, 0)
 
