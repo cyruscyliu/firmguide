@@ -64,14 +64,15 @@ def analysis_wrapper(firmware):
     # srcode <- .config
     analyses_manager.register_analysis(SRCode())
     analyses_manager.register_analysis(DotConfig())
-    # run them all
-    analyses_manager.run(firmware)
 
     # other analysis
     analyses_manager.register_analysis(Checking(), no_chained=True)
     analyses_manager.register_analysis(DeadLoop(), no_chained=True)
     analyses_manager.register_analysis(InitValue(), no_chained=True)
     try:
+        # run them all
+        analyses_manager.run(firmware)
+
         while 1:
             # perform code generation
             machine_compiler = CompilerToQEMUMachine()
@@ -92,7 +93,7 @@ def analysis_wrapper(firmware):
             analyses_manager.run_analysis(firmware, 'init_value')
             break
     except NotImplementedError as e:
-        firmware, analysis = e.args
+        analysis = e.args[0]
         logger_warning(firmware.uuid, 'scheduler', 'exception', 'can not support this firmware, fix and rerun', 0)
     except SystemError as e:
         logger_warning(firmware.uuid, 'scheduler', 'exception', e.message, 0)

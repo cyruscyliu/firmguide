@@ -216,34 +216,6 @@ class DTFirmware(Firmware, CodeGenerationInterface):
     def get_path_to_dtb(self, *args, **kwargs):
         return self.get_node_property('/components', 'path_to_dtb')
 
-    def set_path_to_source_code(self, *args, **kwargs):
-        path_to_source_code = args[0]
-        self.set_node_property('/components', 'path_to_source_code', path_to_source_code)
-
-    def get_path_to_source_code(self, *args, **kwargs):
-        return self.get_node_property('/components', 'path_to_source_code')
-
-    def get_brand(self, *args, **kwargs):
-        return self.get_node_property('/basics', 'brand')
-
-    def set_brand(self, *args, **kwargs):
-        brand = args[0]
-        self.set_node_property('/basics', 'brand', brand)
-
-    def get_endian(self, *args, **kwargs):
-        return self.get_node_property('/basics', 'endian')
-
-    def set_endian(self, *args, **kwargs):
-        endian = args[0]
-        self.set_node_property('/basics', 'endian', endian)
-
-    def get_architecture(self, *args, **kwargs):
-        return self.get_node_property('/basics', 'architecture')
-
-    def set_architecture(self, *args, **kwargs):
-        architecture = args[0]
-        self.set_node_property('/basics', 'architecture', architecture)
-
     def get_timer_model(self, *args, **kwargs):
         return self.get_node_property('timer', 'compatible')
 

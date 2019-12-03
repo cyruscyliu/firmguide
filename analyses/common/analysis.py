@@ -163,7 +163,7 @@ class AnalysesManager(object):
                 if not res:
                     a.error(firmware)
                 if not res and a.is_critical():
-                    raise NotImplementedError(firmware, a)
+                    raise NotImplementedError(a)
                 finish(firmware, a)
         for analysis in self.analyses_remaining:
             self.last_analysis_status = analysis.run(firmware)
