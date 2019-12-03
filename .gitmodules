@@ -7,6 +7,3 @@
 [submodule "pymake"]
 	path = pymake
 	url = https://github.com/mozilla/pymake.git
-[submodule "openwrtd"]
-	path = openwrtd
-	url = git@github.com:cyruscyliu/openwrt-build-docker.git
