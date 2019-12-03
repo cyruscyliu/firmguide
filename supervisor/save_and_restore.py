@@ -46,10 +46,14 @@ def check_and_restore(firmware, **kwargs):
             os.path.join(firmware.working_path)
         )
     if not os.path.exists(os.path.join(firmware.working_dir, 'qemu-4.0.0')):
-        shutil.copytree(
-            os.path.join(os.getcwd(), 'build', 'qemu-4.0.0'),
-            os.path.join(firmware.working_dir, 'qemu-4.0.0')
+        shutil.copy(
+            os.path.join('build', 'qemu-4.0.0-patched.tar.xz'),
+            os.path.join(firmware.working_dir, 'qemu-4.0.0-patched.tar.xz')
         )
+        os.system('tar --skip-old-files -Jxf {0}/qemu-4.0.0-patched.tar.xz -C {0}'.format(firmware.working_dir))
+        os.system('cd {0}/qemu-4.0.0 && ./configure --target-list=arm-softmmu,mipsel-softmmu >/dev/null'.format(
+            firmware.working_dir))
+        os.system('cd {0}/qemu-4.0.0 && make -j4'.format(firmware.working_dir))
 
     if first_time:
         logger_info(firmware.uuid, 'save_and_restore', 'first', firmware.brief(), 0)

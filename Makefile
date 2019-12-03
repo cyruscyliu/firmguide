@@ -1,18 +1,16 @@
-DIR_TO_BUILD = $(realpath $(CURDIR)/build)
-PYTHON = python3.7
-
-export DIR_TO_BUILD PYTHON
+export DIR_TO_BUILD=$(realpath $(CURDIR)/build)
+export PYTHON=python3.7
 
 all:
 	mkdir -p build
-	${MAKE} -C tools/binwalk
-	${MAKE} -C tools/qemu
+	${MAKE} -C binwalk
+	${MAKE} -C qemu
 
 clean:
-	${MAKE} -C tools/binwalk clean
-	${MAKE} -C tools/qemu clean
+	${MAKE} -C binwalk clean
+	${MAKE} -C qemu clean
 
 clean_all:
-	${MAKE} -C tools/binwalk clean_all
-	${MAKE} -C tools/qemu clean_all
+	${MAKE} -C binwalk clean_all
+	${MAKE} -C qemu clean_all
 	rm -r build

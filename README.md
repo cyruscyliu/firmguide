@@ -56,10 +56,10 @@ Before using salamander, you must prepare your firmware and provide information 
 + the brand of the firmware [required]
 + the source code to the firmware [optional]
 
-To test your firmware, simply run your command as shown in the example.
+To test your firmware, simply run your command as shown in the example. And the first run may be slow.
 
 ```shell script
- ./salamander.py -f /mnt/salamander/firmware/9874f62ffd1d5d1ccdfa919cc29794f03d1f08db.bin -u 14292 -a mips -e l -b openwrt
+./salamander.py -f /mnt/salamander/firmware/9874f62ffd1d5d1ccdfa919cc29794f03d1f08db.bin -u 14292 -a mips -e l -b openwrt -q -wd ./build
 ```
 
 ###### advanced  usage
@@ -75,6 +75,17 @@ After running, it is better to have a page to show the analysis results rather t
 
 ![dashboard](./dashboard/dashboard.png)
 
+## Add an analysis
+
+If the built-in analyses can not boot the kernel to its shell, you have to add your own analysis. 
+More analyses you provide, more powerful the salamander will be. The visualization results will tell you what specific 
+analysis you should add. The analysis you add will solve the abelia devices a kernel required. Please read 
+the [paper]() to get familiar with the abelia devices and read [[this](./analyses/README.md) then to understand
+how we implement the analysis framework.
+
+Once you understand what I said before, you can follow this example to add your own analysis.
+
+###### an example
 
 ## License
 

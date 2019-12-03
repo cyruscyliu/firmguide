@@ -1,6 +1,6 @@
-From c8bc09a192b1cd9803338fc020309afab7e60d47 Mon Sep 17 00:00:00 2001
+From 1330d9360836b98cbc4ea5352b7f77ebc2bf2f37 Mon Sep 17 00:00:00 2001
 From: cyrus <cyruscyliu@gmail.com>
-Date: Fri, 29 Nov 2019 15:06:44 +0800
+Date: Tue, 3 Dec 2019 17:48:41 +0800
 Subject: [PATCH] patch binwalk-2.1.1
 
 ---
