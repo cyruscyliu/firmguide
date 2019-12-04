@@ -1,11 +1,18 @@
 # Salamander
 
 Salamander is a project aiming to run and test any given firmware blob dynamically in a pure software way.
+
+###### features
 Currently, we provide a modular framework to analysis a firmware under the guide of its source code. We 
 will generate a new machine for QEMU, and you can play with this new machine for fun! By adding more analysis
 we will get more code coverage and achieve more goals. The goal just now is to run a linux based firmware
 entering the user mode and getting the shell. Let's start and enjoy our trip.
 
+###### who will need the Salamander
++ who want to get a shell of a linux based firmware
++ who would like to learn how to add a new machine to QEMU 
++ who would like to dynamically analysis a linux based firmware
++ who are interested re-hosting and emulation
 
 ## Usage 
 
@@ -86,6 +93,9 @@ how we implement the analysis framework.
 Once you understand what I said before, you can follow this example to add your own analysis.
 
 ###### an example
+
+## Contributors
+[cyruscyliu*](https://github.com/cyruscyliu/esv), [occia*](https://github.com/occia)
 
 ## License
 [MIT License](./LICENSE)
