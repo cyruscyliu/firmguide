@@ -73,15 +73,13 @@ def analysis_wrapper(firmware):
         # run them all
         analyses_manager.run(firmware)
 
-        while 1:
+        while not firmware.do_not_diagnosis:  # exit early
             # perform code generation
             machine_compiler = CompilerToQEMUMachine()
             machine_compiler.solve(firmware)
             machine_compiler.link_and_install(firmware)
             if not machine_compiler.make(firmware):
                 raise SystemError('bugs in code generation')
-            if firmware.do_not_diagnosis:  # exit early
-                break
             # perform dynamic checking
             trace_collection(firmware)
             analyses_manager.run_analysis(firmware, 'check')
