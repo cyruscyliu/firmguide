@@ -90,10 +90,6 @@ analysis you should add. The analysis you add will solve the abelia devices a ke
 this [paper]() to get familiar with the abelia devices and read [this](./analyses/README.md) then to understand
 how we implement the analysis framework.
 
-Once you understand what I said before, you can follow this example to add your own analysis.
-
-###### an example
-
 ## Contributors
 [cyruscyliu*](https://github.com/cyruscyliu/esv), [occia*](https://github.com/occia)
 
