@@ -1,41 +1,18 @@
 from analyses.common.analysis import AnalysisGroup, Analysis
 
 
-class AbeliaCPU(Analysis):
+class AbeliaRAM(Analysis):
     def run(self, firmware):
-        pass
+        ram_size = firmware.get_ram_size()
+        if ram_size is not None:
+            self.info(firmware, 'get memory size {}'.format(ram_size), 1)
+            return True
+        firmware.set_ram_size(0, 1024, unit='MiB')
+        self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, 1024), 1)
 
     def __init__(self):
         super().__init__()
-        # basic
-        self.description = 'we\'re gonna infer what CPU model the firmware use'
-        self.name = 'cpu'
-        # exception
-        self.context['hint'] = ''
-        # requirement
-        self.required = []
-
-
-class AbeliaRAM(Analysis):
-    def run(self, firmware):
-        ram_base, ram_size = firmware.get_ram()
-        if ram_size is not None:
-            return
-        firmware.set_ram(0, 1024, unit='MiB')
-        self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, 1024), 1)
-
-
-class AbeliaUART(Analysis):
-    pass
-
-
-class AbeliaIC(Analysis):
-    pass
-
-
-class AbeliaFLASH(Analysis):
-    pass
-
-
-class AbeliaTimer(Analysis):
-    pass
+        self.name = 'ram'
+        self.description = 'assign 1G ram by default'
+        self.required = ['toh']
+        self.critical = False

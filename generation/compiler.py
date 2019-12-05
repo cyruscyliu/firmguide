@@ -253,6 +253,8 @@ class CompilerToQEMUMachine(object):
         self.info('solved abelia cpu', 'compile')
         # cpu_pp
         cpu_model = self.firmware.get_cpu_model()
+        if cpu_model is None:
+            raise NotImplementedError(self.feedback('analysis', 'cpu_model'))
         cpu_pp_model = self.firmware.probe_cpu_pp_model()
         if cpu_pp_model:
             if architecture == 'arm':
@@ -623,6 +625,8 @@ class CompilerToQEMUMachine(object):
         machine_name = self.firmware.get_machine_name()
         architecture = self.firmware.get_architecture()
         ram_size = self.firmware.get_ram_size()
+        if ram_size is None:
+            raise NotImplementedError(self.feedback('analysis', 'ram_size'))
         cpu_model = self.firmware.get_cpu_model()
         if cpu_model is None:
             raise NotImplementedError(self.feedback('analysis', 'cpu_model'))

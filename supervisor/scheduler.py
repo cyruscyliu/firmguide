@@ -1,6 +1,7 @@
 import qmp
 import subprocess
 
+from analyses.abelia import AbeliaRAM
 from analyses.check import Checking
 from analyses.common.analysis import AnalysesManager
 from analyses.device_tree import DeviceTree
@@ -61,6 +62,8 @@ def analysis_wrapper(firmware):
     # revision, url <- toh
     analyses_manager.register_analysis(OpenWRTURL())
     analyses_manager.register_analysis(OpenWRTToH())
+    # toh <- ram by default
+    analyses_manager.register_analysis(AbeliaRAM())
     # srcode <- .config
     analyses_manager.register_analysis(SRCode())
     analyses_manager.register_analysis(DotConfig())
