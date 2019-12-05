@@ -129,19 +129,16 @@ class OpenWRTToH(Analysis):
         if cpu is not None and cpu != '':
             firmware.set_cpu_model(cpu)
             self.info(firmware, 'get cpu model: {}'.format(cpu), 1)
-        if soc is not None and cpu != '':
-            firmware.set_soc_model(soc)
-            self.info(firmware, 'get soc model: {}'.format(soc), 1)
         [ram] = firmware.get_toh('rammb')
         if ram is not None and ram != '':
-            firmware.set_ram(0, ram, unit='MiB')
+            firmware.set_ram_size(0, ram, unit='MiB')
             self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, ram), 1)
         return True
 
     def get_ram_by_openwrt_toh(self, firmware):
         [ram] = firmware.get_toh('rammb')
         if ram is not None and ram != '':
-            firmware.set_ram(0, ram, unit='MiB')
+            firmware.set_ram_size(0, ram, unit='MiB')
             self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, ram), 1)
         return True
 
@@ -170,6 +167,6 @@ class OpenWRTToH(Analysis):
         super().__init__()
         self.description = 'extract information from OpenWRT table of hardware'
         self.name = 'toh'
-        self.required = ['kernel', 'url']
+        self.required = ['kernel', 'url', 'strings']
         self.context['hint'] = ''
         self.critical = False

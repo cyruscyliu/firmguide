@@ -13,13 +13,12 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.working_dir = None
         self.working_path = None
 
-        self.analysis_progress = None
-        self.profile = None
-        self.preset_cache = []
+        self.analysis_progress = None  # file
+        self.profile = None  # dict
 
         self.trace_format = None
         self.path_to_trace = None
-        self.do_not_diagnosis = False
+        self.do_not_diagnosis = False  # flag
 
         self.path_to_source_code = None
         self.path_to_vmlinux = None
@@ -27,6 +26,73 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.architecture = None
         self.endian = None
         self.brand = None
+
+    # general getters and setters
+    def get_uuid(self):
+        return self.uuid
+
+    def set_uuid(self, uuid):
+        self.uuid = uuid
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_path(self):
+        return self.path
+
+    def set_path(self, path):
+        self.path = path
+
+    def get_working_dir(self):
+        return self.working_dir
+
+    def set_working_dir(self, working_dir):
+        self.working_dir = working_dir
+
+    def get_trace_format(self):
+        return self.trace_format
+
+    def set_trace_format(self, trace_format):
+        self.trace_format = trace_format
+
+    def get_path_to_trace(self):
+        return self.path_to_trace
+
+    def set_path_to_trace(self, path_to_trace):
+        self.path_to_trace = path_to_trace
+
+    def get_architecture(self):
+        return self.architecture
+
+    def set_architecture(self, architecture):
+        self.architecture = architecture
+
+    def get_endian(self):
+        return self.endian
+
+    def set_endian(self, endian):
+        self.endian = endian
+
+    def get_brand(self):
+        return self.brand
+
+    def set_brand(self, brand):
+        self.brand = brand
+
+    def get_path_to_vmlinux(self):
+        return self.path_to_vmlinux
+
+    def set_path_to_vmlinux(self, path_to_vmlinux):
+        self.path_to_vmlinux = path_to_vmlinux
+
+    def get_path_to_source_code(self):
+        return self.path_to_source_code
+
+    def set_path_to_source_code(self, path_to_source_code):
+        self.path_to_source_code = path_to_source_code
 
     # core
     def set_working_env(self, dir, path):
@@ -167,6 +233,10 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
+    def probe_cpu_pp_model(self, *args, **kwargs):
+        pass
+    
+    @abc.abstractmethod
     def get_cpu_pp_mmio_base(self, *args, **kwargs):
         pass
 
@@ -177,6 +247,10 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     @abc.abstractmethod
     def get_ram_size(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_ram_size(self, *args, **kwargs):
         pass
 
     # ===== bridge ====
@@ -308,6 +382,10 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     # ==== flash ====
+    @abc.abstractmethod
+    def probe_flash(self, *args, **kwargs):
+        pass
+
     @abc.abstractmethod
     def get_flash_base(self, *args, **kwargs):
         pass

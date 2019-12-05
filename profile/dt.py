@@ -137,7 +137,8 @@ class DTFirmware(Firmware):
         return self.set_node_property('/basics', 'board_id', board_id)
 
     def get_board_id(self, *args, **kwargs):
-        return self.get_node_property('/basics', 'board_id')
+        # return self.get_node_property('/basics', 'board_id')
+        return "0x661"
 
     def get_cpu_model(self, *args, **kwargs):
         pass
@@ -145,14 +146,27 @@ class DTFirmware(Firmware):
     def set_cpu_model(self, *args, **kwargs):
         pass
 
+    def probe_cpu_pp_model(self, *args, **kwargs):
+        return False
+
     def get_cpu_pp_mmio_base(self, *args, **kwargs):
         pass
 
     def get_ram_priority(self, *args, **kwargs):
-        pass
+        return '0'
 
     def get_ram_size(self, *args, **kwargs):
-        pass
+        ram = self.get_node_property('/memory', 'reg', end=2)
+        if ram is None:
+            return None, None
+        ram_base, ram_size = ram
+        return '{} * MiB'.format(int(int(ram_size) / 1024))  # to MiB
+
+    def set_ram_size(self, *args, **kwargs):
+        ram_base, ram_size = args
+        unit = kwargs.pop('unit', 'MiB')
+        factor = 1024
+        self.set_node_property('/memory', 'reg', str(int(ram_base) * factor), str(int(ram_size) * factor))
 
     def probe_bridge(self, *args, **kwargs):
         pass
@@ -247,6 +261,9 @@ class DTFirmware(Firmware):
     def set_uart_irq(self, *args, **kwargs):
         pass
 
+    def probe_flash(self, *args, **kwargs):
+        return False
+
     def get_flash_base(self, *args, **kwargs):
         pass
 
@@ -272,7 +289,7 @@ class DTFirmware(Firmware):
         pass
 
     def get_bamboo_devices(self, *args, **kwargs):
-        pass
+        return []
 
     def get_kernel_load_address(self, *args, **kwargs):
         return self.get_node_property('kernel', 'kernel_load_address')
@@ -304,38 +321,38 @@ class DTFirmware(Firmware):
 
     def set_url(self, *args, **kwargs):
         url = args[0]
-        self.set_node_property('/openwrt', 'url', url)
+        self.set_node_property('/brand', 'url', url)
 
     def get_url(self, *args, **kwargs):
-        return self.get_node_property('/openwrt', 'url')
+        return self.get_node_property('/brand', 'url')
 
     def set_homepage(self, *args, **kwargs):
         homepage = args[0]
-        self.set_node_property('/openwrt', 'homepage', homepage)
+        self.set_node_property('/brand', 'homepage', homepage)
 
     def get_homepage(self, *args, **kwargs):
-        return self.get_node_property('/openwrt', 'homepage')
+        return self.get_node_property('/brand', 'homepage')
 
     def get_target(self, *args, **kwargs):
-        return self.get_node_property('/openwrt', 'target')
+        return self.get_node_property('/brand', 'target')
 
     def set_target(self, *args, **kwargs):
         target = args[0]
-        self.set_node_property('/openwrt', 'target', target)
+        self.set_node_property('/brand', 'target', target)
 
     def get_subtarget(self, *args, **kwargs):
-        return self.get_node_property('/openwrt', 'subtarget')
+        return self.get_node_property('/brand', 'subtarget')
 
     def set_subtarget(self, *args, **kwargs):
         subtarget = args[0]
-        self.set_node_property('/openwrt', 'subtarget', subtarget)
+        self.set_node_property('/brand', 'subtarget', subtarget)
 
     def get_revision(self, *args, **kwargs):
-        return self.get_node_property('/openwrt', 'revision')
+        return self.get_node_property('/brand', 'revision')
 
     def set_revision(self, *args, **kwargs):
         revision = args[0]
-        self.set_node_property('/openwrt', 'revision', revision)
+        self.set_node_property('/brand', 'revision', revision)
 
     def set_toh(self, *args, **kwargs):
         toh = args[0]
@@ -343,7 +360,7 @@ class DTFirmware(Firmware):
         header = kwargs.pop('header', None)
         if header is None:
             return
-        brand_node = self.profile.get_node('/openwrt/toh', create=True)
+        brand_node = self.profile.get_node('/brand/toh', create=True)
         for k, v in zip(header, toh):
             if brand_node.exist_property(k):
                 brand_node.remove_property(k)
@@ -355,7 +372,7 @@ class DTFirmware(Firmware):
         if not len(args):
             return None
         toh = []
-        brand_node = self.profile.get_node('/openwrt/toh')
+        brand_node = self.profile.get_node('/brand/toh')
         assert brand_node is not None
         for property_ in args:
             value = brand_node.get_property(property_)

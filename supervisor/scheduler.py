@@ -78,10 +78,9 @@ def analysis_wrapper(firmware):
             machine_compiler = CompilerToQEMUMachine(firmware)
             machine_compiler.solve()
             machine_compiler.link_and_install()
-            if not machine_compiler.make():
-                raise SystemError('bugs in code generation')
+            running_command = machine_compiler.make()
             # perform dynamic checking
-            trace_collection(firmware)
+            trace_collection(firmware, running_command)
             analyses_manager.run_analysis(firmware, 'check')
             if analyses_manager.last_analysis_status:
                 logger_info(firmware.uuid, 'analysis', 'checking analysis', 'GOOD! Have entered the user level!', 1)
@@ -102,8 +101,7 @@ def analysis_wrapper(firmware):
     save_analysis(firmware)
 
 
-def trace_collection(firmware):
-    running_command = firmware.get_running_command()
+def trace_collection(firmware, running_command):
     # nochain is too too slow
     trace_flags = '-d in_asm,cpu -D log/{}.trace'.format(firmware.uuid)
     qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
