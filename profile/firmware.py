@@ -22,14 +22,11 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.do_not_diagnosis = False
 
         self.path_to_source_code = None
+        self.path_to_vmlinux = None
+
         self.architecture = None
         self.endian = None
         self.brand = None
-
-        # basics
-        # brand, homepage, description, format, architecture, endian, url
-        # components
-        # path_to_image, path_to_kernel, path_to_dtb
 
     # core
     def set_working_env(self, dir, path):
@@ -54,9 +51,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         """
         pass
 
-    @abc.abstractmethod
     def get_profile(self, *args, **kwargs):
-        pass
+        return self.profile
 
     @abc.abstractmethod
     def save_profile(self, *args, **kwargs):
@@ -70,15 +66,15 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def set_dts(self, *args, **kwargs):
         pass
 
-    def brief(self):
+    def brief(self, *args, **kwargs):
         brief_introduction = "uuid: {}, name: {}, brand: {}, architecture: {}, working_dir: {}, endian: {}".format(
             self.uuid, self.name, self.brand, self.architecture, self.working_dir, self.endian
         )
         return brief_introduction
 
-    def summary(self):
+    def summary(self, *args, **kwargs):
         return self.brief()
-   
+
     # components
     @abc.abstractmethod
     def set_format(self, *args, **kwargs):
@@ -136,38 +132,34 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def get_path_to_dtb(self, *args, **kwargs):
         pass
 
-    @abc.abstractmethod
-    def set_path_to_vmlinux(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_path_to_vmlinux(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_path_to_source_code(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_path_to_source_code(self, *args, **kwargs):
-        pass
-
     # basics
     @abc.abstractmethod
-    def get_machine_description(self):
+    def get_machine_description(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_machine_name(self):
+    def set_machine_description(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_board_id(self):
+    def get_machine_name(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_machine_name(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_board_id(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_board_id(self, *args, **kwargs):
         pass
 
     # ==== cpu ====
     @abc.abstractmethod
-    def get_cpu_model(self):
+    def get_cpu_model(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -175,180 +167,180 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
-    def get_cpu_pp_mmio_base(self):
+    def get_cpu_pp_mmio_base(self, *args, **kwargs):
         pass
 
     # ==== ram ====
     @abc.abstractmethod
-    def get_ram_priority(self):
+    def get_ram_priority(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_ram_size(self):
+    def get_ram_size(self, *args, **kwargs):
         pass
 
     # ===== bridge ====
     @abc.abstractmethod
-    def probe_bridge(self):
+    def probe_bridge(self, *args, **kwargs):
         return False
 
     @abc.abstractmethod
-    def get_bridge_name(self):
+    def get_bridge_name(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_bridge_mmio_base(self):
+    def get_bridge_mmio_base(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_bridge_mmio_size(self):
+    def get_bridge_mmio_size(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_bridge_registers(self):
+    def get_bridge_registers(self, *args, **kwargs):
         pass
 
     # ===== interrupt controller ====
     @abc.abstractmethod
-    def probe_interrupt_controller(self):
+    def probe_interrupt_controller(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_interrupt_controller_name(self):
+    def get_interrupt_controller_name(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_interrupt_controller_registers(self):
+    def get_interrupt_controller_registers(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_interrupt_controller_mmio_size(self):
+    def get_interrupt_controller_mmio_size(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_interrupt_controller_mmio_base(self):
+    def get_interrupt_controller_mmio_base(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_n_irqs(self):
+    def get_n_irqs(self, *args, **kwargs):
         pass
 
     # ==== timer ====
     @abc.abstractmethod
-    def probe_timer(self):
+    def probe_timer(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_timer_name(self):
+    def get_timer_name(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_timer_name(self):
+    def set_timer_name(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_timer_registers(self):
+    def get_timer_registers(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_timer_register(self):
+    def set_timer_register(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_timer_mmio_size(self):
+    def get_timer_mmio_size(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_timer_mmio_size(self):
+    def set_timer_mmio_size(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_timer_mmio_base(self):
+    def get_timer_mmio_base(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_timer_mmio_base(self):
+    def set_timer_mmio_base(self, *args, **kwargs):
         pass
 
     # ==== uart ====
     @abc.abstractmethod
-    def probe_uart(self):
+    def probe_uart(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_uart_name(self):
+    def get_uart_name(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_uart_name(self):
+    def set_uart_name(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_uart_mmio_base(self):
+    def get_uart_mmio_base(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_uart_mmio_base(self):
+    def set_uart_mmio_base(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_uart_baud_rate(self):
+    def get_uart_baud_rate(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_uart_baud_rate(self):
+    def set_uart_baud_rate(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_uart_reg_shift(self):
+    def get_uart_reg_shift(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_uart_reg_shift(self):
+    def set_uart_reg_shift(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_uart_irq(self):
+    def get_uart_irq(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_uart_irq(self):
+    def set_uart_irq(self, *args, **kwargs):
         pass
 
     # ==== flash ====
     @abc.abstractmethod
-    def get_flash_base(self):
+    def get_flash_base(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_flash_base(self):
+    def set_flash_base(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_flash_type(self):
+    def get_flash_type(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_flash_type(self):
+    def set_flash_type(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_flash_size(self):
+    def get_flash_size(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_flash_size(self):
+    def set_flash_size(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_flash_section_size(self):
+    def get_flash_section_size(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_flash_section_size(self):
+    def set_flash_section_size(self, *args, **kwargs):
         pass
 
     # ==== bamboo devices ====
     @abc.abstractmethod
-    def get_bamboo_devices(self):
+    def get_bamboo_devices(self, *args, **kwargs):
         pass
