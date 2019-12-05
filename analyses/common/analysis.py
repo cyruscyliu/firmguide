@@ -54,7 +54,8 @@ class AnalysisGroup(object):
 
 
 class AnalysesManager(object):
-    def __init__(self):
+    def __init__(self, firmware):
+        self.firmware = firmware
         self.analyses_flat = {}  # name:analysis
         self.analyses_forest = {}
         self.analyses_remaining = {}  # name:analysis
@@ -149,21 +150,21 @@ class AnalysesManager(object):
         analysis = self.analyses_flat[name]
         self.last_analysis_status = self.analyses_flat[name].run(firmware)
 
-    def run(self, firmware):
+    def run(self):
         for analyses_tree_name, analyses_tree in self.analyses_forest.items():
             analyses_chain = self.topological_traversal(analyses_tree)
             for analysis in analyses_chain:
                 a = self.analyses_flat[analysis]
                 # save and restore
-                if finished(firmware, a):
-                    logger_info(firmware.uuid, 'analysis', 'done before', a.name, 0)
+                if finished(self.firmware, a):
+                    logger_info(self.firmware.uuid, 'analysis', 'done before', a.name, 0)
                     continue
-                res = a.run(firmware)
+                res = a.run(self.firmware)
                 self.last_analysis_status = res
                 if not res:
-                    a.error(firmware)
+                    a.error(self.firmware)
                 if not res and a.is_critical():
                     raise NotImplementedError(a)
-                finish(firmware, a)
+                finish(self.firmware, a)
         for analysis in self.analyses_remaining:
-            self.last_analysis_status = analysis.run(firmware)
+            self.last_analysis_status = analysis.run(self.firmware)

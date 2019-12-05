@@ -22,7 +22,7 @@ from supervisor.save_and_restore import setup, check_and_restore, save_analysis
 def run_diagnosis(args):
     firmware = get_firmware_in_profile('tiny')
     setup(args, firmware)
-    analyses_manager = AnalysesManager()
+    analyses_manager = AnalysesManager(firmware)
     analyses_manager.register_analysis(DeadLoop(), no_chained=True)
     analyses_manager.run_analysis(firmware, 'dead_loop')
 
@@ -46,7 +46,7 @@ def run(parser, args):
 def analysis_wrapper(firmware):
     check_and_restore(firmware)
 
-    analyses_manager = AnalysesManager()
+    analyses_manager = AnalysesManager(firmware)
     # format <- extraction
     analyses_manager.register_analysis(Format())
     analyses_manager.register_analysis(Extraction())
@@ -71,14 +71,14 @@ def analysis_wrapper(firmware):
     analyses_manager.register_analysis(InitValue(), no_chained=True)
     try:
         # run them all
-        analyses_manager.run(firmware)
+        analyses_manager.run()
 
         while not firmware.do_not_diagnosis:  # exit early
             # perform code generation
-            machine_compiler = CompilerToQEMUMachine()
-            machine_compiler.solve(firmware)
-            machine_compiler.link_and_install(firmware)
-            if not machine_compiler.make(firmware):
+            machine_compiler = CompilerToQEMUMachine(firmware)
+            machine_compiler.solve()
+            machine_compiler.link_and_install()
+            if not machine_compiler.make():
                 raise SystemError('bugs in code generation')
             # perform dynamic checking
             trace_collection(firmware)
