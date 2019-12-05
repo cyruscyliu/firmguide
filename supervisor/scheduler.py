@@ -1,6 +1,7 @@
 import qmp
 import subprocess
 
+from analyses.abelia import AbeliaRAM
 from analyses.check import Checking
 from analyses.common.analysis import AnalysesManager
 from analyses.device_tree import DeviceTree
@@ -22,7 +23,7 @@ from supervisor.save_and_restore import setup, check_and_restore, save_analysis
 def run_diagnosis(args):
     firmware = get_firmware_in_profile('tiny')
     setup(args, firmware)
-    analyses_manager = AnalysesManager()
+    analyses_manager = AnalysesManager(firmware)
     analyses_manager.register_analysis(DeadLoop(), no_chained=True)
     analyses_manager.run_analysis(firmware, 'dead_loop')
 
@@ -46,7 +47,7 @@ def run(parser, args):
 def analysis_wrapper(firmware):
     check_and_restore(firmware)
 
-    analyses_manager = AnalysesManager()
+    analyses_manager = AnalysesManager(firmware)
     # format <- extraction
     analyses_manager.register_analysis(Format())
     analyses_manager.register_analysis(Extraction())
@@ -61,6 +62,8 @@ def analysis_wrapper(firmware):
     # revision, url <- toh
     analyses_manager.register_analysis(OpenWRTURL())
     analyses_manager.register_analysis(OpenWRTToH())
+    # toh <- ram by default
+    analyses_manager.register_analysis(AbeliaRAM())
     # srcode <- .config
     analyses_manager.register_analysis(SRCode())
     analyses_manager.register_analysis(DotConfig())
@@ -71,19 +74,16 @@ def analysis_wrapper(firmware):
     analyses_manager.register_analysis(InitValue(), no_chained=True)
     try:
         # run them all
-        analyses_manager.run(firmware)
+        analyses_manager.run()
 
-        while 1:
+        while not firmware.do_not_diagnosis:  # exit early
             # perform code generation
-            machine_compiler = CompilerToQEMUMachine()
-            machine_compiler.solve(firmware)
-            machine_compiler.link_and_install(firmware)
-            if not machine_compiler.make(firmware):
-                raise SystemError('bugs in code generation')
-            if firmware.do_not_diagnosis:  # exit early
-                break
+            machine_compiler = CompilerToQEMUMachine(firmware)
+            machine_compiler.solve()
+            machine_compiler.link_and_install()
+            running_command = machine_compiler.make()
             # perform dynamic checking
-            trace_collection(firmware)
+            trace_collection(firmware, running_command)
             analyses_manager.run_analysis(firmware, 'check')
             if analyses_manager.last_analysis_status:
                 logger_info(firmware.uuid, 'analysis', 'checking analysis', 'GOOD! Have entered the user level!', 1)
@@ -104,8 +104,7 @@ def analysis_wrapper(firmware):
     save_analysis(firmware)
 
 
-def trace_collection(firmware):
-    running_command = firmware.get_running_command()
+def trace_collection(firmware, running_command):
     # nochain is too too slow
     trace_flags = '-d in_asm,cpu -D log/{}.trace'.format(firmware.uuid)
     qmp_flags = '-qmp tcp:localhost:4444,server,nowait'

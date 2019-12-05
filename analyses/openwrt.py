@@ -124,24 +124,29 @@ class OpenWRTToH(Analysis):
             self.context['input'] = 'information for toh is not enough'
             return False
 
+    def get_machine_name_by_openwrt_toh(self, firmware):
+        machine_name = firmware.get_toh('model')[0]
+        machine_name = '_'.join(machine_name.split())
+        machine_name = machine_name.lower()
+        firmware.set_machine_name(machine_name)
+        self.info(firmware, 'get the machine name {}'.format(machine_name), 1)
+        return True
+
     def get_cpu_by_openwrt_toh(self, firmware):
         cpu, soc = firmware.get_toh('packagearchitecture', 'cpu')
         if cpu is not None and cpu != '':
             firmware.set_cpu_model(cpu)
             self.info(firmware, 'get cpu model: {}'.format(cpu), 1)
-        if soc is not None and cpu != '':
-            firmware.set_soc_model(soc)
-            self.info(firmware, 'get soc model: {}'.format(soc), 1)
         [ram] = firmware.get_toh('rammb')
         if ram is not None and ram != '':
-            firmware.set_ram(0, ram, unit='MiB')
+            firmware.set_ram_size(0, ram, unit='MiB')
             self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, ram), 1)
         return True
 
     def get_ram_by_openwrt_toh(self, firmware):
         [ram] = firmware.get_toh('rammb')
         if ram is not None and ram != '':
-            firmware.set_ram(0, ram, unit='MiB')
+            firmware.set_ram_size(0, ram, unit='MiB')
             self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, ram), 1)
         return True
 
@@ -161,7 +166,8 @@ class OpenWRTToH(Analysis):
         if self.get_openwrt_toh(firmware) and \
                 self.get_cpu_by_openwrt_toh(firmware) and \
                 self.get_ram_by_openwrt_toh(firmware) and \
-                self.get_flash_by_openwrt_toh(firmware):
+                self.get_flash_by_openwrt_toh(firmware) and \
+                self.get_machine_name_by_openwrt_toh(firmware):
             return True
         else:
             return False
@@ -170,6 +176,6 @@ class OpenWRTToH(Analysis):
         super().__init__()
         self.description = 'extract information from OpenWRT table of hardware'
         self.name = 'toh'
-        self.required = ['kernel', 'url']
+        self.required = ['kernel', 'url', 'strings']
         self.context['hint'] = ''
         self.critical = False
