@@ -229,64 +229,74 @@ class DTFirmware(Firmware):
         pass
 
     def probe_uart(self, *args, **kwargs):
+        return self.get_uart_name() is not None
         pass
 
     def get_uart_name(self, *args, **kwargs):
-        pass
+        return self.get_node_property('/uart', 'name')
 
     def set_uart_name(self, *args, **kwargs):
-        pass
+        uart_name = args[0]
+        self.set_node_property('/uart', 'name', uart_name)
 
     def get_uart_mmio_base(self, *args, **kwargs):
-        pass
+        return self.get_node_property('/uart', 'mmio_base')
 
     def set_uart_mmio_base(self, *args, **kwargs):
-        pass
+        uart_mmio_base = args[0]
+        self.set_node_property('/uart', 'mmio_base', uart_mmio_base)
 
     def get_uart_baud_rate(self, *args, **kwargs):
-        pass
+        return self.get_node_property('/uart', 'baud_rate')
 
     def set_uart_baud_rate(self, *args, **kwargs):
-        pass
+        uart_baud_rate = args[0]
+        self.set_node_property('/uart', 'baud_rate', uart_baud_rate)
 
     def get_uart_reg_shift(self, *args, **kwargs):
-        pass
+        return self.get_node_property('/uart', 'reg_shift')
 
     def set_uart_reg_shift(self, *args, **kwargs):
-        pass
+        uart_reg_shift = args[0]
+        self.set_node_property('/uart', 'reg_shift', uart_reg_shift)
 
     def get_uart_irq(self, *args, **kwargs):
-        pass
+        return self.get_node_property('/uart', 'irq')
 
     def set_uart_irq(self, *args, **kwargs):
-        pass
+        uart_irq = args[0]
+        self.set_node_property('/uart', 'irq', uart_irq)
 
     def probe_flash(self, *args, **kwargs):
-        return False
+        return self.get_flash_type() is not None
 
     def get_flash_base(self, *args, **kwargs):
-        pass
+        self.get_node_property('/flash', 'base')
 
     def set_flash_base(self, *args, **kwargs):
-        pass
-
-    def get_flash_type(self, *args, **kwargs):
-        pass
+        flash_base = args[0]
+        self.set_node_property('/flash', 'base', flash_base)
 
     def set_flash_type(self, *args, **kwargs):
-        pass
+        flash_type = args[0]
+        self.set_node_property('/flash', 'type', flash_type)
+
+    def get_flash_type(self, *args, **kwargs):
+        return self.get_node_property('/flash', 'type')
 
     def get_flash_size(self, *args, **kwargs):
-        pass
+        return self.get_node_property('/flash', 'size')
 
     def set_flash_size(self, *args, **kwargs):
-        pass
+        flash_size = args[0]
+        return self.set_node_property('/flash', 'size', flash_size)
 
     def get_flash_section_size(self, *args, **kwargs):
-        pass
+        return self.get_node_property('/flash', 'section_size')
 
     def set_flash_section_size(self, *args, **kwargs):
-        pass
+        flash_section_size = args[0]
+        return self.set_node_property('/flash', 'section_size', flash_section_size)
 
     def get_bamboo_devices(self, *args, **kwargs):
         return []

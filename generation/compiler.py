@@ -394,9 +394,17 @@ class CompilerToQEMUMachine(object):
         # uart
         if self.firmware.probe_uart():
             uart_mmio_base = self.firmware.get_uart_mmio_base()
+            if uart_mmio_base is None:
+                raise NotImplementedError(self.feedback('analysis', 'uart_mmio_base'))
             uart_baud_rate = self.firmware.get_uart_baud_rate()
+            if uart_baud_rate is None:
+                raise NotImplementedError(self.feedback('analysis', 'uart_baud_rate'))
             uart_reg_shift = self.firmware.get_uart_reg_shift()
+            if uart_reg_shift is None:
+                raise NotImplementedError(self.feedback('analysis', 'uart_reg_shift'))
             uart_irq = self.firmware.get_uart_irq()
+            if uart_irq is None:
+                raise NotImplementedError(self.feedback('analysis', 'uart_irq'))
             uart_irq_api = ''
             if cpu_pp_model:
                 if architecture == 'arm':
@@ -422,8 +430,14 @@ class CompilerToQEMUMachine(object):
             self.machine_init['declaration'].extend([indent('DriveInfo *dinfo;', 1)])
             if flash_type == 'nor':
                 flash_base = self.firmware.get_flash_base()
+                if flash_base is None:
+                    raise NotImplementedError(self.feedback('analysis', 'flash_base'))
                 flash_size = self.firmware.get_flash_size()
+                if flash_size is None:
+                    raise NotImplementedError(self.feedback('analysis', 'flash_size'))
                 flash_section_size = self.firmware.get_flash_section_size()
+                if flash_section_size is None:
+                    raise NotImplementedError(self.feedback('analysis', 'flash_section_size'))
                 self.machine_init['body'].extend([
                     indent('dinfo = drive_get(IF_PFLASH, 0, 0);', 1),
                     indent('pflash_cfi01_register({}, "flash", {}, dinfo ? blk_by_legacy_dinfo(dinfo): NULL, '

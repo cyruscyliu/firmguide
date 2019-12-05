@@ -125,7 +125,7 @@ class OpenWRTToH(Analysis):
             return False
 
     def get_machine_name_by_openwrt_toh(self, firmware):
-        machine_name = firmware.get_toh('model')
+        machine_name = firmware.get_toh('model')[0]
         machine_name = '_'.join(machine_name.split())
         machine_name = machine_name.lower()
         firmware.set_machine_name(machine_name)
@@ -167,7 +167,7 @@ class OpenWRTToH(Analysis):
                 self.get_cpu_by_openwrt_toh(firmware) and \
                 self.get_ram_by_openwrt_toh(firmware) and \
                 self.get_flash_by_openwrt_toh(firmware) and \
-                self.get_machine_name_by_openwrt_toh():
+                self.get_machine_name_by_openwrt_toh(firmware):
             return True
         else:
             return False

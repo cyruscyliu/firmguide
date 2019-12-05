@@ -182,6 +182,13 @@ class Strings(Analysis):
                     self.info(firmware, 'uart baud {} found'.format(uart_baud), 1)
                     break
 
+    def flash01_find_flash_type(self, firmware):
+        for string in self.strings:
+            if string.find('physmap-flash') != -1:
+                firmware.set_flash_type('nor')
+                self.info(firmware, 'flash type {} flash found'.format('nor'), 1)
+                break
+
     def run(self, firmware):
         self.get_all_strings(firmware)
 
@@ -203,6 +210,7 @@ class Strings(Analysis):
         self.search_most_possible_subtarget(firmware)
         self.uart01_find_uart_model(firmware)
         self.uart02_find_uart_baud_rate(firmware)
+        self.flash01_find_flash_type(firmware)
 
         # cpu
         architecture = firmware.get_architecture()
