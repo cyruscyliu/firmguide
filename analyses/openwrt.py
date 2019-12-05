@@ -124,6 +124,14 @@ class OpenWRTToH(Analysis):
             self.context['input'] = 'information for toh is not enough'
             return False
 
+    def get_machine_name_by_openwrt_toh(self, firmware):
+        machine_name = firmware.get_toh('model')
+        machine_name = '_'.join(machine_name.split())
+        machine_name = machine_name.lower()
+        firmware.set_machine_name(machine_name)
+        self.info(firmware, 'get the machine name {}'.format(machine_name), 1)
+        return True
+
     def get_cpu_by_openwrt_toh(self, firmware):
         cpu, soc = firmware.get_toh('packagearchitecture', 'cpu')
         if cpu is not None and cpu != '':
@@ -158,7 +166,8 @@ class OpenWRTToH(Analysis):
         if self.get_openwrt_toh(firmware) and \
                 self.get_cpu_by_openwrt_toh(firmware) and \
                 self.get_ram_by_openwrt_toh(firmware) and \
-                self.get_flash_by_openwrt_toh(firmware):
+                self.get_flash_by_openwrt_toh(firmware) and \
+                self.get_machine_name_by_openwrt_toh():
             return True
         else:
             return False

@@ -149,12 +149,7 @@ class Strings(Analysis):
                 logger_info(
                     firmware.uuid, 'analysis', 'strings', 'get the most possible subtarget {}'.format(subtarget), 1)
                 firmware.set_toh(filtered_results_2[0], header=openwrt.header_last_selected)
-                machine_name = filtered_results_2[0][openwrt.header_last_selected.index('model')]
-                machine_name = '_'.join(machine_name.split())
-                machine_name.lower()
-                firmware.set_machine_name(machine_name)
-                logger_info(
-                    firmware.uuid, 'analysis', 'strings', 'get the machine name {}'.format(machine_name), 1)
+
                 return
         most_possible = None
         max_count = 0

@@ -141,7 +141,7 @@ class DTFirmware(Firmware):
         return "0x661"
 
     def get_cpu_model(self, *args, **kwargs):
-        pass
+        return 'arm926'
 
     def set_cpu_model(self, *args, **kwargs):
         pass
