@@ -197,11 +197,14 @@ class CompilerToQEMUMachine(object):
         if path_to_dtb:
             running_command += ' -dtb {}'.format(path_to_dtb)
         if self.firmware.probe_flash():
-            running_command += ' -drive file={},if=pflash,format=raw'.format(self.firmware.get_working_path())
+            if self.firmware.get_flash_type() == 'nor':
+                running_command += ' -drive file={},if=pflash,format=raw'.format(self.firmware.get_path_to_image())
+            elif self.firmware.get_flash_type() == 'nand':
+                running_command += ' -drive file={},if=mtd,format=raw'.format(self.firmware.get_path_to_image())
+            else:
+                raise NotImplementedError()
         running_command += ' -nographic'
         self.info(running_command, 'run')
-        os.system(running_command)
-        # raise SystemError('bugs in code generation')
         return running_command
 
     def solve(self):
@@ -417,10 +420,6 @@ class CompilerToQEMUMachine(object):
             if uart_irq is None:
                 raise NotImplementedError(self.feedback('analysis', 'uart_irq'))
 
-            # at least we need a interrupt controller name
-            if not self.firmware.probe_interrupt_controller():
-                raise NotImplementedError(self.feedback('analysis', 'interrupt_controller_name'))
-            uart_irq_api = ''
             if cpu_pp_model:
                 if architecture == 'arm':
                     uart_irq_api = 'qdev_get_gpio_in(DEVICE(&s->cpu_pp), {})'.format(uart_irq)
@@ -429,6 +428,8 @@ class CompilerToQEMUMachine(object):
                 else:
                     raise NotImplementedError()
             else:
+                if not self.firmware.probe_interrupt_controller():
+                    raise NotImplementedError(self.feedback('analysis', 'interrupt_controller_name'))
                 uart_irq_api = 'qdev_get_gpio_in_named(DEVICE(&s->ic), {}, {})'.format(to_irq(ic_name), uart_irq)
 
             self.machine['includings'].extend(['hw/char/serial.h'])
@@ -441,18 +442,16 @@ class CompilerToQEMUMachine(object):
         # flash
         if self.firmware.probe_flash():
             flash_type = self.firmware.get_flash_type()
+            self.check_analysis(flash_type, 'flash_type')
             self.machine['includings'].extend(['sysemu/blockdev.h', 'hw/block/flash.h'])
             self.machine_init['declaration'].extend([indent('DriveInfo *dinfo;', 1)])
             if flash_type == 'nor':
                 flash_base = self.firmware.get_flash_base()
-                if flash_base is None:
-                    raise NotImplementedError(self.feedback('analysis', 'flash_base'))
+                self.check_analysis(flash_type, 'flash_base')
                 flash_size = self.firmware.get_flash_size()
-                if flash_size is None:
-                    raise NotImplementedError(self.feedback('analysis', 'flash_size'))
+                self.check_analysis(flash_type, 'flash_size')
                 flash_section_size = self.firmware.get_flash_section_size()
-                if flash_section_size is None:
-                    raise NotImplementedError(self.feedback('analysis', 'flash_section_size'))
+                self.check_analysis(flash_type, 'flash_section_size')
                 self.machine_init['body'].extend([
                     indent('dinfo = drive_get(IF_PFLASH, 0, 0);', 1),
                     indent('pflash_cfi01_register({}, "flash", {}, dinfo ? blk_by_legacy_dinfo(dinfo): NULL, '
@@ -473,6 +472,7 @@ class CompilerToQEMUMachine(object):
         self.machine_reset['signature'].extend(['static void {}_reset(void *opaque)'.format(machine_name)])
         #
         bamboos = self.firmware.get_bamboo_devices()
+        self.check_analysis(bamboos, 'bamboo_devices')
         if len(bamboos):
             self.machine_reset['declaration'].extend([indent('{} *s = opaque;'.format(to_state(machine_name)), 1)])
         for id_, bamboo in enumerate(bamboos):
@@ -566,8 +566,7 @@ class CompilerToQEMUMachine(object):
     def solve_irq_to_cpu(self):
         cpu_pp_model = self.firmware.probe_cpu_pp_model()
         architecture = self.firmware.get_architecture()
-        if not self.firmware.probe_interrupt_controller():
-            return
+        self.check_analysis(architecture, 'architecture')
         if cpu_pp_model and architecture == 'arm':
             self.machine_init['body'].extend([
                 indent('sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 0, '
@@ -582,6 +581,8 @@ class CompilerToQEMUMachine(object):
         elif cpu_pp_model and architecture == 'mips':
             pass
         else:
+            if not self.firmware.probe_interrupt_controller():
+                return
             self.machine_init['body'].extend([
                 indent('qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0, '
                        'qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));')
@@ -641,7 +642,7 @@ class CompilerToQEMUMachine(object):
         self.check_analysis(ram_size, 'ram_size')
         cpu_model = self.firmware.get_cpu_model()
         self.check_analysis(cpu_model, 'cpu_model')
-        
+
         self.machine['includings'].extend(['qemu/units.h'])
         if architecture == 'arm':
             self.machine['includings'].extend(['target/arm/cpu.h'])

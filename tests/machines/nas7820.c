@@ -1287,7 +1287,7 @@ static void nas7820_machine_init(MachineClass *mc)
     /* mc->no_sdcard = 1; */
     /* mc->pci_allow_0_address = 1; */
     /* mc->legacy_fw_cfg_order = 1; */
-    /* mc->is_dault = ; */
+    /* mc->is_default = ; */
     /* mc->default_machine_opts = ; */
     /* mc->default_boot_order = ; */
     /* mc->default_display = ; */

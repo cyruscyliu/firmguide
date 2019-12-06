@@ -126,7 +126,8 @@ def trace_collection(firmware, running_command):
     full_command = ' '.join([running_command, trace_flags, qmp_flags])
     try:
         logger_info(firmware.uuid, 'tracing', 'qemudebug', full_command, 0)
-        subprocess.run(full_command, timeout=60, shell=True)
+        status = subprocess.run(full_command, timeout=60, shell=True)
+        print(status)
     except subprocess.TimeoutExpired:
         qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
         qemu.connect()
