@@ -27,6 +27,7 @@ class DeviceTree(Analysis):
         path_to_cpu = self.get_path_to('cpu')
 
         compatible = self.dts.get_property('compatible', path_to_cpu).data[0]
+        print(compatible)
         firmware.set_cpu_model(compatible)
 
     def ic01_parse_ic_from_device_tree(self, firmware):

@@ -2,7 +2,6 @@ import os
 
 from pyquery import PyQuery as pq
 from analyses.analysis import Analysis
-from database.db import DatabaseOpenWRTMapping
 from database.dbf import get_database
 
 
@@ -85,7 +84,7 @@ class OpenWRTRevision(Analysis):
         if kernel_version is None:
             self.context['input'] = 'kernel version is not available'
             return False
-        openwrt_mapping = DatabaseOpenWRTMapping()
+        openwrt_mapping = get_database('openwrt.yaml')
         openwrt_revision = openwrt_mapping.select('revision', kernel_version=kernel_version)
         firmware.set_revision(openwrt_revision)
         self.info(firmware, 'get the revision {}'.format(openwrt_revision), 1)
