@@ -69,14 +69,18 @@ To test your firmware, simply run your command as shown in the example. And the 
 ./salamander.py -f tests/files/2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r
 ```
 
-###### advanced  usage
+### Re-Analysis
 
-+ to disable `save and restore`, please use `-r`
+Sometimes we would like to re-analysis the whole firmware. The solution is using `-r` in your command line.
+
+```shell script
+./salamander.py -f tests/files/2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r
+```
 
 ### Device Profile
 
 Sometimes we just want to get the device profile not to diagnosis whether we boot the firmware up or not.
-This solution is using `-q` in your command line.
+The solution is using `-q` in your command line.
 
 ````shell script
 ./salamander.py -f tests/files/2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r -q
