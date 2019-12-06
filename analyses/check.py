@@ -1,6 +1,6 @@
 import os
 
-from analyses.common.analysis import Analysis
+from analyses.analysis import Analysis
 
 
 class Checking(Analysis):
@@ -9,7 +9,7 @@ class Checking(Analysis):
         not_find_user_level = os.system(cmd)
         return not not_find_user_level
 
-    def scan_user_level_ktracer(self):
+    def scan_user_level_ktracer(self, firmware):
         return False
 
     def run(self, firmware):

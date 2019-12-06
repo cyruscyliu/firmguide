@@ -15,6 +15,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
         self.analysis_progress = None  # file
         self.profile = None  # dict
+        self.path_to_profile = None
 
         self.trace_format = None
         self.path_to_trace = None
@@ -133,13 +134,14 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     def brief(self, *args, **kwargs):
-        brief_introduction = "uuid: {}, name: {}, brand: {}, architecture: {}, working_dir: {}, endian: {}".format(
+        brief_introduction = 'uuid: {}, name: {}, brand: {}, architecture: {}, working_dir: {}, endian: {}'.format(
             self.uuid, self.name, self.brand, self.architecture, self.working_dir, self.endian
         )
         return brief_introduction
 
     def summary(self, *args, **kwargs):
-        return self.brief()
+        brief_summary = 'uuid: {}, name:{}, profile at {}'.format(self.uuid, self.name, self.path_to_profile)
+        return brief_summary
 
     # components
     @abc.abstractmethod
@@ -235,9 +237,21 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     @abc.abstractmethod
     def probe_cpu_pp_model(self, *args, **kwargs):
         pass
-    
+
+    @abc.abstractmethod
+    def get_cpu_pp_name(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_cpu_pp_name(self, *args, **kwargs):
+        pass
+
     @abc.abstractmethod
     def get_cpu_pp_mmio_base(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_cpu_pp_mmio_base(self, *args, **kwargs):
         pass
 
     # ==== ram ====
@@ -284,7 +298,15 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
+    def set_interrupt_controller_name(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def get_interrupt_controller_registers(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_interrupt_controller_registers(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -292,7 +314,15 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
+    def set_interrupt_controller_mmio_size(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def get_interrupt_controller_mmio_base(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_interrupt_controller_mmio_base(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod

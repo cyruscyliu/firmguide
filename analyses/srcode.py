@@ -3,7 +3,7 @@ Handle all about source code.
 """
 import os
 
-from analyses.common.analysis import Analysis
+from analyses.analysis import Analysis
 
 
 class SRCode(Analysis):

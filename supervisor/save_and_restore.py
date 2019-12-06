@@ -12,39 +12,56 @@ def check_and_restore(firmware, **kwargs):
     2. For the first time,
         2.1 create the wd
         2.2 create an analysis file for analysis process
-        2.3 create an empty device profile (one at once)
+        2.3 create an empty device profile
         2.4 copy firmware to the wd
     3. To restore a previous task,
         3.1 load the analysis file
-        3.2 load the device profile (one at once)
+        3.2 load the device profile
 
     :param firmware: the firmware.
     :return: None
     """
+    rerun = kwargs.pop('rerun', False)
+    path_to_profile = kwargs.pop('path_to_profile', None)
+
+    # check first time or not
     first_time = True
     if os.path.exists(firmware.working_dir):
         first_time = False
-    rerun = firmware.rerun
     if rerun:
         first_time = True
+
+    # handle wd
+    os.makedirs(firmware.working_dir, exist_ok=True)
+
+    # handle analysis
     analysis = os.path.join(firmware.working_dir, 'analysis')
     if first_time:
-        os.makedirs(firmware.working_dir, exist_ok=True)
         with open(analysis, 'w') as f:
             f.close()
-        firmware.set_profile(working_dir=firmware.working_dir, first=True)
     with open(analysis, 'r') as f:
         analysis_progress = yaml.safe_load(f)
         if analysis_progress is None:
             firmware.analysis_progress = {}
         else:
             firmware.analysis_progress = analysis_progress
-    firmware.set_profile(working_dir=firmware.working_dir)
-    if not os.path.exists(firmware.working_path):
+
+    # handle profile
+    if first_time:
+        firmware.set_profile(working_dir=firmware.working_dir, first=True)
+    else:
+        if path_to_profile is not None:
+            shutil.copy(path_to_profile, os.path.join(firmware.working_dir, os.path.basename(path_to_profile)))
+        firmware.set_profile(working_dir=firmware.working_dir)
+
+    # copy the firmware to working path, skip tiny firmware
+    if firmware.uuid != 'test' and not os.path.exists(firmware.working_path):
         shutil.copy(
             os.path.join(os.getcwd(), firmware.path),
             os.path.join(firmware.working_path)
         )
+
+    # build the QEMU in working directory, skip tiny firmware
     if not os.path.exists(os.path.join(firmware.working_dir, 'qemu-4.0.0')):
         shutil.copy(
             os.path.join('build', 'qemu-4.0.0-patched.tar.xz'),
@@ -55,6 +72,7 @@ def check_and_restore(firmware, **kwargs):
             firmware.working_dir))
         os.system('cd {0}/qemu-4.0.0 && make -j4'.format(firmware.working_dir))
 
+    # logging
     if first_time:
         logger_info(firmware.uuid, 'save_and_restore', 'first', firmware.brief(), 0)
     else:

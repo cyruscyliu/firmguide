@@ -1,8 +1,7 @@
 import math
-import pydot
 import networkx as nx
 
-from analyses.common.analysis import Analysis
+from analyses.analysis import Analysis
 
 
 class DeadLoop(Analysis):

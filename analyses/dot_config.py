@@ -1,7 +1,7 @@
 import os
 
-from analyses.common.analysis import Analysis
-from analyses.common.makefile import obj_definition_filter
+from analyses.analysis import Analysis
+from analyses.makefile import obj_definition_filter
 
 
 def parse_kconfig(data):

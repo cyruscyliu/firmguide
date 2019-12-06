@@ -23,6 +23,9 @@ if __name__ == '__main__':
     group.add_argument('-b', '--brand', type=str, choices=['openwrt'])
     group.add_argument('-q', '--quick', action='store_true', default=False, help='disable tracing and diagnosis')
     group.add_argument('-s', '--source_code', type=str, metavar='path/to/source_code')
+    # generation
+    group = parser.add_argument_group('code generation')
+    group.add_argument('-g', '--generation', type=str, metavar='path/to/device_profile')
     # diagnosis
     group = parser.add_argument_group('diagnosis')
     group.add_argument('-t', '--trace', type=str, metavar='path/to/trace')

@@ -34,6 +34,10 @@ class CompilerToQEMUMachine(object):
                                'interrupt_controller': {'source': [], 'header': []},
                                'bridge': {'source': [], 'header': []}}
 
+    def check_analysis(self, to_be_checked, name):
+        if to_be_checked is None:
+            raise NotImplementedError(self.feedback('analysis', name))
+
     def feedback(self, t, name):
         if t == 'analysis':
             return 'add an analysis to set firmware.{}'.format(name)
@@ -251,14 +255,15 @@ class CompilerToQEMUMachine(object):
         self.machine_init['body'].extend([
             indent('object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);', 1)])
         self.info('solved abelia cpu', 'compile')
+
         # cpu_pp
         cpu_model = self.firmware.get_cpu_model()
-        if cpu_model is None:
-            raise NotImplementedError(self.feedback('analysis', 'cpu_model'))
+        self.check_analysis(cpu_model, 'cpu_model')
         cpu_pp_model = self.firmware.probe_cpu_pp_model()
         if cpu_pp_model:
             if architecture == 'arm':
                 cpu_pp_mmio_base = self.firmware.get_cpu_pp_mmio_base()
+                self.check_analysis(cpu_pp_mmio_base, 'cpu_pp_mmio_base')
                 self.machine['includings'].extend(['hw/cpu/arm11mpcore.h'])
                 self.machine_struct['fields'].extend([indent('{} cpu_pp;'.format(to_cpu_pp_state(cpu_model)), 1)])
                 self.machine_init['body'].extend([
@@ -285,9 +290,13 @@ class CompilerToQEMUMachine(object):
         # interrupt controller
         if not cpu_pp_model and self.firmware.probe_interrupt_controller():
             ic_name = self.firmware.get_interrupt_controller_name()
-            ic_registers = self.firmware.lget_interrupt_controller_registers()
+            self.check_analysis(ic_name, 'interrupt_controller_name')
+            ic_registers = self.firmware.get_interrupt_controller_registers()
+            self.check_analysis(ic_registers, 'interrupt_controller_registers')
             ic_mmio_size = self.firmware.get_interrupt_controller_mmio_size()
+            self.check_analysis(ic_mmio_size, 'interrupt_controller_mmio_size')
             ic_mmio_base = self.firmware.get_interrupt_controller_mmio_base()
+            self.check_analysis(ic_mmio_size, 'interrupt_controller_mmio_base')
             ic_n_irqs = self.firmware.get_n_irqs()
             context = {'ic_name': ic_name, 'ic_registers': ic_registers, 'ic_mmio_size': ic_mmio_size,
                        'ic_mmio_base': ic_mmio_base, 'ic_n_irqs': ic_n_irqs, 'upper': lambda x: x.upper(),
@@ -311,7 +320,7 @@ class CompilerToQEMUMachine(object):
             ])
             self.info('solved abelia interrupt controller', 'compile')
         # bridge
-        if self.firmware.probe_bridge():
+        if not cpu_pp_model and self.firmware.probe_bridge():
             bridge_name = self.firmware.get_bridge_name()
             bridge_mmio_base = self.firmware.get_bridge_mmio_base()
             bridge_mmio_size = self.firmware.get_bridge_mmio_size()
@@ -407,6 +416,10 @@ class CompilerToQEMUMachine(object):
             uart_irq = self.firmware.get_uart_irq()
             if uart_irq is None:
                 raise NotImplementedError(self.feedback('analysis', 'uart_irq'))
+
+            # at least we need a interrupt controller name
+            if not self.firmware.probe_interrupt_controller():
+                raise NotImplementedError(self.feedback('analysis', 'interrupt_controller_name'))
             uart_irq_api = ''
             if cpu_pp_model:
                 if architecture == 'arm':
@@ -625,12 +638,10 @@ class CompilerToQEMUMachine(object):
         machine_name = self.firmware.get_machine_name()
         architecture = self.firmware.get_architecture()
         ram_size = self.firmware.get_ram_size()
-        if ram_size is None:
-            raise NotImplementedError(self.feedback('analysis', 'ram_size'))
+        self.check_analysis(ram_size, 'ram_size')
         cpu_model = self.firmware.get_cpu_model()
-        if cpu_model is None:
-            raise NotImplementedError(self.feedback('analysis', 'cpu_model'))
-
+        self.check_analysis(cpu_model, 'cpu_model')
+        
         self.machine['includings'].extend(['qemu/units.h'])
         if architecture == 'arm':
             self.machine['includings'].extend(['target/arm/cpu.h'])
@@ -795,6 +806,6 @@ class CompilerToQEMUMachine(object):
             with open(header_target, 'w') as f:
                 f.write(self.custom_devices['bridge']['header'])
                 f.flush()
-        self.info('have linked them all at {}'.format(os.path.join(self.firmware.get_working_dir(), 'qemu')),
-                  'link')
+        self.info(
+            'have linked them all at {}'.format(os.path.join(self.firmware.get_working_dir(), 'qemu-4.0.0')), 'link')
         self.solve_makefiles()

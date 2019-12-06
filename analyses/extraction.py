@@ -1,6 +1,6 @@
 import os
 
-from analyses.common.analysis import Analysis
+from analyses.analysis import Analysis
 
 
 class Extraction(Analysis):
@@ -29,6 +29,7 @@ class Extraction(Analysis):
             os.system('mkimage -A {} -C none -O linux -T kernel -d {} '
                       '-a 0x8000 -e 0x8000 {} >/dev/null 2>&1'.format(firmware.get_architecture(), kernel, uimage))
             os.system('dumpimage -T flat_dt -i {} -p 1 {} >/dev/null 2>&1'.format(image_path, dtb))
+            firmware.set_path_to_uimage(uimage)
             firmware.set_path_to_dtb(dtb)
             self.info(
                 firmware, 'get device tree image {} at {}'.format(os.path.basename(kernel), dtb), 1)
@@ -40,6 +41,7 @@ class Extraction(Analysis):
             uimage = image_path.replace('trx', 'uimage')
             os.system('mkimage -A {} -C none -O linux -T kernel -d {} '
                       '-a 0x8000 -e 0x8000 {} >/dev/null 2>&1'.format(firmware.get_architecture(), kernel, uimage))
+            firmware.set_path_to_uimage(uimage)
             firmware.set_path_to_dtb(None)
         else:
             self.context['input'] = 'add support to this image type {}'.format(image_type)

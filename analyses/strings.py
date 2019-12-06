@@ -3,7 +3,7 @@ import os
 import yaml
 
 from prettytable import PrettyTable
-from analyses.common.analysis import Analysis
+from analyses.analysis import Analysis
 from database.dbf import get_database
 from supervisor.logging_setup import logger_info
 
@@ -217,7 +217,7 @@ class Strings(Analysis):
         if architecture != 'arm':
             self.context['input'] = 'search strings to find CPU only valid for ARM'
             return False
-        candidates = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'arm32.cpu.yaml')))
+        candidates = yaml.safe_load(open(os.path.join(os.getcwd(), 'database', 'kernel_devices.yaml')))
         # construct
         target_strings = {}
         votes = {}

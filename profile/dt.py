@@ -48,18 +48,16 @@ class DTFirmware(Firmware):
             return
         if working_dir is None:
             raise ValueError('please assign the working directory if no profile available')
-        path_to_profile = os.path.join(working_dir, 'profile.dt')
+        self.path_to_profile = os.path.join(working_dir, 'profile.dt')
         if first:
-            with open(path_to_profile, 'w') as f:
+            with open(self.path_to_profile, 'w') as f:
                 f.write('/dts-v1/;\n\n/ {\n};\n')
-        with open(path_to_profile, 'r') as f:
+        with open(self.path_to_profile, 'r') as f:
             profile = f.read()
         self.profile = fdt.parse_dts(profile)
 
     def save_profile(self, *args, **kwargs):
-        working_dir = kwargs.pop('working_dir', None)
-        path_to_profile = os.path.join(working_dir, 'profile.dt')
-        with open(path_to_profile, 'w') as f:
+        with open(self.path_to_profile, 'w') as f:
             f.write(self.profile.to_dts())
 
     def get_dts(self, *args, **kwargs):
@@ -141,16 +139,28 @@ class DTFirmware(Firmware):
         return "0x661"
 
     def get_cpu_model(self, *args, **kwargs):
-        return 'arm926'
+        return self.get_node_property('cpu', 'model')
 
     def set_cpu_model(self, *args, **kwargs):
-        pass
+        cpu_model = args[0]
+        self.set_node_property('cpu', 'model', cpu_model)
 
     def probe_cpu_pp_model(self, *args, **kwargs):
-        return False
+        return self.get_cpu_pp_name() is not None
+
+    def set_cpu_pp_name(self, *args, **kwargs):
+        cpu_pp_name = args[0]
+        self.set_node_property('cpu_pp', 'name', cpu_pp_name)
+
+    def get_cpu_pp_name(self, *args, **kwargs):
+        return self.get_node_property('cpu_pp', 'name')
 
     def get_cpu_pp_mmio_base(self, *args, **kwargs):
-        pass
+        return self.get_node_property('cpu_pp', 'mmio_base')
+
+    def set_cpu_pp_mmio_base(self, *args, **kwargs):
+        cpu_pp_mmio_base = args[0]
+        self.set_node_property('cpu_pp', 'mmio_base', cpu_pp_mmio_base)
 
     def get_ram_priority(self, *args, **kwargs):
         return '0'
@@ -158,7 +168,7 @@ class DTFirmware(Firmware):
     def get_ram_size(self, *args, **kwargs):
         ram = self.get_node_property('/memory', 'reg', end=2)
         if ram is None:
-            return None, None
+            return None
         ram_base, ram_size = ram
         return '{} * MiB'.format(int(int(ram_size) / 1024))  # to MiB
 
@@ -184,19 +194,29 @@ class DTFirmware(Firmware):
         pass
 
     def probe_interrupt_controller(self, *args, **kwargs):
-        pass
+        return self.get_interrupt_controller_name() is not None
 
     def get_interrupt_controller_name(self, *args, **kwargs):
-        pass
+        return self.get_node_property('ic', 'ic_name')
+
+    def set_interrupt_controller_name(self, *args, **kwargs):
+        ic_name = args[0]
+        self.set_node_property('ic', 'ic_name', ic_name)
 
     def get_interrupt_controller_registers(self, *args, **kwargs):
         pass
 
     def get_interrupt_controller_mmio_size(self, *args, **kwargs):
-        pass
+        return self.get_node_property('ic', 'ic_mmio_size', *args)
+
+    def set_interrupt_controller_mmio_size(self, *args, **kwargs):
+        self.set_node_property('ic', 'ic_mmio_size', *args)
 
     def get_interrupt_controller_mmio_base(self, *args, **kwargs):
-        pass
+        return self.get_node_property('ic', 'ic_mmio_base')
+
+    def set_interrupt_controller_mmio_base(self, *args, **kwargs):
+        self.set_node_property('ic', 'ic_mmio_base', *args)
 
     def get_n_irqs(self, *args, **kwargs):
         pass

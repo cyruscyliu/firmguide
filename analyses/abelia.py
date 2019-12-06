@@ -1,4 +1,4 @@
-from analyses.common.analysis import AnalysisGroup, Analysis
+from analyses.analysis import Analysis
 
 
 class AbeliaRAM(Analysis):
