@@ -1,6 +1,6 @@
 import binwalk
 
-from analyses.common.analysis import Analysis
+from analyses.analysis import Analysis
 
 
 class Format(Analysis):

@@ -1,8 +1,8 @@
 import os
 import re
 
-from analyses.common.analysis import Analysis
-from analyses.common.fit import fit_parser
+from analyses.analysis import Analysis
+from analyses.fit import fit_parser
 
 
 def find_kernel_version(strings_to_kernel_version):

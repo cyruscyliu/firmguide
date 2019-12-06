@@ -1,7 +1,7 @@
 import os
 
 from pyquery import PyQuery as pq
-from analyses.common.analysis import AnalysisGroup, Analysis
+from analyses.analysis import Analysis
 from database.db import DatabaseOpenWRTMapping
 from database.dbf import get_database
 

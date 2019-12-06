@@ -5,7 +5,7 @@ from analyses.dot_config import DotConfig
 from analyses.extraction import Extraction
 from analyses.format import Format
 from analyses.kernel import Kernel
-from analyses.common.analysis import AnalysesManager
+from analyses.analysis import AnalysesManager
 from analyses.openwrt import OpenWRTURL, OpenWRTRevision, OpenWRTToH
 from analyses.srcode import SRCode
 from analyses.strings import Strings

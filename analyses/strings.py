@@ -3,7 +3,7 @@ import os
 import yaml
 
 from prettytable import PrettyTable
-from analyses.common.analysis import Analysis
+from analyses.analysis import Analysis
 from database.dbf import get_database
 from supervisor.logging_setup import logger_info
 
