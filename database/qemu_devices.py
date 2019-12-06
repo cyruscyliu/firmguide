@@ -1,6 +1,11 @@
 """
 map kernel world to qemu world
 """
+import os
+import yaml
+
+from fuzzywuzzy import process
+
 from database.db import Database
 
 
@@ -9,7 +14,21 @@ class DatabaseQEMUDevices(Database):
         """
         select cpu where name like arm,arm11mpcore
         """
-        pass
+        # parse arguments
+        device = args[0]
+        like = kwargs.pop('like')
+
+        # get the database
+        qemu_devcies = open(os.path.join(os.getcwd(), 'database', 'qemu_devices.yaml'))
+        database_qemu_devices = yaml.safe_load(qemu_devcies)
+
+        # get choices
+        choices = database_qemu_devices[device]
+        result, score = process.extractOne(like, choices)
+        if score < 80:
+            result = None
+        qemu_devcies.close()
+        return result
 
     def add(self, *args, **kwargs):
         raise NotImplementedError('you are not expected to modify this table')

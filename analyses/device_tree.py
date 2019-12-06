@@ -1,6 +1,7 @@
 import fdt
 
 from analyses.analysis import Analysis
+from database.dbf import get_database
 
 
 class DeviceTree(Analysis):
@@ -27,7 +28,7 @@ class DeviceTree(Analysis):
         path_to_cpu = self.get_path_to('cpu')
 
         compatible = self.dts.get_property('compatible', path_to_cpu).data[0]
-        print(compatible)
+        compatible = self.qemu_devices.select('cpu', like=compatible)
         firmware.set_cpu_model(compatible)
 
     def ic01_parse_ic_from_device_tree(self, firmware):
@@ -112,3 +113,4 @@ class DeviceTree(Analysis):
         self.critical = False
         #
         self.dts = None
+        self.qemu_devices = get_database('qemu.devices')
