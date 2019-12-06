@@ -66,7 +66,7 @@ Before using salamander, you must prepare your firmware and provide information 
 To test your firmware, simply run your command as shown in the example. And the first run may be slow.
 
 ```shell script
-./salamander.py -f tests/files/2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r
+./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r
 ```
 
 ### Re-Analysis
@@ -74,7 +74,7 @@ To test your firmware, simply run your command as shown in the example. And the 
 Sometimes we would like to re-analysis the whole firmware. The solution is using `-r` in your command line.
 
 ```shell script
-./salamander.py -f tests/files/2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r
+./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r
 ```
 
 ### Device Profile
@@ -83,7 +83,7 @@ Sometimes we just want to get the device profile not to diagnosis whether we boo
 The solution is using `-q` in your command line.
 
 ````shell script
-./salamander.py -f tests/files/2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r -q
+./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r -q
 ````
 
 #######
