@@ -79,15 +79,19 @@ Sometimes we would like to re-analysis the whole firmware. The solution is using
 
 ### Device Profile
 
-Sometimes we just want to get the device profile not to diagnosis whether we boot the firmware up or not.
+Sometimes we just want to get the device profile not to diagnose whether we boot the firmware up or not.
 The solution is using `-q` in your command line.
 
 ````shell script
 ./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r -q
 ````
 
-#######
+And, in other situation, if we already have the device profile, we want to generation QEMU code directly.
+BTW, the architecture information is still necessary. Still, the first run may be slow.
 
+```shell script
+ ./salamander.py -g build/13882/profile.dt -wd build/ -a arm
+```
 
 ## Visualization
 

@@ -21,7 +21,7 @@ from supervisor.save_and_restore import setup, check_and_restore, save_analysis
 
 
 def run_diagnosis(args):
-    firmware = get_firmware_in_profile('tiny')
+    firmware = get_firmware_in_profile(args.profile)
     setup(args, firmware)
     analyses_manager = AnalysesManager(firmware)
     analyses_manager.register_analysis(DeadLoop(), no_chained=True)
@@ -32,7 +32,13 @@ def run_single_analysis(args):
     firmware = get_firmware_in_profile(args.profile)
 
     setup(args, firmware)
-    analysis_wrapper(firmware)
+    analysis_wrapper(args, firmware)
+
+
+def run_code_generation(args):
+    firmware = get_firmware_in_profile(args.profile)
+    setup(args, firmware)
+    analysis_wrapper(args, firmware)
 
 
 def run(parser, args):
@@ -40,31 +46,33 @@ def run(parser, args):
         run_diagnosis(args)
     elif args.firmware:
         run_single_analysis(args)
+    elif args.generation:
+        run_code_generation(args)
     else:
         parser.print_help()
 
 
-def register_analysis(firmware):
+def register_analysis(firmware, no_inference=False):
     analyses_manager = AnalysesManager(firmware)
     # format <- extraction
-    analyses_manager.register_analysis(Format())
-    analyses_manager.register_analysis(Extraction())
+    analyses_manager.register_analysis(Format(), no_chained=no_inference)
+    analyses_manager.register_analysis(Extraction(), no_chained=no_inference)
     # extraction <- kernel
-    analyses_manager.register_analysis(Kernel())
+    analyses_manager.register_analysis(Kernel(), no_chained=no_inference)
     # extraction <- dt
-    analyses_manager.register_analysis(DeviceTree())
+    analyses_manager.register_analysis(DeviceTree(), no_chained=no_inference)
     # extraction, revision <- strings
-    analyses_manager.register_analysis(Strings())
+    analyses_manager.register_analysis(Strings(), no_chained=no_inference)
     # kernel <- revision
-    analyses_manager.register_analysis(OpenWRTRevision())
+    analyses_manager.register_analysis(OpenWRTRevision(), no_chained=no_inference)
     # revision, url <- toh
-    analyses_manager.register_analysis(OpenWRTURL())
-    analyses_manager.register_analysis(OpenWRTToH())
+    analyses_manager.register_analysis(OpenWRTURL(), no_chained=no_inference)
+    analyses_manager.register_analysis(OpenWRTToH(), no_chained=no_inference)
     # toh <- ram by default
-    analyses_manager.register_analysis(AbeliaRAM())
+    analyses_manager.register_analysis(AbeliaRAM(), no_chained=no_inference)
     # srcode <- .config
-    analyses_manager.register_analysis(SRCode())
-    analyses_manager.register_analysis(DotConfig())
+    analyses_manager.register_analysis(SRCode(), no_chained=no_inference)
+    analyses_manager.register_analysis(DotConfig(), no_chained=no_inference)
     # other analysis
     analyses_manager.register_analysis(Checking(), no_chained=True)
     analyses_manager.register_analysis(DeadLoop(), no_chained=True)
@@ -72,10 +80,14 @@ def register_analysis(firmware):
     return analyses_manager
 
 
-def analysis_wrapper(firmware):
-    check_and_restore(firmware)
+def analysis_wrapper(args, firmware):
+    check_and_restore(firmware, path_to_profile=args.generation, rerun=args.rerun)
 
-    analyses_manager = register_analysis(firmware)
+    if args.generation:
+        analyses_manager = register_analysis(firmware, no_inference=True)
+    else:
+        analyses_manager = register_analysis(firmware)
+
     try:
         # run them all
         analyses_manager.run()
