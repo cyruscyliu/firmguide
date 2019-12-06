@@ -3,17 +3,17 @@ import subprocess
 
 from analyses.abelia import AbeliaRAM
 from analyses.check import Checking
-from analyses.common.analysis import AnalysesManager
+from analyses.analysis import AnalysesManager
 from analyses.device_tree import DeviceTree
 from analyses.dot_config import DotConfig
 from analyses.extraction import Extraction
 from analyses.format import Format
 from analyses.init_value import InitValue
+from analyses.dead_loop import DeadLoop
 from analyses.kernel import Kernel
 from analyses.openwrt import OpenWRTRevision, OpenWRTURL, OpenWRTToH
 from analyses.srcode import SRCode
 from analyses.strings import Strings
-from analyses.dead_loop import DeadLoop
 from generation.compiler import CompilerToQEMUMachine
 from profile.pff import get_firmware_in_profile
 from supervisor.logging_setup import logger_info, logger_warning
@@ -44,9 +44,7 @@ def run(parser, args):
         parser.print_help()
 
 
-def analysis_wrapper(firmware):
-    check_and_restore(firmware)
-
+def register_analysis(firmware):
     analyses_manager = AnalysesManager(firmware)
     # format <- extraction
     analyses_manager.register_analysis(Format())
@@ -67,11 +65,17 @@ def analysis_wrapper(firmware):
     # srcode <- .config
     analyses_manager.register_analysis(SRCode())
     analyses_manager.register_analysis(DotConfig())
-
     # other analysis
     analyses_manager.register_analysis(Checking(), no_chained=True)
     analyses_manager.register_analysis(DeadLoop(), no_chained=True)
     analyses_manager.register_analysis(InitValue(), no_chained=True)
+    return analyses_manager
+
+
+def analysis_wrapper(firmware):
+    check_and_restore(firmware)
+
+    analyses_manager = register_analysis(firmware)
     try:
         # run them all
         analyses_manager.run()
@@ -99,7 +103,7 @@ def analysis_wrapper(firmware):
         else:
             logger_warning(firmware.uuid, 'scheduler', 'exception', 'can not support firmware, fix and rerun', 0)
     except SystemError as e:
-        logger_warning(firmware.uuid, 'scheduler', 'exception', e.message, 0)
+        logger_warning(firmware.uuid, 'scheduler', 'exception', e.__str__(), 0)
 
     save_analysis(firmware)
 
