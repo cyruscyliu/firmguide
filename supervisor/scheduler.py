@@ -79,6 +79,7 @@ def analysis_wrapper(firmware):
     try:
         # run them all
         analyses_manager.run()
+        save_analysis(firmware)
 
         while not firmware.do_not_diagnosis:  # exit early
             # perform code generation
@@ -104,8 +105,6 @@ def analysis_wrapper(firmware):
             logger_warning(firmware.uuid, 'scheduler', 'exception', 'can not support firmware, fix and rerun', 0)
     except SystemError as e:
         logger_warning(firmware.uuid, 'scheduler', 'exception', e.__str__(), 0)
-
-    save_analysis(firmware)
 
 
 def trace_collection(firmware, running_command):

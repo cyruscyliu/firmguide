@@ -237,7 +237,19 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
+    def get_cpu_pp_name(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_cpu_pp_name(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def get_cpu_pp_mmio_base(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_cpu_pp_mmio_base(self, *args, **kwargs):
         pass
 
     # ==== ram ====
@@ -306,7 +318,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     @abc.abstractmethod
     def get_interrupt_controller_mmio_base(self, *args, **kwargs):
         pass
-    
+
     @abc.abstractmethod
     def set_interrupt_controller_mmio_base(self, *args, **kwargs):
         pass

@@ -148,10 +148,21 @@ class DTFirmware(Firmware):
         self.set_node_property('cpu', 'model', cpu_model)
 
     def probe_cpu_pp_model(self, *args, **kwargs):
-        return False
+        return self.get_cpu_pp_name() is not None
+
+    def set_cpu_pp_name(self, *args, **kwargs):
+        cpu_pp_name = args[0]
+        self.set_node_property('cpu_pp', 'name', cpu_pp_name)
+
+    def get_cpu_pp_name(self, *args, **kwargs):
+        return self.get_node_property('cpu_pp', 'name')
 
     def get_cpu_pp_mmio_base(self, *args, **kwargs):
-        pass
+        return self.get_node_property('cpu_pp', 'mmio_base')
+
+    def set_cpu_pp_mmio_base(self, *args, **kwargs):
+        cpu_pp_mmio_base = args[0]
+        self.set_node_property('cpu_pp', 'mmio_base', cpu_pp_mmio_base)
 
     def get_ram_priority(self, *args, **kwargs):
         return '0'
@@ -159,7 +170,7 @@ class DTFirmware(Firmware):
     def get_ram_size(self, *args, **kwargs):
         ram = self.get_node_property('/memory', 'reg', end=2)
         if ram is None:
-            return None, None
+            return None
         ram_base, ram_size = ram
         return '{} * MiB'.format(int(int(ram_size) / 1024))  # to MiB
 

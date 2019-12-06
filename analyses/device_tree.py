@@ -53,6 +53,11 @@ class DeviceTree(Analysis):
         ic_mmio_base = []
         ic_mmio_size = []
         for i in range(0, len(ic_registers), 2):
+            cpu_pp_name = firmware.get_cpu_pp_name()
+            if cpu_pp_name == 'arm11mpcore-priv':
+                cpu_pp_mmio_base = hex(ic_registers[i] & 0xFFFF0000)
+                firmware.set_cpu_pp_mmio_base(cpu_pp_mmio_base)
+                self.info(firmware, 'arm11mpcore-priv base {} found'.format(cpu_pp_mmio_base), 1)
             ic_mmio_base.append(hex(ic_registers[i]))
             ic_mmio_size.append(hex(ic_registers[i + 1]))
         firmware.set_interrupt_controller_mmio_base(*ic_mmio_base)
@@ -97,7 +102,16 @@ class DeviceTree(Analysis):
         firmware.set_machine_name('_'.join(model.split()).lower())
 
         self.cpu07_parse_cpu_from_device_tree(firmware)
+
+        # check whether the cpu private peripheral is supported or not
+        cpu = firmware.get_cpu_model()
+        cpu_pp_name = self.qemu_devices.select('cpu_private', like=cpu)
+        if cpu_pp_name is not None:
+            firmware.set_cpu_pp_name(cpu_pp_name)
+            self.info(firmware, 'cpu private peripheral {} found'.format(cpu_pp_name), 1)
         self.ic01_parse_ic_from_device_tree(firmware)
+
+
         self.uart09_parse_uart_from_device_tree(firmware)
 
         # firmware.set_dts(dts)
