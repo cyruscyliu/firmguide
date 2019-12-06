@@ -48,18 +48,16 @@ class DTFirmware(Firmware):
             return
         if working_dir is None:
             raise ValueError('please assign the working directory if no profile available')
-        path_to_profile = os.path.join(working_dir, 'profile.dt')
+        self.path_to_profile = os.path.join(working_dir, 'profile.dt')
         if first:
-            with open(path_to_profile, 'w') as f:
+            with open(self.path_to_profile, 'w') as f:
                 f.write('/dts-v1/;\n\n/ {\n};\n')
-        with open(path_to_profile, 'r') as f:
+        with open(self.path_to_profile, 'r') as f:
             profile = f.read()
         self.profile = fdt.parse_dts(profile)
 
     def save_profile(self, *args, **kwargs):
-        working_dir = kwargs.pop('working_dir', None)
-        path_to_profile = os.path.join(working_dir, 'profile.dt')
-        with open(path_to_profile, 'w') as f:
+        with open(self.path_to_profile, 'w') as f:
             f.write(self.profile.to_dts())
 
     def get_dts(self, *args, **kwargs):

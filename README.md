@@ -9,8 +9,8 @@ we will get more code coverage and achieve more goals. The goal just now is to r
 entering the user mode and getting the shell. Let's start and enjoy our trip.
 
 ###### who will need the Salamander
-+ who want to get a shell of a linux based firmware
-+ who would like to learn how to add a new machine to QEMU 
++ who want to get a shell of a linux based firmware but has no hardware emulation
++ who would like to learn how to add a new machine to QEMU but has no time to dig into the QEMU
 + who would like to dynamically analysis a linux based firmware
 + who are interested re-hosting and emulation
 
@@ -66,13 +66,23 @@ Before using salamander, you must prepare your firmware and provide information 
 To test your firmware, simply run your command as shown in the example. And the first run may be slow.
 
 ```shell script
-./salamander.py -f /mnt/salamander/firmware/9874f62ffd1d5d1ccdfa919cc29794f03d1f08db.bin -u 14292 -a mips -e l -b openwrt -q -wd ./build
+./salamander.py -f tests/files/2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r
 ```
 
 ###### advanced  usage
 
 + to disable `save and restore`, please use `-r`
-+ to disable `diagnosis`, please use `-q`
+
+### Device Profile
+
+Sometimes we just want to get the device profile not to diagnosis whether we boot the firmware up or not.
+This solution is using `-q` in your command line.
+
+````shell script
+./salamander.py -f tests/files/2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r -q
+````
+
+#######
 
 
 ## Visualization
