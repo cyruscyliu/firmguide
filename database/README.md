@@ -3,7 +3,7 @@
 [db.py](./db.py) provide a simple interface for your database implementation. You are expected to realize
 select, add, update and delete functions in your own database class. If you don't allowed users to
 modify your data, you should raise NotImplementationError as a warning. Don't forget to add your database name
-to [dbf.py](./dbf.py). All database are expected obtained by database factory.
+to [dbf.py](./dbf.py), and all database are expected obtained by the database factory.
 
 ###### example
 ```text
@@ -39,4 +39,4 @@ This is one of the key parts of Salamander.
 
 To support OpenWRT, we add [openwrt.csv](./openwrt.csv) and [openwrt.yaml](./openwrt.yaml) two databases.
 + [openwrt.csv](./openwrt.csv) is the table of hardware of OpenWRT
-+ [openwrt.yaml](./openwrt.yaml) maintain the mapping between OpenWRT revision and kernel version
++ [openwrt.yaml](./openwrt.yaml) maintains the mapping between OpenWRT revision and kernel version
