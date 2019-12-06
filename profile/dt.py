@@ -141,10 +141,11 @@ class DTFirmware(Firmware):
         return "0x661"
 
     def get_cpu_model(self, *args, **kwargs):
-        return 'arm926'
+        return self.get_node_property('cpu', 'model')
 
     def set_cpu_model(self, *args, **kwargs):
-        pass
+        cpu_model = args[0]
+        self.set_node_property('cpu', 'model', cpu_model)
 
     def probe_cpu_pp_model(self, *args, **kwargs):
         return False
@@ -184,19 +185,29 @@ class DTFirmware(Firmware):
         pass
 
     def probe_interrupt_controller(self, *args, **kwargs):
-        pass
+        return self.get_interrupt_controller_name() is not None
 
     def get_interrupt_controller_name(self, *args, **kwargs):
-        pass
+        return self.get_node_property('ic', 'ic_name')
+
+    def set_interrupt_controller_name(self, *args, **kwargs):
+        ic_name = args[0]
+        self.set_node_property('ic', 'ic_name', ic_name)
 
     def get_interrupt_controller_registers(self, *args, **kwargs):
         pass
 
     def get_interrupt_controller_mmio_size(self, *args, **kwargs):
-        pass
+        return self.get_node_property('ic', 'ic_mmio_size', *args)
+
+    def set_interrupt_controller_mmio_size(self, *args, **kwargs):
+        self.set_node_property('ic', 'ic_mmio_size', *args)
 
     def get_interrupt_controller_mmio_base(self, *args, **kwargs):
-        pass
+        return self.get_node_property('ic', 'ic_mmio_base')
+
+    def set_interrupt_controller_mmio_base(self, *args, **kwargs):
+        self.set_node_property('ic', 'ic_mmio_base', *args)
 
     def get_n_irqs(self, *args, **kwargs):
         pass

@@ -235,7 +235,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     @abc.abstractmethod
     def probe_cpu_pp_model(self, *args, **kwargs):
         pass
-    
+
     @abc.abstractmethod
     def get_cpu_pp_mmio_base(self, *args, **kwargs):
         pass
@@ -284,7 +284,15 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
+    def set_interrupt_controller_name(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def get_interrupt_controller_registers(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_interrupt_controller_registers(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -292,7 +300,15 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
+    def set_interrupt_controller_mmio_size(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def get_interrupt_controller_mmio_base(self, *args, **kwargs):
+        pass
+    
+    @abc.abstractmethod
+    def set_interrupt_controller_mmio_base(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod

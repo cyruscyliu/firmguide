@@ -34,6 +34,10 @@ class CompilerToQEMUMachine(object):
                                'interrupt_controller': {'source': [], 'header': []},
                                'bridge': {'source': [], 'header': []}}
 
+    def check_analysis(self, to_be_checked, name):
+        if to_be_checked is None:
+            raise NotImplementedError(self.feedback('analysis', name))
+
     def feedback(self, t, name):
         if t == 'analysis':
             return 'add an analysis to set firmware.{}'.format(name)
@@ -285,9 +289,17 @@ class CompilerToQEMUMachine(object):
         # interrupt controller
         if not cpu_pp_model and self.firmware.probe_interrupt_controller():
             ic_name = self.firmware.get_interrupt_controller_name()
-            ic_registers = self.firmware.lget_interrupt_controller_registers()
+            self.check_analysis(ic_name, 'interrupt_controller_name')
+
+            ic_registers = self.firmware.get_interrupt_controller_registers()
+            self.check_analysis(ic_registers, 'interrupt_controller_registers')
+
             ic_mmio_size = self.firmware.get_interrupt_controller_mmio_size()
+            self.check_analysis(ic_mmio_size, 'interrupt_controller_mmio_size')
+
             ic_mmio_base = self.firmware.get_interrupt_controller_mmio_base()
+            self.check_analysis(ic_mmio_size, 'interrupt_controller_mmio_base')
+
             ic_n_irqs = self.firmware.get_n_irqs()
             context = {'ic_name': ic_name, 'ic_registers': ic_registers, 'ic_mmio_size': ic_mmio_size,
                        'ic_mmio_base': ic_mmio_base, 'ic_n_irqs': ic_n_irqs, 'upper': lambda x: x.upper(),
@@ -407,6 +419,10 @@ class CompilerToQEMUMachine(object):
             uart_irq = self.firmware.get_uart_irq()
             if uart_irq is None:
                 raise NotImplementedError(self.feedback('analysis', 'uart_irq'))
+
+            # at least we need a interrupt controller name
+            if not self.firmware.probe_interrupt_controller():
+                raise NotImplementedError(self.feedback('analysis', 'interrupt_controller_name'))
             uart_irq_api = ''
             if cpu_pp_model:
                 if architecture == 'arm':
