@@ -1,5 +1,0 @@
-# this file contains soc info
-"Marvell 88F5180NB1":
-  cpu: "arm926"
-"Marvell 88F5181L":
-  cpu: "arm926"
