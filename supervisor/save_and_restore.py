@@ -51,7 +51,7 @@ def check_and_restore(firmware, **kwargs):
         firmware.set_profile(working_dir=firmware.working_dir, first=True)
     else:
         if path_to_profile is not None:
-            shutil.copy(path_to_profile, os.path.join(firmware.working_dir, os.path.basename(path_to_profile)))
+            firmware.copy_profile(path_to_profile)
         firmware.set_profile(working_dir=firmware.working_dir)
 
     # copy the firmware to working path, skip tiny firmware

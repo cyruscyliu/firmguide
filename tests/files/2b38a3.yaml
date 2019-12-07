@@ -1,26 +1,32 @@
-machine_desc: "PLX NAS7820"
-machine_name: "nas7820"
-architecture: "arm"
-endian: "l"
-board_id: "0x480"
+components:
+  path_to_image: "tests/files/2b38a3.bin"
+  path_to_uimage: "tests/files/2b38a3.uimage"
+  path_to_dtb: "tests/files/2b38a3.dtb"
+basics:
+  machine_name: "shuttle_kd20"
+  machine_description: "PLX NAS7820"
+  board_id: "0x480"
 cpu:
-  cpu_type: "arm11mpcore"
+  model: "arm11mpcore"
 cpu_pp:
-  cpu_pp_mmio_base: "0x47000000"
-uart:
-  uart_name: "ns16550a"
-  uart_mmio_base: "0x44200000"
-  uart_mmio_size: "0x100"
-  uart_baud_rate: "115200"
-  uart_reg_shift: "0"
-  uart_irq: "23"
+  name: "arm11mpcore-priv"
+  mmio_base: "0x47000000"
 ram:
-  ram_size: "2 * GiB"
+  base: "0"
+  size: "32 * MiB"
+  priority: "-1"
+uart:
+  name: "ns16550a"
+  mmio_base: "0x44200000"
+  mmio_size: "0x100"
+  baud_rate: "115200"
+  reg_shift: "0"
+  irq: "23"
 flash:
-  flash_type: "nand"
+  type: "nand"
   # for nand flash, you might need a customized nand controller
   # move register info into bamboo temporarily
-  flash_size: "128 * MiB"
+  size: "128 * MiB"
 bamboo:
   - name: "oxmas782x_gpioa_0"
     mmio_base: "0x44000000"

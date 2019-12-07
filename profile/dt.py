@@ -1,9 +1,11 @@
 """
 Device tree solution.
 """
-from profile.firmware import Firmware
+import shutil
 import os
 import fdt
+
+from profile.firmware import Firmware
 
 
 class DTFirmware(Firmware):
@@ -34,6 +36,10 @@ class DTFirmware(Firmware):
                 return value.data[0]
             else:
                 return value.data[0: end]
+
+    def copy_profile(self, *args, **kwargs):
+        path_to_profile = args[0]
+        shutil.copy(path_to_profile, os.path.join(self.working_dir, 'profile.dt'))
 
     def set_profile(self, *args, **kwargs):
         if len(args):
@@ -145,9 +151,6 @@ class DTFirmware(Firmware):
         cpu_model = args[0]
         self.set_node_property('cpu', 'model', cpu_model)
 
-    def probe_cpu_pp_model(self, *args, **kwargs):
-        return self.get_cpu_pp_name() is not None
-
     def set_cpu_pp_name(self, *args, **kwargs):
         cpu_pp_name = args[0]
         self.set_node_property('cpu_pp', 'name', cpu_pp_name)
@@ -193,9 +196,6 @@ class DTFirmware(Firmware):
     def get_bridge_registers(self, *args, **kwargs):
         pass
 
-    def probe_interrupt_controller(self, *args, **kwargs):
-        return self.get_interrupt_controller_name() is not None
-
     def get_interrupt_controller_name(self, *args, **kwargs):
         return self.get_node_property('ic', 'ic_name')
 
@@ -221,9 +221,6 @@ class DTFirmware(Firmware):
     def get_n_irqs(self, *args, **kwargs):
         pass
 
-    def probe_timer(self, *args, **kwargs):
-        pass
-
     def get_timer_name(self, *args, **kwargs):
         pass
 
@@ -246,10 +243,6 @@ class DTFirmware(Firmware):
         pass
 
     def set_timer_mmio_base(self, *args, **kwargs):
-        pass
-
-    def probe_uart(self, *args, **kwargs):
-        return self.get_uart_name() is not None
         pass
 
     def get_uart_name(self, *args, **kwargs):
@@ -286,9 +279,6 @@ class DTFirmware(Firmware):
     def set_uart_irq(self, *args, **kwargs):
         uart_irq = args[0]
         self.set_node_property('/uart', 'irq', uart_irq)
-
-    def probe_flash(self, *args, **kwargs):
-        return self.get_flash_type() is not None
 
     def get_flash_base(self, *args, **kwargs):
         self.get_node_property('/flash', 'base')

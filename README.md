@@ -108,6 +108,14 @@ analysis you should add. The analysis you add will solve the abelia devices a ke
 this [paper]() to get familiar with the abelia devices and read [this](./analyses/README.md) then to understand
 how we implement the analysis framework.
 
+## Testing
+
+```shell script
+./salamander.py -g tests/files/2b38a3.yaml -a arm -wd build/ -p simple
+./salamander.py -g tests/files/ec5859.yaml -a arm -wd build/ -p simple
+./salamander.py -g tests/files/9874f6.yaml -a mips -wd build/ -p simple
+```
+
 ## Contributors
 [cyruscyliu*](https://github.com/cyruscyliu/esv), [occia*](https://github.com/occia)
 

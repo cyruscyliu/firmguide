@@ -1,23 +1,21 @@
-machine_desc: "Linksys WRT350N v2 (MV88F5181L)"
-machine_name: "wrt350n_v2"
-architecture: "arm"
-endian: "l"
-board_id: "0x661"
-ram:
-  ram_size: "32 * MiB"
-  ram_priority: "0"
-flash:
-  flash_type: "nor"
-  flash_base: "0xf4000000"
-  flash_section_size: "64 * KiB"
-  flash_size: "8 * MiB"
+components:
+  path_to_image: "tests/files/ec5859.bin"
+  path_to_uimage: "tests/files/ec5859.uimage"
+basics:
+  machine_name: "wrt350n_v2"
+  machine_description: "Linksys WRT350N v2 (MV88F5181L)"
+  board_id: "0x661"
 cpu:
-  cpu_type: "arm926"
+  model: "arm926"
+ram:
+  base: "0x0"
+  size: "32 * MiB"
+  priority: "0"
 interrupt_controller:
-  ic_name: "mv88f5181l_ic"
-  ic_mmio_base: "0xf1020200"
-  ic_mmio_size: "0x100"
-  ic_registers:
+  name: "mv88f5181l_ic"
+  mmio_base: "0xf1020200"
+  mmio_size: "0x100"
+  registers:
     - name: "main_interrupt_cause_register"
       offset: "0x00"
     - name: "main_irq_interrupt_mask_register"
@@ -26,12 +24,29 @@ interrupt_controller:
       offset: "0x08"
     - name: "main_endpoint_interrupt_mask_register"
       offset: "0x0c"
-  ic_n_irqs: 32
+  n_irqs: 32
+bridge:
+  name: "mv88f5181l_bridge"
+  mmio_base: "0xf1020100"
+  mmio_size: "0x100"
+  registers:
+    - name: "bridge_configuration_register"
+      offset: "0x00"
+    - name: "bridge_control_and_status_register"
+      offset: "0x04"
+    - name: "bridge_rstoutn_mask_register"
+      offset: "0x08"
+    - name: "bridge_system_soft_reset_register"
+      offset: "0x0c"
+    - name: "bridge_interrupt_cause_register"
+      offset: "0x10"
+    - name: "bridge_interrupt_mask_register"
+      offset: "0x14"
 timer:
-  timer_name: "mv88f5181l_timer"
-  timer_mmio_base: "0xf1020300"
-  timer_mmio_size: "0x100"
-  timer_registers:
+  name: "mv88f5181l_timer"
+  mmio_base: "0xf1020300"
+  mmio_size: "0x100"
+  registers:
     - name: "cpu_timers_control_register"
       offset: "0x00"
     - name: "cpu_timer0_reload_register"
@@ -47,13 +62,13 @@ timer:
     - name: "cpu_watchdog_timer_register"
       offset: "0x24"
 uart:
-  uart_name: "mv88f5181l_uart"
-  uart_mmio_base: "0xf1012000"
-  uart_mmio_size: "0x200"
-  uart_baud_rate: "115200"
-  uart_reg_shift: "2"
-  uart_irq: "3"
-  uart_registers:
+  name: "mv88f5181l_uart"
+  mmio_base: "0xf1012000"
+  mmio_size: "0x200"
+  baud_rate: "115200"
+  reg_shift: "2"
+  irq: "3"
+  registers:
     - name: "uart_0_receive_buffer_register_rbr"
       offset: "0x000"
       value: "0x0 << 0 | 0x0 << 8"
@@ -118,26 +133,13 @@ uart:
     - name: "uart_1_scratch_pad_register_scr"
       offset: "0x11c"
       value: "0x0"
-bridge:
-  bridge_name: "mv88f5181l_bridge"
-  bridge_mmio_base: "0xf1020100"
-  bridge_mmio_size: "0x100"
-  bridge_registers:
-    - name: "bridge_configuration_register"
-      offset: "0x00"
-    - name: "bridge_control_and_status_register"
-      offset: "0x04"
-    - name: "bridge_rstoutn_mask_register"
-      offset: "0x08"
-    - name: "bridge_system_soft_reset_register"
-      offset: "0x0c"
-    - name: "bridge_interrupt_cause_register"
-      offset: "0x10"
-    - name: "bridge_interrupt_mask_register"
-      offset: "0x14"
+flash:
+  type: "nor"
+  base: "0xf4000000"
+  section_size: "64 * KiB"
+  size: "8 * MiB"
 bamboo:
   - name: "mv88f5181l_gpio"
-    id: "0"
     mmio_base: "0xf1010100"
     mmio_size: "0x100"
     registers:
@@ -168,7 +170,6 @@ bamboo:
     gpio_in_out_n: 26
     gpio_irq_n: 4
   - name: "mv88f5181l_cpu_address_map"
-    id: "1"
     mmio_base: "0xf1020000"
     mmio_size: "0x100"
     registers:
@@ -244,7 +245,6 @@ bamboo:
         offset: "0x80"
         value: "0xD0000000"
   - name: "mv88f5181l_ddr_sdram_controller"
-    id: "2"
     mmio_base: "0xf1001400"
     mmio_size: "0x200"
     registers:
@@ -339,7 +339,6 @@ bamboo:
         offset: "0xB0"
         value: "0x0 << 0 | 0x0 << 2 | 0x0 << 4 | 0xF << 5 | 0x0 << 9"
   - name: "mv88f5181l_pins_multiplexing_interface"
-    id: "3"
     mmio_base: "0xf1010000"
     mmio_size: "0x100"
     registers:
@@ -359,7 +358,6 @@ bamboo:
         offset: "0x10"
         value: "0x0"
   - name: "mv88f5181l_pci_interface"
-    id: "4"
     mmio_base: "0xf1030000"
     mmio_size: "0x2000"
     registers:
@@ -551,7 +549,6 @@ bamboo:
         offset: "0x1d50"
         value: "0x0 /* 0 4 5 */"
   - name: "mv88f5181l_pcie_interface"
-    id: "5"
     mmio_base: "0xf1040000"
     mmio_size: "0x2000"
     registers:
@@ -769,7 +766,6 @@ bamboo:
         offset: "0x1ab0"
         value: "0x0 << 0"
   - name: "mv88f5181l_usb_2_0_controller"
-    id: "6"
     mmio_base: "0xf1050000"
     mmio_size: "0x500"
     registers:
@@ -924,7 +920,6 @@ bamboo:
         offset: "0x400"
         value: "0x0"
   - name: "mv88f5181l_gigabit_ethernet_controller"
-    id: "7"
     mmio_base: "0xf1072000"
     mmio_size: "0x2000"
     registers:
@@ -1227,7 +1222,6 @@ bamboo:
         size: "64"
         value: "0x0"
   - name: "mv88f5181l_cesa"
-    id: "8"
     mmio_base: "0xf109DD00"
     mmio_size: "0x200"
     registers:

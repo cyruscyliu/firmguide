@@ -47,6 +47,12 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def set_path(self, path):
         self.path = path
 
+    def get_working_path(self):
+        return self.working_path
+
+    def set_working_path(self, working_path):
+        self.working_path = working_path
+
     def get_working_dir(self):
         return self.working_dir
 
@@ -67,9 +73,6 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     def get_architecture(self):
         return self.architecture
-
-    def set_architecture(self, architecture):
-        self.architecture = architecture
 
     def get_endian(self):
         return self.endian
@@ -99,6 +102,10 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def set_working_env(self, dir, path):
         self.working_dir = dir
         self.working_path = path
+
+    @abc.abstractmethod
+    def copy_profile(self, *args, **kwargs):
+        pass
 
     @abc.abstractmethod
     def set_profile(self, *args, **kwargs):
@@ -234,9 +241,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def set_cpu_model(self, *args, **kwargs):
         pass
 
-    @abc.abstractmethod
     def probe_cpu_pp_model(self, *args, **kwargs):
-        pass
+        return self.get_cpu_pp_name() is not None
 
     @abc.abstractmethod
     def get_cpu_pp_name(self, *args, **kwargs):
@@ -260,6 +266,18 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
+    def set_ram_priority(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_ram_base(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_ram_base(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def get_ram_size(self, *args, **kwargs):
         pass
 
@@ -268,12 +286,15 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     # ===== bridge ====
-    @abc.abstractmethod
     def probe_bridge(self, *args, **kwargs):
-        return False
+        return self.get_bridge_name() is not None
 
     @abc.abstractmethod
     def get_bridge_name(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_bridge_name(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -281,7 +302,15 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
+    def set_bridge_mmio_base(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def get_bridge_mmio_size(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_bridge_mmio_size(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -289,9 +318,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     # ===== interrupt controller ====
-    @abc.abstractmethod
     def probe_interrupt_controller(self, *args, **kwargs):
-        pass
+        return self.get_interrupt_controller_name() is not None
 
     @abc.abstractmethod
     def get_interrupt_controller_name(self, *args, **kwargs):
@@ -329,10 +357,13 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def get_n_irqs(self, *args, **kwargs):
         pass
 
-    # ==== timer ====
     @abc.abstractmethod
-    def probe_timer(self, *args, **kwargs):
+    def set_n_irqs(self, *args, **kwargs):
         pass
+
+    # ==== timer ====
+    def probe_timer(self, *args, **kwargs):
+        return self.get_timer_name() is not None
 
     @abc.abstractmethod
     def get_timer_name(self, *args, **kwargs):
@@ -367,9 +398,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     # ==== uart ====
-    @abc.abstractmethod
     def probe_uart(self, *args, **kwargs):
-        pass
+        return self.get_uart_name() is not None
 
     @abc.abstractmethod
     def get_uart_name(self, *args, **kwargs):
@@ -412,9 +442,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     # ==== flash ====
-    @abc.abstractmethod
     def probe_flash(self, *args, **kwargs):
-        pass
+        return self.get_flash_type() is not None
 
     @abc.abstractmethod
     def get_flash_base(self, *args, **kwargs):
