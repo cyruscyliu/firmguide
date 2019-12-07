@@ -4,7 +4,7 @@ import abc
 from generation.common import to_state, to_mmio, to_ops, indent, to_type, to_read, to_write, to_update, \
     to_header, to_upper, to_cpu_pp_state, to_cpu_pp_type, concat, to_irq
 from generation.render import Template
-from supervisor.logging_setup import logger_info
+from supervisor.logging_setup import logger_info, logger_debugging
 
 
 class CompilerToQEMUMachine(object):
@@ -44,6 +44,9 @@ class CompilerToQEMUMachine(object):
 
     def info(self, message, action):
         logger_info(self.firmware.get_uuid(), 'code_generation', action, message, 0)
+
+    def debug(self, message, action):
+        logger_debugging(self.firmware.get_uuid(), 'code_generation', action, message, 0)
 
     @staticmethod
     def render_lines(lines):
@@ -186,9 +189,15 @@ class CompilerToQEMUMachine(object):
 
     def make(self):
         # compile first
-        os.system('cd {}/qemu-4.0.0 && make -j4 && cd -'.format(self.firmware.get_working_dir()))
+        os.system(
+            'cd {}/qemu-4.0.0 && make CFLAGS=-Wmaybe-uninitialized -j4 && cd -'.format(self.firmware.get_working_dir()))
         # construct the command
-        running_command = '{}/qemu-4.0.0/arm-softmmu/qemu-system-arm'.format(self.firmware.get_working_dir())
+        if self.firmware.architecture == 'arm':
+            running_command = '{}/qemu-4.0.0/arm-softmmu/qemu-system-arm'.format(self.firmware.get_working_dir())
+        elif self.firmware.architecture == 'mips':
+            running_command = '{}/qemu-4.0.0/mipsel-softmmu/qemu-system-mipsel'.format(self.firmware.get_working_dir())
+        else:
+            raise NotImplementedError()
         machine_name = self.firmware.get_machine_name()
         running_command += ' -M {}'.format(machine_name)
         path_to_uimage = self.firmware.get_path_to_uimage()

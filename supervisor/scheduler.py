@@ -100,7 +100,8 @@ def analysis_wrapper(args, firmware):
             machine_compiler.link_and_install()
             running_command = machine_compiler.make()
             # perform dynamic checking
-            trace_collection(firmware, running_command)
+            if trace_collection(firmware, running_command):
+                raise SystemError('bugs in tracing or before')
             analyses_manager.run_analysis(firmware, 'check')
             if analyses_manager.last_analysis_status:
                 logger_info(firmware.uuid, 'analysis', 'checking analysis', 'GOOD! Have entered the user level!', 1)
@@ -126,10 +127,11 @@ def trace_collection(firmware, running_command):
     full_command = ' '.join([running_command, trace_flags, qmp_flags])
     try:
         logger_info(firmware.uuid, 'tracing', 'qemudebug', full_command, 0)
-        status = subprocess.run(full_command, timeout=60, shell=True)
-        print(status)
+        status = subprocess.run(full_command, timeout=60, shell=True).returncode
     except subprocess.TimeoutExpired:
+        status = 0
         qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
         qemu.connect()
         qemu.cmd('quit')
         qemu.close()
+    return status

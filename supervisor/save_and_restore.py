@@ -50,7 +50,8 @@ def check_and_restore(firmware, **kwargs):
     if first_time:
         firmware.set_profile(working_dir=firmware.working_dir, first=True)
     else:
-        firmware.copy_profile(path_to_profile)
+        if path_to_profile is not None:
+            firmware.copy_profile(path_to_profile)
         firmware.set_profile(working_dir=firmware.working_dir)
 
     # copy the firmware to working path, skip tiny firmware
