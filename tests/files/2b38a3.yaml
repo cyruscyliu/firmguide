@@ -1,6 +1,6 @@
 components:
   path_to_image: "tests/files/2b38a3.bin"
-  path_to_uimage: "tests/files/2b38a3.uImage"
+  path_to_uimage: "tests/files/2b38a3.uimage"
   path_to_dtb: "tests/files/2b38a3.dtb"
 basics:
   machine_name: "shuttle_kd20"
@@ -11,6 +11,10 @@ cpu:
 cpu_pp:
   name: "arm11mpcore-priv"
   mmio_base: "0x47000000"
+ram:
+  base: "0"
+  size: "32 * MiB"
+  priority: "-1"
 uart:
   name: "ns16550a"
   mmio_base: "0x44200000"
@@ -18,10 +22,6 @@ uart:
   baud_rate: "115200"
   reg_shift: "0"
   irq: "23"
-ram:
-  priority: "-1"
-  base: "0"
-  size: "32 * MiB"
 flash:
   type: "nand"
   # for nand flash, you might need a customized nand controller

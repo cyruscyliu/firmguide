@@ -217,6 +217,7 @@ class CompilerToQEMUMachine(object):
 
     def solve_machine_struct(self):
         machine_name = self.firmware.get_machine_name()
+        self.check_analysis(machine_name, 'machine_name')
         self.machine_struct['declaration'].extend([
             'typedef struct {} {{'.format(to_state(machine_name)), '}} {};'.format(to_state(machine_name))
         ])
@@ -224,8 +225,7 @@ class CompilerToQEMUMachine(object):
 
     def solve_machine_defines(self):
         machine_name = self.firmware.get_machine_name()
-        if machine_name is None:
-            raise NotImplementedError(self.feedback('analysis', 'machine_name'))
+        self.check_analysis(machine_name, 'machine_name')
         self.machine['defines'].extend([
             '#define {} "{}"'.format(to_type(machine_name), machine_name),
             '#define {}(obj) \\\n    OBJECT_CHECK({}, (obj), {})'.format(
@@ -242,6 +242,7 @@ class CompilerToQEMUMachine(object):
     def solve_abelia_devices(self):
         # cpu
         architecture = self.firmware.get_architecture()
+        self.check_analysis(architecture, 'architecture')
         if architecture == 'arm':
             self.machine['includings'].extend(['target/arm/cpu-qom.h'])
             self.machine_struct['fields'].extend([indent('ARMCPU *cpu;', 1)])
@@ -283,6 +284,7 @@ class CompilerToQEMUMachine(object):
             self.info('solved abelia cpu private peripheral', 'compile')
         # ram
         ram_priority = self.firmware.get_ram_priority()
+        self.check_analysis(ram_priority, 'ram_priority')
         self.machine['includings'].extend(['exec/address-spaces.h'])
         self.machine_struct['fields'].extend([indent('MemoryRegion ram;', 1)])
         self.machine_init['body'].extend([
@@ -301,14 +303,15 @@ class CompilerToQEMUMachine(object):
             ic_mmio_base = self.firmware.get_interrupt_controller_mmio_base()
             self.check_analysis(ic_mmio_size, 'interrupt_controller_mmio_base')
             ic_n_irqs = self.firmware.get_n_irqs()
+            self.check_analysis(ic_n_irqs, 'interrupt_controller_n_irqs')
             context = {'ic_name': ic_name, 'ic_registers': ic_registers, 'ic_mmio_size': ic_mmio_size,
                        'ic_mmio_base': ic_mmio_base, 'ic_n_irqs': ic_n_irqs, 'upper': lambda x: x.upper(),
                        'concat': lambda x: concat(x), 'license': ''.join(self.license)}
-            with open('generation/template/ic.c') as f:
+            with open('generation/templates/ic.c') as f:
                 ic_c_lines = f.readlines()
             ic_c = Template(''.join(ic_c_lines)).render(context)
             self.custom_devices['interrupt_controller']['source'].extend(ic_c)
-            with open('generation/template/ic.h') as f:
+            with open('generation/templates/ic.h') as f:
                 ic_h_lines = f.readlines()
             ic_h = Template(''.join(ic_h_lines)).render(context)
             self.custom_devices['interrupt_controller']['header'].extend(ic_h)
@@ -323,20 +326,23 @@ class CompilerToQEMUMachine(object):
             ])
             self.info('solved abelia interrupt controller', 'compile')
         # bridge
-        if not cpu_pp_model and self.firmware.probe_bridge():
+        if not cpu_pp_model and self.firmware.probe_bridge() and self.firmware.probe_interrupt_controller():
             bridge_name = self.firmware.get_bridge_name()
+            self.check_analysis(bridge_name, 'bridge_name')
             bridge_mmio_base = self.firmware.get_bridge_mmio_base()
+            self.check_analysis(bridge_name, 'bridge_mmio_base')
             bridge_mmio_size = self.firmware.get_bridge_mmio_size()
-            bridge_registers = self.firmware.lget_bridge_registers()
+            self.check_analysis(bridge_name, 'bridge_mmio_zise')
+            bridge_registers = self.firmware.get_bridge_registers()
             context = {'bridge_name': bridge_name, 'bridge_mmio_size': bridge_mmio_size,
                        'bridge_mmio_base': bridge_mmio_base, 'bridge_registers': bridge_registers,
                        'upper': lambda x: x.upper(), 'concat': lambda x: concat(x),
                        'license': ''.join(self.license)}
-            with open('generation/template/bridge.c') as f:
+            with open('generation/templates/bridge.c') as f:
                 bridge_c_lines = f.readlines()
             bridge_c = Template(''.join(bridge_c_lines)).render(context)
             self.custom_devices['bridge']['source'].extend(bridge_c)
-            with open('generation/template/bridge.h') as f:
+            with open('generation/templates/bridge.h') as f:
                 bridge_h_lines = f.readlines()
             bridge_h = Template(''.join(bridge_h_lines)).render(context)
             self.custom_devices['bridge']['header'].extend(bridge_h)
@@ -369,17 +375,20 @@ class CompilerToQEMUMachine(object):
         # timer
         if not cpu_pp_model and self.firmware.probe_timer():
             timer_name = self.firmware.get_timer_name()
-            timer_registers = self.firmware.lget_timer_registers()
+            self.check_analysis(timer_name, 'timer_name')
             timer_mmio_size = self.firmware.get_timer_mmio_size()
+            self.check_analysis(timer_mmio_size, 'timer_mmio_size')
             timer_mmio_base = self.firmware.get_timer_mmio_base()
+            self.check_analysis(timer_mmio_base, 'timer_mmio_base')
+            timer_registers = self.firmware.get_timer_registers()
             context = {'timer_name': timer_name, 'timer_mmio_size': timer_mmio_size, 'timer_mmio_base': timer_mmio_base,
                        'timer_registers': timer_registers, 'upper': lambda x: x.upper(), 'concat': lambda x: concat(x),
                        'license': ''.join(self.license)}
-            with open('generation/template/timer.c') as f:
+            with open('generation/templates/timer.c') as f:
                 timer_c_lines = f.readlines()
             timer_c = Template(''.join(timer_c_lines)).render(context)
             self.custom_devices['timer']['source'].extend(timer_c)
-            with open('generation/template/timer.h') as f:
+            with open('generation/templates/timer.h') as f:
                 timer_h_lines = f.readlines()
             timer_h = Template(''.join(timer_h_lines)).render(context)
             self.custom_devices['timer']['header'].extend(timer_h)
@@ -408,17 +417,13 @@ class CompilerToQEMUMachine(object):
         # uart
         if self.firmware.probe_uart():
             uart_mmio_base = self.firmware.get_uart_mmio_base()
-            if uart_mmio_base is None:
-                raise NotImplementedError(self.feedback('analysis', 'uart_mmio_base'))
+            self.check_analysis(uart_mmio_base, 'uart_mmio_base')
             uart_baud_rate = self.firmware.get_uart_baud_rate()
-            if uart_baud_rate is None:
-                raise NotImplementedError(self.feedback('analysis', 'uart_baud_rate'))
+            self.check_analysis(uart_baud_rate, 'uart_baud_rate')
             uart_reg_shift = self.firmware.get_uart_reg_shift()
-            if uart_reg_shift is None:
-                raise NotImplementedError(self.feedback('analysis', 'uart_reg_shift'))
+            self.check_analysis(uart_reg_shift, 'uart_reg_shift')
             uart_irq = self.firmware.get_uart_irq()
-            if uart_irq is None:
-                raise NotImplementedError(self.feedback('analysis', 'uart_irq'))
+            self.check_analysis(uart_irq, 'uart_irq')
 
             if cpu_pp_model:
                 if architecture == 'arm':
@@ -468,6 +473,7 @@ class CompilerToQEMUMachine(object):
 
     def solve_bamboo_devices(self):
         machine_name = self.firmware.get_machine_name()
+        self.check_analysis(machine_name, 'machine_name')
         #
         self.machine_reset['signature'].extend(['static void {}_reset(void *opaque)'.format(machine_name)])
         #
@@ -565,6 +571,7 @@ class CompilerToQEMUMachine(object):
 
     def solve_irq_to_cpu(self):
         cpu_pp_model = self.firmware.probe_cpu_pp_model()
+        self.check_analysis(cpu_pp_model, 'cpu_pp_model')
         architecture = self.firmware.get_architecture()
         self.check_analysis(architecture, 'architecture')
         if cpu_pp_model and architecture == 'arm':
@@ -590,10 +597,12 @@ class CompilerToQEMUMachine(object):
 
     def solve_load_kernel(self):
         architecture = self.firmware.get_architecture()
+        self.check_analysis(architecture, 'architecture')
         if architecture == 'arm':
             self.machine['includings'].extend(['hw/arm/arm.h'])
             self.machine_init['declaration'].extend([indent('static struct arm_boot_info binfo;', 1)])
             board_id = self.firmware.get_board_id()
+            self.check_analysis(board_id, 'board_id')
             self.machine_init['body'].extend([
                 indent('binfo.board_id = {};'.format(board_id), 1),
             ])
@@ -619,6 +628,7 @@ class CompilerToQEMUMachine(object):
 
     def solve_machine_init(self):
         machine_name = self.firmware.get_machine_name()
+        self.check_analysis(machine_name, 'machine_name')
         self.machine_init['signature'].extend(['static void {}_init(MachineState *machine)'.format(machine_name)])
         self.machine_init['declaration'].extend([
             indent('{0} *s = g_new0({0}, 1);'.format(to_state(machine_name)), 1),
@@ -636,8 +646,11 @@ class CompilerToQEMUMachine(object):
 
     def solve_machine_class_init(self):
         machine_desc = self.firmware.get_machine_description()
+        self.check_analysis(machine_desc, 'machine_description')
         machine_name = self.firmware.get_machine_name()
+        self.check_analysis(machine_name, 'machine_name')
         architecture = self.firmware.get_architecture()
+        self.check_analysis(architecture, 'architecture')
         ram_size = self.firmware.get_ram_size()
         self.check_analysis(ram_size, 'ram_size')
         cpu_model = self.firmware.get_cpu_model()
@@ -705,6 +718,7 @@ class CompilerToQEMUMachine(object):
 
     def solve_define_machine(self):
         machine_name = self.firmware.get_machine_name()
+        self.check_analysis(machine_name, 'machine_name')
         self.machine['define_machine'].extend([
             'DEFINE_MACHINE(\"{}\", {}_machine_init)'.format(machine_name, machine_name)])
         self.machine['includings'].extend(['hw/boards.h'])
@@ -752,6 +766,7 @@ class CompilerToQEMUMachine(object):
             f.flush()
         if len(self.custom_devices['timer']['source']):
             timer_name = self.firmware.get_timer_name()
+            self.check_analysis(timer_name, 'timer_name')
             source_target = os.path.join(
                 self.firmware.get_working_dir(), 'qemu-4.0.0', self.location['machine']['timer'],
                 timer_name + '.c'

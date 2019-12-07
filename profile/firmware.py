@@ -286,12 +286,15 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     # ===== bridge ====
-    @abc.abstractmethod
     def probe_bridge(self, *args, **kwargs):
-        return False
+        return self.get_bridge_name() is not None
 
     @abc.abstractmethod
     def get_bridge_name(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_bridge_name(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -299,7 +302,15 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
+    def set_bridge_mmio_base(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def get_bridge_mmio_size(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_bridge_mmio_size(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -346,10 +357,13 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def get_n_irqs(self, *args, **kwargs):
         pass
 
-    # ==== timer ====
     @abc.abstractmethod
-    def probe_timer(self, *args, **kwargs):
+    def set_n_irqs(self, *args, **kwargs):
         pass
+
+    # ==== timer ====
+    def probe_timer(self, *args, **kwargs):
+        return self.get_timer_name() is not None
 
     @abc.abstractmethod
     def get_timer_name(self, *args, **kwargs):

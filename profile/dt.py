@@ -221,9 +221,6 @@ class DTFirmware(Firmware):
     def get_n_irqs(self, *args, **kwargs):
         pass
 
-    def probe_timer(self, *args, **kwargs):
-        pass
-
     def get_timer_name(self, *args, **kwargs):
         pass
 

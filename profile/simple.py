@@ -53,7 +53,7 @@ class SimpleFirmware(Firmware):
         return self.get_general('basics', 'machine_name')
 
     def set_machine_name(self, *args, **kwargs):
-        self.set_general('basics', 'machine_name')
+        self.set_general('basics', 'machine_name', *args)
 
     def get_board_id(self, *args, **kwargs):
         return self.get_general('basics', 'board_id')
@@ -65,22 +65,22 @@ class SimpleFirmware(Firmware):
         return self.get_general('cpu_pp', 'name')
 
     def set_cpu_pp_name(self, *args, **kwargs):
-        self.set_general('cpu_pp', 'name')
+        self.set_general('cpu_pp', 'name', *args)
 
     def get_cpu_pp_mmio_base(self, *args, **kwargs):
         return self.get_general('cpu_pp', 'mmio_base')
 
     def set_cpu_pp_mmio_base(self, *args, **kwargs):
-        self.set_general('cpu_pp', 'mmio_base')
+        self.set_general('cpu_pp', 'mmio_base', *args)
 
     def get_ram_priority(self, *args, **kwargs):
         return self.get_general('ram', 'priority')
 
     def set_ram_priority(self, *args, **kwargs):
-        self.set_general('ram', 'priority')
+        self.set_general('ram', 'priority', *args)
 
     def set_ram_base(self, *args, **kwargs):
-        self.set_general('ram', 'base')
+        self.set_general('ram', 'base', *args)
 
     def get_ram_base(self, *args, **kwargs):
         return self.get_general('ram', 'base')
@@ -89,73 +89,82 @@ class SimpleFirmware(Firmware):
         return self.get_general('ram', 'size')
 
     def set_ram_size(self, *args, **kwargs):
-        self.set_general('ram', 'size')
+        self.set_general('ram', 'size', *args)
 
     def get_bridge_name(self, *args, **kwargs):
-        pass
+        return self.get_general('bridge', 'name')
+
+    def set_bridge_name(self, *args, **kwargs):
+        self.set_general('bridge', 'name', *args)
 
     def get_bridge_mmio_base(self, *args, **kwargs):
-        pass
+        return self.get_general('bridge', 'mmio_base')
+
+    def set_bridge_mmio_base(self, *args, **kwargs):
+        self.set_general('bridge', 'mmio_base', *args)
 
     def get_bridge_mmio_size(self, *args, **kwargs):
-        pass
+        return self.get_general('bridge', 'mmio_size')
+
+    def set_bridge_mmio_size(self, *args, **kwargs):
+        self.set_general('bridge', 'mmio_size', *args)
 
     def get_bridge_registers(self, *args, **kwargs):
-        pass
+        return self.get_general('bridge', 'registers')
 
     def get_interrupt_controller_name(self, *args, **kwargs):
-        return self.get_general('ic', 'ic_name')
+        return self.get_general('interrupt_controller', 'name')
 
     def set_interrupt_controller_name(self, *args, **kwargs):
-        self.set_general('ic', 'ic_name', *args)
+        self.set_general('interrupt_controller', 'name', *args)
 
     def get_interrupt_controller_registers(self, *args, **kwargs):
-        pass
+        return self.get_general('interrupt_controller', 'registers')
 
     def set_interrupt_controller_registers(self, *args, **kwargs):
-        pass
+        self.set_general('interrupt_controller', 'registers', *args)
 
     def get_interrupt_controller_mmio_size(self, *args, **kwargs):
-        return self.get_general('ic', 'ic_mmio_size')
+        return self.get_general('interrupt_controller', 'mmio_size')
 
     def set_interrupt_controller_mmio_size(self, *args, **kwargs):
-        self.set_general('ic', 'ic_mmio_size', *args)
+        self.set_general('interrupt_controller', 'mmio_size', *args)
 
     def get_interrupt_controller_mmio_base(self, *args, **kwargs):
-        return self.get_general('ic', 'ic_mmio_base')
+        return self.get_general('interrupt_controller', 'mmio_base')
 
     def set_interrupt_controller_mmio_base(self, *args, **kwargs):
-        self.set_general('ic', 'ic_mmio_base', *args)
+        self.set_general('interrupt_controller', 'mmio_base', *args)
 
     def get_n_irqs(self, *args, **kwargs):
-        pass
+        return self.get_general('interrupt_controller', 'n_irqs')
 
-    def probe_timer(self, *args, **kwargs):
-        pass
+    def set_n_irqs(self, *args, **kwargs):
+        self.set_general('interrupt_controller', 'n_irqs', *args)
 
     def get_timer_name(self, *args, **kwargs):
-        pass
+        return self.get_general('timer', 'name')
 
     def set_timer_name(self, *args, **kwargs):
-        pass
+        self.set_general('timer', 'name', *args)
 
     def get_timer_registers(self, *args, **kwargs):
-        pass
+        return self.get_general('timer', 'registers')
 
     def set_timer_register(self, *args, **kwargs):
         pass
 
     def get_timer_mmio_size(self, *args, **kwargs):
-        pass
+        return self.get_general('timer', 'mmio_size')
 
     def set_timer_mmio_size(self, *args, **kwargs):
-        pass
+        self.set_general('timer', 'mmio_size', *args)
 
     def get_timer_mmio_base(self, *args, **kwargs):
-        pass
+        return self.get_general('timer', 'mmio_base')
 
     def set_timer_mmio_base(self, *args, **kwargs):
-        pass
+        self.set_general('timer', 'mmio_base', *args)
 
     def get_uart_name(self, *args, **kwargs):
         return self.get_general('uart', 'name')
