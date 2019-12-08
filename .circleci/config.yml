@@ -10,4 +10,9 @@ jobs:
           password: $DOCKERHUB_PASSWORD
     steps:
       - checkout
-      - run: echo "A first hello"
+      - run: ls
+  workflows:
+    version: 2
+    workflow:
+      jobs:
+        - build
