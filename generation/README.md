@@ -1,8 +1,8 @@
 # Code Generation
 
-## QEMU Programming Model
+### QEMU Programming Model
 
-### Layered Devices 
+#### Layered Devices 
 
 ```text
                                         /-> SysBusDeviceClass/State
@@ -10,7 +10,7 @@ MachineClass/State -> DeviceClass/State
                                         \-> CPU
 ```
 
-### Register a Device
+#### Register a Device
 
 ```c
 #include “hw/…/your_custom.h”  
@@ -27,27 +27,27 @@ static void your_custom_register_types(void) {
     type_register_static(&your_custom_type_info);  
 }  
 ```
-### `machine_class_init` and `machine_init`
+#### `machine_class_init` and `machine_init`
 
-### Initialize and Realize a Device
+#### Initialize and Realize a Device
 
-#### Traditional Approach
+##### Traditional Approach
 
-#### Direct Implementation
+##### Direct Implementation
 
-### Headers
+#### Headers
 
 `qemu/osdep.h` is very helpful.
 
-## Multi-Level Template Based Code Generation
+### Multi-Level Template Based Code Generation
 
-### Template for Aeblia Device Models
+#### Template for Aeblia Device Models
 
 [bridge.c](templates/bridge.c), [bridge.h](templates/bridge.h), 
 [interrupt_controller.c](templates/ic.c), [interrupt_controller.h](templates/ic.h), 
 [timer.c](templates/timer.c), [timer.h](templates/timer.h)
 
-### Code Snippets for Device Components
+#### Code Snippets for Device Components
 
 Define(register) a machine.
 ```text
@@ -196,7 +196,7 @@ And includings.
 #include "hw/boards.h"
 ```
 
-### Template for Direct Programming Model
+#### Template for Direct Programming Model
 
 ```text
 *(license)
