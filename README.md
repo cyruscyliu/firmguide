@@ -67,7 +67,7 @@ Before using salamander, you must prepare your firmware and provide information 
 To test your firmware, simply run your command as shown in the example. And the first run may be slow.
 
 ```shell script
-./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r
+./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build
 ```
 
 ### Re-Analysis
