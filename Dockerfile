@@ -25,3 +25,5 @@ RUN git config --global user.email "you@example.com" && git config --global user
 apt-get install -y sudo
 
 RUN pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable
+
+RUN apt-get install wget
