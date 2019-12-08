@@ -10,7 +10,7 @@ jobs:
           password: $DOCKERHUB_PASSWORD
     steps:
       - checkout
-      - run: make clean && make
+      - run: make DIR_TO_BUILD=$PWD/build
 workflows:
   version: 2
   build:
