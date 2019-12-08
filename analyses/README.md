@@ -1,7 +1,5 @@
 # Analysis
 
-## Static Analysis
-
 ### Programming Model
 
 #### Analysis
@@ -40,8 +38,11 @@ The details are transparent to developers and all analyses will be run in topolo
 |strings|[strings.py](./strings.py)|Strings()|extraction, revision|toh, target, subtarget, cpu, uart, ic |-|
 |url|[openwrt.py](./openwrt.py)|OpenWRTURL()|-|homepage, target, subtarget, revision|update download url for this firmware|
 |toh|[openwrt.py](./openwrt.py)|OpenWRTToH()|revision, url|toh, cpu, ram, flash|-|
-|srocde|[srcode.py](./srcopy.py)|SRCode()|strings, revision, url, toh|path_to_source_code|-|
+|srcode|[srcode.py](./srcopy.py)|SRCode()|strings, revision, url, toh|path_to_source_code|-|
 |.config|[dot_config.py](./dot_config.py)|DotConfig()|srcode|cpu|-|
 |check|[check.py](./check.py)|Checking()|-|-|bad bad bad trace|
 |dead_loop|[dead_loop](./dead_loop)|DeadLoop()|-|-|bad bad bad trace|
 |init_value|[init_value](./init_value.py)|InitValue()|-|-|very difficult program analysis|
+
+### [Analysis Graph](https://csacademy.com/app/graph_editor/)
+![](./graph.png)
