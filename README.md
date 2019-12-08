@@ -102,9 +102,9 @@ BTW, we support the converting between different formats of device profiles.
 ./profile/convert.py -I simple -O dt tests/files/ec5859.yaml
 ./profile/convert.py -I simple -O dt tests/files/2b38a3.yaml
 ./profile/convert.py -I simple -O dt tests/files/9874f6.yaml
-./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o 2b38a3.yaml # to avoid override the original file
-./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o 2b38a3.yaml # to avoid override the original file
-./profile/convert.py -I dt -O simple tests/files/9874f6.dt -o 9874f6.yaml # to avoid override the original file
+./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o 2b38a3.yaml # to avoid override
+./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o 2b38a3.yaml # to avoid override
+./profile/convert.py -I dt -O simple tests/files/9874f6.dt -o 9874f6.yaml # to avoid override
 ```
 
 ## Visualization
