@@ -16,25 +16,44 @@ entering the user mode and getting the shell. Let's start and enjoy our trip.
 
 ## Usage 
 
+First, clone the repo.
+
+```shell script
+git clone git@github.com:cyruscyliu/esv.git salamander && cd salamander
+```
+
+### Docker Image
+
+We recommend you using our docker image.
+
+```shell script
+docker build -t cyruscyliu/cci-salamander-docker-primary:latest .
+docker run -it -v $PWD:/root cyruscyliu/cci-salamander-docker-primary:latest /bin/bash
+```
+
+### Manually Installation
+
 It might be a long time to build Salamander, and see the instructions below.
 
 ###### install python 3.7
 
 ```shell script
+sudo apt-get install -y software-properties-common
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get update
 sudo apt-get install -y python3.7
 sudo apt-get install -y python3-pip
 sudo -H python3.7 -m pip install --upgrade pip
+sudo rm /usr/bin/python && sudo ln -s /usr/bin/python3.7 /usr/bin/python
 ```
 
 ###### install required python packages
 
 ```shell script
-sudo -H pip3.7 install -r requirements.txt
+sudo -H pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable
 ```
 
-###### install dependency used by qemu
+###### install other dependency
 
 ```shell script
 sudo apt-get install -y git libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev
@@ -51,11 +70,13 @@ sudo apt-get install -y u-boot-tools
 sudo apt-get install -y gawk
 ```
 
-###### build binwalk and qemu
+### Build Binwalk and QEMU
 
 ```shell script
 sudo make clean && make
 ```
+
+### Example
 
 Before using salamander, you must prepare your firmware and provide information listed below.
 + the path to firmware [required]
@@ -99,12 +120,12 @@ BTW, the architecture information is still necessary. Still, the first run may b
 BTW, we support the converting between different formats of device profiles.
 
 ```shell script
-./profile/convert.py -I simple -O dt tests/files/ec5859.yaml
-./profile/convert.py -I simple -O dt tests/files/2b38a3.yaml
-./profile/convert.py -I simple -O dt tests/files/9874f6.yaml
-./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o 2b38a3.yaml # to avoid override
-./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o 2b38a3.yaml # to avoid override
-./profile/convert.py -I dt -O simple tests/files/9874f6.dt -o 9874f6.yaml # to avoid override
+./profile/convert.py -I simple -O dt tests/files/ec5859.yaml -o /tmp/ec5859.dt
+./profile/convert.py -I simple -O dt tests/files/2b38a3.yaml -o /tmp/2b38a3.dt
+./profile/convert.py -I simple -O dt tests/files/9874f6.yaml -o /tmp/9874f6.dt
+./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o /tmp/2b38a3.yaml
+./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o /tmp/2b38a3.yaml
+./profile/convert.py -I dt -O simple tests/files/9874f6.dt -o /tmp/9874f6.yaml
 ```
 
 ## Visualization

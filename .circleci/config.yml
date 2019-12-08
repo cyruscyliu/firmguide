@@ -1,0 +1,13 @@
+# Salamander CircleCI 2.0 configuration file
+#
+version: 2
+jobs:
+  build:
+    docker:
+      - image: cyruscyliu/cci-salamander-docker-primary:latest
+        auth:
+          username: cyruscyliu
+          password: $DOCKERHUB_PASSWORD
+    steps:
+      - checkout
+      - run: echo "A first hello"

@@ -112,14 +112,7 @@ def save_simple(path_to_profile, target_profile):
         yaml.safe_dump(target_profile, f)
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-I', choices=['simple', 'dt'], required=True, help='input format of the profile')
-    parser.add_argument('-O', choices=['simple', 'dt'], required=True, help='target format of the profile')
-    parser.add_argument('input', metavar='path/to/profile')
-    parser.add_argument('-o', metavar='path/to/target_profile')
-    args = parser.parse_args()
-
+def run(args):
     from_profile = args.I
     to_profile = args.O
     path_to_profile = args.input
@@ -172,3 +165,14 @@ if __name__ == '__main__':
     else:
         print('output format {} is not valid'.format(from_profile))
         exit(-1)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('-I', choices=['simple', 'dt'], required=True, help='input format of the profile')
+    parser.add_argument('-O', choices=['simple', 'dt'], required=True, help='target format of the profile')
+    parser.add_argument('input', metavar='path/to/profile')
+    parser.add_argument('-o', metavar='path/to/target_profile')
+    args = parser.parse_args()
+
+    run(args)
