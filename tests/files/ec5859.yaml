@@ -24,7 +24,7 @@ interrupt_controller:
       offset: "0x08"
     - name: "main_endpoint_interrupt_mask_register"
       offset: "0x0c"
-  n_irqs: 32
+  n_irqs: "32"
 bridge:
   name: "mv88f5181l_bridge"
   mmio_base: "0xf1020100"
@@ -167,8 +167,8 @@ bamboo:
       - name: "gpio_interrupt_level_mask_register"
         offset: "0x1c"
         value: "0x0 << 0 | 0x0 << 26"
-    gpio_in_out_n: 26
-    gpio_irq_n: 4
+    gpio_in_out_n: "26"
+    gpio_irq_n: "4"
   - name: "mv88f5181l_cpu_address_map"
     mmio_base: "0xf1020000"
     mmio_size: "0x100"

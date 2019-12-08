@@ -24,6 +24,7 @@ It might be a long time to build Salamander, and see the instructions below.
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get update
 sudo apt-get install -y python3.7
+sudo apt-get install -y python3-pip
 sudo -H python3.7 -m pip install --upgrade pip
 ```
 
@@ -90,7 +91,17 @@ And, in other situation, if we already have the device profile, we want to gener
 BTW, the architecture information is still necessary. Still, the first run may be slow.
 
 ```shell script
- ./salamander.py -g build/13882/profile.dt -wd build/ -a arm
+./salamander.py -g tests/files/2b38a3.yaml -a arm -wd build/ -p simple
+./salamander.py -g tests/files/ec5859.yaml -a arm -wd build/ -p simple
+./salamander.py -g tests/files/9874f6.yaml -a mips -wd build/ -p simple
+```
+
+BTW, we support the converting between different formats of device profiles.
+
+```shell script
+profile/convert.py -I simple -O dt tests/files/ec5859.yaml
+profile/convert.py -I simple -O dt tests/files/2b38a3.yaml
+profile/convert.py -I simple -O dt tests/files/9874f6.yaml
 ```
 
 ## Visualization
@@ -107,14 +118,6 @@ More analyses you provide, more powerful the salamander will be. The visualizati
 analysis you should add. The analysis you add will solve the abelia devices a kernel required. Please read 
 this [paper]() to get familiar with the abelia devices and read [this](./analyses/README.md) then to understand
 how we implement the analysis framework.
-
-## Testing
-
-```shell script
-./salamander.py -g tests/files/2b38a3.yaml -a arm -wd build/ -p simple
-./salamander.py -g tests/files/ec5859.yaml -a arm -wd build/ -p simple
-./salamander.py -g tests/files/9874f6.yaml -a mips -wd build/ -p simple
-```
 
 ## Contributors
 [cyruscyliu*](https://github.com/cyruscyliu/esv), [occia*](https://github.com/occia)
