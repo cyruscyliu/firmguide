@@ -30,12 +30,12 @@ def get_database(dbtype, **kwargs):
         raise NotImplementedError('the dbtype {} is not support yet'.format(dbtype))
 ```
 
-## QEMU Devices
+### QEMU Devices
 
-This is one of the key parts of Salamander.
+This is one of the key parts of Salamander. We have listed useful [devices](./qemu_devices.yaml) in QEMU.
 
 
-## OpenWRT
+### OpenWRT
 
 To support OpenWRT, we add [openwrt.csv](./openwrt.csv) and [openwrt.yaml](./openwrt.yaml) two databases.
 + [openwrt.csv](./openwrt.csv) is the table of hardware of OpenWRT

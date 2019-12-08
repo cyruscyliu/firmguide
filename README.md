@@ -67,7 +67,7 @@ Before using salamander, you must prepare your firmware and provide information 
 To test your firmware, simply run your command as shown in the example. And the first run may be slow.
 
 ```shell script
-./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r
+./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build
 ```
 
 ### Re-Analysis
@@ -99,9 +99,12 @@ BTW, the architecture information is still necessary. Still, the first run may b
 BTW, we support the converting between different formats of device profiles.
 
 ```shell script
-profile/convert.py -I simple -O dt tests/files/ec5859.yaml
-profile/convert.py -I simple -O dt tests/files/2b38a3.yaml
-profile/convert.py -I simple -O dt tests/files/9874f6.yaml
+./profile/convert.py -I simple -O dt tests/files/ec5859.yaml
+./profile/convert.py -I simple -O dt tests/files/2b38a3.yaml
+./profile/convert.py -I simple -O dt tests/files/9874f6.yaml
+./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o 2b38a3.yaml # to avoid override
+./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o 2b38a3.yaml # to avoid override
+./profile/convert.py -I dt -O simple tests/files/9874f6.dt -o 9874f6.yaml # to avoid override
 ```
 
 ## Visualization
