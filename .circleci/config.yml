@@ -1,0 +1,18 @@
+# Salamander CircleCI 2.0 configuration file
+#
+version: 2
+jobs:
+  build:
+    docker:
+      - image: cyruscyliu/cci-salamander-docker-primary:latest
+        auth:
+          username: cyruscyliu
+          password: $DOCKERHUB_PASSWORD
+    steps:
+      - checkout
+      - run: make DIR_TO_BUILD=$PWD/build
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build

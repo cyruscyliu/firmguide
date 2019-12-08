@@ -1,6 +1,6 @@
-From 1330d9360836b98cbc4ea5352b7f77ebc2bf2f37 Mon Sep 17 00:00:00 2001
-From: cyrus <cyruscyliu@gmail.com>
-Date: Tue, 3 Dec 2019 17:48:41 +0800
+From 55b48803d8a02ac7b3d49187b3ddd2d843c3450c Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sun, 8 Dec 2019 11:17:10 +0000
 Subject: [PATCH] patch binwalk-2.1.1
 
 ---

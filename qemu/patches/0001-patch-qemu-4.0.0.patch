@@ -1,6 +1,6 @@
-From 7f45c9fc0f14546b1f746de47c15f2b38aba1d77 Mon Sep 17 00:00:00 2001
-From: cyrus <cyruscyliu@gmail.com>
-Date: Tue, 3 Dec 2019 17:48:59 +0800
+From 450c9315c36678f774b54eb29dc929a61938851c Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sun, 8 Dec 2019 11:17:35 +0000
 Subject: [PATCH] patch qemu-4.0.0
 
 ---
