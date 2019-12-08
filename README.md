@@ -1,5 +1,7 @@
 # Salamander
 
+[![CircleCI](https://circleci.com/gh/cyruscyliu/esv/tree/master.svg?style=svg&circle-token=7f12caaa351d02731d57d8165e634dc3e3537d33)](https://circleci.com/gh/cyruscyliu/esv/tree/master)
+
 Salamander is a project aiming to run and test any given firmware blob dynamically in a pure software way.
 
 ###### features
