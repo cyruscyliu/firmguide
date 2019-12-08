@@ -32,7 +32,44 @@ def convert_from_simple_to_dt(profile, target_profile):
 
 
 def convert_from_dt_to_simple(profile, target_profile):
-    pass
+    for path, nodes, properties in profile.walk():
+        if path == '/':
+            continue
+        levels = path.strip('/').split('/')
+        if 'bamboo' in levels:
+            if 'registers' in levels:
+                if len(levels) == 4:
+                    t = {}
+                    for pr in properties:
+                        t[pr.name] = pr.data[0]
+                    target_profile['bamboo'][-1]['registers'].append(t)
+                else:
+                    target_profile['bamboo'][-1]['registers'] = []
+            else:
+                if len(levels) == 1:
+                    target_profile['bamboo'] = []
+                else:
+                    t = {}
+                    for pr in properties:
+                        t[pr.name] = pr.data[0]
+                    target_profile['bamboo'].append(t)
+        else:
+            key = levels[0]
+            if 'registers' in levels:
+                if len(levels) == 2:
+                    target_profile[key]['registers'] = []
+                else:
+                    t = {}
+                    for pr in properties:
+                        t[pr.name] = pr.data[0]
+                    target_profile[key]['registers'].append(t)
+            else:
+                key = levels[0]
+                if key not in target_profile:
+                    target_profile[key] = {}
+                for pr in properties:
+                    target_profile[key][pr.name] = pr.data[0]
+    return target_profile
 
 
 def convert(profile, target_profile):
