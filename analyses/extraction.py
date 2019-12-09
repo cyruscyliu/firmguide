@@ -2,6 +2,10 @@ import os
 
 from analyses.analysis import Analysis
 
+def replace_extension(path, src, dst):
+    filename, file_extension = os.path.splitext(path)
+    file_extension = file_extension.replace(src, dst)
+    return filename + file_extension
 
 class Extraction(Analysis):
     def run(self, firmware):
@@ -11,14 +15,14 @@ class Extraction(Analysis):
             self.context['input'] = 'add support to this image type {}'.format(image_type)
             return False
         if image_type == 'legacy uImage':
-            kernel = image_path.replace('uimage', 'kernel')
+            kernel = replace_extension(image_path, 'uimage', 'kernel')
             os.system('dd if={} of={} bs=1 skip=64 >/dev/null 2>&1'.format(image_path, kernel))
             firmware.set_path_to_kernel(kernel)
             self.info(firmware, 'get kernel image {} at {}'.format(os.path.basename(kernel), kernel), 1)
             firmware.set_path_to_uimage(image_path)
             firmware.set_path_to_dtb(None)
         elif image_type == 'fit uImage':
-            kernel = image_path.replace('uimage.fit', 'kernel')
+            kernel = replace_extension(image_path, 'uimage.fit', 'kernel')
             dtb = image_path.replace('uimage.fit', 'dtb')
             os.system('dumpimage -T flat_dt -i {} -p 0 {} >/dev/null 2>&1'.format(image_path, kernel))
             firmware.set_path_to_kernel(kernel)
@@ -34,7 +38,7 @@ class Extraction(Analysis):
             self.info(
                 firmware, 'get device tree image {} at {}'.format(os.path.basename(kernel), dtb), 1)
         elif image_type == 'trx kernel':
-            kernel = image_path.replace('trx', 'kernel')
+            kernel = replace_extension(image_path, 'trx', 'kernel')
             os.system('lzma -d < {} > {} 2>/dev/null'.format(image_path, kernel))
             firmware.set_path_to_kernel(kernel)
             self.info(firmware, 'get kernel image {} at {}'.format(os.path.basename(kernel), kernel), 1)
