@@ -138,14 +138,16 @@ class OpenWRTToH(Analysis):
             self.info(firmware, 'get cpu model: {}'.format(cpu), 1)
         [ram] = firmware.get_toh('rammb')
         if ram is not None and ram != '':
-            firmware.set_ram_size(0, ram, unit='MiB')
+            firmware.set_ram_base('0x0')
+            firmware.set_ram_size('{} * MiB'.format(ram))
             self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, ram), 1)
         return True
 
     def get_ram_by_openwrt_toh(self, firmware):
         [ram] = firmware.get_toh('rammb')
         if ram is not None and ram != '':
-            firmware.set_ram_size(0, ram, unit='MiB')
+            firmware.set_ram_base('0x0')
+            firmware.set_ram_size('{} * MiB'.format(ram))
             self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, ram), 1)
         return True
 
