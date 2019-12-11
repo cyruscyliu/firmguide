@@ -42,10 +42,21 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
         if ((entry & ~0x7fffffffULL) == 0x80000000)
             entry = (int32_t)entry;
     } else {
-        error_report("could not load kernel '%s': %s",
-                     info->kernel_filename,
-                     load_elf_strerror(kernel_size));
-        exit(1);
+        hwaddr ep, loadaddr;
+        int is_linux;
+
+        kernel_size = load_uimage(loaderparams.kernel_filename, &ep,
+                                  &loadaddr, &is_linux,
+                                  cpu_mips_kseg0_to_phys, NULL);
+
+        if (kernel_size >=0) {
+            entry = (uint32_t)ep;
+        } else {
+            error_report("could not load kernel neither as an elf ('%s': %s) nor as an uimage",
+                         loaderparams.kernel_filename,
+                         load_elf_strerror(kernel_size));
+            exit(1);
+        }
     }
 
     /* load initrd */
