@@ -27,3 +27,5 @@ apt-get install -y sudo
 RUN pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable
 
 RUN apt-get install wget
+
+RUN git clone git@github.com:cyruscyliu/pymake.git /opt/pymake && cd /opt/pymake && pip3.7 install .

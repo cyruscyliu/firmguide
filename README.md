@@ -23,6 +23,7 @@ First, clone the repo.
 
 ```shell script
 git clone git@github.com:cyruscyliu/esv.git salamander && cd salamander
+git submodule update --init --recursive
 ```
 
 ### Docker Image
@@ -54,6 +55,7 @@ sudo rm /usr/bin/python && sudo ln -s /usr/bin/python3.7 /usr/bin/python
 
 ```shell script
 sudo -H pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable
+git clone git@github.com:cyruscyliu/pymake.git ~/pymake && cd ~/pymake && sudo -H pip3.7 install .
 ```
 
 ###### install other dependency
