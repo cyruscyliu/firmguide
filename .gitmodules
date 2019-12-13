@@ -4,6 +4,3 @@
 [submodule "asm2xml"]
 	path = asm2xml
 	url = git@github.com:cyruscyliu/asm2xml.git
-[submodule "pymake"]
-	path = pymake
-	url = https://github.com/mozilla/pymake.git
