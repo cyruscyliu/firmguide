@@ -27,7 +27,7 @@ class Extraction(Analysis):
             os.system('dumpimage -T flat_dt -i {} -p 0 {} >/dev/null 2>&1'.format(image_path, kernel))
             firmware.set_path_to_kernel(kernel)
             self.info(firmware, 'get kernel image {} at {}'.format(os.path.basename(kernel), kernel), 1)
-            uimage = image_path.replace('uimage.fit', 'uimage')
+            uimage = replace_extension(image_path, 'uimage.fit', 'uimage')
             # mkimage -A arm -C none -O linux -T kernel -d path/to/zImage -a 0x8000 -e 0x8000
             #     path/to/uImage >/dev/null 2>&1
             os.system('mkimage -A {} -C none -O linux -T kernel -d {} '
@@ -42,9 +42,10 @@ class Extraction(Analysis):
             os.system('lzma -d < {} > {} 2>/dev/null'.format(image_path, kernel))
             firmware.set_path_to_kernel(kernel)
             self.info(firmware, 'get kernel image {} at {}'.format(os.path.basename(kernel), kernel), 1)
-            uimage = image_path.replace('trx', 'uimage')
+            uimage = replace_extension(image_path, 'trx', 'uimage')
             os.system('mkimage -A {} -C none -O linux -T kernel -d {} '
-                      '-a 0x8000 -e 0x8000 {} >/dev/null 2>&1'.format(firmware.get_architecture(), kernel, uimage))
+                      '-a 0x1000 -e 0x80001000 {} >/dev/null 2>&1'.format(firmware.get_architecture(), kernel, uimage))
+            print(uimage)
             firmware.set_path_to_uimage(uimage)
             firmware.set_path_to_dtb(None)
         else:
