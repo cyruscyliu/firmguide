@@ -7,8 +7,9 @@ class AbeliaRAM(Analysis):
         if ram_size is not None:
             self.info(firmware, 'get memory size {}'.format(ram_size), 1)
             return True
-        firmware.set_ram_size(0, 1024, unit='MiB')
-        self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, 1024), 1)
+        firmware.set_ram_size('32 * MiB')
+        firmware.set_ram_base('0x0')
+        self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, 32), 1)
 
     def __init__(self):
         super().__init__()

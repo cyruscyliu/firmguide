@@ -169,20 +169,18 @@ class DTFirmware(Firmware):
         return '0'
 
     def get_ram_size(self, *args, **kwargs):
-        ram = self.get_node_property('/memory', 'reg', end=2)
-        if ram is None:
-            return None
-        ram_base, ram_size = ram
-        return '{} * MiB'.format(int(int(ram_size) / 1024))  # to MiB
+        return self.get_node_property('ram', 'size')
 
     def set_ram_size(self, *args, **kwargs):
-        ram_base, ram_size = args
-        unit = kwargs.pop('unit', 'MiB')
-        factor = 1024
-        self.set_node_property('/memory', 'reg', str(int(ram_base) * factor), str(int(ram_size) * factor))
+        ram_size = args[0]
+        self.set_node_property('ram', 'size', ram_size)
 
-    def probe_bridge(self, *args, **kwargs):
-        pass
+    def get_ram_base(self, *args, **kwargs):
+        return self.get_node_property('ram', 'base')
+
+    def set_ram_base(self, *args, **kwargs):
+        ram_base = args[0]
+        self.set_node_property('ram', 'base', ram_base)
 
     def get_bridge_name(self, *args, **kwargs):
         pass
@@ -197,26 +195,26 @@ class DTFirmware(Firmware):
         pass
 
     def get_interrupt_controller_name(self, *args, **kwargs):
-        return self.get_node_property('ic', 'ic_name')
+        return self.get_node_property('interrupt_controller', 'name')
 
     def set_interrupt_controller_name(self, *args, **kwargs):
         ic_name = args[0]
-        self.set_node_property('ic', 'ic_name', ic_name)
+        self.set_node_property('interrupt_controller', 'name', ic_name)
 
     def get_interrupt_controller_registers(self, *args, **kwargs):
         pass
 
     def get_interrupt_controller_mmio_size(self, *args, **kwargs):
-        return self.get_node_property('ic', 'ic_mmio_size', *args)
+        return self.get_node_property('interrupt_controller', 'mmio_size', *args)
 
     def set_interrupt_controller_mmio_size(self, *args, **kwargs):
-        self.set_node_property('ic', 'ic_mmio_size', *args)
+        self.set_node_property('interrupt_controller', 'mmio_size', *args)
 
     def get_interrupt_controller_mmio_base(self, *args, **kwargs):
-        return self.get_node_property('ic', 'ic_mmio_base')
+        return self.get_node_property('interrupt_controller', 'mmio_base')
 
     def set_interrupt_controller_mmio_base(self, *args, **kwargs):
-        self.set_node_property('ic', 'ic_mmio_base', *args)
+        self.set_node_property('interrupt_controller', 'mmio_base', *args)
 
     def get_n_irqs(self, *args, **kwargs):
         pass
