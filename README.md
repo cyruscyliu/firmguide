@@ -17,7 +17,7 @@ entering the user mode and getting the shell. Let's start and enjoy our trip.
 + who would like to dynamically analysis a linux based firmware
 + who are interested re-hosting and emulation
 
-## Usage 
+### Usage 
 
 First, clone the repo.
 
@@ -26,7 +26,7 @@ git clone git@github.com:cyruscyliu/esv.git salamander && cd salamander
 git submodule update --init --recursive
 ```
 
-### Docker Image
+#### Docker Image
 
 We recommend you using our docker image.
 
@@ -35,7 +35,7 @@ docker build -t cyruscyliu/cci-salamander-docker-primary:latest .
 docker run -it -v $PWD:/root cyruscyliu/cci-salamander-docker-primary:latest /bin/bash
 ```
 
-### Manually Installation
+#### ~~Manually Installation~~
 
 It might be a long time to build Salamander, and see the instructions below.
 
@@ -75,13 +75,13 @@ sudo apt-get install -y u-boot-tools
 sudo apt-get install -y gawk
 ```
 
-### Build Binwalk and QEMU
+#### Build Binwalk and QEMU
 
 ```shell script
 sudo make clean && make
 ```
 
-### Example
+#### Example
 
 Before using salamander, you must prepare your firmware and provide information listed below.
 + the path to firmware [required]
@@ -96,7 +96,7 @@ To test your firmware, simply run your command as shown in the example. And the 
 ./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build
 ```
 
-### Re-Analysis
+#### Re-Analysis
 
 Sometimes we would like to re-analysis the whole firmware. The solution is using `-r` in your command line.
 
@@ -104,7 +104,7 @@ Sometimes we would like to re-analysis the whole firmware. The solution is using
 ./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r
 ```
 
-### Device Profile
+#### Device Profile
 
 Sometimes we just want to get the device profile not to diagnose whether we boot the firmware up or not.
 The solution is using `-q` in your command line.
@@ -133,14 +133,14 @@ BTW, we support the converting between different formats of device profiles.
 ./profile/convert.py -I dt -O simple tests/files/9874f6.dt -o /tmp/9874f6.yaml
 ```
 
-## Visualization
+### Visualization
 
 After running, it is better to have a page to show the analysis results rather than checking massive logs. Simply run
 `python dashboard/__init__.py` and follow its instructions you will see the statistics of your analysis in your browser.
 
 ![dashboard](./dashboard/dashboard.png)
 
-## Add an analysis
+### Add an analysis
 
 If the built-in analyses can not boot the kernel to its shell, you have to add your own analysis. 
 More analyses you provide, more powerful the salamander will be. The visualization results will tell you what specific 
@@ -148,8 +148,8 @@ analysis you should add. The analysis you add will solve the abelia devices a ke
 this [paper]() to get familiar with the abelia devices and read [this](./analyses/README.md) then to understand
 how we implement the analysis framework.
 
-## Contributors
+### Contributors
 [cyruscyliu*](https://github.com/cyruscyliu/esv), [occia*](https://github.com/occia)
 
-## License
+### License
 [MIT License](./LICENSE)
