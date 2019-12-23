@@ -2,6 +2,12 @@ components:
   path_to_image: "tests/files/ec5859.bin"
   path_to_uimage: "tests/files/ec5859.uimage"
 basics:
+  uuid: "15007"
+  name: "ec5859077831e078987ebb05461d4ec834896f3e.bin"
+  path: "/mnt/salamander/firmware/ec5859077831e078987ebb05461d4ec834896f3e.bin"
+  architecture: "arm"
+  endian: "l"
+  brand: "openwrt"
   machine_name: "wrt350n_v2"
   machine_description: "Linksys WRT350N v2 (MV88F5181L)"
   board_id: "0x661"
