@@ -192,9 +192,9 @@ class CompilerToQEMUMachine(object):
         os.system(
             'cd {}/qemu-4.0.0 && make CFLAGS=-Wmaybe-uninitialized -j4 && cd -'.format(self.firmware.get_working_dir()))
         # construct the command
-        if self.firmware.architecture == 'arm':
+        if self.firmware.get_architecture() == 'arm':
             running_command = '{}/qemu-4.0.0/arm-softmmu/qemu-system-arm'.format(self.firmware.get_working_dir())
-        elif self.firmware.architecture == 'mips':
+        elif self.firmware.get_architecture() == 'mips':
             running_command = '{}/qemu-4.0.0/mipsel-softmmu/qemu-system-mipsel'.format(self.firmware.get_working_dir())
         else:
             raise NotImplementedError()

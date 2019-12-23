@@ -39,25 +39,13 @@ class DTFirmware(Firmware):
 
     def copy_profile(self, *args, **kwargs):
         path_to_profile = args[0]
-        shutil.copy(path_to_profile, os.path.join(self.working_dir, 'profile.dt'))
+        shutil.copy(path_to_profile, os.path.join(self.working_directory, 'profile.dt'))
 
-    def set_profile(self, *args, **kwargs):
-        if len(args):
-            profile = args[0]
-        else:
-            profile = None
-        first = kwargs.pop('first', False)
-        working_dir = kwargs.pop('working_dir', None)
+    def create_empty_profile(self):
+        with open(self.path_to_profile, 'w') as f:
+            f.write('/dts-v1/;\n\n/ {\n};\n')
 
-        if profile is not None:
-            self.profile = profile
-            return
-        if working_dir is None:
-            raise ValueError('please assign the working directory if no profile available')
-        self.path_to_profile = os.path.join(working_dir, 'profile.dt')
-        if first:
-            with open(self.path_to_profile, 'w') as f:
-                f.write('/dts-v1/;\n\n/ {\n};\n')
+    def load_from_profile(self):
         with open(self.path_to_profile, 'r') as f:
             profile = f.read()
         self.profile = fdt.parse_dts(profile)

@@ -17,37 +17,35 @@ from analyses.strings import Strings
 from generation.compiler import CompilerToQEMUMachine
 from profile.pff import get_firmware_in_profile
 from supervisor.logging_setup import logger_info, logger_warning
-from supervisor.save_and_restore import setup, check_and_restore, save_analysis
+from supervisor.save_and_restore import check_and_restore, save_analysis, setup_diagnosis, setup_code_generation, \
+    setup_single_analysis
 
 
-def run_diagnosis(args):
-    firmware = get_firmware_in_profile(args.profile)
-    setup(args, firmware)
+def run_diagnosis(firmware):
     analyses_manager = AnalysesManager(firmware)
     analyses_manager.register_analysis(DeadLoop(), no_chained=True)
     analyses_manager.run_analysis(firmware, 'dead_loop')
 
 
-def run_single_analysis(args):
-    firmware = get_firmware_in_profile(args.profile)
-
-    setup(args, firmware)
-    analysis_wrapper(args, firmware)
+def run_single_analysis(firmware):
+    analysis_wrapper(firmware)
 
 
-def run_code_generation(args):
-    firmware = get_firmware_in_profile(args.profile)
-    setup(args, firmware)
-    analysis_wrapper(args, firmware)
+def run_code_generation(firmware):
+    analysis_wrapper(firmware)
 
 
 def run(parser, args):
+    firmware = get_firmware_in_profile(args.profile)
     if args.trace:
-        run_diagnosis(args)
-    elif args.firmware:
-        run_single_analysis(args)
+        setup_diagnosis(args, firmware)
+        run_diagnosis(firmware)
     elif args.generation:
-        run_code_generation(args)
+        setup_code_generation(args, firmware)
+        run_code_generation(firmware)
+    elif args.uuid:
+        setup_single_analysis(args, firmware)
+        run_single_analysis(firmware)
     else:
         parser.print_help()
 
@@ -80,13 +78,10 @@ def register_analysis(firmware, no_inference=False):
     return analyses_manager
 
 
-def analysis_wrapper(args, firmware):
-    check_and_restore(firmware, path_to_profile=args.generation, rerun=args.rerun)
+def analysis_wrapper(firmware):
+    check_and_restore(firmware)
 
-    if args.generation:
-        analyses_manager = register_analysis(firmware, no_inference=True)
-    else:
-        analyses_manager = register_analysis(firmware)
+    analyses_manager = register_analysis(firmware, no_inference=firmware.no_inference)
 
     try:
         # run them all
@@ -104,29 +99,31 @@ def analysis_wrapper(args, firmware):
                 raise SystemError('bugs in tracing or before')
             analyses_manager.run_analysis(firmware, 'check')
             if analyses_manager.last_analysis_status:
-                logger_info(firmware.uuid, 'analysis', 'checking analysis', 'GOOD! Have entered the user level!', 1)
+                logger_info(
+                    firmware.get_uuid(), 'analysis', 'checking analysis', 'GOOD! Have entered the user level!', 1)
                 break
-            logger_info(firmware.uuid, 'analysis', 'checking analysis', 'BAAD! Have not entered the user level!', 0)
+            logger_info(
+                firmware.get_uuid(), 'analysis', 'checking analysis', 'BAAD! Have not entered the user level!', 0)
             analyses_manager.run_analysis(firmware, 'dead_loop')
             analyses_manager.run_analysis(firmware, 'init_value')
             break
     except NotImplementedError as e:
         exception = e.args[0]
         if isinstance(exception, str):
-            logger_warning(firmware.uuid, 'scheduler', 'exception', '{}, fix and rerun'.format(exception), 0)
+            logger_warning(firmware.get_uuid(), 'scheduler', 'exception', '{}, fix and rerun'.format(exception), 0)
         else:
-            logger_warning(firmware.uuid, 'scheduler', 'exception', 'can not support firmware, fix and rerun', 0)
+            logger_warning(firmware.get_uuid(), 'scheduler', 'exception', 'can not support firmware, fix and rerun', 0)
     except SystemError as e:
-        logger_warning(firmware.uuid, 'scheduler', 'exception', e.__str__(), 0)
+        logger_warning(firmware.get_uuid(), 'scheduler', 'exception', e.__str__(), 0)
 
 
 def trace_collection(firmware, running_command):
     # nochain is too too slow
-    trace_flags = '-d in_asm,cpu -D log/{}.trace'.format(firmware.uuid)
+    trace_flags = '-d in_asm,int,cpu -D {}'.format(firmware.path_to_trace)
     qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
     full_command = ' '.join([running_command, trace_flags, qmp_flags])
     try:
-        logger_info(firmware.uuid, 'tracing', 'qemudebug', full_command, 0)
+        logger_info(firmware.get_uuid(), 'tracing', 'qemudebug', full_command, 0)
         status = subprocess.run(full_command, timeout=60, shell=True).returncode
     except subprocess.TimeoutExpired:
         status = 0

@@ -90,7 +90,7 @@ class Strings(Analysis):
             if count > max_count:
                 most_possible = k
                 max_count = count
-        logger_info(firmware.uuid, 'analysis', 'strings', 'get the most possible target {}'.format(most_possible), 1)
+        logger_info(firmware.get_uuid(), 'analysis', 'strings', 'get the most possible target {}'.format(most_possible), 1)
         firmware.set_target(most_possible)
 
     def search_most_possible_subtarget(self, firmware, extent=None):
@@ -147,7 +147,7 @@ class Strings(Analysis):
                     subtarget = None
                 firmware.set_subtarget(subtarget)
                 logger_info(
-                    firmware.uuid, 'analysis', 'strings', 'get the most possible subtarget {}'.format(subtarget), 1)
+                    firmware.get_uuid(), 'analysis', 'strings', 'get the most possible subtarget {}'.format(subtarget), 1)
                 firmware.set_toh(filtered_results_2[0], header=openwrt.header_last_selected)
 
                 return
@@ -160,7 +160,7 @@ class Strings(Analysis):
                 most_possible = k
                 max_count = count
         firmware.set_subtarget(most_possible)
-        logger_info(firmware.uuid, 'analysis', 'strings', 'get the most possible subtarget {}'.format(most_possible), 1)
+        logger_info(firmware.get_uuid(), 'analysis', 'strings', 'get the most possible subtarget {}'.format(most_possible), 1)
 
     def uart01_find_uart_model(self, firmware):
         for string in self.strings:

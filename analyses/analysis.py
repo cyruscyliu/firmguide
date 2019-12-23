@@ -27,18 +27,18 @@ class Analysis(object):
         pass
 
     def info(self, firmware, message, status):
-        logger_info(firmware.uuid, 'analysis', self.name, message, status)
+        logger_info(firmware.get_uuid(), 'analysis', self.name, message, status)
 
     def error(self, firmware):
         if self.context['input'].find('\n') != -1:
-            logger_warning(firmware.uuid, 'analysis', self.name, self.context['hint'], 0)
+            logger_warning(firmware.get_uuid(), 'analysis', self.name, self.context['hint'], 0)
             lines = self.context['input'].split('\n')
             for line in lines:
                 if len(line):
-                    logger_warning(firmware.uuid, 'analysis', self.name, line, 0)
+                    logger_warning(firmware.get_uuid(), 'analysis', self.name, line, 0)
         else:
             logger_warning(
-                firmware.uuid, 'analysis', self.name, ', '.join([self.context['hint'], self.context['input']]), 0)
+                firmware.get_uuid(), 'analysis', self.name, ', '.join([self.context['hint'], self.context['input']]), 0)
 
 
 class AnalysisGroup(object):
@@ -157,7 +157,7 @@ class AnalysesManager(object):
                 a = self.analyses_flat[analysis]
                 # save and restore
                 if finished(self.firmware, a):
-                    logger_info(self.firmware.uuid, 'analysis', 'done before', a.name, 0)
+                    logger_info(self.firmware.get_uuid(), 'analysis', 'done before', a.name, 0)
                     continue
                 res = a.run(self.firmware)
                 self.last_analysis_status = res

@@ -9,6 +9,39 @@ from profile.firmware import Firmware
 
 
 class SimpleFirmware(Firmware):
+    def get_uuid(self, *args, **kwargs):
+        return self.get_general('basics', 'uuid')
+
+    def set_uuid(self, *args, **kwargs):
+        self.set_general('basics', 'uuid', *args)
+
+    def get_name(self, *args, **kwargs):
+        return self.get_general('basics', 'name')
+
+    def set_name(self, *args, **kwargs):
+        self.set_general('basics', 'name', *args)
+
+    def get_path(self, *args, **kwargs):
+        return self.get_general('basics', 'path')
+
+    def set_path(self, *args, **kwargs):
+        self.set_general('basics', 'path', *args)
+
+    def get_architecture(self, *args, **kwargs):
+        return self.get_general('basics', 'architecture')
+
+    def get_endian(self, *args, **kwargs):
+        return self.get_general('basics', 'endian')
+
+    def set_endian(self, *args, **kwargs):
+        self.set_general('basics', 'endian', *args)
+
+    def get_brand(self, *args, **kwargs):
+        return self.get_general('basics', 'brand')
+
+    def set_brand(self, *args, **kwargs):
+        self.set_general('basics', 'brand', *args)
+
     def set_general(self, l1, l2, *args):
         value = args[0]
         if l2 is not None:
@@ -287,25 +320,13 @@ class SimpleFirmware(Firmware):
 
     def copy_profile(self, *args, **kwargs):
         path_to_profile = args[0]
-        shutil.copy(path_to_profile, os.path.join(self.working_dir, 'profile.yaml'))
+        shutil.copy(path_to_profile, os.path.join(self.working_directory, 'profile.yaml'))
 
-    def set_profile(self, *args, **kwargs):
-        if len(args):
-            profile = args[0]
-        else:
-            profile = None
-        first = kwargs.pop('first', False)
-        working_dir = kwargs.pop('working_dir', None)
+    def create_empty_profile(self):
+        with open(self.path_to_profile, 'w') as f:
+            yaml.safe_dump({}, f)
 
-        if profile is not None:
-            self.profile = profile
-            return
-        if working_dir is None:
-            raise ValueError('please assign the working directory if no profile available')
-        self.path_to_profile = os.path.join(working_dir, 'profile.yaml')
-        if first:
-            with open(self.path_to_profile, 'w') as f:
-                yaml.safe_dump({}, f)
+    def load_from_profile(self):
         with open(self.path_to_profile, 'r') as f:
             profile = yaml.safe_load(f)
         self.profile = profile

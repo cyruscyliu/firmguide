@@ -117,9 +117,9 @@ And, in other situation, if we already have the device profile, we want to gener
 BTW, the architecture information is still necessary. Still, the first run may be slow.
 
 ```shell script
-./salamander.py -g tests/files/2b38a3.yaml -a arm -wd build/ -p simple
-./salamander.py -g tests/files/ec5859.yaml -a arm -wd build/ -p simple
-./salamander.py -g tests/files/9874f6.yaml -a mips -wd build/ -p simple
+./salamander.py -g tests/files/2b38a3.yaml -wd ../salamander-build/ -p simple
+./salamander.py -g tests/files/ec5859.yaml -wd ../salamander-build/ -p simple
+./salamander.py -g tests/files/9874f6.yaml -wd ../salamander-build/ -p simple
 ```
 
 BTW, we support the converting between different formats of device profiles.

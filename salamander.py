@@ -16,13 +16,13 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--debug', action='store_true', help='show verbose logs')
     # analysis
     group = parser.add_argument_group('analysis')
-    group.add_argument('-f', '--firmware', type=str, metavar='path/to/firmware')
     group.add_argument('-u', '--uuid', type=str)
-    group.add_argument('-a', '--architecture', type=str, choices=['arm', 'mips'])
-    group.add_argument('-e', '--endian', type=str, choices=['b', 'l'])
-    group.add_argument('-b', '--brand', type=str, choices=['openwrt'])
     group.add_argument('-q', '--quick', action='store_true', default=False, help='disable tracing and diagnosis')
-    group.add_argument('-s', '--source_code', type=str, metavar='path/to/source_code')
+    group.add_argument('-f', '--firmware', type=str, metavar='path/to/firmware', help='ignored if -r')
+    group.add_argument('-a', '--architecture', type=str, choices=['arm', 'mips'], help='ignored if -r')
+    group.add_argument('-e', '--endian', type=str, choices=['b', 'l'], help='ignored if -r')
+    group.add_argument('-b', '--brand', type=str, choices=['openwrt'], help='ignored if -r')
+    group.add_argument('-s', '--source_code', type=str, metavar='path/to/source_code', help='ignored if -r')
     # generation
     group = parser.add_argument_group('code generation')
     group.add_argument('-g', '--generation', type=str, metavar='path/to/device_profile')
