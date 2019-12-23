@@ -28,6 +28,5 @@ RUN pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable
 
 RUN apt-get install wget
 
-RUN ssh-keygen -t rsa -C "you@example.com" -f /root/.ssh/id_rsa && \
-ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts && git clone https://github.com/cyruscyliu/pymake.git /opt/pymake && \
+RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts && git clone https://github.com/cyruscyliu/pymake.git /opt/pymake && \
 cd /opt/pymake && pip3.7 install .
