@@ -17,7 +17,7 @@ entering the user mode and getting the shell. Let's start and enjoy our trip.
 + who would like to dynamically analysis a linux based firmware
 + who are interested re-hosting and emulation
 
-### Usage 
+### Install
 
 First, clone the repo.
 
@@ -81,7 +81,7 @@ sudo apt-get install -y gawk
 sudo make clean && make
 ```
 
-#### Example
+### Usage
 
 Before using salamander, you must prepare your firmware and provide information listed below.
 + the path to firmware [required]
@@ -131,6 +131,16 @@ BTW, we support the converting between different formats of device profiles.
 ./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o /tmp/2b38a3.yaml
 ./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o /tmp/2b38a3.yaml
 ./profile/convert.py -I dt -O simple tests/files/9874f6.dt -o /tmp/9874f6.yaml
+```
+
+#### Diagnosis
+
+Sometimes we just want to check our trace offline to gain more insights.
+
+```shell script
+ ./salamander.py -t log/13882.trace
+ ./salamander.py -t log/15007.trace
+ ./salamander.py -t log/14292.trace # mips not be supported well
 ```
 
 ### Visualization

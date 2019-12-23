@@ -113,7 +113,7 @@ def setup_working_dir(args, firmware):
 
 
 def setup_diagnosis(args, firmware):
-    setup_working_dir(args, firmware)
+    # 1 we need the trace
     firmware.path_to_trace = args.trace
     firmware.trace_format = args.trace_format
 
