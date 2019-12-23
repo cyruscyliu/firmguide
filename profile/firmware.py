@@ -7,6 +7,7 @@ from profile.openwrt import OpenWRTForFirmware
 
 class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def __init__(self, *args, **kwargs):
+        self.uuid = None
         self.size = None
         self.working_directory = None
         self.working_path = None
@@ -21,9 +22,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
         self.rerun = False
 
-    @abc.abstractmethod
     def get_uuid(self, *args, **kwargs):
-        pass
+        return self.uuid
 
     @abc.abstractmethod
     def set_uuid(self, *args, **kwargs):
@@ -68,6 +68,10 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     def set_path_to_trace(self, path_to_trace):
         self.path_to_trace = path_to_trace
+
+    @abc.abstractmethod
+    def set_architecture(self, *args, **kwargs):
+        pass
 
     @abc.abstractmethod
     def get_architecture(self, *args, **kwargs):
@@ -157,7 +161,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         return brief_introduction
 
     def summary(self, *args, **kwargs):
-        brief_summary = 'uuid: {}, name:{}, profile at {}'.format(self.get_uuid(), self.get_name(), self.path_to_profile)
+        brief_summary = 'uuid: {}, name:{}, profile at {}'.format(self.get_uuid(), self.get_name(),
+                                                                  self.path_to_profile)
         return brief_summary
 
     # components

@@ -22,12 +22,12 @@ class Extraction(Analysis):
             firmware.set_path_to_uimage(image_path)
             firmware.set_path_to_dtb(None)
         elif image_type == 'fit uImage':
-            kernel = replace_extension(image_path, 'uimage.fit', 'kernel')
+            kernel = replace_extension(image_path, 'fit', 'kernel')
             dtb = image_path.replace('uimage.fit', 'dtb')
             os.system('dumpimage -T flat_dt -i {} -p 0 {} >/dev/null 2>&1'.format(image_path, kernel))
             firmware.set_path_to_kernel(kernel)
             self.info(firmware, 'get kernel image {} at {}'.format(os.path.basename(kernel), kernel), 1)
-            uimage = replace_extension(image_path, 'uimage.fit', 'uimage')
+            uimage = replace_extension(image_path, 'fit', 'uimage')
             # mkimage -A arm -C none -O linux -T kernel -d path/to/zImage -a 0x8000 -e 0x8000
             #     path/to/uImage >/dev/null 2>&1
             os.system('mkimage -A {} -C none -O linux -T kernel -d {} '

@@ -69,8 +69,8 @@ def register_analysis(firmware, no_inference=False):
     # toh <- ram by default
     analyses_manager.register_analysis(AbeliaRAM(), no_chained=no_inference)
     # srcode <- .config
-    analyses_manager.register_analysis(SRCode(), no_chained=no_inference)
-    analyses_manager.register_analysis(DotConfig(), no_chained=no_inference)
+    # analyses_manager.register_analysis(SRCode(), no_chained=no_inference)
+    # analyses_manager.register_analysis(DotConfig(), no_chained=no_inference)
     # other analysis
     analyses_manager.register_analysis(Checking(), no_chained=True)
     analyses_manager.register_analysis(DeadLoop(), no_chained=True)

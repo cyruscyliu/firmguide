@@ -9,7 +9,7 @@ class Format(Analysis):
         The patched binwalk must be available.
         """
         for module in binwalk.scan(firmware.working_path, signature=True, extract=True,
-                                   quiet=True, block=firmware.size, directory=firmware.working_dir):
+                                   quiet=True, block=firmware.size, directory=firmware.working_directory):
             count = 0
             for result in module.results:
                 if str(result.description).find('flattened image tree') != -1:

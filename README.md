@@ -93,7 +93,9 @@ Before using salamander, you must prepare your firmware and provide information 
 To test your firmware, simply run your command as shown in the example. And the first run may be slow.
 
 ```shell script
-./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build
+./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ../salamander-build -p simple
+./salamander.py -f tests/files/ec5859.bin -u 15007 -a arm -e l -b openwrt -wd ../salamander-build -p simple
+./salamander.py -f tests/files/9874f6.bin -u 14292 -a mips -e l -b openwrt -wd ../salamander-build -p simple
 ```
 
 #### Re-Analysis
@@ -101,7 +103,9 @@ To test your firmware, simply run your command as shown in the example. And the 
 Sometimes we would like to re-analysis the whole firmware. The solution is using `-r` in your command line.
 
 ```shell script
-./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r
+./salamander.py -u 13882 -r -wd ../salamander-build -p simple
+./salamander.py -u 15007 -r -wd ../salamander-build -p simple
+./salamander.py -u 14292 -r -wd ../salamander-build -p simple
 ```
 
 #### Device Profile
@@ -110,7 +114,8 @@ Sometimes we just want to get the device profile not to diagnose whether we boot
 The solution is using `-q` in your command line.
 
 ````shell script
-./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r -q
+./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ../salamander-build -q -p simple
+./salamander.py -u 13882 -r -wd ../salamander-build -p simple -q
 ````
 
 And, in other situation, if we already have the device profile, we want to generation QEMU code directly.

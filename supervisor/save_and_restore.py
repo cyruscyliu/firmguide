@@ -48,10 +48,6 @@ def check_and_restore(firmware, **kwargs):
         else:
             firmware.analysis_progress = analysis_progress
 
-    # handle profile, otherwise we load the profile before
-    if first_time:
-        firmware.set_profile(working_dir=firmware.working_directory, first=True)
-
     # copy the firmware to working path
     if not os.path.exists(firmware.working_path):
         shutil.copy(
@@ -116,11 +112,14 @@ def setup_diagnosis(args, firmware):
     # 1 we need the trace
     firmware.path_to_trace = args.trace
     firmware.trace_format = args.trace_format
+    # 2 and the uuid
+    firmware.uuid = 'diagnosis'
 
 
 def setup_code_generation(args, firmware):
     # load from profile
     firmware.set_profile(path_to_profile=args.generation)
+    firmware.uuid = firmware.get_uuid()
     # 0 setup working directory
     setup_working_dir(args, firmware)
     # 1 ignore inference analysis
@@ -134,28 +133,29 @@ def setup_code_generation(args, firmware):
 
 
 def setup_single_analysis(args, firmware):
-    # 1 must assign the uuid
-    firmware.set_uuid(args.uuid)
+    # 0 must assign the uuid
+    firmware.uuid = args.uuid
+
+    extension = 'yaml' if args.profile == 'simple' else 'dt'
+    path_to_profile = os.path.join(args.working_directory, args.uuid, 'profile.' + extension)
 
     if args.rerun:
-        # 1.1 assign the profile
-        extension = 'yaml' if args.profile == 'simple' else 'dt'
-        path_to_profile = os.path.join(firmware.working_directory, 'profile.' + extension)
+        # 1.1 load the profile
+        firmware.set_profile(path_to_profile=path_to_profile)
+        firmware.size = os.path.getsize(firmware.get_path())
+        firmware.rerun = True
         setup_working_dir(args, firmware)
     else:
         # 1.2 load from the command line
-        firmware.path = args.firmware
-        firmware.name = os.path.basename(args.firmware)
+        firmware.set_profile(path_to_profile=path_to_profile, first=True)
+        firmware.set_path(args.firmware)
+        firmware.set_name(os.path.basename(args.firmware))
         firmware.size = os.path.getsize(args.firmware)
-        # set architecture and endian
-        firmware.architecture = args.architecture
-        firmware.endian = args.endian
-        # set brand
-        firmware.brand = args.brand
-        # set source code
-        firmware.path_to_source_code = args.source_code
-        # set diagnosis
-        firmware.trace_format = args.trace_format
-        firmware.path_to_trace = 'log/{}.trace'.format(firmware.get_uuid())
+        firmware.set_architecture(args.architecture)
+        firmware.set_endian(args.endian)
+        firmware.set_brand(args.brand)
+        setup_working_dir(args, firmware)
 
+    firmware.trace_format = args.trace_format
+    firmware.path_to_trace = 'log/{}.trace'.format(firmware.get_uuid())
     firmware.do_not_diagnosis = args.quick

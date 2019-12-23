@@ -9,9 +9,6 @@ from profile.firmware import Firmware
 
 
 class SimpleFirmware(Firmware):
-    def get_uuid(self, *args, **kwargs):
-        return self.get_general('basics', 'uuid')
-
     def set_uuid(self, *args, **kwargs):
         self.set_general('basics', 'uuid', *args)
 
@@ -26,6 +23,9 @@ class SimpleFirmware(Firmware):
 
     def set_path(self, *args, **kwargs):
         self.set_general('basics', 'path', *args)
+
+    def set_architecture(self, *args, **kwargs):
+        self.set_general('basics', 'architecture', *args)
 
     def get_architecture(self, *args, **kwargs):
         return self.get_general('basics', 'architecture')
@@ -45,6 +45,8 @@ class SimpleFirmware(Firmware):
     def set_general(self, l1, l2, *args):
         value = args[0]
         if l2 is not None:
+            if l1 not in self.profile:
+                self.profile[l1] = {}
             self.profile[l1][l2] = value
         else:
             self.profile[l1] = value
@@ -270,7 +272,7 @@ class SimpleFirmware(Firmware):
         self.set_general('basics', 'description', *args)
 
     def get_description(self, *args, **kwargs):
-        return self.get_description('basics', 'description')
+        return self.get_general('basics', 'description')
 
     def set_path_to_image(self, *args, **kwargs):
         self.set_general('components', 'path_to_image', *args)
@@ -356,7 +358,7 @@ class SimpleFirmware(Firmware):
         return self.get_general('kernel', 'kernel_load_address')
 
     def set_kernel_load_address(self, *args, **kwargs):
-        self.set_general('kernel', 'kernel_load_address')
+        self.set_general('kernel', 'kernel_load_address', *args)
 
     def get_kernel_version(self, *args, **kwargs):
         return self.get_general('kernel', 'kernel_version')
