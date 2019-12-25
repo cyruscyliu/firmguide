@@ -1,0 +1,99 @@
+arm1026:
+  compatible: arm,arm1026
+  cpu_id: '0x4106a262'
+arm1136:
+  compatible: arm,arm1136
+  cpu_id: '0x4117b363'
+arm1136-r2:
+  compatible: arm,arm1136
+  cpu_id: '0x4107b362'
+arm1176:
+  compatible: arm,arm1176
+  cpu_id: '0x410fb767'
+arm11mpcore:
+  compatible: arm,arm11mpcore
+  cpu_id: '0x410fb022'
+arm926:
+  compatible: arm,arm926
+  cpu_id: '0x41069265'
+arm946:
+  compatible: arm,arm946
+  cpu_id: '0x41059461'
+cortex-a15:
+  compatible: arm,cortex-a15
+  cpu_id: '0x412fc0f1'
+cortex-a7:
+  compatible: arm,cortex-a7
+  cpu_id: '0x410fc075'
+cortex-a8:
+  compatible: arm,cortex-a8
+  cpu_id: '0x410fc080'
+cortex-a9:
+  compatible: arm,cortex-a9
+  cpu_id: '0x410fc090'
+cortex-m0:
+  compatible: ''
+  cpu_id: '0x410cc200'
+cortex-m3:
+  compatible: ''
+  cpu_id: '0x410fc231'
+cortex-m33:
+  compatible: ''
+  cpu_id: '0x410fd213'
+cortex-m4:
+  compatible: ''
+  cpu_id: '0x410fc240'
+cortex-r5:
+  compatible: ''
+  cpu_id: '0x411fc153'
+cortex-r5f:
+  compatible: ''
+  cpu_id: '0x411fc153'
+max:
+  compatible: arm,cortex-a15
+  cpu_id: '0x412fc0f1'
+pxa250:
+  compatible: marvell,xscale
+  cpu_id: '0x69052100'
+pxa255:
+  compatible: marvell,xscale
+  cpu_id: '0x69052d00'
+pxa260:
+  compatible: marvell,xscale
+  cpu_id: '0x69052903'
+pxa261:
+  compatible: marvell,xscale
+  cpu_id: '0x69052d05'
+pxa262:
+  compatible: marvell,xscale
+  cpu_id: '0x69052d06'
+pxa270:
+  compatible: marvell,xscale
+  cpu_id: '0x69054110'
+pxa270-a0:
+  compatible: marvell,xscale
+  cpu_id: '0x69052d06'
+pxa270-a1:
+  compatible: marvell,xscale
+  cpu_id: '0x69054111'
+pxa270-b0:
+  compatible: marvell,xscale
+  cpu_id: '0x69054112'
+pxa270-b1:
+  compatible: marvell,xscale
+  cpu_id: '0x69054113'
+pxa270-c0:
+  compatible: marvell,xscale
+  cpu_id: '0x69054114'
+pxa270-c5:
+  compatible: marvell,xscale
+  cpu_id: '0x69054117'
+sa1100:
+  compatible: intel,sa1100
+  cpu_id: '0x4401A11B'
+sa1110:
+  compatible: ''
+  cpu_id: '0x6901B119'
+ti925t:
+  compatible: ''
+  cpu_id: '0x54029252'
