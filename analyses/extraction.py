@@ -20,7 +20,6 @@ class Extraction(Analysis):
             firmware.set_path_to_kernel(kernel)
             self.info(firmware, 'get kernel image {} at {}'.format(os.path.basename(kernel), kernel), 1)
             firmware.set_path_to_uimage(image_path)
-            firmware.set_path_to_dtb(None)
         elif image_type == 'fit uImage':
             kernel = replace_extension(image_path, 'fit', 'kernel')
             dtb = image_path.replace('uimage.fit', 'dtb')
@@ -47,7 +46,6 @@ class Extraction(Analysis):
                       '-a 0x1000 -e 0x80001000 {} >/dev/null 2>&1'.format(firmware.get_architecture(), kernel, uimage))
             print(uimage)
             firmware.set_path_to_uimage(uimage)
-            firmware.set_path_to_dtb(None)
         else:
             self.context['input'] = 'add support to this image type {}'.format(image_type)
             return False
