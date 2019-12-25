@@ -131,6 +131,7 @@ def setup_single_analysis(args, firmware):
     else:
         # load from the command line
         firmware.set_profile(path_to_profile=path_to_profile, first=True)
+        firmware.set_uuid(args.uuid)
         firmware.set_path(args.firmware)
         firmware.set_name(os.path.basename(args.firmware))
         firmware.size = os.path.getsize(args.firmware)
