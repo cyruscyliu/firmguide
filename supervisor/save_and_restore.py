@@ -6,39 +6,10 @@ import shutil
 from supervisor.logging_setup import logger_info
 
 
-def check_and_restore(firmware, **kwargs):
-    """
-    1. Check whether the wd exists or not, if not let first_time be true.
-    2. For the first time,
-        2.1 create the wd
-        2.2 create an analysis file for analysis process
-        2.3 create an empty device profile
-        2.4 copy firmware to the wd
-    3. To restore a previous task,
-        3.1 load the analysis file
-        3.2 load the device profile
-
-    :param firmware: the firmware.
-    :return: None
-    """
-    rerun = firmware.rerun
-
-    # check first time or not
-    first_time = True
-    if os.path.exists(firmware.working_directory):
-        first_time = False
-    if rerun:
-        first_time = True
-
-    # handle wd
-    os.makedirs(firmware.working_directory, exist_ok=True)
-
+def check_and_restore(firmware):
     # handle analysis
     analysis = os.path.join(firmware.working_directory, 'analysis')
-    if not os.path.exists(analysis):
-        first_time = True
-
-    if first_time:
+    if not os.path.exists(analysis) or firmware.rerun:
         with open(analysis, 'w') as f:
             f.close()
     with open(analysis, 'r') as f:
@@ -63,15 +34,24 @@ def check_and_restore(firmware, **kwargs):
             os.path.join(firmware.working_directory, 'qemu-4.0.0-patched.tar.xz')
         )
         os.system('tar --skip-old-files -Jxf {0}/qemu-4.0.0-patched.tar.xz -C {0}'.format(firmware.working_directory))
-        os.system('cd {0}/qemu-4.0.0 && ./configure --target-list=arm-softmmu,mipsel-softmmu >/dev/null'.format(
-            firmware.working_directory))
+
+        architecture = firmware.get_architecture()
+        endian = firmware.get_endian()
+        if architecture == 'arm':
+            target_list = 'arm-softmmu'  # support both b&l
+        elif architecture == 'mips':
+            if endian == 'l':
+                target_list = 'mipsel-softmmu'  # l
+            else:
+                target_list = 'mips-softmmu'  # b by default
+        else:
+            target_list = 'arm-softmmu,mipsel-softmmu,mips-softmmu'
+        os.system('cd {0}/qemu-4.0.0 && ./configure --target-list={1} >/dev/null 2>&1'.format(
+            firmware.working_directory, target_list))
         os.system('cd {0}/qemu-4.0.0 && make -j4'.format(firmware.working_directory))
 
     # logging
-    if first_time:
-        logger_info(firmware.get_uuid(), 'save_and_restore', 'first', firmware.brief(), 0)
-    else:
-        logger_info(firmware.get_uuid(), 'save_and_restore', 'restore', firmware.brief(), 0)
+    logger_info(firmware.get_uuid(), 'save_and_restore', 'begin', firmware.brief(), 0)
 
 
 def save_analysis(firmware):
@@ -95,19 +75,6 @@ def finish(firmware, analysis):
         firmware.analysis_progress[analysis.name] = 1
 
 
-def setup_working_dir(args, firmware):
-    # set the working directory
-    # but not actually create the dir or copy the file
-    if args.working_directory is None:
-        working_dir = tempfile.gettempdir()
-    else:
-        working_dir = os.path.realpath(args.working_directory)
-    target_dir = os.path.join(working_dir, firmware.get_uuid())
-    target_path = os.path.join(working_dir, firmware.get_uuid(), firmware.get_name())
-    firmware.set_working_dir(target_dir)
-    firmware.set_working_path(target_path)
-
-
 def setup_diagnosis(args, firmware):
     # 1 we need the trace
     firmware.path_to_trace = args.trace
@@ -116,37 +83,53 @@ def setup_diagnosis(args, firmware):
     firmware.uuid = 'diagnosis'
 
 
+def setup_working_directory(args, firmware):
+    # prepare working directory
+    if args.working_directory is None:
+        working_dir = tempfile.gettempdir()
+    else:
+        working_dir = os.path.realpath(args.working_directory)
+    target_dir = os.path.join(working_dir, firmware.uuid)
+    firmware.set_working_dir(target_dir)
+    os.makedirs(firmware.working_directory, exist_ok=True)
+
+
+def setup_working_path(firmware):
+    target_path = os.path.join(firmware.get_working_dir(), firmware.get_name())
+    firmware.set_working_path(target_path)
+
+
 def setup_code_generation(args, firmware):
-    # load from profile
+    # load the profile
     firmware.set_profile(path_to_profile=args.generation)
     firmware.uuid = firmware.get_uuid()
-    # 0 setup working directory
-    setup_working_dir(args, firmware)
-    # 1 ignore inference analysis
+    setup_working_directory(args, firmware)
+
+    setup_working_path(firmware)
     firmware.no_inference = True
-    # 2 avoid modify our well-defined profile
+    # avoid modify our well-defined profile
     extension = 'yaml' if args.profile == 'simple' else 'dt'
     firmware.path_to_profile = os.path.join(firmware.working_directory, 'profile.' + extension)
-    # 3 we still need the trace
+    # we still need the trace
     firmware.trace_format = args.trace_format
     firmware.path_to_trace = 'log/{}.trace'.format(firmware.get_uuid())
 
 
 def setup_single_analysis(args, firmware):
-    # 0 must assign the uuid
+    # must assign the uuid
     firmware.uuid = args.uuid
+    setup_working_directory(args, firmware)
 
     extension = 'yaml' if args.profile == 'simple' else 'dt'
     path_to_profile = os.path.join(args.working_directory, args.uuid, 'profile.' + extension)
 
-    if args.rerun:
-        # 1.1 load the profile
+    if os.path.exists(path_to_profile):
+        # load the profile
         firmware.set_profile(path_to_profile=path_to_profile)
         firmware.size = os.path.getsize(firmware.get_path())
-        firmware.rerun = True
-        setup_working_dir(args, firmware)
+        setup_working_path(firmware)
     else:
-        # 1.2 load from the command line
+        # load from the command line
         firmware.set_profile(path_to_profile=path_to_profile, first=True)
         firmware.set_path(args.firmware)
         firmware.set_name(os.path.basename(args.firmware))
@@ -154,8 +137,9 @@ def setup_single_analysis(args, firmware):
         firmware.set_architecture(args.architecture)
         firmware.set_endian(args.endian)
         firmware.set_brand(args.brand)
-        setup_working_dir(args, firmware)
+        setup_working_path(firmware)
 
     firmware.trace_format = args.trace_format
     firmware.path_to_trace = 'log/{}.trace'.format(firmware.get_uuid())
+    firmware.rerun = args.rerun
     firmware.do_not_diagnosis = args.quick
