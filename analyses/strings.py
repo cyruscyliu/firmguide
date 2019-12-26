@@ -161,15 +161,14 @@ class Strings(Analysis):
         logger_info(firmware.get_uuid(), 'analysis', 'strings',
                     'get the most possible subtarget {}'.format(most_possible), 1)
 
-    def find_uart_model_by_strings(self, firmware):
+    def find_uart(self, firmware):
+        flag = False
         for string in self.strings:
             if string.find('8250') != -1 or string.find('16550') != -1:
-                firmware.set_uart_name('ns16550A')
+                firmware.set_uart_name('ns16550A', int(firmware.get_uart_num()))
                 self.info(firmware, 'uart model {} found'.format('ns16550A'), 1)
+                flag = True
                 break
-
-    def find_uart_baud_rate_by_strings(self, firmware):
-        for string in self.strings:
             if string.find('root=') != -1:
                 # root=/dev/mtdblock1 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200\n
                 a, _, b = string.partition('console=')
@@ -177,9 +176,12 @@ class Strings(Analysis):
                     continue
                 else:
                     uart_baud = b.split(',')[1].strip()
-                    firmware.set_uart_baud_rate(uart_baud)
+                    firmware.set_uart_baud_rate(uart_baud, int(firmware.get_uart_num()))
                     self.info(firmware, 'uart baud {} found'.format(uart_baud), 1)
+                    flag = True
                     break
+        if flag:
+            firmware.set_uart_num(firmware.get_uart_num() + 1)
 
     def find_flash_type_by_strings(self, firmware):
         for string in self.strings:
@@ -418,8 +420,7 @@ class Strings(Analysis):
         self.search_most_possible_target(firmware)
         self.search_most_possible_subtarget(firmware)
 
-        self.find_uart_model_by_strings(firmware)
-        self.find_uart_baud_rate_by_strings(firmware)
+        self.find_uart(firmware)
         self.find_flash_type_by_strings(firmware)
 
         # cpu

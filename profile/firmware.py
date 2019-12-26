@@ -22,6 +22,9 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
         self.rerun = False
 
+    def init_profile(self):
+        self.set_uart_num(0)
+
     @abc.abstractmethod
     def load_uuid(self, *args, **kwargs):
         pass
@@ -136,6 +139,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         if first:
             self.create_empty_profile()
         self.load_from_profile()
+        self.init_profile()
 
     @abc.abstractmethod
     def create_empty_profile(self):
@@ -421,7 +425,15 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     # ==== uart ====
     def probe_uart(self, *args, **kwargs):
-        return self.get_uart_name() is not None
+        return int(self.get_uart_num()) > 0
+
+    @abc.abstractmethod
+    def set_uart_num(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_uart_num(self, *args, **kwargs):
+        pass
 
     @abc.abstractmethod
     def get_uart_name(self, *args, **kwargs):

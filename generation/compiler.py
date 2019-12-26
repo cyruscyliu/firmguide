@@ -443,7 +443,7 @@ class CompilerToQEMUMachine(object):
             self.info('solved abelia timer', 'compile')
         # uart
         if self.firmware.probe_uart():
-            self.resolve_uart(architecture, cpu_pp_model, ic_name)
+            self.resolve_uart()
         # flash
         if self.firmware.probe_flash():
             flash_type = self.firmware.get_flash_type()
@@ -475,17 +475,17 @@ class CompilerToQEMUMachine(object):
     def resolve_uart_irq_api(self, uart_irq):
         pass
 
-    def resolve_uart(self, architecture, cpu_pp_model, ic_name):
+    def resolve_uart(self):
         # get uarts information
         uart_num = self.firmware.get_uart_num()
         for i in range(0, uart_num):
-            uart_mmio_base = self.firmware.get_uart_mmio_base('uart@{}'.format(i))
+            uart_mmio_base = self.firmware.get_uart_mmio_base(i)
             self.check_analysis(uart_mmio_base, 'uart_mmio_base')
-            uart_baud_rate = self.firmware.get_uart_baud_rate('uart@{}'.format(i))
+            uart_baud_rate = self.firmware.get_uart_baud_rate(i)
             self.check_analysis(uart_baud_rate, 'uart_baud_rate')
-            uart_reg_shift = self.firmware.get_uart_reg_shift('uart@{}'.format(i))
+            uart_reg_shift = self.firmware.get_uart_reg_shift(i)
             self.check_analysis(uart_reg_shift, 'uart_reg_shift')
-            uart_irq = self.firmware.get_uart_irq('uart@{}'.format(i))
+            uart_irq = self.firmware.get_uart_irq(i)
             self.check_analysis(uart_irq, 'uart_irq')
 
             # resolve their IRQs

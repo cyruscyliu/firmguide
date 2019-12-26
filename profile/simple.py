@@ -13,22 +13,22 @@ class SimpleFirmware(Firmware):
         return self.get_general('basics', 'uuid')
 
     def set_uuid(self, *args, **kwargs):
-        self.set_general('basics', 'uuid', *args)
+        self.set_general('basics', 'uuid', value=args[0])
 
     def get_name(self, *args, **kwargs):
         return self.get_general('basics', 'name')
 
     def set_name(self, *args, **kwargs):
-        self.set_general('basics', 'name', *args)
+        self.set_general('basics', 'name', value=args[0])
 
     def get_path(self, *args, **kwargs):
         return self.get_general('basics', 'path')
 
     def set_path(self, *args, **kwargs):
-        self.set_general('basics', 'path', *args)
+        self.set_general('basics', 'path', value=args[0])
 
     def set_architecture(self, *args, **kwargs):
-        self.set_general('basics', 'architecture', *args)
+        self.set_general('basics', 'architecture', value=args[0])
 
     def get_architecture(self, *args, **kwargs):
         return self.get_general('basics', 'architecture')
@@ -37,46 +37,48 @@ class SimpleFirmware(Firmware):
         return self.get_general('basics', 'endian')
 
     def set_endian(self, *args, **kwargs):
-        self.set_general('basics', 'endian', *args)
+        self.set_general('basics', 'endian', value=args[0])
 
     def get_brand(self, *args, **kwargs):
         return self.get_general('basics', 'brand')
 
     def set_brand(self, *args, **kwargs):
-        self.set_general('basics', 'brand', *args)
+        self.set_general('basics', 'brand', value=args[0])
 
-    def set_general(self, l1, l2, *args):
-        value = args[0]
-        if l2 is not None:
-            if l1 not in self.profile:
-                self.profile[l1] = {}
-            self.profile[l1][l2] = value
-        else:
-            self.profile[l1] = value
+    def set_general(self, *levels, value=None):
+        # for loop not recursion
+        profile = self.profile
+        for level in levels[:-1]:
+            if level not in profile:
+                profile[level] = {}
+            profile = profile[level]
+        profile[levels[-1]] = value
 
-    def get_general(self, l1, l2):
-        try:
-            if l2 is not None:
-                return self.profile[l1][l2]
+    def get_general(self, *levels):
+        # for loop not recursion
+        profile = self.profile
+        for level in levels:
+            if level in profile:
+                profile = profile[level]
             else:
-                return self.profile[l1]
-        except KeyError:
-            return None
+                profile = None
+                break
+        return profile
 
     def set_path_to_llvm_bitcode(self, *args, **kwargs):
-        self.set_general('components', 'path_to_llvm_bitcode', *args)
+        self.set_general('components', 'path_to_llvm_bitcode', value=args[0])
 
     def get_path_to_llvm_bitcode(self, *args, **kwargs):
         return self.get_general('components', 'path_to_llvm_bitcode')
 
     def set_path_to_dot_config(self, *args, **kwargs):
-        self.set_general('components', 'path_to_dot_config', *args)
+        self.set_general('components', 'path_to_dot_config', value=args[0])
 
     def get_path_to_dot_config(self, *args, **kwargs):
         return self.get_general('components', 'path_to_dot_config')
 
     def set_path_to_uimage(self, *args, **kwargs):
-        self.set_general('components', 'path_to_uimage', *args)
+        self.set_general('components', 'path_to_uimage', value=args[0])
 
     def get_path_to_uimage(self, *args, **kwargs):
         return self.get_general('components', 'path_to_uimage')
@@ -85,40 +87,40 @@ class SimpleFirmware(Firmware):
         return self.get_general('basics', 'machine_description')
 
     def set_machine_description(self, *args, **kwargs):
-        self.set_general('basics', 'machine_description', *args)
+        self.set_general('basics', 'machine_description', value=args[0])
 
     def get_machine_name(self, *args, **kwargs):
         return self.get_general('basics', 'machine_name')
 
     def set_machine_name(self, *args, **kwargs):
-        self.set_general('basics', 'machine_name', *args)
+        self.set_general('basics', 'machine_name', value=args[0])
 
     def get_board_id(self, *args, **kwargs):
         return self.get_general('basics', 'board_id')
 
     def set_board_id(self, *args, **kwargs):
-        self.set_general('basics', 'board_id', *args)
+        self.set_general('basics', 'board_id', value=args[0])
 
     def get_cpu_pp_name(self, *args, **kwargs):
         return self.get_general('cpu_pp', 'name')
 
     def set_cpu_pp_name(self, *args, **kwargs):
-        self.set_general('cpu_pp', 'name', *args)
+        self.set_general('cpu_pp', 'name', value=args[0])
 
     def get_cpu_pp_mmio_base(self, *args, **kwargs):
         return self.get_general('cpu_pp', 'mmio_base')
 
     def set_cpu_pp_mmio_base(self, *args, **kwargs):
-        self.set_general('cpu_pp', 'mmio_base', *args)
+        self.set_general('cpu_pp', 'mmio_base', value=args[0])
 
     def get_ram_priority(self, *args, **kwargs):
         return self.get_general('ram', 'priority')
 
     def set_ram_priority(self, *args, **kwargs):
-        self.set_general('ram', 'priority', *args)
+        self.set_general('ram', 'priority', value=args[0])
 
     def set_ram_base(self, *args, **kwargs):
-        self.set_general('ram', 'base', *args)
+        self.set_general('ram', 'base', value=args[0])
 
     def get_ram_base(self, *args, **kwargs):
         return self.get_general('ram', 'base')
@@ -127,25 +129,25 @@ class SimpleFirmware(Firmware):
         return self.get_general('ram', 'size')
 
     def set_ram_size(self, *args, **kwargs):
-        self.set_general('ram', 'size', *args)
+        self.set_general('ram', 'size', value=args[0])
 
     def get_bridge_name(self, *args, **kwargs):
         return self.get_general('bridge', 'name')
 
     def set_bridge_name(self, *args, **kwargs):
-        self.set_general('bridge', 'name', *args)
+        self.set_general('bridge', 'name', value=args[0])
 
     def get_bridge_mmio_base(self, *args, **kwargs):
         return self.get_general('bridge', 'mmio_base')
 
     def set_bridge_mmio_base(self, *args, **kwargs):
-        self.set_general('bridge', 'mmio_base', *args)
+        self.set_general('bridge', 'mmio_base', value=args[0])
 
     def get_bridge_mmio_size(self, *args, **kwargs):
         return self.get_general('bridge', 'mmio_size')
 
     def set_bridge_mmio_size(self, *args, **kwargs):
-        self.set_general('bridge', 'mmio_size', *args)
+        self.set_general('bridge', 'mmio_size', value=args[0])
 
     def get_bridge_registers(self, *args, **kwargs):
         return self.get_general('bridge', 'registers')
@@ -154,37 +156,37 @@ class SimpleFirmware(Firmware):
         return self.get_general('interrupt_controller', 'name')
 
     def set_interrupt_controller_name(self, *args, **kwargs):
-        self.set_general('interrupt_controller', 'name', *args)
+        self.set_general('interrupt_controller', 'name', value=args[0])
 
     def get_interrupt_controller_registers(self, *args, **kwargs):
         return self.get_general('interrupt_controller', 'registers')
 
     def set_interrupt_controller_registers(self, *args, **kwargs):
-        self.set_general('interrupt_controller', 'registers', *args)
+        self.set_general('interrupt_controller', 'registers', value=args[0])
 
     def get_interrupt_controller_mmio_size(self, *args, **kwargs):
         return self.get_general('interrupt_controller', 'mmio_size')
 
     def set_interrupt_controller_mmio_size(self, *args, **kwargs):
-        self.set_general('interrupt_controller', 'mmio_size', *args)
+        self.set_general('interrupt_controller', 'mmio_size', value=args[0])
 
     def get_interrupt_controller_mmio_base(self, *args, **kwargs):
         return self.get_general('interrupt_controller', 'mmio_base')
 
     def set_interrupt_controller_mmio_base(self, *args, **kwargs):
-        self.set_general('interrupt_controller', 'mmio_base', *args)
+        self.set_general('interrupt_controller', 'mmio_base', value=args[0])
 
     def get_n_irqs(self, *args, **kwargs):
         return self.get_general('interrupt_controller', 'n_irqs')
 
     def set_n_irqs(self, *args, **kwargs):
-        self.set_general('interrupt_controller', 'n_irqs', *args)
+        self.set_general('interrupt_controller', 'n_irqs', value=args[0])
 
     def get_timer_name(self, *args, **kwargs):
         return self.get_general('timer', 'name')
 
     def set_timer_name(self, *args, **kwargs):
-        self.set_general('timer', 'name', *args)
+        self.set_general('timer', 'name', value=args[0])
 
     def get_timer_registers(self, *args, **kwargs):
         return self.get_general('timer', 'registers')
@@ -196,55 +198,71 @@ class SimpleFirmware(Firmware):
         return self.get_general('timer', 'mmio_size')
 
     def set_timer_mmio_size(self, *args, **kwargs):
-        self.set_general('timer', 'mmio_size', *args)
+        self.set_general('timer', 'mmio_size', value=args[0])
 
     def get_timer_mmio_base(self, *args, **kwargs):
         return self.get_general('timer', 'mmio_base')
 
     def set_timer_mmio_base(self, *args, **kwargs):
-        self.set_general('timer', 'mmio_base', *args)
+        self.set_general('timer', 'mmio_base', value=args[0])
+
+    def set_uart_num(self, *args, **kwargs):
+        self.set_general('uart', 'num', value=args[0])
+
+    def get_uart_num(self, *args, **kwargs):
+        return self.get_general('uart', 'num')
 
     def get_uart_name(self, *args, **kwargs):
-        return self.get_general('uart', 'name')
+        uart_index = args[1]
+        return self.get_general('uart', 'uart@{}'.format(uart_index), 'name')
 
     def set_uart_name(self, *args, **kwargs):
-        self.set_general('uart', 'name', *args)
+        uart_index = args[1]
+        self.set_general('uart', 'uart@{}'.format(uart_index), 'name', value=args[0])
 
     def get_uart_mmio_base(self, *args, **kwargs):
-        return self.get_general('uart', 'mmio_base')
+        uart_index = args[1]
+        return self.get_general('uart', 'uart@{}'.format(uart_index), 'mmio_base')
 
     def set_uart_mmio_base(self, *args, **kwargs):
-        self.set_general('uart', 'mmio_base', *args)
+        uart_index = args[1]
+        self.set_general('uart', 'uart@{}'.format(uart_index), 'mmio_base', value=args[0])
 
     def get_uart_baud_rate(self, *args, **kwargs):
-        return self.get_general('uart', 'baud_rate')
+        uart_index = args[1]
+        return self.get_general('uart', 'uart@{}'.format(uart_index), 'baud_rate')
 
     def set_uart_baud_rate(self, *args, **kwargs):
-        self.set_general('uart', 'baud_rate', *args)
+        uart_index = args[1]
+        self.set_general('uart', 'uart@{}'.format(uart_index), 'baud_rate', value=args[0])
 
     def get_uart_reg_shift(self, *args, **kwargs):
-        return self.get_general('uart', 'reg_shift')
+        uart_index = args[1]
+        return self.get_general('uart', 'uart@{}'.format(uart_index), 'reg_shift')
 
     def set_uart_reg_shift(self, *args, **kwargs):
-        self.set_general('uart', 'reg_shift', *args)
+        uart_index = args[1]
+        self.set_general('uart', 'uart@{}'.format(uart_index), 'reg_shift', value=args[0])
 
     def get_uart_irq(self, *args, **kwargs):
-        return self.get_general('uart', 'irq')
+        uart_index = args[1]
+        return self.get_general('uart', 'uart@{}'.format(uart_index), 'irq')
 
     def set_uart_irq(self, *args, **kwargs):
-        self.set_general('uart', 'irq', *args)
+        uart_index = args[1]
+        self.set_general('uart', 'uart@{}'.format(uart_index), 'irq', value=args[0])
 
     def get_flash_base(self, *args, **kwargs):
         return self.get_general('flash', 'base')
 
     def set_flash_base(self, *args, **kwargs):
-        self.set_general('flash', 'base', *args)
+        self.set_general('flash', 'base', value=args[0])
 
     def get_flash_section_size(self, *args, **kwargs):
         return self.get_general('flash', 'section_size')
 
     def set_flash_section_size(self, *args, **kwargs):
-        self.set_general('flash', 'section_size', *args)
+        self.set_general('flash', 'section_size', value=args[0])
         pass
 
     def get_bamboo_devices(self, *args, **kwargs):
@@ -258,43 +276,43 @@ class SimpleFirmware(Firmware):
         return 'bridge' in self.profile
 
     def set_url(self, *args, **kwargs):
-        self.set_general('brand', 'url', *args)
+        self.set_general('brand', 'url', value=args[0])
 
     def get_url(self, *args, **kwargs):
         return self.get_general('brand', 'url')
 
     def set_format(self, *args, **kwargs):
-        self.set_general('components', 'format', *args)
+        self.set_general('components', 'format', value=args[0])
 
     def get_format(self, *args, **kwargs):
         return self.get_general('components', 'format')
 
     def set_homepage(self, *args, **kwargs):
-        self.set_general('brand', 'homepage', *args)
+        self.set_general('brand', 'homepage', value=args[0])
 
     def get_homepage(self, *args, **kwargs):
         return self.get_general('brand', 'homepage')
 
     def set_description(self, *args, **kwargs):
-        self.set_general('basics', 'description', *args)
+        self.set_general('basics', 'description', value=args[0])
 
     def get_description(self, *args, **kwargs):
         return self.get_general('basics', 'description')
 
     def set_path_to_image(self, *args, **kwargs):
-        self.set_general('components', 'path_to_image', *args)
+        self.set_general('components', 'path_to_image', value=args[0])
 
     def get_path_to_image(self, *args, **kwargs):
         return self.get_general('components', 'path_to_image')
 
     def set_path_to_kernel(self, *args, **kwargs):
-        self.set_general('components', 'path_to_kernel', *args)
+        self.set_general('components', 'path_to_kernel', value=args[0])
 
     def get_path_to_kernel(self, *args, **kwargs):
         return self.get_general('components', 'path_to_kernel')
 
     def set_path_to_dtb(self, *args, **kwargs):
-        self.set_general('components', 'path_to_dtb', *args)
+        self.set_general('components', 'path_to_dtb', value=args[0])
 
     def get_path_to_dtb(self, *args, **kwargs):
         return self.get_general('components', 'path_to_dtb')
@@ -319,10 +337,10 @@ class SimpleFirmware(Firmware):
         return self.get_general('flash', 'size')
 
     def set_flash_size(self, *args, **kwargs):
-        self.set_general('flash', 'size', *args)
+        self.set_general('flash', 'size', value=args[0])
 
     def set_flash_type(self, *args, **kwargs):
-        self.set_general('flash', 'type', *args)
+        self.set_general('flash', 'type', value=args[0])
 
     def get_flash_type(self, *args, **kwargs):
         return self.get_general('flash', 'type')
@@ -347,49 +365,49 @@ class SimpleFirmware(Firmware):
         return self.get_general('brand', 'revision')
 
     def set_revision(self, *args, **kwargs):
-        self.set_general('brand', 'revision', *args)
+        self.set_general('brand', 'revision', value=args[0])
 
     def get_target(self, *args, **kwargs):
         return self.get_general('brand', 'target')
 
     def set_target(self, *args, **kwargs):
-        self.set_general('brand', 'target', *args)
+        self.set_general('brand', 'target', value=args[0])
 
     def get_subtarget(self, *args, **kwargs):
         return self.get_general('brand', 'subtarget')
 
     def set_subtarget(self, *args, **kwargs):
-        self.set_general('brand', 'subtarget', *args)
+        self.set_general('brand', 'subtarget', value=args[0])
 
     def get_kernel_load_address(self, *args, **kwargs):
         return self.get_general('kernel', 'kernel_load_address')
 
     def set_kernel_load_address(self, *args, **kwargs):
-        self.set_general('kernel', 'kernel_load_address', *args)
+        self.set_general('kernel', 'kernel_load_address', value=args[0])
 
     def get_kernel_version(self, *args, **kwargs):
         return self.get_general('kernel', 'kernel_version')
 
     def set_kernel_version(self, *args, **kwargs):
-        self.set_general('kernel', 'kernel_version', *args)
+        self.set_general('kernel', 'kernel_version', value=args[0])
 
     def get_kernel_created_time(self, *args, **kwargs):
         return self.get_general('kernel', 'kernel_created_time')
 
     def set_kernel_created_time(self, *args, **kwargs):
-        self.set_general('kernel', 'kernel_created_time', *args)
+        self.set_general('kernel', 'kernel_created_time', value=args[0])
 
     def get_kernel_entry_point(self, *args, **kwargs):
         return self.get_general('kernel', 'kernel_entry_point')
 
     def set_kernel_entry_point(self, *args, **kwargs):
-        self.set_general('kernel', 'kernel_entry_point', *args)
+        self.set_general('kernel', 'kernel_entry_point', value=args[0])
 
     def get_cpu_model(self, *args, **kwargs):
         return self.get_general('cpu', 'model')
 
     def set_cpu_model(self, *args, **kwargs):
-        self.set_general('cpu', 'model', *args)
+        self.set_general('cpu', 'model', value=args[0])
 
     def __init__(self, *args, **kwargs):
         super(SimpleFirmware, self).__init__(*args, **kwargs)

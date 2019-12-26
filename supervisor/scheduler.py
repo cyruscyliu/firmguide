@@ -14,8 +14,8 @@ from analyses.kernel import Kernel
 from analyses.openwrt import OpenWRTRevision, OpenWRTURL, OpenWRTToH
 from analyses.srcode import SRCode
 from analyses.strings import Strings
-from generation.compiler import CompilerToQEMUMachine
-from profile.pff import get_firmware_in_profile
+from generation.compilerf import get_compiler
+from profile.firmwaref import get_firmware_in_profile
 from supervisor.logging_setup import logger_info, logger_warning
 from supervisor.save_and_restore import check_and_restore, save_analysis, setup_diagnosis, setup_code_generation, \
     setup_single_analysis
@@ -90,7 +90,7 @@ def analysis_wrapper(firmware):
 
         while not firmware.do_not_diagnosis:  # exit early
             # perform code generation
-            machine_compiler = CompilerToQEMUMachine(firmware)
+            machine_compiler = get_compiler(firmware)
             machine_compiler.solve()
             machine_compiler.link_and_install()
             running_command = machine_compiler.make()
