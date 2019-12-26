@@ -3,6 +3,7 @@ import abc
 
 from generation.common import to_state, to_mmio, to_ops, indent, to_type, to_read, to_write, to_update, \
     to_header, to_upper, to_cpu_pp_state, to_cpu_pp_type, concat, to_irq
+from generation.preprocessor import PreProcessor
 from generation.render import Template
 from supervisor.logging_setup import logger_info, logger_debugging
 
@@ -19,7 +20,7 @@ class CompilerToQEMUMachine(object):
             'root': 'build/qemu-4.0.0',
             'machine': {'arm': 'hw/arm', 'mips': 'hw/mips', 'timer': 'hw/timer', 'interrupt_controller': 'hw/intc',
                         'bridge': 'hw/arm'},
-            'configs': {'arm': 'default-configs/arm-softmmu.mak', 'mips': 'default-configs/mipsel-softmmu.mak'},
+            'configs': {'arm': 'default-configs/arm-softmmu.mak', 'mips': 'default-configs/mips-softmmu.mak'},
             'kconfig': {'arm': 'hw/arm/Kconfig', 'mips': 'hw/mips/Kconfig'},
             'makefile': {'arm': 'hw/arm/Makefile.objs', 'mips': 'hw/mips/Makefile.objs',
                          'timer': 'hw/timer/Makefile.objs', 'interrupt_controller': 'hw/intc/Makefile.objs'}
@@ -33,6 +34,17 @@ class CompilerToQEMUMachine(object):
         self.custom_devices = {'timer': {'source': [], 'header': []},
                                'interrupt_controller': {'source': [], 'header': []},
                                'bridge': {'source': [], 'header': []}}
+
+        self.preprocessor = PreProcessor(firmware)
+
+        # common part
+        if firmware.get_endian() == 'l':
+            self.endianness = 'DEVICE_LITTLE_ENDIAN'
+        else:
+            self.endianness = 'DEVICE_BIG_ENDIAN'
+        self.architecture = firmware.get_architecture()
+        self.cpu_pp_model = self.firmware.probe_cpu_pp_model()
+        self.interrupt_controller = self.firmware.probe_interrupt_controller()
 
     def check_analysis(self, to_be_checked, name):
         if to_be_checked is None:
@@ -195,7 +207,12 @@ class CompilerToQEMUMachine(object):
         if self.firmware.get_architecture() == 'arm':
             running_command = '{}/qemu-4.0.0/arm-softmmu/qemu-system-arm'.format(self.firmware.get_working_dir())
         elif self.firmware.get_architecture() == 'mips':
-            running_command = '{}/qemu-4.0.0/mipsel-softmmu/qemu-system-mipsel'.format(self.firmware.get_working_dir())
+            if self.firmware.get_endian() == 'l':
+                running_command = '{}/qemu-4.0.0/mipsel-softmmu/qemu-system-mipsel'.format(
+                    self.firmware.get_working_dir())
+            else:
+                running_command = '{}/qemu-4.0.0/mips-softmmu/qemu-system-mips'.format(
+                    self.firmware.get_working_dir())
         else:
             raise NotImplementedError()
         machine_name = self.firmware.get_machine_name()
@@ -217,6 +234,7 @@ class CompilerToQEMUMachine(object):
         return running_command
 
     def solve(self):
+        self.preprocessor.preprocess()
         self.solve_machine_includings()
         self.solve_machine_defines()
         self.solve_machine_struct()
@@ -425,34 +443,7 @@ class CompilerToQEMUMachine(object):
             self.info('solved abelia timer', 'compile')
         # uart
         if self.firmware.probe_uart():
-            uart_mmio_base = self.firmware.get_uart_mmio_base()
-            self.check_analysis(uart_mmio_base, 'uart_mmio_base')
-            uart_baud_rate = self.firmware.get_uart_baud_rate()
-            self.check_analysis(uart_baud_rate, 'uart_baud_rate')
-            uart_reg_shift = self.firmware.get_uart_reg_shift()
-            self.check_analysis(uart_reg_shift, 'uart_reg_shift')
-            uart_irq = self.firmware.get_uart_irq()
-            self.check_analysis(uart_irq, 'uart_irq')
-
-            if cpu_pp_model:
-                if architecture == 'arm':
-                    uart_irq_api = 'qdev_get_gpio_in(DEVICE(&s->cpu_pp), {})'.format(uart_irq)
-                elif architecture == 'mips':
-                    uart_irq_api = 's->cpu->env.irq[{}]'.format(uart_irq)
-                else:
-                    raise NotImplementedError()
-            else:
-                if not self.firmware.probe_interrupt_controller():
-                    raise NotImplementedError(self.feedback('analysis', 'interrupt_controller_name'))
-                uart_irq_api = 'qdev_get_gpio_in_named(DEVICE(&s->ic), {}, {})'.format(to_irq(ic_name), uart_irq)
-
-            self.machine['includings'].extend(['hw/char/serial.h'])
-            self.machine_init['body'].extend([
-                indent(
-                    'serial_mm_init(get_system_memory(), {}, {}, {}, {}, serial_hd(0), DEVICE_LITTLE_ENDIAN);'.format(
-                        uart_mmio_base, uart_reg_shift, uart_irq_api, uart_baud_rate))
-            ])
-            self.info('solved abelia uart', 'compile')
+            self.resolve_uart(architecture, cpu_pp_model, ic_name)
         # flash
         if self.firmware.probe_flash():
             flash_type = self.firmware.get_flash_type()
@@ -479,6 +470,33 @@ class CompilerToQEMUMachine(object):
             else:
                 raise NotImplementedError()
             self.info('soved abelia flash', 'compile')
+
+    @abc.abstractmethod
+    def resolve_uart_irq_api(self, uart_irq):
+        pass
+
+    def resolve_uart(self, architecture, cpu_pp_model, ic_name):
+        # get uarts information
+        uart_num = self.firmware.get_uart_num()
+        for i in range(0, uart_num):
+            uart_mmio_base = self.firmware.get_uart_mmio_base('uart@{}'.format(i))
+            self.check_analysis(uart_mmio_base, 'uart_mmio_base')
+            uart_baud_rate = self.firmware.get_uart_baud_rate('uart@{}'.format(i))
+            self.check_analysis(uart_baud_rate, 'uart_baud_rate')
+            uart_reg_shift = self.firmware.get_uart_reg_shift('uart@{}'.format(i))
+            self.check_analysis(uart_reg_shift, 'uart_reg_shift')
+            uart_irq = self.firmware.get_uart_irq('uart@{}'.format(i))
+            self.check_analysis(uart_irq, 'uart_irq')
+
+            # resolve their IRQs
+            uart_irq_api = self.resolve_uart_irq_api(uart_irq)
+            self.machine_init['body'].extend([
+                indent(
+                    'serial_mm_init(get_system_memory(), {}, {}, {}, {}, serial_hd({}), {});'.format(
+                        uart_mmio_base, uart_reg_shift, uart_irq_api, uart_baud_rate, i, self.endianness))
+            ])
+        self.machine['includings'].extend(['hw/char/serial.h'])
+        self.info('resolved abelia uart', 'compile')
 
     def solve_bamboo_devices(self):
         machine_name = self.firmware.get_machine_name()
@@ -574,7 +592,7 @@ class CompilerToQEMUMachine(object):
             ops['values'].extend([
                 indent('.read = {},'.format(to_read(name)), 1),
                 indent('.write = {},'.format(to_write(name)), 1),
-                indent('.endianness = DEVICE_NATIVE_ENDIAN,', 1)
+                indent('.endianness = {},'.format(self.endianness), 1)
             ])
             self.machine_mmio_ops.append(ops)
 
@@ -709,7 +727,7 @@ class CompilerToQEMUMachine(object):
             '    /* mc->option_rom_has_mr = ; */',
             '    /* mc->minimum_page_bits = ; */',
             '    /* mc->has_hotpluggable_cpus = ; */',
-            '    mc->ignore_memory_transaction_failures = true;',
+            '    mc->ignore_memory_transaction_failures = false;',
             '    /* mc->numa_mem_align_shift = ; */',
             '    /* mc->valid_cpu_types = ; */',
             '    /* mc->allowed_dynamic_sysbus_devices = ; */',
