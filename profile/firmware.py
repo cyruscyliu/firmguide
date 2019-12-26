@@ -22,8 +22,15 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
         self.rerun = False
 
+    @abc.abstractmethod
+    def load_uuid(self, *args, **kwargs):
+        pass
+
     def get_uuid(self, *args, **kwargs):
-        return self.uuid
+        if self.uuid is None:
+            return self.load_uuid()
+        else:
+            return self.uuid
 
     @abc.abstractmethod
     def set_uuid(self, *args, **kwargs):

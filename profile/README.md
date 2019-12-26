@@ -2,8 +2,12 @@
 
 ### Device Tree
 
-We refer to [this](https://www.devicetree.org) and
-[device tree in yaml](https://lwn.net/Articles/730217).
+We refer to [this](https://www.devicetree.org),
+[device tree in yaml](https://lwn.net/Articles/730217), 
+[json v.s. yaml](https://elinux.org/Device_tree_kernel_summit_2017_action_items),
+[mail list](https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1503361.html),
+and the [yamlldt](https://github.com/pantoniou/yamldt).
+
 
 ### IP-XACT
 
@@ -17,27 +21,6 @@ knowledge about the key details defining IP components.
 
 ### Format
 
-To simplify the code generation task, 
-we define our device format using yaml syntax and Device Tree syntax as below.
-
-#### YAML Syntax
-
+To simplify the code generation task, we define our device format using yaml syntax as below.
 Take [2b38a3.yaml](../tests/files/2b38a3.yaml), [ec5859.yaml](../tests/files/ec5859.yaml), 
 and [9874f6.yaml](../tests/files/9874f6.yaml) as examples.
-
-#### Device Tree Syntax
-Take [2b38a3.dt](../tests/files/2b38a3.dt), [ec5859.dt](../tests/files/ec5859.dt), 
-and [9874f6.dt](../tests/files/9874f6.dt) as examples.
-
-### Converting
-
-We support the converting between different formats of device profiles.
-
-```shell script
-./profile/convert.py -I simple -O dt tests/files/ec5859.yaml
-./profile/convert.py -I simple -O dt tests/files/2b38a3.yaml
-./profile/convert.py -I simple -O dt tests/files/9874f6.yaml
-./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o 2b38a3.yaml # to avoid override
-./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o 2b38a3.yaml # to avoid override
-./profile/convert.py -I dt -O simple tests/files/9874f6.dt -o 9874f6.yaml # to avoid override
-```

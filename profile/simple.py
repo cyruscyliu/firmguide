@@ -9,6 +9,9 @@ from profile.firmware import Firmware
 
 
 class SimpleFirmware(Firmware):
+    def load_uuid(self, *args, **kwargs):
+        return self.get_general('basics', 'uuid')
+
     def set_uuid(self, *args, **kwargs):
         self.set_general('basics', 'uuid', *args)
 
@@ -245,7 +248,11 @@ class SimpleFirmware(Firmware):
         pass
 
     def get_bamboo_devices(self, *args, **kwargs):
-        return self.get_general('bamboo', None)
+        bamboo = self.get_general('bamboo', None)
+        if bamboo is None:
+            return []
+        else:
+            return bamboo
 
     def probe_bridge(self):
         return 'bridge' in self.profile
@@ -284,7 +291,7 @@ class SimpleFirmware(Firmware):
         self.set_general('components', 'path_to_kernel', *args)
 
     def get_path_to_kernel(self, *args, **kwargs):
-        return self.get_description('components', 'path_to_kernel')
+        return self.get_general('components', 'path_to_kernel')
 
     def set_path_to_dtb(self, *args, **kwargs):
         self.set_general('components', 'path_to_dtb', *args)

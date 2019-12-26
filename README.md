@@ -93,9 +93,9 @@ Before using salamander, you must prepare your firmware and provide information 
 To test your firmware, simply run your command as shown in the example. And the first run may be slow.
 
 ```shell script
-./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ../salamander-build -p simple
-./salamander.py -f tests/files/ec5859.bin -u 15007 -a arm -e l -b openwrt -wd ../salamander-build -p simple
-./salamander.py -f tests/files/9874f6.bin -u 14292 -a mips -e l -b openwrt -wd ../salamander-build -p simple
+./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ../salamander-build
+./salamander.py -f tests/files/ec5859.bin -u 15007 -a arm -e l -b openwrt -wd ../salamander-build
+./salamander.py -f tests/files/9874f6.bin -u 14292 -a mips -e l -b openwrt -wd ../salamander-build
 ```
 
 #### Re-Analysis
@@ -103,9 +103,9 @@ To test your firmware, simply run your command as shown in the example. And the 
 Sometimes we would like to re-analysis the whole firmware. The solution is using `-r` in your command line.
 
 ```shell script
-./salamander.py -u 13882 -wd ../salamander-build -p simple -r
-./salamander.py -u 15007 -wd ../salamander-build -p simple -r 
-./salamander.py -u 14292 -wd ../salamander-build -p simple -r
+./salamander.py -u 13882 -wd ../salamander-build -r
+./salamander.py -u 15007 -wd ../salamander-build -r 
+./salamander.py -u 14292 -wd ../salamander-build -r
 ```
 
 #### Device Profile
@@ -115,29 +115,18 @@ The solution is using `-q` in your command line.
 
 ````shell script
 # for the first time
-./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ../salamander-build -p simple -q
+./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ../salamander-build -q
 # later use a shorter command
-./salamander.py -u 13882 -wd ../salamander-build -p simple -q
+./salamander.py -u 13882 -wd ../salamander-build -q
 ````
 
 And, in other situation, if we already have the device profile, we want to generation QEMU code directly.
 BTW, the architecture information is still necessary. Still, the first run may be slow.
 
 ```shell script
-./salamander.py -g tests/files/2b38a3.yaml -wd ../salamander-build/ -p simple
-./salamander.py -g tests/files/ec5859.yaml -wd ../salamander-build/ -p simple
-./salamander.py -g tests/files/9874f6.yaml -wd ../salamander-build/ -p simple
-```
-
-BTW, we support the converting between different formats of device profiles.
-
-```shell script
-./profile/convert.py -I simple -O dt tests/files/ec5859.yaml -o /tmp/ec5859.dt
-./profile/convert.py -I simple -O dt tests/files/2b38a3.yaml -o /tmp/2b38a3.dt
-./profile/convert.py -I simple -O dt tests/files/9874f6.yaml -o /tmp/9874f6.dt
-./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o /tmp/2b38a3.yaml
-./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o /tmp/2b38a3.yaml
-./profile/convert.py -I dt -O simple tests/files/9874f6.dt -o /tmp/9874f6.yaml
+./salamander.py -g tests/files/2b38a3.yaml -wd ../salamander-build/
+./salamander.py -g tests/files/ec5859.yaml -wd ../salamander-build/
+./salamander.py -g tests/files/9874f6.yaml -wd ../salamander-build/
 ```
 
 #### Diagnosis
