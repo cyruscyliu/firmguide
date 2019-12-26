@@ -1,3 +1,4 @@
+# target/arm/cpu.c
 arm1026:
   compatible: arm,arm1026
   cpu_id: '0x4106a262'
