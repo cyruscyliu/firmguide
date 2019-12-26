@@ -213,7 +213,7 @@ class SimpleFirmware(Firmware):
         return self.get_general('uart', 'num')
 
     def get_uart_name(self, *args, **kwargs):
-        uart_index = args[1]
+        uart_index = args[0]
         return self.get_general('uart', 'uart@{}'.format(uart_index), 'name')
 
     def set_uart_name(self, *args, **kwargs):
@@ -221,7 +221,7 @@ class SimpleFirmware(Firmware):
         self.set_general('uart', 'uart@{}'.format(uart_index), 'name', value=args[0])
 
     def get_uart_mmio_base(self, *args, **kwargs):
-        uart_index = args[1]
+        uart_index = args[0]
         return self.get_general('uart', 'uart@{}'.format(uart_index), 'mmio_base')
 
     def set_uart_mmio_base(self, *args, **kwargs):
@@ -229,7 +229,7 @@ class SimpleFirmware(Firmware):
         self.set_general('uart', 'uart@{}'.format(uart_index), 'mmio_base', value=args[0])
 
     def get_uart_baud_rate(self, *args, **kwargs):
-        uart_index = args[1]
+        uart_index = args[0]
         return self.get_general('uart', 'uart@{}'.format(uart_index), 'baud_rate')
 
     def set_uart_baud_rate(self, *args, **kwargs):
@@ -237,7 +237,7 @@ class SimpleFirmware(Firmware):
         self.set_general('uart', 'uart@{}'.format(uart_index), 'baud_rate', value=args[0])
 
     def get_uart_reg_shift(self, *args, **kwargs):
-        uart_index = args[1]
+        uart_index = args[0]
         return self.get_general('uart', 'uart@{}'.format(uart_index), 'reg_shift')
 
     def set_uart_reg_shift(self, *args, **kwargs):
@@ -245,7 +245,7 @@ class SimpleFirmware(Firmware):
         self.set_general('uart', 'uart@{}'.format(uart_index), 'reg_shift', value=args[0])
 
     def get_uart_irq(self, *args, **kwargs):
-        uart_index = args[1]
+        uart_index = args[0]
         return self.get_general('uart', 'uart@{}'.format(uart_index), 'irq')
 
     def set_uart_irq(self, *args, **kwargs):

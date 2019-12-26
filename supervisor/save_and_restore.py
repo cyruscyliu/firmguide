@@ -121,7 +121,7 @@ def setup_single_analysis(args, firmware):
     setup_working_directory(args, firmware)
 
     extension = 'yaml' if args.profile == 'simple' else 'dt'
-    path_to_profile = os.path.join(args.working_directory, args.uuid, 'profile.' + extension)
+    path_to_profile = os.path.join(firmware.working_directory, 'profile.' + extension)
 
     if os.path.exists(path_to_profile):
         # load the profile
