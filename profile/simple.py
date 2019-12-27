@@ -232,6 +232,14 @@ class SimpleFirmware(Firmware):
         uart_index = args[1]
         self.set_general('uart', 'uart@{}'.format(uart_index), 'name', value=args[0])
 
+    def get_uart_mmio_size(self, *args, **kwargs):
+        uart_index = args[0]
+        return self.get_general('uart', 'uart@{}'.format(uart_index), 'mmio_size')
+
+    def set_uart_mmio_size(self, *args, **kwargs):
+        uart_index = args[1]
+        self.set_general('uart', 'uart@{}'.format(uart_index), 'mmio_size', value=args[0])
+
     def get_uart_mmio_base(self, *args, **kwargs):
         uart_index = args[0]
         return self.get_general('uart', 'uart@{}'.format(uart_index), 'mmio_base')

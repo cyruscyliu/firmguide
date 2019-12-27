@@ -461,6 +461,14 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
+    def get_uart_mmio_size(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_uart_mmio_size(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def get_uart_mmio_base(self, *args, **kwargs):
         pass
 

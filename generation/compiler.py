@@ -320,6 +320,7 @@ class CompilerToQEMUMachine(object):
         ])
         self.info('solved abelia ram', 'compile')
         # interrupt controller
+
         if not cpu_pp_model and self.firmware.probe_interrupt_controller():
             ic_name = self.firmware.get_interrupt_controller_name()
             self.check_analysis(ic_name, 'interrupt_controller_name')
@@ -452,11 +453,11 @@ class CompilerToQEMUMachine(object):
             self.machine_init['declaration'].extend([indent('DriveInfo *dinfo;', 1)])
             if flash_type == 'nor':
                 flash_base = self.firmware.get_flash_base()
-                self.check_analysis(flash_type, 'flash_base')
+                self.check_analysis(flash_base, 'flash_base')
                 flash_size = self.firmware.get_flash_size()
-                self.check_analysis(flash_type, 'flash_size')
+                self.check_analysis(flash_size, 'flash_size')
                 flash_section_size = self.firmware.get_flash_section_size()
-                self.check_analysis(flash_type, 'flash_section_size')
+                self.check_analysis(flash_section_size, 'flash_section_size')
                 self.machine_init['body'].extend([
                     indent('dinfo = drive_get(IF_PFLASH, 0, 0);', 1),
                     indent('pflash_cfi01_register({}, "flash", {}, dinfo ? blk_by_legacy_dinfo(dinfo): NULL, '
