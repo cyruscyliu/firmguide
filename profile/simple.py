@@ -65,6 +65,12 @@ class SimpleFirmware(Firmware):
                 break
         return profile
 
+    def set_path_to_vmlinux(self, *args, **kwargs):
+        self.set_general('components', 'path_to_vmlinux', value=args[0])
+
+    def get_path_to_vmlinux(self, *args, **kwargs):
+        return self.get_general('components', 'path_to_vmlinux')
+
     def set_path_to_source_code(self, *args, **kwargs):
         self.set_general('components', 'path_to_source_code', value=args[0])
 
