@@ -1,7 +1,21 @@
 import abc
 
+from analyses.inf_ram import AbeliaRAM
+from analyses.diag_check import Checking
+from analyses.diag_dead_loop import DeadLoop
+from analyses.diag_trace import DoTracing
+from analyses.diag_init_value import InitValue
 from supervisor.logging_setup import logger_info, logger_warning
 from supervisor.save_and_restore import finished, finish
+
+from analyses.inf_device_tree import DeviceTree
+from analyses.inf_dot_config import DotConfig
+from analyses.inf_extraction import Extraction
+from analyses.inf_format import Format
+from analyses.inf_kernel import Kernel
+from analyses.inf_openwrt import OpenWRTRevision, OpenWRTURL, OpenWRTToH
+from analyses.inf_srcode import SRCode
+from analyses.inf_strings import Strings
 
 
 class Analysis(object):
@@ -57,7 +71,7 @@ class AnalysesManager(object):
     def __init__(self, firmware):
         self.firmware = firmware
         self.analyses_flat = {}  # name:analysis
-        self.analyses_forest = {}
+        self.analyses_forest = {}  # analysis blocks
         self.analyses_remaining = {}  # name:analysis
         self.last_analysis_status = True
 
@@ -74,11 +88,15 @@ class AnalysesManager(object):
         return False
 
     def new_analyses_tree(self):
+        """
+        :return: the name of an anlyses tree
+        """
         analyses_tree = 'analyses_tree_{}'.format(len(self.analyses_forest))
         self.analyses_forest[analyses_tree] = {}
-        return self.analyses_forest[analyses_tree]
+        return analyses_tree
 
-    def add_analysis_to_tree(self, analyses_tree, analysis):
+    def add_analysis_to_tree(self, analyses_tree_name, analysis):
+        analyses_tree = self.analyses_forest[analyses_tree_name]
         analyses_tree[analysis.name] = analysis.required
         for requirement in analysis.required:
             if requirement in self.analyses_remaining:
@@ -126,25 +144,21 @@ class AnalysesManager(object):
     def remove_analyses_from_remaining_analyses(self, name):
         self.analyses_remaining.pop(name)
 
-    def register_analysis(self, analysis, no_chained=False):
+    def register_analysis(self, analysis, analyses_tree=None, required=True):
+        """
+        An analysis must belong to an analysis tree(block) or be required to run.
+        The required option is ignored if an analysis is in an analysis tree(block).
+        """
         assert isinstance(analysis, Analysis) or isinstance(analysis, AnalysisGroup)
         self.analyses_flat[analysis.name] = analysis
 
-        if no_chained:
-            return
-
-        if not analysis.has_required():
+        # not in analysis tree(block) but must be run
+        if analyses_tree is None and required:
             self.analyses_remaining[analysis.name] = analysis
             return True
 
-        new_analyses_tree_flag = True
-        for analyses_tree_name, analyses_tree in self.analyses_forest.items():
-            if AnalysesManager.find_analysis_in_tree(analyses_tree, analysis):
-                self.add_analysis_to_tree(analyses_tree, analysis)
-                new_analyses_tree_flag = False
-        if new_analyses_tree_flag:
-            analyses_tree = self.new_analyses_tree()
-            self.add_analysis_to_tree(analyses_tree, analysis)
+        # in analysis tree(block)
+        self.add_analysis_to_tree(analyses_tree, analysis)
 
     def run_analysis(self, firmware, name):
         analysis = self.analyses_flat[name]
@@ -168,3 +182,34 @@ class AnalysesManager(object):
                 finish(self.firmware, a)
         for analysis in self.analyses_remaining:
             self.last_analysis_status = analysis.run(self.firmware)
+
+    def register_static_analysis(self):
+        static_analysis = self.new_analyses_tree()
+
+        # format <- extraction
+        self.register_analysis(Format(), analyses_tree=static_analysis)
+        self.register_analysis(Extraction(), analyses_tree=static_analysis)
+        # extraction <- kernel
+        self.register_analysis(Kernel(), analyses_tree=static_analysis)
+        # extraction <- dt
+        self.register_analysis(DeviceTree(), analyses_tree=static_analysis)
+        # extraction, revision <- strings
+        self.register_analysis(Strings(), analyses_tree=static_analysis)
+        # kernel <- revision
+        self.register_analysis(OpenWRTRevision(), analyses_tree=static_analysis)
+        # revision, url <- toh
+        self.register_analysis(OpenWRTURL(), analyses_tree=static_analysis)
+        self.register_analysis(OpenWRTToH(), analyses_tree=static_analysis)
+        # toh <- ram by default
+        self.register_analysis(AbeliaRAM(), analyses_tree=static_analysis)
+        # srcode <- .config
+        self.register_analysis(SRCode(), analyses_tree=static_analysis)
+        self.register_analysis(DotConfig(), analyses_tree=static_analysis)
+
+    def register_dynamic_analysis(self):
+        dynamic_analysis = self.new_analyses_tree()
+
+        self.register_analysis(DoTracing(), analyses_tree=dynamic_analysis)
+        self.register_analysis(Checking(), analyses_tree=dynamic_analysis)
+        self.register_analysis(DeadLoop(), analyses_tree=dynamic_analysis)
+        self.register_analysis(InitValue(), analyses_tree=dynamic_analysis)

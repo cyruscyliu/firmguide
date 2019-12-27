@@ -30,19 +30,19 @@ The details are transparent to developers and all analyses will be run in topolo
 
 |name|file|class|dependent on|settings|exception|
 |:---:|:---:|:---:|:---:|:---:|:---:|
-|format|[format.py](./format.py)|Format()|-|format, path_to_image|binwalk does not recognize this new format|
-|extraction|[extraction.py](./extraction.py)|Extraction()|format|path_to_kernel, path_to_dbt|the image type is unsupported|
-|kernel|[kernel.py](./kernel.py)|Kernel()|extraction|kernel_version, kernel_created_time, kernel_load_address, kernel_entry_point|-|
+|format|[format.py](inf_format.py)|Format()|-|format, path_to_image|binwalk does not recognize this new format|
+|extraction|[extraction.py](inf_extraction.py)|Extraction()|format|path_to_kernel, path_to_dbt|the image type is unsupported|
+|kernel|[kernel.py](inf_kernel.py)|Kernel()|extraction|kernel_version, kernel_created_time, kernel_load_address, kernel_entry_point|-|
 |dt|[device_tree.py](./device_tree)|DeviceTree()|extraction|dtc|device tree is not found|
-|revision|[openwrt.py](./openwrt.py)|OpenWRTRevision()|kernel|revision|no kernel version available or no handler for this kernel version|
-|strings|[strings.py](./strings.py)|Strings()|extraction, revision|toh, target, subtarget, cpu, uart, ic |-|
-|url|[openwrt.py](./openwrt.py)|OpenWRTURL()|-|homepage, target, subtarget, revision|update download url for this firmware|
-|toh|[openwrt.py](./openwrt.py)|OpenWRTToH()|revision, url|toh, cpu, ram, flash|-|
+|revision|[openwrt.py](inf_openwrt.py)|OpenWRTRevision()|kernel|revision|no kernel version available or no handler for this kernel version|
+|strings|[strings.py](inf_strings.py)|Strings()|extraction, revision|toh, target, subtarget, cpu, uart, ic |-|
+|url|[openwrt.py](inf_openwrt.py)|OpenWRTURL()|-|homepage, target, subtarget, revision|update download url for this firmware|
+|toh|[openwrt.py](inf_openwrt.py)|OpenWRTToH()|revision, url|toh, cpu, ram, flash|-|
 |srcode|[srcode.py](./srcopy.py)|SRCode()|strings, revision, url, toh|path_to_source_code|-|
-|.config|[dot_config.py](./dot_config.py)|DotConfig()|srcode|cpu|-|
+|.config|[dot_config.py](inf_dot_config.py)|DotConfig()|srcode|cpu|-|
 |check|[check.py](./check.py)|Checking()|-|-|bad bad bad trace|
 |dead_loop|[dead_loop](./dead_loop)|DeadLoop()|-|-|bad bad bad trace|
-|init_value|[init_value](./init_value.py)|InitValue()|-|-|very difficult program analysis|
+|init_value|[init_value](diag_init_value.py)|InitValue()|-|-|very difficult program analysis|
 
 ### [Analysis Graph](https://csacademy.com/app/graph_editor/)
 ![](./graph.png)

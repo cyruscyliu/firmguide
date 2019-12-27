@@ -2,7 +2,7 @@ import os
 import re
 
 from analyses.analysis import Analysis
-from analyses.fit import fit_parser
+from analyses.inf_fit import fit_parser
 
 
 def find_kernel_version(strings_to_kernel_version):
