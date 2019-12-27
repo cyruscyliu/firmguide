@@ -2,6 +2,7 @@ import os
 
 from analyses.analysis import Analysis
 
+
 def replace_extension(path, src, dst):
     filename, file_extension = os.path.splitext(path)
     file_extension = file_extension.replace(src, dst)

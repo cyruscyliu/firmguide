@@ -10,7 +10,7 @@ class DoTracing(Analysis):
     def __init__(self):
         super().__init__()
 
-        self.nane = 'do_tracing'
+        self.name = 'do_tracing'
         self.description = 'tracing for diagnosis'
         self.context['hint'] = 'user interruption or QEMU internal error'
         self.critical = True

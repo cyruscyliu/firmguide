@@ -11,4 +11,4 @@ class InitValue(Analysis):
         self.description = 'solve the init value for a certain register'
         self.context['hint'] = 'very difficult program analysis'
         self.critical = False
-        self.required = []
+        self.required = ['check']

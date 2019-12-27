@@ -35,7 +35,7 @@ class DeadLoop(Analysis):
         self.description = 'find dead loop in the given trace'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = True
-        self.required = []
+        self.required = ['check']
 
     def brent_cycle_detection(self, start):
         """

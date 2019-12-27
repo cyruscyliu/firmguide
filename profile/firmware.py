@@ -21,6 +21,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.no_inference = False
 
         self.rerun = False
+        self.running_command = None
 
     def init_profile(self):
         self.set_uart_num(0)
