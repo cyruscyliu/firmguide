@@ -30,7 +30,7 @@ class LibTooling(Analysis):
 
     def __init__(self):
         super().__init__()
-        self.name = 'libtooling'
+        self.name = 'kerberos'
         self.description = 'source code info extraction (libtooling)'
         self.required = ['srcode']
         self.context['hint'] = ''

@@ -5,7 +5,7 @@ from supervisor.save_and_restore import finished, finish
 
 from analyses.diag_check import Checking
 from analyses.diag_dead_loop import DeadLoop
-from analyses.diag_trace import DoTracing
+from analyses.diag_tracing import DoTracing
 from analyses.diag_init_value import InitValue
 
 from analyses.inf_device_tree import DeviceTree
