@@ -52,8 +52,8 @@ class Extraction(Analysis):
             return False
         return True
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         self.name = 'extraction'
         self.description = 'extract kernel and dbt from the given firmware'
         self.context['hint'] = 'the image type is unsupported'

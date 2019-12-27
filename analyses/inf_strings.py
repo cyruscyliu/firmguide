@@ -2318,8 +2318,8 @@ class Strings(Analysis):
 
         return True
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         self.name = 'strings'
         self.description = 'handle strings'
         self.required = ['extraction', 'revision']

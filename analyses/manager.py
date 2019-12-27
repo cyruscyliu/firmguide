@@ -170,37 +170,37 @@ class AnalysesManager(object):
         self.static_analysis = static_analysis
 
         # format <- extraction
-        self.register_analysis(Format(), analyses_tree=static_analysis)
-        self.register_analysis(Extraction(), analyses_tree=static_analysis)
+        self.register_analysis(Format(self), analyses_tree=static_analysis)
+        self.register_analysis(Extraction(self), analyses_tree=static_analysis)
         # extraction <- kernel
-        self.register_analysis(Kernel(), analyses_tree=static_analysis)
+        self.register_analysis(Kernel(self), analyses_tree=static_analysis)
         # extraction <- dt
-        self.register_analysis(DeviceTree(), analyses_tree=static_analysis)
+        self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)
         # extraction, revision <- strings
-        self.register_analysis(Strings(), analyses_tree=static_analysis)
+        self.register_analysis(Strings(self), analyses_tree=static_analysis)
         # kernel <- revision
-        self.register_analysis(OpenWRTRevision(), analyses_tree=static_analysis)
+        self.register_analysis(OpenWRTRevision(self), analyses_tree=static_analysis)
         # revision, url <- toh
-        self.register_analysis(OpenWRTURL(), analyses_tree=static_analysis)
-        self.register_analysis(OpenWRTToH(), analyses_tree=static_analysis)
+        self.register_analysis(OpenWRTURL(self), analyses_tree=static_analysis)
+        self.register_analysis(OpenWRTToH(self), analyses_tree=static_analysis)
         # toh <- ram by default
-        self.register_analysis(AbeliaRAM(), analyses_tree=static_analysis)
+        self.register_analysis(AbeliaRAM(self), analyses_tree=static_analysis)
         # srcode <- .config
-        self.register_analysis(SRCode(), analyses_tree=static_analysis)
-        self.register_analysis(DotConfig(), analyses_tree=static_analysis)
+        self.register_analysis(SRCode(self), analyses_tree=static_analysis)
+        self.register_analysis(DotConfig(self), analyses_tree=static_analysis)
         # srcode <- libtooling
-        self.register_analysis(LibTooling(), analyses_tree=static_analysis)
+        self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
 
     def register_dynamic_analysis(self, tracing=True, check_only=False):
         dynamic_analysis = self.new_analyses_tree()
         self.dynamic_analysis = dynamic_analysis
 
         if tracing:
-            self.register_analysis(DoTracing(), analyses_tree=dynamic_analysis)
-        self.register_analysis(Checking(), analyses_tree=dynamic_analysis)
+            self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
+        self.register_analysis(Checking(self), analyses_tree=dynamic_analysis)
         if not check_only:
-            self.register_analysis(LoadTrace(), analyses_tree=dynamic_analysis)
-            self.register_analysis(DataAbort(), analyses_tree=dynamic_analysis)
-            self.register_analysis(CallStack(), analyses_tree=dynamic_analysis)
-            self.register_analysis(DeadLoop(), analyses_tree=dynamic_analysis)
-            self.register_analysis(InitValue(), analyses_tree=dynamic_analysis)
+            self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
+            self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
+            self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
+            self.register_analysis(DeadLoop(self), analyses_tree=dynamic_analysis)
+            self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)

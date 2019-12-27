@@ -114,8 +114,8 @@ class Kernel(Analysis):
         firmware.set_kernel_entry_point(kernel_entry_point)
         return True
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         self.name = 'kernel'
         self.description = 'extract kernel related information from mthe given firmware'
         self.context['hint'] = 'you must add strings parsers'

@@ -5,8 +5,8 @@ from analyses.analysis import Analysis
 
 
 class DeadLoop(Analysis):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         # A basic block should be indexed by its first PC.
         # PC string must start with 0x.
         # For string trace, `content` is `lines`,

@@ -98,8 +98,8 @@ class DotConfig(Analysis):
                         firmware.set_node_property(path_to_cpu, k, v)
         return True
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         self.name = '.config'
         self.description = 'extract information from .config'
         self.required = ['srcode']

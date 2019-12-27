@@ -4,7 +4,8 @@ from supervisor.logging_setup import logger_info, logger_warning
 
 
 class Analysis(object):
-    def __init__(self):
+    def __init__(self, analysis_manager):
+        self.analysis_manager = analysis_manager
         self.name = None
         self.description = None
         self.required = []

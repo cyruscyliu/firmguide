@@ -11,8 +11,8 @@ class AbeliaRAM(Analysis):
         firmware.set_ram_base('0x0')
         self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, 32), 1)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         self.name = 'ram'
         self.description = 'assign 1G ram by default'
         self.required = ['toh']

@@ -28,8 +28,8 @@ class LibTooling(Analysis):
         self.info(firmware, 'set flash manually, waiting for libtooling ...', 1)
         return True
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         self.name = 'kerberos'
         self.description = 'source code info extraction (libtooling)'
         self.required = ['srcode']

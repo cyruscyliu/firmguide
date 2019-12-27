@@ -50,8 +50,8 @@ class Format(Analysis):
             else:
                 return True
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         self.name = 'format'
         self.description = 'check the format of the given firmware by binwalk'
         self.context['hint'] = 'binwalk does not recognize this new format'

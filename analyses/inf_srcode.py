@@ -32,8 +32,8 @@ class SRCode(Analysis):
         self.info(firmware, 'get path to llvm bitcode {}'.format(path_to_llvm_bitcode), 1)
         return True
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         self.name = 'srcode'
         self.description = 'process source code'
         self.required = ['strings', 'revision', 'url', 'toh']

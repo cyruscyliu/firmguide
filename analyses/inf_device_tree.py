@@ -119,8 +119,8 @@ class DeviceTree(Analysis):
         self.info(firmware, 'merge the device tree to our profile', 1)
         return True
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         self.name = 'dt'
         self.description = 'parse firmware\'s device tree'
         self.required = ['extraction']

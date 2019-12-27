@@ -69,8 +69,8 @@ class OpenWRTURL(Analysis):
         self.info(firmware, 'get the openwrt config at {}'.format(path_to_dot_config), 1)
         return True
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         self.name = 'url'
         self.description = 'parse OpenWRT firmware download url'
         self.required = []
@@ -93,8 +93,8 @@ class OpenWRTRevision(Analysis):
             return False
         return True
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         self.name = 'revision'
         self.description = 'parse OpenWRT revision by kernel version'
         self.required = ['kernel']
@@ -173,8 +173,8 @@ class OpenWRTToH(Analysis):
         else:
             return False
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         self.description = 'extract information from OpenWRT table of hardware'
         self.name = 'toh'
         self.required = ['kernel', 'url', 'strings']

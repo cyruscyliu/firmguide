@@ -21,8 +21,8 @@ class Checking(Analysis):
         else:
             return self.scan_user_level_ktracer(firmware)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
         self.name = 'check'
         self.description = 'check whether we have done our job'
         self.context['hint'] = 'bad bad bad trace'

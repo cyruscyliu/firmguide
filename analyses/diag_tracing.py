@@ -7,8 +7,8 @@ from pyqemulog import *
 
 
 class LoadTrace(Analysis):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
 
         self.name = 'load_trace'
         self.description = 'load trace from do_tracing'
@@ -29,8 +29,8 @@ class LoadTrace(Analysis):
 
 
 class DoTracing(Analysis):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
 
         self.name = 'do_tracing'
         self.description = 'tracing for diagnosis'
