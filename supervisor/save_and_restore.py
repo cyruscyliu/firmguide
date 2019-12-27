@@ -132,7 +132,11 @@ def setup_single_analysis(args, firmware):
     if os.path.exists(path_to_profile):
         # load the profile
         firmware.set_profile(path_to_profile=path_to_profile)
-        firmware.size = os.path.getsize(firmware.get_path())
+        try:
+            firmware.size = os.path.getsize(firmware.get_path())
+        except TypeError as e:
+            print('may be you forget -wd?')
+            raise e
         setup_working_path(firmware)
     else:
         # load from the command line
