@@ -19,7 +19,7 @@ class PreProcessor(object):
     def preprocess_machine_name(self):
         if self.firmware.get_machine_name() is None:
             # it's ok if we cannot find a machine name
-            tmp_machine_name = 'salamander@' + hashlib.md5(self.firmware.get_name().encode('utf-8')).hexdigest()
+            tmp_machine_name = 'salamander' + hashlib.md5(self.firmware.get_name().encode('utf-8')).hexdigest()
             self.firmware.set_machine_name(tmp_machine_name)
             self.info('machine name not exists, refer to {}'.format(tmp_machine_name))
 

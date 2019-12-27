@@ -1,13 +1,13 @@
-From 450c9315c36678f774b54eb29dc929a61938851c Mon Sep 17 00:00:00 2001
-From: Your Name <you@example.com>
-Date: Sun, 8 Dec 2019 11:17:35 +0000
+From 6fa343293d7f75a516113142577849bf4d35b73a Mon Sep 17 00:00:00 2001
+From: cyrus <cyruscyliu@gmail.com>
+Date: Mon, 23 Dec 2019 14:15:36 +0800
 Subject: [PATCH] patch qemu-4.0.0
 
 ---
  hw/mips/Makefile.objs  |   4 +-
- hw/mips/boot.c         | 112 +++++++++++++++++++++++++++++++++++++++++++++++++
- include/hw/mips/mips.h |  17 ++++++++
- 3 files changed, 131 insertions(+), 2 deletions(-)
+ hw/mips/boot.c         | 123 +++++++++++++++++++++++++++++++++++++++++++++++++
+ include/hw/mips/mips.h |  17 +++++++
+ 3 files changed, 142 insertions(+), 2 deletions(-)
  create mode 100644 hw/mips/boot.c
 
 diff --git a/hw/mips/Makefile.objs b/hw/mips/Makefile.objs
@@ -28,10 +28,10 @@ index 525809a..6f17fcd 100644
 \ No newline at end of file
 diff --git a/hw/mips/boot.c b/hw/mips/boot.c
 new file mode 100644
-index 0000000..2e0db67
+index 0000000..7860d9c
 --- /dev/null
 +++ b/hw/mips/boot.c
-@@ -0,0 +1,112 @@
+@@ -0,0 +1,123 @@
 +#include "qemu/osdep.h"
 +#include "qapi/error.h"
 +#include "qemu/error-report.h"
@@ -76,10 +76,21 @@ index 0000000..2e0db67
 +        if ((entry & ~0x7fffffffULL) == 0x80000000)
 +            entry = (int32_t)entry;
 +    } else {
-+        error_report("could not load kernel '%s': %s",
-+                     info->kernel_filename,
-+                     load_elf_strerror(kernel_size));
-+        exit(1);
++        hwaddr ep, loadaddr;
++        int is_linux;
++
++        kernel_size = load_uimage(loaderparams.kernel_filename, &ep,
++                                  &loadaddr, &is_linux,
++                                  cpu_mips_kseg0_to_phys, NULL);
++
++        if (kernel_size >=0) {
++            entry = (uint32_t)ep;
++        } else {
++            error_report("could not load kernel neither as an elf ('%s': %s) nor as an uimage",
++                         loaderparams.kernel_filename,
++                         load_elf_strerror(kernel_size));
++            exit(1);
++        }
 +    }
 +
 +    /* load initrd */

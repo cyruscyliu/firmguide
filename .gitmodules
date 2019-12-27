@@ -1,6 +1,3 @@
-[submodule "llbic"]
-	path = llbic
-	url = git@github.com:cyruscyliu/llbic.git
 [submodule "asm2xml"]
 	path = asm2xml
 	url = git@github.com:cyruscyliu/asm2xml.git
