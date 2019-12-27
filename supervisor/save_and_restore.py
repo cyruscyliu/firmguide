@@ -135,7 +135,7 @@ def setup_single_analysis(args, firmware):
         try:
             firmware.size = os.path.getsize(firmware.get_path())
         except TypeError as e:
-            print('may be you forget -wd?')
+            print('May be you forget -wd? Otherwise, please run rm {}'.format(path_to_profile))
             raise e
         setup_working_path(firmware)
     else:
@@ -148,6 +148,7 @@ def setup_single_analysis(args, firmware):
         firmware.set_architecture(args.architecture)
         firmware.set_endian(args.endian)
         firmware.set_brand(args.brand)
+        firmware.set_path_to_source_code(args.source_code)
         setup_working_path(firmware)
 
     firmware.trace_format = args.trace_format
