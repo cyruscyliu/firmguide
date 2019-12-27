@@ -231,7 +231,7 @@ class CompilerToQEMUMachine(object):
                 raise NotImplementedError()
         running_command += ' -nographic'
         self.info(running_command, 'run')
-        return running_command
+        self.firmware.running_command = running_command
 
     def solve(self):
         self.preprocessor.preprocess()

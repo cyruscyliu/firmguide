@@ -177,12 +177,13 @@ class AnalysesManager(object):
         self.register_analysis(SRCode(), analyses_tree=static_analysis)
         self.register_analysis(DotConfig(), analyses_tree=static_analysis)
 
-    def register_dynamic_analysis(self, tracing=True):
+    def register_dynamic_analysis(self, tracing=True, check_only=False):
         dynamic_analysis = self.new_analyses_tree()
         self.dynamic_analysis = dynamic_analysis
 
         if tracing:
             self.register_analysis(DoTracing(), analyses_tree=dynamic_analysis)
         self.register_analysis(Checking(), analyses_tree=dynamic_analysis)
-        self.register_analysis(DeadLoop(), analyses_tree=dynamic_analysis)
-        self.register_analysis(InitValue(), analyses_tree=dynamic_analysis)
+        if not check_only:
+            self.register_analysis(DeadLoop(), analyses_tree=dynamic_analysis)
+            self.register_analysis(InitValue(), analyses_tree=dynamic_analysis)
