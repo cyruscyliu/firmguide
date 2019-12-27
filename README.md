@@ -23,7 +23,6 @@ First, clone the repo.
 
 ```shell script
 git clone git@github.com:cyruscyliu/esv.git salamander && cd salamander
-git submodule update --init --recursive
 ```
 
 #### Docker Image
