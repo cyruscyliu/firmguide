@@ -13,7 +13,7 @@ class SRCode(Analysis):
             self.context['input'] = 'we can only support OpenWRT'
             return False
         # first, get the source code the vmlinux only by its uuid
-        path_to_source_code, path_to_vmlinux = firmware.get_path_to_source_code(), None
+        path_to_source_code = firmware.get_path_to_source_code()
         if path_to_source_code is None:
             self.context['input'] = 'no source code available'
             return False
