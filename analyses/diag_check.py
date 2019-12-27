@@ -27,4 +27,4 @@ class Checking(Analysis):
         self.description = 'check whether we have done our job'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = False
-        self.required = ['do_tracing']
+        self.required = ['load_trace']

@@ -1,9 +1,31 @@
 import subprocess
-
 import qmp
 
 from analyses.analysis import Analysis
 from supervisor.logging_setup import logger_info
+from pyqemulog import *
+
+
+class LoadTrace(Analysis):
+    def __init__(self):
+        super().__init__()
+
+        self.name = 'load_trace'
+        self.description = 'load trace from do_tracing'
+        self.context['hint'] = 'bad bad bad trace'
+        self.critical = True
+        self.required = ['do_tracing']
+
+        # store trace context
+        self.cpurfs = None
+        self.bbs = None
+
+    def run(self, firmware):
+        self.cpurfs = load_cpurf(firmware.path_to_trace, dump=False)
+        self.info(firmware, 'load {} cpu register files'.format(self.cpurfs.__len__()), 1)
+        self.bbs = load_in_asm(firmware.path_to_trace, dump=False)
+        self.info(firmware, 'load {} basic blocks'.format(self.bbs.__len__()), 1)
+        return True
 
 
 class DoTracing(Analysis):
@@ -26,11 +48,12 @@ class DoTracing(Analysis):
         full_command = ' '.join([firmware.running_command, trace_flags, qmp_flags])
         try:
             logger_info(firmware.get_uuid(), 'tracing', 'qemudebug', full_command, 0)
-            status = subprocess.run(full_command, timeout=60, shell=True).returncode
+            status = subprocess.run(full_command, timeout=20, shell=True).returncode
         except subprocess.TimeoutExpired:
             status = 0
             qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
             qemu.connect()
             qemu.cmd('quit')
             qemu.close()
+            logger_info(firmware.get_uuid(), 'tracing', 'qemudebug', 'done', 0)
         return self.analysis_status(status)

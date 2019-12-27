@@ -1,11 +1,13 @@
 from analyses.analysis import Analysis, AnalysisGroup
+from analyses.diag_callstack import CallStack
+from analyses.diag_dabt import DataAbort
 from analyses.inf_libtooling import LibTooling
 from supervisor.logging_setup import logger_info, logger_warning
 from supervisor.save_and_restore import finished, finish
 
 from analyses.diag_check import Checking
 from analyses.diag_dead_loop import DeadLoop
-from analyses.diag_tracing import DoTracing
+from analyses.diag_tracing import DoTracing, LoadTrace
 from analyses.diag_init_value import InitValue
 
 from analyses.inf_device_tree import DeviceTree
@@ -29,6 +31,10 @@ class AnalysesManager(object):
 
         self.static_analysis = None
         self.dynamic_analysis = None
+
+    def print_pretty(self):
+        for analysis in self.analyses_flat.values():
+            print(analysis.name, analysis.__class__, analysis.required, analysis.context['hint'])
 
     @staticmethod
     def find_analysis_in_tree(analyses_tree, analysis):
@@ -193,5 +199,8 @@ class AnalysesManager(object):
             self.register_analysis(DoTracing(), analyses_tree=dynamic_analysis)
         self.register_analysis(Checking(), analyses_tree=dynamic_analysis)
         if not check_only:
+            self.register_analysis(LoadTrace(), analyses_tree=dynamic_analysis)
+            self.register_analysis(DataAbort(), analyses_tree=dynamic_analysis)
+            self.register_analysis(CallStack(), analyses_tree=dynamic_analysis)
             self.register_analysis(DeadLoop(), analyses_tree=dynamic_analysis)
             self.register_analysis(InitValue(), analyses_tree=dynamic_analysis)
