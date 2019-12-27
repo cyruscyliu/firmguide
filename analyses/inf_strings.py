@@ -169,6 +169,7 @@ class Strings(Analysis):
                 self.info(firmware, 'uart model {} found'.format('ns16550A'), 1)
                 flag = True
                 break
+        for string in self.strings:
             if string.find('root=') != -1:
                 # root=/dev/mtdblock1 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200\n
                 a, _, b = string.partition('console=')
@@ -2281,7 +2282,6 @@ class Strings(Analysis):
             return True
         else:
             return False
-
 
     def run(self, firmware):
         self.get_all_strings(firmware)

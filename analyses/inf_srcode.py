@@ -38,4 +38,4 @@ class SRCode(Analysis):
         self.description = 'process source code'
         self.required = ['strings', 'revision', 'url', 'toh']
         self.context['hint'] = ''
-        self.critical = False
+        self.critical = True
