@@ -187,6 +187,14 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
+    def set_path_to_source_code(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path_to_source_code(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def set_path_to_llvm_bitcode(self, *args, **kwargs):
         pass
 

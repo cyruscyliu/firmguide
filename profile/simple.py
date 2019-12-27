@@ -65,6 +65,12 @@ class SimpleFirmware(Firmware):
                 break
         return profile
 
+    def set_path_to_source_code(self, *args, **kwargs):
+        self.set_general('components', 'path_to_source_code', value=args[0])
+
+    def get_path_to_source_code(self, *args, **kwargs):
+        return self.get_general('components', 'path_to_source_code')
+
     def set_path_to_llvm_bitcode(self, *args, **kwargs):
         self.set_general('components', 'path_to_llvm_bitcode', value=args[0])
 
@@ -318,10 +324,19 @@ class SimpleFirmware(Firmware):
         return self.get_general('components', 'path_to_dtb')
 
     def set_toh(self, *args, **kwargs):
-        pass
+        toh = args[0]
+        assert isinstance(toh, list)
+        header = kwargs.pop('header', None)
+        if header is None:
+            return
+        for k, v in zip(header, toh):
+            self.set_general('brand', 'toh', k, value=v)
 
     def get_toh(self, *args, **kwargs):
-        pass
+        toh = []
+        for arg in args:
+            toh.append(self.get_general('brand', 'toh', arg))
+        return toh
 
     def save_profile(self, *args, **kwargs):
         with open(self.path_to_profile, 'w') as f:
