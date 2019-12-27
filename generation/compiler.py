@@ -224,9 +224,9 @@ class CompilerToQEMUMachine(object):
             running_command += ' -dtb {}'.format(path_to_dtb)
         if self.firmware.probe_flash():
             if self.firmware.get_flash_type() == 'nor':
-                running_command += ' -drive file={},if=pflash,format=raw'.format(self.firmware.get_path_to_image())
+                running_command += ' -drive file={},if=pflash,format=raw'.format(self.firmware.get_path())
             elif self.firmware.get_flash_type() == 'nand':
-                running_command += ' -drive file={},if=mtd,format=raw'.format(self.firmware.get_path_to_image())
+                running_command += ' -drive file={},if=mtd,format=raw'.format(self.firmware.get_path())
             else:
                 raise NotImplementedError()
         running_command += ' -nographic'
