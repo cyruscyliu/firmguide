@@ -82,6 +82,8 @@ class DotConfig(Analysis):
         for stmt in stmts:
             targets.append(stmt.value[:-2])
         for file_ in os.listdir(path_to_mm):
+            if file_.endswith('.cmd'):
+                continue
             if file_.find('.') == -1:
                 continue
             name, extent = file_.split('.')
