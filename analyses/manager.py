@@ -137,14 +137,19 @@ class AnalysesManager(object):
                 if finished(self.firmware, a):
                     logger_info(self.firmware.get_uuid(), 'analysis', 'done before', a.name, 0)
                     continue
-                res = a.run(self.firmware)
-                self.last_analysis_status = res
-                if not res:
-                    a.error(self.firmware)
-                if not res and a.is_critical():
-                    logger_warning(self.firmware.get_uuid(),
-                                   'analysis', 'exception', 'can not support it, fix and rerun', 0)
+                try:
+                    res = a.run(self.firmware)
+                    self.last_analysis_status = res
+                    if not res:
+                        a.error(self.firmware)
+                    if not res and a.is_critical():
+                        logger_warning(self.firmware.get_uuid(),
+                                       'analysis', 'exception', 'can not support it, fix and rerun', 0)
+                        exit(-1)
+                except NotImplementedError as e:
+                    logger_warning(self.firmware.get_uuid(), 'analysis', 'exception', e, 0)
                     exit(-1)
+
                 finish(self.firmware, a)
 
     def run_static_analysis(self):

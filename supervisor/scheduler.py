@@ -58,7 +58,11 @@ def analysis_wrapper(firmware, static_analysis=True, check_only=False):
     while not firmware.do_not_diagnosis:  # exit early
         # perform code generation
         machine_compiler = get_compiler(firmware)
-        machine_compiler.solve()
+        try:
+            machine_compiler.solve()
+        except NotImplementedError as e:
+            logger_warning(firmware.get_uuid(), 'analysis', 'exception', e.__str__(), 0)
+            exit(-1)
         machine_compiler.link_and_install()
         machine_compiler.make()
 
