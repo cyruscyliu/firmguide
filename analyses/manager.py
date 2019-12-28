@@ -36,6 +36,9 @@ class AnalysesManager(object):
         for analysis in self.analyses_flat.values():
             print(analysis.name, analysis.__class__, analysis.required, analysis.context['hint'])
 
+    def get_analysis(self, name):
+        return self.analyses_flat[name]
+
     @staticmethod
     def find_analysis_in_tree(analyses_tree, analysis):
         to_add = [analysis.name]

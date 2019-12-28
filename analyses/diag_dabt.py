@@ -1,10 +1,42 @@
 from analyses.analysis import Analysis
 from pyqemulog import *
 
+from analyses.diag_tracing import LoadTrace
+
+
+def get_instruction(address, bb):
+    instruction = None
+    for instruction in bb['instructions']:
+        if int(instruction['address'], 16) == address:
+            break
+    return ' '.join([instruction['opcode'], ' '.join(instruction['operand'])])
+
 
 class DataAbort(Analysis):
     def run(self, firmware):
-        pass
+        trace = self.analysis_manager.get_analysis('load_trace')
+        assert isinstance(trace, LoadTrace)
+
+        dabts = []
+        for k, cpurf in trace.cpurfs.items():
+            if 'exception' in cpurf and cpurf['exception']['type'] == 'dabt':
+                dabts.append(cpurf)
+
+        for cpurf in dabts:
+            # dabt
+            # current bb has where to abort -> next bb has where to return
+            if get_exception_return_cpurf(cpurf, trace.cpurfs) is None:
+                self.info(firmware, 'cpurf {} has a data abort at {}, return abnormally'.format(
+                    cpurf['id'], cpurf['register_files']['DFAR']), 1)
+            else:
+                self.info(firmware, 'cpurf {} has a data abort at {}, return normally'.format(
+                    cpurf['id'], cpurf['register_files']['DFAR']), 1)
+                next_cpurf = get_next_cpurf(cpurf, trace.cpurfs)
+                where_to_return = int(next_cpurf['register_files']['R14'], 16) - 8
+                self.info(firmware, 'the program should re-entry 0x{:x} {}'.format(
+                    where_to_return, get_instruction(where_to_return, get_bb(cpurf, trace.bbs))), 1)
+
+        return True
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)

@@ -34,7 +34,7 @@ class DeadLoop(Analysis):
         self.name = 'dead_loop'
         self.description = 'find dead loop in the given trace'
         self.context['hint'] = 'bad bad bad trace'
-        self.critical = True
+        self.critical = False
         self.required = ['check']
 
     def brent_cycle_detection(self, start):
@@ -222,6 +222,7 @@ class DeadLoop(Analysis):
                 for j, line in enumerate(self.cpus[i]['content']):
                     reg_offset = self.cpus[i]['offset']
                     self.info(firmware, '{} {}'.format(reg_offset, line), 0)
+        return True
 
     def load_in_asm(self, firmware):
         """

@@ -4,7 +4,7 @@ from pyqemulog import *
 
 class CallStack(Analysis):
     def run(self, firmware):
-        pass
+        return True
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
