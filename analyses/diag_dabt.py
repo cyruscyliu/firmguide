@@ -26,11 +26,11 @@ class DataAbort(Analysis):
             # dabt
             # current bb has where to abort -> next bb has where to return
             if get_exception_return_cpurf(cpurf, trace.cpurfs) is None:
-                self.info(firmware, 'cpurf {} has a data abort at {}, return abnormally'.format(
-                    cpurf['id'], cpurf['register_files']['DFAR']), 1)
+                self.info(firmware, 'line {} has a data abort at {}, return abnormally'.format(
+                    cpurf['ln'], cpurf['register_files']['DFAR']), 1)
             else:
-                self.info(firmware, 'cpurf {} has a data abort at {}, return normally'.format(
-                    cpurf['id'], cpurf['register_files']['DFAR']), 1)
+                self.info(firmware, 'line {} has a data abort at {}, return normally'.format(
+                    cpurf['ln'], cpurf['register_files']['DFAR']), 1)
                 next_cpurf = get_next_cpurf(cpurf, trace.cpurfs)
                 where_to_return = int(next_cpurf['register_files']['R14'], 16) - 8
                 self.info(firmware, 'the program should re-entry 0x{:x} {}'.format(
@@ -44,4 +44,4 @@ class DataAbort(Analysis):
         self.description = 'find data abort info'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = False
-        self.required = ['check']
+        self.required = ['dead_loop']
