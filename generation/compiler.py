@@ -433,16 +433,15 @@ class CompilerToQEMUMachine(object):
         self.check_analysis(bamboos, 'bamboo_devices')
         if len(bamboos):
             self.machine_reset['declaration'].extend([indent('{} *s = opaque;'.format(to_state(machine_name)), 1)])
-        for id_, bamboo in enumerate(bamboos):
-            name = bamboo['name']
+        for name, bamboo in bamboos.items():
             mmio_size = bamboo['mmio_size']
             registers = bamboo['registers']
             #
             self.machine_struct['fields'].extend([indent('MemoryRegion {};'.format(to_mmio(name), 1))])
             #
-            for register in registers:
-                self.machine_struct['fields'].extend([indent('uint32_t {};'.format(register['name']))])
-                self.machine_reset['body'].extend([indent('s->{} = {};'.format(register['name'], register['value']))])
+            for rname, register in registers.items():
+                self.machine_struct['fields'].extend([indent('uint32_t {};'.format(rname))])
+                self.machine_reset['body'].extend([indent('s->{} = {};'.format(rname, register['value']))])
             if 'mmio_priority' in bamboo:
                 mmio_priority = bamboo['mmio_priority']
             else:
@@ -477,10 +476,10 @@ class CompilerToQEMUMachine(object):
                 indent('qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\\n", __func__, offset);', 2),
                 indent('return 0;', 2),
             ])
-            for register in registers:
+            for rname, register in registers.items():
                 read['body'].extend([
                     indent('case {}:'.format(register['offset']), 1),
-                    indent('res = s->{};'.format(register['name']), 2),
+                    indent('res = s->{};'.format(rname), 2),
                     indent('break;', 2),
                 ])
             read['body'].extend([indent('}', 1)])
@@ -500,10 +499,10 @@ class CompilerToQEMUMachine(object):
                 indent('qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\\n", __func__, offset);', 2),
                 indent('return;', 2),
             ])
-            for register in registers:
+            for rname, register in registers.items():
                 write['body'].extend([
                     indent('case {}:'.format(register['offset']), 1),
-                    indent('s->{} = val;'.format(register['name']), 2),
+                    indent('s->{} = val;'.format(rname), 2),
                     indent('break;', 2),
                 ])
             write['body'].extend([indent('}', 1)])

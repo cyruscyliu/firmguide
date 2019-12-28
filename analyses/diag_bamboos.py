@@ -21,13 +21,13 @@ class Bamboo(object):
 
 class Bamboos(Analysis):
     def insert(self, bamboo):
-        target = 0
+        end = True
         for i, exist in enumerate(self.bamboos):
             if bamboo.mmio_base < exist.mmio_base:
-                target = i
+                end = False
                 self.bamboos.insert(i, bamboo)
                 break
-        if target == 0:
+        if end:
             self.bamboos.append(bamboo)
 
         bamboo.name = 'stub{}'.format(len(self.bamboos) - 1)
@@ -38,6 +38,7 @@ class Bamboos(Analysis):
                 'offset': "0x0 ... 0x{:x}".format(bamboo.mmio_size),
                 'value': "0x0"
             }}
+        self.variable += 1
 
     def print_pretty(self):
         for bamboo in self.bamboos:
@@ -71,9 +72,10 @@ class Bamboos(Analysis):
         for name, parameters in bamboo_devices.items():
             bamboo = Bamboo()
             bamboo.name = name
-            bamboo.mmio_base = parameters['mmio_base']
-            bamboo.mmio_size = parameters['mmio_size']
+            bamboo.mmio_base = int(parameters['mmio_base'], 16)
+            bamboo.mmio_size = int(parameters['mmio_size'], 16)
             bamboo.registers = parameters['registers']
+            self.variable += len(bamboo.registers)
             self.bamboos.append(bamboo)
 
         # get dead addresses
@@ -87,6 +89,17 @@ class Bamboos(Analysis):
         for message in self.print_pretty():
             self.info(firmware, message, 1)
 
+        # update bamboos
+        if firmware.profile is None:
+            return True
+        latest_bamboo_devices = {}
+        for bamboo in self.bamboos:
+            latest_bamboo_devices[bamboo.name] = {
+                'mmio_base': hex(bamboo.mmio_base),
+                'mmio_size': hex(bamboo.mmio_size),
+                'registers': bamboo.registers
+            }
+        firmware.set_bamboo_devices(latest_bamboo_devices)
         return True
 
     def __init__(self, analysis_manager):

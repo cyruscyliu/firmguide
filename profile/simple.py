@@ -273,6 +273,9 @@ class SimpleFirmware(Firmware):
         else:
             return bamboo
 
+    def set_bamboo_devices(self, *args, **kwargs):
+        self.set_general('bamboo', value=args[0])
+
     def probe_bridge(self):
         return 'bridge' in self.profile
 

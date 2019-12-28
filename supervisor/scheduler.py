@@ -68,4 +68,5 @@ def analysis_wrapper(firmware, static_analysis=True, check_only=False):
 
         # perform dynamic checking
         analyses_manager.run_dynamic_analyses()
+        save_analysis(firmware)
         break

@@ -17,7 +17,11 @@ class Checking(Analysis):
     def run(self, firmware):
         self.info(firmware, 'scan user level indicators in {}'.format(firmware.path_to_trace), 1)
         if firmware.trace_format == 'qemudebug':
-            return self.scan_user_level_qemudebug(firmware)
+            result = self.scan_user_level_qemudebug(firmware)
+            if result:
+                self.info(firmware, 'have entered the user level', 1)
+                exit(-1)
+            return result
         else:
             return self.scan_user_level_ktracer(firmware)
 
