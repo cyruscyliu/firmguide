@@ -1,3 +1,4 @@
+analysis, class, requirements, settings, exception
 format,Format,,format@path_to_image,binwalk does not recognize this new format
 extraction,Extraction,format,path_to_kernel@path_to_dbt,the image type is unsupported
 kernel,Kernel,extraction,kernel_version@kernel_created_time@kernel_load_address@kernel_entry_point,you must add strings parsers

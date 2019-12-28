@@ -39,6 +39,7 @@ class AnalysesManager(object):
 
     def print_readme(self):
         with open(os.path.join(os.getcwd(), 'analyses', '.analyses.csv'), 'w') as f:
+            f.write('analysis, class, requirements, settings, exception\n')
             for analysis in self.analyses_flat.values():
                 a = analysis.name
                 b = analysis.__class__.__name__
