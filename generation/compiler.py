@@ -250,6 +250,7 @@ class CompilerToQEMUMachine(object):
         ])
         self.info('solved machine struct', 'compile')
 
+    # independent
     def solve_machine_defines(self):
         machine_name = self.firmware.get_machine_name()
         self.check_analysis(machine_name, 'machine_name')
@@ -260,11 +261,18 @@ class CompilerToQEMUMachine(object):
         ])
         self.info('solved machine defines', 'compile')
 
+    # independent
     def solve_machine_includings(self):
         self.machine['includings'].extend(['qemu/osdep.h'])
         self.machine['includings'].extend(['qemu/log.h'])
         self.machine['includings'].extend(['hw/sysbus.h'])
         self.info('solved machine includings', 'compile')
+
+    # independent
+    def render_templates(self, context, template):
+        with open(template) as f:
+            lines = f.readlines()
+        return Template(''.join(lines)).render(context)
 
     def solve_abelia_devices(self):
         # cpu
@@ -319,129 +327,11 @@ class CompilerToQEMUMachine(object):
             indent('memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, {});'.format(ram_priority)),
         ])
         self.info('solved abelia ram', 'compile')
-        # interrupt controller
 
+        # interrupt controller
         if not cpu_pp_model and self.firmware.probe_interrupt_controller():
-            ic_name = self.firmware.get_interrupt_controller_name()
-            self.check_analysis(ic_name, 'interrupt_controller_name')
-            ic_registers = self.firmware.get_interrupt_controller_registers()
-            self.check_analysis(ic_registers, 'interrupt_controller_registers')
-            ic_mmio_size = self.firmware.get_interrupt_controller_mmio_size()
-            self.check_analysis(ic_mmio_size, 'interrupt_controller_mmio_size')
-            ic_mmio_base = self.firmware.get_interrupt_controller_mmio_base()
-            self.check_analysis(ic_mmio_size, 'interrupt_controller_mmio_base')
-            ic_n_irqs = self.firmware.get_n_irqs()
-            self.check_analysis(ic_n_irqs, 'interrupt_controller_n_irqs')
-            context = {'ic_name': ic_name, 'ic_registers': ic_registers, 'ic_mmio_size': ic_mmio_size,
-                       'ic_mmio_base': ic_mmio_base, 'ic_n_irqs': ic_n_irqs, 'upper': lambda x: x.upper(),
-                       'concat': lambda x: concat(x), 'license': ''.join(self.license)}
-            with open('generation/templates/ic.c') as f:
-                ic_c_lines = f.readlines()
-            ic_c = Template(''.join(ic_c_lines)).render(context)
-            self.custom_devices['interrupt_controller']['source'].extend(ic_c)
-            with open('generation/templates/ic.h') as f:
-                ic_h_lines = f.readlines()
-            ic_h = Template(''.join(ic_h_lines)).render(context)
-            self.custom_devices['interrupt_controller']['header'].extend(ic_h)
-            #
-            self.machine['includings'].extend(['hw/intc/{}.h'.format(ic_name)])
-            self.machine_struct['fields'].extend([indent('{} ic;'.format(to_state(ic_name)), 1)])
-            self.machine_init['body'].extend([
-                indent('object_initialize(&s->ic, sizeof(s->ic), {});'.format(to_type(ic_name))),
-                indent('qdev_set_parent_bus(DEVICE(&s->ic), sysbus_get_default());'),
-                indent('object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);', 1),
-                indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {});'.format(ic_mmio_base), 1)
-            ])
-            self.info('solved abelia interrupt controller', 'compile')
-        # bridge
-        if not cpu_pp_model and self.firmware.probe_bridge() and self.firmware.probe_interrupt_controller():
-            bridge_name = self.firmware.get_bridge_name()
-            self.check_analysis(bridge_name, 'bridge_name')
-            bridge_mmio_base = self.firmware.get_bridge_mmio_base()
-            self.check_analysis(bridge_name, 'bridge_mmio_base')
-            bridge_mmio_size = self.firmware.get_bridge_mmio_size()
-            self.check_analysis(bridge_name, 'bridge_mmio_zise')
-            bridge_registers = self.firmware.get_bridge_registers()
-            context = {'bridge_name': bridge_name, 'bridge_mmio_size': bridge_mmio_size,
-                       'bridge_mmio_base': bridge_mmio_base, 'bridge_registers': bridge_registers,
-                       'upper': lambda x: x.upper(), 'concat': lambda x: concat(x),
-                       'license': ''.join(self.license)}
-            with open('generation/templates/bridge.c') as f:
-                bridge_c_lines = f.readlines()
-            bridge_c = Template(''.join(bridge_c_lines)).render(context)
-            self.custom_devices['bridge']['source'].extend(bridge_c)
-            with open('generation/templates/bridge.h') as f:
-                bridge_h_lines = f.readlines()
-            bridge_h = Template(''.join(bridge_h_lines)).render(context)
-            self.custom_devices['bridge']['header'].extend(bridge_h)
-            #
-            self.machine['includings'].extend(['hw/arm/{}.h'.format(bridge_name)])
-            self.machine_struct['fields'].extend([indent('{} bridge;'.format(to_state(bridge_name)))])
-            self.machine_init['body'].extend([
-                indent('object_initialize(&s->bridge, sizeof(s->bridge), {});'.format(to_type(bridge_name))),
-                indent('qdev_set_parent_bus(DEVICE(&s->bridge), sysbus_get_default());'),
-                indent('object_property_set_bool(OBJECT(&s->bridge), true, "realized", &err);', 1),
-                indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->bridge), 0, {});'.format(bridge_mmio_base), 1)
-            ])
-            # bridge_connect_to = self.firmware.lget_bridge_connect_to()
-            # bridge_connect_to = [
-            #     {'output': 0, 'input': {'device': 'ic', 'input': 0}},
-            # ]
-            # for connection in bridge_connect_to:
-            #     self.machine_init['body'].extend([
-            #         indent('sysbus_connect_irq(SYS_BUS_DEVICE(&bridge), {}, '
-            #                'qdev_get_gpio_in_named(DEVICE(&s->{}), {}, {})));'.format(
-            #             connection['output'], connection['input']['device'], to_irq(connection['input']['device']),
-            #             connection['input']['input']
-            #         ))])
-            self.machine_init['body'].extend([
-                indent(
-                    'sysbus_connect_irq(SYS_BUS_DEVICE(&s->bridge), 0, '
-                    'qdev_get_gpio_in_named(DEVICE(&s->ic), {}, 0));'.format(to_irq(ic_name))
-                )])
-            self.info('solved abelia bridge', 'compile')
-        # timer
-        if not cpu_pp_model and self.firmware.probe_timer():
-            timer_name = self.firmware.get_timer_name()
-            self.check_analysis(timer_name, 'timer_name')
-            timer_mmio_size = self.firmware.get_timer_mmio_size()
-            self.check_analysis(timer_mmio_size, 'timer_mmio_size')
-            timer_mmio_base = self.firmware.get_timer_mmio_base()
-            self.check_analysis(timer_mmio_base, 'timer_mmio_base')
-            timer_registers = self.firmware.get_timer_registers()
-            context = {'timer_name': timer_name, 'timer_mmio_size': timer_mmio_size, 'timer_mmio_base': timer_mmio_base,
-                       'timer_registers': timer_registers, 'upper': lambda x: x.upper(), 'concat': lambda x: concat(x),
-                       'license': ''.join(self.license)}
-            with open('generation/templates/timer.c') as f:
-                timer_c_lines = f.readlines()
-            timer_c = Template(''.join(timer_c_lines)).render(context)
-            self.custom_devices['timer']['source'].extend(timer_c)
-            with open('generation/templates/timer.h') as f:
-                timer_h_lines = f.readlines()
-            timer_h = Template(''.join(timer_h_lines)).render(context)
-            self.custom_devices['timer']['header'].extend(timer_h)
-            #
-            self.machine['includings'].extend(['hw/timer/{}.h'.format(timer_name)])
-            self.machine_struct['fields'].extend([indent('{} timer;'.format(to_state(timer_name)))])
-            self.machine_init['body'].extend([
-                indent('object_initialize(&s->timer, sizeof(s->timer), {});'.format(to_type(timer_name))),
-                indent('qdev_set_parent_bus(DEVICE(&s->timer), sysbus_get_default());'),
-                indent('object_property_set_bool(OBJECT(&s->timer), true, "realized", &err);', 1),
-                indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {});'.format(timer_mmio_base), 1)
-            ])
-            # timer_connect_to = self.firmware.lget_timer_connect_to()
-            timer_connect_to = [
-                {'output': 0, 'input': {'device': 'bridge', 'input': 1}},
-                {'output': 1, 'input': {'device': 'bridge', 'input': 2}}
-            ]
-            for connection in timer_connect_to:
-                self.machine_init['body'].extend([
-                    indent('sysbus_connect_irq(SYS_BUS_DEVICE(&s->timer), {}, '
-                           'qdev_get_gpio_in_named(DEVICE(&s->{}), {}, {}));'.format(
-                        connection['output'], connection['input']['device'], to_irq(connection['input']['device']),
-                        connection['input']['input']
-                    ))])
-            self.info('solved abelia timer', 'compile')
+            self.resolve_interrupt_controller()
+
         # uart
         if self.firmware.probe_uart():
             self.resolve_uart()
@@ -471,6 +361,40 @@ class CompilerToQEMUMachine(object):
             else:
                 raise NotImplementedError()
             self.info('soved abelia flash', 'compile')
+
+    # independent
+    def resolve_interrupt_controller(self):
+        ic_name = self.firmware.get_interrupt_controller_name()
+        self.check_analysis(ic_name, 'interrupt_controller_name')
+        ic_registers = self.firmware.get_interrupt_controller_registers()
+        self.check_analysis(ic_registers, 'interrupt_controller_registers')
+        ic_mmio_size = self.firmware.get_interrupt_controller_mmio_size()
+        self.check_analysis(ic_mmio_size, 'interrupt_controller_mmio_size')
+        ic_mmio_base = self.firmware.get_interrupt_controller_mmio_base()
+        self.check_analysis(ic_mmio_size, 'interrupt_controller_mmio_base')
+        timer_irq = self.firmware.get_timer_irq()
+        self.check_analysis(timer_irq, 'timer_irq')
+
+        context = {'interrupt_cause_register': ic_registers['interrupt_cause_register'],
+                   'interrupt_mask_register': ic_registers['interrupt_mask_register'],
+                   'interrupt_clear_register': ic_registers['interrupt_clear_register'],
+                   'ic_mmio_size': ic_mmio_size, 'ic_mmio_base': ic_mmio_base,
+                   'timer_irq': timer_irq, 'license': ''.join(self.license),
+                   'upper': lambda x: x.upper(), 'concat': lambda x: concat(x)}
+        ic_c = self.render_templates(context, 'generation/models/sintc.c')
+        self.custom_devices['interrupt_controller']['source'].extend(ic_c)
+        ic_h = self.render_templates(context, 'generation/models/sintc.h')
+        self.custom_devices['interrupt_controller']['header'].extend(ic_h)
+
+        self.machine['includings'].extend(['hw/intc/{}.h'.format(ic_name)])
+        self.machine_struct['fields'].extend([indent('SIntCState ic;', 1)])
+        self.machine_init['body'].extend([
+            indent('object_initialize(&s->ic, sizeof(s->ic), TYPE_SINTC);'),
+            indent('qdev_set_parent_bus(DEVICE(&s->ic), sysbus_get_default());'),
+            indent('object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);', 1),
+            indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {});'.format(ic_mmio_base), 1)
+        ])
+        self.info('solved abelia interrupt controller', 'compile')
 
     @abc.abstractmethod
     def resolve_uart_irq_api(self, uart_irq):
@@ -597,31 +521,9 @@ class CompilerToQEMUMachine(object):
             ])
             self.machine_mmio_ops.append(ops)
 
-    def solve_irq_to_cpu(self):
-        cpu_pp_model = self.firmware.probe_cpu_pp_model()
-        self.check_analysis(cpu_pp_model, 'cpu_pp_model')
-        architecture = self.firmware.get_architecture()
-        self.check_analysis(architecture, 'architecture')
-        if cpu_pp_model and architecture == 'arm':
-            self.machine_init['body'].extend([
-                indent('sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 0, '
-                       'qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));', 1),
-                indent('sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 1, '
-                       'qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_FIQ));', 1),
-                indent('sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 2, '
-                       'qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_VIRQ));', 1),
-                indent('sysbus_connect_irq(SYS_BUS_DEVICE(&s->cpu_pp), 3, '
-                       'qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_VFIQ));', 1),
-            ])
-        elif cpu_pp_model and architecture == 'mips':
-            pass
-        else:
-            if not self.firmware.probe_interrupt_controller():
-                return
-            self.machine_init['body'].extend([
-                indent('qdev_connect_gpio_out_named(DEVICE(&s->ic), "irq", 0, '
-                       'qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));')
-            ])
+    @abc.abstractmethod
+    def resolve_irq_to_cpu(self):
+        pass
 
     def solve_load_kernel(self):
         architecture = self.firmware.get_architecture()
@@ -668,7 +570,7 @@ class CompilerToQEMUMachine(object):
         self.machine_init['body'].extend([''])
         self.machine_init['body'].extend([indent('{}_reset(s);'.format(machine_name), 1)])
         self.machine_init['body'].extend([''])
-        self.solve_irq_to_cpu()
+        self.resolve_irq_to_cpu()
         self.solve_load_kernel()
         self.info('solved machine init', 'compile')
 

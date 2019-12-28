@@ -193,7 +193,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     @abc.abstractmethod
     def get_path_to_vmlinux(self, *args, **kwargs):
         pass
-    
+
     @abc.abstractmethod
     def set_path_to_source_code(self, *args, **kwargs):
         pass
@@ -328,38 +328,6 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def set_ram_size(self, *args, **kwargs):
         pass
 
-    # ===== bridge ====
-    def probe_bridge(self, *args, **kwargs):
-        return self.get_bridge_name() is not None
-
-    @abc.abstractmethod
-    def get_bridge_name(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_bridge_name(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_bridge_mmio_base(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_bridge_mmio_base(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_bridge_mmio_size(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_bridge_mmio_size(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_bridge_registers(self, *args, **kwargs):
-        pass
-
     # ===== interrupt controller ====
     def probe_interrupt_controller(self, *args, **kwargs):
         return self.get_interrupt_controller_name() is not None
@@ -397,11 +365,11 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
-    def get_n_irqs(self, *args, **kwargs):
+    def set_timer_irq(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_n_irqs(self, *args, **kwargs):
+    def get_timer_irq(self, *args, **kwargs):
         pass
 
     # ==== timer ====

@@ -143,27 +143,6 @@ class SimpleFirmware(Firmware):
     def set_ram_size(self, *args, **kwargs):
         self.set_general('ram', 'size', value=args[0])
 
-    def get_bridge_name(self, *args, **kwargs):
-        return self.get_general('bridge', 'name')
-
-    def set_bridge_name(self, *args, **kwargs):
-        self.set_general('bridge', 'name', value=args[0])
-
-    def get_bridge_mmio_base(self, *args, **kwargs):
-        return self.get_general('bridge', 'mmio_base')
-
-    def set_bridge_mmio_base(self, *args, **kwargs):
-        self.set_general('bridge', 'mmio_base', value=args[0])
-
-    def get_bridge_mmio_size(self, *args, **kwargs):
-        return self.get_general('bridge', 'mmio_size')
-
-    def set_bridge_mmio_size(self, *args, **kwargs):
-        self.set_general('bridge', 'mmio_size', value=args[0])
-
-    def get_bridge_registers(self, *args, **kwargs):
-        return self.get_general('bridge', 'registers')
-
     def get_interrupt_controller_name(self, *args, **kwargs):
         return self.get_general('interrupt_controller', 'name')
 
@@ -174,7 +153,9 @@ class SimpleFirmware(Firmware):
         return self.get_general('interrupt_controller', 'registers')
 
     def set_interrupt_controller_registers(self, *args, **kwargs):
-        self.set_general('interrupt_controller', 'registers', value=args[0])
+        # args: name, address, value
+        self.set_general('interrupt_controller', 'registers', args[0], 'offset', value=args[0])
+        self.set_general('interrupt_controller', 'registers', args[0], 'value', value=args[0])
 
     def get_interrupt_controller_mmio_size(self, *args, **kwargs):
         return self.get_general('interrupt_controller', 'mmio_size')
@@ -188,11 +169,11 @@ class SimpleFirmware(Firmware):
     def set_interrupt_controller_mmio_base(self, *args, **kwargs):
         self.set_general('interrupt_controller', 'mmio_base', value=args[0])
 
-    def get_n_irqs(self, *args, **kwargs):
-        return self.get_general('interrupt_controller', 'n_irqs')
+    def set_timer_irq(self, *args, **kwargs):
+        self.set_general('interrupt_controller', 'timer_irq', value=args[0])
 
-    def set_n_irqs(self, *args, **kwargs):
-        self.set_general('interrupt_controller', 'n_irqs', value=args[0])
+    def get_timer_irq(self, *args, **kwargs):
+        return self.get_general('interrupt_controller', 'timer_irq')
 
     def get_timer_name(self, *args, **kwargs):
         return self.get_general('timer', 'name')
