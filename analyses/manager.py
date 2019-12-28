@@ -1,6 +1,7 @@
 import os
 
 from analyses.analysis import Analysis, AnalysisGroup
+from analyses.diag_bamboos import Bamboos
 from analyses.diag_callstack import CallStack
 from analyses.diag_dabt import DataAbort
 from analyses.inf_libtooling import LibTooling
@@ -230,3 +231,4 @@ class AnalysesManager(object):
             self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
             self.register_analysis(DeadLoop(self), analyses_tree=dynamic_analysis)
             self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
+            self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)

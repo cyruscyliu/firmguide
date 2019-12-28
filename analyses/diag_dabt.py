@@ -35,6 +35,7 @@ class DataAbort(Analysis):
                 where_to_return = int(next_cpurf['register_files']['R14'], 16) - 8
                 self.info(firmware, 'the program should re-entry 0x{:x} {}'.format(
                     where_to_return, get_instruction(where_to_return, get_bb(cpurf, trace.bbs))), 1)
+                self.dead_addresses.append(cpurf['register_files']['DFAR'])
 
         return True
 
@@ -45,3 +46,5 @@ class DataAbort(Analysis):
         self.context['hint'] = 'bad bad bad trace'
         self.critical = False
         self.required = ['dead_loop']
+        #
+        self.dead_addresses = []

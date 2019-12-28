@@ -153,9 +153,9 @@ class SimpleFirmware(Firmware):
         return self.get_general('interrupt_controller', 'registers')
 
     def set_interrupt_controller_registers(self, *args, **kwargs):
-        # args: name, address, value
-        self.set_general('interrupt_controller', 'registers', args[0], 'offset', value=args[0])
-        self.set_general('interrupt_controller', 'registers', args[0], 'value', value=args[0])
+        # args: name, offset, value
+        self.set_general('interrupt_controller', 'registers', args[0], 'offset', value=args[1])
+        self.set_general('interrupt_controller', 'registers', args[0], 'value', value=args[2])
 
     def get_interrupt_controller_mmio_size(self, *args, **kwargs):
         return self.get_general('interrupt_controller', 'mmio_size')
@@ -267,7 +267,7 @@ class SimpleFirmware(Firmware):
         pass
 
     def get_bamboo_devices(self, *args, **kwargs):
-        bamboo = self.get_general('bamboo', None)
+        bamboo = self.get_general('bamboo')
         if bamboo is None:
             return []
         else:
