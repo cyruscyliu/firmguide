@@ -121,3 +121,4 @@ class Kernel(Analysis):
         self.context['hint'] = 'you must add strings parsers'
         self.required = ['extraction']
         self.critical = False
+        self.settings = ['kernel_version', 'kernel_created_time', 'kernel_load_address', 'kernel_entry_point']

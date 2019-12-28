@@ -2325,6 +2325,7 @@ class Strings(Analysis):
         self.required = ['extraction', 'revision']
         self.context['hint'] = 'lack of strings'
         self.critical = False
+        self.settings = ['toh', 'target', 'subtarget', 'cpu', 'uart', 'ic', 'flash']
         #
         self.strings = []
 

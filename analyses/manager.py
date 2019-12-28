@@ -1,3 +1,5 @@
+import os
+
 from analyses.analysis import Analysis, AnalysisGroup
 from analyses.diag_callstack import CallStack
 from analyses.diag_dabt import DataAbort
@@ -32,9 +34,28 @@ class AnalysesManager(object):
         self.static_analysis = None
         self.dynamic_analysis = None
 
-    def print_pretty(self):
-        for analysis in self.analyses_flat.values():
-            print(analysis.name, analysis.__class__, analysis.required, analysis.context['hint'])
+    def print_analysis_chain(self, chain):
+        logger_info(self.firmware.uuid, 'analysis', 'chain', '->'.join(chain), 1)
+
+    def print_readme(self):
+        with open(os.path.join(os.getcwd(), 'analyses', '.analyses.csv'), 'w') as f:
+            for analysis in self.analyses_flat.values():
+                a = analysis.name
+                b = analysis.__class__.__name__
+                if len(analysis.required) > 1:
+                    c = '@'.join(analysis.required)
+                elif len(analysis.required) == 1:
+                    c = analysis.required[0]
+                else:
+                    c = ''
+                if len(analysis.settings) > 1:
+                    d = '@'.join(analysis.settings)
+                elif len(analysis.settings) == 1:
+                    d = analysis.settings[0]
+                else:
+                    d = ''
+                e = analysis.context['hint']
+                f.write('{}\n'.format(','.join([a, b, c, d, e])))
 
     def get_analysis(self, name):
         return self.analyses_flat[name]
@@ -133,6 +154,7 @@ class AnalysesManager(object):
             self.last_analysis_status = analysis.run(self.firmware)
 
     def run(self, target_analyses_tree=None):
+        self.print_readme()
         for analyses_tree_name, analyses_tree in self.analyses_forest.items():
             if target_analyses_tree is not None and analyses_tree_name != target_analyses_tree:
                 continue

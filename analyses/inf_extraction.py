@@ -59,3 +59,4 @@ class Extraction(Analysis):
         self.context['hint'] = 'the image type is unsupported'
         self.required = ['format']
         self.critical = True
+        self.settings = ['path_to_kernel', 'path_to_dbt']

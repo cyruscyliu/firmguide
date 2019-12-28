@@ -126,6 +126,7 @@ class DeviceTree(Analysis):
         self.required = ['extraction']
         self.context['hint'] = 'device tree is not available'
         self.critical = False
+        self.settings = ['dtc']
         #
         self.dts = None
         self.qemu_devices = get_database('qemu.devices')

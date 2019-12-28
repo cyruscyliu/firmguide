@@ -105,3 +105,4 @@ class DotConfig(Analysis):
         self.required = ['srcode']
         self.context['hint'] = 'no .config available'
         self.critical = False
+        self.settings = ['cpu']

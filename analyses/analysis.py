@@ -9,6 +9,7 @@ class Analysis(object):
         self.name = None
         self.description = None
         self.required = []
+        self.settings = []
         self.context = {'hint': '', 'input': ''}
         self.critical = False
         self.args = None

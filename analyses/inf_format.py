@@ -57,3 +57,4 @@ class Format(Analysis):
         self.context['hint'] = 'binwalk does not recognize this new format'
         self.critical = True
         self.required = []
+        self.settings = ['format', 'path_to_image']

@@ -76,6 +76,7 @@ class OpenWRTURL(Analysis):
         self.required = []
         self.context['hint'] = 'update download url for this firmware'
         self.critical = False
+        self.settings = ['homepage', 'target', 'subtarget', 'revision']
 
 
 class OpenWRTRevision(Analysis):
@@ -100,6 +101,7 @@ class OpenWRTRevision(Analysis):
         self.required = ['kernel']
         self.context['hint'] = 'no kernel version available or no handler for this kernel version'
         self.critical = False
+        self.settings = ['revision']
 
 
 class OpenWRTToH(Analysis):
@@ -180,3 +182,4 @@ class OpenWRTToH(Analysis):
         self.required = ['kernel', 'url', 'strings']
         self.context['hint'] = ''
         self.critical = False
+        self.settings = ['toh', 'cpu', 'ram', 'flash']

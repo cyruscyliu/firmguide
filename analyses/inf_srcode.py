@@ -39,3 +39,4 @@ class SRCode(Analysis):
         self.required = ['strings', 'revision', 'url', 'toh']
         self.context['hint'] = ''
         self.critical = True
+        self.settings = ['path_to_source_code']
