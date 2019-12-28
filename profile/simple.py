@@ -269,7 +269,7 @@ class SimpleFirmware(Firmware):
     def get_bamboo_devices(self, *args, **kwargs):
         bamboo = self.get_general('bamboo')
         if bamboo is None:
-            return []
+            return {}
         else:
             return bamboo
 
@@ -418,6 +418,16 @@ class SimpleFirmware(Firmware):
 
     def set_cpu_model(self, *args, **kwargs):
         self.set_general('cpu', 'model', value=args[0])
+
+    def set_va_pa_mapping(self, *args, **kwargs):
+        # va, pa, size
+        va, pa, size = args
+        self.set_general('mapping', va, 'va', value=va)
+        self.set_general('mapping', va, 'pa', value=pa)
+        self.set_general('mapping', va, 'size', value=size)
+
+    def get_va_pa_mapping(self, *args, **kwargs):
+        return self.get_general('mapping')
 
     def __init__(self, *args, **kwargs):
         super(SimpleFirmware, self).__init__(*args, **kwargs)

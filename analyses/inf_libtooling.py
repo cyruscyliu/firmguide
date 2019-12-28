@@ -35,6 +35,13 @@ class LibTooling(Analysis):
             firmware.set_interrupt_controller_registers('interrupt_clear_register', '0x010', '0x0')
             firmware.set_timer_irq('0x0')
             self.info(firmware, 'set interrupt controller manually, waiting for libtooling ...', 1)
+            firmware.set_va_pa_mapping('0xfdd00000', '0xf1000000', '0x100000')
+            firmware.set_va_pa_mapping('0xfde00000', '0xf2000000', '0x100000')
+            firmware.set_va_pa_mapping('0xfdf00000', '0xf2100000', '0x100000')
+            firmware.set_va_pa_mapping('0xfe000000', '0xf0000000', '0x1000000')
+            self.info(firmware, 'set va/pa mapping manually, waiting for libtooling ...', 1)
+
+
         return True
 
     def __init__(self, analysis_manager):

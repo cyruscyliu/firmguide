@@ -508,3 +508,13 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     @abc.abstractmethod
     def get_bamboo_devices(self, *args, **kwargs):
         pass
+
+    # ==== mapping ====
+    @abc.abstractmethod
+    def set_va_pa_mapping(self, *args, **kwargs):
+        # va, pa, size
+        pass
+
+    @abc.abstractmethod
+    def get_va_pa_mapping(self, *args, **kwargs):
+        pass

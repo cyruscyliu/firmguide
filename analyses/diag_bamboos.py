@@ -43,6 +43,17 @@ class Bamboos(Analysis):
         for bamboo in self.bamboos:
             yield bamboo.__str__()
 
+    def convert_address(self, address):
+        if isinstance(address, str):
+            address = int(address, 16)
+        for k, mapping in self.mapping.items():
+            va = int(mapping['va'], 16)
+            size = int(mapping['size'], 16)
+            if va < address < va + size:
+                pa = int(mapping['pa'], 16)
+                return pa + (address - va)
+        return address
+
     def run(self, firmware):
         dabt = self.analysis_manager.get_analysis('data_abort')
         assert isinstance(dabt, DataAbort)
@@ -51,8 +62,11 @@ class Bamboos(Analysis):
         if firmware.profile is None:
             # in diagnosis mode
             bamboo_devices = {}
+            # load va/pa mapping
+            self.mapping = {}
         else:
             bamboo_devices = firmware.get_bamboo_devices()
+            self.mapping = firmware.get_va_pa_mapping()
 
         for name, parameters in bamboo_devices.items():
             bamboo = Bamboo()
@@ -65,7 +79,7 @@ class Bamboos(Analysis):
         # get dead addresses
         for dead_address in dabt.dead_addresses:
             bamboo = Bamboo()
-            bamboo.mmio_base = int(dead_address, 16) & 0xFFFFFF00
+            bamboo.mmio_base = self.convert_address(int(dead_address, 16) & 0xFFFFFF00)
             bamboo.mmio_size = 0x100
             self.insert(bamboo)
             self.init_registers(bamboo)
@@ -85,3 +99,4 @@ class Bamboos(Analysis):
         #
         self.bamboos = []
         self.variable = 0
+        self.mapping = {}
