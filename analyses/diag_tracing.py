@@ -48,7 +48,7 @@ class DoTracing(Analysis):
         full_command = ' '.join([firmware.running_command, trace_flags, qmp_flags])
         try:
             logger_info(firmware.get_uuid(), 'tracing', 'qemudebug', full_command, 0)
-            status = subprocess.run(full_command, timeout=10, shell=True).returncode
+            status = subprocess.run(full_command, timeout=20, shell=True).returncode
         except subprocess.TimeoutExpired:
             status = 0
             qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))

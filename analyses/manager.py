@@ -168,7 +168,7 @@ class AnalysesManager(object):
                     # meaning that there is no analysis at all
                     continue
                 # save and restore
-                if finished(self.firmware, a):
+                if not self.firmware.rerun and finished(self.firmware, a):
                     logger_info(self.firmware.get_uuid(), 'analysis', 'done before', a.name, 0)
                     continue
                 try:
@@ -228,7 +228,7 @@ class AnalysesManager(object):
         if not check_only:
             self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
             self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
-            self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
+            # self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
             self.register_analysis(DeadLoop(self), analyses_tree=dynamic_analysis)
             self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
             self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)

@@ -35,6 +35,9 @@ class DataAbort(Analysis):
                 where_to_return = int(next_cpurf['register_files']['R14'], 16) - 8
                 self.info(firmware, 'the program should re-entry 0x{:x} {}'.format(
                     where_to_return, get_instruction(where_to_return, get_bb(cpurf, trace.bbs))), 1)
+                if int(cpurf['register_files']['DFAR'], 16) == 0:
+                    self.info(firmware, 'kernel panic by accessing 0', 1)
+                    continue
                 self.dead_addresses.append(cpurf['register_files']['DFAR'])
 
         return True

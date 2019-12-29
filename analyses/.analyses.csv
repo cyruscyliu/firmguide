@@ -15,7 +15,6 @@ do_tracing,DoTracing,,,user interruption or QEMU internal error
 check,Checking,load_trace,,bad bad bad trace
 load_trace,LoadTrace,do_tracing,,bad bad bad trace
 data_abort,DataAbort,dead_loop,,bad bad bad trace
-callstack,CallStack,data_abort,,bad bad bad trace
 dead_loop,DeadLoop,check,,bad bad bad trace
 init_value,InitValue,check,,very difficult program analysis
 bamboos,Bamboos,data_abort@init_value,,bad bad bad trace
