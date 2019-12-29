@@ -139,13 +139,6 @@ Sometimes we just want to check our trace offline to gain more insights.
  ./salamander.py -t log/14292.trace # mips not be supported well
 ```
 
-### Visualization
-
-After running, it is better to have a page to show the analysis results rather than checking massive logs. Simply run
-`python dashboard/__init__.py` and follow its instructions you will see the statistics of your analysis in your browser.
-
-![dashboard](./dashboard/dashboard.png)
-
 ### Add an analysis
 
 If the built-in analyses can not boot the kernel to its shell, you have to add your own analysis. 
