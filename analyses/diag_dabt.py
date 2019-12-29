@@ -19,7 +19,7 @@ class DataAbort(Analysis):
 
         dabts = []
         for k, cpurf in trace.cpurfs.items():
-            if 'exception' in cpurf and cpurf['exception']['type'] == 'dabt':
+            if 'exception' in cpurf and 'type' in cpurf['exception'] and cpurf['exception']['type'] == 'dabt':
                 dabts.append(cpurf)
 
         for cpurf in dabts:
