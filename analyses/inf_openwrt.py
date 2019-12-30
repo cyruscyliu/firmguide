@@ -180,6 +180,6 @@ class OpenWRTToH(Analysis):
         self.description = 'extract information from OpenWRT table of hardware'
         self.name = 'toh'
         self.required = ['kernel', 'url', 'strings']
-        self.context['hint'] = ''
+        self.context['hint'] = 'there is no toh available'
         self.critical = False
         self.settings = ['toh', 'cpu', 'ram', 'flash']

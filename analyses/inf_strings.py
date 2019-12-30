@@ -162,6 +162,9 @@ class Strings(Analysis):
                     'get the most possible subtarget {}'.format(most_possible), 1)
 
     def find_uart(self, firmware):
+        if firmware.get_path_to_dtb() is not None:
+            return
+
         flag = False
         for string in self.strings:
             if string.find('8250') != -1 or string.find('16550') != -1:
@@ -185,6 +188,9 @@ class Strings(Analysis):
             firmware.set_uart_num(firmware.get_uart_num() + 1)
 
     def find_flash_type_by_strings(self, firmware):
+        if firmware.get_path_to_dtb() is not None:
+            return
+        
         for string in self.strings:
             if string.find('physmap-flash') != -1:
                 firmware.set_flash_type('nor')

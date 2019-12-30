@@ -6,7 +6,7 @@ dt,DeviceTree,extraction,dtc,device tree is not available
 strings,Strings,extraction@revision,toh@target@subtarget@cpu@uart@ic@flash,lack of strings
 revision,OpenWRTRevision,kernel,revision,no kernel version available or no handler for this kernel version
 url,OpenWRTURL,,homepage@target@subtarget@revision,update download url for this firmware
-toh,OpenWRTToH,kernel@url@strings,toh@cpu@ram@flash,
+toh,OpenWRTToH,kernel@url@strings,toh@cpu@ram@flash,there is no toh available
 ram,AbeliaRAM,toh,,
 srcode,SRCode,strings@revision@url@toh,path_to_source_code,
 .config,DotConfig,srcode,cpu,no .config available
