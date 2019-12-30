@@ -121,6 +121,26 @@ def setup_code_generation(args, firmware):
     firmware.path_to_trace = 'log/{}.trace'.format(firmware.get_uuid())
 
 
+def setup_print_profile(args, firmware):
+    firmware.uuid = args.uuid
+    setup_working_directory(args, firmware)
+
+    extension = 'yaml' if args.profile == 'simple' else 'dt'
+    path_to_profile = os.path.join(firmware.working_directory, 'profile.' + extension)
+
+    if os.path.exists(path_to_profile):
+        # load the profile
+        firmware.set_profile(path_to_profile=path_to_profile)
+        try:
+            firmware.size = os.path.getsize(firmware.get_path())
+        except TypeError as e:
+            print('May be you forget -wd? Otherwise, please run rm {}'.format(path_to_profile))
+            raise e
+        setup_working_path(firmware)
+    else:
+        print('the profile {} does not exist'.format(path_to_profile))
+
+
 def setup_single_analysis(args, firmware):
     # must assign the uuid
     firmware.uuid = args.uuid

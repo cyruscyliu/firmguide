@@ -4,7 +4,10 @@ from profile.firmwaref import get_firmware_in_profile
 
 from supervisor.logging_setup import logger_info, logger_warning
 from supervisor.save_and_restore import \
-    check_and_restore, save_analysis, setup_diagnosis, setup_code_generation, setup_single_analysis
+    check_and_restore, save_analysis, \
+    setup_diagnosis, setup_code_generation, setup_single_analysis, setup_print_profile
+
+import os
 
 
 def run_diagnosis(firmware):
@@ -21,9 +24,16 @@ def run_code_generation(firmware):
     analysis_wrapper(firmware, static_analysis=False, check_only=True)
 
 
+def run_print_profile(firmware):
+    firmware.print_profile()
+
+
 def run(parser, args):
     firmware = get_firmware_in_profile(args.profile)
-    if args.trace:
+    if args.print_profile:
+        setup_print_profile(args, firmware)
+        run_print_profile(firmware)
+    elif args.trace:
         setup_diagnosis(args, firmware)
         run_diagnosis(firmware)
     elif args.generation:

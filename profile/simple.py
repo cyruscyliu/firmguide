@@ -9,6 +9,10 @@ from profile.firmware import Firmware
 
 
 class SimpleFirmware(Firmware):
+    def print_profile(self):
+        path_to_profile = os.path.join(self.working_directory, 'profile.yaml')
+        os.system('cat {}'.format(path_to_profile))
+
     def load_uuid(self, *args, **kwargs):
         return self.get_general('basics', 'uuid')
 

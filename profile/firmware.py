@@ -27,6 +27,10 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.set_uart_num(0)
 
     @abc.abstractmethod
+    def print_profile(self):
+        pass
+
+    @abc.abstractmethod
     def load_uuid(self, *args, **kwargs):
         pass
 
