@@ -37,6 +37,6 @@ This is one of the key parts of Salamander. We have listed useful [devices](./qe
 
 ### OpenWRT
 
-To support OpenWRT, we add [openwrt.csv](./openwrt.csv) and [openwrt.yaml](./openwrt.yaml) two databases.
-+ [openwrt.csv](./openwrt.csv) is the table of hardware of OpenWRT
-+ [openwrt.yaml](./openwrt.yaml) maintains the mapping between OpenWRT revision and kernel version
+To support OpenWRT, we add [openwrt.csv](openwrt_toh.csv) and [openwrt.yaml](openwrt_rk.yaml) two databases.
++ [openwrt.csv](openwrt_toh.csv) is the table of hardware of OpenWRT
++ [openwrt.yaml](openwrt_rk.yaml) maintains the mapping between OpenWRT revision and kernel version

@@ -14,7 +14,7 @@ class DatabaseOpenWRTMapping(Database):
         select url where kernel_version='2.6.32'
         """
         action = args[0]
-        table = open(os.path.join(os.getcwd(), 'database', 'openwrt.yaml'))
+        table = open(os.path.join(os.getcwd(), 'database', 'openwrt_rk.yaml'))
 
         if action == 'revision':
             kernel_version = kwargs.pop('kernel_version')
@@ -36,9 +36,9 @@ class DatabaseOpenWRTMapping(Database):
 
 class DatabaseOpenWRTToH(Database):
     """
-    Will load openwrt.csv which is the official table of hardware from OpenWrt.
+    Will load openwrt_toh.csv which is the official table of hardware from OpenWrt.
     Download it from https://openwrt.org/_media/toh_dump_tab_separated_csv.zip.
-    We rename toh_dump_tab_separated_csv.csv to simple openwrt.csv.
+    We rename toh_dump_tab_separated_csv.csv to simple openwrt_toh.csv.
 
     Note: the delimiter is '\t'.
     """
@@ -66,7 +66,7 @@ class DatabaseOpenWRTToH(Database):
         columns = []
         records = []
         header = None
-        table = open(os.path.join(os.getcwd(), 'database', 'openwrt.csv'))
+        table = open(os.path.join(os.getcwd(), 'database', 'openwrt_toh.csv'))
         for line in csv.reader(table, delimiter='\t'):
             # save the header first
             if header is None:

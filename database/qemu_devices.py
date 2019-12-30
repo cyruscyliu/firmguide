@@ -27,9 +27,8 @@ class DatabaseQEMUDevices(Database):
 
         result = None
         if device == 'cpu':
-            result, score = process.extractOne(like, choices)
-            if score < 80:
-                result = None
+            if like in choices:
+                result = choices[like][0]
         elif device == 'cpu_private':
             if like in choices:
                 result = choices[like]
