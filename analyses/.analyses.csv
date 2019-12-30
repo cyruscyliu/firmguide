@@ -1,20 +1,8 @@
 analysis, class, requirements, settings, exception
-format,Format,,format@path_to_image,binwalk does not recognize this new format
-extraction,Extraction,format,path_to_kernel@path_to_dbt,the image type is unsupported
-kernel,Kernel,extraction,kernel_version@kernel_created_time@kernel_load_address@kernel_entry_point,you must add strings parsers
-dt,DeviceTree,extraction@strings,dtc,device tree is not available
-strings,Strings,extraction@revision,toh@target@subtarget@cpu@uart@ic@flash,lack of strings
-revision,OpenWRTRevision,kernel,revision,no kernel version available or no handler for this kernel version
-url,OpenWRTURL,,homepage@target@subtarget@revision,update download url for this firmware
-toh,OpenWRTToH,kernel@url@strings,toh@cpu@ram@flash,there is no toh available
-ram,AbeliaRAM,toh,,
-srcode,SRCode,strings@revision@url@toh,path_to_source_code,
-.config,DotConfig,srcode,cpu,no .config available
-kerberos,LibTooling,srcode,,
-do_tracing,DoTracing,,,user interruption or QEMU internal error
 check,Checking,load_trace,,bad bad bad trace
 load_trace,LoadTrace,do_tracing,,bad bad bad trace
-data_abort,DataAbort,dead_loop,,bad bad bad trace
+data_abort,DataAbort,callstack,,bad bad bad trace
+callstack,CallStack,check,,bad bad bad trace
 dead_loop,DeadLoop,check,,bad bad bad trace
 init_value,InitValue,check,,very difficult program analysis
 bamboos,Bamboos,data_abort@init_value,,bad bad bad trace

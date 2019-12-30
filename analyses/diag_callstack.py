@@ -90,4 +90,4 @@ class CallStack(Analysis):
         self.description = 'show callstack in the trace'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = False
-        self.required = ['data_abort']
+        self.required = ['check']

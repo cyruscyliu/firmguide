@@ -52,6 +52,6 @@ class DataAbort(Analysis):
         self.description = 'find data abort info'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = True
-        self.required = ['dead_loop']
+        self.required = ['callstack']
         #
         self.dead_addresses = []

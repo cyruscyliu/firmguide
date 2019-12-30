@@ -228,7 +228,7 @@ class AnalysesManager(object):
         if not check_only:
             self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
             self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
-            # self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
+            self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
             self.register_analysis(DeadLoop(self), analyses_tree=dynamic_analysis)
             self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
             self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)
