@@ -40,7 +40,13 @@ class LibTooling(Analysis):
             firmware.set_va_pa_mapping('0xfdf00000', '0xf2100000', '0x100000')
             firmware.set_va_pa_mapping('0xfe000000', '0xf0000000', '0x1000000')
             self.info(firmware, 'set va/pa mapping manually, waiting for libtooling ...', 1)
-
+        elif firmware.uuid == "13882":
+            firmware.set_va_pa_mapping('0xf0002000', '0x47000000', '0x2000')
+            firmware.set_va_pa_mapping('0xf0004000', '0x44e00000', '0x1000')
+            firmware.set_va_pa_mapping('0xf0005000', '0x44f00000', '0x1000')
+            firmware.set_va_pa_mapping('0xf0006000', '0x44400000', '0x1000')
+            firmware.set_va_pa_mapping('0xfdd07000', '0x44500000', '0x1000')
+            self.info(firmware, 'set va/pa mapping manually, waiting for libtooling ...', 1)
 
         return True
 

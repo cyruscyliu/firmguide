@@ -3,6 +3,24 @@ from generation.compiler import CompilerToQEMUMachine
 
 
 class MIPSCompiler(CompilerToQEMUMachine):
+    def resolve_cpu(self):
+        self.machine['includings'].extend(['target/arm/cpu-qom.h'])
+        self.machine_struct['fields'].extend([indent('MIPSCPU *cpu;', 1)])
+        self.machine_init['body'].extend([
+            indent('s->cpu = MIPS_CPU(object_new(machine->cpu_type));')])
+        self.machine_init['body'].extend([
+            indent('object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);', 1)])
+        self.info('solved abelia cpu', 'compile')
+
+    def resolve_cpu_private_peripheral(self):
+        if self.cpu_pp_model:
+            self.machine['includings'].extend(['hw/mips/cpudevs.h'])
+            self.machine_init['body'].extend([
+                indent('cpu_mips_irq_init_cpu(s->cpu);', 1),
+                indent('cpu_mips_clock_init(s->cpu);', 1)
+            ])
+            self.info('solved abelia cpu private peripheral', 'compile')
+
     def resolve_irq_to_cpu(self):
         if self.cpu_pp_model:
             return

@@ -274,49 +274,16 @@ class CompilerToQEMUMachine(object):
             lines = f.readlines()
         return Template(''.join(lines)).render(context)
 
+    @abc.abstractmethod
+    def resolve_cpu(self):
+        pass
+
+    # half independent
     def solve_abelia_devices(self):
         # cpu
-        architecture = self.firmware.get_architecture()
-        self.check_analysis(architecture, 'architecture')
-        if architecture == 'arm':
-            self.machine['includings'].extend(['target/arm/cpu-qom.h'])
-            self.machine_struct['fields'].extend([indent('ARMCPU *cpu;', 1)])
-            self.machine_init['body'].extend([
-                indent('s->cpu = ARM_CPU(object_new(machine->cpu_type));')
-            ])
-        elif architecture == 'mips':
-            self.machine['includings'].extend(['target/arm/cpu-qom.h'])
-            self.machine_struct['fields'].extend([indent('MIPSCPU *cpu;', 1)])
-            self.machine_init['body'].extend([
-                indent('s->cpu = MIPS_CPU(object_new(machine->cpu_type));')])
-        else:
-            raise NotImplementedError()
-        self.machine_init['body'].extend([
-            indent('object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);', 1)])
-        self.info('solved abelia cpu', 'compile')
-
+        self.resolve_cpu()
         # cpu_pp
-        cpu_model = self.firmware.get_cpu_model()
-        self.check_analysis(cpu_model, 'cpu_model')
-        cpu_pp_model = self.firmware.probe_cpu_pp_model()
-        if cpu_pp_model:
-            if architecture == 'arm':
-                cpu_pp_mmio_base = self.firmware.get_cpu_pp_mmio_base()
-                self.check_analysis(cpu_pp_mmio_base, 'cpu_pp_mmio_base')
-                self.machine['includings'].extend(['hw/cpu/arm11mpcore.h'])
-                self.machine_struct['fields'].extend([indent('{} cpu_pp;'.format(to_cpu_pp_state(cpu_model)), 1)])
-                self.machine_init['body'].extend([
-                    indent('object_initialize(&s->cpu_pp, sizeof(s->cpu_pp), {});'.format(to_cpu_pp_type(cpu_model))),
-                    indent('object_property_set_bool(OBJECT(&s->cpu_pp), true, "realized", &err);', 1),
-                    indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_pp), 0, {});'.format(cpu_pp_mmio_base), 1)
-                ])
-            elif architecture == 'mips':
-                self.machine['includings'].extend(['hw/mips/cpudevs.h'])
-                self.machine_init['body'].extend([
-                    indent('cpu_mips_irq_init_cpu(s->cpu);', 1),
-                    indent('cpu_mips_clock_init(s->cpu);', 1)
-                ])
-            self.info('solved abelia cpu private peripheral', 'compile')
+        self.resolve_cpu_private_peripheral()
         # ram
         ram_priority = self.firmware.get_ram_priority()
         self.check_analysis(ram_priority, 'ram_priority')
@@ -329,7 +296,7 @@ class CompilerToQEMUMachine(object):
         self.info('solved abelia ram', 'compile')
 
         # interrupt controller
-        if not cpu_pp_model and self.firmware.probe_interrupt_controller():
+        if not self.cpu_pp_model and self.firmware.probe_interrupt_controller():
             self.resolve_interrupt_controller()
 
         # uart
@@ -361,6 +328,11 @@ class CompilerToQEMUMachine(object):
             else:
                 raise NotImplementedError()
             self.info('soved abelia flash', 'compile')
+
+    # dependent
+    @abc.abstractmethod
+    def resolve_cpu_private_peripheral(self):
+        pass
 
     # independent
     def resolve_interrupt_controller(self):
@@ -400,6 +372,7 @@ class CompilerToQEMUMachine(object):
     def resolve_uart_irq_api(self, uart_irq):
         pass
 
+    # half independent
     def resolve_uart(self):
         # get uarts information
         uart_num = self.firmware.get_uart_num()

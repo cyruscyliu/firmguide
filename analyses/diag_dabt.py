@@ -22,6 +22,10 @@ class DataAbort(Analysis):
             if 'exception' in cpurf and 'type' in cpurf['exception'] and cpurf['exception']['type'] == 'dabt':
                 dabts.append(cpurf)
 
+        if not len(dabts):
+            self.context['input'] = 'no more data abort, maybe there are some heavy loops?'
+            return False
+
         for cpurf in dabts:
             # dabt
             # current bb has where to abort -> next bb has where to return
@@ -47,7 +51,7 @@ class DataAbort(Analysis):
         self.name = 'data_abort'
         self.description = 'find data abort info'
         self.context['hint'] = 'bad bad bad trace'
-        self.critical = False
+        self.critical = True
         self.required = ['dead_loop']
         #
         self.dead_addresses = []

@@ -30,6 +30,7 @@ class DeviceTree(Analysis):
         compatible = self.dts.get_property('compatible', path_to_cpu).data[0]
         compatible = self.qemu_devices.select('cpu', like=compatible)
         firmware.set_cpu_model(compatible)
+        self.info(firmware, 'get cpu model: {}'.format(compatible), 1)
 
     def ic01_parse_ic_from_device_tree(self, firmware):
         ic_parent = self.dts.get_property('interrupt-parent').data[0]
@@ -123,7 +124,7 @@ class DeviceTree(Analysis):
         super().__init__(analysis_manager)
         self.name = 'dt'
         self.description = 'parse firmware\'s device tree'
-        self.required = ['extraction']
+        self.required = ['extraction', 'strings']
         self.context['hint'] = 'device tree is not available'
         self.critical = False
         self.settings = ['dtc']
