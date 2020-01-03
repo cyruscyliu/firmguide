@@ -21,7 +21,7 @@ from analyses.inf_kernel import Kernel
 from analyses.inf_openwrt import OpenWRTRevision, OpenWRTURL, OpenWRTToH
 from analyses.inf_srcode import SRCode
 from analyses.inf_strings import Strings
-from analyses.inf_ram import AbeliaRAM
+from analyses.inf_ram import RAMDefault
 
 
 class AnalysesManager(object):
@@ -211,7 +211,7 @@ class AnalysesManager(object):
         self.register_analysis(OpenWRTURL(self), analyses_tree=static_analysis)
         self.register_analysis(OpenWRTToH(self), analyses_tree=static_analysis)
         # toh <- ram by default
-        self.register_analysis(AbeliaRAM(self), analyses_tree=static_analysis)
+        self.register_analysis(RAMDefault(self), analyses_tree=static_analysis)
         # srcode <- .config
         self.register_analysis(SRCode(self), analyses_tree=static_analysis)
         self.register_analysis(DotConfig(self), analyses_tree=static_analysis)
@@ -228,7 +228,7 @@ class AnalysesManager(object):
         if not check_only:
             self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
             self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
-            self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
+            # self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
             self.register_analysis(DeadLoop(self), analyses_tree=dynamic_analysis)
             self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
             self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)

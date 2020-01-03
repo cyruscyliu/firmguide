@@ -1,7 +1,7 @@
 from analyses.analysis import Analysis
 
 
-class AbeliaRAM(Analysis):
+class RAMDefault(Analysis):
     def run(self, firmware):
         ram_size = firmware.get_ram_size()
         if ram_size is not None:
