@@ -45,7 +45,6 @@ class Extraction(Analysis):
             uimage = replace_extension(image_path, 'trx', 'uimage')
             os.system('mkimage -A {} -C none -O linux -T kernel -d {} '
                       '-a 0x1000 -e 0x80001000 {} >/dev/null 2>&1'.format(firmware.get_architecture(), kernel, uimage))
-            print(uimage)
             firmware.set_path_to_uimage(uimage)
         else:
             self.context['input'] = 'add support to this image type {}'.format(image_type)

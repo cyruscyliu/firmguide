@@ -122,7 +122,7 @@ class DeviceTree(Analysis):
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-        self.name = 'dt'
+        self.name = 'device_tree'
         self.description = 'parse firmware\'s device tree'
         self.required = ['extraction', 'strings']
         self.context['hint'] = 'device tree is not available'

@@ -16,3 +16,4 @@ extract_tmp
 .cache/
 .gitconfig
 .python_history
+.analyses.csv

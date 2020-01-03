@@ -107,7 +107,7 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
 void mips_load_kernel(MIPSCPU *cpu, struct mips_boot_info *info)
 {
     CommonResetData *reset_data;
-    int64_t entry;
+    int64_t entry = 0xBFC00000;
 
     if (info->kernel_filename) {
         entry = mips_setup_direct_kernel_boot(cpu, info);

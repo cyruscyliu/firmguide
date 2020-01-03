@@ -1,15 +1,31 @@
-From 6fa343293d7f75a516113142577849bf4d35b73a Mon Sep 17 00:00:00 2001
+From 3709dc1539f909a88e6ab0e82568a3efe1c69280 Mon Sep 17 00:00:00 2001
 From: cyrus <cyruscyliu@gmail.com>
-Date: Mon, 23 Dec 2019 14:15:36 +0800
+Date: Fri, 3 Jan 2020 14:24:00 +0800
 Subject: [PATCH] patch qemu-4.0.0
 
 ---
+ disas/mips.c           |   4 +-
  hw/mips/Makefile.objs  |   4 +-
  hw/mips/boot.c         | 123 +++++++++++++++++++++++++++++++++++++++++++++++++
  include/hw/mips/mips.h |  17 +++++++
- 3 files changed, 142 insertions(+), 2 deletions(-)
+ 4 files changed, 145 insertions(+), 3 deletions(-)
  create mode 100644 hw/mips/boot.c
 
+diff --git a/disas/mips.c b/disas/mips.c
+index 97f661a..2c6fda4 100644
+--- a/disas/mips.c
++++ b/disas/mips.c
+@@ -5001,7 +5001,9 @@ print_insn_mips (bfd_vma memaddr,
+ 				     | INSN_LOAD_MEMORY_DELAY)) != 0)
+ 		info->insn_type = dis_dref;
+ 
+-	      (*info->fprintf_func) (info->stream, "%s", op->name);
++	      (*info->fprintf_func) (info->stream, "%08" PRIx64, word);
++	      (*info->fprintf_func) (info->stream, " ");
++	      (*info->fprintf_func) (info->stream, " %s", op->name);
+ 
+ 	      d = op->args;
+ 	      if (d != NULL && *d != '\0')
 diff --git a/hw/mips/Makefile.objs b/hw/mips/Makefile.objs
 index 525809a..6f17fcd 100644
 --- a/hw/mips/Makefile.objs
@@ -28,7 +44,7 @@ index 525809a..6f17fcd 100644
 \ No newline at end of file
 diff --git a/hw/mips/boot.c b/hw/mips/boot.c
 new file mode 100644
-index 0000000..7860d9c
+index 0000000..9e66789
 --- /dev/null
 +++ b/hw/mips/boot.c
 @@ -0,0 +1,123 @@
@@ -79,7 +95,7 @@ index 0000000..7860d9c
 +        hwaddr ep, loadaddr;
 +        int is_linux;
 +
-+        kernel_size = load_uimage(loaderparams.kernel_filename, &ep,
++        kernel_size = load_uimage(info->kernel_filename, &ep,
 +                                  &loadaddr, &is_linux,
 +                                  cpu_mips_kseg0_to_phys, NULL);
 +
@@ -87,7 +103,7 @@ index 0000000..7860d9c
 +            entry = (uint32_t)ep;
 +        } else {
 +            error_report("could not load kernel neither as an elf ('%s': %s) nor as an uimage",
-+                         loaderparams.kernel_filename,
++                         info->kernel_filename,
 +                         load_elf_strerror(kernel_size));
 +            exit(1);
 +        }
@@ -141,7 +157,7 @@ index 0000000..7860d9c
 +void mips_load_kernel(MIPSCPU *cpu, struct mips_boot_info *info)
 +{
 +    CommonResetData *reset_data;
-+    int64_t entry;
++    int64_t entry = 0xBFC00000;
 +
 +    if (info->kernel_filename) {
 +        entry = mips_setup_direct_kernel_boot(cpu, info);
