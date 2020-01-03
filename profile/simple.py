@@ -76,6 +76,18 @@ class SimpleFirmware(Firmware):
     def get_path_to_vmlinux(self, *args, **kwargs):
         return self.get_general('components', 'path_to_vmlinux')
 
+    def set_path_to_gcc(self, *args, **kwargs):
+        self.set_general('components', 'path_to_gcc', value=args[0])
+
+    def get_path_to_gcc(self, *args, **kwargs):
+        return self.get_general('components', 'path_to_gcc')
+
+    def set_path_to_makeout(self, *args, **kwargs):
+        self.set_general('components', 'path_to_makeout', value=args[0])
+
+    def get_path_to_makeout(self, *args, **kwargs):
+        return self.get_general('components', 'path_to_makeout')
+
     def set_path_to_source_code(self, *args, **kwargs):
         self.set_general('components', 'path_to_source_code', value=args[0])
 

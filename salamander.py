@@ -23,6 +23,8 @@ if __name__ == '__main__':
     group.add_argument('-e', '--endian', type=str, choices=['b', 'l'], help='ignored if -r')
     group.add_argument('-b', '--brand', type=str, choices=['openwrt'], help='ignored if -r')
     group.add_argument('-s', '--source_code', type=str, metavar='path/to/source_code', help='ignored if -r')
+    group.add_argument('-gcc', '--gcc', type=str, metavar='path/to/gcc', help='ignored if -r')
+    group.add_argument('-mkout', '--makeout', type=str, metavar='path/to/makeout', help='ignored if -r')
     # generation
     group = parser.add_argument_group('code generation')
     group.add_argument('-g', '--generation', type=str, metavar='path/to/device_profile')

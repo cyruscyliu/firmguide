@@ -169,6 +169,8 @@ def setup_single_analysis(args, firmware):
         firmware.set_endian(args.endian)
         firmware.set_brand(args.brand)
         firmware.set_path_to_source_code(args.source_code)
+        firmware.set_path_to_makeout(args.makeout)
+        firmware.set_path_to_gcc(args.gcc)
         setup_working_path(firmware)
 
     firmware.trace_format = args.trace_format
