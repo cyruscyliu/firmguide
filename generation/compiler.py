@@ -238,8 +238,8 @@ class CompilerToQEMUMachine(object):
         self.solve_machine_includings()
         self.solve_machine_defines()
         self.solve_machine_struct()
-        self.solve_machine_init()
         self.solve_machine_class_init()
+        self.solve_machine_init()
         self.solve_define_machine()
 
     def solve_machine_struct(self):
