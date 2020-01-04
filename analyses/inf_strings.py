@@ -190,7 +190,7 @@ class Strings(Analysis):
     def find_flash_type_by_strings(self, firmware):
         if firmware.get_path_to_dtb() is not None:
             return
-        
+
         for string in self.strings:
             if string.find('physmap-flash') != -1:
                 firmware.set_flash_type('nor')
@@ -398,7 +398,14 @@ class Strings(Analysis):
                 cpu_id = int(properties['cpu_id'], 16)
                 if cpu_id & int(candidate['cpu_mask'], 16) == int(candidate['cpu_id'], 16):
                     target_cpus.append(arm32_cpu)
+        # choose the one has private peripheral
+        wanted_cpus = ['arm11mpcore', 'cortex-a9', 'cortex-a15']
         if len(target_cpus):
+            for target_cpu in target_cpus:
+                if target_cpu in wanted_cpus:
+                    firmware.set_cpu_model(target_cpu)
+                    self.info(firmware, 'get cpu model: {} which has private peripheral'.format(target_cpu), 1)
+                    return True
             firmware.set_cpu_model(target_cpus[0])
             self.info(firmware, 'get cpu model: {}, take the first one by default'.format(target_cpus), 1)
             return True

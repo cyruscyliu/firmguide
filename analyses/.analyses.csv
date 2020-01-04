@@ -11,3 +11,4 @@ ram,RAMDefault,toh,,
 srcode,SRCode,strings@revision@url@toh,path_to_source_code,
 .config,DotConfig,srcode,cpu,no .config available
 kerberos,LibTooling,srcode,,
+mips_cpu,MIPSCPU,srcode,,no srcode available
