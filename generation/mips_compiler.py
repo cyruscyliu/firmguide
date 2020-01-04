@@ -45,3 +45,9 @@ class MIPSCompiler(CompilerToQEMUMachine):
 
     def __init__(self, firmware):
         super().__init__(firmware)
+        if self.endianness == 'DEVICE_LITTLE_ENDIAN':
+            self.location['configs'] = 'default-configs/mipsel-softmmu.mak'
+        else:
+            self.location['configs'] = 'default-configs/mips-softmmu.mak'
+        self.location['kconfig'] = 'hw/mips/Kconfig'
+

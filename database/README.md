@@ -32,7 +32,7 @@ def get_database(dbtype, **kwargs):
 
 ### QEMU Devices
 
-This is one of the key parts of Salamander. We have listed useful [devices](./qemu_devices.yaml) in QEMU.
+This is one of the key parts of Salamander. We have listed useful [devices](qemu.devices.yaml) in QEMU.
 
 
 ### OpenWRT

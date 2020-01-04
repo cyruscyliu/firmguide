@@ -1,6 +1,6 @@
 import os
 
-from database.qemu_devices import DatabaseQEMUDevices
+from database.qemu import DatabaseQEMUDevices
 from database.openwrt import DatabaseOpenWRTMapping, DatabaseOpenWRTToH
 
 

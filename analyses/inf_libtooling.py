@@ -48,8 +48,20 @@ class LibTooling(Analysis):
             firmware.set_va_pa_mapping('0xfdd07000', '0x44500000', '0x1000')
             self.info(firmware, 'set va/pa mapping manually, waiting for libtooling ...', 1)
         elif firmware.uuid == "14235":
-            pass
-
+            firmware.set_uart_num(1)
+            firmware.set_uart_name('serial8250', 0)
+            firmware.set_uart_mmio_base('0x18000300', 0)
+            firmware.set_uart_mmio_size('0x100', 0)
+            firmware.set_uart_baud_rate('115200', 0)
+            firmware.set_uart_reg_shift('0', 0)
+            firmware.set_uart_irq('2', 0)
+            self.info(firmware, 'set uart manually, waiting for libtooling ...', 1)
+            firmware.set_va_pa_mapping('0x80000000', '0x00000000', '0x20000000')
+            firmware.set_va_pa_mapping('0xa0000000', '0x00000000', '0x20000000')
+            self.info(firmware, 'set mips va/pa mapping manually (kseg0/1)', 1)
+            firmware.set_flash_base('0x1c000000')
+            firmware.set_flash_size('32 * MiB')
+            self.info(firmware, 'set flash manually, waiting for libtooling ...', 1)
         return True
 
     def __init__(self, analysis_manager):

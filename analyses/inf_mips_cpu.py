@@ -2,6 +2,7 @@ import os
 import yaml
 
 from analyses.analysis import Analysis
+from database.dbf import get_database
 
 
 class MIPSCPU(Analysis):
@@ -24,9 +25,11 @@ class MIPSCPU(Analysis):
         args[-2] = args[-2][:-1] + 'i'
 
         # run and parse
+        cwd = os.getcwd()
         os.chdir(path_to_srcode)
         os.system('{} >/dev/null 2>&1'.format(' '.join(args)))
         path_to_cpu_probei = os.path.join(path_to_srcode, args[-2])
+        os.chdir(cwd)
 
         state = 0
         candidates = []
@@ -427,6 +430,10 @@ class MIPSCPU(Analysis):
                 if target_cpu in wanted_cpus:
                     firmware.set_cpu_model(target_cpu)
                     self.info(firmware, 'get cpu model: {} which has private peripheral'.format(target_cpu), 1)
+                    cpu_pp_name = self.qemu_devices.select('cpu_private', like=target_cpu)
+                    if cpu_pp_name is not None:
+                        firmware.set_cpu_pp_name(cpu_pp_name)
+                        self.info(firmware, 'cpu private peripheral {} found'.format(cpu_pp_name), 1)
                     return True
             firmware.set_cpu_model(targets[0])
             self.info(firmware, 'get cpu model: {}, take the first one by default'.format(targets), 1)
@@ -458,3 +465,4 @@ class MIPSCPU(Analysis):
         self.required = ['srcode']
         #
         self.mips_cpus = yaml.safe_load(open(os.path.join(os.getcwd(), 'database/cpu.mips.yaml')))
+        self.qemu_devices = get_database('qemu.devices')

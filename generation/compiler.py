@@ -20,8 +20,6 @@ class CompilerToQEMUMachine(object):
             'root': 'build/qemu-4.0.0',
             'machine': {'arm': 'hw/arm', 'mips': 'hw/mips', 'timer': 'hw/timer', 'interrupt_controller': 'hw/intc',
                         'bridge': 'hw/arm'},
-            'configs': {'arm': 'default-configs/arm-softmmu.mak', 'mips': 'default-configs/mips-softmmu.mak'},
-            'kconfig': {'arm': 'hw/arm/Kconfig', 'mips': 'hw/mips/Kconfig'},
             'makefile': {'arm': 'hw/arm/Makefile.objs', 'mips': 'hw/mips/Makefile.objs',
                          'timer': 'hw/timer/Makefile.objs', 'interrupt_controller': 'hw/intc/Makefile.objs'}
         }
@@ -162,12 +160,12 @@ class CompilerToQEMUMachine(object):
         architecture = self.firmware.get_architecture()
         #
         config = 'CONFIG_{}=y\n'.format(to_upper(machine_name))
-        path = os.path.join(self.firmware.get_working_dir(), 'qemu-4.0.0', self.location['configs'][architecture])
+        path = os.path.join(self.firmware.get_working_dir(), 'qemu-4.0.0', self.location['configs'])
         content = [config]
         self.solve_makefile(path, config, content)
         #
         kconfig = 'config {}\n'.format(to_upper(machine_name))
-        path = os.path.join(self.firmware.get_working_dir(), 'qemu-4.0.0', self.location['kconfig'][architecture])
+        path = os.path.join(self.firmware.get_working_dir(), 'qemu-4.0.0', self.location['kconfig'])
         content = ['\n', kconfig, '    bool\n']
         self.solve_makefile(path, kconfig, content)
         #
@@ -199,6 +197,17 @@ class CompilerToQEMUMachine(object):
     def install(self):
         os.system('cp -r {}/qemu/* {}'.format(self.firmware.get_working_dir(), self.location['root']))
 
+    def processing_image(self):
+        path_to_image = self.firmware.get_path()
+        flash_size = self.firmware.get_flash_size()
+        flash_size = flash_size.replace('MiB', '0x100000')
+        flash_size = eval(flash_size)
+        size_of_image = os.path.getsize(path_to_image)
+        if size_of_image == flash_size:
+            return
+        os.system('dd if=/dev/zero of={} seek={} bs=1 count={} > /dev/null 2>&1'.format(
+            path_to_image, size_of_image, flash_size - size_of_image))
+
     def make(self):
         # compile first
         os.system(
@@ -223,6 +232,7 @@ class CompilerToQEMUMachine(object):
         if path_to_dtb:
             running_command += ' -dtb {}'.format(path_to_dtb)
         if self.firmware.probe_flash():
+            self.processing_image()
             if self.firmware.get_flash_type() == 'nor':
                 running_command += ' -drive file={},if=pflash,format=raw'.format(self.firmware.get_path())
             elif self.firmware.get_flash_type() == 'nand':

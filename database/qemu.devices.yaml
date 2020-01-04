@@ -36,37 +36,6 @@ cpu:
     - pxa270-c5
   intel,sa1100:
     - sa1100
-  mips:
-    #  mips:
-    - "4Kc"
-    - "4Km"
-    - "4KEcR1"
-    - "4KEmR1"
-    - "4KEc"
-    - "4KEm"
-    - "24Kc"
-    - "24KEc"
-    - "24Kf"
-    - "34Kf"
-    - "74Kf"
-    - "M14K"
-    - "M14Kc"
-    - "P5600"
-    - "mips32r6-generic"
-    - "I7200"
-    - "R4000"
-    - "VR5432"
-    - "5Kc"
-    - "5Kf"
-    - "20Kc"
-    - "mips64r2-generic"
-    - "5KEc"
-    - "5KEf"
-    - "I6400"
-    - "I6500"
-    - "Loongson-2E"
-    - "Loongson-2F"
-    - "mips64dspr2"
 cpu_private:
   "arm11mpcore":
     "arm11mpcore-priv"
@@ -74,6 +43,8 @@ cpu_private:
     "arm-a9mp-priv"
   "cortex-a15":
     "arm-a15mp-priv"
+  "74Kf":
+    "default"
 ic:
   - "Allwinner A10 PIC"
   - "etraxfs,pic"

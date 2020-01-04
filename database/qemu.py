@@ -19,7 +19,7 @@ class DatabaseQEMUDevices(Database):
         like = kwargs.pop('like')
 
         # get the database
-        qemu_devcies = open(os.path.join(os.getcwd(), 'database', 'qemu_devices.yaml'))
+        qemu_devcies = open(os.path.join(os.getcwd(), 'database', 'qemu.devices.yaml'))
         database_qemu_devices = yaml.safe_load(qemu_devcies)
 
         # get choices
