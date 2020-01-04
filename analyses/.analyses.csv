@@ -1,6 +1,6 @@
 analysis, class, requirements, settings, exception
 check,Checking,load_trace,,bad bad bad trace
 load_trace,LoadTrace,do_tracing,,bad bad bad trace
-data_abort,DataAbort,callstack,,bad bad bad trace
+data_abort,DataAbort,check,,bad bad bad trace
 init_value,InitValue,check,,very difficult program analysis
 bamboos,Bamboos,data_abort@init_value,,bad bad bad trace
