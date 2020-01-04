@@ -7,26 +7,25 @@ Salamander is a project aiming to run and test any given firmware blob dynamical
 
 ###### features
 Currently, we provide a modular framework to analysis a firmware under the guide of its source code. We 
-will generate a new machine for QEMU, and you can play with this new machine for fun! By adding more analysis
+will generate a new machine for QEMU. By adding more analysis
 we will get more code coverage and achieve more goals. The goal just now is to run a linux based firmware
 entering the user mode and getting the shell. Let's start and enjoy our trip.
 
 ###### who will need the Salamander
 + who want to get a shell of a linux based firmware but has no hardware emulation
-+ who would like to learn how to add a new machine to QEMU but has no time to dig into the QEMU
++ who would like to learn how to add a new machine to QEMU but has no time to dig into QEMU
 + who would like to dynamically analysis a linux based firmware
 + who are interested re-hosting and emulation
 
-## Usage 
+### Install
 
 First, clone the repo.
 
 ```shell script
 git clone git@github.com:cyruscyliu/esv.git salamander && cd salamander
-git submodule update --init --recursive
 ```
 
-### Docker Image
+#### Docker Image
 
 We recommend you using our docker image.
 
@@ -35,7 +34,7 @@ docker build -t cyruscyliu/cci-salamander-docker-primary:latest .
 docker run -it -v $PWD:/root cyruscyliu/cci-salamander-docker-primary:latest /bin/bash
 ```
 
-### Manually Installation
+#### ~~Manually Installation~~
 
 It might be a long time to build Salamander, and see the instructions below.
 
@@ -55,7 +54,8 @@ sudo rm /usr/bin/python && sudo ln -s /usr/bin/python3.7 /usr/bin/python
 
 ```shell script
 sudo -H pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable
-git clone git@github.com:cyruscyliu/pymake.git ~/pymake && cd ~/pymake && sudo -H pip3.7 install .
+git clone https://github.com/cyruscyliu/pymake.git ~/pymake && cd ~/pymake && sudo -H pip3.7 install .
+git clone https://github.com/cyruscyliu/pyqemulog ~/pyqemulog && cd ~/pyqemulog && sudo -H pip3.7 install .
 ```
 
 ###### install other dependency
@@ -75,81 +75,60 @@ sudo apt-get install -y u-boot-tools
 sudo apt-get install -y gawk
 ```
 
-### Build Binwalk and QEMU
+#### Build Binwalk and QEMU
 
 ```shell script
 sudo make clean && make
 ```
 
-### Example
+### Usage
 
-Before using salamander, you must prepare your firmware and provide information listed below.
+what you need to provide
 + the path to firmware [required]
 + the uuid of the firmware [required]
 + the architecture and the endian [required]
 + the brand of the firmware [required]
 + the source code to the firmware [optional]
++ the gcc used to compile the source code [optional]
++ the make details when you compiled the source code [optional]
 
-To test your firmware, simply run your command as shown in the example. And the first run may be slow.
+```
+./salamander.py -u 15007 -a arm -e l -b openwrt \
+    -s /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./\
+        backfire_10.03/build_dir/\
+        linux-orion_generic/linux-2.6.32.10 
+    -mkout /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./\
+        backfire_10.03/build_dir/\
+        linux-orion_generic/makeout.txt 
+    -gcc /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./\
+        backfire_10.03/staging_dir/toolchain-arm_v5t_gcc-4.3.3+cs_uClibc-0.9.30.1_eabi/\
+        usr/bin/arm-openwrt-linux-gcc 
+    -q -wd ../salamander-build \
+    -f /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./\
+        backfire_10.03/bin/orion/openwrt-wrt350nv2-squashfs-recovery.bin
 
-```shell script
-./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build
 ```
 
-### Re-Analysis
+use a shorter one to avoid an annoying such long command
 
-Sometimes we would like to re-analysis the whole firmware. The solution is using `-r` in your command line.
-
-```shell script
-./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r
+```
+./salamander.py -u 15007 -wd ../salamander-build
 ```
 
-### Device Profile
+use `-r` to **re-analysis**
 
-Sometimes we just want to get the device profile not to diagnose whether we boot the firmware up or not.
-The solution is using `-q` in your command line.
+```shell script
+./salamander.py -u 15007 -wd ../salamander-build -r 
+```
+
+use `-q` to **early stop** with a profile generated
 
 ````shell script
-./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ./build -r -q
+./salamander.py -u 15007 -wd ../salamander-build -r -q
 ````
 
-And, in other situation, if we already have the device profile, we want to generation QEMU code directly.
-BTW, the architecture information is still necessary. Still, the first run may be slow.
-
-```shell script
-./salamander.py -g tests/files/2b38a3.yaml -a arm -wd build/ -p simple
-./salamander.py -g tests/files/ec5859.yaml -a arm -wd build/ -p simple
-./salamander.py -g tests/files/9874f6.yaml -a mips -wd build/ -p simple
-```
-
-BTW, we support the converting between different formats of device profiles.
-
-```shell script
-./profile/convert.py -I simple -O dt tests/files/ec5859.yaml -o /tmp/ec5859.dt
-./profile/convert.py -I simple -O dt tests/files/2b38a3.yaml -o /tmp/2b38a3.dt
-./profile/convert.py -I simple -O dt tests/files/9874f6.yaml -o /tmp/9874f6.dt
-./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o /tmp/2b38a3.yaml
-./profile/convert.py -I dt -O simple tests/files/2b38a3.dt -o /tmp/2b38a3.yaml
-./profile/convert.py -I dt -O simple tests/files/9874f6.dt -o /tmp/9874f6.yaml
-```
-
-## Visualization
-
-After running, it is better to have a page to show the analysis results rather than checking massive logs. Simply run
-`python dashboard/__init__.py` and follow its instructions you will see the statistics of your analysis in your browser.
-
-![dashboard](./dashboard/dashboard.png)
-
-## Add an analysis
-
-If the built-in analyses can not boot the kernel to its shell, you have to add your own analysis. 
-More analyses you provide, more powerful the salamander will be. The visualization results will tell you what specific 
-analysis you should add. The analysis you add will solve the abelia devices a kernel required. Please read 
-this [paper]() to get familiar with the abelia devices and read [this](./analyses/README.md) then to understand
-how we implement the analysis framework.
-
-## Contributors
+### Contributors
 [cyruscyliu*](https://github.com/cyruscyliu/esv), [occia*](https://github.com/occia)
 
-## License
+### License
 [MIT License](./LICENSE)

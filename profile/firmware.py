@@ -1,3 +1,4 @@
+import os
 import abc
 
 from profile.kernel import KernelForFirmware
@@ -7,57 +8,71 @@ from profile.openwrt import OpenWRTForFirmware
 class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def __init__(self, *args, **kwargs):
         self.uuid = None
-        self.name = None
-        self.path = None
         self.size = None
-        self.working_dir = None
+        self.working_directory = None
         self.working_path = None
 
         self.analysis_progress = None  # file
         self.profile = None  # dict
-        self.path_to_profile = None
 
         self.trace_format = None
         self.path_to_trace = None
         self.do_not_diagnosis = False  # flag
-
-        self.path_to_source_code = None
-        self.path_to_vmlinux = None
-
+        self.no_inference = False
         self.architecture = None
         self.endian = None
-        self.brand = None
 
-    # general getters and setters
-    def get_uuid(self):
-        return self.uuid
+        self.rerun = False
+        self.running_command = None
 
-    def set_uuid(self, uuid):
-        self.uuid = uuid
+    def init_profile(self):
+        self.set_uart_num(0)
 
-    def get_name(self):
-        return self.name
+    @abc.abstractmethod
+    def print_profile(self):
+        pass
 
-    def set_name(self, name):
-        self.name = name
+    @abc.abstractmethod
+    def load_uuid(self, *args, **kwargs):
+        pass
 
-    def get_path(self):
-        return self.path
+    def get_uuid(self, *args, **kwargs):
+        if self.uuid is None:
+            return self.load_uuid()
+        else:
+            return self.uuid
 
-    def set_path(self, path):
-        self.path = path
+    @abc.abstractmethod
+    def set_uuid(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_name(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_name(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_path(self, *args, **kwargs):
+        pass
+
+    def get_working_dir(self):
+        return self.working_directory
+
+    def set_working_dir(self, working_dir):
+        self.working_directory = working_dir
 
     def get_working_path(self):
         return self.working_path
 
     def set_working_path(self, working_path):
         self.working_path = working_path
-
-    def get_working_dir(self):
-        return self.working_dir
-
-    def set_working_dir(self, working_dir):
-        self.working_dir = working_dir
 
     def get_trace_format(self):
         return self.trace_format
@@ -71,58 +86,74 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def set_path_to_trace(self, path_to_trace):
         self.path_to_trace = path_to_trace
 
-    def get_architecture(self):
-        return self.architecture
-
-    def get_endian(self):
-        return self.endian
-
-    def set_endian(self, endian):
-        self.endian = endian
-
-    def get_brand(self):
-        return self.brand
-
-    def set_brand(self, brand):
-        self.brand = brand
-
-    def get_path_to_vmlinux(self):
-        return self.path_to_vmlinux
-
-    def set_path_to_vmlinux(self, path_to_vmlinux):
-        self.path_to_vmlinux = path_to_vmlinux
-
-    def get_path_to_source_code(self):
-        return self.path_to_source_code
-
-    def set_path_to_source_code(self, path_to_source_code):
-        self.path_to_source_code = path_to_source_code
-
-    # core
-    def set_working_env(self, dir, path):
-        self.working_dir = dir
-        self.working_path = path
-
     @abc.abstractmethod
-    def copy_profile(self, *args, **kwargs):
+    def set_architecture(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
+    def get_architecture(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_endian(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_endian(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_brand(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_brand(self, *args, **kwargs):
+        pass
+
     def set_profile(self, *args, **kwargs):
         """
         set_profile(profile)
         set_profile(working_dir=working_dir, first=True)
             load from file after create it
         set_profile(working_dir=working_dir) *
-            load from file
+            load from file by default
         set_profile(working_dir=working_dir, first=False) *
-            load from file
-        NOTE: * are some.
-
-        :param args: profile.
-        :param kwargs: working_dir, first.
-        :return: None
+            load from file by default
+        set_profile(path_to_profile=path_to_profile) **
+            load from the file assigned
+        set_profile(path_to_profile=path_to_profile, first=False) **
+            load from the file assigned
+        NOTE: * are same and ** are same.
         """
+        first = kwargs.pop('first', False)
+        working_dir = kwargs.pop('working_dir', None)
+        path_to_profile = kwargs.pop('path_to_profile', None)
+
+        if len(args):
+            profile = args[0]
+        else:
+            profile = None
+
+        if profile is not None:
+            self.profile = profile
+            return
+
+        if working_dir is None:
+            self.path_to_profile = path_to_profile
+        else:
+            self.path_to_profile = os.path.join(working_dir, 'profile.dt')
+
+        if first:
+            self.create_empty_profile()
+        self.load_from_profile()
+        self.init_profile()
+
+    @abc.abstractmethod
+    def create_empty_profile(self):
+        pass
+
+    @abc.abstractmethod
+    def load_from_profile(self):
         pass
 
     def get_profile(self, *args, **kwargs):
@@ -142,12 +173,14 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     def brief(self, *args, **kwargs):
         brief_introduction = 'uuid: {}, name: {}, brand: {}, architecture: {}, working_dir: {}, endian: {}'.format(
-            self.uuid, self.name, self.brand, self.architecture, self.working_dir, self.endian
+            self.get_uuid(), self.get_name(), self.get_brand(), self.get_architecture(),
+            self.working_directory, self.get_endian()
         )
         return brief_introduction
 
     def summary(self, *args, **kwargs):
-        brief_summary = 'uuid: {}, name:{}, profile at {}'.format(self.uuid, self.name, self.path_to_profile)
+        brief_summary = 'uuid: {}, name:{}, profile at {}'.format(self.get_uuid(), self.get_name(),
+                                                                  self.path_to_profile)
         return brief_summary
 
     # components
@@ -157,6 +190,38 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     @abc.abstractmethod
     def get_format(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_path_to_vmlinux(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path_to_vmlinux(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_path_to_makeout(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path_to_makeout(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_path_to_gcc(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path_to_gcc(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_path_to_source_code(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path_to_source_code(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -285,38 +350,6 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def set_ram_size(self, *args, **kwargs):
         pass
 
-    # ===== bridge ====
-    def probe_bridge(self, *args, **kwargs):
-        return self.get_bridge_name() is not None
-
-    @abc.abstractmethod
-    def get_bridge_name(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_bridge_name(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_bridge_mmio_base(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_bridge_mmio_base(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_bridge_mmio_size(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_bridge_mmio_size(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_bridge_registers(self, *args, **kwargs):
-        pass
-
     # ===== interrupt controller ====
     def probe_interrupt_controller(self, *args, **kwargs):
         return self.get_interrupt_controller_name() is not None
@@ -354,11 +387,11 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
-    def get_n_irqs(self, *args, **kwargs):
+    def set_timer_irq(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def set_n_irqs(self, *args, **kwargs):
+    def get_timer_irq(self, *args, **kwargs):
         pass
 
     # ==== timer ====
@@ -399,7 +432,15 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     # ==== uart ====
     def probe_uart(self, *args, **kwargs):
-        return self.get_uart_name() is not None
+        return int(self.get_uart_num()) > 0
+
+    @abc.abstractmethod
+    def set_uart_num(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_uart_num(self, *args, **kwargs):
+        pass
 
     @abc.abstractmethod
     def get_uart_name(self, *args, **kwargs):
@@ -407,6 +448,14 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     @abc.abstractmethod
     def set_uart_name(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_uart_mmio_size(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_uart_mmio_size(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -480,4 +529,18 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     # ==== bamboo devices ====
     @abc.abstractmethod
     def get_bamboo_devices(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_bamboo_devices(self, *args, **kwargs):
+        pass
+
+    # ==== mapping ====
+    @abc.abstractmethod
+    def set_va_pa_mapping(self, *args, **kwargs):
+        # va, pa, size
+        pass
+
+    @abc.abstractmethod
+    def get_va_pa_mapping(self, *args, **kwargs):
         pass

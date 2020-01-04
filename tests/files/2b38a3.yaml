@@ -3,6 +3,12 @@ components:
   path_to_uimage: "tests/files/2b38a3.uimage"
   path_to_dtb: "tests/files/2b38a3.dtb"
 basics:
+  uuid: "13882"
+  name: "2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin"
+  path: "/mnt/salamander/firmware/2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin"
+  architecture: "arm"
+  endian: "l"
+  brand: "openwrt"
   machine_name: "shuttle_kd20"
   machine_description: "PLX NAS7820"
   board_id: "0x480"
