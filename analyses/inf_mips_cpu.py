@@ -25,7 +25,7 @@ class MIPSCPU(Analysis):
 
         # run and parse
         os.chdir(path_to_srcode)
-        os.system('{} 2>&1'.format(' '.join(args)))
+        os.system('{} >/dev/null 2>&1'.format(' '.join(args)))
         path_to_cpu_probei = os.path.join(path_to_srcode, args[-2])
 
         state = 0

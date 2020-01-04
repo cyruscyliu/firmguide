@@ -5,6 +5,7 @@ from analyses.diag_bamboos import Bamboos
 from analyses.diag_callstack import CallStack
 from analyses.diag_dabt import DataAbort
 from analyses.inf_libtooling import LibTooling
+from analyses.inf_loaddr import LoadAddr
 from analyses.inf_mips_cpu import MIPSCPU
 from supervisor.logging_setup import logger_info, logger_warning
 from supervisor.save_and_restore import finished, finish
@@ -220,6 +221,8 @@ class AnalysesManager(object):
         self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
         # srcode <- mips cpu
         self.register_analysis(MIPSCPU(self), analyses_tree=static_analysis)
+        # srcode <- mips loading addr
+        self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
 
     def register_dynamic_analysis(self, tracing=True, check_only=False):
         dynamic_analysis = self.new_analyses_tree()
