@@ -7,13 +7,13 @@ Salamander is a project aiming to run and test any given firmware blob dynamical
 
 ###### features
 Currently, we provide a modular framework to analysis a firmware under the guide of its source code. We 
-will generate a new machine for QEMU, and you can play with this new machine for fun! By adding more analysis
+will generate a new machine for QEMU. By adding more analysis
 we will get more code coverage and achieve more goals. The goal just now is to run a linux based firmware
 entering the user mode and getting the shell. Let's start and enjoy our trip.
 
 ###### who will need the Salamander
 + who want to get a shell of a linux based firmware but has no hardware emulation
-+ who would like to learn how to add a new machine to QEMU but has no time to dig into the QEMU
++ who would like to learn how to add a new machine to QEMU but has no time to dig into QEMU
 + who would like to dynamically analysis a linux based firmware
 + who are interested re-hosting and emulation
 
@@ -83,69 +83,49 @@ sudo make clean && make
 
 ### Usage
 
-Before using salamander, you must prepare your firmware and provide information listed below.
+what you need to provide
 + the path to firmware [required]
 + the uuid of the firmware [required]
 + the architecture and the endian [required]
 + the brand of the firmware [required]
 + the source code to the firmware [optional]
++ the gcc used to compile the source code [optional]
++ the make details when you compiled the source code [optional]
 
-To test your firmware, simply run your command as shown in the example. And the first run may be slow.
+```
+./salamander.py -u 15007 -a arm -e l -b openwrt \
+    -s /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./\
+        backfire_10.03/build_dir/\
+        linux-orion_generic/linux-2.6.32.10 
+    -mkout /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./\
+        backfire_10.03/build_dir/\
+        linux-orion_generic/makeout.txt 
+    -gcc /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./\
+        backfire_10.03/staging_dir/toolchain-arm_v5t_gcc-4.3.3+cs_uClibc-0.9.30.1_eabi/\
+        usr/bin/arm-openwrt-linux-gcc 
+    -q -wd ../salamander-build \
+    -f /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./\
+        backfire_10.03/bin/orion/openwrt-wrt350nv2-squashfs-recovery.bin
 
-```shell script
-./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ../salamander-build
-./salamander.py -f tests/files/ec5859.bin -u 15007 -a arm -e l -b openwrt -wd ../salamander-build
-./salamander.py -f tests/files/9874f6.bin -u 14292 -a mips -e l -b openwrt -wd ../salamander-build
 ```
 
-#### Re-Analysis
+use a shorter one to avoid an annoying such long command
 
-Sometimes we would like to re-analysis the whole firmware. The solution is using `-r` in your command line.
+```
+./salamander.py -u 15007 -wd ../salamander-build
+```
+
+use `-r` to **re-analysis**
 
 ```shell script
-./salamander.py -u 13882 -wd ../salamander-build -r
 ./salamander.py -u 15007 -wd ../salamander-build -r 
-./salamander.py -u 14292 -wd ../salamander-build -r
 ```
 
-#### Device Profile
-
-Sometimes we just want to get the device profile not to diagnose whether we boot the firmware up or not.
-The solution is using `-q` in your command line.
+use `-q` to **early stop** with a profile generated
 
 ````shell script
-# for the first time
-./salamander.py -f tests/files/2b38a3.bin -u 13882 -a arm -e l -b openwrt -wd ../salamander-build -q
-# later use a shorter command
-./salamander.py -u 13882 -wd ../salamander-build -q
+./salamander.py -u 15007 -wd ../salamander-build -r -q
 ````
-
-And, in other situation, if we already have the device profile, we want to generation QEMU code directly.
-BTW, the architecture information is still necessary. Still, the first run may be slow.
-
-```shell script
-./salamander.py -g tests/files/2b38a3.yaml -wd ../salamander-build/
-./salamander.py -g tests/files/ec5859.yaml -wd ../salamander-build/
-./salamander.py -g tests/files/9874f6.yaml -wd ../salamander-build/
-```
-
-#### Diagnosis
-
-Sometimes we just want to check our trace offline to gain more insights.
-
-```shell script
- ./salamander.py -t log/13882.trace
- ./salamander.py -t log/15007.trace
- ./salamander.py -t log/14292.trace # mips not be supported well
-```
-
-### Add an analysis
-
-If the built-in analyses can not boot the kernel to its shell, you have to add your own analysis. 
-More analyses you provide, more powerful the salamander will be. The visualization results will tell you what specific 
-analysis you should add. The analysis you add will solve the abelia devices a kernel required. Please read 
-this [paper]() to get familiar with the abelia devices and read [this](./analyses/README.md) then to understand
-how we implement the analysis framework.
 
 ### Contributors
 [cyruscyliu*](https://github.com/cyruscyliu/esv), [occia*](https://github.com/occia)
