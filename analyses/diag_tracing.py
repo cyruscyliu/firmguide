@@ -3,7 +3,7 @@ import qmp
 
 from analyses.analysis import Analysis
 from supervisor.logging_setup import logger_info
-from pyqemulog import *
+from pyqemulog import get_pql
 
 
 class LoadTrace(Analysis):
@@ -17,14 +17,27 @@ class LoadTrace(Analysis):
         self.required = ['do_tracing']
 
         # store trace context
-        self.cpurfs = None
-        self.bbs = None
+        self.pql = None
 
     def run(self, firmware):
-        self.cpurfs = load_cpurf(firmware.path_to_trace, dump=False)
-        self.info(firmware, 'load {} cpu register files'.format(self.cpurfs.__len__()), 1)
-        self.bbs = load_in_asm(firmware.path_to_trace, dump=False)
-        self.info(firmware, 'load {} basic blocks'.format(self.bbs.__len__()), 1)
+        if firmware.architecture == 'arm':
+            if firmware.endian == 'l':
+                self.pql = get_pql('aarch32', 'little', firmware.path_to_trace)
+            else:
+                self.pql = get_pql('aarch32', 'big', firmware.path_to_trace)
+        elif firmware.architecture == 'mips':
+            if firmware.endian == 'l':
+                self.pql = get_pql('mips', 'little', firmware.path_to_trace)
+            else:
+                self.pql = get_pql('mips', 'big', firmware.path_to_trace)
+        else:
+            self.context['input'] = 'can not support parsing log except arm/mips'
+            return False
+
+        self.pql.load_cpurf(dump=False)
+        self.info(firmware, 'load {} cpu register files'.format(self.pql.cpurfs.__len__()), 1)
+        self.pql.load_in_asm(dump=False)
+        self.info(firmware, 'load {} basic blocks'.format(self.pql.bbs.__len__()), 1)
         return True
 
 

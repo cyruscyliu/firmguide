@@ -11,7 +11,6 @@ from supervisor.logging_setup import logger_info, logger_warning
 from supervisor.save_and_restore import finished, finish
 
 from analyses.diag_check import Checking
-from analyses.diag_dead_loop import DeadLoop
 from analyses.diag_tracing import DoTracing, LoadTrace
 from analyses.diag_init_value import InitValue
 
@@ -235,6 +234,5 @@ class AnalysesManager(object):
             self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
             self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
-            self.register_analysis(DeadLoop(self), analyses_tree=dynamic_analysis)
             self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
             self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)

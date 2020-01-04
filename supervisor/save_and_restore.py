@@ -85,6 +85,8 @@ def setup_diagnosis(args, firmware):
     # 1 we need the trace
     firmware.path_to_trace = args.trace
     firmware.trace_format = args.trace_format
+    firmware.architecture = args.architecture
+    firmware.endian = args.endian
     # 2 and the uuid
     firmware.uuid = 'diagnosis'
 

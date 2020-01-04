@@ -1,6 +1,5 @@
 from analyses.analysis import Analysis
 from analyses.diag_tracing import LoadTrace
-from pyqemulog import *
 from capstone import *
 import struct
 
@@ -36,43 +35,32 @@ class CallRecord(object):
         return a
 
 
-def get_next_cpurf_from(f, cpurfs):
-    for k, v in cpurfs.items():
-        if k < f:
-            continue
-        yield v
-
-
-def get_next_bb_from(f, cpurfs, bbs):
-    for cpurf in get_next_cpurf_from(f, cpurfs):
-        yield get_bb(cpurf, bbs)
-
-
 class CallStack(Analysis):
     def run(self, firmware):
         trace = self.analysis_manager.get_analysis('load_trace')
         assert isinstance(trace, LoadTrace)
+        pql = trace.pql
 
         inst_render = InstRender()
         callstack = []
         guard = 0
-        for k, cpurf in trace.cpurfs.items():
+        for k, cpurf in pql.cpurfs.items():
             if k < guard:
                 continue
-            bb = get_bb(cpurf, trace.bbs)
+            bb = pql.get_bb(cpurf, pql.bbs)
             for instruction in bb['instructions']:
                 cs_instruction = inst_render.cs_inst_arm(instruction['raw'], int(instruction['address'], 16))
                 if cs_instruction.mnemonic == 'bl':
-                    next_cpurf = get_next_cpurf(cpurf, trace.cpurfs)
+                    next_cpurf = pql.get_next_cpurf(cpurf, pql.cpurfs)
                     # lr = next_cpurf['register_files']['R14']  # str
                     lr = cs_instruction.address + 4
                     returned = False
                     # if the jump is not taken
-                    next_bb = get_bb(next_cpurf, trace.bbs)
+                    next_bb = pql.get_bb(next_cpurf, pql.bbs)
                     if int(next_bb['in'], 16) == int(bb['in'], 16) + 4 * bb['size']:
                         continue
-                    for cpurf2 in get_next_cpurf_from(k, trace.cpurfs):
-                        bb2 = get_bb(cpurf2, trace.bbs)
+                    for cpurf2 in pql.get_next_cpurf_from(k, pql.cpurfs):
+                        bb2 = pql.get_bb(cpurf2, pql.bbs)
                         if int(bb2['in'], 16) == lr:
                             returned = True
                             guard = cpurf2['id']

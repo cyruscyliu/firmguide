@@ -15,7 +15,7 @@ class LoadAddr(Analysis):
         #  {
         #   . = 0xffffffff80001000;
         state = 0
-        address = 0xBFC0000
+        address = 0xBFC00000
         with open(path_to_lds) as f:
             for line in f:
                 if state == 0 and line.startswith('SECTIONS'):
@@ -27,7 +27,7 @@ class LoadAddr(Analysis):
         kernel = firmware.get_path_to_kernel()
         uimage = firmware.get_path_to_uimage()
         os.system('mkimage -A mips -C none -O linux -T kernel -d {0} '
-                  '-a {1} -e {1} {2} >/dev/null 2>&1'.format(kernel, address, uimage))
+                  '-a 0x{1:x} -e 0x{1:x} {2} >/dev/null 2>&1'.format(kernel, address, uimage))
         self.info(firmware, 'get mips loading address 0x{:x} from lds'.format(address), 1)
         return True
 

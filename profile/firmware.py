@@ -19,6 +19,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.path_to_trace = None
         self.do_not_diagnosis = False  # flag
         self.no_inference = False
+        self.architecture = None
+        self.endian = None
 
         self.rerun = False
         self.running_command = None

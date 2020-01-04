@@ -1,6 +1,4 @@
 from analyses.analysis import Analysis
-from pyqemulog import *
-
 from analyses.diag_tracing import LoadTrace
 
 
@@ -16,9 +14,10 @@ class DataAbort(Analysis):
     def run(self, firmware):
         trace = self.analysis_manager.get_analysis('load_trace')
         assert isinstance(trace, LoadTrace)
+        pql = trace.pql
 
         dabts = []
-        for k, cpurf in trace.cpurfs.items():
+        for k, cpurf in pql.cpurfs.items():
             if 'exception' in cpurf and 'type' in cpurf['exception'] and cpurf['exception']['type'] == 'dabt':
                 dabts.append(cpurf)
 
@@ -29,16 +28,16 @@ class DataAbort(Analysis):
         for cpurf in dabts:
             # dabt
             # current bb has where to abort -> next bb has where to return
-            if get_exception_return_cpurf(cpurf, trace.cpurfs) is None:
+            if pql.get_exception_return_cpurf(cpurf, trace.cpurfs) is None:
                 self.info(firmware, 'line {} has a data abort at {}, return abnormally'.format(
                     cpurf['ln'], cpurf['register_files']['DFAR']), 1)
             else:
                 self.info(firmware, 'line {} has a data abort at {}, return normally'.format(
                     cpurf['ln'], cpurf['register_files']['DFAR']), 1)
-                next_cpurf = get_next_cpurf(cpurf, trace.cpurfs)
+                next_cpurf = pql.get_next_cpurf(cpurf, trace.cpurfs)
                 where_to_return = int(next_cpurf['register_files']['R14'], 16) - 8
                 self.info(firmware, 'the program should re-entry 0x{:x} {}'.format(
-                    where_to_return, get_instruction(where_to_return, get_bb(cpurf, trace.bbs))), 1)
+                    where_to_return, get_instruction(where_to_return, pql.get_bb(cpurf, trace.bbs))), 1)
                 if int(cpurf['register_files']['DFAR'], 16) == 0:
                     self.info(firmware, 'kernel panic by accessing 0', 1)
                     continue
