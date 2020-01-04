@@ -5,70 +5,32 @@
 
 Salamander is a project aiming to run and test any given firmware blob dynamically in a pure software way.
 
-###### features
-Currently, we provide a modular framework to analysis a firmware under the guide of its source code. We 
-will generate a new machine for QEMU. By adding more analysis
-we will get more code coverage and achieve more goals. The goal just now is to run a linux based firmware
-entering the user mode and getting the shell. Let's start and enjoy our trip.
-
 ###### who will need the Salamander
-+ who want to get a shell of a linux based firmware but has no hardware emulation
++ who wants to get a shell of a linux based firmware but has no hardware emulation
 + who would like to learn how to add a new machine to QEMU but has no time to dig into QEMU
 + who would like to dynamically analysis a linux based firmware
-+ who are interested re-hosting and emulation
++ who is interested re-hosting and emulation
 
-### Install
-
-First, clone the repo.
+## Dependency
 
 ```shell script
-git clone git@github.com:cyruscyliu/esv.git salamander && cd salamander
-```
-
-#### Docker Image
-
-We recommend you using our docker image.
-
-```shell script
-docker build -t cyruscyliu/cci-salamander-docker-primary:latest .
-docker run -it -v $PWD:/root cyruscyliu/cci-salamander-docker-primary:latest /bin/bash
-```
-
-#### ~~Manually Installation~~
-
-It might be a long time to build Salamander, and see the instructions below.
-
-###### install python 3.7
-
-```shell script
+# install python 3.7
 sudo apt-get install -y software-properties-common
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get update
 sudo apt-get install -y python3.7
 sudo apt-get install -y python3-pip
+sudo apt-get install -y python3.7-dev
 sudo -H python3.7 -m pip install --upgrade pip
 sudo rm /usr/bin/python && sudo ln -s /usr/bin/python3.7 /usr/bin/python
-```
 
-###### install required python packages
-
-```shell script
-sudo -H pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable
+# install required python packages
+sudo -H pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable capstone python-Levenshtein
 git clone https://github.com/cyruscyliu/pymake.git ~/pymake && cd ~/pymake && sudo -H pip3.7 install .
 git clone https://github.com/cyruscyliu/pyqemulog ~/pyqemulog && cd ~/pyqemulog && sudo -H pip3.7 install .
-```
 
-###### install other dependency
-
-```shell script
+# install other dependency
 sudo apt-get install -y git libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev
-sudo apt-get install -y libaio-dev libbluetooth-dev libbrlapi-dev libbz2-dev
-sudo apt-get install -y libcap-dev libcap-ng-dev libcurl4-gnutls-dev libgtk-3-dev
-sudo apt-get install -y libibverbs-dev libjpeg8-dev libncurses5-dev libnuma-dev
-sudo apt-get install -y librbd-dev librdmacm-dev
-sudo apt-get install -y libsasl2-dev libsdl1.2-dev libseccomp-dev libsnappy-dev libssh2-1-dev
-sudo apt-get install -y valgrind xfslibs-dev
-sudo apt-get install -y libnfs-dev libiscsi-dev
 sudo apt-get install -y bison flex
 sudo apt-get install -y libcapstone3 libcapstone-dev
 sudo apt-get install -y u-boot-tools
@@ -78,10 +40,12 @@ sudo apt-get install -y gawk
 #### Build Binwalk and QEMU
 
 ```shell script
-sudo make clean && make
+# ubuntu 16.04
+git clone git@github.com:cyruscyliu/esv.git salamander && cd salamander
+mkdir log && mkdir build && sudo make clean && make
 ```
 
-### Usage
+## Usage
 
 what you need to provide
 + the path to firmware [required]
@@ -106,7 +70,6 @@ what you need to provide
     -q -wd ../salamander-build \
     -f /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./\
         backfire_10.03/bin/orion/openwrt-wrt350nv2-squashfs-recovery.bin
-
 ```
 
 use a shorter one to avoid an annoying such long command
@@ -127,8 +90,8 @@ use `-q` to **early stop** with a profile generated
 ./salamander.py -u 15007 -wd ../salamander-build -r -q
 ````
 
-### Contributors
+## Contributors
 [cyruscyliu*](https://github.com/cyruscyliu/esv), [occia*](https://github.com/occia)
 
-### License
+## License
 [MIT License](./LICENSE)
