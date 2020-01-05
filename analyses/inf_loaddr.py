@@ -10,10 +10,10 @@ class LoadAddr(Analysis):
             return True
 
         path_to_srcode = firmware.get_path_to_source_code()
-        lds_names = ['vmlinux.lds', 'ld.script']
+        lds_names = ['kernel/vmlinux.lds', 'vmlinux.lds', 'ld.script', 'kernel/ld.script']
 
         for lds_name in lds_names:
-            path_to_lds = os.path.join(path_to_srcode, 'arch/mips/kernel', lds_name)
+            path_to_lds = os.path.join(path_to_srcode, 'arch/mips', lds_name)
             if not os.path.exists(path_to_lds):
                 continue
 
