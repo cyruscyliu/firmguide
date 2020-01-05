@@ -28,7 +28,7 @@ class MIPSCPU(Analysis):
 
         # alter -o to -E
         args = command.strip().split()
-        args[0] = path_to_gcc # always true
+        args[0] = path_to_gcc  # always true
         args = [i.replace('/root/firmware', '/mnt/salamander/srcode/share') for i in args]
         args[-4] = '-E'
         path_to_cpu_probe = 'arch/mips/kernel/cpu-probe.'
@@ -56,6 +56,10 @@ class MIPSCPU(Analysis):
                     candidates.append(line.strip().strip(':').split()[1])
                 if state == 1 and line.find('break') != -1:
                     state = 0
+
+        if not len(candidates):
+            self.context['input'] = 'no __get_cpu_type in cpu_probe()'
+            return False
 
         # mapping
         ref = {
