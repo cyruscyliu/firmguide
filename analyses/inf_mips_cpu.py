@@ -15,10 +15,15 @@ class MIPSCPU(Analysis):
         path_to_srcode = firmware.get_path_to_source_code()
         path_to_mkout = firmware.get_path_to_makeout()
         results = os.popen('grep arch/mips/kernel/cpu-probe.c {}'.format(path_to_mkout)).readlines()
-        assert len(results) == 1
+        if len(results) != 1:
+            self.context['input'] = 'malformat makeout'
+            return False
 
         command = results[0]
         path_to_gcc = firmware.get_path_to_gcc()
+        if path_to_gcc is None:
+            self.context['input'] = 'no gcc available'
+            return False
 
         # alter -o to -E
         args = command.strip().split()
@@ -31,9 +36,13 @@ class MIPSCPU(Analysis):
         # run and parse
         cwd = os.getcwd()
         os.chdir(path_to_srcode)
-        os.system('{} >/dev/null 2>&1'.format(' '.join(args)))
+        status = os.system('{} >/dev/null 2>&1'.format(' '.join(args)))
         path_to_cpu_probei = os.path.join(path_to_srcode, args[-2])
         os.chdir(cwd)
+
+        if status:
+            self.context['input'] = 'error in pre-processing'
+            return False
 
         state = 0
         candidates = []
@@ -465,7 +474,7 @@ class MIPSCPU(Analysis):
         self.name = 'mips_cpu'
         self.description = 'infer supported mips cpus'
         self.context['hint'] = 'no srcode available'
-        self.critical = True
+        self.critical = False
         self.required = ['srcode']
         #
         self.mips_cpus = yaml.safe_load(open(os.path.join(os.getcwd(), 'database/cpu.mips.yaml')))

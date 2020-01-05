@@ -10,6 +10,9 @@ class LoadAddr(Analysis):
 
         path_to_srcode = firmware.get_path_to_source_code()
         path_to_lds = os.path.join(path_to_srcode, 'arch/mips/kernel/vmlinux.lds')
+        if not os.path.exists(path_to_lds):
+            self.context['input'] = '{} does not exist'.format(path_to_lds)
+            return False
 
         #  SECTIONS
         #  {
@@ -36,5 +39,5 @@ class LoadAddr(Analysis):
         self.name = 'loaddr'
         self.description = 'resolve mips image loading address'
         self.context['hint'] = 'no srcode available'
-        self.critical = True
+        self.critical = False
         self.required = ['srcode']

@@ -5,11 +5,11 @@ import yaml
 def status_wrapper(status):
     if not isinstance(status, bool):
         return str(status)
-   
+
     if status:
-        return 'T'
+        return 1
     else:
-        return 'F'
+        return 0
 
 
 def statistics(firmware):
