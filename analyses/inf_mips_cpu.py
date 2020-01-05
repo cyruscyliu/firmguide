@@ -17,8 +17,13 @@ class MIPSCPU(Analysis):
 
         results = os.popen('grep cpu-probe.c {}'.format(path_to_mkout)).readlines()
         if len(results) != 1:
-            self.context['input'] = 'malformat makeout'
-            return False
+            self.context['input'] = 'no cpu-probe in makeout {}'.format(path_to_mkout)
+            path_to_cpu_probe_cmd = os.path.join(path_to_srcode, 'arch/mips/kernel/.cpu-probe.o.cmd')
+            if not os.path.exists(path_to_cpu_probe_cmd):
+                return False
+            with open(path_to_cpu_probe_cmd) as f:
+                results = f.readline()
+            results = [' '.join(results.split()[2:])]
 
         command = results[0]
         path_to_gcc = firmware.get_path_to_gcc()
@@ -58,7 +63,7 @@ class MIPSCPU(Analysis):
                     state = 0
 
         if not len(candidates):
-            self.context['input'] = 'no __get_cpu_type in cpu_probe()'
+            self.context['input'] = 'no __get_cpu_type in {}'.format(path_to_cpu_probei)
             return False
 
         # mapping
