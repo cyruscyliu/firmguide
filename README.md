@@ -90,6 +90,31 @@ use `-q` to **early stop** with a profile generated
 ./salamander.py -u 15007 -wd ../salamander-build -r -q
 ````
 
+## Debug
+
+print profile profile
+````shell script
+./salamander.py -u 15007 -wd ../salamander-build -pp 
+````
+
+statistics all
+
+````shell script
+./salamander.py -wd ../salamander-build -stat
+````
+
+diagnose trace
+
+````shell script
+./salamander.py -a arm -e l -t path/to/trace
+````
+
+generate qemu code from profile
+
+````shell script
+./salamander.py -g path/to/profile.yaml -wd ../salamander-build 
+````
+
 ## Contributors
 [cyruscyliu*](https://github.com/cyruscyliu/esv), [occia*](https://github.com/occia)
 
