@@ -53,6 +53,7 @@ class MIPSCPU(Analysis):
 
         state = 0
         candidates = []
+        no_critial_check = False
         with open(path_to_cpu_probei) as f:
             for line in f:
                 if state == 0 and line.find('__get_cpu_type(const int cpu_type)') != -1:
@@ -61,10 +62,8 @@ class MIPSCPU(Analysis):
                     candidates.append(line.strip().strip(':').split()[1])
                 if state == 1 and line.find('break') != -1:
                     state = 0
-
-        if not len(candidates):
-            self.context['input'] = 'no __get_cpu_type in {}'.format(path_to_cpu_probei)
-            return False
+                if line.find('cpu_data[0].cputype != c->cputype') != -1:
+                    no_critial_check = True
 
         # mapping
         ref = {
@@ -446,6 +445,13 @@ class MIPSCPU(Analysis):
                     target = self.has_matched_mips_cpu(cmp_id, imp_id)
                     if target:
                         targets.extend(target)
+
+        if not len(candidates):
+            self.context['input'] = 'no __get_cpu_type in {}'.format(path_to_cpu_probei)
+            if not no_critial_check:
+                return False
+            else:
+                targets = ['74Kf']
 
         # choose the one has private peripheral
         wanted_cpus = ['74Kf']
