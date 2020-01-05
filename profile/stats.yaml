@@ -1,6 +1,3 @@
-bamboo:
-  mode: count
-  level: bamboo
 basics:
   mode: stats
   level: basics
@@ -14,6 +11,29 @@ basics:
     - name
     - path
     - uuid
+  critical:
+    architecture:
+      conditions:
+        alywas: True
+    board_id:
+      conditions:
+        alywas: False
+        basics/architecture: arm
+    brand:
+      conditions:
+        alywas: True
+    endian:
+      conditions:
+        alywas: True
+    name:
+      conditions:
+        alywas: True
+    path:
+      conditions:
+        alywas: True
+    uuid:
+      conditions:
+        alywas: True
 brand:
   mode: stats
   level: brand
@@ -36,28 +56,6 @@ components:
     - path_to_vmlinux
     - path_to_makeout
     - path_to_gcc
-cpu:
-  mode: stats
-  level: cpu
-  expect:
-    - model
-flash:
-  mode: stats
-  level: flash
-  expect:
-    - base
-    - section_size
-    - size
-    - type
-interrupt_controller:
-  mode: stats
-  level: interrupt_controller
-  expect:
-    - mmio_base
-    - mmio_size
-    - name
-    - registers
-    - timer_irq
 kernel:
   mode: stats
   level: kernel
@@ -66,9 +64,11 @@ kernel:
     - kernel_entry_point
     - kernel_load_address
     - kernel_version
-mapping:
-  mode: count
-  level: mapping
+cpu:
+  mode: stats
+  level: cpu
+  expect:
+    - model
 ram:
   mode: stats
   level: ram
@@ -86,3 +86,26 @@ uart:
     - mmio_size
     - name
     - reg_shift
+flash:
+  mode: stats
+  level: flash
+  expect:
+    - base
+    - section_size
+    - size
+    - type
+mapping:
+  mode: count
+  level: mapping
+interrupt_controller:
+  mode: stats
+  level: interrupt_controller
+  expect:
+    - mmio_base
+    - mmio_size
+    - name
+    - registers
+    - timer_irq
+bamboo:
+  mode: count
+  level: bamboo

@@ -33,7 +33,7 @@ git clone https://github.com/cyruscyliu/pyqemulog ~/pyqemulog && cd ~/pyqemulog 
 sudo apt-get install -y git libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev
 sudo apt-get install -y bison flex
 sudo apt-get install -y libcapstone3 libcapstone-dev
-sudo apt-get install -y u-boot-tools
+sudo apt-get install -y u-boot-tools p7zip-full squashfs-tools
 sudo apt-get install -y gawk
 ```
 

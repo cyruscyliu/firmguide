@@ -5,27 +5,26 @@ import yaml
 def status_wrapper(status):
     if not isinstance(status, bool):
         return str(status)
-   
+
     if status:
-        return 'T'
+        return str(1)
     else:
-        return 'F'
+        return str(0)
 
 
 def statistics(firmware):
-    summary = []
+    summary = {}
 
     working_dir = os.path.dirname(firmware.get_working_dir())
 
     for uuid in os.listdir(working_dir):
         summary_path = os.path.join(working_dir, uuid, 'stats.yaml')
         if os.path.exists(summary_path):
-            summary.append(yaml.safe_load(open(summary_path)))
+            summary[uuid] = yaml.safe_load(open(summary_path))
 
     # construct header
-    headers = []
+    headers = ['uuid']
     for key, properties in firmware.stat_reference.items():
-        levels = properties['level'].split('/')
         if properties['mode'] == 'count':
             headers.append(key)
         elif properties['mode'] == 'stats':
@@ -34,9 +33,9 @@ def statistics(firmware):
 
     # get value wst header
     values = []
-    for s in summary:
-        value = []
-        for header in headers:
+    for uuid, s in summary.items():
+        value = [uuid]
+        for header in headers[1:]:
             levels = header.split('/')
             if len(levels) == 1:
                 value.append(status_wrapper(s[levels[0]]))

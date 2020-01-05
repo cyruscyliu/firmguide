@@ -32,7 +32,8 @@
 "10.03":
   code name: Backfire
   release date: April 2010
-  kernel: 2.6.32
+  # http://wiki.wrtnode.cc/index.php?title=WRTnode%E7%9A%84%E7%B3%BB%E7%BB%9FOpenWrt/en
+  kernel: [2.6.32, 2.4.37, 2.6.30]
   libc: uClibc
   url: https://archive.openwrt.org/backfire/10.03/
 "12.09":

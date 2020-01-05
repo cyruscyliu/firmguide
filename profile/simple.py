@@ -15,7 +15,12 @@ class SimpleFirmware(Firmware):
             levels = properties['level'].split('/')
             if properties['mode'] == 'count':
                 # len(levels) must be 1
-                results[key] = len(self.get_general(*levels))
+                node = self.get_general(*levels)
+                if node is None:
+                    results[key] = False
+                    continue
+                else:
+                    results[key] = len(node)
             elif properties['mode'] == 'stats':
                 node = self.get_general(*levels)
                 if node is None:
@@ -28,7 +33,7 @@ class SimpleFirmware(Firmware):
                         results[key][expect] = True
                     else:
                         results[key][expect] = False
-                        
+
         self.stat_summary = results
         self.path_to_summary = os.path.join(self.working_directory, 'stats.yaml')
         with open(self.path_to_summary, 'w') as f:
