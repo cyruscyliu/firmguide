@@ -54,6 +54,7 @@ class MIPSCPU(Analysis):
         state = 0
         candidates = []
         no_critial_check = False
+        no_bug_on = True
         with open(path_to_cpu_probei) as f:
             for line in f:
                 if state == 0 and line.find('__get_cpu_type(const int cpu_type)') != -1:
@@ -64,6 +65,8 @@ class MIPSCPU(Analysis):
                     state = 0
                 if line.find('cpu_data[0].cputype != c->cputype') != -1:
                     no_critial_check = True
+                if line.find('BUG_ON') != -1:
+                    no_bug_on = False
 
         # mapping
         ref = {
@@ -449,7 +452,10 @@ class MIPSCPU(Analysis):
         if not len(candidates):
             self.context['input'] = 'no __get_cpu_type in {}'.format(path_to_cpu_probei)
             if not no_critial_check:
-                return False
+                if no_bug_on:
+                    targets = ['74Kf']
+                else:
+                    return False
             else:
                 targets = ['74Kf']
 
