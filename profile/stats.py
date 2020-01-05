@@ -13,19 +13,18 @@ def status_wrapper(status):
 
 
 def statistics(firmware):
-    summary = []
+    summary = {}
 
     working_dir = os.path.dirname(firmware.get_working_dir())
 
     for uuid in os.listdir(working_dir):
         summary_path = os.path.join(working_dir, uuid, 'stats.yaml')
         if os.path.exists(summary_path):
-            summary.append(yaml.safe_load(open(summary_path)))
+            summary[uuid].append(yaml.safe_load(open(summary_path)))
 
     # construct header
-    headers = []
+    headers = ['uuid']
     for key, properties in firmware.stat_reference.items():
-        levels = properties['level'].split('/')
         if properties['mode'] == 'count':
             headers.append(key)
         elif properties['mode'] == 'stats':
@@ -34,8 +33,8 @@ def statistics(firmware):
 
     # get value wst header
     values = []
-    for s in summary:
-        value = []
+    for uuid, s in summary.items():
+        value = [uuid]
         for header in headers:
             levels = header.split('/')
             if len(levels) == 1:
