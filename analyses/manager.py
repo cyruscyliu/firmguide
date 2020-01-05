@@ -157,7 +157,6 @@ class AnalysesManager(object):
             self.last_analysis_status = analysis.run(self.firmware)
 
     def run(self, target_analyses_tree=None):
-        self.print_readme()
         for analyses_tree_name, analyses_tree in self.analyses_forest.items():
             if target_analyses_tree is not None and analyses_tree_name != target_analyses_tree:
                 continue
