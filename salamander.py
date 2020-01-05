@@ -35,6 +35,7 @@ if __name__ == '__main__':
     # stat
     group = parser.add_argument_group('statistics')
     group.add_argument('-pp', '--print_profile', action='store_true', default=False, help='print the profile')
+    group.add_argument('-stat', '--statistics', action='store_true', default=False, help='stat all device profiles')
     args = parser.parse_args()
     if args.debug:
         setup_logging(default_level=logging.DEBUG)

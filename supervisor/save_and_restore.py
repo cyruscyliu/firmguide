@@ -59,6 +59,7 @@ def save_analysis(firmware):
     with open(analysis, 'w') as f:
         yaml.safe_dump(firmware.analysis_progress, f)
     firmware.save_profile(working_dir=firmware.working_directory)
+    firmware.stats()
     logger_info(firmware.get_uuid(), 'save_and_restore', 'save', firmware.summary(), 0)
 
 
@@ -123,6 +124,11 @@ def setup_code_generation(args, firmware):
     firmware.path_to_trace = 'log/{}.trace'.format(firmware.get_uuid())
 
 
+def setup_statistics(args, firmware):
+    firmware.uuid = 'stats'
+    setup_working_directory(args, firmware)
+
+
 def setup_print_profile(args, firmware):
     firmware.uuid = args.uuid
     setup_working_directory(args, firmware)
@@ -136,7 +142,7 @@ def setup_print_profile(args, firmware):
         try:
             firmware.size = os.path.getsize(firmware.get_path())
         except TypeError as e:
-            print('May be you forget -wd? Otherwise, please run rm {}'.format(path_to_profile))
+            print('May be you forget -wd? Otherwise, please run rm {} and full command'.format(path_to_profile))
             raise e
         setup_working_path(firmware)
     else:
@@ -157,7 +163,7 @@ def setup_single_analysis(args, firmware):
         try:
             firmware.size = os.path.getsize(firmware.get_path())
         except TypeError as e:
-            print('May be you forget -wd? Otherwise, please run rm {}'.format(path_to_profile))
+            print('May be you forget -wd? Otherwise, please run rm {} and full command'.format(path_to_profile))
             raise e
         setup_working_path(firmware)
     else:
