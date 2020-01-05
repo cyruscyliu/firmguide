@@ -11,5 +11,5 @@ ram,RAMDefault,toh,,
 srcode,SRCode,strings@revision@url@toh,path_to_source_code,
 .config,DotConfig,srcode,cpu,no .config available
 kerberos,LibTooling,srcode,,
-mips_cpu,MIPSCPU,srcode,,no srcode available
-loaddr,LoadAddr,srcode,,no srcode available
+mips_cpu,MIPSCPU,srcode,,problem in mips cpus inference
+loaddr,LoadAddr,srcode,,problem in getting mips image loading address

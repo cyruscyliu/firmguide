@@ -14,7 +14,8 @@ class MIPSCPU(Analysis):
         # find command
         path_to_srcode = firmware.get_path_to_source_code()
         path_to_mkout = firmware.get_path_to_makeout()
-        results = os.popen('grep arch/mips/kernel/cpu-probe.c {}'.format(path_to_mkout)).readlines()
+
+        results = os.popen('grep cpu-probe.c {}'.format(path_to_mkout)).readlines()
         if len(results) != 1:
             self.context['input'] = 'malformat makeout'
             return False
@@ -27,11 +28,12 @@ class MIPSCPU(Analysis):
 
         # alter -o to -E
         args = command.strip().split()
-        args[0] = path_to_gcc
-        # TODO remove when run in the server
-        args[4] = args[4].replace('/root/firmware', '/mnt/salamander/srcode/share')
+        args[0] = path_to_gcc # always true
+        args = [i.replace('/root/firmware', '/mnt/salamander/srcode/share') for i in args]
         args[-4] = '-E'
-        args[-2] = args[-2][:-1] + 'i'
+        path_to_cpu_probe = 'arch/mips/kernel/cpu-probe.'
+        args[-2] = path_to_cpu_probe + 'i'
+        args[-1] = path_to_cpu_probe + 'c'
 
         # run and parse
         cwd = os.getcwd()
