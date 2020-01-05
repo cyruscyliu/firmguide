@@ -473,7 +473,7 @@ class MIPSCPU(Analysis):
         super().__init__(analysis_manager)
         self.name = 'mips_cpu'
         self.description = 'infer supported mips cpus'
-        self.context['hint'] = 'no srcode available'
+        self.context['hint'] = 'problem in mips cpus inference'
         self.critical = False
         self.required = ['srcode']
         #
