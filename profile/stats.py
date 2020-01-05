@@ -7,9 +7,9 @@ def status_wrapper(status):
         return str(status)
 
     if status:
-        return 1
+        return str(1)
     else:
-        return 0
+        return str(0)
 
 
 def statistics(firmware):
@@ -20,7 +20,7 @@ def statistics(firmware):
     for uuid in os.listdir(working_dir):
         summary_path = os.path.join(working_dir, uuid, 'stats.yaml')
         if os.path.exists(summary_path):
-            summary[uuid].append(yaml.safe_load(open(summary_path)))
+            summary[uuid] = yaml.safe_load(open(summary_path))
 
     # construct header
     headers = ['uuid']
@@ -35,7 +35,7 @@ def statistics(firmware):
     values = []
     for uuid, s in summary.items():
         value = [uuid]
-        for header in headers:
+        for header in headers[1:]:
             levels = header.split('/')
             if len(levels) == 1:
                 value.append(status_wrapper(s[levels[0]]))
