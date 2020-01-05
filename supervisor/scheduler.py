@@ -1,13 +1,12 @@
 from analyses.manager import AnalysesManager
 from generation.compilerf import get_compiler
 from profile.firmwaref import get_firmware_in_profile
+from profile.stats import statistics
 
 from supervisor.logging_setup import logger_info, logger_warning
 from supervisor.save_and_restore import \
     check_and_restore, save_analysis, \
-    setup_diagnosis, setup_code_generation, setup_single_analysis, setup_print_profile
-
-import os
+    setup_diagnosis, setup_code_generation, setup_single_analysis, setup_print_profile, setup_statistics
 
 
 def run_diagnosis(firmware):
@@ -28,11 +27,18 @@ def run_print_profile(firmware):
     firmware.print_profile()
 
 
+def run_statistics(firmware):
+    statistics(firmware)
+
+
 def run(parser, args):
     firmware = get_firmware_in_profile(args.profile)
     if args.print_profile:
         setup_print_profile(args, firmware)
         run_print_profile(firmware)
+    elif args.statistics:
+        setup_statistics(args, firmware)
+        run_statistics(firmware)
     elif args.trace:
         setup_diagnosis(args, firmware)
         run_diagnosis(firmware)

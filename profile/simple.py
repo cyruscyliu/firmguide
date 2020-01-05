@@ -9,6 +9,31 @@ from profile.firmware import Firmware
 
 
 class SimpleFirmware(Firmware):
+    def stats(self):
+        results = {}
+        for key, properties in self.stat_reference.items():
+            levels = properties['level'].split('/')
+            if properties['mode'] == 'count':
+                # len(levels) must be 1
+                results[key] = len(self.get_general(*levels))
+            elif properties['mode'] == 'stats':
+                node = self.get_general(*levels)
+                if node is None:
+                    results[key] = False
+                    continue
+                else:
+                    results[key] = {}
+                for expect in properties['expect']:
+                    if expect in node:
+                        results[key][expect] = True
+                    else:
+                        results[key][expect] = False
+                        
+        self.stat_summary = results
+        self.path_to_summary = os.path.join(self.working_directory, 'stats.yaml')
+        with open(self.path_to_summary, 'w') as f:
+            yaml.dump(self.stat_summary, f)
+
     def print_profile(self):
         path_to_profile = os.path.join(self.working_directory, 'profile.yaml')
         print(path_to_profile)

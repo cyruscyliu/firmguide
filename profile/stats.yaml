@@ -1,0 +1,88 @@
+bamboo:
+  mode: count
+  level: bamboo
+basics:
+  mode: stats
+  level: basics
+  expect:
+    - architecture
+    - board_id
+    - brand
+    - endian
+    - machine_description
+    - machine_name
+    - name
+    - path
+    - uuid
+brand:
+  mode: stats
+  level: brand
+  expect:
+    - revision
+    - subtarget
+    - target
+    - toh
+components:
+  mode: stats
+  level: components
+  expect:
+    - format
+    - path_to_dot_config
+    - path_to_image
+    - path_to_kernel
+    - path_to_llvm_bitcode
+    - path_to_source_code
+    - path_to_uimage
+    - path_to_vmlinux
+    - path_to_makeout
+    - path_to_gcc
+cpu:
+  mode: stats
+  level: cpu
+  expect:
+    - model
+flash:
+  mode: stats
+  level: flash
+  expect:
+    - base
+    - section_size
+    - size
+    - type
+interrupt_controller:
+  mode: stats
+  level: interrupt_controller
+  expect:
+    - mmio_base
+    - mmio_size
+    - name
+    - registers
+    - timer_irq
+kernel:
+  mode: stats
+  level: kernel
+  expect:
+    - kernel_created_time
+    - kernel_entry_point
+    - kernel_load_address
+    - kernel_version
+mapping:
+  mode: count
+  level: mapping
+ram:
+  mode: stats
+  level: ram
+  expect:
+    - base
+    - priority
+    - size
+uart:
+  mode: stats
+  level: uart/uart@0
+  expect:
+    - baud_rate
+    - irq
+    - mmio_base
+    - mmio_size
+    - name
+    - reg_shift

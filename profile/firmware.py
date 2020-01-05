@@ -1,5 +1,6 @@
 import os
 import abc
+import yaml
 
 from profile.kernel import KernelForFirmware
 from profile.openwrt import OpenWRTForFirmware
@@ -14,6 +15,10 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
         self.analysis_progress = None  # file
         self.profile = None  # dict
+        self.stat_reference = \
+            yaml.safe_load(open(os.path.join(os.getcwd(), 'profile', 'stats.yaml')))
+        self.stat_summary = {}
+        self.path_to_summary = None
 
         self.trace_format = None
         self.path_to_trace = None
@@ -24,6 +29,10 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
         self.rerun = False
         self.running_command = None
+
+    @abc.abstractmethod
+    def stats(self):
+        pass
 
     def init_profile(self):
         self.set_uart_num(0)
@@ -179,8 +188,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         return brief_introduction
 
     def summary(self, *args, **kwargs):
-        brief_summary = 'uuid: {}, name:{}, profile at {}'.format(self.get_uuid(), self.get_name(),
-                                                                  self.path_to_profile)
+        brief_summary = 'uuid: {}, name:{}, summary at {}'.format(
+            self.get_uuid(), self.get_name(), self.path_to_summary)
         return brief_summary
 
     # components

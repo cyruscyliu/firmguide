@@ -7,6 +7,10 @@ from database.dbf import get_database
 
 class MIPSCPU(Analysis):
     def run(self, firmware):
+        # only for mips
+        if firmware.get_architecture() == 'arm':
+            return True
+
         # find command
         path_to_srcode = firmware.get_path_to_source_code()
         path_to_mkout = firmware.get_path_to_makeout()
