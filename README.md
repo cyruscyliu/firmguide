@@ -115,6 +115,14 @@ generate qemu code from profile
 ./salamander.py -g path/to/profile.yaml -wd ../salamander-build 
 ````
 
+## Analysis
+
+If the built-in analyses can not boot the kernel to its shell, you have to add your own analysis. 
+More analyses you provide, more powerful the salamander will be. The visualization results will tell you what specific 
+analysis you should add. The analysis you add will solve the abelia devices a kernel required. Please read 
+this [paper]() to get familiar with the abelia devices and read [this](./analyses/README.md) then to understand
+how we implement the analysis framework.
+
 ## Contributors
 [cyruscyliu*](https://github.com/cyruscyliu/esv), [occia*](https://github.com/occia)
 
