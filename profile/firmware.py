@@ -35,7 +35,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     def init_profile(self):
-        self.set_uart_num(0)
+        pass
 
     @abc.abstractmethod
     def print_profile(self):
@@ -441,7 +441,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     # ==== uart ====
     def probe_uart(self, *args, **kwargs):
-        return int(self.get_uart_num()) > 0
+        return self.get_uart_num() > 0
 
     @abc.abstractmethod
     def set_uart_num(self, *args, **kwargs):
