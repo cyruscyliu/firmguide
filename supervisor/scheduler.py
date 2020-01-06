@@ -110,6 +110,7 @@ def analysis_wrapper(firmware, static_analysis=True, tracing=True, check_only=Fa
     except NotImplementedError as e:
         logger_warning(firmware.get_uuid(), 'analysis', 'exception', e.__str__(), 0)
     except SystemExit as e:
+        iteration += 1
         pass
 
     firmware.set_iteration(iteration)
