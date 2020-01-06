@@ -99,8 +99,8 @@ class Bamboos(Analysis):
             self.bamboos.append(bamboo)
 
         # get dead addresses/bamboo
-        target_address = dabt.dead_addresses + libtooling.bamboo_address
-        for target_address in target_address:
+        target_addresses = dabt.dead_addresses + libtooling.bamboo_address
+        for target_address in target_addresses:
             bamboo = Bamboo()
             bamboo.mmio_base = self.convert_address(int(target_address, 16) & 0xFFFFFF00)
             bamboo.mmio_size = 0x100
