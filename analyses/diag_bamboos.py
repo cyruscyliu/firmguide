@@ -38,7 +38,7 @@ class Bamboos(Analysis):
                 insert_pos = -1
 
         if insert_pos != -1:
-            bamboo.name = 'stub{}'.format(len(self.bamboos) - 1)
+            bamboo.name = 'stub{}'.format(len(self.bamboos))
             bamboos.insert(insert_pos, bamboo)
             self.bamboos = bamboos
 
