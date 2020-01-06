@@ -13,24 +13,25 @@ class SimpleFirmware(Firmware):
         results = {}
         for key, properties in self.stat_reference.items():
             levels = properties['level'].split('/')
+            node = self.get_general(*levels)
+            if node is None:
+                results[key] = False
+                continue
             if properties['mode'] == 'count':
                 # len(levels) must be 1
-                node = self.get_general(*levels)
-                if node is None:
-                    results[key] = False
-                    continue
-                else:
-                    results[key] = len(node)
+                results[key] = len(node)
             elif properties['mode'] == 'stats':
-                node = self.get_general(*levels)
-                if node is None:
-                    results[key] = False
-                    continue
-                else:
-                    results[key] = {}
+                results[key] = {}
                 for expect in properties['expect']:
                     if expect in node:
                         results[key][expect] = True
+                    else:
+                        results[key][expect] = False
+            elif properties['mode'] == 'value':
+                results[key] = {}
+                for expect in properties['expect']:
+                    if expect in node:
+                        results[key][expect] = node[expect]
                     else:
                         results[key][expect] = False
 
@@ -478,6 +479,20 @@ class SimpleFirmware(Firmware):
 
     def get_va_pa_mapping(self, *args, **kwargs):
         return self.get_general('mapping')
+
+    def get_iteration(self, *args, **kwargs):
+        return self.get_general('runtime', 'iteration')
+
+    def set_iteration(self, *args, **kwargs):
+        self.set_general('runtime', 'iteration', value=args[0])
+
+    def get_stage(self, *args, **kwargs):
+        # get_stage('user_mode')
+        return self.get_general('runtime', args[0])
+
+    def set_stage(self, *args, **kwargs):
+        # set_state(True, 'user_mode')
+        self.set_general('runtime', args[1], value=args[0])
 
     def __init__(self, *args, **kwargs):
         super(SimpleFirmware, self).__init__(*args, **kwargs)

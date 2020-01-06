@@ -93,6 +93,8 @@ class DataAbort(Analysis):
         return True
 
     def run(self, firmware):
+        self.dead_addresses = []
+        
         trace = self.analysis_manager.get_analysis('load_trace')
         assert isinstance(trace, LoadTrace)
         pql = trace.pql

@@ -26,6 +26,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.no_inference = False
         self.architecture = None
         self.endian = None
+        self.max_iteration = 20
 
         self.rerun = False
         self.running_command = None
@@ -35,7 +36,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     def init_profile(self):
-        self.set_uart_num(0)
+        pass
 
     @abc.abstractmethod
     def print_profile(self):
@@ -441,7 +442,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     # ==== uart ====
     def probe_uart(self, *args, **kwargs):
-        return int(self.get_uart_num()) > 0
+        return self.get_uart_num() > 0
 
     @abc.abstractmethod
     def set_uart_num(self, *args, **kwargs):
@@ -552,4 +553,21 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     @abc.abstractmethod
     def get_va_pa_mapping(self, *args, **kwargs):
+        pass
+
+    # ==== runtime ==
+    @abc.abstractmethod
+    def set_iteration(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_iteration(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_stage(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_stage(self, *args, **kwargs):
         pass

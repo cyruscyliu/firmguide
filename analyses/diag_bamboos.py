@@ -3,6 +3,7 @@ Add bamboo devices after DataAbort and InitValue.
 """
 from analyses.analysis import Analysis
 from analyses.diag_dabt import DataAbort
+from analyses.inf_libtooling import LibTooling
 
 
 class Bamboo(object):
@@ -21,19 +22,30 @@ class Bamboo(object):
 
 class Bamboos(Analysis):
     def insert(self, bamboo):
-        end = True
-        for i, exist in enumerate(self.bamboos):
-            if bamboo.mmio_base == exist.mmio_base:
-                # exists
-                return False
-            if bamboo.mmio_base < exist.mmio_base:
-                end = False
-                self.bamboos.insert(i, bamboo)
-                break
-        if end:
-            self.bamboos.append(bamboo)
+        # this is a simple `insert interval` problem
+        # because we have a fix interval 0x100
+        # and we will not merge adjacent intervals
+        bamboos = []
 
-        bamboo.name = 'stub{}'.format(len(self.bamboos) - 1)
+        insert_pos = 0
+        # at first, we must ensure the list to be inserted is in order
+        for exist in sorted(self.bamboos, key=lambda x: x.mmio_base):
+            if exist.mmio_base + exist.mmio_size <= bamboo.mmio_base:
+                bamboos.append(exist)
+                insert_pos += 1
+            elif exist.mmio_base >= bamboo.mmio_base + bamboo.mmio_size:
+                bamboos.append(exist)
+            else:
+                # find an identity bamboo
+                insert_pos = -1
+
+        if insert_pos == -1:
+            return False
+
+        bamboo.name = 'stub{}'.format(len(self.bamboos))
+        bamboos.insert(insert_pos, bamboo)
+        self.bamboos = bamboos
+
         return True
 
     def init_registers(self, bamboo):
@@ -60,9 +72,12 @@ class Bamboos(Analysis):
         return address
 
     def run(self, firmware):
-        self.bamboos = [] # clear otherwise dupicated mmio regions
+        self.bamboos = []  # clear otherwise dupicated mmio regions
+        self.variable = 0
         dabt = self.analysis_manager.get_analysis('data_abort')
         assert isinstance(dabt, DataAbort)
+        libtooling = self.analysis_manager.get_analysis('kerberos')
+        assert isinstance(libtooling, LibTooling)
 
         # load bamboo devices
         if firmware.profile is None:
@@ -83,10 +98,11 @@ class Bamboos(Analysis):
             self.variable += len(bamboo.registers)
             self.bamboos.append(bamboo)
 
-        # get dead addresses
-        for dead_address in dabt.dead_addresses:
+        # get dead addresses/bamboo
+        target_addresses = dabt.dead_addresses + libtooling.bamboo_address
+        for target_address in target_addresses:
             bamboo = Bamboo()
-            bamboo.mmio_base = self.convert_address(int(dead_address, 16) & 0xFFFFFF00)
+            bamboo.mmio_base = self.convert_address(int(target_address, 16) & 0xFFFFFF00)
             bamboo.mmio_size = 0x100
             if self.insert(bamboo):
                 self.init_registers(bamboo)

@@ -91,6 +91,7 @@ def setup_diagnosis(args, firmware):
     firmware.trace_format = args.trace_format
     firmware.architecture = args.architecture
     firmware.endian = args.endian
+    firmware.max_iteration = args.max
     # 2 and the uuid
     firmware.uuid = 'diagnosis'
 
@@ -125,6 +126,7 @@ def setup_code_generation(args, firmware):
     # we still need the trace
     firmware.trace_format = args.trace_format
     firmware.path_to_trace = 'log/{}.trace'.format(firmware.get_uuid())
+    firmware.max_iteration = args.max
 
 
 def setup_statistics(args, firmware):
@@ -188,3 +190,4 @@ def setup_single_analysis(args, firmware):
     firmware.path_to_trace = 'log/{}.trace'.format(firmware.get_uuid())
     firmware.rerun = args.rerun
     firmware.do_not_diagnosis = args.quick
+    firmware.max_iteration = args.max
