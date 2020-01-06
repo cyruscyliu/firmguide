@@ -6,7 +6,10 @@ from analyses.diag_tracing import LoadTrace
 
 class Checking(Analysis):
     def scan_user_level_qemudebug(self, firmware, pql):
-        user_level = 'usr32' if firmware.architecture == 'arm' else 'user'
+        if firmware.architecture is None:
+            user_level = 'usr32' if firmware.get_architecture() == 'arm' else 'user'
+        else:
+            user_level = 'usr32' if firmware.architecture == 'arm' else 'user'
         for k, cpurf in pql.cpurfs.items():
             if cpurf['mode'] == user_level:
                 return True
