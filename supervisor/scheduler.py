@@ -103,14 +103,14 @@ def analysis_wrapper(firmware, static_analysis=True, tracing=True, check_only=Fa
 
             # perform dynamic checking
             status = analyses_manager.run_dynamic_analyses()
-            # save in case of losing
-            save_analysis(firmware)
             if not status:
                 break
             max_iteration -= 1
             iteration += 1
     except NotImplementedError as e:
         logger_warning(firmware.get_uuid(), 'analysis', 'exception', e.__str__(), 0)
+    except SystemExit as e:
+        pass
 
     firmware.set_iteration(iteration)
-
+    save_analysis(firmware)
