@@ -26,6 +26,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.no_inference = False
         self.architecture = None
         self.endian = None
+        self.max_iteration = 20
 
         self.rerun = False
         self.running_command = None

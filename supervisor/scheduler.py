@@ -88,7 +88,7 @@ def analysis_wrapper(firmware, static_analysis=True, tracing=True, check_only=Fa
     analyses_manager.register_dynamic_analysis(tracing=tracing, check_only=check_only)
 
     # for iteration we must set a limit otherwise we might not stop
-    max_iteration = 20
+    max_iteration = firmware.max_iteration
     # because complication is not analysis,
     # so we handle its exception here, maybe
     # there are some surprising tricks?

@@ -32,6 +32,7 @@ if __name__ == '__main__':
     group = parser.add_argument_group('diagnosis')
     group.add_argument('-t', '--trace', type=str, metavar='path/to/trace')
     group.add_argument('-tf', '--trace_format', type=str, choices=['ktracer', 'qemudebug'], default='qemudebug')
+    group.add_argument('-m', '--max', type=int, help='max iteration', default=20)
     # stat
     group = parser.add_argument_group('statistics')
     group.add_argument('-pp', '--print_profile', action='store_true', default=False, help='print the profile')
