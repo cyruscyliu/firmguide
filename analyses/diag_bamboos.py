@@ -38,11 +38,13 @@ class Bamboos(Analysis):
                 # find an identity bamboo
                 insert_pos = -1
 
-        if insert_pos != -1:
-            bamboo.name = 'stub{}'.format(len(self.bamboos))
-            bamboos.insert(insert_pos, bamboo)
-            self.bamboos = bamboos
+        if insert_pos == -1:
+            return False
 
+        bamboo.name = 'stub{}'.format(len(self.bamboos))
+        bamboos.insert(insert_pos, bamboo)
+        self.bamboos = bamboos
+       
         return True
 
     def init_registers(self, bamboo):
