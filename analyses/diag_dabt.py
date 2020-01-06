@@ -115,5 +115,6 @@ class DataAbort(Analysis):
         self.context['hint'] = 'bad bad bad trace'
         self.critical = True
         self.required = ['check']
+        self.type = 'diag'
         #
         self.dead_addresses = []

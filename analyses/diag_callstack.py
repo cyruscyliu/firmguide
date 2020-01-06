@@ -79,3 +79,4 @@ class CallStack(Analysis):
         self.context['hint'] = 'bad bad bad trace'
         self.critical = False
         self.required = ['check']
+        self.type = 'diag'

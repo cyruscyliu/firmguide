@@ -114,6 +114,7 @@ class Bamboos(Analysis):
         self.context['hint'] = 'bad bad bad trace'
         self.critical = False
         self.required = ['data_abort', 'init_value']
+        self.type = 'diag'
         #
         self.bamboos = []
         self.variable = 0
