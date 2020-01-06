@@ -39,3 +39,4 @@ class Checking(Analysis):
         self.context['hint'] = 'bad bad bad trace'
         self.critical = False
         self.required = ['load_trace']
+        self.type = 'diag'

@@ -15,6 +15,7 @@ class LoadTrace(Analysis):
         self.context['hint'] = 'bad bad bad trace'
         self.critical = True
         self.required = ['do_tracing']
+        self.type = 'diag'
 
         # store trace context
         self.pql = None
@@ -65,6 +66,7 @@ class DoTracing(Analysis):
         self.context['hint'] = 'user interruption or QEMU internal error'
         self.critical = True
         self.required = []
+        self.type = 'diag'
 
     def analysis_status(self, status):
         return not status

@@ -72,7 +72,7 @@ what you need to provide
         backfire_10.03/bin/orion/openwrt-wrt350nv2-squashfs-recovery.bin
 ```
 
-use a shorter one to avoid an annoying such long command
+use a shorter one to avoid such a long and annoying command
 
 ```
 ./salamander.py -u 15007 -wd ../salamander-build

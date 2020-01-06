@@ -12,3 +12,4 @@ class InitValue(Analysis):
         self.context['hint'] = 'very difficult program analysis'
         self.critical = False
         self.required = ['check']
+        self.type = 'diag'

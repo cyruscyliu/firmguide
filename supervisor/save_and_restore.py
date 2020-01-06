@@ -78,6 +78,9 @@ def finish(firmware, analysis):
     if firmware.analysis_progress is None:
         return
 
+    if analysis.type == 'diag':
+        return
+
     if analysis.name not in firmware.analysis_progress:
         firmware.analysis_progress[analysis.name] = 1
 

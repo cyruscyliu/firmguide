@@ -165,7 +165,7 @@ class AnalysesManager(object):
                 try:
                     a = self.analyses_flat[analysis]
                 except KeyError:
-                    # meaning that there is no analysis at all
+                    # meaning that there is no such analysis at all
                     continue
                 # save and restore
                 if not self.firmware.rerun and finished(self.firmware, a):
@@ -177,20 +177,21 @@ class AnalysesManager(object):
                     if not res:
                         a.error(self.firmware)
                     if not res and a.is_critical():
-                        logger_warning(self.firmware.get_uuid(),
-                                       'analysis', 'exception', 'can not support it, fix and rerun', 0)
-                        exit(-1)
+                        logger_warning(
+                            self.firmware.get_uuid(), 'analysis', 'exception', 'can not support it, fix and rerun', 0)
+                        return False
                 except NotImplementedError as e:
                     logger_warning(self.firmware.get_uuid(), 'analysis', 'exception', e, 0)
-                    exit(-1)
+                    return False
 
                 finish(self.firmware, a)
+        return True
 
     def run_static_analysis(self):
-        self.run(target_analyses_tree=self.static_analysis)
+        return self.run(target_analyses_tree=self.static_analysis)
 
     def run_dynamic_analyses(self):
-        self.run(target_analyses_tree=self.dynamic_analysis)
+        return self.run(target_analyses_tree=self.dynamic_analysis)
 
     def register_static_analysis(self):
         static_analysis = self.new_analyses_tree()

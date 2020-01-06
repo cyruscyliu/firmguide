@@ -56,32 +56,56 @@ def static_analysis_wrapper(analyses_manager):
     analyses_manager.run_static_analysis()
 
 
-def analysis_wrapper(firmware, static_analysis=True, check_only=False):
-    # restore first
+def analysis_wrapper(firmware, static_analysis=True, tracing=True, check_only=False):
+    # restore first, load what we have done
     check_and_restore(firmware)
 
     analyses_manager = AnalysesManager(firmware)
 
+    # static analysis is not always necessary
+    # but is prone to abort due to critical analysis
+    # it's very important to save its status such
+    # that we can save analysis results for this time
+    status = True
     if static_analysis:
         analyses_manager.register_static_analysis()
-        analyses_manager.run_static_analysis()
+        status = analyses_manager.run_static_analysis()
 
     # save advance
     save_analysis(firmware)
+    if not status:
+        exit(-1)
 
-    analyses_manager.register_dynamic_analysis(check_only=check_only)
+    # if -q assigned, exit early
+    if firmware.do_not_diagnosis:
+        exit(-1)
 
-    while not firmware.do_not_diagnosis:  # exit early
-        # perform code generation
-        machine_compiler = get_compiler(firmware)
-        try:
+    # dynamic analysis is always necessary
+    # but we'd like to choose part of them for specific task
+    # we can ignore tracing and ignore several advanced analysis
+    # only keep `check` analysis to tell us whether we have
+    # entered the user mode or not
+    analyses_manager.register_dynamic_analysis(tracing=tracing, check_only=check_only)
+
+    # for iteration we must set a limit otherwise we might not stop
+    max_iteration = 20
+    # because complication is not analysis,
+    # so we handle its exception here, maybe
+    # there are some surprising tricks?
+    try:
+        while max_iteration:
+            # perform code generation
+            machine_compiler = get_compiler(firmware)
             machine_compiler.solve()
-        except NotImplementedError as e:
-            logger_warning(firmware.get_uuid(), 'analysis', 'exception', e.__str__(), 0)
-            exit(-1)
-        machine_compiler.link_and_install()
-        machine_compiler.make()
+            machine_compiler.link_and_install()
+            machine_compiler.make()
 
-        # perform dynamic checking
-        analyses_manager.run_dynamic_analyses()
-        save_analysis(firmware)
+            # perform dynamic checking
+            status = analyses_manager.run_dynamic_analyses()
+            # save in case of losing
+            save_analysis(firmware)
+            if not status:
+                break
+            max_iteration -= 1
+    except NotImplementedError as e:
+        logger_warning(firmware.get_uuid(), 'analysis', 'exception', e.__str__(), 0)
