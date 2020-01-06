@@ -27,7 +27,8 @@ class Bamboos(Analysis):
         bamboos = []
 
         insert_pos = 0
-        for exist in self.bamboos:
+        # at first, we must ensure the list to be inserted is in order
+        for exist in sorted(self.bamboos, key=lambda x: x.mmio_base):
             if exist.mmio_base + exist.mmio_size <= bamboo.mmio_base:
                 bamboos.append(exist)
                 insert_pos += 1
