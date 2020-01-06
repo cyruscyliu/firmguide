@@ -21,19 +21,27 @@ class Bamboo(object):
 
 class Bamboos(Analysis):
     def insert(self, bamboo):
-        end = True
-        for i, exist in enumerate(self.bamboos):
-            if bamboo.mmio_base == exist.mmio_base:
-                # exists
-                return False
-            if bamboo.mmio_base < exist.mmio_base:
-                end = False
-                self.bamboos.insert(i, bamboo)
-                break
-        if end:
-            self.bamboos.append(bamboo)
+        # this is a simple `insert interval` problem
+        # because we have a fix interval 0x100
+        # and we will not merge adjacent intervals
+        bamboos = []
 
-        bamboo.name = 'stub{}'.format(len(self.bamboos) - 1)
+        insert_pos = 0
+        for exist in self.bamboos:
+            if exist.mmio_base + exist.mmio_size <= bamboo.mmio_base:
+                bamboos.append(exist)
+                insert_pos += 1
+            elif exist.mmio_base >= bamboo.mmio_base + bamboo.mmio_size:
+                bamboos.append(exist)
+            else:
+                # find an identity bamboo
+                insert_pos = -1
+
+        if insert_pos != -1:
+            bamboo.name = 'stub{}'.format(len(self.bamboos) - 1)
+            bamboos.insert(insert_pos, bamboo)
+            self.bamboos = bamboos
+
         return True
 
     def init_registers(self, bamboo):
@@ -60,7 +68,7 @@ class Bamboos(Analysis):
         return address
 
     def run(self, firmware):
-        self.bamboos = [] # clear otherwise dupicated mmio regions
+        self.bamboos = []  # clear otherwise dupicated mmio regions
         dabt = self.analysis_manager.get_analysis('data_abort')
         assert isinstance(dabt, DataAbort)
 
