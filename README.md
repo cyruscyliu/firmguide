@@ -41,7 +41,7 @@ sudo apt-get install -y gawk
 
 ```shell script
 # ubuntu 16.04
-git clone git@github.com:cyruscyliu/esv.git salamander && cd salamander
+git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander
 mkdir log && mkdir build && sudo make clean && make
 ```
 
