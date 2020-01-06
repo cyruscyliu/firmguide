@@ -89,6 +89,7 @@ def analysis_wrapper(firmware, static_analysis=True, tracing=True, check_only=Fa
 
     # for iteration we must set a limit otherwise we might not stop
     max_iteration = firmware.max_iteration
+    iteration = 0
     # because complication is not analysis,
     # so we handle its exception here, maybe
     # there are some surprising tricks?
@@ -107,5 +108,9 @@ def analysis_wrapper(firmware, static_analysis=True, tracing=True, check_only=Fa
             if not status:
                 break
             max_iteration -= 1
+            iteration += 1
     except NotImplementedError as e:
         logger_warning(firmware.get_uuid(), 'analysis', 'exception', e.__str__(), 0)
+
+    firmware.set_iteration(iteration)
+

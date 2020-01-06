@@ -30,6 +30,7 @@ class Checking(Analysis):
             result = self.scan_user_level_qemudebug(firmware, pql)
             if result:
                 self.info(firmware, 'have entered the user level', 1)
+                firmware.set_stage(True, 'user_mode')
                 exit(-1)
             return result
         else:

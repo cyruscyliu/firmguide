@@ -554,3 +554,20 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     @abc.abstractmethod
     def get_va_pa_mapping(self, *args, **kwargs):
         pass
+
+    # ==== runtime ==
+    @abc.abstractmethod
+    def set_iteration(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_iteration(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_stage(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_stage(self, *args, **kwargs):
+        pass

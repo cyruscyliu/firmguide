@@ -27,7 +27,7 @@ def statistics(firmware):
     for key, properties in firmware.stat_reference.items():
         if properties['mode'] == 'count':
             headers.append(key)
-        elif properties['mode'] == 'stats':
+        elif properties['mode'] == 'stats' or properties['mode'] == 'value':
             for expect in properties['expect']:
                 headers.append('/'.join([key, expect]))
 

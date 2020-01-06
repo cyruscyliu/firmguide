@@ -109,3 +109,9 @@ interrupt_controller:
 bamboo:
   mode: count
   level: bamboo
+runtime:
+  mode: value
+  level: runtime
+  expect:
+    - iteration
+    - user_mode
