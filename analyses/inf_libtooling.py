@@ -71,3 +71,7 @@ class LibTooling(Analysis):
         self.required = ['srcode']
         self.context['hint'] = ''
         self.critical = False
+        #
+        # according to usage of analysis bamboo
+        # put str(start_address) in bamboo_address is ok
+        self.bamboo_address = []

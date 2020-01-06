@@ -3,6 +3,7 @@ Add bamboo devices after DataAbort and InitValue.
 """
 from analyses.analysis import Analysis
 from analyses.diag_dabt import DataAbort
+from analyses.inf_libtooling import LibTooling
 
 
 class Bamboo(object):
@@ -44,7 +45,7 @@ class Bamboos(Analysis):
         bamboo.name = 'stub{}'.format(len(self.bamboos))
         bamboos.insert(insert_pos, bamboo)
         self.bamboos = bamboos
-       
+
         return True
 
     def init_registers(self, bamboo):
@@ -75,6 +76,8 @@ class Bamboos(Analysis):
         self.variable = 0
         dabt = self.analysis_manager.get_analysis('data_abort')
         assert isinstance(dabt, DataAbort)
+        libtooling = self.analysis_manager.get_analysis('kerberos')
+        assert isinstance(libtooling, LibTooling)
 
         # load bamboo devices
         if firmware.profile is None:
@@ -95,10 +98,11 @@ class Bamboos(Analysis):
             self.variable += len(bamboo.registers)
             self.bamboos.append(bamboo)
 
-        # get dead addresses
-        for dead_address in dabt.dead_addresses:
+        # get dead addresses/bamboo
+        target_address = dabt.dead_addresses + libtooling.bamboo_address
+        for target_address in target_address:
             bamboo = Bamboo()
-            bamboo.mmio_base = self.convert_address(int(dead_address, 16) & 0xFFFFFF00)
+            bamboo.mmio_base = self.convert_address(int(target_address, 16) & 0xFFFFFF00)
             bamboo.mmio_size = 0x100
             if self.insert(bamboo):
                 self.init_registers(bamboo)
