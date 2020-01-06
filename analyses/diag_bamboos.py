@@ -70,6 +70,7 @@ class Bamboos(Analysis):
 
     def run(self, firmware):
         self.bamboos = []  # clear otherwise dupicated mmio regions
+        self.variable = 0
         dabt = self.analysis_manager.get_analysis('data_abort')
         assert isinstance(dabt, DataAbort)
 
