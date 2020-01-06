@@ -2,7 +2,7 @@ import os
 import abc
 
 from generation.common import to_state, to_mmio, to_ops, indent, to_type, to_read, to_write, to_update, \
-    to_header, to_upper, to_cpu_pp_state, to_cpu_pp_type, concat, to_irq
+    to_upper, concat
 from generation.preprocessor import PreProcessor
 from generation.render import Template
 from supervisor.logging_setup import logger_info, logger_debugging
@@ -293,7 +293,8 @@ class CompilerToQEMUMachine(object):
         # cpu
         self.resolve_cpu()
         # cpu_pp
-        self.resolve_cpu_private_peripheral()
+        if self.cpu_pp_model:
+            self.resolve_cpu_private_peripheral()
         # ram
         ram_priority = self.firmware.get_ram_priority()
         self.check_analysis(ram_priority, 'ram_priority')

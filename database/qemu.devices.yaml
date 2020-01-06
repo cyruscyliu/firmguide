@@ -44,7 +44,7 @@ cpu_private:
   "cortex-a15":
     "arm-a15mp-priv"
   "74Kf":
-    "default"
+    "mips-default"
 ic:
   - "Allwinner A10 PIC"
   - "etraxfs,pic"

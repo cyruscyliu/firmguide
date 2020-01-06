@@ -1,4 +1,5 @@
-from generation.common import to_irq, indent, to_cpu_pp_state, to_cpu_pp_type
+from database.dbf import get_database
+from generation.common import indent
 from generation.compiler import CompilerToQEMUMachine
 
 
@@ -14,19 +15,20 @@ class ARMCompiler(CompilerToQEMUMachine):
         self.info('solved abelia cpu', 'compile')
 
     def resolve_cpu_private_peripheral(self):
-        cpu_model = self.firmware.get_cpu_model()
-        self.check_analysis(cpu_model, 'cpu_model')
-        if self.cpu_pp_model:
-            cpu_pp_mmio_base = self.firmware.get_cpu_pp_mmio_base()
-            self.check_analysis(cpu_pp_mmio_base, 'cpu_pp_mmio_base')
-            self.machine['includings'].extend(['hw/cpu/arm11mpcore.h'])
-            self.machine_struct['fields'].extend([indent('{} cpu_pp;'.format(to_cpu_pp_state(cpu_model)), 1)])
-            self.machine_init['body'].extend([
-                indent('object_initialize(&s->cpu_pp, sizeof(s->cpu_pp), {});'.format(to_cpu_pp_type(cpu_model))),
-                indent('object_property_set_bool(OBJECT(&s->cpu_pp), true, "realized", &err);', 1),
-                indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_pp), 0, {});'.format(cpu_pp_mmio_base), 1)
-            ])
-            self.info('solved abelia cpu private peripheral', 'compile')
+        qemu_apis = get_database('qemu.apis')
+        cpu_pp_name = self.firmware.get_cpu_pp_name()
+        cpu_pp_mmio_base = self.firmware.get_cpu_pp_mmio_base()
+        self.check_analysis(cpu_pp_mmio_base, 'cpu_pp_mmio_base')
+        self.machine['includings'].extend([qemu_apis[cpu_pp_name]['header']])
+        self.machine_struct['fields'].extend(
+            [indent('{} cpu_pp;'.format(qemu_apis[cpu_pp_name]['state_struct']), 1)])
+        self.machine_init['body'].extend([
+            indent('object_initialize(&s->cpu_pp, sizeof(s->cpu_pp), {});'.format(
+                qemu_apis[cpu_pp_name]['type_macro'])),
+            indent('object_property_set_bool(OBJECT(&s->cpu_pp), true, "realized", &err);', 1),
+            indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_pp), 0, {});'.format(cpu_pp_mmio_base), 1)
+        ])
+        self.info('solved abelia cpu private peripheral', 'compile')
 
     def resolve_irq_to_cpu(self):
         if self.cpu_pp_model:
