@@ -62,7 +62,10 @@ class AnalysesManager(object):
                 f.write('{}\n'.format(','.join([a, b, c, d, e])))
 
     def get_analysis(self, name):
-        return self.analyses_flat[name]
+        try:
+            return self.analyses_flat[name]
+        except KeyError as e:
+            return None
 
     @staticmethod
     def find_analysis_in_tree(analyses_tree, analysis):

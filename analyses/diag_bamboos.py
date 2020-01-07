@@ -22,13 +22,15 @@ class Bamboos(Analysis):
         dabt = self.analysis_manager.get_analysis('data_abort')
         assert isinstance(dabt, DataAbort)
         libtooling = self.analysis_manager.get_analysis('kerberos')
-        assert isinstance(libtooling, LibTooling)
 
         firmware.load_bamboo_devices()
         self.mapping = firmware.get_va_pa_mapping()
 
         # get dead addresses/bamboo
-        target_addresses = dabt.dead_addresses + libtooling.bamboo_address
+        if libtooling is None:
+            target_addresses = dabt.dead_addresses
+        else:
+            target_addresses = dabt.dead_addresses + libtooling.bamboo_address
         for target_address in target_addresses:
             mmio_base = self.convert_address(int(target_address, 16) & 0xFFFFFFF0)
             not_overlapping = firmware.insert_bamboo_devices(mmio_base, 0x10, value=0)
