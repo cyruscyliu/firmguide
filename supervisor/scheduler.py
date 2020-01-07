@@ -98,6 +98,7 @@ def analysis_wrapper(firmware, static_analysis=True, tracing=True, check_only=Fa
             status = analyses_manager.run_dynamic_analyses()
             if not status:
                 break
+            save_analysis(firmware)
             max_iteration -= 1
             iteration += 1
     except NotImplementedError as e:

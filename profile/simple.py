@@ -13,14 +13,12 @@ class Bamboo(object):
         self.name = None
         self.mmio_base = None
         self.mmio_size = None
-        self.registers = {}
+        self.id = None
+        self.value = None
 
     def __str__(self):
-        r = ''
-        for k, v in self.registers.items():
-            r = '{}/{}/{}'.format(k, v['offset'], v['value'])
-        return '{} from 0x{:x} to 0x{:x} {}'.format(
-            self.name, self.mmio_base, self.mmio_base + self.mmio_size, r)
+        return '{} from 0x{:x} to 0x{:x} 0x{:x}'.format(
+            self.name, self.mmio_base, self.mmio_base + self.mmio_size, self.value)
 
 
 class SimpleFirmware(Firmware):
@@ -38,59 +36,90 @@ class SimpleFirmware(Firmware):
         for name, parameters in bamboo_devices.items():
             bamboo = Bamboo()
             bamboo.name = name
+            bamboo.id = int(name[4:])
             bamboo.mmio_base = int(parameters['mmio_base'], 16)
             bamboo.mmio_size = int(parameters['mmio_size'], 16)
-            bamboo.registers = parameters['registers']
-            self.bamboo_mmio_count += len(bamboo.registers)
+            bamboo.value = int(parameters['registers']['stub_reserved{}'.format(bamboo.id)]['value'], 16)
+            self.bamboo_mmio_count += 1
             self.bamboos.append(bamboo)
 
     def update_bamboo_devices(self, *args, **kwargs):
         latest_bamboo_devices = {}
         for bamboo in self.bamboos:
+            if bamboo.mmio_size == 4:
+                offset = '0x0'
+            else:
+                offset = '0x0 ... 0x{:x}'.format(bamboo.mmio_size - 4)
             latest_bamboo_devices[bamboo.name] = {
                 'mmio_base': hex(bamboo.mmio_base),
                 'mmio_size': hex(bamboo.mmio_size),
-                'registers': bamboo.registers
+                'registers': {'stub_reserved{}'.format(bamboo.id): {'offset': offset, 'value': hex(bamboo.value)}}
             }
         self.set_general('bamboo', value=latest_bamboo_devices)
 
     def get_bamboo_devices(self, *args, **kwargs):
         return self.get_general('bamboo')
 
-    def insert_bamboo_devices(self, *args, **kwargs):
-        mmio_base, mmio_size = args
-        # this is a simple `insert interval` problem
-        # because we have a fix interval 0x100
-        # and we will not merge adjacent intervals
-        bamboos = []
+    def split_bamboo(self, bamboo, a, b, value):
+        left = bamboo.mmio_base
+        right = bamboo.mmio_base + bamboo.mmio_size
 
-        insert_pos = 0
-        # at first, we must ensure the list to be inserted is in order
-        for exist in sorted(self.bamboos, key=lambda x: x.mmio_base):
-            if exist.mmio_base + exist.mmio_size <= mmio_base:
-                bamboos.append(exist)
-                insert_pos += 1
-            elif exist.mmio_base >= mmio_base + mmio_size:
-                bamboos.append(exist)
-            else:
-                # find an identity bamboo
-                insert_pos = -1
+        split_bamboos = [bamboo]
+        if left == a:
+            # -----------------
+            # ++++-------------
+            bamboo.mmio_base = a + b
+            bamboo.mmio_size = right - left - b
+            split_bamboos.append(self.get_bamboo(a, b, value))
+        elif right == a + b:
+            # -----------------
+            # -------------++++
+            bamboo.mmio_size = a - left
+            split_bamboos.append(self.get_bamboo(a, b, value))
+        else:
+            # -----------------
+            # ------++++xxxxxxx
+            bamboo.mmio_size = a - left
+            split_bamboos.append(self.get_bamboo(a, b, value))
+            split_bamboos.append(self.get_bamboo(a + b, right - a - b, bamboo.value))
 
-        if insert_pos == -1:
-            return False
+        return split_bamboos
 
+    def get_bamboo(self, mmio_base, mmio_size, value):
         bamboo = Bamboo()
         bamboo.mmio_base = mmio_base
         bamboo.mmio_size = mmio_size
-        bamboo.name = 'stub{}'.format(len(self.bamboos))
-        bamboo.registers = {
-            'stub_reserved{}'.format(self.bamboo_mmio_count): {
-                'offset': "0x0 ... 0x{:x}".format(bamboo.mmio_size),
-                'value': "0x0"
-            }}
+        bamboo.name = 'stub{}'.format(self.bamboo_mmio_count)
+        bamboo.value = value
+        bamboo.id = self.bamboo_mmio_count
         self.bamboo_mmio_count += 1
-        bamboos.insert(insert_pos, bamboo)
-        self.bamboos = bamboos
+        return bamboo
+
+    def insert_bamboo_devices(self, *args, **kwargs):
+        mmio_base, mmio_size = args
+        value = kwargs.pop('value', 0)
+
+        # at first, we must ensure the list to be inserted is in order
+        new_bamboos = []
+        for exist in sorted(self.bamboos, key=lambda x: x.mmio_base):
+            if exist.mmio_base + exist.mmio_size <= mmio_base:
+                new_bamboos.append(exist)
+            elif exist.mmio_base >= mmio_base + mmio_size:
+                new_bamboos.append(exist)
+            else:
+                if (exist.mmio_base <= mmio_base and
+                    mmio_base + mmio_size < exist.mmio_base + exist.mmio_size) or \
+                        (exist.mmio_base < mmio_base and
+                         mmio_base + mmio_size <= exist.mmio_base + exist.mmio_size):
+                    bamboos = self.split_bamboo(exist, mmio_base, mmio_size, value)
+                    new_bamboos.extend(bamboos)
+                    self.bamboos = new_bamboos
+                    return True
+                else:
+                    return False
+
+        bamboo = self.get_bamboo(mmio_base, mmio_size, value)
+        self.bamboos.append(bamboo)
         return True
 
     def stats(self):

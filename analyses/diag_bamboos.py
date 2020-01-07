@@ -30,8 +30,11 @@ class Bamboos(Analysis):
         # get dead addresses/bamboo
         target_addresses = dabt.dead_addresses + libtooling.bamboo_address
         for target_address in target_addresses:
-            mmio_base = self.convert_address(int(target_address, 16) & 0xFFFFFF00)
-            firmware.insert_bamboo_devices(mmio_base, 0x100)
+            mmio_base = self.convert_address(int(target_address, 16) & 0xFFFFFFF0)
+            not_overlapping = firmware.insert_bamboo_devices(mmio_base, 0x10, value=0)
+            if not not_overlapping:
+                self.info(firmware, 'check if there is overlapping for (0x{:x}, 0x{:x}'.format(
+                    mmio_base, 0x10), 1)
 
         for bamboo_device in firmware.print_bamboo_devices():
             self.info(firmware, bamboo_device, 1)
