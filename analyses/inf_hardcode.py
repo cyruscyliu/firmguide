@@ -18,6 +18,6 @@ class HardCode(Analysis):
         super().__init__(analysis_manager)
         self.name = 'hardcode'
         self.description = 'sometimes, we need hardcode some properties which cannot be infered'
-        self.required = ['kerberos']
+        self.required = ['kerberos', 'device_tree']
         self.context = 'no errors at all'
         self.critical = False

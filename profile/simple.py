@@ -101,6 +101,7 @@ class SimpleFirmware(Firmware):
 
         # at first, we must ensure the list to be inserted is in order
         new_bamboos = []
+        bamboos = None
         for exist in sorted(self.bamboos, key=lambda x: x.mmio_base):
             if exist.mmio_base + exist.mmio_size <= mmio_base:
                 new_bamboos.append(exist)
@@ -112,14 +113,15 @@ class SimpleFirmware(Firmware):
                         (exist.mmio_base < mmio_base and
                          mmio_base + mmio_size <= exist.mmio_base + exist.mmio_size):
                     bamboos = self.split_bamboo(exist, mmio_base, mmio_size, value)
-                    new_bamboos.extend(bamboos)
-                    self.bamboos = new_bamboos
-                    return True
                 else:
                     return False
 
-        bamboo = self.get_bamboo(mmio_base, mmio_size, value)
-        self.bamboos.append(bamboo)
+        if bamboos is None:
+            bamboos = self.get_bamboo(mmio_base, mmio_size, value)
+            new_bamboos.append(bamboos)
+        else:
+            new_bamboos.extend(bamboos)
+        self.bamboos = new_bamboos
         return True
 
     def stats(self):

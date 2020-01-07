@@ -69,25 +69,25 @@ class DeviceTree(Analysis):
             return False
 
         firmware.set_uart_num(len(path_to_uarts))
-        for path_to_uart in path_to_uarts:
+        for i, path_to_uart in enumerate(path_to_uarts):
             compatible = self.dts.get_property('compatible', path_to_uart).data[0]
-            firmware.set_uart_name(compatible, firmware.get_uart_num())
+            firmware.set_uart_name(compatible, i)
             self.info(firmware, 'uart model {} found'.format(compatible), 1)
 
             uart_mmio_base, _ = self.dts.get_property('reg', path_to_uart).data
-            firmware.set_uart_mmio_base(str(hex(uart_mmio_base)), firmware.get_uart_num())
+            firmware.set_uart_mmio_base(str(hex(uart_mmio_base)), i)
             self.info(firmware, 'uart mmio base {} found'.format(hex(uart_mmio_base)), 1)
 
             uart_baud_rate = self.dts.get_property('current-speed', path_to_uart).data[0]
-            firmware.set_uart_baud_rate(str(hex(uart_baud_rate)), firmware.get_uart_num())
+            firmware.set_uart_baud_rate(str(hex(uart_baud_rate)), i)
             self.info(firmware, 'uart baud rate {} found'.format(hex(uart_baud_rate)), 1)
 
             uart_reg_shift = self.dts.get_property('reg-shift', path_to_uart).data[0]
-            firmware.set_uart_reg_shift(str(hex(uart_reg_shift)), firmware.get_uart_num())
+            firmware.set_uart_reg_shift(str(hex(uart_reg_shift)), i)
             self.info(firmware, 'uart reg shift {} found'.format(hex(uart_reg_shift)), 1)
 
             _, uart_irq, _ = self.dts.get_property('interrupts', path_to_uart).data
-            firmware.set_uart_irq(str(hex(uart_irq)), firmware.get_uart_num())
+            firmware.set_uart_irq(str(hex(uart_irq)), i)
             self.info(firmware, 'uart reg irq {} found'.format(hex(uart_irq)), 1)
 
     def get_parent_address_sells(self, path):
