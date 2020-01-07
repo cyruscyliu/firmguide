@@ -18,12 +18,9 @@ class DeviceTree(Analysis):
 
         if len(path_to) == 0:
             return None
-        elif len(path_to) > 1:
-            # if there are more than 1 uarts we will use the first one by default
-            path_to_uart = path_to[0]
-        else:
-            path_to_uart = path_to[0]
-        return path_to_uart
+        elif name == 'cpu':
+            return path_to[0]
+        return path_to
 
     def cpu07_parse_cpu_from_device_tree(self, firmware):
         path_to_cpu = self.get_path_to('cpu')
@@ -66,32 +63,32 @@ class DeviceTree(Analysis):
         firmware.set_interrupt_controller_mmio_size(*ic_mmio_base)
 
     def uart09_parse_uart_from_device_tree(self, firmware):
-        path_to_uart = self.get_path_to('uart')
-        if path_to_uart is None:
+        path_to_uarts = self.get_path_to('uart')
+        if path_to_uarts is None:
             self.info(firmware, 'there is no uart in this device tree', 0)
             return False
 
-        compatible = self.dts.get_property('compatible', path_to_uart).data[0]
-        firmware.set_uart_name(compatible, firmware.get_uart_num())
-        self.info(firmware, 'uart model {} found'.format(compatible), 1)
+        firmware.set_uart_num(len(path_to_uarts))
+        for path_to_uart in path_to_uarts:
+            compatible = self.dts.get_property('compatible', path_to_uart).data[0]
+            firmware.set_uart_name(compatible, firmware.get_uart_num())
+            self.info(firmware, 'uart model {} found'.format(compatible), 1)
 
-        uart_mmio_base, _ = self.dts.get_property('reg', path_to_uart).data
-        firmware.set_uart_mmio_base(str(hex(uart_mmio_base)), firmware.get_uart_num())
-        self.info(firmware, 'uart mmio base {} found'.format(hex(uart_mmio_base)), 1)
+            uart_mmio_base, _ = self.dts.get_property('reg', path_to_uart).data
+            firmware.set_uart_mmio_base(str(hex(uart_mmio_base)), firmware.get_uart_num())
+            self.info(firmware, 'uart mmio base {} found'.format(hex(uart_mmio_base)), 1)
 
-        uart_baud_rate = self.dts.get_property('current-speed', path_to_uart).data[0]
-        firmware.set_uart_baud_rate(str(hex(uart_baud_rate)), firmware.get_uart_num())
-        self.info(firmware, 'uart baud rate {} found'.format(hex(uart_baud_rate)), 1)
+            uart_baud_rate = self.dts.get_property('current-speed', path_to_uart).data[0]
+            firmware.set_uart_baud_rate(str(hex(uart_baud_rate)), firmware.get_uart_num())
+            self.info(firmware, 'uart baud rate {} found'.format(hex(uart_baud_rate)), 1)
 
-        uart_reg_shift = self.dts.get_property('reg-shift', path_to_uart).data[0]
-        firmware.set_uart_reg_shift(str(hex(uart_reg_shift)), firmware.get_uart_num())
-        self.info(firmware, 'uart reg shift {} found'.format(hex(uart_reg_shift)), 1)
+            uart_reg_shift = self.dts.get_property('reg-shift', path_to_uart).data[0]
+            firmware.set_uart_reg_shift(str(hex(uart_reg_shift)), firmware.get_uart_num())
+            self.info(firmware, 'uart reg shift {} found'.format(hex(uart_reg_shift)), 1)
 
-        _, uart_irq, _ = self.dts.get_property('interrupts', path_to_uart).data
-        firmware.set_uart_irq(str(hex(uart_irq)), firmware.get_uart_num())
-        self.info(firmware, 'uart reg irq {} found'.format(hex(uart_irq)), 1)
-
-        firmware.set_uart_num(firmware.get_uart_num() + 1)
+            _, uart_irq, _ = self.dts.get_property('interrupts', path_to_uart).data
+            firmware.set_uart_irq(str(hex(uart_irq)), firmware.get_uart_num())
+            self.info(firmware, 'uart reg irq {} found'.format(hex(uart_irq)), 1)
 
     def get_parent_address_sells(self, path):
         node = self.dts.get_node(path)
@@ -123,8 +120,24 @@ class DeviceTree(Analysis):
         self.global_address_cells = self.dts.get_property('#address-cells', '/').data[0]
         self.global_size_cells = self.dts.get_property('#size-cells', '/').data[0]
 
+        duplicated_mmios = []
+        if firmware.probe_cpu_pp_model():
+            cpu_pp_name = firmware.get_cpu_pp_name()
+            qemu_apis = get_database('qemu.apis')
+            duplicated_mmios = qemu_apis.select(cpu_pp_name, 'compatibles')
+
         firmware.load_bamboo_devices()
         for pa, no, pros in self.dts.walk():
+            if not self.dts.exist_property('compatible', pa):
+                continue
+            duplicated = False
+            for compatible in self.dts.get_property('compatible', pa).data:
+                if compatible in duplicated_mmios:
+                    duplicated = True
+                    break
+            if duplicated:
+                continue
+
             size_cells = self.get_parent_size_cells(pa)
             if size_cells == 0:
                 continue
@@ -134,6 +147,9 @@ class DeviceTree(Analysis):
                 continue
             if pa.find('partition') != -1:
                 # partition not mmio
+                continue
+            if pa.find('uart') != -1:
+                # we have found it
                 continue
             address_cells = self.get_parent_address_sells(pa)
             mmios = self.dts.get_property('reg', pa).data
