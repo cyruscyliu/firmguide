@@ -8,7 +8,91 @@ import shutil
 from profile.firmware import Firmware
 
 
+class Bamboo(object):
+    def __init__(self):
+        self.name = None
+        self.mmio_base = None
+        self.mmio_size = None
+        self.registers = {}
+
+    def __str__(self):
+        r = ''
+        for k, v in self.registers.items():
+            r = '{}/{}/{}'.format(k, v['offset'], v['value'])
+        return '{} from 0x{:x} to 0x{:x} {}'.format(
+            self.name, self.mmio_base, self.mmio_base + self.mmio_size, r)
+
+
 class SimpleFirmware(Firmware):
+    def print_bamboo_devices(self, *args, **kwargs):
+        for bamboo in self.bamboos:
+            yield bamboo.__str__()
+
+    def load_bamboo_devices(self, *args, **kwargs):
+        self.bamboos = []  # clear otherwise dupicated mmio regions
+        bamboo_devices = self.get_general('bamboo')
+        if bamboo_devices is None:
+            bamboo_devices = {}
+
+        self.bamboo_mmio_count = 0
+        for name, parameters in bamboo_devices.items():
+            bamboo = Bamboo()
+            bamboo.name = name
+            bamboo.mmio_base = int(parameters['mmio_base'], 16)
+            bamboo.mmio_size = int(parameters['mmio_size'], 16)
+            bamboo.registers = parameters['registers']
+            self.bamboo_mmio_count += len(bamboo.registers)
+            self.bamboos.append(bamboo)
+
+    def update_bamboo_devices(self, *args, **kwargs):
+        latest_bamboo_devices = {}
+        for bamboo in self.bamboos:
+            latest_bamboo_devices[bamboo.name] = {
+                'mmio_base': hex(bamboo.mmio_base),
+                'mmio_size': hex(bamboo.mmio_size),
+                'registers': bamboo.registers
+            }
+        self.set_general('bamboo', value=latest_bamboo_devices)
+
+    def get_bamboo_devices(self, *args, **kwargs):
+        return self.get_general('bamboo')
+
+    def insert_bamboo_devices(self, *args, **kwargs):
+        mmio_base, mmio_size = args
+        # this is a simple `insert interval` problem
+        # because we have a fix interval 0x100
+        # and we will not merge adjacent intervals
+        bamboos = []
+
+        insert_pos = 0
+        # at first, we must ensure the list to be inserted is in order
+        for exist in sorted(self.bamboos, key=lambda x: x.mmio_base):
+            if exist.mmio_base + exist.mmio_size <= mmio_base:
+                bamboos.append(exist)
+                insert_pos += 1
+            elif exist.mmio_base >= mmio_base + mmio_size:
+                bamboos.append(exist)
+            else:
+                # find an identity bamboo
+                insert_pos = -1
+
+        if insert_pos == -1:
+            return False
+
+        bamboo = Bamboo()
+        bamboo.mmio_base = mmio_base
+        bamboo.mmio_size = mmio_size
+        bamboo.name = 'stub{}'.format(len(self.bamboos))
+        bamboo.registers = {
+            'stub_reserved{}'.format(self.bamboo_mmio_count): {
+                'offset': "0x0 ... 0x{:x}".format(bamboo.mmio_size),
+                'value': "0x0"
+            }}
+        self.bamboo_mmio_count += 1
+        bamboos.insert(insert_pos, bamboo)
+        self.bamboos = bamboos
+        return True
+
     def stats(self):
         results = {}
         for key, properties in self.stat_reference.items():
@@ -41,11 +125,11 @@ class SimpleFirmware(Firmware):
             yaml.dump(self.stat_summary, f)
 
     def print_profile(self):
-        path_to_profile = os.path.join(self.working_directory, 'profile.yaml')
+        path_to_profile = os.path.join(self.target_dir, 'profile.yaml')
         print(path_to_profile)
         os.system('cat {}'.format(path_to_profile))
 
-    def load_uuid(self, *args, **kwargs):
+    def get_uuid(self, *args, **kwargs):
         return self.get_general('basics', 'uuid')
 
     def set_uuid(self, *args, **kwargs):
@@ -314,16 +398,6 @@ class SimpleFirmware(Firmware):
         self.set_general('flash', 'section_size', value=args[0])
         pass
 
-    def get_bamboo_devices(self, *args, **kwargs):
-        bamboo = self.get_general('bamboo')
-        if bamboo is None:
-            return {}
-        else:
-            return bamboo
-
-    def set_bamboo_devices(self, *args, **kwargs):
-        self.set_general('bamboo', value=args[0])
-
     def probe_bridge(self):
         return 'bridge' in self.profile
 
@@ -478,7 +552,11 @@ class SimpleFirmware(Firmware):
         self.set_general('mapping', va, 'size', value=size)
 
     def get_va_pa_mapping(self, *args, **kwargs):
-        return self.get_general('mapping')
+        va_pa_mapping = self.get_general('mapping')
+        if va_pa_mapping is None:
+            return {}
+        else:
+            return va_pa_mapping
 
     def get_iteration(self, *args, **kwargs):
         return self.get_general('runtime', 'iteration')
@@ -496,3 +574,6 @@ class SimpleFirmware(Firmware):
 
     def __init__(self, *args, **kwargs):
         super(SimpleFirmware, self).__init__(*args, **kwargs)
+        #
+        self.bamboo_mmio_count = 0
+        self.bamboos = []

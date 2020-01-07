@@ -8,9 +8,9 @@ from profile.openwrt import OpenWRTForFirmware
 
 class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def __init__(self, *args, **kwargs):
-        self.uuid = None
         self.size = None
         self.working_directory = None
+        self.target_dir = None
         self.working_path = None
 
         self.analysis_progress = None  # file
@@ -43,14 +43,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
-    def load_uuid(self, *args, **kwargs):
-        pass
-
     def get_uuid(self, *args, **kwargs):
-        if self.uuid is None:
-            return self.load_uuid()
-        else:
-            return self.uuid
+        pass
 
     @abc.abstractmethod
     def set_uuid(self, *args, **kwargs):
@@ -71,6 +65,12 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     @abc.abstractmethod
     def set_path(self, *args, **kwargs):
         pass
+
+    def get_target_dir(self):
+        return self.target_dir
+
+    def set_target_dir(self, target_dir):
+        self.target_dir = target_dir
 
     def get_working_dir(self):
         return self.working_directory
@@ -542,7 +542,19 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
-    def set_bamboo_devices(self, *args, **kwargs):
+    def print_bamboo_devices(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def load_bamboo_devices(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def update_bamboo_devices(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def insert_bamboo_devices(self, *args, **kwargs):
         pass
 
     # ==== mapping ====

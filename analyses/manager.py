@@ -37,7 +37,7 @@ class AnalysesManager(object):
         self.dynamic_analysis = None
 
     def print_analysis_chain(self, chain):
-        logger_info(self.firmware.uuid, 'analysis', 'chain', '->'.join(chain), 1)
+        logger_info(self.firmware.get_uuid(), 'analysis', 'chain', '->'.join(chain), 1)
 
     def print_readme(self):
         with open(os.path.join(os.getcwd(), 'analyses', '.analyses.csv'), 'w') as f:
