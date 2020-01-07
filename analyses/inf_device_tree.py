@@ -1,3 +1,4 @@
+import os
 import fdt
 
 from analyses.analysis import Analysis
@@ -49,7 +50,7 @@ class DeviceTree(Analysis):
         self.info(firmware, 'interrupt controller {} found'.format(ic_name), 1)
 
         ic_registers = self.dts.get_property('reg', path_to_ic).data
-        self.info(firmware, 'interrupt controller mmio region {} found'.format(ic_registers), 1)
+        self.info(firmware, 'interrupt controller mmio region found', 1)
         # TODO add cell analysis
         ic_mmio_base = []
         ic_mmio_size = []
@@ -92,6 +93,62 @@ class DeviceTree(Analysis):
 
         firmware.set_uart_num(firmware.get_uart_num() + 1)
 
+    def get_parent_address_sells(self, path):
+        node = self.dts.get_node(path)
+        parent = node.parent
+
+        if parent is None == '/':
+            return self.global_address_cells
+
+        path = os.path.join(parent.path, parent.name)
+        if self.dts.exist_property('#address-cells', path):
+            return self.dts.get_property('#address-cells', path).data[0]
+        else:
+            return self.get_parent_address_sells(os.path.join(parent.path, parent.name))
+
+    def get_parent_size_cells(self, path):
+        node = self.dts.get_node(path)
+        parent = node.parent
+
+        if parent is None:
+            return self.global_size_cells
+
+        path = os.path.join(parent.path, parent.name)
+        if self.dts.exist_property('#size-cells', path):
+            return self.dts.get_property('#size-cells', path).data[0]
+        else:
+            return self.get_parent_size_cells(path)
+
+    def parse_mmio_io(self, firmware):
+        self.global_address_cells = self.dts.get_property('#address-cells', '/').data[0]
+        self.global_size_cells = self.dts.get_property('#size-cells', '/').data[0]
+
+        firmware.load_bamboo_devices()
+        for pa, no, pros in self.dts.walk():
+            size_cells = self.get_parent_size_cells(pa)
+            if size_cells == 0:
+                continue
+            if not self.dts.exist_property('reg', pa):
+                continue
+            if pa == '/memory':
+                continue
+            if pa.find('partition') != -1:
+                # partition not mmio
+                continue
+            address_cells = self.get_parent_address_sells(pa)
+            mmios = self.dts.get_property('reg', pa).data
+
+            for i in range(len(mmios) // (size_cells + address_cells)):
+                base = 0
+                for j in range(address_cells):
+                    base += mmios[i * (size_cells + address_cells) + j]
+                size = 0
+                for j in range(size_cells):
+                    size += mmios[i * (size_cells + address_cells) + address_cells + j]
+                firmware.insert_bamboo_devices(base, size, value=0)
+                self.info(firmware, 'find {} {} {} value=0'.format(pa, hex(base), hex(size)), 1)
+        firmware.update_bamboo_devices()
+
     def run(self, firmware):
         dtb = firmware.get_path_to_dtb()
         if dtb is None:
@@ -116,6 +173,8 @@ class DeviceTree(Analysis):
 
         self.uart09_parse_uart_from_device_tree(firmware)
 
+        self.parse_mmio_io(firmware)
+
         # firmware.set_dts(dts)
         self.info(firmware, 'merge the device tree to our profile', 1)
         return True
@@ -131,3 +190,5 @@ class DeviceTree(Analysis):
         #
         self.dts = None
         self.qemu_devices = get_database('qemu.devices')
+        self.global_address_cells = 1
+        self.global_size_cells = 1
