@@ -19,12 +19,12 @@ class ARMCompiler(CompilerToQEMUMachine):
         cpu_pp_name = self.firmware.get_cpu_pp_name()
         cpu_pp_mmio_base = self.firmware.get_cpu_pp_mmio_base()
         self.check_analysis(cpu_pp_mmio_base, 'cpu_pp_mmio_base')
-        self.machine['includings'].extend([qemu_apis[cpu_pp_name]['header']])
+        self.machine['includings'].extend([qemu_apis.select(cpu_pp_name, 'header')])
         self.machine_struct['fields'].extend(
-            [indent('{} cpu_pp;'.format(qemu_apis[cpu_pp_name]['state_struct']), 1)])
+            [indent('{} cpu_pp;'.format(qemu_apis.select(cpu_pp_name, 'state_struct')), 1)])
         self.machine_init['body'].extend([
             indent('object_initialize(&s->cpu_pp, sizeof(s->cpu_pp), {});'.format(
-                qemu_apis[cpu_pp_name]['type_macro'])),
+                qemu_apis.select(cpu_pp_name, 'type_macro'))),
             indent('object_property_set_bool(OBJECT(&s->cpu_pp), true, "realized", &err);', 1),
             indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_pp), 0, {});'.format(cpu_pp_mmio_base), 1)
         ])
