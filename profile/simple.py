@@ -8,13 +8,159 @@ import shutil
 from profile.firmware import Firmware
 
 
+class Bamboo(object):
+    def __init__(self):
+        self.name = None
+        self.mmio_base = None
+        self.mmio_size = None
+        self.id = None
+        self.value = None
+
+    def __str__(self):
+        return '{} from 0x{:x} to 0x{:x} 0x{:x}'.format(
+            self.name, self.mmio_base, self.mmio_base + self.mmio_size, self.value)
+
+
 class SimpleFirmware(Firmware):
+    def print_bamboo_devices(self, *args, **kwargs):
+        for bamboo in self.bamboos:
+            yield bamboo.__str__()
+
+    def load_bamboo_devices(self, *args, **kwargs):
+        self.bamboos = []  # clear otherwise dupicated mmio regions
+        bamboo_devices = self.get_general('bamboo')
+        if bamboo_devices is None:
+            bamboo_devices = {}
+
+        self.bamboo_mmio_count = 0
+        for name, parameters in bamboo_devices.items():
+            bamboo = Bamboo()
+            bamboo.name = name
+            bamboo.id = int(name[4:])
+            bamboo.mmio_base = int(parameters['mmio_base'], 16)
+            bamboo.mmio_size = int(parameters['mmio_size'], 16)
+            bamboo.value = int(parameters['registers']['stub_reserved{}'.format(bamboo.id)]['value'], 16)
+            self.bamboo_mmio_count += 1
+            self.bamboos.append(bamboo)
+
+    def update_bamboo_devices(self, *args, **kwargs):
+        latest_bamboo_devices = {}
+        for bamboo in self.bamboos:
+            if bamboo.mmio_size == 4:
+                offset = '0x0'
+            else:
+                offset = '0x0 ... 0x{:x}'.format(bamboo.mmio_size - 4)
+            latest_bamboo_devices[bamboo.name] = {
+                'mmio_base': hex(bamboo.mmio_base),
+                'mmio_size': hex(bamboo.mmio_size),
+                'registers': {'stub_reserved{}'.format(bamboo.id): {'offset': offset, 'value': hex(bamboo.value)}}
+            }
+        self.set_general('bamboo', value=latest_bamboo_devices)
+
+    def get_bamboo_devices(self, *args, **kwargs):
+        return self.get_general('bamboo')
+
+    def split_bamboo(self, bamboo, a, b, value):
+        left = bamboo.mmio_base
+        right = bamboo.mmio_base + bamboo.mmio_size
+
+        split_bamboos = [bamboo]
+        if left == a:
+            # -----------------
+            # ++++-------------
+            bamboo.mmio_base = a + b
+            bamboo.mmio_size = right - left - b
+            split_bamboos.append(self.get_bamboo(a, b, value))
+        elif right == a + b:
+            # -----------------
+            # -------------++++
+            bamboo.mmio_size = a - left
+            split_bamboos.append(self.get_bamboo(a, b, value))
+        else:
+            # -----------------
+            # ------++++xxxxxxx
+            bamboo.mmio_size = a - left
+            split_bamboos.append(self.get_bamboo(a, b, value))
+            split_bamboos.append(self.get_bamboo(a + b, right - a - b, bamboo.value))
+
+        return split_bamboos
+
+    def get_bamboo(self, mmio_base, mmio_size, value):
+        bamboo = Bamboo()
+        bamboo.mmio_base = mmio_base
+        bamboo.mmio_size = mmio_size
+        bamboo.name = 'stub{}'.format(self.bamboo_mmio_count)
+        bamboo.value = value
+        bamboo.id = self.bamboo_mmio_count
+        self.bamboo_mmio_count += 1
+        return bamboo
+
+    def insert_bamboo_devices(self, *args, **kwargs):
+        mmio_base, mmio_size = args
+        value = kwargs.pop('value', 0)
+
+        # at first, we must ensure the list to be inserted is in order
+        new_bamboos = []
+        bamboos = None
+        for exist in sorted(self.bamboos, key=lambda x: x.mmio_base):
+            if exist.mmio_base + exist.mmio_size <= mmio_base:
+                new_bamboos.append(exist)
+            elif exist.mmio_base >= mmio_base + mmio_size:
+                new_bamboos.append(exist)
+            else:
+                if (exist.mmio_base <= mmio_base and
+                    mmio_base + mmio_size < exist.mmio_base + exist.mmio_size) or \
+                        (exist.mmio_base < mmio_base and
+                         mmio_base + mmio_size <= exist.mmio_base + exist.mmio_size):
+                    bamboos = self.split_bamboo(exist, mmio_base, mmio_size, value)
+                else:
+                    return False
+
+        if bamboos is None:
+            bamboos = self.get_bamboo(mmio_base, mmio_size, value)
+            new_bamboos.append(bamboos)
+        else:
+            new_bamboos.extend(bamboos)
+        self.bamboos = new_bamboos
+        return True
+
+    def stats(self):
+        results = {}
+        for key, properties in self.stat_reference.items():
+            levels = properties['level'].split('/')
+            node = self.get_general(*levels)
+            if node is None:
+                results[key] = False
+                continue
+            if properties['mode'] == 'count':
+                # len(levels) must be 1
+                results[key] = len(node)
+            elif properties['mode'] == 'stats':
+                results[key] = {}
+                for expect in properties['expect']:
+                    if expect in node:
+                        results[key][expect] = True
+                    else:
+                        results[key][expect] = False
+            elif properties['mode'] == 'value':
+                results[key] = {}
+                for expect in properties['expect']:
+                    if expect in node:
+                        results[key][expect] = node[expect]
+                    else:
+                        results[key][expect] = False
+
+        self.stat_summary = results
+        self.path_to_summary = os.path.join(self.working_directory, 'stats.yaml')
+        with open(self.path_to_summary, 'w') as f:
+            yaml.dump(self.stat_summary, f)
+
     def print_profile(self):
-        path_to_profile = os.path.join(self.working_directory, 'profile.yaml')
+        path_to_profile = os.path.join(self.target_dir, 'profile.yaml')
         print(path_to_profile)
         os.system('cat {}'.format(path_to_profile))
 
-    def load_uuid(self, *args, **kwargs):
+    def get_uuid(self, *args, **kwargs):
         return self.get_general('basics', 'uuid')
 
     def set_uuid(self, *args, **kwargs):
@@ -283,16 +429,6 @@ class SimpleFirmware(Firmware):
         self.set_general('flash', 'section_size', value=args[0])
         pass
 
-    def get_bamboo_devices(self, *args, **kwargs):
-        bamboo = self.get_general('bamboo')
-        if bamboo is None:
-            return {}
-        else:
-            return bamboo
-
-    def set_bamboo_devices(self, *args, **kwargs):
-        self.set_general('bamboo', value=args[0])
-
     def probe_bridge(self):
         return 'bridge' in self.profile
 
@@ -447,7 +583,28 @@ class SimpleFirmware(Firmware):
         self.set_general('mapping', va, 'size', value=size)
 
     def get_va_pa_mapping(self, *args, **kwargs):
-        return self.get_general('mapping')
+        va_pa_mapping = self.get_general('mapping')
+        if va_pa_mapping is None:
+            return {}
+        else:
+            return va_pa_mapping
+
+    def get_iteration(self, *args, **kwargs):
+        return self.get_general('runtime', 'iteration')
+
+    def set_iteration(self, *args, **kwargs):
+        self.set_general('runtime', 'iteration', value=args[0])
+
+    def get_stage(self, *args, **kwargs):
+        # get_stage('user_mode')
+        return self.get_general('runtime', args[0])
+
+    def set_stage(self, *args, **kwargs):
+        # set_state(True, 'user_mode')
+        self.set_general('runtime', args[1], value=args[0])
 
     def __init__(self, *args, **kwargs):
         super(SimpleFirmware, self).__init__(*args, **kwargs)
+        #
+        self.bamboo_mmio_count = 0
+        self.bamboos = []

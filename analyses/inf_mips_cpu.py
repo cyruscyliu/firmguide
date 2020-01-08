@@ -7,32 +7,54 @@ from database.dbf import get_database
 
 class MIPSCPU(Analysis):
     def run(self, firmware):
+        # only for mips
+        if firmware.get_architecture() == 'arm':
+            return True
+
         # find command
         path_to_srcode = firmware.get_path_to_source_code()
         path_to_mkout = firmware.get_path_to_makeout()
-        results = os.popen('grep arch/mips/kernel/cpu-probe.c {}'.format(path_to_mkout)).readlines()
-        assert len(results) == 1
+
+        results = os.popen('grep cpu-probe.c {}'.format(path_to_mkout)).readlines()
+        if len(results) != 1:
+            self.context['input'] = 'no cpu-probe in makeout {}'.format(path_to_mkout)
+            path_to_cpu_probe_cmd = os.path.join(path_to_srcode, 'arch/mips/kernel/.cpu-probe.o.cmd')
+            if not os.path.exists(path_to_cpu_probe_cmd):
+                return False
+            with open(path_to_cpu_probe_cmd) as f:
+                results = f.readline()
+            results = [' '.join(results.split()[2:])]
 
         command = results[0]
         path_to_gcc = firmware.get_path_to_gcc()
+        if path_to_gcc is None:
+            self.context['input'] = 'no gcc available'
+            return False
 
         # alter -o to -E
         args = command.strip().split()
-        args[0] = path_to_gcc
-        # TODO remove when run in the server
-        args[4] = args[4].replace('/root/firmware', '/mnt/salamander/srcode/share')
+        args[0] = path_to_gcc  # always true
+        args = [i.replace('/root/firmware', '/mnt/salamander/srcode/share') for i in args]
         args[-4] = '-E'
-        args[-2] = args[-2][:-1] + 'i'
+        path_to_cpu_probe = 'arch/mips/kernel/cpu-probe.'
+        args[-2] = path_to_cpu_probe + 'i'
+        args[-1] = path_to_cpu_probe + 'c'
 
         # run and parse
         cwd = os.getcwd()
         os.chdir(path_to_srcode)
-        os.system('{} >/dev/null 2>&1'.format(' '.join(args)))
+        status = os.system('{} >/dev/null 2>&1'.format(' '.join(args)))
         path_to_cpu_probei = os.path.join(path_to_srcode, args[-2])
         os.chdir(cwd)
 
+        if status:
+            self.context['input'] = 'error in pre-processing'
+            return False
+
         state = 0
         candidates = []
+        no_critial_check = False
+        no_bug_on = True
         with open(path_to_cpu_probei) as f:
             for line in f:
                 if state == 0 and line.find('__get_cpu_type(const int cpu_type)') != -1:
@@ -41,6 +63,10 @@ class MIPSCPU(Analysis):
                     candidates.append(line.strip().strip(':').split()[1])
                 if state == 1 and line.find('break') != -1:
                     state = 0
+                if line.find('cpu_data[0].cputype != c->cputype') != -1:
+                    no_critial_check = True
+                if line.find('BUG_ON') != -1:
+                    no_bug_on = False
 
         # mapping
         ref = {
@@ -423,6 +449,16 @@ class MIPSCPU(Analysis):
                     if target:
                         targets.extend(target)
 
+        if not len(candidates):
+            self.context['input'] = 'no __get_cpu_type in {}'.format(path_to_cpu_probei)
+            if not no_critial_check:
+                if no_bug_on:
+                    targets = ['74Kf']
+                else:
+                    return False
+            else:
+                targets = ['74Kf']
+
         # choose the one has private peripheral
         wanted_cpus = ['74Kf']
         if len(targets):
@@ -460,8 +496,8 @@ class MIPSCPU(Analysis):
         super().__init__(analysis_manager)
         self.name = 'mips_cpu'
         self.description = 'infer supported mips cpus'
-        self.context['hint'] = 'no srcode available'
-        self.critical = True
+        self.context['hint'] = 'problem in mips cpus inference'
+        self.critical = False
         self.required = ['srcode']
         #
         self.mips_cpus = yaml.safe_load(open(os.path.join(os.getcwd(), 'database/cpu.mips.yaml')))

@@ -1,5 +1,6 @@
 import os
 import abc
+import yaml
 
 from profile.kernel import KernelForFirmware
 from profile.openwrt import OpenWRTForFirmware
@@ -7,13 +8,17 @@ from profile.openwrt import OpenWRTForFirmware
 
 class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def __init__(self, *args, **kwargs):
-        self.uuid = None
         self.size = None
         self.working_directory = None
+        self.target_dir = None
         self.working_path = None
 
         self.analysis_progress = None  # file
         self.profile = None  # dict
+        self.stat_reference = \
+            yaml.safe_load(open(os.path.join(os.getcwd(), 'profile', 'stats.yaml')))
+        self.stat_summary = {}
+        self.path_to_summary = None
 
         self.trace_format = None
         self.path_to_trace = None
@@ -21,26 +26,25 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.no_inference = False
         self.architecture = None
         self.endian = None
+        self.max_iteration = 20
 
         self.rerun = False
         self.running_command = None
 
+    @abc.abstractmethod
+    def stats(self):
+        pass
+
     def init_profile(self):
-        self.set_uart_num(0)
+        pass
 
     @abc.abstractmethod
     def print_profile(self):
         pass
 
     @abc.abstractmethod
-    def load_uuid(self, *args, **kwargs):
-        pass
-
     def get_uuid(self, *args, **kwargs):
-        if self.uuid is None:
-            return self.load_uuid()
-        else:
-            return self.uuid
+        pass
 
     @abc.abstractmethod
     def set_uuid(self, *args, **kwargs):
@@ -61,6 +65,12 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     @abc.abstractmethod
     def set_path(self, *args, **kwargs):
         pass
+
+    def get_target_dir(self):
+        return self.target_dir
+
+    def set_target_dir(self, target_dir):
+        self.target_dir = target_dir
 
     def get_working_dir(self):
         return self.working_directory
@@ -179,8 +189,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         return brief_introduction
 
     def summary(self, *args, **kwargs):
-        brief_summary = 'uuid: {}, name:{}, profile at {}'.format(self.get_uuid(), self.get_name(),
-                                                                  self.path_to_profile)
+        brief_summary = 'uuid: {}, name:{}, summary at {}'.format(
+            self.get_uuid(), self.get_name(), self.path_to_summary)
         return brief_summary
 
     # components
@@ -432,7 +442,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     # ==== uart ====
     def probe_uart(self, *args, **kwargs):
-        return int(self.get_uart_num()) > 0
+        return self.get_uart_num() > 0
 
     @abc.abstractmethod
     def set_uart_num(self, *args, **kwargs):
@@ -532,7 +542,19 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
-    def set_bamboo_devices(self, *args, **kwargs):
+    def print_bamboo_devices(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def load_bamboo_devices(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def update_bamboo_devices(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def insert_bamboo_devices(self, *args, **kwargs):
         pass
 
     # ==== mapping ====
@@ -543,4 +565,21 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     @abc.abstractmethod
     def get_va_pa_mapping(self, *args, **kwargs):
+        pass
+
+    # ==== runtime ==
+    @abc.abstractmethod
+    def set_iteration(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_iteration(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def set_stage(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_stage(self, *args, **kwargs):
         pass

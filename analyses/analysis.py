@@ -13,6 +13,7 @@ class Analysis(object):
         self.context = {'hint': '', 'input': ''}
         self.critical = False
         self.args = None
+        self.type = 'inf'
 
     def is_critical(self):
         return self.critical

@@ -30,11 +30,12 @@ if __name__ == '__main__':
     group.add_argument('-g', '--generation', type=str, metavar='path/to/device_profile')
     # diagnosis
     group = parser.add_argument_group('diagnosis')
-    group.add_argument('-t', '--trace', type=str, metavar='path/to/trace')
+    group.add_argument('-t', '--trace', type=str, metavar='path/to/uuid-arch.endian.trace')
     group.add_argument('-tf', '--trace_format', type=str, choices=['ktracer', 'qemudebug'], default='qemudebug')
+    group.add_argument('-m', '--max', type=int, help='max iteration', default=20)
     # stat
     group = parser.add_argument_group('statistics')
-    group.add_argument('-pp', '--print_profile', action='store_true', default=False, help='print the profile')
+    group.add_argument('-stat', '--statistics', action='store_true', default=False, help='stat all device profiles')
     args = parser.parse_args()
     if args.debug:
         setup_logging(default_level=logging.DEBUG)

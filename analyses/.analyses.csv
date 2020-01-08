@@ -11,11 +11,5 @@ ram,RAMDefault,toh,,
 srcode,SRCode,strings@revision@url@toh,path_to_source_code,
 .config,DotConfig,srcode,cpu,no .config available
 kerberos,LibTooling,srcode,,
-mips_cpu,MIPSCPU,srcode,,no srcode available
-loaddr,LoadAddr,srcode,,no srcode available
-do_tracing,DoTracing,,,user interruption or QEMU internal error
-check,Checking,load_trace,,bad bad bad trace
-load_trace,LoadTrace,do_tracing,,bad bad bad trace
-data_abort,DataAbort,check,,bad bad bad trace
-init_value,InitValue,check,,very difficult program analysis
-bamboos,Bamboos,data_abort@init_value,,bad bad bad trace
+mips_cpu,MIPSCPU,srcode,,problem in mips cpus inference
+loaddr,LoadAddr,srcode,,problem in getting mips image loading address

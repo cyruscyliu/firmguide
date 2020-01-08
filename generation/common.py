@@ -6,16 +6,6 @@ def concat(x):
     return ''.join(x.split('_'))
 
 
-def to_cpu_pp_type(name):
-    if name == 'arm11mpcore':
-        return 'TYPE_ARM11MPCORE_PRIV'
-
-
-def to_cpu_pp_state(name):
-    if name == 'arm11mpcore':
-        return 'ARM11MPCorePriveState'
-
-
 def to_state(name):
     return '{}State'.format(concat(name.upper()))
 

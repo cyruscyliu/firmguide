@@ -15,39 +15,25 @@ class LoadTrace(Analysis):
         self.context['hint'] = 'bad bad bad trace'
         self.critical = True
         self.required = ['do_tracing']
+        self.type = 'diag'
 
         # store trace context
         self.pql = None
 
     def run(self, firmware):
-        if firmware.architecture is None:
-            if firmware.get_architecture() == 'arm':
-                if firmware.get_endian() == 'l':
-                    self.pql = get_pql('aarch32', 'little', firmware.path_to_trace)
-                else:
-                    self.pql = get_pql('aarch32', 'big', firmware.path_to_trace)
-            elif firmware.get_architecture() == 'mips':
-                if firmware.get_endian() == 'l':
-                    self.pql = get_pql('mips', 'little', firmware.path_to_trace)
-                else:
-                    self.pql = get_pql('mips', 'big', firmware.path_to_trace)
+        if firmware.get_architecture() == 'arm':
+            if firmware.get_endian() == 'l':
+                self.pql = get_pql('aarch32', 'little', firmware.path_to_trace)
             else:
-                self.context['input'] = 'can not support parsing log except arm/mips'
-                return False
+                self.pql = get_pql('aarch32', 'big', firmware.path_to_trace)
+        elif firmware.get_architecture() == 'mips':
+            if firmware.get_endian() == 'l':
+                self.pql = get_pql('mips', 'little', firmware.path_to_trace)
+            else:
+                self.pql = get_pql('mips', 'big', firmware.path_to_trace)
         else:
-            if firmware.architecture == 'arm':
-                if firmware.endian == 'l':
-                    self.pql = get_pql('aarch32', 'little', firmware.path_to_trace)
-                else:
-                    self.pql = get_pql('aarch32', 'big', firmware.path_to_trace)
-            elif firmware.architecture == 'mips':
-                if firmware.endian == 'l':
-                    self.pql = get_pql('mips', 'little', firmware.path_to_trace)
-                else:
-                    self.pql = get_pql('mips', 'big', firmware.path_to_trace)
-            else:
-                self.context['input'] = 'can not support parsing log except arm/mips'
-                return False
+            self.context['input'] = 'can not support parsing log except arm/mips'
+            return False
 
         self.pql.load_cpurf(dump=False)
         self.info(firmware, 'load {} cpu register files'.format(self.pql.cpurfs.__len__()), 1)
@@ -65,6 +51,7 @@ class DoTracing(Analysis):
         self.context['hint'] = 'user interruption or QEMU internal error'
         self.critical = True
         self.required = []
+        self.type = 'diag'
 
     def analysis_status(self, status):
         return not status

@@ -93,20 +93,16 @@ class DataAbort(Analysis):
         return True
 
     def run(self, firmware):
+        self.dead_addresses = []
+        
         trace = self.analysis_manager.get_analysis('load_trace')
         assert isinstance(trace, LoadTrace)
         pql = trace.pql
 
-        if firmware.architecture is None:
-            if firmware.get_architecture() == 'arm':
-                return self.handle_arm_dabt(firmware, pql)
-            else:
-                return self.handle_mips_dabt(firmware, pql)
+        if firmware.get_architecture() == 'arm':
+            return self.handle_arm_dabt(firmware, pql)
         else:
-            if firmware.architecture == 'arm':
-                return self.handle_arm_dabt(firmware, pql)
-            else:
-                return self.handle_mips_dabt(firmware, pql)
+            return self.handle_mips_dabt(firmware, pql)
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
@@ -115,5 +111,6 @@ class DataAbort(Analysis):
         self.context['hint'] = 'bad bad bad trace'
         self.critical = True
         self.required = ['check']
+        self.type = 'diag'
         #
         self.dead_addresses = []

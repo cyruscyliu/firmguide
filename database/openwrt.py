@@ -20,8 +20,11 @@ class DatabaseOpenWRTMapping(Database):
             kernel_version = kwargs.pop('kernel_version')
             openwrt_release_info = yaml.safe_load(table)
             for revision, info in openwrt_release_info.items():
-                if info['kernel'] == kernel_version:
+                if isinstance(info['kernel'], list) and kernel_version in info['kernel']:
                     return revision
+                else:
+                    if info['kernel'] == kernel_version:
+                        return revision
             return None
 
     def add(self, *args, **kwargs):

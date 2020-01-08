@@ -4,6 +4,7 @@ from analyses.analysis import Analysis, AnalysisGroup
 from analyses.diag_bamboos import Bamboos
 from analyses.diag_callstack import CallStack
 from analyses.diag_dabt import DataAbort
+from analyses.inf_hardcode import HardCode
 from analyses.inf_libtooling import LibTooling
 from analyses.inf_loaddr import LoadAddr
 from analyses.inf_mips_cpu import MIPSCPU
@@ -37,7 +38,7 @@ class AnalysesManager(object):
         self.dynamic_analysis = None
 
     def print_analysis_chain(self, chain):
-        logger_info(self.firmware.uuid, 'analysis', 'chain', '->'.join(chain), 1)
+        logger_info(self.firmware.get_uuid(), 'analysis', 'chain', '->'.join(chain), 1)
 
     def print_readme(self):
         with open(os.path.join(os.getcwd(), 'analyses', '.analyses.csv'), 'w') as f:
@@ -61,7 +62,10 @@ class AnalysesManager(object):
                 f.write('{}\n'.format(','.join([a, b, c, d, e])))
 
     def get_analysis(self, name):
-        return self.analyses_flat[name]
+        try:
+            return self.analyses_flat[name]
+        except KeyError as e:
+            return None
 
     @staticmethod
     def find_analysis_in_tree(analyses_tree, analysis):
@@ -157,7 +161,6 @@ class AnalysesManager(object):
             self.last_analysis_status = analysis.run(self.firmware)
 
     def run(self, target_analyses_tree=None):
-        self.print_readme()
         for analyses_tree_name, analyses_tree in self.analyses_forest.items():
             if target_analyses_tree is not None and analyses_tree_name != target_analyses_tree:
                 continue
@@ -166,7 +169,7 @@ class AnalysesManager(object):
                 try:
                     a = self.analyses_flat[analysis]
                 except KeyError:
-                    # meaning that there is no analysis at all
+                    # meaning that there is no such analysis at all
                     continue
                 # save and restore
                 if not self.firmware.rerun and finished(self.firmware, a):
@@ -178,20 +181,21 @@ class AnalysesManager(object):
                     if not res:
                         a.error(self.firmware)
                     if not res and a.is_critical():
-                        logger_warning(self.firmware.get_uuid(),
-                                       'analysis', 'exception', 'can not support it, fix and rerun', 0)
-                        exit(-1)
+                        logger_warning(
+                            self.firmware.get_uuid(), 'analysis', 'exception', 'can not support it, fix and rerun', 0)
+                        return False
                 except NotImplementedError as e:
                     logger_warning(self.firmware.get_uuid(), 'analysis', 'exception', e, 0)
-                    exit(-1)
+                    return False
 
                 finish(self.firmware, a)
+        return True
 
     def run_static_analysis(self):
-        self.run(target_analyses_tree=self.static_analysis)
+        return self.run(target_analyses_tree=self.static_analysis)
 
     def run_dynamic_analyses(self):
-        self.run(target_analyses_tree=self.dynamic_analysis)
+        return self.run(target_analyses_tree=self.dynamic_analysis)
 
     def register_static_analysis(self):
         static_analysis = self.new_analyses_tree()
@@ -218,6 +222,7 @@ class AnalysesManager(object):
         self.register_analysis(DotConfig(self), analyses_tree=static_analysis)
         # srcode <- libtooling
         self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
+        self.register_analysis(HardCode(self), analyses_tree=static_analysis)
         # srcode <- mips cpu
         self.register_analysis(MIPSCPU(self), analyses_tree=static_analysis)
         # srcode <- mips loading addr
