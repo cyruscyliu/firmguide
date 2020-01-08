@@ -366,6 +366,9 @@ class SimpleFirmware(Firmware):
         self.set_general('uart', 'num', value=args[0])
 
     def get_uart_num(self, *args, **kwargs):
+        uart_num = self.get_general('uart', 'num')
+        if uart_num is None:
+            self.set_uart_num(0)
         return self.get_general('uart', 'num')
 
     def get_uart_name(self, *args, **kwargs):
