@@ -151,7 +151,7 @@ class SimpleFirmware(Firmware):
                         results[key][expect] = False
 
         self.stat_summary = results
-        self.path_to_summary = os.path.join(self.working_directory, 'stats.yaml')
+        self.path_to_summary = os.path.join(self.target_dir, 'stats.yaml')
         with open(self.path_to_summary, 'w') as f:
             yaml.dump(self.stat_summary, f)
 
@@ -513,7 +513,7 @@ class SimpleFirmware(Firmware):
 
     def copy_profile(self, *args, **kwargs):
         path_to_profile = args[0]
-        shutil.copy(path_to_profile, os.path.join(self.working_directory, 'profile.yaml'))
+        shutil.copy(path_to_profile, os.path.join(self.target_dir, 'profile.yaml'))
 
     def create_empty_profile(self):
         with open(self.path_to_profile, 'w') as f:
