@@ -92,11 +92,6 @@ use `-q` to **early stop** with a profile generated
 
 ## Debug
 
-print profile profile
-````shell script
-./salamander.py -u 15007 -wd ../salamander-build -pp 
-````
-
 statistics all
 
 ````shell script
@@ -106,7 +101,7 @@ statistics all
 diagnose trace
 
 ````shell script
-./salamander.py -a arm -e l -t path/to/trace
+./salamander.py -t path/to/uuid-arch-endian.trace
 ````
 
 generate qemu code from profile

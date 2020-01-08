@@ -1,0 +1,5 @@
+arm11mpcore-priv:
+  header: hw/cpu/arm11mpcore.h
+  type_macro: TYPE_ARM11MPCORE_PRIV
+  state_struct: ARM11MPCorePriveState
+  compatibles: ['arm,arm11mp-gic', 'arm,arm11mp-twd-timer', 'mpcore_wdt']

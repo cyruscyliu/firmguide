@@ -2,7 +2,7 @@ import os
 import abc
 
 from generation.common import to_state, to_mmio, to_ops, indent, to_type, to_read, to_write, to_update, \
-    to_header, to_upper, to_cpu_pp_state, to_cpu_pp_type, concat, to_irq
+    to_upper, concat
 from generation.preprocessor import PreProcessor
 from generation.render import Template
 from supervisor.logging_setup import logger_info, logger_debugging
@@ -160,12 +160,12 @@ class CompilerToQEMUMachine(object):
         architecture = self.firmware.get_architecture()
         #
         config = 'CONFIG_{}=y\n'.format(to_upper(machine_name))
-        path = os.path.join(self.firmware.get_working_dir(), 'qemu-4.0.0', self.location['configs'])
+        path = os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0', self.location['configs'])
         content = [config]
         self.solve_makefile(path, config, content)
         #
         kconfig = 'config {}\n'.format(to_upper(machine_name))
-        path = os.path.join(self.firmware.get_working_dir(), 'qemu-4.0.0', self.location['kconfig'])
+        path = os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0', self.location['kconfig'])
         content = ['\n', kconfig, '    bool\n']
         self.solve_makefile(path, kconfig, content)
         #
@@ -175,27 +175,27 @@ class CompilerToQEMUMachine(object):
                 to_upper(machine_name), machine_name, bridge_name)
         else:
             makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(to_upper(machine_name), machine_name)
-        path = os.path.join(self.firmware.get_working_dir(), 'qemu-4.0.0', self.location['makefile'][architecture])
+        path = os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0', self.location['makefile'][architecture])
         content = [makefile]
         self.solve_makefile(path, makefile, content)
         #
         if len(self.custom_devices['timer']['source']):
             timer_name = self.firmware.get_timer_name()
             makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(to_upper(machine_name), timer_name)
-            path = os.path.join(self.firmware.get_working_dir(), 'qemu-4.0.0', self.location['makefile']['timer'])
+            path = os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0', self.location['makefile']['timer'])
             content = [makefile]
             self.solve_makefile(path, makefile, content)
         #
         if len(self.custom_devices['interrupt_controller']['source']):
             ic_name = self.firmware.get_interrupt_controller_name()
             makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(to_upper(machine_name), ic_name)
-            path = os.path.join(self.firmware.get_working_dir(), 'qemu-4.0.0',
+            path = os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0',
                                 self.location['makefile']['interrupt_controller'])
             content = [makefile]
             self.solve_makefile(path, makefile, content)
 
     def install(self):
-        os.system('cp -r {}/qemu/* {}'.format(self.firmware.get_working_dir(), self.location['root']))
+        os.system('cp -r {}/qemu/* {}'.format(self.firmware.get_target_dir(), self.location['root']))
 
     def processing_image(self):
         path_to_image = self.firmware.get_path()
@@ -211,17 +211,17 @@ class CompilerToQEMUMachine(object):
     def make(self):
         # compile first
         os.system(
-            'cd {}/qemu-4.0.0 && make CFLAGS=-Wmaybe-uninitialized -j4 && cd -'.format(self.firmware.get_working_dir()))
+            'cd {}/qemu-4.0.0 && make CFLAGS=-Wmaybe-uninitialized -j4 && cd -'.format(self.firmware.get_target_dir()))
         # construct the command
         if self.firmware.get_architecture() == 'arm':
-            running_command = '{}/qemu-4.0.0/arm-softmmu/qemu-system-arm'.format(self.firmware.get_working_dir())
+            running_command = '{}/qemu-4.0.0/arm-softmmu/qemu-system-arm'.format(self.firmware.get_target_dir())
         elif self.firmware.get_architecture() == 'mips':
             if self.firmware.get_endian() == 'l':
                 running_command = '{}/qemu-4.0.0/mipsel-softmmu/qemu-system-mipsel'.format(
-                    self.firmware.get_working_dir())
+                    self.firmware.get_target_dir())
             else:
                 running_command = '{}/qemu-4.0.0/mips-softmmu/qemu-system-mips'.format(
-                    self.firmware.get_working_dir())
+                    self.firmware.get_target_dir())
         else:
             raise NotImplementedError()
         machine_name = self.firmware.get_machine_name()
@@ -293,7 +293,8 @@ class CompilerToQEMUMachine(object):
         # cpu
         self.resolve_cpu()
         # cpu_pp
-        self.resolve_cpu_private_peripheral()
+        if self.cpu_pp_model:
+            self.resolve_cpu_private_peripheral()
         # ram
         ram_priority = self.firmware.get_ram_priority()
         self.check_analysis(ram_priority, 'ram_priority')
@@ -668,9 +669,9 @@ class CompilerToQEMUMachine(object):
         #
         machine_name = self.firmware.get_machine_name()
         architecture = self.firmware.get_architecture()
-        os.makedirs(os.path.join(self.firmware.get_working_dir(), 'qemu-4.0.0'), exist_ok=True)
+        os.makedirs(os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0'), exist_ok=True)
         source_target = os.path.join(
-            self.firmware.get_working_dir(), 'qemu-4.0.0', self.location['machine'][architecture],
+            self.firmware.get_target_dir(), 'qemu-4.0.0', self.location['machine'][architecture],
             machine_name + '.c')
         os.makedirs(os.path.dirname(source_target), exist_ok=True)
         with open(source_target, 'w') as f:
@@ -680,7 +681,7 @@ class CompilerToQEMUMachine(object):
             timer_name = self.firmware.get_timer_name()
             self.check_analysis(timer_name, 'timer_name')
             source_target = os.path.join(
-                self.firmware.get_working_dir(), 'qemu-4.0.0', self.location['machine']['timer'],
+                self.firmware.get_target_dir(), 'qemu-4.0.0', self.location['machine']['timer'],
                 timer_name + '.c'
             )
             os.makedirs(os.path.dirname(source_target), exist_ok=True)
@@ -688,7 +689,7 @@ class CompilerToQEMUMachine(object):
                 f.write(self.custom_devices['timer']['source'])
                 f.flush()
             header_target = os.path.join(
-                self.firmware.get_working_dir(), 'qemu-4.0.0', 'include', self.location['machine']['timer'],
+                self.firmware.get_target_dir(), 'qemu-4.0.0', 'include', self.location['machine']['timer'],
                 timer_name + '.h'
             )
             os.makedirs(os.path.dirname(header_target), exist_ok=True)
@@ -699,7 +700,7 @@ class CompilerToQEMUMachine(object):
         if len(self.custom_devices['interrupt_controller']['source']):
             interrupt_controller_name = self.firmware.get_interrupt_controller_name()
             source_target = os.path.join(
-                self.firmware.get_working_dir(), 'qemu-4.0.0', self.location['machine']['interrupt_controller'],
+                self.firmware.get_target_dir(), 'qemu-4.0.0', self.location['machine']['interrupt_controller'],
                 interrupt_controller_name + '.c'
             )
             os.makedirs(os.path.dirname(source_target), exist_ok=True)
@@ -707,7 +708,7 @@ class CompilerToQEMUMachine(object):
                 f.write(self.custom_devices['interrupt_controller']['source'])
                 f.flush()
             header_target = os.path.join(
-                self.firmware.get_working_dir(), 'qemu-4.0.0', 'include',
+                self.firmware.get_target_dir(), 'qemu-4.0.0', 'include',
                 self.location['machine']['interrupt_controller'],
                 interrupt_controller_name + '.h'
             )
@@ -719,7 +720,7 @@ class CompilerToQEMUMachine(object):
         if len(self.custom_devices['bridge']['source']):
             bridge_name = self.firmware.get_bridge_name()
             source_target = os.path.join(
-                self.firmware.get_working_dir(), 'qemu-4.0.0', self.location['machine']['bridge'],
+                self.firmware.get_target_dir(), 'qemu-4.0.0', self.location['machine']['bridge'],
                 bridge_name + '.c'
             )
             os.makedirs(os.path.dirname(source_target), exist_ok=True)
@@ -727,7 +728,7 @@ class CompilerToQEMUMachine(object):
                 f.write(self.custom_devices['bridge']['source'])
                 f.flush()
             header_target = os.path.join(
-                self.firmware.get_working_dir(), 'qemu-4.0.0', 'include', self.location['machine']['bridge'],
+                self.firmware.get_target_dir(), 'qemu-4.0.0', 'include', self.location['machine']['bridge'],
                 bridge_name + '.h'
             )
             os.makedirs(os.path.dirname(header_target), exist_ok=True)
@@ -735,5 +736,5 @@ class CompilerToQEMUMachine(object):
                 f.write(self.custom_devices['bridge']['header'])
                 f.flush()
         self.info(
-            'have linked them all at {}'.format(os.path.join(self.firmware.get_working_dir(), 'qemu-4.0.0')), 'link')
+            'have linked them all at {}'.format(os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0')), 'link')
         self.solve_makefiles()

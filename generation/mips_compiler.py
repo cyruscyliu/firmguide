@@ -13,13 +13,12 @@ class MIPSCompiler(CompilerToQEMUMachine):
         self.info('solved abelia cpu', 'compile')
 
     def resolve_cpu_private_peripheral(self):
-        if self.cpu_pp_model:
-            self.machine['includings'].extend(['hw/mips/cpudevs.h'])
-            self.machine_init['body'].extend([
-                indent('cpu_mips_irq_init_cpu(s->cpu);', 1),
-                indent('cpu_mips_clock_init(s->cpu);', 1)
-            ])
-            self.info('solved abelia cpu private peripheral', 'compile')
+        self.machine['includings'].extend(['hw/mips/cpudevs.h'])
+        self.machine_init['body'].extend([
+            indent('cpu_mips_irq_init_cpu(s->cpu);', 1),
+            indent('cpu_mips_clock_init(s->cpu);', 1)
+        ])
+        self.info('solved abelia cpu private peripheral', 'compile')
 
     def resolve_irq_to_cpu(self):
         if self.cpu_pp_model:
@@ -50,4 +49,3 @@ class MIPSCompiler(CompilerToQEMUMachine):
         else:
             self.location['configs'] = 'default-configs/mips-softmmu.mak'
         self.location['kconfig'] = 'hw/mips/Kconfig'
-

@@ -15,7 +15,7 @@ def status_wrapper(status):
 def statistics(firmware):
     summary = {}
 
-    working_dir = os.path.dirname(firmware.get_working_dir())
+    working_dir = firmware.get_working_dir()
 
     for uuid in os.listdir(working_dir):
         summary_path = os.path.join(working_dir, uuid, 'stats.yaml')
