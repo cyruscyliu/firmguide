@@ -123,11 +123,11 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def set_profile(self, *args, **kwargs):
         """
         set_profile(profile)
-        set_profile(working_dir=working_dir, first=True)
+        set_profile(target_dir=target_dir, first=True)
             load from file after create it
-        set_profile(working_dir=working_dir) *
+        set_profile(target_dir=target_dir) *
             load from file by default
-        set_profile(working_dir=working_dir, first=False) *
+        set_profile(target_dir=target_dir, first=False) *
             load from file by default
         set_profile(path_to_profile=path_to_profile) **
             load from the file assigned
@@ -136,7 +136,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         NOTE: * are same and ** are same.
         """
         first = kwargs.pop('first', False)
-        working_dir = kwargs.pop('working_dir', None)
+        target_dir = kwargs.pop('target_dir', None)
         path_to_profile = kwargs.pop('path_to_profile', None)
 
         if len(args):
@@ -148,10 +148,10 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
             self.profile = profile
             return
 
-        if working_dir is None:
+        if target_dir is None:
             self.path_to_profile = path_to_profile
         else:
-            self.path_to_profile = os.path.join(working_dir, 'profile.dt')
+            self.path_to_profile = os.path.join(target_dir, 'profile.dt')
 
         if first:
             self.create_empty_profile()
@@ -182,9 +182,9 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     def brief(self, *args, **kwargs):
-        brief_introduction = 'uuid: {}, name: {}, brand: {}, architecture: {}, working_dir: {}, endian: {}'.format(
+        brief_introduction = 'uuid: {}, name: {}, brand: {}, architecture: {}, target_dir: {}, endian: {}'.format(
             self.get_uuid(), self.get_name(), self.get_brand(), self.get_architecture(),
-            self.working_directory, self.get_endian()
+            self.target_dir, self.get_endian()
         )
         return brief_introduction
 
