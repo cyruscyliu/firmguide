@@ -289,8 +289,6 @@ class Strings(Analysis):
                 {'cpu_id': '0x0007b000', 'cpu_mask': '0x0007f000', 'cpu_arch_name': 'armv6', 'cpu_elf_name': 'v6',
                  'cpu_name': 'ARMv6-compatible processor'}],
             'proc-v7': [
-                {'cpu_id': '', 'cpu_mask': '', 'cpu_arch_name': 'armv7', 'cpu_elf_name': 'v7',
-                 'cpu_name': 'ARMv7 Processor'},
                 {'cpu_id': '0x410fc050', 'cpu_mask': '0xff0ffff0', 'cpu_arch_name': 'armv7', 'cpu_elf_name': 'v7',
                  'cpu_name': 'ARMv7 Processor'},
                 {'cpu_id': '0x410fc090', 'cpu_mask': '0xff0ffff0', 'cpu_arch_name': 'armv7', 'cpu_elf_name': 'v7',

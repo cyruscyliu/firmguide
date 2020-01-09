@@ -8,28 +8,35 @@ from profile.openwrt import OpenWRTForFirmware
 
 class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def __init__(self, *args, **kwargs):
-        self.size = None
-        self.working_directory = None
-        self.target_dir = None
-        self.working_path = None
+        # at beginning, you must uuid because your profile
+        # is not ready, after your profile is ready, you
+        # are suppose to use get_uuid()/set_uuid()
+        self.uuid = None
 
-        self.analysis_progress = None  # file
-        self.profile = None  # dict
+        # the following arguments will not go to your profile
+        # because they are dynamically resolved
+        self.size = None
+        self.working_dir = None  # /tmp
+        self.target_dir = None  # /tmp/uuid
+        self.working_path = None  # /tmp/uuid/xxx.bin
+
+        self.analysis_progress = None  # /tmp/uuid/analyses
+        self.profile = None  # /tmp/uuid/profile.ext, dickt
+        self.profile_ext = 'yaml'
+
         self.stat_reference = \
             yaml.safe_load(open(os.path.join(os.getcwd(), 'profile', 'stats.yaml')))
         self.stat_summary = {}
-        self.path_to_summary = None
+        self.path_to_summary = None  # /tmp/uuid/stats.yaml
 
+        self.running_command = None
         self.trace_format = None
         self.path_to_trace = None
-        self.do_not_diagnosis = False  # flag
-        self.no_inference = False
-        self.architecture = None
-        self.endian = None
-        self.max_iteration = 20
 
-        self.rerun = False
-        self.running_command = None
+        # flags
+        self.do_not_diagnosis = False  # will stop early
+        self.max_iteration = 20  # stop at 20 iteration
+        self.rerun = False  # rerun inference analysis
 
     @abc.abstractmethod
     def stats(self):
@@ -73,10 +80,10 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.target_dir = target_dir
 
     def get_working_dir(self):
-        return self.working_directory
+        return self.working_dir
 
     def set_working_dir(self, working_dir):
-        self.working_directory = working_dir
+        self.working_dir = working_dir
 
     def get_working_path(self):
         return self.working_path
@@ -157,6 +164,20 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
             self.create_empty_profile()
         self.load_from_profile()
         self.init_profile()
+
+    def setup_target_directory(self):
+        # must use firmware.uuid to be flexible
+        target_dir = os.path.join(self.get_working_dir(), self.uuid)
+        self.set_target_dir(target_dir)
+        os.makedirs(self.get_target_dir(), exist_ok=True)
+
+    def setup_working_path(self):
+        target_path = os.path.join(self.get_target_dir(), self.get_name())
+        self.set_working_path(target_path)
+
+    @abc.abstractmethod
+    def is_empty_profile(self):
+        pass
 
     @abc.abstractmethod
     def create_empty_profile(self):

@@ -10,7 +10,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     # general
     parser.add_argument('-p', '--profile', choices=['simple', 'dt', 'ipxact'], default='simple')
-    parser.add_argument('-wd', '--working_directory')
+    parser.add_argument('-wd', '--working_dir')
     parser.add_argument('-r', '--rerun', action='store_true', default=False,
                         help='ingore save and restore and rerun all analysis')
     parser.add_argument('-d', '--debug', action='store_true', help='show verbose logs')

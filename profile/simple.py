@@ -518,6 +518,13 @@ class SimpleFirmware(Firmware):
         path_to_profile = args[0]
         shutil.copy(path_to_profile, os.path.join(self.target_dir, 'profile.yaml'))
 
+    def is_empty_profile(self):
+        with open(self.path_to_profile, 'r') as f:
+            profile = yaml.safe_load(f)
+        if profile == {}:
+            return True
+        return False
+
     def create_empty_profile(self):
         with open(self.path_to_profile, 'w') as f:
             yaml.safe_dump({}, f)
@@ -608,6 +615,7 @@ class SimpleFirmware(Firmware):
 
     def __init__(self, *args, **kwargs):
         super(SimpleFirmware, self).__init__(*args, **kwargs)
+        self.profile_ext = 'yaml'
         #
         self.bamboo_mmio_count = 0
         self.bamboos = []
