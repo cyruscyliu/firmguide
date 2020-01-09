@@ -69,6 +69,12 @@ cpu:
   level: cpu
   expect:
     - model
+cpu_pp:
+  mode: stats
+  level: cpu_pp
+  expect:
+    - name
+    - mmio_base
 ram:
   mode: stats
   level: ram
