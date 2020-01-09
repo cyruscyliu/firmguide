@@ -366,6 +366,9 @@ class SimpleFirmware(Firmware):
         self.set_general('uart', 'num', value=args[0])
 
     def get_uart_num(self, *args, **kwargs):
+        uart_num = self.get_general('uart', 'num')
+        if uart_num is None:
+            self.set_uart_num(0)
         return self.get_general('uart', 'num')
 
     def get_uart_name(self, *args, **kwargs):
@@ -515,6 +518,13 @@ class SimpleFirmware(Firmware):
         path_to_profile = args[0]
         shutil.copy(path_to_profile, os.path.join(self.target_dir, 'profile.yaml'))
 
+    def is_empty_profile(self):
+        with open(self.path_to_profile, 'r') as f:
+            profile = yaml.safe_load(f)
+        if profile == {}:
+            return True
+        return False
+
     def create_empty_profile(self):
         with open(self.path_to_profile, 'w') as f:
             yaml.safe_dump({}, f)
@@ -605,6 +615,7 @@ class SimpleFirmware(Firmware):
 
     def __init__(self, *args, **kwargs):
         super(SimpleFirmware, self).__init__(*args, **kwargs)
+        self.profile_ext = 'yaml'
         #
         self.bamboo_mmio_count = 0
         self.bamboos = []

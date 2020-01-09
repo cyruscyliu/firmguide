@@ -87,26 +87,15 @@ def finish(firmware, analysis):
 
 def setup_working_directory(args, firmware):
     # prepare working directory
-    if args.working_directory is None:
+    if args.working_dir is None:
         working_dir = tempfile.gettempdir()
     else:
-        working_dir = os.path.realpath(args.working_directory)
+        working_dir = os.path.realpath(args.working_dir)
     firmware.set_working_dir(working_dir)
     os.makedirs(firmware.get_working_dir(), exist_ok=True)
 
 
-def setup_target_directory(firmware):
-    target_dir = os.path.join(firmware.get_working_dir(), firmware.get_uuid())
-    firmware.set_target_dir(target_dir)
-    os.makedirs(firmware.get_target_dir(), exist_ok=True)
-
-
-def setup_working_path(firmware):
-    target_path = os.path.join(firmware.get_target_dir(), firmware.get_name())
-    firmware.set_working_path(target_path)
-
-
-def setup_empty_profile(firmware, label):
+def setup_tmp_profile(firmware, label):
     # get a empty profile
     firmware.path_to_profile = os.path.join(tempfile.gettempdir(), '{}.yaml'.format(label))
     firmware.create_empty_profile()
@@ -114,15 +103,18 @@ def setup_empty_profile(firmware, label):
 
 
 def setup_diagnosis(args, firmware):
-    setup_empty_profile(firmware, 'diagnosis')
+    # a profile is need to simplify implementation
+    # but we only need a temp one, no need for uuid
+    setup_tmp_profile(firmware, 'diagnosis')
 
     # 1 we need the trace
     firmware.path_to_trace = args.trace
     firmware.trace_format = args.trace_format
 
     name = args.trace.split('.')[0]
-    # 2 and the uuid
+    # 2 and the uuid, we set it if any
     uuid = name.split('-')[0]
+    firmware.uuid = uuid
     firmware.set_uuid(uuid)
 
     # 3 uuid.arch.endian.trace
@@ -132,20 +124,23 @@ def setup_diagnosis(args, firmware):
     endian = name.split('-')[2]
     assert endian in ['l', 'b'], 'cannot support this endianness {}'.format(endian)
     firmware.set_endian(endian)
+
     firmware.max_iteration = args.max
 
 
 def setup_code_generation(args, firmware):
-    # load profile from args.generation
-    firmware.set_profile(path_to_profile=args.generation)
-
-    # then setup its working dir
     setup_working_directory(args, firmware)
-    setup_target_directory(firmware)
-    setup_working_path(firmware)
 
-    firmware.no_inference = True
+    # load profile from args.generation
+    # we can known its uuid
+    firmware.set_profile(path_to_profile=args.generation)
+    firmware.uuid = firmware.get_uuid()
 
+    # then setup its target dir
+    firmware.setup_target_directory()
+    firmware.setup_working_path()
+
+    # we have loaded the profile, to
     # avoid modify our well-defined profile, change save to path
     extension = 'yaml' if args.profile == 'simple' else 'dt'
     firmware.path_to_profile = os.path.join(firmware.get_target_dir(), 'profile.' + extension)
@@ -158,8 +153,6 @@ def setup_code_generation(args, firmware):
 
 
 def setup_statistics(args, firmware):
-    # to use what we have done
-    setup_empty_profile(firmware, 'statistics')
     setup_working_directory(args, firmware)
 
 
@@ -169,18 +162,25 @@ def setup_single_analysis(args, firmware):
     if args.uuid is None:
         print('uuid cannot be empty')
         exit(-1)
-    uuid = args.uuid
 
-    extension = 'yaml' if args.profile == 'simple' else 'dt'
-    path_to_profile = os.path.join(firmware.working_directory, uuid, 'profile.' + extension)
+    firmware.uuid = args.uuid
+    firmware.setup_target_directory()
 
-    if os.path.exists(path_to_profile):
+    path_to_profile = os.path.join(firmware.get_target_dir(), 'profile.' + firmware.profile_ext)
+    firmware.path_to_profile = path_to_profile
+
+    empty = True
+    # enforce no empty profile which will crash thw whole system
+    if os.path.exists(path_to_profile) and firmware.is_empty_profile():
+        os.system('rm {}'.format(path_to_profile))
+        empty = False
+
+    if not empty:
         # load the profile
         firmware.set_profile(path_to_profile=path_to_profile)
-        setup_target_directory(firmware)
-        setup_working_path(firmware)
+        firmware.setup_working_path()
         if not os.path.exists(firmware.get_path()):
-            print('May be you forget -wd? Otherwise, please run rm {} and full command'.format(path_to_profile))
+            print('May be you forget -wd?')
             exit(-1)
         else:
             firmware.size = os.path.getsize(firmware.get_path())
@@ -188,9 +188,9 @@ def setup_single_analysis(args, firmware):
         # load from the command line
         firmware.set_profile(path_to_profile=path_to_profile, first=True)
         firmware.set_uuid(args.uuid)
-        setup_target_directory(firmware)
         firmware.set_path(args.firmware)
         firmware.set_name(os.path.basename(args.firmware))
+        firmware.setup_working_path()
         firmware.size = os.path.getsize(args.firmware)
         firmware.set_architecture(args.architecture)
         firmware.set_endian(args.endian)
@@ -198,7 +198,6 @@ def setup_single_analysis(args, firmware):
         firmware.set_path_to_source_code(args.source_code)
         firmware.set_path_to_makeout(args.makeout)
         firmware.set_path_to_gcc(args.gcc)
-        setup_working_path(firmware)
 
     firmware.trace_format = args.trace_format
     firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(

@@ -1,5 +1,10 @@
 # Device Profile
 
+To simplicity, we define our device profile format using yaml syntax as below.
+Take [2b38a3.yaml](../examples/files/2b38a3.yaml), [ec5859.yaml](../examples/files/ec5859.yaml), 
+and [9874f6.yaml](../examples/files/9874f6.yaml) as examples. Here are other alternative solutions, maybe
+we will support them in the future.
+
 ### Device Tree
 
 We refer to [this](https://www.devicetree.org),
@@ -18,9 +23,3 @@ set of syntax and semantic rules, as defined in the standard, means that design 
 can leverage these "electronic databooks" for documentation generation, test generation,
 system assembly, script generation for tools flows, or any other operation that typically requires 
 knowledge about the key details defining IP components.
-
-### Format
-
-To simplify the code generation task, we define our device format using yaml syntax as below.
-Take [2b38a3.yaml](../tests/files/2b38a3.yaml), [ec5859.yaml](../tests/files/ec5859.yaml), 
-and [9874f6.yaml](../tests/files/9874f6.yaml) as examples.
