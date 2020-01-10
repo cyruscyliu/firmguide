@@ -18,7 +18,7 @@ from analyses.diag_init_value import InitValue
 from analyses.inf_device_tree import DeviceTree
 from analyses.inf_dot_config import DotConfig
 from analyses.inf_extraction import Extraction
-from analyses.inf_format import Format
+from analyses.inf_binwalk import Binwalk
 from analyses.inf_kernel import Kernel
 from analyses.inf_openwrt import OpenWRTRevision, OpenWRTURL, OpenWRTToH
 from analyses.inf_srcode import SRCode
@@ -202,7 +202,7 @@ class AnalysesManager(object):
         self.static_analysis = static_analysis
 
         # format <- extraction
-        self.register_analysis(Format(self), analyses_tree=static_analysis)
+        self.register_analysis(Binwalk(self), analyses_tree=static_analysis)
         self.register_analysis(Extraction(self), analyses_tree=static_analysis)
         # extraction <- kernel
         self.register_analysis(Kernel(self), analyses_tree=static_analysis)

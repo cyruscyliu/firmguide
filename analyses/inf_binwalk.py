@@ -1,13 +1,17 @@
+import os
 import binwalk
 
 from analyses.analysis import Analysis
 
 
-class Format(Analysis):
+class Binwalk(Analysis):
     def run(self, firmware):
         """
         The patched binwalk must be available.
         """
+        # remove duplicated extraction sub-dirs
+        os.system('rm -rf {}/*.extracted'.format(firmware.target_dir))
+
         for module in binwalk.scan(firmware.working_path, signature=True, extract=True,
                                    quiet=True, block=firmware.size, directory=firmware.target_dir):
             count = 0
