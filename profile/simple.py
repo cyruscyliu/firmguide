@@ -58,7 +58,10 @@ class SimpleFirmware(Firmware):
         self.set_general('bamboo', value=latest_bamboo_devices)
 
     def get_bamboo_devices(self, *args, **kwargs):
-        return self.get_general('bamboo')
+        bamboo_devices = self.get_general('bamboo')
+        if bamboo_devices is None:
+            return {}
+        return bamboo_devices
 
     def split_bamboo(self, bamboo, a, b, value):
         left = bamboo.mmio_base
