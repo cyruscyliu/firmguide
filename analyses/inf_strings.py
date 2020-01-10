@@ -161,6 +161,35 @@ class Strings(Analysis):
         logger_info(firmware.get_uuid(), 'analysis', 'strings',
                     'get the most possible subtarget {}'.format(most_possible), 1)
 
+    def find_command_line(self, firmware):
+        def set_uart_baud_rate(tty_baud_rate):
+            # uart_baud = tty_baud_rate.split(',')[1].strip()
+            # firmware.set_uart_baud_rate(uart_baud, int(firmware.get_uart_num()))
+            # self.info(firmware, 'uart baud {} found'.format(uart_baud), 1)
+            pass
+
+        def set_machine_name(name):
+            firmware.set_machine_name(name)
+            self.info(firmware, 'machine {} found'.format(name), 1)
+
+        kv_functions = {'board': set_machine_name, 'console': set_uart_baud_rate}
+        kv_pairs = []
+        for string in self.strings:
+            if string.find('root=/') != -1:
+                # root=/dev/mtdblock1 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200
+                kv_pairs = string.strip().split(' ')
+                break
+            elif string.find('CMDLINE') != -1:
+                # CMDLINE:board=AP135-020 console=ttyS0,115200 mtdparts=spi0.0:256k(u-boot)ro,
+                # 64k(u-boot-env)ro,14528k(rootfs),1472k(kernel),64k(art)ro,16000k@0x50000(firmware)
+                kv_pairs = string.strip()[8:].split(' ')
+                break
+
+        for kv_pair in kv_pairs:
+            k, _, v = kv_pair.partition('=')
+            if k in kv_functions:
+                kv_functions[k](v)
+
     def find_uart(self, firmware):
         if firmware.get_path_to_dtb() is not None:
             return
@@ -172,18 +201,7 @@ class Strings(Analysis):
                 self.info(firmware, 'uart model {} found'.format('ns16550A'), 1)
                 flag = True
                 break
-        for string in self.strings:
-            if string.find('root=') != -1:
-                # root=/dev/mtdblock1 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200\n
-                a, _, b = string.partition('console=')
-                if _ is '':
-                    continue
-                else:
-                    uart_baud = b.split(',')[1].strip()
-                    firmware.set_uart_baud_rate(uart_baud, int(firmware.get_uart_num()))
-                    self.info(firmware, 'uart baud {} found'.format(uart_baud), 1)
-                    flag = True
-                    break
+
         if flag:
             firmware.set_uart_num(firmware.get_uart_num() + 1)
 
@@ -3371,8 +3389,10 @@ class Strings(Analysis):
         self.search_most_possible_target(firmware)
         self.search_most_possible_subtarget(firmware)
 
-        self.find_uart(firmware)
+        # self.find_uart(firmware)
         self.find_flash_type_by_strings(firmware)
+
+        self.find_command_line(firmware)
 
         # cpu and machine id
         architecture = firmware.get_architecture()
