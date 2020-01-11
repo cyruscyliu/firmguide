@@ -21,11 +21,14 @@ class DatabaseOpenWRTMapping(Database):
             openwrt_release_info = yaml.safe_load(table)
             for revision, info in openwrt_release_info.items():
                 if isinstance(info['kernel'], list) and kernel_version in info['kernel']:
+                    table.close()
                     return revision
                 else:
                     if info['kernel'] == kernel_version:
+                        table.close()
                         return revision
-            return None
+        table.close()
+        return None
 
     def add(self, *args, **kwargs):
         raise NotImplementedError('you are not expected to modify this table')
