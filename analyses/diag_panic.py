@@ -38,6 +38,7 @@ class Panic(Analysis):
         for k, cpurf in pql.cpurfs.items():
             if pql.get_pc(cpurf) == address_to_panic:
                 self.info(firmware, 'panic found at {}'.format(address_to_panic), 1)
+                self.panic_cpurf = cpurf
                 return True
         self.context['input'] = 'no panic found'
         return False
@@ -48,5 +49,7 @@ class Panic(Analysis):
         self.description = 'find panic and show solutions'
         self.context['hint'] = 'there is no panic at all'
         self.critical = False
-        self.required = ['check', 'data_abort']
+        self.required = ['check']
         self.type = 'diag'
+        #
+        self.panic_cpurf = None

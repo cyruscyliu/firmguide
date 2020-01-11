@@ -110,7 +110,7 @@ class DataAbort(Analysis):
         self.description = 'find data abort info'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = True
-        self.required = ['panic']
+        self.required = ['init_value']
         self.type = 'diag'
         #
         self.dead_addresses = []
