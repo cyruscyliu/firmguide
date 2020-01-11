@@ -56,9 +56,6 @@ class LibTooling(Analysis):
             firmware.set_uart_reg_shift('0', 0)
             firmware.set_uart_irq('3', 0)  # 11
             self.info(firmware, 'set uart manually, waiting for libtooling ...', 1)
-            firmware.set_va_pa_mapping('0x80000000', '0x00000000', '0x20000000')
-            firmware.set_va_pa_mapping('0xa0000000', '0x00000000', '0x20000000')
-            self.info(firmware, 'set mips va/pa mapping manually (kseg0/1)', 1)
             firmware.set_flash_base('0x1f000000')
             firmware.set_flash_size('32 * MiB')
             self.info(firmware, 'set flash manually, waiting for libtooling ...', 1)
@@ -69,7 +66,7 @@ class LibTooling(Analysis):
             firmware.set_uart_mmio_size('0x100', 0)
             firmware.set_uart_baud_rate('115200', 0)
             firmware.set_uart_reg_shift('0', 0)
-            firmware.set_uart_irq('3', 0)  # unknown    
+            firmware.set_uart_irq('3', 0)  # unknown
             self.info(firmware, 'set uart manually, waiting for libtooling ...', 1)
         return True
 

@@ -6,24 +6,23 @@ from database.dbf import get_database
 
 
 class DeviceTree(Analysis):
-    def get_path_to(self, name):
+    def get_path_to_uart(self):
+        supported_uart = ['ns16550a', 'ns8250']
         path_to = []
         for pa, no, pros in self.dts.walk():
-            if pa.find(name) == -1:
+            compatibles = self.dts.get_property('compatible', pa)
+            if compatibles is None:
                 continue
-            compatible = self.dts.get_property('compatible', pa)
-            if compatible is None:
-                continue
-            path_to.append(pa)
+            for compatible in compatibles.data:
+                if compatible in supported_uart:
+                    path_to.append(pa)
 
         if len(path_to) == 0:
             return None
-        elif name == 'cpu':
-            return path_to[0]
         return path_to
 
     def cpu07_parse_cpu_from_device_tree(self, firmware):
-        path_to_cpu = self.get_path_to('cpu')
+        path_to_cpu = '/cpus/cpu@0'
 
         compatible = self.dts.get_property('compatible', path_to_cpu).data[0]
         compatible = self.qemu_devices.select('cpu', like=compatible)
@@ -63,10 +62,13 @@ class DeviceTree(Analysis):
         firmware.set_interrupt_controller_mmio_size(*ic_mmio_base)
 
     def uart09_parse_uart_from_device_tree(self, firmware):
-        path_to_uarts = self.get_path_to('uart')
+        path_to_uarts = self.get_path_to_uart()
         if path_to_uarts is None:
             self.info(firmware, 'there is no uart in this device tree', 0)
             return False
+
+        # parse interrupt levels
+        masters = self.parse_interrupt_levels(firmware)
 
         firmware.set_uart_num(len(path_to_uarts))
         for i, path_to_uart in enumerate(path_to_uarts):
@@ -78,7 +80,10 @@ class DeviceTree(Analysis):
             firmware.set_uart_mmio_base(str(hex(uart_mmio_base)), i)
             self.info(firmware, 'uart mmio base {} found'.format(hex(uart_mmio_base)), 1)
 
-            uart_baud_rate = self.dts.get_property('current-speed', path_to_uart).data[0]
+            try:
+                uart_baud_rate = self.dts.get_property('current-speed', path_to_uart).data[0]
+            except AttributeError as e:
+                uart_baud_rate = 0x1c200
             firmware.set_uart_baud_rate(str(hex(uart_baud_rate)), i)
             self.info(firmware, 'uart baud rate {} found'.format(hex(uart_baud_rate)), 1)
 
@@ -86,15 +91,37 @@ class DeviceTree(Analysis):
             firmware.set_uart_reg_shift(str(hex(uart_reg_shift)), i)
             self.info(firmware, 'uart reg shift {} found'.format(hex(uart_reg_shift)), 1)
 
-            _, uart_irq, _ = self.dts.get_property('interrupts', path_to_uart).data
+            interrupt_parent = self.dts.get_property('interrupt-parent', path_to_uart).data[0]
+            interrupt_cells = masters[interrupt_parent]['#interrupt-cells']
+            # in the future, we must have a table to illustrate how to use the (multi-level) intc
+            uart_irqs = self.dts.get_property('interrupts', path_to_uart).data
+            if interrupt_cells == 1:
+                uart_irq = uart_irqs[0]
+            else:
+                uart_irq = uart_irqs[1]  # for 11882
             firmware.set_uart_irq(str(hex(uart_irq)), i)
             self.info(firmware, 'uart reg irq {} found'.format(hex(uart_irq)), 1)
+
+    def get_parent_address(self, path):
+        # at most too levels
+        node = self.dts.get_node(path)
+        parent = node.parent
+
+        if parent is None:
+            return 0
+
+        path = os.path.join(parent.path, parent.name)
+        # there must be one start address
+        if self.dts.exist_property('reg', path):
+            return self.dts.get_property('reg', path).data[0]
+        else:
+            return 0
 
     def get_parent_address_sells(self, path):
         node = self.dts.get_node(path)
         parent = node.parent
 
-        if parent is None == '/':
+        if parent is None:
             return self.global_address_cells
 
         path = os.path.join(parent.path, parent.name)
@@ -128,6 +155,8 @@ class DeviceTree(Analysis):
 
         firmware.load_bamboo_devices()
         for pa, no, pros in self.dts.walk():
+            if pa.find('pinctrl') != -1:
+                continue
             if not self.dts.exist_property('compatible', pa):
                 continue
             duplicated = False
@@ -154,6 +183,9 @@ class DeviceTree(Analysis):
             address_cells = self.get_parent_address_sells(pa)
             mmios = self.dts.get_property('reg', pa).data
 
+            # if has offsets
+            offset = self.get_parent_address(pa)
+
             for i in range(len(mmios) // (size_cells + address_cells)):
                 base = 0
                 for j in range(address_cells):
@@ -161,9 +193,41 @@ class DeviceTree(Analysis):
                 size = 0
                 for j in range(size_cells):
                     size += mmios[i * (size_cells + address_cells) + address_cells + j]
-                firmware.insert_bamboo_devices(base, size, value=0)
-                self.info(firmware, 'find {} {} {} value=0'.format(pa, hex(base), hex(size)), 1)
+                firmware.insert_bamboo_devices(base + offset, size, value=0)
+                self.info(firmware, 'find {} {} {} value=0'.format(pa, hex(base+offset), hex(size)), 1)
         firmware.update_bamboo_devices()
+
+    def parse_interrupt_levels(self, firmware):
+        intc = {}
+        for pa, no, pros in self.dts.walk():
+            if self.dts.exist_property('interrupt-controller', pa):
+                intc_t = {
+                    '#interrupt-cells': self.dts.get_property('#interrupt-cells', pa).data[0],
+                    'phandle': self.dts.get_property('phandle', pa).data[0]
+                }
+                if self.dts.exist_property('interrupt-parent', pa):
+                    intc_t['master'] = False
+                    intc_t['interrupt-parent'] = self.dts.get_property('interrupt-parent', pa).data[0]
+                    intc_t['interrupts'] = self.dts.get_property('interrupts', pa).data
+                else:
+                    intc_t['master'] = True
+                intc[pa] = intc_t
+            else:
+                if self.dts.exist_property('interrupt-parent', pa):
+                    intc_t = {'interrupt-parent': self.dts.get_property('interrupt-parent', pa).data[0],
+                              'interrupts': self.dts.get_property('interrupts', pa).data}
+                    intc[pa] = intc_t
+        level = 0
+        masters = {}
+        for k, v in intc.items():
+            if 'master' in v:
+                level += 1
+                masters[v['phandle']] = v
+        # 2 levels interrupt
+        # {1: {'#interrupt-cells': 1, 'phandle': 1, 'master': False, 'interrupt-parent': 3, 'interrupts': [2]},
+        # 3: {'#interrupt-cells': 1, 'phandle': 3, 'master': True}}
+        self.info(firmware, '{} level(s) interrupt found'.format(level), 1)
+        return masters
 
     def run(self, firmware):
         dtb = firmware.get_path_to_dtb()
@@ -185,7 +249,8 @@ class DeviceTree(Analysis):
         if cpu_pp_name is not None:
             firmware.set_cpu_pp_name(cpu_pp_name)
             self.info(firmware, 'cpu private peripheral {} found'.format(cpu_pp_name), 1)
-        self.ic01_parse_ic_from_device_tree(firmware)
+        else:
+            self.ic01_parse_ic_from_device_tree(firmware)
 
         self.uart09_parse_uart_from_device_tree(firmware)
 

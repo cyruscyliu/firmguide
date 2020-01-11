@@ -3,3 +3,5 @@ arm11mpcore-priv:
   type_macro: TYPE_ARM11MPCORE_PRIV
   state_struct: ARM11MPCorePriveState
   compatibles: ['arm,arm11mp-gic', 'arm,arm11mp-twd-timer', 'mpcore_wdt']
+mips-default:
+  compatibles: []
