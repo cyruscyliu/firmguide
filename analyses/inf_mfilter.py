@@ -13,7 +13,7 @@ class Filter(Analysis):
         candidates = []
         for root, ds, fs in os.walk(
                 os.path.join(self.path_to_srcode, 'arch', self.arch)):
-            if len(ds):
+            if root.endswith(self.arch):
                 continue
             if '.built-in.o.cmd' in fs:
                 candidates.append(root)
@@ -35,11 +35,11 @@ class Filter(Analysis):
         assert isinstance(firmware, Firmware)
 
         exclude = [
-            'boot, commom', 'configs', 'crypto', 'firmware', 'include', 'kernel',
+            'boot', 'common', 'configs', 'crypto', 'firmware', 'include', 'kernel',
             'kvm', 'lib', 'mm', 'net', 'nvfpe', 'oprofile', 'tools', 'xen'
         ]
         self.path_to_srcode = firmware.get_path_to_source_code()
-        self.arch = 'arm32'
+        self.arch = 'arm'
         target = self.find_dir_compiled(exclude=exclude)
         if target is None:
             self.context['input'] = 'no available target found, please check the source code'
@@ -55,7 +55,7 @@ class Filter(Analysis):
     def is_unsupport_mips_machine(self, firmware):
         assert isinstance(firmware, Firmware)
         exclude = [
-            'boot', 'configs', 'fw', 'include', 'kernel', 'kvm', 'lib',
+            'boot', 'configs', 'fw', 'include', 'kernel', 'kvm', 'lib', 'mm',
             'math-emu', 'lib', 'net', 'oprofile', 'paravirt', 'pci', 'power'
         ]
         self.path_to_srcode = firmware.get_path_to_source_code()
