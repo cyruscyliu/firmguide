@@ -194,7 +194,7 @@ class DeviceTree(Analysis):
                 for j in range(size_cells):
                     size += mmios[i * (size_cells + address_cells) + address_cells + j]
                 firmware.insert_bamboo_devices(base + offset, size, value=0)
-                self.info(firmware, 'find {} {} {} value=0'.format(pa, hex(base+offset), hex(size)), 1)
+                self.info(firmware, 'find {} {} {} value=0'.format(pa, hex(base + offset), hex(size)), 1)
         firmware.update_bamboo_devices()
 
     def parse_interrupt_levels(self, firmware):
@@ -203,8 +203,10 @@ class DeviceTree(Analysis):
             if self.dts.exist_property('interrupt-controller', pa):
                 intc_t = {
                     '#interrupt-cells': self.dts.get_property('#interrupt-cells', pa).data[0],
-                    'phandle': self.dts.get_property('phandle', pa).data[0]
                 }
+                if not self.dts.exist_property('phandle', pa):
+                    continue
+                intc_t['phandle'] = self.dts.get_property('phandle', pa).data[0]
                 if self.dts.exist_property('interrupt-parent', pa):
                     intc_t['master'] = False
                     intc_t['interrupt-parent'] = self.dts.get_property('interrupt-parent', pa).data[0]
