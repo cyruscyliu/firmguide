@@ -4,7 +4,7 @@ from analyses.analysis import Analysis, AnalysisGroup
 from analyses.diag_bamboos import Bamboos
 from analyses.diag_callstack import CallStack
 from analyses.diag_dabt import DataAbort
-from analyses.inf_filter import Filter
+from analyses.inf_mfilter import Filter
 from analyses.inf_hardcode import HardCode
 from analyses.inf_libtooling import LibTooling
 from analyses.inf_loaddr import LoadAddr

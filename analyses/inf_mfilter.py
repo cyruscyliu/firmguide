@@ -15,13 +15,13 @@ class Filter(Analysis):
                 os.path.join(self.path_to_srcode, 'arch', self.arch)):
             if len(ds):
                 continue
-            if fs == '.built-in.o.cmd':
+            if '.built-in.o.cmd' in fs:
                 candidates.append(root)
 
         results = []
         for candidate in candidates:
             things = candidate.split('/')
-            target = things[things.index('arch') + 1]
+            target = things[things.index(self.arch) + 1]
             if target in exclude:
                 continue
             results.append(target)
@@ -42,14 +42,14 @@ class Filter(Analysis):
         self.arch = 'arm32'
         target = self.find_dir_compiled(exclude=exclude)
         if target is None:
-            self.context['hint'] = 'no available target found, please check the source code'
+            self.context['input'] = 'no available target found, please check the source code'
             return False
         support = get_database('support')
         status = support.select(target, arch='arm32')
         if status:
             return True
         else:
-            self.context['hint'] = 'arm/{} is not supported yet'.format(target)
+            self.context['input'] = 'arm/{} is not supported yet'.format(target)
             return False
 
     def is_unsupport_mips_machine(self, firmware):
@@ -58,17 +58,18 @@ class Filter(Analysis):
             'boot', 'configs', 'fw', 'include', 'kernel', 'kvm', 'lib',
             'math-emu', 'lib', 'net', 'oprofile', 'paravirt', 'pci', 'power'
         ]
+        self.path_to_srcode = firmware.get_path_to_source_code()
         self.arch = 'mips'
         target = self.find_dir_compiled(exclude=exclude)
         if target is None:
-            self.context['hint'] = 'no available target found, please check the source code'
+            self.context['input'] = 'no available target found, please check the source code'
             return False
         support = get_database('support')
         status = support.select(target, arch='mips')
         if status:
             return True
         else:
-            self.context['hint'] = 'mips/{} is not supported yet'.format(target)
+            self.context['input'] = 'mips/{} is not supported yet'.format(target)
             return False
 
     def run(self, firmware):
@@ -84,7 +85,7 @@ class Filter(Analysis):
         super().__init__(analysis_manager)
         self.name = 'filter'
         self.description = 'some machines are not possible to support yet'
-        self.required = ['srcode']
+        self.required = ['mips_cpu']
         self.context['hint'] = 'cannot support this machine yet'
         self.critical = True
         #
