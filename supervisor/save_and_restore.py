@@ -169,11 +169,11 @@ def setup_single_analysis(args, firmware):
     path_to_profile = os.path.join(firmware.get_target_dir(), 'profile.' + firmware.profile_ext)
     firmware.path_to_profile = path_to_profile
 
-    empty = False
+    empty = True
     # enforce no empty profile which will crash thw whole system
-    if os.path.exists(path_to_profile) and firmware.is_empty_profile():
+    if not os.path.exists(path_to_profile) or firmware.is_empty_profile():
         os.system('rm {}'.format(path_to_profile))
-        empty = True
+        empty = False
 
     if not empty:
         # load the profile
