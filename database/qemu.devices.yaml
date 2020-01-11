@@ -43,6 +43,8 @@ cpu:
     - 4KEc
   mips,mips74Kc:
     - 74Kf
+  mips,mips1004Kc:
+    - 74Kf
 cpu_private:
   "arm11mpcore":
     "arm11mpcore-priv"

@@ -61,7 +61,8 @@ class Binwalk(Analysis):
             if uimage3:
                 # reconstruct the uimage
                 image_path = firmware.get_path_to_image()
-                uncompressed_kernel = os.path.join(os.path.dirname(image_path), '{:x}'.format(uimage3_offset + 0x40))
+                uncompressed_kernel = os.path.join(
+                    os.path.dirname(image_path), '{:x}'.format(uimage3_offset + 0x40).upper())
                 os.system('mv {0} {0}.bak'.format(image_path))
                 os.system('dd if={0}.bak of={0} bs=1 count=64 >/dev/null 2>&1'.format(image_path))
                 os.system('dd if=/dev/zero of={} bs=1 seek=31 count=1 >/dev/null 2>&1'.format(image_path))

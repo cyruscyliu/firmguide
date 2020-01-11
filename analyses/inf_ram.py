@@ -17,8 +17,8 @@ class RAMDefault(Analysis):
             self.info(firmware, 'set mips va/pa mapping manually (kseg0/1)', 1)
         else:
             self.context['input'] = 'do not support new arch {}'.format(arch)
-
             return False
+
         firmware.set_ram_size('{} * MiB'.format(rs))
         firmware.set_ram_base('0x0')
         self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, rs), 1)
