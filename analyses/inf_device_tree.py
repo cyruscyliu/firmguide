@@ -73,12 +73,15 @@ class DeviceTree(Analysis):
 
         firmware.set_uart_num(len(path_to_uarts))
         for i, path_to_uart in enumerate(path_to_uarts):
+            offset = self.get_parent_address(path_to_uart)
+
             compatible = self.dts.get_property('compatible', path_to_uart).data[0]
             self.used_compatibles.append(compatible)
             firmware.set_uart_name(compatible, i)
             self.info(firmware, 'uart model {} found'.format(compatible), 1)
 
             uart_mmio_base, _ = self.dts.get_property('reg', path_to_uart).data
+            uart_mmio_base = uart_mmio_base + offset
             firmware.set_uart_mmio_base(str(hex(uart_mmio_base)), i)
             self.info(firmware, 'uart mmio base {} found'.format(hex(uart_mmio_base)), 1)
 
