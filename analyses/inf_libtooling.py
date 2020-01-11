@@ -69,7 +69,7 @@ class LibTooling(Analysis):
             firmware.set_uart_mmio_size('0x100', 0)
             firmware.set_uart_baud_rate('115200', 0)
             firmware.set_uart_reg_shift('0', 0)
-            firmware.set_uart_irq('3', 0)  # unknown
+            firmware.set_uart_irq('3', 0)  # unknown    
             self.info(firmware, 'set uart manually, waiting for libtooling ...', 1)
         return True
 
