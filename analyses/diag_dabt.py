@@ -94,7 +94,7 @@ class DataAbort(Analysis):
 
     def run(self, firmware):
         self.dead_addresses = []
-        
+
         trace = self.analysis_manager.get_analysis('load_trace')
         assert isinstance(trace, LoadTrace)
         pql = trace.pql
@@ -110,7 +110,7 @@ class DataAbort(Analysis):
         self.description = 'find data abort info'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = True
-        self.required = ['check']
+        self.required = ['panic']
         self.type = 'diag'
         #
         self.dead_addresses = []

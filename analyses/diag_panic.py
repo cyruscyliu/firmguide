@@ -18,9 +18,13 @@ class Panic(Analysis):
 
         address_to_panic = None
         for op in output:
-            address, t, symbol = op.strip().split()
+            things = op.strip().split()
+            if len(things) < 3:
+                continue
+            address, t, symbol = things
             if symbol == 'panic':
                 address_to_panic = address
+                break
 
         if address_to_panic is None:
             self.context['input'] = 'no panic in this kernel'
@@ -32,7 +36,7 @@ class Panic(Analysis):
         assert isinstance(pql, PQLI)
 
         for k, cpurf in pql.cpurfs.items():
-            if k == address_to_panic:
+            if pql.get_pc(cpurf) == address_to_panic:
                 self.info(firmware, 'panic found at {}'.format(address_to_panic), 1)
                 return True
         self.context['input'] = 'no panic found'
