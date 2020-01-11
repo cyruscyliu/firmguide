@@ -2,6 +2,7 @@ import os
 import fdt
 
 from analyses.analysis import Analysis
+from analyses.inf_strings import machine_name_wrapper
 from database.dbf import get_database
 
 
@@ -286,7 +287,7 @@ class DeviceTree(Analysis):
         self.dts = fdt.parse_dtb(dtb)
 
         model = self.dts.get_property('model').data[0]
-        firmware.set_machine_name('_'.join(model.split()).lower())
+        firmware.set_machine_name(machine_name_wrapper(model))
 
         self.cpu07_parse_cpu_from_device_tree(firmware)
 

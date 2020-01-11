@@ -8,6 +8,10 @@ from database.dbf import get_database
 from supervisor.logging_setup import logger_info
 
 
+def machine_name_wrapper(name):
+    return '_'.join(name.split()).lower().replace('-', '_')
+
+
 class Strings(Analysis):
     def get_candidates(self, firmware):
         """
@@ -169,7 +173,7 @@ class Strings(Analysis):
             pass
 
         def set_machine_name(name):
-            firmware.set_machine_name(name)
+            firmware.set_machine_name(machine_name_wrapper(name))
             self.info(firmware, 'machine {} found'.format(name), 1)
 
         kv_functions = {'board': set_machine_name, 'console': set_uart_baud_rate}
