@@ -42,9 +42,15 @@ class Filter(Analysis):
         self.arch = 'arm32'
         target = self.find_dir_compiled(exclude=exclude)
         if target is None:
+            self.context['hint'] = 'no available target found, please check the source code'
             return False
         support = get_database('support')
-        return support.select(target, arch='arm32')
+        status = support.select(target, arch='arm32')
+        if status:
+            return True
+        else:
+            self.context['hint'] = 'arm/{} is not supported yet'.format(target)
+            return False
 
     def is_unsupport_mips_machine(self, firmware):
         assert isinstance(firmware, Firmware)
@@ -55,9 +61,15 @@ class Filter(Analysis):
         self.arch = 'mips'
         target = self.find_dir_compiled(exclude=exclude)
         if target is None:
+            self.context['hint'] = 'no available target found, please check the source code'
             return False
         support = get_database('support')
-        return support.select(target, arch='arm32')
+        status = support.select(target, arch='mips')
+        if status:
+            return True
+        else:
+            self.context['hint'] = 'mips/{} is not supported yet'.format(target)
+            return False
 
     def run(self, firmware):
         arch = firmware.get_architecture()
