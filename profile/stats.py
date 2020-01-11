@@ -33,6 +33,8 @@ def statistics(firmware):
 
     # get value wst header
     values = []
+    print(headers)
+    print(summary)
     for uuid, s in summary.items():
         value = [uuid]
         for header in headers[1:]:
@@ -45,6 +47,14 @@ def statistics(firmware):
                 except TypeError:
                     value.append(status_wrapper(False))
         values.append(value)
+
+    # cpu_pp is true, then all intc is true
+    for value in values:
+        if value[headers.index('cpu_pp/name')]:
+            value[headers.index('interrupt_controller/mmio_base')] = 1
+            value[headers.index('interrupt_controller/mmio_size')] = 1
+            value[headers.index('interrupt_controller/name')] = 1
+            value[headers.index('interrupt_controller/registers')] = 1
 
     path_to_stats = os.path.join(os.getcwd(), 'log', 'stats.csv')
     with open(path_to_stats, 'w') as f:
