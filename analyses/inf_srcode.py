@@ -36,7 +36,7 @@ class SRCode(Analysis):
         super().__init__(analysis_manager)
         self.name = 'srcode'
         self.description = 'process source code'
-        self.required = ['strings', 'revision', 'url', 'toh']
+        self.required = ['strings', 'revision', 'url', 'toh', 'device_tree']
         self.context['hint'] = ''
         self.critical = True
         self.settings = ['path_to_source_code']
