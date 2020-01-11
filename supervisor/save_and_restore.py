@@ -175,6 +175,10 @@ def setup_single_analysis(args, firmware):
         os.system('rm -f {}'.format(path_to_profile))
         empty = True
 
+    if empty and args.firmware is None:
+        print('please use full command because of missing profile')
+        exit(-1)
+
     if not empty:
         # load the profile
         firmware.set_profile(path_to_profile=path_to_profile)
