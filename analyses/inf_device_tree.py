@@ -61,10 +61,10 @@ class DeviceTree(Analysis):
         firmware.set_interrupt_controller_mmio_base(*ic_mmio_base)
         firmware.set_interrupt_controller_mmio_size(*ic_mmio_base)
 
-    def uart09_parse_uart_from_device_tree(self, firmware):
+    def parse_uart_from_device_tree(self, firmware):
         path_to_uarts = self.get_path_to_uart()
         if path_to_uarts is None:
-            self.info(firmware, 'there is no uart in this device tree', 0)
+            self.info(firmware, 'there is no uart supported in this device tree', 0)
             return False
 
         # parse interrupt levels
@@ -73,6 +73,7 @@ class DeviceTree(Analysis):
         firmware.set_uart_num(len(path_to_uarts))
         for i, path_to_uart in enumerate(path_to_uarts):
             compatible = self.dts.get_property('compatible', path_to_uart).data[0]
+            self.used_compatibles.append(compatible)
             firmware.set_uart_name(compatible, i)
             self.info(firmware, 'uart model {} found'.format(compatible), 1)
 
@@ -152,6 +153,7 @@ class DeviceTree(Analysis):
             cpu_pp_name = firmware.get_cpu_pp_name()
             qemu_apis = get_database('qemu.apis')
             duplicated_mmios = qemu_apis.select(cpu_pp_name, 'compatibles')
+        duplicated_mmios += self.used_compatibles
 
         firmware.load_bamboo_devices()
         for pa, no, pros in self.dts.walk():
@@ -173,12 +175,6 @@ class DeviceTree(Analysis):
             if not self.dts.exist_property('reg', pa):
                 continue
             if pa == '/memory':
-                continue
-            if pa.find('partition') != -1:
-                # partition not mmio
-                continue
-            if pa.find('uart') != -1:
-                # we have found it
                 continue
             address_cells = self.get_parent_address_sells(pa)
             mmios = self.dts.get_property('reg', pa).data
@@ -231,6 +227,55 @@ class DeviceTree(Analysis):
         self.info(firmware, '{} level(s) interrupt found'.format(level), 1)
         return masters
 
+    def get_path_to_flash(self):
+        supported_flash = ['cfi-flash']
+        path_to = []
+        for pa, no, pros in self.dts.walk():
+            compatibles = self.dts.get_property('compatible', pa)
+            if compatibles is None:
+                continue
+            for compatible in compatibles.data:
+                if compatible in supported_flash:
+                    path_to.append(pa)
+
+        if len(path_to) == 0:
+            return None
+        return path_to
+
+    def parse_flash_from_device_tree(self, firmware):
+        path_to_flashes = self.get_path_to_flash()
+        if path_to_flashes is None:
+            self.info(firmware, 'there is no flash supported in this device tree', 0)
+            return False
+
+        #  compatible = "cfi-flash";
+        #  reg = <0x1f000000 0x800000>;
+        #  bank-width = <0x2>;
+        #  device-width = <0x2>;
+        #  #address-cells = <0x1>;
+        #  #size-cells = <0x1>;
+
+        # take the first one
+        path_to_flash = path_to_flashes[0]
+        compatible = self.dts.get_property('compatible', path_to_flash).data
+        if 'cfi-flash' in compatible:
+            firmware.set_flash_type('nor')
+
+            mmios = self.dts.get_property('reg', path_to_flash).data
+            address_cells = self.get_parent_address_sells(path_to_flash)
+            size_cells = self.get_parent_size_cells(path_to_flash)
+
+            for i in range(len(mmios) // (size_cells + address_cells)):
+                base = 0
+                for j in range(address_cells):
+                    base += mmios[i * (size_cells + address_cells) + j]
+                size = 0
+                for j in range(size_cells):
+                    size += mmios[i * (size_cells + address_cells) + address_cells + j]
+                firmware.set_flash_size(hex(size))
+                firmware.set_flash_base(hex(base))
+                self.info(firmware, 'nor flash found, start from {}, size {}'.format(hex(base), hex(size)), 1)
+
     def run(self, firmware):
         dtb = firmware.get_path_to_dtb()
         if dtb is None:
@@ -254,7 +299,8 @@ class DeviceTree(Analysis):
         else:
             self.ic01_parse_ic_from_device_tree(firmware)
 
-        self.uart09_parse_uart_from_device_tree(firmware)
+        self.parse_uart_from_device_tree(firmware)
+        self.parse_flash_from_device_tree(firmware)
 
         self.parse_mmio_io(firmware)
 
@@ -275,3 +321,4 @@ class DeviceTree(Analysis):
         self.qemu_devices = get_database('qemu.devices')
         self.global_address_cells = 1
         self.global_size_cells = 1
+        self.used_compatibles = []
