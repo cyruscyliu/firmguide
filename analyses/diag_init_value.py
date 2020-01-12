@@ -60,7 +60,10 @@ class InitValueI(object):
             for insn in self.md.disasm(
                     struct.pack('I', int(instruction['raw'], 16)),
                     int(instruction['address'], 16)):
-                self.callbacks[insn.mnemonic](insn)
+                if insn.mnemonic in self.callbacks:
+                    self.callbacks[insn.mnemonic](insn)
+                else:
+                    self.callbacks['other'](insn)
             if self.save:
                 order_reserved_instructions.append(instruction)
             if self.stop:

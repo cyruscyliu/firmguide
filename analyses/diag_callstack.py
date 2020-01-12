@@ -4,35 +4,85 @@ from capstone import *
 import struct
 
 
-class InstRender:
-    def __init__(self):
-        self.md_arm = Cs(CS_ARCH_ARM, CS_MODE_ARM)
-        self.md_arm.detail = True
-        self.md_thumb = Cs(CS_ARCH_ARM, CS_MODE_THUMB)
-        self.md_thumb.detail = True
-
-    def cs_inst_arm(self, raw, address):
-        raw_bytes = struct.pack('I', int(raw, 16))
-        for i in self.md_arm.disasm(raw_bytes, address):
-            return i
-
-    def cs_inst_thumb(self, raw, address):
-        raw_bytes = struct.pack('I', int(raw, 16))
-        for i in self.md_thumb.disasm(raw_bytes, address):
-            return i
-
-
 class CallRecord(object):
-    def __init__(self, pc, ir, cpurf=None, bb=None):
+    def __init__(self, pc, ir, ignored=False, returned=False, cpurf=None, bb=None):
         self.where_to_be_called = pc
         self.where_to_return = ir
-        self.bb = bb
-        self.cpurf = cpurf
+        self.ignored = ignored
 
-    def __str__(self):
-        a = 'line {} jump at 0x{:x} and should return to 0x{:x}'.format(
-            self.cpurf['ln'], self.where_to_be_called, self.where_to_return)
-        return a
+
+class CallStackI(object):
+    def __init__(self):
+        self.md = None
+        self.guard = 0
+
+        self.callstack = []
+        self.callbacks = {}
+
+        # status
+        self.ret = False
+
+    def construct(self, pql):
+        for k, cpurf in pql.cpurfs.items():
+            if k < self.guard:
+                continue
+
+            self.ref = False
+            # find bl/jal instructions
+            bb = pql.get_bb(cpurf)
+            for instruction in bb['instructions']:
+                for insn in self.md.disasm(
+                        struct.pack('I', int(instruction['raw'], 16)),
+                        int(instruction['address'], 16)):
+                    if insn.mnemonic not in self.callbacks:
+                        continue
+
+                    # find lr
+                    lr = self.callbacks[insn.mnemonic](insn)
+
+                    # the jump must be taken
+                    # unless it is ignored by qemu
+                    next_cpurf = pql.get_next_cpurf(cpurf)
+                    next_bb = pql.get_bb(next_cpurf)
+                    bb = pql.get_bb(cpurf)
+                    if int(next_bb['in'], 16) == lr:
+                        self.ret = True
+                        self.guard = next_cpurf['id']
+                        self.callstack.append(CallRecord(insn.address, lr, ignored=True, returned=True))
+                        break
+
+                    # otherwise find return bb in the future
+                    for cpurf2 in pql.get_next_cpurf_from(k):
+                        bb2 = pql.get_bb(cpurf2, pql.bbs)
+                        if int(bb2['in'], 16) == lr:
+                            self.ret = True
+                            self.guard = cpurf2['id']
+                            self.callstack.append(CallRecord(insn.address, lr, ignored=False, returned=True))
+                            break
+                    if not self.ret:
+                        break
+                if self.ret:
+                    break
+            if self.ret:
+                break
+
+
+class ARMCallStack(CallStackI):
+    def arm_bl(self, insn):
+        return insn.address + 4
+
+    def __init__(self):
+        super().__init__()
+        self.callbacks = {'bl': self.arm_bl}
+
+
+class MIPSCallStack(CallStackI):
+    def mips_jal(self, insn):
+        return insn.address + 8
+
+    def __init__(self):
+        super().__init__()
+        self.callbacks = {'jal': self.mips_jal}
 
 
 class CallStack(Analysis):
@@ -41,35 +91,14 @@ class CallStack(Analysis):
         assert isinstance(trace, LoadTrace)
         pql = trace.pql
 
-        inst_render = InstRender()
-        callstack = []
-        guard = 0
-        for k, cpurf in pql.cpurfs.items():
-            if k < guard:
-                continue
-            bb = pql.get_bb(cpurf, pql.bbs)
-            for instruction in bb['instructions']:
-                cs_instruction = inst_render.cs_inst_arm(instruction['raw'], int(instruction['address'], 16))
-                if cs_instruction.mnemonic == 'bl':
-                    next_cpurf = pql.get_next_cpurf(cpurf, pql.cpurfs)
-                    # lr = next_cpurf['register_files']['R14']  # str
-                    lr = cs_instruction.address + 4
-                    returned = False
-                    # if the jump is not taken
-                    next_bb = pql.get_bb(next_cpurf, pql.bbs)
-                    if int(next_bb['in'], 16) == int(bb['in'], 16) + 4 * bb['size']:
-                        continue
-                    for cpurf2 in pql.get_next_cpurf_from(k, pql.cpurfs):
-                        bb2 = pql.get_bb(cpurf2, pql.bbs)
-                        if int(bb2['in'], 16) == lr:
-                            returned = True
-                            guard = cpurf2['id']
-                            break
-                    if not returned:
-                        callstack.append(CallRecord(cs_instruction.address, lr, cpurf=cpurf, bb=bb))
-        for call_record in callstack:
-            self.info(firmware, call_record.__str__(), 1)
+        if firmware.get_architecture() == 'arm':
+            self.callstack = ARMCallStack()
+        elif firmware.get_architecture() == 'mips':
+            self.callstack = MIPSCallStack()
+        else:
+            self.context['input'] = 'cannot support this architecture'
 
+        self.callstack.construct(pql)
         return True
 
     def __init__(self, analysis_manager):
@@ -80,3 +109,5 @@ class CallStack(Analysis):
         self.critical = False
         self.required = ['check']
         self.type = 'diag'
+        #
+        self.callstack = None
