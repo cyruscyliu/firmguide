@@ -4,11 +4,26 @@ from capstone import *
 import struct
 
 
+def get_next_cpurf_from(pql, s):
+    for k, cpurf in pql.cpurfs.items():
+        if k <= s:
+            continue
+        yield cpurf
+
+
 class CallRecord(object):
-    def __init__(self, pc, ir, ignored=False, returned=False, cpurf=None, bb=None):
+    def __init__(self, pc, ir, ignored=False, returned=False, cpurf=None, bb=None, indent=0):
         self.where_to_be_called = pc
         self.where_to_return = ir
         self.ignored = ignored
+        self.returned = returned
+        self.cpurf = cpurf
+        self.indent = indent
+
+    def __str__(self):
+        return 'ln {:5} {}0x{:x} -> 0x{:x} returned {}'.format(
+            self.cpurf['ln'], self.indent * 4 * '-',
+            self.where_to_be_called, self.where_to_return, self.returned == 1)
 
 
 class CallStackI(object):
@@ -21,13 +36,15 @@ class CallStackI(object):
 
         # status
         self.ret = False
+        # levels
+        self.level = 0
 
     def construct(self, pql):
         for k, cpurf in pql.cpurfs.items():
             if k < self.guard:
                 continue
 
-            self.ref = False
+            self.ret = False
             # find bl/jal instructions
             bb = pql.get_bb(cpurf)
             for instruction in bb['instructions']:
@@ -44,27 +61,29 @@ class CallStackI(object):
                     # unless it is ignored by qemu
                     next_cpurf = pql.get_next_cpurf(cpurf)
                     next_bb = pql.get_bb(next_cpurf)
-                    bb = pql.get_bb(cpurf)
                     if int(next_bb['in'], 16) == lr:
                         self.ret = True
                         self.guard = next_cpurf['id']
-                        self.callstack.append(CallRecord(insn.address, lr, ignored=True, returned=True))
+                        self.callstack.append(CallRecord(
+                            insn.address, lr, cpurf=cpurf, ignored=True, returned=True, indent=self.level))
                         break
 
                     # otherwise find return bb in the future
-                    for cpurf2 in pql.get_next_cpurf_from(k):
-                        bb2 = pql.get_bb(cpurf2, pql.bbs)
+                    for cpurf2 in get_next_cpurf_from(pql, k):
+                        bb2 = pql.get_bb(cpurf2)
                         if int(bb2['in'], 16) == lr:
                             self.ret = True
                             self.guard = cpurf2['id']
-                            self.callstack.append(CallRecord(insn.address, lr, ignored=False, returned=True))
+                            self.callstack.append(CallRecord(
+                                insn.address, lr, cpurf=cpurf, ignored=False, returned=True, indent=self.level))
                             break
                     if not self.ret:
+                        self.callstack.append(CallRecord(
+                            insn.address, lr, cpurf=cpurf, ignored=False, returned=False, indent=self.level))
+                        self.level += 1
                         break
                 if self.ret:
                     break
-            if self.ret:
-                break
 
 
 class ARMCallStack(CallStackI):
@@ -74,6 +93,8 @@ class ARMCallStack(CallStackI):
     def __init__(self):
         super().__init__()
         self.callbacks = {'bl': self.arm_bl}
+        self.md = Cs(CS_ARCH_ARM, CS_MODE_ARM + CS_MODE_LITTLE_ENDIAN)
+        self.md.detail = True
 
 
 class MIPSCallStack(CallStackI):
@@ -83,6 +104,8 @@ class MIPSCallStack(CallStackI):
     def __init__(self):
         super().__init__()
         self.callbacks = {'jal': self.mips_jal}
+        self.md = Cs(CS_ARCH_MIPS, CS_MODE_MIPS32 + CS_MODE_LITTLE_ENDIAN)
+        self.md.detail = True
 
 
 class CallStack(Analysis):
@@ -99,6 +122,8 @@ class CallStack(Analysis):
             self.context['input'] = 'cannot support this architecture'
 
         self.callstack.construct(pql)
+        for c in self.callstack.callstack:
+            self.info(firmware, c.__str__(), 1)
         return True
 
     def __init__(self, analysis_manager):
