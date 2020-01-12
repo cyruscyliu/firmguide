@@ -6,6 +6,7 @@ import struct
 from pyqemulog import PQLI
 
 from analyses.analysis import Analysis
+from analyses.diag_callstack import CallStack, CallRecord
 from analyses.diag_tracing import LoadTrace
 
 from z3 import *
@@ -52,7 +53,7 @@ class InitValueI(object):
 
         # constraint solving
         self.model = None
-        self.cs_f = 'self.model = self.iv_solver(Not(And({})))\n'
+        self.cs_f = 'self.model = iv_solver(Not(And({})))\n'
 
     def _backward_slicing(self, cpurf, bb):
         order_reserved_instructions = []
@@ -66,24 +67,27 @@ class InitValueI(object):
                     self.callbacks['other'](insn)
             if self.save:
                 order_reserved_instructions.append(instruction)
+                self.save = False
             if self.stop:
-                self.start = int(cpurf['instructions'][0]['address'], 16)
+                self.start = int(bb['instructions'][0]['address'], 16)
                 break
         return order_reserved_instructions
 
     def update_cpurf(self, cpurf):
         self.cpu_state = {}
-        for k, v in cpurf['register_files']:
+        for k, v in cpurf['register_files'].items():
             self.cpu_state[k.lower()] = int(v, 16)
 
     def backward_slicing(self, pql, cpurf):
         # accept starting cpurf
         while cpurf:
             # 1) no need to analysis start bb
-            if int(cpurf['in'], 16) == self.start:
+            if int(pql.get_pc(cpurf), 16) == self.start:
+                cpurf = pql.get_last_cpurf(cpurf)
                 continue
             # 2) find the tainted instructions
             self.cease = False
+            self.stop = False
             bb = pql.get_bb(cpurf)
             # update cpurf before going on
             self.update_cpurf(cpurf)
@@ -103,7 +107,7 @@ class InitValueI(object):
             for insn in self.md.disasm(
                     struct.pack('I', int(instruction['raw'], 16)), int(instruction['address'], 16)):
                 if insn.mnemonic == 'bne':
-                    self.callbacks['bne'](insn, taken=instruction['taken'], se=True)
+                    self.callbacks['bne'](insn, se=True)
                 elif insn.mnemonic in self.callbacks:
                     self.callbacks[insn.mnemonic](insn)
                 else:
@@ -129,7 +133,7 @@ class InitValueI(object):
                 if symbol['reg_name'] == result.name():
                     # '[+] init value for 0x{:x} is'.format(
                     #   symbol['base'] + symbol['offset']), model[result]
-                    feedback[symbol['base'] + symbol['offset']] = self.model[result]
+                    feedback[symbol['base'] + symbol['offset']] = self.model[result].as_long()
         return feedback
 
 
@@ -148,13 +152,19 @@ class MIPSInitValue(InitValueI):
 
         self.cpu_state[insn.reg_name(rt)] = self.cpu_state[insn.reg_name(rs)] + imm
 
+        if rt in self.tainted or rs in self.tainted:
+            self.save = True
+
     def mips_lui(self, insn):
         # LUI rt, imm
         assert isinstance(insn, CsInsn)
 
         rt = insn.operands[0].reg
         imm = insn.operands[1].imm
-        self.cpu_state[insn.reg_name(rt)] = imm
+        self.cpu_state[insn.reg_name(rt)] = imm << 16
+
+        if rt in self.tainted:
+            self.save = True
 
     def mips_lw(self, insn):
         # LW rt, offset(base)
@@ -167,6 +177,8 @@ class MIPSInitValue(InitValueI):
         self.symbols[rt] = {'type': 'mmio', 'base': base, 'offset': offset, 'reg_name': insn.reg_name(rt)}
 
         self.cease = True
+        if rt in self.tainted:
+            self.save = True
 
     def mips_bne(self, insn, taken=False, se=False):
         # BNE rs, rt, offset
@@ -188,14 +200,14 @@ class MIPSInitValue(InitValueI):
                 rt = self.cpu_state[insn.reg_name(rt)]
             else:
                 rt = 'Int(\'{}\')'.format(insn.reg_name(rt))
-            if taken:
-                constraint = {'constraint': '{} != {}'.format(rs, rt), 'target': offset}
-            else:
-                constraint = {'constraint': '{} == {}'.format(rs, rt), 'target': offset}
+            constraint = {'constraint': '{} != {}'.format(rs, rt), 'target': offset}
             self.constraints.append(constraint)
 
         if offset == self.start:
             self.stop = True
+
+        if rt in self.tainted or rs in self.tainted:
+            self.save = True
 
         return offset
 
@@ -220,7 +232,6 @@ class MIPSInitValue(InitValueI):
         for reg in regs:
             if reg in self.tainted:
                 self.save = True
-        self.save = False
 
     def __init__(self):
         super().__init__()
@@ -239,9 +250,18 @@ class InitValue(Analysis):
         pql = trace.pql
         assert isinstance(pql, PQLI)
 
-        panic_cpurf = self.analysis_manager.get_analysis('panic').panic_cpurf
-        if panic_cpurf is None:
-            self.context['input'] = 'there is no panic'
+        callstack = self.analysis_manager.get_analysis('callstack')
+        assert isinstance(callstack, CallStack)
+        funcs = callstack.callstack
+
+        targets = []
+        for func in funcs:
+            assert isinstance(func, CallRecord)
+            # all will be not returned
+            targets.append(func.cpurf)
+
+        if not len(targets):
+            self.context['input'] = 'all functions return normally'
             return False
 
         if firmware.get_architecture() == 'arm':
@@ -252,10 +272,15 @@ class InitValue(Analysis):
             self.context['input'] = 'cannot support this architecture'
             return False
 
-        self.init_value.start = int(panic_cpurf['in'], 16)
-        self.init_value.backward_slicing(pql, panic_cpurf)
-        self.init_value.symbolic_execution()
-        self.feedback = self.init_value.constraint_solving()
+        for target in reversed(targets):
+            self.init_value.start = int(pql.get_pc(target), 16)
+            self.init_value.backward_slicing(pql, target)
+            self.init_value.symbolic_execution()
+            self.feedback = self.init_value.constraint_solving()
+            for address, value in self.feedback.items():
+                self.info(firmware, 'init value 0x{:x} for address 0x{:x}'.format(value, address), 1)
+            if self.feedback is not None:
+                break
         return True
 
     def __init__(self, analysis_manager):
@@ -264,7 +289,7 @@ class InitValue(Analysis):
         self.description = 'solve the init value for a certain register'
         self.context['hint'] = 'very difficult program analysis'
         self.critical = False
-        self.required = ['panic']
+        self.required = ['callstack']
         self.type = 'diag'
         #
         self.init_value = None

@@ -30,7 +30,7 @@ class DataAbort(Analysis):
                 dabts.append(cpurf)
 
         if not len(dabts):
-            self.context['input'] = 'no data abort, maybe there are some heavy loops?'
+            self.context['input'] = 'no data abort'
             return False
 
         for cpurf in dabts:
@@ -60,7 +60,7 @@ class DataAbort(Analysis):
                 dbes.append(cpurf)
 
         if not len(dbes):
-            self.context['input'] = 'no data abort, maybe there are some heavy loops?'
+            self.context['input'] = 'no data abort'
             return False
 
         for cpurf in dbes:
@@ -109,7 +109,7 @@ class DataAbort(Analysis):
         self.name = 'data_abort'
         self.description = 'find data abort info'
         self.context['hint'] = 'bad bad bad trace'
-        self.critical = True
+        self.critical = False
         self.required = ['init_value']
         self.type = 'diag'
         #

@@ -20,8 +20,8 @@ class Bamboos(Analysis):
 
     def run(self, firmware):
         dabt = self.analysis_manager.get_analysis('data_abort')
-        assert isinstance(dabt, DataAbort)
         libtooling = self.analysis_manager.get_analysis('kerberos')
+        init_value = self.analysis_manager.get_analysis('init_value')
 
         firmware.load_bamboo_devices()
         self.mapping = firmware.get_va_pa_mapping()
@@ -31,12 +31,17 @@ class Bamboos(Analysis):
             target_addresses = dabt.dead_addresses
         else:
             target_addresses = dabt.dead_addresses + libtooling.bamboo_address
+
         for target_address in target_addresses:
             mmio_base = self.convert_address(int(target_address, 16) & 0xFFFFFFF0)
             not_overlapping = firmware.insert_bamboo_devices(mmio_base, 0x10, value=0)
             if not not_overlapping:
                 self.info(firmware, 'check if there is overlapping for (0x{:x}, 0x{:x}'.format(
                     mmio_base, 0x10), 1)
+
+        for target_address, value in init_value.feedback.items():
+            mmio_base = self.convert_address(target_address & 0xFFFFFFF0)
+            not_overlapping = firmware.insert_bamboo_devices(mmio_base, 0x4, value=value)
 
         for bamboo_device in firmware.print_bamboo_devices():
             self.info(firmware, bamboo_device, 1)
