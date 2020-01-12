@@ -41,8 +41,8 @@ class CallStackI(object):
 
     def construct(self, pql):
         for k, cpurf in pql.cpurfs.items():
-            if k < self.guard:
-                continue
+            # if k < self.guard:
+            #     continue
 
             self.ret = False
             # find bl/jal instructions
@@ -63,24 +63,28 @@ class CallStackI(object):
                     next_bb = pql.get_bb(next_cpurf)
                     if int(next_bb['in'], 16) == lr:
                         self.ret = True
-                        self.guard = next_cpurf['id']
-                        self.callstack.append(CallRecord(
-                            insn.address, lr, cpurf=cpurf, ignored=True, returned=True, indent=self.level))
+                        # self.guard = next_cpurf['id']
+                        # self.callstack.append(CallRecord(
+                        #     insn.address, lr, cpurf=cpurf, ignored=True, returned=True, indent=self.level))
                         break
 
+                    # an optimize way, if it returns, its bb must exist
+                    if '{:x}'.format(lr) in pql.bbs:
+                        self.ret = True
+
                     # otherwise find return bb in the future
-                    for cpurf2 in get_next_cpurf_from(pql, k):
-                        bb2 = pql.get_bb(cpurf2)
-                        if int(bb2['in'], 16) == lr:
-                            self.ret = True
-                            self.guard = cpurf2['id']
-                            self.callstack.append(CallRecord(
-                                insn.address, lr, cpurf=cpurf, ignored=False, returned=True, indent=self.level))
-                            break
+                    # for cpurf2 in get_next_cpurf_from(pql, k):
+                    #     bb2 = pql.get_bb(cpurf2)
+                    #     if int(bb2['in'], 16) == lr:
+                    #         self.ret = True
+                    #         self.guard = cpurf2['id']
+                    #         self.callstack.append(CallRecord(
+                    #             insn.address, lr, cpurf=cpurf, ignored=False, returned=True, indent=self.level))
+                    #         break
                     if not self.ret:
                         self.callstack.append(CallRecord(
                             insn.address, lr, cpurf=cpurf, ignored=False, returned=False, indent=self.level))
-                        self.level += 1
+                        # self.level += 1
                         break
                 if self.ret:
                     break
@@ -115,15 +119,17 @@ class CallStack(Analysis):
         pql = trace.pql
 
         if firmware.get_architecture() == 'arm':
-            self.callstack = ARMCallStack()
+            callstack = ARMCallStack()
         elif firmware.get_architecture() == 'mips':
-            self.callstack = MIPSCallStack()
+            callstack = MIPSCallStack()
         else:
             self.context['input'] = 'cannot support this architecture'
+            return False
 
-        self.callstack.construct(pql)
-        for c in self.callstack.callstack:
+        callstack.construct(pql)
+        for c in callstack.callstack:
             self.info(firmware, c.__str__(), 1)
+        self.callstack = callstack.callstack
         return True
 
     def __init__(self, analysis_manager):

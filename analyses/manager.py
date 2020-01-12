@@ -4,6 +4,7 @@ from analyses.analysis import Analysis, AnalysisGroup
 from analyses.diag_bamboos import Bamboos
 from analyses.diag_callstack import CallStack
 from analyses.diag_dabt import DataAbort
+from analyses.diag_deadloop2 import DeadLoop2
 from analyses.diag_panic import Panic
 from analyses.inf_mfilter import Filter
 from analyses.inf_hardcode import HardCode
@@ -242,6 +243,7 @@ class AnalysesManager(object):
             self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
             self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
+            self.register_analysis(DeadLoop2(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(Panic(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)
