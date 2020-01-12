@@ -25,7 +25,7 @@ sudo -H python3.7 -m pip install --upgrade pip
 sudo rm /usr/bin/python && sudo ln -s /usr/bin/python3.7 /usr/bin/python
 
 # install required python packages
-sudo -H pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable capstone python-Levenshtein
+sudo -H pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable capstone python-Levenshtein z3-solver
 git clone https://github.com/cyruscyliu/pymake.git ~/pymake && cd ~/pymake && sudo -H pip3.7 install .
 git clone https://github.com/cyruscyliu/pyqemulog ~/pyqemulog && cd ~/pyqemulog && sudo -H pip3.7 install .
 
