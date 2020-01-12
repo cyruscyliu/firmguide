@@ -125,6 +125,8 @@ class InitValueI(object):
             css.append(cs)
 
         exec(self.cs_f.format(','.join(css)))
+        if self.model is None:
+            return {}
         assert isinstance(self.model, ModelRef)
 
         feedback = {}
