@@ -59,10 +59,11 @@ class CallStackI(object):
                     # find lr
                     lr = self.callbacks[insn.mnemonic](insn)
                     self.guard = lr
+                    self.skip = True
 
                     # an optimize way, if it returns, its bb must exist
-                    if '{:x}'.format(lr) in pql.bbs:
-                        self.skip = True
+                    if '{:08x}'.format(lr) in pql.bbs:
+                        self.skip = False
                         self.ret = True
 
                     if not self.ret:
