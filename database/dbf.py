@@ -2,6 +2,7 @@ import os
 
 from database.qemu import DatabaseQEMUDevices, DatabaseQEMUAPIS
 from database.openwrt import DatabaseOpenWRTMapping, DatabaseOpenWRTToH
+from database.support import SupportMachines
 
 
 def get_database(dbtype, **kwargs):
@@ -13,5 +14,7 @@ def get_database(dbtype, **kwargs):
         return DatabaseQEMUDevices()
     elif dbtype == 'qemu.apis':
         return DatabaseQEMUAPIS()
+    elif dbtype == 'support':
+        return SupportMachines()
     else:
         raise NotImplementedError('the dbtype {} is not support yet'.format(dbtype))

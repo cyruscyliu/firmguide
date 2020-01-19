@@ -171,9 +171,13 @@ def setup_single_analysis(args, firmware):
 
     empty = False
     # enforce no empty profile which will crash thw whole system
-    if os.path.exists(path_to_profile) and firmware.is_empty_profile():
-        os.system('rm {}'.format(path_to_profile))
+    if not os.path.exists(path_to_profile) or firmware.is_empty_profile():
+        os.system('rm -f {}'.format(path_to_profile))
         empty = True
+
+    if empty and args.firmware is None:
+        print('please use full command because of missing profile')
+        exit(-1)
 
     if not empty:
         # load the profile

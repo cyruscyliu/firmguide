@@ -1,0 +1,89 @@
+support:
+  ar7:
+    device_tree: False
+    uart: serial8250
+  cavium-octeon:
+    device_tree: True
+    uart: serial8250
+  cobalt:
+    device_tree: False
+    uart: serial8250
+  emma:
+    device_tree: False
+    uart: serial8250
+  jazz:
+    device_tree: False
+    uart: serial8250
+  jz4740:
+    device_tree: False
+    uart: serial8250
+  lantiq:
+    device_tree: True
+    uart: serial8250
+  loongson1:
+    device_tree: False
+    uart: serial8250
+  mti-malta:
+    device_tree: False
+    uart: serial8250
+  mti-sead3:
+    device_tree: False
+    uart: serial8250
+  netlogic:
+    device_tree: True
+    uart: serial8250
+  ralink:
+    device_tree: True
+    uart: serial8250
+  rb532:
+    device_tree: False
+    uart: serial8250
+  sgi-ip32:
+    device_tree: False
+    uart: serial8250
+others:
+  alchemy:
+    device_tree: False
+    uart: serial8250
+  ath79:
+    device_tree: False
+    uart: serial8250
+  bcm47xx:
+    device_tree: False
+    uart: serial8250
+  bcm63xx:
+    device_tree: False
+    uart: serial8250
+  lasat:
+    device_tree: False
+    uart: serial8250
+  loongson:
+    device_tree: False
+    uart: serial8250
+  paravirt:
+    device_tree: False
+    uart: kvm_virtio
+  pmcs-msp71xx:
+    device_tree: False
+    uart: serial8250
+  pnx833x:
+    device_tree: False
+    uart: pnx8xxx-uart
+  sni:
+    device_tree: False
+    uart: serial8250
+  sgi-ip22:
+    device_tree: False
+    uart: ARCS console
+  sgi-ip27:
+    device_tree: False
+    uart: serial8250
+  sibyte:
+    device_tree: False
+    uart: cfe
+  txx9:
+    device_tree: False
+    uart: txx9
+  vr41xx:
+    device_tree: False
+    uart: vr41xx console

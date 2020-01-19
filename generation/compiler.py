@@ -211,7 +211,7 @@ class CompilerToQEMUMachine(object):
     def make(self):
         # compile first
         os.system(
-            'cd {}/qemu-4.0.0 && make CFLAGS=-Wmaybe-uninitialized -j4 && cd -'.format(self.firmware.get_target_dir()))
+            'cd {}/qemu-4.0.0 && make CFLAGS=-Wmaybe-uninitialized -j4 && cd ~-'.format(self.firmware.get_target_dir()))
         # construct the command
         if self.firmware.get_architecture() == 'arm':
             running_command = '{}/qemu-4.0.0/arm-softmmu/qemu-system-arm'.format(self.firmware.get_target_dir())

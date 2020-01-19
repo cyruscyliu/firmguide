@@ -4,6 +4,9 @@ from analyses.analysis import Analysis, AnalysisGroup
 from analyses.diag_bamboos import Bamboos
 from analyses.diag_callstack import CallStack
 from analyses.diag_dabt import DataAbort
+from analyses.diag_deadloop2 import DeadLoop2
+from analyses.diag_panic import Panic
+from analyses.inf_mfilter import Filter
 from analyses.inf_hardcode import HardCode
 from analyses.inf_libtooling import LibTooling
 from analyses.inf_loaddr import LoadAddr
@@ -18,7 +21,7 @@ from analyses.diag_init_value import InitValue
 from analyses.inf_device_tree import DeviceTree
 from analyses.inf_dot_config import DotConfig
 from analyses.inf_extraction import Extraction
-from analyses.inf_format import Format
+from analyses.inf_binwalk import Binwalk
 from analyses.inf_kernel import Kernel
 from analyses.inf_openwrt import OpenWRTRevision, OpenWRTURL, OpenWRTToH
 from analyses.inf_srcode import SRCode
@@ -202,7 +205,7 @@ class AnalysesManager(object):
         self.static_analysis = static_analysis
 
         # format <- extraction
-        self.register_analysis(Format(self), analyses_tree=static_analysis)
+        self.register_analysis(Binwalk(self), analyses_tree=static_analysis)
         self.register_analysis(Extraction(self), analyses_tree=static_analysis)
         # extraction <- kernel
         self.register_analysis(Kernel(self), analyses_tree=static_analysis)
@@ -220,6 +223,7 @@ class AnalysesManager(object):
         # srcode <- .config
         self.register_analysis(SRCode(self), analyses_tree=static_analysis)
         self.register_analysis(DotConfig(self), analyses_tree=static_analysis)
+        self.register_analysis(Filter(self), analyses_tree=static_analysis)
         # srcode <- libtooling
         self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
         self.register_analysis(HardCode(self), analyses_tree=static_analysis)
@@ -238,6 +242,8 @@ class AnalysesManager(object):
         if not check_only:
             self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
             self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
-            # self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
+            self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
+            self.register_analysis(DeadLoop2(self), analyses_tree=dynamic_analysis)
             self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
+            # self.register_analysis(Panic(self), analyses_tree=dynamic_analysis)
             self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)

@@ -12,10 +12,13 @@ class RAMDefault(Analysis):
             rs = 32
         elif arch == 'mips':
             rs = 128
+            firmware.set_va_pa_mapping('0x80000000', '0x00000000', '0x20000000')
+            firmware.set_va_pa_mapping('0xa0000000', '0x00000000', '0x20000000')
+            self.info(firmware, 'set mips va/pa mapping manually (kseg0/1)', 1)
         else:
             self.context['input'] = 'do not support new arch {}'.format(arch)
-
             return False
+
         firmware.set_ram_size('{} * MiB'.format(rs))
         firmware.set_ram_base('0x0')
         self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, rs), 1)

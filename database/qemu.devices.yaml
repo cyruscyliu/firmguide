@@ -1,5 +1,4 @@
 cpu:
-  # arm:
   arm,arm1026:
     - arm1026
   arm,arm1136:
@@ -36,6 +35,16 @@ cpu:
     - pxa270-c5
   intel,sa1100:
     - sa1100
+  mips,mips24Kc:
+    - 24Kc
+  mips,mips24KEc:
+    - 24KEc
+  mips,mips4KEc:
+    - 4KEc
+  mips,mips74Kc:
+    - 74Kf
+  mips,mips1004Kc:
+    - 74Kf
 cpu_private:
   "arm11mpcore":
     "arm11mpcore-priv"
@@ -43,6 +52,12 @@ cpu_private:
     "arm-a9mp-priv"
   "cortex-a15":
     "arm-a15mp-priv"
+  "24Kc":
+    "mips-default"
+  "24KEc":
+    "mips-default"
+  "4KEc":
+    "mips-default"
   "74Kf":
     "mips-default"
 ic:
@@ -100,13 +115,11 @@ uart:
   - "A bus for connecting virtio serial and console ports"
   - "Xilinx uartlite"
 flash:
-  #  nor:
-  - "pflash_cfi01"
-  - "pflash_cfi02"
-  - "m25p80"
-  #  nand:
-  - "tc58128"
-  - "onenand"
-  - "km29u128at"
-  - "kmf2808u0a"
-
+  cfi-flash:
+    pflash_cfi01 # pflash_cfi02
+# - m25p80
+# - nand
+# - "tc58128"
+# - "onenand"
+# - "km29u128at"
+# - "kmf2808u0a"

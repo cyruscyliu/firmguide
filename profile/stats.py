@@ -46,6 +46,14 @@ def statistics(firmware):
                     value.append(status_wrapper(False))
         values.append(value)
 
+    # cpu_pp is true, then all intc is true
+    for value in values:
+        if value[headers.index('cpu_pp/name')] == status_wrapper(1):
+            value[headers.index('interrupt_controller/mmio_base')] = status_wrapper(1)
+            value[headers.index('interrupt_controller/mmio_size')] = status_wrapper(1)
+            value[headers.index('interrupt_controller/name')] = status_wrapper(1)
+            value[headers.index('interrupt_controller/registers')] = status_wrapper(1)
+
     path_to_stats = os.path.join(os.getcwd(), 'log', 'stats.csv')
     with open(path_to_stats, 'w') as f:
         f.write('{}\n'.format(','.join(headers)))
