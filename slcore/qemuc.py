@@ -18,30 +18,12 @@ finite state machine
       |---<----RUN----<----|
       |---<-- TRACE---<----|
 """
-from core.externalc import ExternalPackage
-from settings import *
-
 import os
 
 START, PATCH, RECOVER, COMPILE, RUN, TRACE = 0, 1, 2, 3, 4, 5
 
 
-class QEMUController(ExternalPackage):
-    def install(self):
-        os.system(
-            'wget -nc {0} -O {1}/{2} || true &&'
-            'tar --skip-old-files -Jxf {1}/{2} -C {1} &&'
-            'cp -r {3}/* {1}/{4}'.format(
-                QEMU_PACKAGE_URL, WORKING_DIR, QEMU_PACKAGE_NAME,
-                QEMU_PATCH_DIR, QEMU_DIR_NAME))
-
-    def clean(self):
-        os.system('rm -rf {}/{}'.format(WORKING_DIR, QEMU_DIR_NAME))
-
-    def clear(self):
-        os.system('rm -rf {0}/{1} {0}/{2}'.format(
-            WORKING_DIR, QEMU_DIR_NAME, QEMU_PACKAGE_NAME))
-
+class QEMUController(object):
     def __init__(self):
         self.state = START
 

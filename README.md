@@ -41,11 +41,22 @@ sudo apt-get install -y gawk
 
 ```shell script
 # ubuntu 16.04
-git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander
-mkdir log && mkdir build && sudo make clean && make
+git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && mkdir log && mkdir ../build
+
+# instal binwalk
+wget -nc https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz -O ~/build/v2.1.1.tar.gz || true && \
+tar --skip-old-files -zxf ~/build/v2.1.1.tar.gz -C ~/build && \
+cp -r patches/binwalk/* ~/build/binwalk-2.1.1/src/ && \
+cd ~/build/binwalk-2.1.1 && sudo python3.7 setup.py -q install && cd ~-
+
+# install qemu
+wget -nc https://download.qemu.org/qemu-4.0.0.tar.xz -O ~/build/qemu-4.0.0.tar.xz || true && \
+tar --skip-old-files -Jxf ~/build/qemu-4.0.0.tar.xz -C ~/build && \
+cp -r patches/qemu/* ~/build/qemu-4.0.0/ && \
+cd ~/build/qemu-4.0.0 && ./configure --target-list=arm-softmmu,mipsel-softmmu,mips-softmmu && make -j4 && cd ~-
 ```
 
-## Usage
+##Usage
 
 what you need to provide
 + the path to firmware [required]
