@@ -18,27 +18,71 @@ finite state machine
       |---<----RUN----<----|
       |---<-- TRACE---<----|
 """
-import os
+from settings import *
+from supervisor.logging_setup import logger_inf
 
-START, PATCH, RECOVER, COMPILE, RUN, TRACE = 0, 1, 2, 3, 4, 5
+import os
+import qmp
+import subprocess
+
 
 
 class QEMUController(object):
     def __init__(self):
-        self.state = START
+        self.modified = []
 
     def patch(self, *args, **kwargs):
-        pass
+        """
+        patch(abs/p/t/src, abs/p/t/dst, bak=True) or
+        patch(abs/p/t/new, abs/p/t/old, bak=True)
+        """
+        src, dst = args
+        os.system('cp {}{{,.bak}}'.format(dst))
+        os.system('cp {} {}'.format(src, dst))
+        self.modified.append(dst)
 
     def recover(self, *args, **kwargs):
-        pass
+        """
+        recover()
+        """
+        for dst in self.modified:
+            os.system('mv {}{{.bak,}}'.format(dst))
 
     def compile(self, *args, **kwargs):
-        pass
+        """
+        compile(cpu=4)
+        """
+        cpu = kwargs.pop('cpu', 4)
+        os.system('cd {}/{} && make -j{} && cd ~-'.format(
+            WORKING_DIR, QEMU_DIR_NAME, cpu))
 
     def run(self, *args, **kwargs):
-        pass
+        """
+        run(command) w/ abs/p/t/qemu
+        """
+        for command in *args:
+            os.system('{}'.format(command))
 
     def trace(self, *args, **kwargs):
-        pass
+        """
+        trace(command, uuid=0, arch='arm', endian='l')
+        """
+        uuid = kwargs.pop('uuid', 'unknown')
+        arch = kwargs.pop('arch', 'arm')
+        endian = kwargs.pop('endian', 'l')
+        trace_to = '{}-{}-{}.trace'.format(uuid, arch, endian)
+        trace_flags = '-d in_asm,int,cpu -D {}'.format(trace_to)
+
+        qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
+
+        for command in *args:
+            try:
+                logger_info(uuid, 'tracing', 'qemudebug', full_command, 0)
+                subprocess.run(full_command, timeout=20, shell=True)
+            except subprocess.TimeoutExpired:
+                qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
+                qemu.connect()
+                qemu.cmd('quit')
+                qemu.close()
+                logger_info(firmware.get_uuid(), 'tracing', 'qemudebug', 'done', 0)
 

@@ -41,7 +41,7 @@ sudo apt-get install -y gawk
 
 ```shell script
 # ubuntu 16.04
-git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && mkdir log && mkdir ../build
+git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && mkdir log && mkdir ~/build
 
 # instal binwalk
 wget -nc https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz -O ~/build/v2.1.1.tar.gz || true && \

@@ -20,11 +20,3 @@ QEMU_PACKAGE_URL = 'https://download.qemu.org/qemu-4.0.0.tar.xz'
 QEMU_PACKAGE_NAME = 'qemu-4.0.0.tar.xz'
 QEMU_DIR_NAME = 'qemu-4.0.0'
 QEMU_GLOBAL = False
-
-# BINWALK
-BINWALK_PATCH_DIR = 'patches/binwalk/files'
-BINWALK_PACKAGE_URL = 'https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz'
-BINWALK_PACKAGE_NAME = 'v2.1.1.tar.gz'
-BINWALK_DIR_NAME = 'binwalk-2.1.1'
-BINWALK_GLOBAL = True
-
