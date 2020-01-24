@@ -1,0 +1,123 @@
+basics:
+  mode: stats
+  level: basics
+  expect:
+    - architecture
+    - board_id
+    - brand
+    - endian
+    - machine_description
+    - machine_name
+    - name
+    - path
+    - uuid
+  critical:
+    architecture:
+      conditions:
+        alywas: True
+    board_id:
+      conditions:
+        alywas: False
+        basics/architecture: arm
+    brand:
+      conditions:
+        alywas: True
+    endian:
+      conditions:
+        alywas: True
+    name:
+      conditions:
+        alywas: True
+    path:
+      conditions:
+        alywas: True
+    uuid:
+      conditions:
+        alywas: True
+brand:
+  mode: stats
+  level: brand
+  expect:
+    - revision
+    - subtarget
+    - target
+    - toh
+components:
+  mode: stats
+  level: components
+  expect:
+    - format
+    - path_to_dot_config
+    - path_to_image
+    - path_to_kernel
+    - path_to_llvm_bitcode
+    - path_to_source_code
+    - path_to_uimage
+    - path_to_vmlinux
+    - path_to_makeout
+    - path_to_gcc
+kernel:
+  mode: stats
+  level: kernel
+  expect:
+    - kernel_created_time
+    - kernel_entry_point
+    - kernel_load_address
+    - kernel_version
+cpu:
+  mode: stats
+  level: cpu
+  expect:
+    - model
+cpu_pp:
+  mode: stats
+  level: cpu_pp
+  expect:
+    - name
+    - mmio_base
+ram:
+  mode: stats
+  level: ram
+  expect:
+    - base
+    - priority
+    - size
+uart:
+  mode: stats
+  level: uart/uart@0
+  expect:
+    - baud_rate
+    - irq
+    - mmio_base
+    - mmio_size
+    - name
+    - reg_shift
+flash:
+  mode: stats
+  level: flash
+  expect:
+    - base
+    - section_size
+    - size
+    - type
+mapping:
+  mode: count
+  level: mapping
+interrupt_controller:
+  mode: stats
+  level: interrupt_controller
+  expect:
+    - mmio_base
+    - mmio_size
+    - name
+    - registers
+    - timer_irq
+bamboo:
+  mode: count
+  level: bamboo
+runtime:
+  mode: value
+  level: runtime
+  expect:
+    - iteration
+    - user_mode

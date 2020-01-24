@@ -3,7 +3,7 @@ import yaml
 import shutil
 import tempfile
 
-from supervisor.logging_setup import logger_info
+from slcore.logger import logger_info
 from settings import *
 
 
@@ -88,6 +88,9 @@ def finish(firmware, analysis):
 def setup_target_dir(uuid):
     target_dir = os.path.join(WORKING_DIR, uuid)
     os.makedirs(target_dir)
+
+def migrate(uuid, path_to_profile):
+    pass
 
 
 def setup_working_directory(args, firmware):
