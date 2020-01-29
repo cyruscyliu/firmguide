@@ -3,7 +3,7 @@ import os
 
 import yaml
 
-from database.db import Database
+from slcore.database.db import Database
 
 
 class DatabaseOpenWRTMapping(Database):

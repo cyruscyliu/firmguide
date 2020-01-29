@@ -2,7 +2,7 @@ import os
 import yaml
 
 from analyses.analysis import Analysis
-from database.dbf import get_database
+from slcore.database.dbf import get_database
 
 
 class MIPSCPU(Analysis):

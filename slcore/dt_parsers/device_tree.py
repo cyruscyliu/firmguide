@@ -2,11 +2,9 @@ import os
 import fdt
 
 from analyses.analysis import Analysis
-from slcore.database.dbf import get_database
+from analyses.inf_strings import machine_name_wrapper
+from database.dbf import get_database
 
-
-def machine_name_wrapper(name):
-    return '_'.join(name.split()).lower().replace('-', '_')
 
 class DeviceTree(Analysis):
     def get_path_to_uart(self):
@@ -328,4 +326,3 @@ class DeviceTree(Analysis):
         self.global_address_cells = 1
         self.global_size_cells = 1
         self.used_compatibles = []
-

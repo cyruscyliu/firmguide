@@ -18,14 +18,13 @@ from analyses.diag_check import Checking
 from analyses.diag_tracing import DoTracing, LoadTrace
 from analyses.diag_init_value import InitValue
 
+from analyses.sa_binary.inf_kernel import Kernel
+from analyses.sa_binary.inf_openwrt import OpenWRT
+from analyses.sa_binary.inf_strings import Strings
+
 from analyses.inf_device_tree import DeviceTree
 from analyses.inf_dot_config import DotConfig
-from analyses.inf_extraction import Extraction
-from analyses.inf_binwalk import Binwalk
-from analyses.inf_kernel import Kernel
-from analyses.inf_openwrt import OpenWRTRevision, OpenWRTURL, OpenWRTToH
 from analyses.inf_srcode import SRCode
-from analyses.inf_strings import Strings
 from analyses.inf_ram import RAMDefault
 
 
@@ -200,37 +199,30 @@ class AnalysesManager(object):
     def run_dynamic_analyses(self):
         return self.run(target_analyses_tree=self.dynamic_analysis)
 
-    def register_static_analysis(self):
+    def register_static_analysis(self, binary=True):
         static_analysis = self.new_analyses_tree()
         self.static_analysis = static_analysis
 
-        # format <- extraction
-        self.register_analysis(Binwalk(self), analyses_tree=static_analysis)
-        self.register_analysis(Extraction(self), analyses_tree=static_analysis)
-        # extraction <- kernel
-        self.register_analysis(Kernel(self), analyses_tree=static_analysis)
-        # extraction <- dt
-        self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)
-        # extraction, revision <- strings
-        self.register_analysis(Strings(self), analyses_tree=static_analysis)
-        # kernel <- revision
-        self.register_analysis(OpenWRTRevision(self), analyses_tree=static_analysis)
-        # revision, url <- toh
-        self.register_analysis(OpenWRTURL(self), analyses_tree=static_analysis)
-        self.register_analysis(OpenWRTToH(self), analyses_tree=static_analysis)
-        # toh <- ram by default
-        self.register_analysis(RAMDefault(self), analyses_tree=static_analysis)
-        # srcode <- .config
-        self.register_analysis(SRCode(self), analyses_tree=static_analysis)
-        self.register_analysis(DotConfig(self), analyses_tree=static_analysis)
-        self.register_analysis(Filter(self), analyses_tree=static_analysis)
-        # srcode <- libtooling
-        self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
-        self.register_analysis(HardCode(self), analyses_tree=static_analysis)
-        # srcode <- mips cpu
-        self.register_analysis(MIPSCPU(self), analyses_tree=static_analysis)
-        # srcode <- mips loading addr
-        self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
+        if binary:
+            self.register_analysis(Kernel(self), analyses_tree=static_analysis)
+            self.register_analysis(Strings(self), analyses_tree=static_analysis)
+            self.register_analysis(OpenWRT(self), analyses_tree=static_analysis)
+        else:
+            # self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)
+            # toh <- ram by default
+            # self.register_analysis(RAMDefault(self), analyses_tree=static_analysis)
+            # srcode <- .config
+            # self.register_analysis(SRCode(self), analyses_tree=static_analysis)
+            # self.register_analysis(DotConfig(self), analyses_tree=static_analysis)
+            # self.register_analysis(Filter(self), analyses_tree=static_analysis)
+            # srcode <- libtooling
+            # self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
+            # self.register_analysis(HardCode(self), analyses_tree=static_analysis)
+            # srcode <- mips cpu
+            # self.register_analysis(MIPSCPU(self), analyses_tree=static_analysis)
+            # srcode <- mips loading addr
+            # self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
+            pass
 
     def register_dynamic_analysis(self, tracing=True, check_only=False):
         dynamic_analysis = self.new_analyses_tree()

@@ -1,7 +1,7 @@
 import abc
 
 
-class Database(metaclass=abc.ABCMeta):
+class Database(object):
     @abc.abstractmethod
     def select(self, *args, **kwargs):
         pass

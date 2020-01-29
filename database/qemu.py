@@ -6,7 +6,7 @@ import yaml
 
 from fuzzywuzzy import process
 
-from database.db import Database
+from slcore.database.db import Database
 
 
 class DatabaseQEMUAPIS(Database):

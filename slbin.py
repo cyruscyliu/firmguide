@@ -1,56 +1,55 @@
 #!/usr/bin/python3.7
 
+import os
 import argparse
 import logging.config
 
-# components
-from slcore.compositor import unpack
-from slcore.database.machines import find_machine
-from slcore.parser import parse
-
-# uuid
-from slcore.environment import setup_target_dir, migrate
-
-# firmware
-from slcore.scheduler import run_single_analysis
-
-from slcore.logger import setup_logging, logger_info
+from logger import setup_logging, logger_info
+from slcore.environment import setup_target_dir # uuid
+from slcore.compositor import unpack # components
+from slcore.machines import find_machine # components
+from slcore.environment import migrate, snapshot # components + firmware
+from slcore.scheduler import run_static_analysis, run_dynamic_analysis # firmware
 
 def run(args):
-    # mkdir working_dir/uuid
-    setup_target_dir(args.uuid)
+    # 1. setup a working dir
+    target_dir = setup_target_dir(args.uuid)
 
-    # find prepared machine (abs/p/t/profile)
-    components = unpack(args.firmware, arch=args.architecture, endian=args.endianness)
+    # 2. find a prepared machine
+    components = unpack(args.firmware, uuid=args.uuid, arch=args.architecture, endian=args.endianness, target_dir=target_dir)
     machine = find_machine(components)
 
-    if machine is not None:
-        # run and diagnosis
-        firmware = migrate(uuid, machine)
-        run_single_analysis(firmware)
-        return
+    # 3. migrate the machine to the working dir
+    firmware = migrate(components, machine)
 
-    info = parse(components)
-    logger_info(args.uuid, 'slbin', args.firmware, 'no prepared machines avaiable', 0)
-    logger_info(args.uuid, 'slbin', args.firmware, info, 0)
-    return
+    # 4. analyze this new firmware or lauch it
+    status = run_static_analysis(firmware)
+    # if machine is None:
+        # status = run_static_analysis(firmware)
+    # else:
+        # status = run_dynamic_analysis(firmware)
 
+    # 5. take snapshots to save results
+    return snapshot(firmware)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
-    # general
-    parser.add_argument('-r', '--rerun', action='store_true', default=False,
-                        help='ingore save and restore and rerun all analysis')
     parser.add_argument('-d', '--debug', action='store_true', help='show verbose logs')
 
     # analysis
     group = parser.add_argument_group('analysis')
+    group.add_argument('-a', '--architecture', choices=['arm32', 'arm64', 'mips'], required=True)
+    group.add_argument('-b', '--brand', choices=['openwrt'], required=False)
+    group.add_argument('-e', '--endianness', choices=['b', 'l'], required=True)
+    group.add_argument('-f', '--firmware', metavar='path/to/firmware', required=True)
     group.add_argument('-u', '--uuid', type=str, required=True)
-    group.add_argument('-f', '--firmware', type=str, metavar='path/to/firmware', required=True)
-    group.add_argument('-a', '--architecture', type=str, choices=['arm', 'mips'], required=True)
-    group.add_argument('-e', '--endianness', type=str, choices=['b', 'l'], required=True)
-    group.add_argument('-q', '--quick', action='store_true', default=False, help='skip analysis')
+
+    # diagnosis
+    group = parser.add_argument_group('diagnosis')
+    group.add_argument('-t', '--trace', metavar='path/to/uuid-arch-endian.trace')
+    group.add_argument('-tf', '--trace_format', choices=['qemudebug'], default='qemudebug')
+    group.add_argument('-m', '--max', type=int, help='max times of iteration', default=20)
 
     args = parser.parse_args()
     if args.debug:
@@ -58,7 +57,5 @@ if __name__ == '__main__':
     else:
         setup_logging(default_level=logging.INFO)
 
-    if args.uuid is None:
-        parser.print_help()
-    else:
-        run(args)
+    run(args)
+

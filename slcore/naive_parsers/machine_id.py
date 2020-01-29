@@ -2,7 +2,7 @@ from slcore.parser import get_candidates, get_all_strings
 
 import os
 
-def find_machine_id(path_to_kenrel):
+def find_machine_id(path_to_kernel):
     candidates = get_candidates(path_to_kernel)
     strings = get_all_strings(candidates)
 
@@ -2932,6 +2932,6 @@ def find_machine_id(path_to_kenrel):
     target_machine_id = []
     for k, vote in votes.items():
         if vote >= 1:
-            target_machine_id.append((hex(int(k)), candidates[k]))
+            target_machine_id.append((hex(int(k)), machine_ids[k]))
 
-    return target_machine_id
+    return [i[0] for i in target_machine_id]

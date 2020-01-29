@@ -3,16 +3,18 @@ import yaml
 import shutil
 import tempfile
 
-from slcore.logger import logger_info
+from logger import logger_info, logger_debug
 from settings import *
+from profile.firmwaref import get_firmware
 
 
-def check_and_restore(firmware):
+def restore_analysis(firmware):
     # handle analysis
     analysis = os.path.join(firmware.target_dir, 'analysis')
     if not os.path.exists(analysis) or firmware.rerun:
         with open(analysis, 'w') as f:
             f.close()
+
     with open(analysis, 'r') as f:
         analysis_progress = yaml.safe_load(f)
         if analysis_progress is None:
@@ -20,48 +22,15 @@ def check_and_restore(firmware):
         else:
             firmware.analysis_progress = analysis_progress
 
-    # copy the firmware to working path
-    if not os.path.exists(firmware.working_path):
-        shutil.copy(
-            os.path.join(os.getcwd(), firmware.get_path()),
-            os.path.join(firmware.working_path)
-        )
-
-    # build the QEMU in working directory, skip tiny firmware
-    if not os.path.exists(os.path.join(firmware.target_dir, 'qemu-4.0.0')):
-        print('to avoid QEMU pollution, build the QEMU in the working directory {}'.format(firmware.target_dir))
-        shutil.copy(
-            os.path.join('build', 'qemu-4.0.0-patched.tar.xz'),
-            os.path.join(firmware.target_dir, 'qemu-4.0.0-patched.tar.xz')
-        )
-        os.system('tar --skip-old-files -Jxf {0}/qemu-4.0.0-patched.tar.xz -C {0}'.format(firmware.target_dir))
-
-        architecture = firmware.get_architecture()
-        endian = firmware.get_endian()
-        if architecture == 'arm':
-            target_list = 'arm-softmmu'  # support both b&l
-        elif architecture == 'mips':
-            if endian == 'l':
-                target_list = 'mipsel-softmmu'  # l
-            else:
-                target_list = 'mips-softmmu'  # b by default
-        else:
-            target_list = 'arm-softmmu,mipsel-softmmu,mips-softmmu'
-        os.system('cd {0}/qemu-4.0.0 && ./configure --target-list={1} >/dev/null 2>&1'.format(
-            firmware.target_dir, target_list))
-        os.system('cd {0}/qemu-4.0.0 && make -j4'.format(firmware.target_dir))
-
-    # logging
-    logger_info(firmware.get_uuid(), 'save_and_restore', 'begin', firmware.brief(), 0)
+    logger_info(firmware.get_uuid(), 'environment', 'restore_analysis', firmware.brief(), 0)
 
 
 def save_analysis(firmware):
     analysis = os.path.join(firmware.target_dir, 'analysis')
     with open(analysis, 'w') as f:
         yaml.safe_dump(firmware.analysis_progress, f)
-    firmware.save_profile(working_dir=firmware.target_dir)
-    firmware.stats()
-    logger_info(firmware.get_uuid(), 'save_and_restore', 'save', firmware.summary(), 0)
+
+    logger_info(firmware.get_uuid(), 'environment', 'save_analysis', firmware.summary(), 0)
 
 
 def finished(firmware, analysis):
@@ -87,10 +56,55 @@ def finish(firmware, analysis):
 
 def setup_target_dir(uuid):
     target_dir = os.path.join(WORKING_DIR, uuid)
-    os.makedirs(target_dir)
+    os.makedirs(target_dir, exist_ok=True)
+    logger_info(uuid, 'environment', 'tdir', 'process in {}'.format(target_dir), 1)
+    return target_dir
 
-def migrate(uuid, path_to_profile):
-    pass
+def migrate(components, path_to_profile, quick=False, trace_format='qemudebug', max_=20):
+    firmware = get_firmware('simple')
+
+    # two basics
+    firmware.uuid = components.uuid
+    firmware.target_dir = setup_target_dir(firmware.uuid)
+
+    # load profile from path_to_profile
+    if path_to_profile:
+        firmware.set_profile(path_to_profile=path_to_profile)
+        # change save-to-path to avoid modifing our well-defined profile
+        firmware.path_to_profile = os.path.join(firmware.get_target_dir(), 'profile.yaml')
+        logger_info(firmware.get_uuid(), 'environment', 'migrate', 'migrate from {} to {}'.format(path_to_profile, firmware.get_target_dir()), 1)
+    else:
+        firmware.set_profile(target_dir=firmware.get_target_dir(), first=True)
+        logger_info(firmware.get_uuid(), 'environment', 'migrate', 'create new profile {}'.format(path_to_profile), 1)
+
+    firmware.set_uuid(components.uuid)
+    firmware.set_name(components.get_image_name())
+    firmware.set_path(components.get_path())
+    firmware.set_working_path(components.get_path())
+    firmware.set_components(components)
+    firmware.set_architecture(components.arch)
+    firmware.set_endian(components.endian)
+
+    firmware.trace_format = trace_format
+    firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
+        firmware.get_uuid(), firmware.get_architecture(), firmware.get_endian())
+    firmware.do_not_diagnosis = quick
+    firmware.max_iteration = max_
+
+    # copy the firmware to working path
+    if not os.path.exists(firmware.working_path):
+        shutil.copy(
+            os.path.join(os.getcwd(), firmware.get_path()),
+            os.path.join(firmware.working_path))
+    return firmware
+
+
+def snapshot(firmware):
+    firmware.save_profile(working_dir=firmware.get_target_dir())
+    logger_info(firmware.get_uuid(), 'environment', 'snapshot', 'profile at {}'.format(firmware.path_to_profile), 1)
+    firmware.stats()
+    logger_info(firmware.get_uuid(), 'environment', 'snapshot', 'statistics at {}'.format(firmware.path_to_summary), 1)
+    return True
 
 
 def setup_working_directory(args, firmware):

@@ -1,8 +1,8 @@
 import os
 
-from database.qemu import DatabaseQEMUDevices, DatabaseQEMUAPIS
-from database.openwrt import DatabaseOpenWRTMapping, DatabaseOpenWRTToH
-from database.support import SupportMachines
+from slcore.database.qemu import DatabaseQEMUDevices, DatabaseQEMUAPIS
+from slcore.database.openwrt import DatabaseOpenWRTMapping, DatabaseOpenWRTToH
+from slcore.database.support import SupportMachines
 
 
 def get_database(dbtype, **kwargs):

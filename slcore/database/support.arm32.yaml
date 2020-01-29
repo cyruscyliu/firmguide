@@ -88,10 +88,14 @@ support:
     uart: serial8250
   mach-orion5x:
     device_tree: False
+    machine_ids: ["0x661", "0x709"]
     uart: serial8250
+    profile: "examples/arm/mach-orion5x/profile.yaml"
   mach-oxnas:
     device_tree: True
+    compatible: ["plxtech,nas7820", "plxtech,nas782x"]
     uart: serial8250
+    profile: "examples/arm/mach-oxnas/profile.yaml"
   mach-picoxcell:
     device_tree: True
     uart: dw-apb-uart
