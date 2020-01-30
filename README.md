@@ -38,7 +38,7 @@ sudo apt-get install -y gawk
 git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && mkdir log && mkdir ~/build
 
 # install modified binwalk
-sudo apt-get install zlib1g-dev liblzma-dev liblzo2-dev && \
+sudo apt-get install -y zlib1g-dev liblzma-dev liblzo2-dev && \
 git clone https://github.com/devttys0/sasquatch ~/sasquatch && \
 cd sasquatch && ./build.sh cd ~-
 
