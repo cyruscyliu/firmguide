@@ -41,6 +41,7 @@ git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && m
 wget -nc https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz -O ~/build/v2.1.1.tar.gz || true && \
 tar --skip-old-files -zxf ~/build/v2.1.1.tar.gz -C ~/build && \
 cp -r patches/binwalk/* ~/build/binwalk-2.1.1/src/ && \
+cd ~/build/binwalk-2.1.1 && sudo ./deps.sh && cd ~- && \
 cd ~/build/binwalk-2.1.1 && sudo python3.7 setup.py -q install && cd ~-
 
 # install modified qemu
