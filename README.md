@@ -50,7 +50,7 @@ cp -r patches/qemu/* ~/build/qemu-4.0.0/ && \
 cd ~/build/qemu-4.0.0 && ./configure --target-list=arm-softmmu,mipsel-softmmu,mips-softmmu && make -j4 && cd ~-
 
 # install llvm-9
-apt-get update && apt-get install -y build-essential wget lsb-core software-        properties-common vim && \
+apt-get update && apt-get install -y build-essential wget lsb-core software-properties-common vim && \
 wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 9 && \
 ln -s /usr/bin/clang-9 /usr/bin/clang && ln -s /usr/bin/llvm-link-9 /usr/bin/llvm-link  && ln -s /usr/bin/opt-9 /usr/bin/opt
 pip3.7 install networkx matplotlib graphviz
@@ -59,8 +59,6 @@ pip3.7 install networkx matplotlib graphviz
 ## Usage
 
 ##### if you have a firmware blob
-
-what you need to provide
 + the path to firmware [required]
 + the uuid of the firmware [required]
 + the architecture and the endianness [required]
