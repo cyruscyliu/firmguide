@@ -14,7 +14,7 @@ git clone https://github.com/cyruscyliu/pymake.git ~/pymake && cd ~/pymake && pi
 # install QEMU/BINWALK etc.
 RUN apt-get install -y git libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev wget sudo bison flex libcapstone3 libcapstone-dev u-boot-tools p7zip-full squashfs-tools device-tree-compiler gawk
 RUN git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && mkdir log && mkdir ~/build
-RUN apt-get install -y zlib1g-dev liblzma-dev liblzo2-dev && git clone https://github.com/devttys0/sasquatch ~/sasquatch && cd sasquatch && ./build.sh cd ~-
+RUN apt-get install -y zlib1g-dev liblzma-dev liblzo2-dev && git clone https://github.com/devttys0/sasquatch ~/sasquatch && cd ~/sasquatch && ./build.sh cd ~-
 RUN wget -nc https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz -O ~/build/v2.1.1.tar.gz || true && tar --skip-old-files -zxf ~/build/v2.1.1.tar.gz -C ~/build &&  cp -r patches/binwalk/* ~/build/binwalk-2.1.1/src/ && cd ~/build/binwalk-2.1.1 && sudo python3.7 setup.py -q install && cd ~-
 RUN wget -nc https://download.qemu.org/qemu-4.0.0.tar.xz -O ~/build/qemu-4.0.0.tar.xz || true && tar --skip-old-files -Jxf ~/build/qemu-4.0.0.tar.xz -C ~/build && cp -r patches/qemu/* ~/build/qemu-4.0.0/ && cd ~/build/qemu-4.0.0 && ./configure --target-list=arm-softmmu,mipsel-softmmu,mips-softmmu && make -j4 && cd ~-
 

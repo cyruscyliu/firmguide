@@ -40,7 +40,7 @@ git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && m
 # install modified binwalk
 sudo apt-get install -y zlib1g-dev liblzma-dev liblzo2-dev && \
 git clone https://github.com/devttys0/sasquatch ~/sasquatch && \
-cd sasquatch && ./build.sh cd ~-
+cd ~/sasquatch && ./build.sh cd ~-
 
 wget -nc https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz -O ~/build/v2.1.1.tar.gz || true && \
 tar --skip-old-files -zxf ~/build/v2.1.1.tar.gz -C ~/build && \
