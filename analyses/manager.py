@@ -1,19 +1,14 @@
 import os
 
+from logger import logger_info, logger_warning
+from slcore.environment import finished, finish
+
 from analyses.analysis import Analysis, AnalysisGroup
 from analyses.diag_bamboos import Bamboos
 from analyses.diag_callstack import CallStack
 from analyses.diag_dabt import DataAbort
 from analyses.diag_deadloop2 import DeadLoop2
 from analyses.diag_panic import Panic
-from analyses.inf_mfilter import Filter
-from analyses.inf_hardcode import HardCode
-from analyses.inf_libtooling import LibTooling
-from analyses.inf_loaddr import LoadAddr
-from analyses.inf_mips_cpu import MIPSCPU
-from supervisor.logging_setup import logger_info, logger_warning
-from supervisor.save_and_restore import finished, finish
-
 from analyses.diag_check import Checking
 from analyses.diag_tracing import DoTracing, LoadTrace
 from analyses.diag_init_value import InitValue
@@ -22,10 +17,15 @@ from analyses.sa_binary.inf_kernel import Kernel
 from analyses.sa_binary.inf_openwrt import OpenWRT
 from analyses.sa_binary.inf_strings import Strings
 
-from analyses.inf_device_tree import DeviceTree
-from analyses.inf_dot_config import DotConfig
-from analyses.inf_srcode import SRCode
-from analyses.inf_ram import RAMDefault
+from analyses.sa_srcode.inf_device_tree import DeviceTree
+from analyses.sa_srcode.inf_dot_config import DotConfig
+from analyses.sa_srcode.inf_srcode import SRCode
+from analyses.sa_srcode.inf_ram import RAMDefault
+from analyses.sa_srcode.inf_mfilter import Filter
+from analyses.sa_srcode.inf_hardcode import HardCode
+from analyses.sa_srcode.inf_libtooling import LibTooling
+from analyses.sa_srcode.inf_loaddr import LoadAddr
+from analyses.sa_srcode.inf_mips_cpu import MIPSCPU
 
 
 class AnalysesManager(object):

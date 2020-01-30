@@ -25,6 +25,12 @@ def run_static_analysis(firmware):
     # save_analysis(firmware)
 
 
+def run_diagnosis(firmware):
+    analyses_manager = AnalysesManager(firmware)
+    analyses_manager.register_dynamic_analysis(tracing=False)
+    analyses_manager.run_dynamic_analyses()
+
+
 def run_statistics(firmware):
     statistics(firmware)
 

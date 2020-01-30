@@ -19,7 +19,7 @@ finite state machine
       |---<-- TRACE---<----|
 """
 from settings import *
-from supervisor.logging_setup import logger_inf
+from supervisor.logging_setup import logger_info
 
 import os
 import qmp
