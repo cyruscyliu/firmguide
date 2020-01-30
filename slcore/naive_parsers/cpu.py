@@ -193,11 +193,14 @@ def find_cpu_in_strings(strings):
                 votes[k] += 1
     # vote
     vote = 0
-    model = ''
+    model = None
     for k, v in votes.items():
         if v > vote:
             vote = v
             model = k
+
+    if model is None:
+        return []
 
     arm32_cpus = yaml.safe_load(open(os.path.join(BASE_DIR, 'slcore/database/cpu.arm32.yaml')))
     target_cpus = []

@@ -1,9 +1,9 @@
 support:
   bcm47xx:
     device_tree: False
-    machine_id: [""]
+    machine_ids: ["0x989681"]
     uart: serial8250
-    profile: "example/mips/bcm47xx/profile.yaml"
+    profile: "examples/mips/bcm47xx/profile.yaml"
   ar7:
     device_tree: False
     uart: serial8250

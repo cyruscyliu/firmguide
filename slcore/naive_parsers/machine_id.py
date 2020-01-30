@@ -2911,6 +2911,12 @@ def find_machine_id(path_to_kernel):
             "config": "MACH_VR1000",
             "number": "475",
             "machine_type": "VR1000"
+        },
+        # mips
+        "10000001": {
+            "machine_description": "Broadcom BCM47XX",
+            "number": "10000001",
+            "machine_type": "brm47xx"
         }
     }
 

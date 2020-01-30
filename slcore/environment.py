@@ -72,10 +72,10 @@ def migrate(components, path_to_profile, quick=False, trace_format='qemudebug', 
         firmware.set_profile(path_to_profile=path_to_profile)
         # change save-to-path to avoid modifing our well-defined profile
         firmware.path_to_profile = os.path.join(firmware.get_target_dir(), 'profile.yaml')
-        logger_info(firmware.get_uuid(), 'environment', 'migrate', 'migrate from {} to {}'.format(path_to_profile, firmware.get_target_dir()), 1)
+        logger_info(firmware.uuid, 'environment', 'migrate', 'migrate from {} to {}'.format(path_to_profile, firmware.get_target_dir()), 1)
     else:
         firmware.set_profile(target_dir=firmware.get_target_dir(), first=True)
-        logger_info(firmware.get_uuid(), 'environment', 'migrate', 'create new profile {}'.format(path_to_profile), 1)
+        logger_info(firmware.uuid, 'environment', 'migrate', 'create new profile {}'.format(firmware.path_to_profile), 1)
 
     firmware.set_uuid(components.uuid)
     firmware.set_name(components.get_image_name())

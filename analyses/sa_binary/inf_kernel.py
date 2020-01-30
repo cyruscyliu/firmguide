@@ -28,7 +28,7 @@ class Kernel(Analysis):
         super().__init__(analysis_manager)
         self.name = 'kernel'
         self.description = 'extract kernel related information from the given firmware'
-        self.context['hint'] = 'you must add strings parsers'
+        self.context['hint'] = 'you must add another image parser'
         self.required = []
         self.critical = False
         self.settings = ['kernel_version']

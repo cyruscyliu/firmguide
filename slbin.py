@@ -47,7 +47,7 @@ if __name__ == '__main__':
     group.add_argument('-e', '--endianness', choices=['b', 'l'], required=True)
     group.add_argument('-f', '--firmware', metavar='path/to/firmware', required=True)
     group.add_argument('-u', '--uuid', type=str, required=True)
-    group.add_argument('-dl', '--download', required=False )
+    group.add_argument('-l', '--url', required=False )
 
     # diagnosis
     group = parser.add_argument_group('diagnosis')
