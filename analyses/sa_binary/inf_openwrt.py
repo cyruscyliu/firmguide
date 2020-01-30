@@ -8,6 +8,13 @@ from slcore.parser import get_candidates, get_all_strings
 
 class OpenWRT(Analysis):
     def run(self, firmware):
+        if firmware.get_brand() is None:
+            self.context['input'] = 'run with -b BRAND'
+            return True
+
+        if firmware.get_brand() != 'openwrt':
+            return True
+
         path_to_kernel = firmware.get_path_to_kernel()
         # TODO get from analysis strings
         candidates = get_candidates(path_to_kernel)
@@ -18,10 +25,10 @@ class OpenWRT(Analysis):
         self.info(firmware, 'get openwrt revision: {}'.format(revision), 1)
         target = search_most_possible_target(strings)
         self.info(firmware, 'get openwrt target: {}'.format(target), 1)
-        subtarget = search_most_possible_subtarget(target, strings)
+        subtarget = search_most_possible_subtarget(target,strings)
         self.info(firmware, 'get openwrt subtarget: {}'.format(target), 1)
         if firmware.get_url():
-            revision, target, subtarget = parse_openwrt_url(firmware.get_url()) # the most precise
+            revision, target, subtarget = parse_openwrt_url(firmware.get_url()) # the most precise way
             self.info(firmware, 'get openwrt revision: {}'.format(revision), 1)
             self.info(firmware, 'get openwrt target: {}'.format(target), 1)
             self.info(firmware, 'get openwrt subtarget: {}'.format(target), 1)
@@ -47,5 +54,5 @@ class OpenWRT(Analysis):
         self.required = []
         self.context['hint'] = 'not openwrt firmware'
         self.critical = False
-        self.settings = ['target', 'subtarget', 'revision', 'toh']
+        self.settings = ['target', 'subtarget', 'revision', 'toh', 'machine_name', 'cpu', 'ram_size']
 

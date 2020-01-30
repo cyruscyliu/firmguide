@@ -24,16 +24,27 @@ class Strings(Analysis):
 
         # kernel version is very critical
         kernel_version = find_kernel_version_in_strings(strings)
+        firmware.set_kernel_version(kernel_version)
         self.info(firmware, 'get kernel version: {}'.format(kernel_version), 1)
 
         cpu = find_cpu_in_strings(strings)
+        firmware.set_cpu_model(cpu)
         self.info(firmware, 'get cpu: {}'.format(cpu), 1)
+        # TODO
         # cpu_pp = find_cpu_private_peripheral(cpu)
+        # frmware.set_cpu_pp_name(cpu_pp)
         # self.info(firmware, 'get cpu_pp: {}'.format(cpu_pp), 1)
-        # self.find_uart(firmware)
-        # self.find_flash(firmware)
+        # xxx = self.find_uart(firmware)
+        # handle(xxx)
+        # yyy = self.find_flash(firmware)
+        # handle(yyy)
+        # zzz = self.find_bamboo(firmware)
+        # handle(zzz)
         cmdline = find_cmdline_in_strings(strings)
+        # firmware.set_cmdline(cmdline)
         self.info(firmware, 'get cmdline: {}'.format(cmdline), 1)
+        # uuu = parse_cmdline(cmdline)
+        # handle(uuu)
 
         return True
 

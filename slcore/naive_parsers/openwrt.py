@@ -1,4 +1,3 @@
-from slcore.database.dbf import get_database
 from pyquery import PyQuery as pq
 from slcore.database.dbf import get_database
 
@@ -201,6 +200,7 @@ def find_cpu_by_openwrt_toh(toh):
     cpu = toh['packagearchitecture']
     soc = toh['cpu']
     if cpu is not None and cpu != '':
+        # TODO map to cpu.arm32.yaml or cpu.mips.yaml
         return cpu
 
 
@@ -208,3 +208,4 @@ def find_ram_size_by_openwrt_toh(toh):
     ram = toh['rammb']
     if ram is not None and ram != '':
         return '{} * MiB'.format(ram)
+

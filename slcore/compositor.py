@@ -201,7 +201,7 @@ def unpack(path, uuid=None, arch=None, endian=None, target_dir=None, extract=Tru
     supported = components.image_type != UNKNOWN
     if supported:
         for k, v in components.__dict__.items():
-            if k == 'image_type':
+            if k == 'image_type' or k == 'output':
                 continue
             else:
                 logger_info(uuid, 'composition', 'unpack', '{}: {}'.format(k, v), 1)

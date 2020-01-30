@@ -23,9 +23,12 @@ def run(args):
     firmware = migrate(components, machine)
 
     # 4. analyze this new firmware or lauch it
-    status = run_static_analysis(firmware)
-    # if machine is None:
-        # status = run_static_analysis(firmware)
+    if machine is None:
+        if args.brand:
+            firmware.set_brand(args.brand)
+        if args.url:
+            firmware.set_url(args.url)
+        status = run_static_analysis(firmware)
     # else:
         # status = run_dynamic_analysis(firmware)
 
@@ -44,6 +47,7 @@ if __name__ == '__main__':
     group.add_argument('-e', '--endianness', choices=['b', 'l'], required=True)
     group.add_argument('-f', '--firmware', metavar='path/to/firmware', required=True)
     group.add_argument('-u', '--uuid', type=str, required=True)
+    group.add_argument('-dl', '--download', required=False )
 
     # diagnosis
     group = parser.add_argument_group('diagnosis')
