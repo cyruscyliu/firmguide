@@ -1,0 +1,12 @@
+inf_loaddr.py
+inf_ram.py
+inf_device_tree.DeviceTree
+         # srcode <- .config
+                     # self.register_analysis(SRCode(self), analyses_tree=static_analysis)
+                                 # self.register_analysis(DotConfig(self), analyses_tree=static_analysis)
+                                             # self.register_analysis(Filter(self), analyses_tree=static_analysis)
+                                                         # srcode <- libtooling
+                                                                     # self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
+                                                                                 # self.register_analysis(HardCode(self), analyses_tree=static_analysis)
+                                                                                             # srcode <- mips cpu
+                                                                                                         # self.register_analysis(MIPSCPU(self), analyses_tree=static_analysis)

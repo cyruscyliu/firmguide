@@ -1,32 +1,26 @@
 FROM ubuntu:16.04
 
-RUN apt-get update && apt-get install -y git libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev && \
-apt-get install -y libaio-dev libbluetooth-dev libbrlapi-dev libbz2-dev && \
-apt-get install -y libcap-dev libcap-ng-dev libcurl4-gnutls-dev libgtk-3-dev && \
-apt-get install -y libibverbs-dev libjpeg8-dev libncurses5-dev libnuma-dev && \
-apt-get install -y librbd-dev librdmacm-dev && \
-apt-get install -y libsasl2-dev libsdl1.2-dev libseccomp-dev libsnappy-dev libssh2-1-dev && \
-apt-get install -y valgrind xfslibs-dev && \
-apt-get install -y libnfs-dev libiscsi-dev && \
-apt-get install -y bison flex && \
-apt-get install -y libcapstone3 libcapstone-dev && \
-apt-get install -y u-boot-tools && \
-apt-get install -y gawk && \
-apt-get install -y software-properties-common
+# install python3.7
+RUN apt-get install -y software-properties-common && \
+add-apt-repository ppa:deadsnakes/ppa && apt-get update && \
+apt-get install -y python3.7 python3-pip python3.7-dev && \
+python3.7 -m pip install --upgrade pip
 
-RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update && \
-apt-get install -y python3.7 && apt-get install -y python3-pip && python3.7 -m pip install --upgrade pip==19.2.3
+# install required packages
+RUN pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable capstone python-Levenshtein z3-solver && \
+git clone https://github.com/cyruscyliu/pyqemulog ~/pyqemulog && cd ~/pyqemulog && pip3.7 install . && \
+git clone https://github.com/cyruscyliu/pymake.git ~/pymake && cd ~/pymake && pip3.7 install .
 
-RUN rm /usr/bin/python && ln -s /usr/bin/python3.7 /usr/bin/python
+# install QEMU/BINWALK etc.
+RUN apt-get install -y git libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev wget sudo bison flex libcapstone3 libcapstone-dev u-boot-tools p7zip-full squashfs-tools device-tree-compiler gawk
+RUN git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && mkdir log && mkdir ~/build
+RUN wget -nc https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz -O ~/build/v2.1.1.tar.gz || true && tar --skip-old-files -zxf ~/build/v2.1.1.tar.gz -C ~/build &&  cp -r patches/binwalk/* ~/build/binwalk-2.1.1/src/ && cd ~/build/binwalk-2.1.1 && sudo python3.7 setup.py -q install && cd ~-
+RUN wget -nc https://download.qemu.org/qemu-4.0.0.tar.xz -O ~/build/qemu-4.0.0.tar.xz || true && tar --skip-old-files -Jxf ~/build/qemu-4.0.0.tar.xz -C ~/build && cp -r patches/qemu/* ~/build/qemu-4.0.0/ && cd ~/build/qemu-4.0.0 && ./configure --target-list=arm-softmmu,mipsel-softmmu,mips-softmmu && make -j4 && cd ~-
+
+# isntall llvm9
+RUN apt-get update && apt-get install -y build-essential wget lsb-core software-properties-common vim && \
+wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 9 && \
+ln -s /usr/bin/clang-9 /usr/bin/clang && ln -s /usr/bin/llvm-link-9 /usr/bin/llvm-link && ln -s /usr/bin/opt-9 /usr/bin/opt
+RUN pip3.7 install networkx matplotlib graphviz
 
 WORKDIR /root
-
-RUN git config --global user.email "you@example.com" && git config --global user.name "Your Name" && \
-apt-get install -y sudo
-
-RUN pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable
-
-RUN apt-get install wget
-
-RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts && git clone https://github.com/cyruscyliu/pymake.git /opt/pymake && \
-cd /opt/pymake && pip3.7 install .

@@ -29,6 +29,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.stat_summary = {}
         self.path_to_summary = None  # /tmp/uuid/stats.yaml
 
+        self.components = None
+
         self.running_command = None
         self.trace_format = None
         self.path_to_trace = None
@@ -102,6 +104,17 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     def set_path_to_trace(self, path_to_trace):
         self.path_to_trace = path_to_trace
+
+    def get_components(self):
+        return self.components
+
+    def set_components(self, components):
+        self.components = components
+        self.set_format(components.image_type)
+        self.set_path_to_image(components.get_image())
+        self.set_path_to_uimage(components.get_uimage())
+        self.set_path_to_dtb(components.get_dtb())
+        self.set_path_to_kernel(components.get_kernel())
 
     @abc.abstractmethod
     def set_architecture(self, *args, **kwargs):

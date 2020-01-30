@@ -1,0 +1,125 @@
+cpu:
+  arm,arm1026:
+    - arm1026
+  arm,arm1136:
+    - arm1136
+    - arm1136-r2
+  arm,arm1176:
+    - arm1176
+  arm,arm11mpcore:
+    - arm11mpcore
+  arm,arm926:
+    - arm926
+  arm,arm946:
+    - arm946
+  arm,cortex-a15:
+    - cortex-a15
+  arm,cortex-a7:
+    - cortex-a7
+  arm,cortex-a8:
+    - cortex-a8
+  arm,cortex-a9:
+    - cortex-a9
+  marvell,xscale:
+    - pxa250
+    - pxa255
+    - pxa260
+    - pxa261
+    - pxa262
+    - pxa270
+    - pxa270-a0
+    - pxa270-a1
+    - pxa270-b0
+    - pxa270-b1
+    - pxa270-c0
+    - pxa270-c5
+  intel,sa1100:
+    - sa1100
+  mips,mips24Kc:
+    - 24Kc
+  mips,mips24KEc:
+    - 24KEc
+  mips,mips4KEc:
+    - 4KEc
+  mips,mips74Kc:
+    - 74Kf
+  mips,mips1004Kc:
+    - 74Kf
+cpu_private:
+  "arm11mpcore":
+    "arm11mpcore-priv"
+  "cortex-a9":
+    "arm-a9mp-priv"
+  "cortex-a15":
+    "arm-a15mp-priv"
+  "24Kc":
+    "mips-default"
+  "24KEc":
+    "mips-default"
+  "4KEc":
+    "mips-default"
+  "74Kf":
+    "mips-default"
+ic:
+  - "Allwinner A10 PIC"
+  - "etraxfs,pic"
+  - "Heathrow PIC"
+  - "APIC"
+  - "ARM GIC"
+  - "MIPS GIC"
+  - "8259"
+  - "ARM NVIC"
+  - "ASPEED VIC"
+  - "BCM286X IC"
+  - "exynos4210 GIC"
+  - "ARM RealView"
+  - "GRLIB IRQMP"
+  - "i.MX31 VIC"
+  - "i.MX7 GPCv2"
+  - "QEMU Generic Interrupt Controller"
+  - "Xilinx I/O Module Interrupt Controller"
+  - "Xilinx IPI Inter Processor Interrupt block"
+uart:
+  - "BCM2835 mini UART and SPI"
+  - "Cadence UART"
+  - "ARM CMSDK APB UART"
+  - "grlib,apbuart"
+  - "i.MX series UART"
+  - "Bochs-style debug console (port E9) for INTEL"
+  - "Canon DIGIC UART"
+  - "ESCC (Z8030/Z8530/Z85C30/SCC/ESCC) serial port"
+  - "etraxfs,serial"
+  - "Exynos4210 UART"
+  - "ColdFire UART"
+  - "LatticeMico32"
+  - "JTAG UART"
+  - "LatticeMico32 UART"
+  - "GE IP-Octal 232 8-channel RS-232 IndustryPack"
+  - "nRF51 SoC UART"
+  - "Milkymist UART"
+  - "TI OMAP processors UART"
+  - "Parallel PORT (ISA bus helpers)"
+  - "Parallel PORT"
+  - "Arm PrimeCell PL011 UART"
+  - "sclplmconsole"
+  - "sclpconsole"
+  - "16550A UART (ISA)"
+  - "16550A UART (PCI)"
+  - "16550A UART"
+  - "SCI/SCIF serial port"
+  - "spapr-vty"
+  - "STM32F2XX USART"
+  - "Terminal 3270"
+  - "Virtio Console and Generic Serial Port Devices"
+  - "Xen Console"
+  - "A bus for connecting virtio serial and console ports"
+  - "Xilinx uartlite"
+flash:
+  cfi-flash:
+    pflash_cfi01 # pflash_cfi02
+# - m25p80
+# - nand
+# - "tc58128"
+# - "onenand"
+# - "km29u128at"
+# - "kmf2808u0a"

@@ -1,7 +1,7 @@
 import os
 
 from analyses.analysis import Analysis
-from database.dbf import get_database
+from slcore.database.dbf import get_database
 from profile.firmware import Firmware
 
 

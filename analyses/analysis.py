@@ -1,6 +1,6 @@
 import abc
 
-from supervisor.logging_setup import logger_info, logger_warning
+from logger import logger_info, logger_warning, logger_debug
 
 
 class Analysis(object):
@@ -30,6 +30,9 @@ class Analysis(object):
 
     def info(self, firmware, message, status):
         logger_info(firmware.get_uuid(), 'analysis', self.name, message, status)
+
+    def debug(self, firmware, message, status):
+        logger_debug(firmware.get_uuid(), 'analysis', self.name, message, status)
 
     def error(self, firmware):
         if self.context['input'].find('\n') != -1:
