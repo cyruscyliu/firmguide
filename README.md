@@ -38,11 +38,15 @@ sudo apt-get install -y gawk
 git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && mkdir log && mkdir ~/build
 
 # install modified binwalk
+sudo apt-get install zlib1g-dev liblzma-dev liblzo2-dev && \
+git clone https://github.com/devttys0/sasquatch ~/sasquatch && \
+cd sasquatch && ./build.sh cd ~-
+
 wget -nc https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz -O ~/build/v2.1.1.tar.gz || true && \
 tar --skip-old-files -zxf ~/build/v2.1.1.tar.gz -C ~/build && \
 cp -r patches/binwalk/* ~/build/binwalk-2.1.1/src/ && \
-cd ~/build/binwalk-2.1.1 && sudo ./deps.sh && cd ~- && \
 cd ~/build/binwalk-2.1.1 && sudo python3.7 setup.py -q install && cd ~-
+# cd ~/build/binwalk-2.1.1 && sudo ./deps.sh && cd ~- && \
 
 # install modified qemu
 wget -nc https://download.qemu.org/qemu-4.0.0.tar.xz -O ~/build/qemu-4.0.0.tar.xz || true && \
