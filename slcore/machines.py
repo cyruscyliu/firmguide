@@ -22,11 +22,11 @@ def find_machine_by_id(arch, machine_ids):
 def find_machine(components):
     if components.has_device_tree():
         compatible = find_compatible(components.get_dtb())
-        logger_info(components.uuid, 'machines', 'find_machine', 'compatible: {}'.format(compatible), 1)
+        logger_debug(components.uuid, 'machines', 'find_machine', 'compatible: {}'.format(compatible), 1)
         machine = find_machine_by_compatible(components.arch, compatible)
     else:
         machine_ids = find_machine_id(components.get_kernel())
-        logger_info(components.uuid, 'machines', 'find_machine', 'machine_ids: {}'.format(machine_ids), 1)
+        logger_debug(components.uuid, 'machines', 'find_machine', 'machine_ids: {}'.format(machine_ids), 1)
         machine = find_machine_by_id(components.arch, machine_ids)
 
     if machine:

@@ -57,9 +57,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     if args.debug:
-        setup_logging(default_level=logging.DEBUG)
+        setup_logging(default_level=logging.DEBUG, uuid=args.uuid)
     else:
-        setup_logging(default_level=logging.INFO)
+        setup_logging(default_level=logging.INFO, uuid=args.uuid)
 
     run(args)
 

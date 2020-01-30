@@ -204,7 +204,7 @@ def unpack(path, uuid=None, arch=None, endian=None, target_dir=None, extract=Tru
             if k == 'image_type' or k == 'output':
                 continue
             else:
-                logger_info(uuid, 'composition', 'unpack', '{}: {}'.format(k, v), 1)
+                logger_debug(uuid, 'composition', 'unpack', '{}: {}'.format(k, v), 1)
     else:
         for line in components.output.split('\n'):
             logger_debug(uuid, 'composition', 'unpack', '{}'.format(line), 0)
