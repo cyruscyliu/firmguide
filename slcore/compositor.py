@@ -69,7 +69,7 @@ def enlarge_image(path, target_size):
     if size_of_image == target_size:
         return
     os.system('dd if=/dev/zero of={} seek={} bs=1 count={} > /dev/null 2>&1'.format(
-        path_to_image, size_of_image, target_size - size_of_image))
+        path, size_of_image, target_size - size_of_image))
 
 def __handle_trx_kernel(image_path):
     kernel = replace_extension(image_path, 'trx', 'kernel')
