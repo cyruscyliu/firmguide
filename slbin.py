@@ -31,8 +31,9 @@ def run(args):
         if args.url:
             firmware.set_url(args.url)
         status = run_static_analysis(firmware)
-    # else:
-        # status = run_dynamic_analysis(firmware)
+    else:
+        firmware.max_iteration = args.max
+        status = run_dynamic_analysis(firmware)
 
     # 5. take snapshots to save results
     return snapshot(firmware)

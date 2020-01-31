@@ -1,11 +1,4 @@
-components:
-  # path_to_image: "tests/files/9874f6.bin"
-  path_to_image: "tests/files/rootfs.fill"
-  path_to_uimage: "tests/files/vmlinux.elf"
 basics:
-  uuid: "14292"
-  name: "9874f62ffd1d5d1ccdfa919cc29794f03d1f08db.bin"
-  path: "/mnt/salamander/firmware/9874f62ffd1d5d1ccdfa919cc29794f03d1f08db.bin"
   architecture: "mips"
   endian: "l"
   brand: "openwrt"

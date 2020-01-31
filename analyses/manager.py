@@ -12,6 +12,7 @@ from analyses.diag_panic import Panic
 from analyses.diag_check import Checking
 from analyses.diag_tracing import DoTracing, LoadTrace
 from analyses.diag_init_value import InitValue
+from analyses.diag_generation import CodeGeneration
 
 from analyses.sabinary.inf_kernel import Kernel
 from analyses.sabinary.inf_strings import Strings
@@ -216,22 +217,23 @@ class AnalysesManager(object):
             self.register_analysis(SINTC(self), analyses_tree=static_analysis)
             self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
             # self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)
-            # srcode <- libtooling
-            # mfilter <- loadaddr
             self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
+            # self.register_analysis(CodeGeneration(self), analyses_tree=static_analysis)
 
     def register_dynamic_analysis(self, tracing=True, check_only=False):
         dynamic_analysis = self.new_analyses_tree()
         self.dynamic_analysis = dynamic_analysis
 
-        if tracing:
-            self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
-        self.register_analysis(Checking(self), analyses_tree=dynamic_analysis)
-        if not check_only:
-            self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
-            self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
-            self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
-            self.register_analysis(DeadLoop2(self), analyses_tree=dynamic_analysis)
-            self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
+        self.register_analysis(CodeGeneration(self), analyses_tree=dynamic_analysis)
+        # if tracing:
+            # self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
+        # self.register_analysis(Checking(self), analyses_tree=dynamic_analysis)
+        # if not check_only:
+            # self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
+            # self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
+            # self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
+            # self.register_analysis(DeadLoop2(self), analyses_tree=dynamic_analysis)
+            # self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(Panic(self), analyses_tree=dynamic_analysis)
-            self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)
+            # self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)
+

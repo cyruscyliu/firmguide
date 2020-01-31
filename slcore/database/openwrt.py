@@ -4,6 +4,7 @@ import os
 import yaml
 
 from slcore.database.db import Database
+from settings import *
 
 
 class DatabaseOpenWRTMapping(Database):
@@ -14,7 +15,7 @@ class DatabaseOpenWRTMapping(Database):
         select url where kernel_version='2.6.32'
         """
         action = args[0]
-        table = open(os.path.join(os.getcwd(), 'database', 'openwrt_rk.yaml'))
+        table = open(os.path.join(BASE_DIR, 'slcore/database', 'openwrt_rk.yaml'))
 
         if action == 'revision':
             kernel_version = kwargs.pop('kernel_version')
@@ -72,7 +73,7 @@ class DatabaseOpenWRTToH(Database):
         columns = []
         records = []
         header = None
-        table = open(os.path.join(os.getcwd(), 'database', 'openwrt_toh.csv'))
+        table = open(os.path.join(BASE_DIR, 'slcore/database', 'openwrt_toh.csv'))
         for line in csv.reader(table, delimiter='\t'):
             # save the header first
             if header is None:
