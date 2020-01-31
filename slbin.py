@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     # analysis
     group = parser.add_argument_group('analysis')
-    group.add_argument('-a', '--architecture', choices=['arm32', 'arm64', 'mips'], required=True)
+    group.add_argument('-a', '--architecture', choices=['arm', 'arm64', 'mips'], required=True)
     group.add_argument('-b', '--brand', choices=['openwrt'], required=False)
     group.add_argument('-e', '--endianness', choices=['b', 'l'], required=True)
     group.add_argument('-f', '--firmware', metavar='path/to/firmware', required=True)

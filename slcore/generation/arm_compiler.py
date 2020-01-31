@@ -1,6 +1,6 @@
-from database.dbf import get_database
-from generation.common import indent
-from generation.compiler import CompilerToQEMUMachine
+from slcore.database.dbf import get_database
+from slcore.generation.common import indent
+from slcore.generation.compiler import CompilerToQEMUMachine
 
 
 class ARMCompiler(CompilerToQEMUMachine):

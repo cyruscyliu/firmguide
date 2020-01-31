@@ -3,7 +3,7 @@ The whole generator accepts the device profile which must be preprocessed.
 """
 import hashlib
 
-from supervisor.logging_setup import logger_info, logger_debugging
+from logger import logger_info, logger_debug
 
 
 class PreProcessor(object):
@@ -14,7 +14,7 @@ class PreProcessor(object):
         logger_info(self.firmware.get_uuid(), 'code_generation', 'preprocessing', message, 0)
 
     def debug(self, message):
-        logger_debugging(self.firmware.get_uuid(), 'code_generation', 'proprocessing', message, 0)
+        logger_debug(self.firmware.get_uuid(), 'code_generation', 'proprocessing', message, 0)
 
     def preprocess_machine_name(self):
         if self.firmware.get_machine_name() is None:

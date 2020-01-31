@@ -45,7 +45,7 @@ class Filter(Analysis):
             self.context['input'] = 'no available target found, please check the source code'
             return False
         support = get_database('support')
-        status = support.select(target, arch='arm32')
+        status = support.select('support', target=target, arch='arm')
         if status:
             return True
         else:
@@ -65,7 +65,7 @@ class Filter(Analysis):
             self.context['input'] = 'no available target found, please check the source code'
             return False
         support = get_database('support')
-        status = support.select(target, arch='mips')
+        status = support.select('support', target=target, arch='mips')
         if status:
             return True
         else:
@@ -85,9 +85,10 @@ class Filter(Analysis):
         super().__init__(analysis_manager)
         self.name = 'filter'
         self.description = 'some machines are not possible to support yet'
-        self.required = ['mips_cpu']
+        self.required = []
         self.context['hint'] = 'cannot support this machine yet'
         self.critical = True
         #
         self.path_to_srcode = None
         self.arch = None
+

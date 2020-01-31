@@ -1,5 +1,5 @@
-from generation.common import to_irq, indent
-from generation.compiler import CompilerToQEMUMachine
+from slcore.generation.common import to_irq, indent
+from slcore.generation.compiler import CompilerToQEMUMachine
 
 
 class MIPSCompiler(CompilerToQEMUMachine):

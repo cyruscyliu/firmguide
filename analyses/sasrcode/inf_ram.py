@@ -1,7 +1,7 @@
 from analyses.analysis import Analysis
 
 
-class RAMDefault(Analysis):
+class RAM(Analysis):
     def run(self, firmware):
         ram_size = firmware.get_ram_size()
         if ram_size is not None:
@@ -28,5 +28,6 @@ class RAMDefault(Analysis):
         super().__init__(analysis_manager)
         self.name = 'ram'
         self.description = 'allocate 32M(ARM)/128M(MIPS) ram by default'
-        self.required = ['toh']
+        self.required = ['mfilter']
         self.critical = False
+

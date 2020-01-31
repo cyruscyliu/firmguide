@@ -3,14 +3,60 @@ import yaml
 
 from analyses.analysis import Analysis
 from slcore.database.dbf import get_database
+from slcore.naive_parsers.cpu import find_cpu_in_strings
+from slcore.parser import get_all_strings
 
 
-class MIPSCPU(Analysis):
+class CPU(Analysis):
+    def infer_arm_cpu(self, firmware):
+        """
+        difficult because you have to evaluate globals defined by macros
+        """
+        # https://lwn.net/Articles/426006/
+        # https://github.com/ulfalizer/Kconfiglib
+        # architecture = firmware.get_architecture()
+        # path_to_source_code = firmware.get_path_to_source_code()
+        # path_to_mm = os.path.join(path_to_source_code, 'arch/{}/mm'.format(architecture))
+
+        # for file_ in os.listdir(path_to_mm):
+            # .proc-feroceon.o.cmd
+            # if file_.endswith('.cmd') and file_.startswith('.proc'):
+                # target = file_.split('.')[1] + '.c'
+            # else:
+                # continue
+
+            # get cmdline in case of malformat makeout
+            # cmd = os.path.join(path_to_mm, file_)
+            # with open(cmd) as f:
+                # cmdline = f.readline().strip().split(':=')[1]
+
+            # full_path = os.path.join(path_to_mm, target)
+            # srcodec = firmware.srcodec
+            # path_to_preprocessed_file = srcodec.preprocess('arch/{}/mm/{}'.format('arm', target), cmdline=cmdline)
+            # if path_to_preprocessed_file is None:
+                # continue
+            # get you want from asm2json(path_to_preprocessed_file)
+            # which is difficult because you have to evaluate globals defined by macros
+        path_to_vmlinux = firmware.get_path_to_vmlinux()
+        strings = get_all_strings([path_to_vmlinux])
+        cpu = find_cpu_in_strings(strings)
+        if cpu is not None:
+            self.info(firmware, 'find cpu: {}'.format(cpu), 1)
+            return True
+        else:
+            self.context['input'] = 'no cpu available'
+            return False
+
     def run(self, firmware):
         # only for mips
         if firmware.get_architecture() == 'arm':
-            return True
+            return self.infer_arm_cpu(firmware)
+        elif firmware.get_architecture() == 'mips':
+            return self.infer_mips_cpu(firmware)
 
+        return False
+
+    def infer_mips_cpu(self, firmware):
         # find command
         path_to_srcode = firmware.get_path_to_source_code()
         path_to_mkout = firmware.get_path_to_makeout()
@@ -494,11 +540,12 @@ class MIPSCPU(Analysis):
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-        self.name = 'mips_cpu'
-        self.description = 'infer supported mips cpus'
-        self.context['hint'] = 'problem in mips cpus inference'
+        self.name = 'cpu'
+        self.description = 'infer supported cpus'
+        self.context['hint'] = 'problem in cpu inference'
         self.critical = False
-        self.required = ['srcode']
+        self.required = ['mfilter']
         #
         self.mips_cpus = yaml.safe_load(open(os.path.join(os.getcwd(), 'database/cpu.mips.yaml')))
         self.qemu_devices = get_database('qemu.devices')
+

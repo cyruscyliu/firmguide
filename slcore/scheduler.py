@@ -1,11 +1,10 @@
 from analyses.manager import AnalysesManager
-from generation.compilerf import get_compiler
+from slcore.generation.compilerf import get_compiler
 from profile.stats import statistics
 
 from logger import logger_info, logger_warning
-from slcore.environment import \
-    restore_analysis, save_analysis, \
-    setup_diagnosis, setup_single_analysis, setup_statistics
+from slcore.environment import restore_analysis, save_analysis, \
+    setup_diagnosis, setup_statistics
 
 
 def run_diagnosis(firmware):
@@ -14,12 +13,12 @@ def run_diagnosis(firmware):
     status = analyses_manager.run_dynamic_analyses()
 
 
-def run_static_analysis(firmware):
+def run_static_analysis(firmware, binary=True):
     # restore what we have done
     # restore_analysis(firmware)
 
     analyses_manager = AnalysesManager(firmware)
-    analyses_manager.register_static_analysis()
+    analyses_manager.register_static_analysis(binary=binary)
     status = analyses_manager.run_static_analysis()
 
     # save_analysis(firmware)

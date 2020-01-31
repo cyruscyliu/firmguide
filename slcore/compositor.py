@@ -131,7 +131,7 @@ def pack(components, load_address="0x00008000"):
     kernel = components.get_kernel()
     uimage = components.get_uimage()
 
-    if components.arch == 'arm32':
+    if components.arch == 'arm':
          os.system('mkimage -A arm -C none -O linux -T kernel -d {0} -a {1} -e {1} {2} >/dev/null 2>&1'.format(kernel, load_address, uimage))
     elif components.arch == 'mips':
          os.system('mkimage -A mips -C none -O linux -T kernel -d {0} -a {1} -e {1} {2} >/dev/null 2>&1'.format(kernel, load_address, uimage))

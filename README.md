@@ -76,8 +76,8 @@ wget https://archive.openwrt.org/backfire/10.03/orion/openwrt-wrt350nv2-squashfs
 wget https://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin
 wget https://archive.openwrt.org/chaos_calmer/15.05/brcm47xx/mips74k/openwrt-15.05-brcm47xx-mips74k-linksys-wrt320n-v1-squashfs.bin
 cd ~/salamander
-./slbin.py -u 15007 -a arm32 -e l -f ../images/openwrt-wrt350nv2-squashfs-recovery.bin
-./slbin.py -u 13882 -a arm32 -e l -f ../images/openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin
+./slbin.py -u 15007 -a arm -e l -f ../images/openwrt-wrt350nv2-squashfs-recovery.bin
+./slbin.py -u 13882 -a arm -e l -f ../images/openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin
 ./slbin.py -u 14292 -a mips -e l -f ../images/openwrt-15.05-brcm47xx-mips74k-linksys-wrt320n-v1-squashfs.bi
 ```
 

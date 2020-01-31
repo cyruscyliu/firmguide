@@ -11,7 +11,7 @@ class SupportMachines(Database):
         select 'profile' where arch='arm' and machine_id='0x661'
         """
         arch = kwargs.pop('arch')
-        assert arch in ['arm32', 'mips']
+        assert arch in ['arm', 'arm64', 'mips']
         machine_id = kwargs.pop('machine_id', None)
 
         table = open(os.path.join(BASE_DIR, 'slcore/database', 'support.{}.yaml'.format(arch)))

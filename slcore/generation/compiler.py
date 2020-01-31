@@ -1,11 +1,11 @@
 import os
 import abc
 
-from generation.common import to_state, to_mmio, to_ops, indent, to_type, to_read, to_write, to_update, \
+from slcore.generation.common import to_state, to_mmio, to_ops, indent, to_type, to_read, to_write, to_update, \
     to_upper, concat
-from generation.preprocessor import PreProcessor
-from generation.render import Template
-from supervisor.logging_setup import logger_info, logger_debugging
+from slcore.generation.preprocessor import PreProcessor
+from slcore.generation.render import Template
+from logger import logger_info, logger_debug
 
 
 class CompilerToQEMUMachine(object):
@@ -56,7 +56,7 @@ class CompilerToQEMUMachine(object):
         logger_info(self.firmware.get_uuid(), 'code_generation', action, message, 0)
 
     def debug(self, message, action):
-        logger_debugging(self.firmware.get_uuid(), 'code_generation', action, message, 0)
+        logger_debug(self.firmware.get_uuid(), 'code_generation', action, message, 0)
 
     @staticmethod
     def render_lines(lines):

@@ -200,7 +200,7 @@ def find_cpu_by_openwrt_toh(toh):
     cpu = toh['packagearchitecture']
     soc = toh['cpu']
     if cpu is not None and cpu != '':
-        # TODO map to cpu.arm32.yaml or cpu.mips.yaml
+        # TODO map to cpu.arm.yaml or cpu.mips.yaml
         return cpu
 
 
