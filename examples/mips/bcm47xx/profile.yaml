@@ -4,6 +4,8 @@ basics:
   brand: "openwrt"
   machine_description: "Linksys WRT320N v1 (BCM4717A1)"
   machine_name: "wrt320n_v1"
+kernel:
+  kernel_load_address: '0x80001000'
 cpu:
   model: "74Kf"
 cpu_pp:

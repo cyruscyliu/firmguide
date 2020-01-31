@@ -3,6 +3,7 @@ this file controls the generation of the qemu code
 """
 from slcore.generation.compilerf import get_compiler
 from slcore.qemuc import QEMUController
+from slcore.compositor import pack, enlarge_image
 from analyses.analysis import Analysis
 
 
@@ -19,14 +20,17 @@ class CodeGeneration(Analysis):
 
         machine_compiler.make()
 
+        kernel_load_address = firmware.get_kernel_load_address()
         flash_size = firmware.get_flash_size()
         if flash_size:
             flash_size = eval(flash_size.replace('MiB', '0x100000'))
+            enlarge_image(firmware.get_path(), flash_size)
 
+        pack(firmware.components, kernel_load_address=kernel_load_address)
         running_command = machine_compiler.qemuc.get_command(
             firmware.get_architecture(), firmware.get_endian(), firmware.get_machine_name(),
             firmware.get_path_to_uimage(),
-            flash=firmware.get_flash_type(), image=firmware.get_path(), flash_size=flash_size,
+            flash=firmware.get_flash_type(), image=firmware.get_path(),
             dtb=firmware.get_path_to_dtb()
         )
 

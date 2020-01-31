@@ -53,10 +53,8 @@ class QEMUController(object):
             running_command += ' -dtb {}'.format(dtb)
         if flash == 'nor':
             running_command += ' -drive file={},if=pflash,format=raw'.format(image)
-            enlarge_image(image, flash_size)
         elif flash == 'nand':
             running_command += ' -drive file={},if=mtd,format=raw'.format(image)
-            enlarge_image(image, flash_size)
         running_command += ' -nographic'
         return running_command
 

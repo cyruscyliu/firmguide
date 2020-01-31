@@ -185,6 +185,8 @@ brand:
     supportedcurrentrel: '10.03'
     supportedsincerel: '10.03'
     target: orion
+kernel:
+  kernel_load_address: '0x00008000'
 cpu:
   model: arm926
 flash:

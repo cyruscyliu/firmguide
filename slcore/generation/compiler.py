@@ -235,9 +235,9 @@ class CompilerToQEMUMachine(object):
                    'ic_mmio_size': ic_mmio_size, 'ic_mmio_base': ic_mmio_base,
                    'timer_irq': timer_irq, 'license': ''.join(self.license),
                    'upper': lambda x: x.upper(), 'concat': lambda x: concat(x)}
-        ic_c = self.render_templates(context, 'generation/models/sintc.c')
+        ic_c = self.render_templates(context, 'slcore/generation/models/sintc.c')
         self.custom_devices['interrupt_controller']['source'].extend(ic_c)
-        ic_h = self.render_templates(context, 'generation/models/sintc.h')
+        ic_h = self.render_templates(context, 'slcore/generation/models/sintc.h')
         self.custom_devices['interrupt_controller']['header'].extend(ic_h)
 
         self.machine['includings'].extend(['hw/intc/{}.h'.format(ic_name)])
@@ -615,7 +615,6 @@ class CompilerToQEMUMachine(object):
 
         # save them locally
         if len(self.custom_devices['interrupt_controller']['source']):
-            print('hhh')
             interrupt_controller_name = self.firmware.get_interrupt_controller_name()
             source_target = os.path.join(
                 self.firmware.get_target_dir(), 'qemu-4.0.0', self.location['machine']['interrupt_controller'],

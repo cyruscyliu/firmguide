@@ -129,7 +129,7 @@ def __binwalk_scan_all(path, target_dir, extract=True):
             path, signature=True, extract=extract, quiet=True, block=size, directory=target_dir):
         return module
 
-def pack(components, load_address="0x00008000"):
+def pack(components, kernel_load_address="0x00008000"):
     """
     :param components: return from unpack
     :param load_adress: have to start with "0x"
@@ -139,9 +139,9 @@ def pack(components, load_address="0x00008000"):
     uimage = components.get_uimage()
 
     if components.arch == 'arm':
-         os.system('mkimage -A arm -C none -O linux -T kernel -d {0} -a {1} -e {1} {2} >/dev/null 2>&1'.format(kernel, load_address, uimage))
+         os.system('mkimage -A arm -C none -O linux -T kernel -d {0} -a {1} -e {1} {2} >/dev/null 2>&1'.format(kernel, kernel_load_address, uimage))
     elif components.arch == 'mips':
-         os.system('mkimage -A mips -C none -O linux -T kernel -d {0} -a {1} -e {1} {2} >/dev/null 2>&1'.format(kernel, load_address, uimage))
+         os.system('mkimage -A mips -C none -O linux -T kernel -d {0} -a {1} -e {1} {2} >/dev/null 2>&1'.format(kernel, kernel_load_address, uimage))
 
     return components
 

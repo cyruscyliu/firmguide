@@ -9,10 +9,11 @@ from analyses.diag_callstack import CallStack
 from analyses.diag_dabt import DataAbort
 from analyses.diag_deadloop2 import DeadLoop2
 from analyses.diag_panic import Panic
-from analyses.diag_check import Checking
-from analyses.diag_tracing import DoTracing, LoadTrace
 from analyses.diag_init_value import InitValue
+
 from analyses.diag_generation import CodeGeneration
+from analyses.diag_tracing import DoTracing, LoadTrace
+from analyses.diag_checking import Checking
 
 from analyses.sabinary.inf_kernel import Kernel
 from analyses.sabinary.inf_strings import Strings
@@ -183,8 +184,6 @@ class AnalysesManager(object):
                     if not res:
                         a.error(self.firmware)
                     if not res and a.is_critical():
-                        logger_warning(
-                            self.firmware.get_uuid(), 'analysis', 'exception', 'can not support it, fix and rerun', 0)
                         return False
                 except NotImplementedError as e:
                     logger_warning(self.firmware.get_uuid(), 'analysis', 'exception', e, 0)
@@ -225,11 +224,11 @@ class AnalysesManager(object):
         self.dynamic_analysis = dynamic_analysis
 
         self.register_analysis(CodeGeneration(self), analyses_tree=dynamic_analysis)
-        # if tracing:
-            # self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
-        # self.register_analysis(Checking(self), analyses_tree=dynamic_analysis)
-        # if not check_only:
-            # self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
+        if tracing:
+            self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
+        self.register_analysis(Checking(self), analyses_tree=dynamic_analysis)
+        if not check_only:
+            self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(DeadLoop2(self), analyses_tree=dynamic_analysis)
