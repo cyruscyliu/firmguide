@@ -17,6 +17,8 @@ def run(args):
 
     # 2. find a prepared machine
     components = unpack(args.firmware, uuid=args.uuid, arch=args.architecture, endian=args.endianness, target_dir=target_dir)
+    if components is None:
+        return
     machine = find_machine(components)
 
     # 3. migrate the machine to the working dir

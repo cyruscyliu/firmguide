@@ -1,7 +1,7 @@
 support:
   bcm47xx:
     device_tree: False
-    machine_ids: ["0x989681"]
+    machine_ids: ["0x10000030"]
     uart: serial8250
     profile: "examples/mips/bcm47xx/profile.yaml"
   ar7:

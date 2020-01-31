@@ -35,15 +35,15 @@ class OpenWRT(Analysis):
 
         # toh
         # search_most_possible_toh_record(strings)
-        toh = find_openwrt_toh(revision, target, subtarget)
-        self.info(firmware, 'get openwrt revision: {}'.format(toh), 1)
+        toh, header = find_openwrt_toh(revision, target, subtarget)
+        self.debug(firmware, 'get openwrt revision: {}'.format(toh), 1)
         if toh:
             machine_name = find_machine_name_by_openwrt_toh(toh, header)
-            self.info(firmware, 'get machine name: {}'.format(toh), 1)
+            self.info(firmware, 'get machine name: {}'.format(machine_name), 1)
             cpu = find_cpu_by_openwrt_toh(toh, header)
-            self.info(firmware, 'get cpu: {}'.format(toh), 1)
+            self.info(firmware, 'get cpu: {}'.format(cpu), 1)
             ram_size = find_ram_size_by_openwrt_toh(toh, header)
-            self.info(firmware, 'get ram size: {}'.format(toh), 1)
+            self.info(firmware, 'get ram size: {}'.format(ram_size), 1)
 
         return True
 

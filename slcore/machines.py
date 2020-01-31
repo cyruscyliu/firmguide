@@ -20,6 +20,9 @@ def find_machine_by_id(arch, machine_ids):
             return profile
 
 def find_machine(components):
+    if components is None:
+        return None
+
     if components.has_device_tree():
         compatible = find_compatible(components.get_dtb())
         logger_debug(components.uuid, 'machines', 'find_machine', 'compatible: {}'.format(compatible), 1)

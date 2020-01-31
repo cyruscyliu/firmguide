@@ -62,6 +62,8 @@ def setup_target_dir(uuid):
 
 
 def migrate(components, path_to_profile, quick=False, trace_format='qemudebug', max_=20):
+    assert components is not None
+
     firmware = get_firmware('simple')
 
     # two basics
