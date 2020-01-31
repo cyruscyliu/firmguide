@@ -38,10 +38,15 @@ sudo apt-get install -y gawk
 git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && mkdir log && mkdir ~/build
 
 # install modified binwalk
+sudo apt-get install -y zlib1g-dev liblzma-dev liblzo2-dev && \
+git clone https://github.com/devttys0/sasquatch ~/sasquatch && \
+cd ~/sasquatch && ./build.sh && cd ~-
+
 wget -nc https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz -O ~/build/v2.1.1.tar.gz || true && \
 tar --skip-old-files -zxf ~/build/v2.1.1.tar.gz -C ~/build && \
 cp -r patches/binwalk/* ~/build/binwalk-2.1.1/src/ && \
 cd ~/build/binwalk-2.1.1 && sudo python3.7 setup.py -q install && cd ~-
+# cd ~/build/binwalk-2.1.1 && sudo ./deps.sh && cd ~- && \
 
 # install modified qemu
 wget -nc https://download.qemu.org/qemu-4.0.0.tar.xz -O ~/build/qemu-4.0.0.tar.xz || true && \
@@ -50,7 +55,7 @@ cp -r patches/qemu/* ~/build/qemu-4.0.0/ && \
 cd ~/build/qemu-4.0.0 && ./configure --target-list=arm-softmmu,mipsel-softmmu,mips-softmmu && make -j4 && cd ~-
 
 # install llvm-9
-apt-get update && apt-get install -y build-essential wget lsb-core software-        properties-common vim && \
+apt-get update && apt-get install -y build-essential wget lsb-core software-properties-common vim && \
 wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 9 && \
 ln -s /usr/bin/clang-9 /usr/bin/clang && ln -s /usr/bin/llvm-link-9 /usr/bin/llvm-link  && ln -s /usr/bin/opt-9 /usr/bin/opt
 pip3.7 install networkx matplotlib graphviz
@@ -59,8 +64,6 @@ pip3.7 install networkx matplotlib graphviz
 ## Usage
 
 ##### if you have a firmware blob
-
-what you need to provide
 + the path to firmware [required]
 + the uuid of the firmware [required]
 + the architecture and the endianness [required]
@@ -71,9 +74,11 @@ what you need to provide
 cd ~/build
 wget https://archive.openwrt.org/backfire/10.03/orion/openwrt-wrt350nv2-squashfs-recovery.bin
 wget https://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin
+wget https://archive.openwrt.org/chaos_calmer/15.05/brcm47xx/mips74k/openwrt-15.05-brcm47xx-mips74k-linksys-wrt320n-v1-squashfs.bin
 cd ~/salamander
-./slbin.py -u 15007 -a arm32 -e l -f ../images/openwrt-wrt350nv2-squashfs-recovery.bin
-./slbin.py -u 13882 -a arm32 -e l -f ../images/openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin
+./slbin.py -u 15007 -a arm -e l -f ../images/openwrt-wrt350nv2-squashfs-recovery.bin
+./slbin.py -u 13882 -a arm -e l -f ../images/openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin
+./slbin.py -u 14292 -a mips -e l -f ../images/openwrt-15.05-brcm47xx-mips74k-linksys-wrt320n-v1-squashfs.bi
 ```
 
 ##### if you have compilable Linux kernel source code

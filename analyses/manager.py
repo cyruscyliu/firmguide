@@ -1,31 +1,32 @@
 import os
 
+from logger import logger_info, logger_warning
+from slcore.environment import finished, finish
+
 from analyses.analysis import Analysis, AnalysisGroup
 from analyses.diag_bamboos import Bamboos
 from analyses.diag_callstack import CallStack
 from analyses.diag_dabt import DataAbort
 from analyses.diag_deadloop2 import DeadLoop2
 from analyses.diag_panic import Panic
-from analyses.inf_mfilter import Filter
-from analyses.inf_hardcode import HardCode
-from analyses.inf_libtooling import LibTooling
-from analyses.inf_loaddr import LoadAddr
-from analyses.inf_mips_cpu import MIPSCPU
-from supervisor.logging_setup import logger_info, logger_warning
-from supervisor.save_and_restore import finished, finish
-
-from analyses.diag_check import Checking
-from analyses.diag_tracing import DoTracing, LoadTrace
 from analyses.diag_init_value import InitValue
 
-from analyses.sa_binary.inf_kernel import Kernel
-from analyses.sa_binary.inf_openwrt import OpenWRT
-from analyses.sa_binary.inf_strings import Strings
+from analyses.diag_generation import CodeGeneration
+from analyses.diag_tracing import DoTracing, LoadTrace
+from analyses.diag_checking import Checking
 
-from analyses.inf_device_tree import DeviceTree
-from analyses.inf_dot_config import DotConfig
-from analyses.inf_srcode import SRCode
-from analyses.inf_ram import RAMDefault
+from analyses.sabinary.inf_kernel import Kernel
+from analyses.sabinary.inf_strings import Strings
+from analyses.sabinary.inf_hardcode import HardCode
+from analyses.sabinary.inf_openwrt import OpenWRT
+
+from analyses.sasrcode.inf_device_tree import DeviceTree
+from analyses.sasrcode.inf_mfilter import Filter
+from analyses.sasrcode.inf_cpu import CPU
+from analyses.sasrcode.inf_ram import RAM
+from analyses.sasrcode.inf_sintc import SINTC
+from analyses.sasrcode.inf_libtooling import LibTooling
+from analyses.sasrcode.inf_loaddr import LoadAddr
 
 
 class AnalysesManager(object):
@@ -183,8 +184,6 @@ class AnalysesManager(object):
                     if not res:
                         a.error(self.firmware)
                     if not res and a.is_critical():
-                        logger_warning(
-                            self.firmware.get_uuid(), 'analysis', 'exception', 'can not support it, fix and rerun', 0)
                         return False
                 except NotImplementedError as e:
                     logger_warning(self.firmware.get_uuid(), 'analysis', 'exception', e, 0)
@@ -206,36 +205,34 @@ class AnalysesManager(object):
         if binary:
             self.register_analysis(Kernel(self), analyses_tree=static_analysis)
             self.register_analysis(Strings(self), analyses_tree=static_analysis)
+            self.register_analysis(HardCode(self), analyses_tree=static_analysis)
             self.register_analysis(OpenWRT(self), analyses_tree=static_analysis)
         else:
+            # mfilter <- cpu
+            self.register_analysis(Filter(self), analyses_tree=static_analysis)
+            # mfilter <- ram
+            self.register_analysis(CPU(self), analyses_tree=static_analysis)
+            self.register_analysis(RAM(self), analyses_tree=static_analysis)
+            self.register_analysis(SINTC(self), analyses_tree=static_analysis)
+            self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
             # self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)
-            # toh <- ram by default
-            # self.register_analysis(RAMDefault(self), analyses_tree=static_analysis)
-            # srcode <- .config
-            # self.register_analysis(SRCode(self), analyses_tree=static_analysis)
-            # self.register_analysis(DotConfig(self), analyses_tree=static_analysis)
-            # self.register_analysis(Filter(self), analyses_tree=static_analysis)
-            # srcode <- libtooling
-            # self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
-            # self.register_analysis(HardCode(self), analyses_tree=static_analysis)
-            # srcode <- mips cpu
-            # self.register_analysis(MIPSCPU(self), analyses_tree=static_analysis)
-            # srcode <- mips loading addr
-            # self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
-            pass
+            self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
+            # self.register_analysis(CodeGeneration(self), analyses_tree=static_analysis)
 
     def register_dynamic_analysis(self, tracing=True, check_only=False):
         dynamic_analysis = self.new_analyses_tree()
         self.dynamic_analysis = dynamic_analysis
 
+        self.register_analysis(CodeGeneration(self), analyses_tree=dynamic_analysis)
         if tracing:
             self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
         self.register_analysis(Checking(self), analyses_tree=dynamic_analysis)
         if not check_only:
             self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
-            self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
-            self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
-            self.register_analysis(DeadLoop2(self), analyses_tree=dynamic_analysis)
-            self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
+            # self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
+            # self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
+            # self.register_analysis(DeadLoop2(self), analyses_tree=dynamic_analysis)
+            # self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(Panic(self), analyses_tree=dynamic_analysis)
-            self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)
+            # self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)
+

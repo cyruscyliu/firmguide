@@ -1,6 +1,6 @@
-from database.dbf import get_database
-from generation.common import indent
-from generation.compiler import CompilerToQEMUMachine
+from slcore.database.dbf import get_database
+from slcore.generation.common import indent
+from slcore.generation.compiler import CompilerToQEMUMachine
 
 
 class ARMCompiler(CompilerToQEMUMachine):
@@ -12,7 +12,6 @@ class ARMCompiler(CompilerToQEMUMachine):
         ])
         self.machine_init['body'].extend([
             indent('object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);', 1)])
-        self.info('solved abelia cpu', 'compile')
 
     def resolve_cpu_private_peripheral(self):
         qemu_apis = get_database('qemu.apis')
@@ -28,7 +27,6 @@ class ARMCompiler(CompilerToQEMUMachine):
             indent('object_property_set_bool(OBJECT(&s->cpu_pp), true, "realized", &err);', 1),
             indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->cpu_pp), 0, {});'.format(cpu_pp_mmio_base), 1)
         ])
-        self.info('solved abelia cpu private peripheral', 'compile')
 
     def resolve_irq_to_cpu(self):
         if self.cpu_pp_model:
@@ -66,3 +64,4 @@ class ARMCompiler(CompilerToQEMUMachine):
         super().__init__(firmware)
         self.location['configs'] = 'default-configs/arm-softmmu.mak'
         self.location['kconfig'] = 'hw/arm/Kconfig'
+

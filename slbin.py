@@ -17,6 +17,8 @@ def run(args):
 
     # 2. find a prepared machine
     components = unpack(args.firmware, uuid=args.uuid, arch=args.architecture, endian=args.endianness, target_dir=target_dir)
+    if components is None:
+        return
     machine = find_machine(components)
 
     # 3. migrate the machine to the working dir
@@ -29,8 +31,9 @@ def run(args):
         if args.url:
             firmware.set_url(args.url)
         status = run_static_analysis(firmware)
-    # else:
-        # status = run_dynamic_analysis(firmware)
+    else:
+        firmware.max_iteration = args.max
+        status = run_dynamic_analysis(firmware)
 
     # 5. take snapshots to save results
     return snapshot(firmware)
@@ -42,12 +45,12 @@ if __name__ == '__main__':
 
     # analysis
     group = parser.add_argument_group('analysis')
-    group.add_argument('-a', '--architecture', choices=['arm32', 'arm64', 'mips'], required=True)
+    group.add_argument('-a', '--architecture', choices=['arm', 'arm64', 'mips'], required=True)
     group.add_argument('-b', '--brand', choices=['openwrt'], required=False)
     group.add_argument('-e', '--endianness', choices=['b', 'l'], required=True)
     group.add_argument('-f', '--firmware', metavar='path/to/firmware', required=True)
     group.add_argument('-u', '--uuid', type=str, required=True)
-    group.add_argument('-dl', '--download', required=False )
+    group.add_argument('-l', '--url', required=False )
 
     # diagnosis
     group = parser.add_argument_group('diagnosis')
@@ -57,9 +60,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     if args.debug:
-        setup_logging(default_level=logging.DEBUG)
+        setup_logging(default_level=logging.DEBUG, uuid=args.uuid)
     else:
-        setup_logging(default_level=logging.INFO)
+        setup_logging(default_level=logging.INFO, uuid=args.uuid)
 
     run(args)
 

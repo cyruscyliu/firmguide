@@ -1,17 +1,21 @@
 import os
+import yaml
 import logging
 import logging.config
 
-import yaml
+from settings import *
 
 
 logger = logging.getLogger()
 
-def setup_logging(default_path="logging.yaml", default_level=logging.INFO):
+def setup_logging(default_path="logging.yaml", default_level=logging.INFO, uuid='salamander'):
     path = default_path
     if os.path.exists(path):
         with open(path, "r") as f:
-            logging.config.dictConfig(yaml.safe_load(f))
+            config = yaml.safe_load(f)
+        config['handlers']['file']['filename'] = os.path.join(BASE_DIR, 'log/{}.log'.format(uuid))
+        config['root']['level'] = default_level
+        logging.config.dictConfig(config)
     else:
         logging.basicConfig(level=default_level)
 

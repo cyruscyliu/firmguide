@@ -167,9 +167,6 @@ basics:
   endian: l
   machine_description: wrt350n_v2
   machine_name: wrt350n_v2
-  name: openwrt-wrt350nv2-squashfs-recovery.bin
-  path: /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./backfire_10.03/bin/orion/openwrt-wrt350nv2-squashfs-recovery.bin
-  uuid: '15007'
 brand:
   revision: '10.03'
   subtarget: null
@@ -188,11 +185,8 @@ brand:
     supportedcurrentrel: '10.03'
     supportedsincerel: '10.03'
     target: orion
-components:
-  path_to_dot_config: /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./backfire_10.03/build_dir/linux-orion_generic/linux-2.6.32.10-pure/.config
-  path_to_llvm_bitcode: /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./backfire_10.03/build_dir/linux-orion_generic/linux-2.6.32.10-pure
-  path_to_source_code: /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./backfire_10.03/build_dir/linux-orion_generic/linux-2.6.32.10-pure
-  path_to_vmlinux: /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./backfire_10.03/build_dir/linux-orion_generic/linux-2.6.32.10-pure/vmlinux
+kernel:
+  kernel_load_address: '0x00008000'
 cpu:
   model: arm926
 flash:
@@ -215,11 +209,6 @@ interrupt_controller:
       offset: '0x104'
       value: '0x0'
   timer_irq: '0x0'
-kernel:
-  kernel_created_time: Thu Dec 26 03:42:46 2019
-  kernel_entry_point: 'Entry Point: 0x00008000'
-  kernel_load_address: '0x00008000'
-  kernel_version: 2.6.32
 mapping:
   '0xfdd00000':
     pa: '0xf1000000'
@@ -241,9 +230,6 @@ ram:
   base: '0x0'
   priority: '0'
   size: 32 * MiB
-runtime:
-  iteration: 9
-  user_mode: true
 uart:
   num: 2
   uart@0:
@@ -260,6 +246,3 @@ uart:
     mmio_size: '0x100'
     name: serial8250
     reg_shift: '2'
-  uart@2:
-    baud_rate: '115200'
-    name: ns16550A

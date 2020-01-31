@@ -1,5 +1,5 @@
-from generation.arm_compiler import ARMCompiler
-from generation.mips_compiler import MIPSCompiler
+from slcore.generation.arm_compiler import ARMCompiler
+from slcore.generation.mips_compiler import MIPSCompiler
 
 
 def get_compiler(firmware):

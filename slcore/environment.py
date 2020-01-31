@@ -60,7 +60,10 @@ def setup_target_dir(uuid):
     logger_info(uuid, 'environment', 'tdir', 'process in {}'.format(target_dir), 1)
     return target_dir
 
+
 def migrate(components, path_to_profile, quick=False, trace_format='qemudebug', max_=20):
+    assert components is not None
+
     firmware = get_firmware('simple')
 
     # two basics
@@ -72,10 +75,10 @@ def migrate(components, path_to_profile, quick=False, trace_format='qemudebug', 
         firmware.set_profile(path_to_profile=path_to_profile)
         # change save-to-path to avoid modifing our well-defined profile
         firmware.path_to_profile = os.path.join(firmware.get_target_dir(), 'profile.yaml')
-        logger_info(firmware.get_uuid(), 'environment', 'migrate', 'migrate from {} to {}'.format(path_to_profile, firmware.get_target_dir()), 1)
+        logger_info(firmware.uuid, 'environment', 'migrate', 'migrate from {} to {}'.format(path_to_profile, firmware.get_target_dir()), 1)
     else:
         firmware.set_profile(target_dir=firmware.get_target_dir(), first=True)
-        logger_info(firmware.get_uuid(), 'environment', 'migrate', 'create new profile {}'.format(path_to_profile), 1)
+        logger_info(firmware.uuid, 'environment', 'migrate', 'create new profile {}'.format(firmware.path_to_profile), 1)
 
     firmware.set_uuid(components.uuid)
     firmware.set_name(components.get_image_name())
@@ -105,6 +108,10 @@ def snapshot(firmware):
     firmware.stats()
     logger_info(firmware.get_uuid(), 'environment', 'snapshot', 'statistics at {}'.format(firmware.path_to_summary), 1)
     return True
+
+
+def archive(firmware):
+    pass
 
 
 def setup_working_directory(args, firmware):
@@ -150,84 +157,6 @@ def setup_diagnosis(args, firmware):
     firmware.max_iteration = args.max
 
 
-def setup_code_generation(args, firmware):
-    setup_working_directory(args, firmware)
-
-    # load profile from args.generation
-    # we can known its uuid
-    firmware.set_profile(path_to_profile=args.generation)
-    firmware.uuid = firmware.get_uuid()
-
-    # then setup its target dir
-    firmware.setup_target_directory()
-    firmware.setup_working_path()
-
-    # we have loaded the profile, to
-    # avoid modify our well-defined profile, change save to path
-    extension = 'yaml' if args.profile == 'simple' else 'dt'
-    firmware.path_to_profile = os.path.join(firmware.get_target_dir(), 'profile.' + extension)
-
-    # we still need the trace
-    firmware.trace_format = args.trace_format
-    firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
-        firmware.get_uuid(), firmware.get_architecture(), firmware.get_endian())
-    firmware.max_iteration = args.max
-
-
 def setup_statistics(args, firmware):
     setup_working_directory(args, firmware)
 
-
-def setup_single_analysis(args, firmware):
-    setup_working_directory(args, firmware)
-
-    if args.uuid is None:
-        print('uuid cannot be empty')
-        exit(-1)
-
-    firmware.uuid = args.uuid
-    firmware.setup_target_directory()
-
-    path_to_profile = os.path.join(firmware.get_target_dir(), 'profile.' + firmware.profile_ext)
-    firmware.path_to_profile = path_to_profile
-
-    empty = False
-    # enforce no empty profile which will crash thw whole system
-    if not os.path.exists(path_to_profile) or firmware.is_empty_profile():
-        os.system('rm -f {}'.format(path_to_profile))
-        empty = True
-
-    if empty and args.firmware is None:
-        print('please use full command because of missing profile')
-        exit(-1)
-
-    if not empty:
-        # load the profile
-        firmware.set_profile(path_to_profile=path_to_profile)
-        firmware.setup_working_path()
-        if not os.path.exists(firmware.get_path()):
-            print('May be you forget -wd?')
-            exit(-1)
-        else:
-            firmware.size = os.path.getsize(firmware.get_path())
-    else:
-        # load from the command line
-        firmware.set_profile(path_to_profile=path_to_profile, first=True)
-        firmware.set_uuid(args.uuid)
-        firmware.set_path(args.firmware)
-        firmware.set_name(os.path.basename(args.firmware))
-        firmware.setup_working_path()
-        firmware.size = os.path.getsize(args.firmware)
-        firmware.set_architecture(args.architecture)
-        firmware.set_endian(args.endian)
-        firmware.set_brand(args.brand)
-        firmware.set_path_to_source_code(args.source_code)
-        firmware.set_path_to_makeout(args.makeout)
-        firmware.set_path_to_gcc(args.gcc)
-
-    firmware.trace_format = args.trace_format
-    firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
-        firmware.get_uuid(), firmware.get_architecture(), firmware.get_endian())
-    firmware.rerun = args.rerun
-    firmware.do_not_diagnosis = args.quick
-    firmware.max_iteration = args.max

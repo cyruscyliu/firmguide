@@ -195,23 +195,12 @@ basics:
   endian: l
   machine_description: shuttle_kd20
   machine_name: shuttle_kd20
-  name: openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin
-  path: /mnt/salamander/srcode/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/bin/oxnas/openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin
-  uuid: '13882'
+kernel:
+  kernel_load_address: '0x00008000'
 brand:
   revision: '15.05'
   subtarget: ox820
   target: oxnas
-components:
-  format: fit uImage
-  path_to_dot_config: /mnt/salamander/srcode/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/linux-oxnas/linux-3.18.20/.config
-  path_to_dtb: /home/liuqiang/Desktop/salamander-build/_openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin-58.extracted/A0000.dtb
-  path_to_image: /home/liuqiang/Desktop/salamander-build/_openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin-58.extracted/A0000.uimage.fit
-  path_to_kernel: /home/liuqiang/Desktop/salamander-build/_openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin-58.extracted/A0000.uimage.kernel
-  path_to_llvm_bitcode: /mnt/salamander/srcode/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/linux-oxnas/linux-3.18.20
-  path_to_source_code: /mnt/salamander/srcode/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/linux-oxnas/linux-3.18.20
-  path_to_uimage: /home/liuqiang/Desktop/salamander-build/_openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin-58.extracted/A0000.uimage.uimage
-  path_to_vmlinux: /mnt/salamander/srcode/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/linux-oxnas/linux-3.18.20/vmlinux
 cpu:
   model: arm11mpcore
 cpu_pp:
@@ -221,11 +210,6 @@ interrupt_controller:
   mmio_base: '0x47001000'
   mmio_size: '0x47001000'
   name: arm,arm11mp-gic
-kernel:
-  kernel_created_time: Sun Dec 29 19:45:44 2019
-  kernel_entry_point: null
-  kernel_load_address: '0x00008000'
-  kernel_version: 3.18.20
 mapping:
   '0xf0002000':
     pa: '0x47000000'
@@ -251,9 +235,6 @@ ram:
   base: '0x0'
   priority: '0'
   size: 32 * MiB
-runtime:
-  iteration: 1
-  user_mode: true
 uart:
   num: 1
   uart@0:

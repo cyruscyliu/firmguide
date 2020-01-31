@@ -5,7 +5,7 @@ import os
 import yaml
 
 from fuzzywuzzy import process
-
+from settings import *
 from slcore.database.db import Database
 
 
@@ -18,7 +18,7 @@ class DatabaseQEMUAPIS(Database):
         device, wanted_property = args[0], args[1]
 
         # get the database
-        qemu_apis = open(os.path.join(os.getcwd(), 'database', 'qemu.apis.yaml'))
+        qemu_apis = open(os.path.join(BASE_DIR, 'slcore/database', 'qemu.apis.yaml'))
         database_qemu_apis = yaml.safe_load(qemu_apis)
         qemu_apis.close()
 
@@ -49,7 +49,7 @@ class DatabaseQEMUDevices(Database):
         like = kwargs.pop('like')
 
         # get the database
-        qemu_devcies = open(os.path.join(os.getcwd(), 'database', 'qemu.devices.yaml'))
+        qemu_devcies = open(os.path.join(BASE_DIR, 'slcore/database', 'qemu.devices.yaml'))
         database_qemu_devices = yaml.safe_load(qemu_devcies)
 
         # get choices
@@ -73,3 +73,4 @@ class DatabaseQEMUDevices(Database):
 
     def update(self, *args, **kwargs):
         raise NotImplementedError('you are not expected to modify this table')
+

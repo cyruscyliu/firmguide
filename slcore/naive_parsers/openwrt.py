@@ -186,26 +186,26 @@ def find_openwrt_toh(revision, target, subtarget):
     else:
         toh = None
         header = None
-    return toh
+    return toh, header
 
 
-def find_machine_name_by_openwrt_toh(toh):
-    machine_name = toh['model']
+def find_machine_name_by_openwrt_toh(toh, header):
+    machine_name = toh[header.index('model')]
     machine_name = '_'.join(machine_name.split())
     machine_name = machine_name.lower()
     return machine_name
 
 
-def find_cpu_by_openwrt_toh(toh):
-    cpu = toh['packagearchitecture']
-    soc = toh['cpu']
+def find_cpu_by_openwrt_toh(toh, header):
+    cpu = toh[header.index('packagearchitecture')]
+    soc = toh[header.index('cpu')]
     if cpu is not None and cpu != '':
-        # TODO map to cpu.arm32.yaml or cpu.mips.yaml
+        # TODO map to cpu.arm.yaml or cpu.mips.yaml
         return cpu
 
 
-def find_ram_size_by_openwrt_toh(toh):
-    ram = toh['rammb']
+def find_ram_size_by_openwrt_toh(toh, header):
+    ram = toh[header.index('rammb')]
     if ram is not None and ram != '':
         return '{} * MiB'.format(ram)
 

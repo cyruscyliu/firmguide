@@ -171,7 +171,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         if target_dir is None:
             self.path_to_profile = path_to_profile
         else:
-            self.path_to_profile = os.path.join(target_dir, 'profile.dt')
+            self.path_to_profile = os.path.join(target_dir, 'profile.yaml')
 
         if first:
             self.create_empty_profile()

@@ -20,3 +20,8 @@ QEMU_PACKAGE_URL = 'https://download.qemu.org/qemu-4.0.0.tar.xz'
 QEMU_PACKAGE_NAME = 'qemu-4.0.0.tar.xz'
 QEMU_DIR_NAME = 'qemu-4.0.0'
 QEMU_GLOBAL = False
+
+# LLVM-9
+LLVM_OPT='opt'
+LLVM_LINK='llvm-link'
+LLVM_CLANG='clang'

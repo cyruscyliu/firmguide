@@ -193,19 +193,22 @@ def find_cpu_in_strings(strings):
                 votes[k] += 1
     # vote
     vote = 0
-    model = ''
+    model = None
     for k, v in votes.items():
         if v > vote:
             vote = v
             model = k
 
-    arm32_cpus = yaml.safe_load(open(os.path.join(BASE_DIR, 'slcore/database/cpu.arm32.yaml')))
+    if model is None:
+        return []
+
+    arm_cpus = yaml.safe_load(open(os.path.join(BASE_DIR, 'slcore/database/cpu.arm.yaml')))
     target_cpus = []
     for candidate in cpu_list[model]:
-        for arm32_cpu, properties in arm32_cpus.items():
+        for arm_cpu, properties in arm_cpus.items():
             cpu_id = int(properties['cpu_id'], 16)
             if cpu_id & int(candidate['cpu_mask'], 16) == int(candidate['cpu_id'], 16):
-                target_cpus.append(arm32_cpu)
+                target_cpus.append(arm_cpu)
 
     wanted_cpus = ['arm11mpcore', 'cortex-a9', 'cortex-a15']
     if len(target_cpus):
