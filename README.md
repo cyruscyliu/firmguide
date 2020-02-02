@@ -82,22 +82,15 @@ cd ~/salamander
 ```
 
 ##### if you have compilable Linux kernel source code
-+ the source code to the firmware [required]
-+ the gcc used to compile the source code [required]
++ the uuid of the board
++ the path to source code [required]
++ the prefix of the toolchain used to compile the source code [required]
++ the architecture and the endianness [optional]
 + the make details when you compiled the source code [optional]
 + the brand of the firmware [optional]
 
 ```
-./slsrc.py -b openwrt \
-    -s /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./\
-        backfire_10.03/build_dir/\
-        linux-orion_generic/linux-2.6.32.10 
-    -mkout /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./\
-        backfire_10.03/build_dir/\
-        linux-orion_generic/makeout.txt 
-    -gcc /mnt/salamander/srcode/share/10.03-0432e31f4e2b38424921fa78247f6b27/./\
-        backfire_10.03/staging_dir/toolchain-arm_v5t_gcc-4.3.3+cs_uClibc-0.9.30.1_eabi/\
-        usr/bin/arm-openwrt-linux-gcc 
+./slsrc.py -u bcm47xx -a mips -e l -b openwrt -s /root/openwrt-build-docker/share/15.05-aef2aee99101287d643ad0dee7fb58fb/./chaos_calmer-15.05/build_dir/target-mipsel_mips32_uClibc-0.9.33.2/linux-brcm47xx_legacy/linux-3.18.20 -mkout /root/openwrt-build-docker/share/15.05-aef2aee99101287d643ad0dee7fb58fb/./chaos_calmer-15.05/build_dir/target-mipsel_mips32_uClibc-0.9.33.2/OpenWrt-ImageBuilder-15.05-brcm47xx-legacy.Linux-x86_64/build_dir/target-mipsel_mips32_uClibc-0.9.33.2/linux-brcm47xx_legacy/makeout.txt -gcc /root/openwrt-build-docker/share/15.05-aef2aee99101287d643ad0dee7fb58fb/./chaos_calmer-15.05/build_dir/target-mipsel_mips32_uClibc-0.9.33.2/OpenWrt-SDK-15.05-brcm47xx-legacy_gcc-4.8-linaro_uClibc-0.9.33.2.Linux-x86_64/staging_dir/toolchain-mipsel_mips32_gcc-4.8-linaro_uClibc-0.9.33.2/bin/mipsel-openwrt-linux-
 ```
 
 ## Debug

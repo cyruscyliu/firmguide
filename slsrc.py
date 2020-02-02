@@ -19,7 +19,7 @@ def run(args):
 
     # 2. prepare a firmware
     firmware = get_firmware('simple')
-    firmware.uuid = 'srcode'
+    firmware.uuid = args.uuid
     firmware.target_dir = target_dir
     firmware.set_profile(target_dir=target_dir, first=True)
     firmware.set_uuid('srcode')
@@ -63,7 +63,8 @@ if __name__ == '__main__':
     group.add_argument('-e', '--endian', type=str, choices=['b', 'l'], required=False)
     group.add_argument('-b', '--brand', type=str, choices=['openwrt'], required=False)
     group.add_argument('-s', '--source_code', type=str, metavar='path/to/source_code', required=True)
-    group.add_argument('-gcc', '--gcc', type=str, metavar='path/to/gcc', required=True)
+    group.add_argument('-gcc', '--gcc', type=str, metavar='path/to/prefix', required=True)
+    group.add_argument('-u', '--uuid', type=str, required=True)
     group.add_argument('-mkout', '--makeout', type=str, metavar='path/to/makeout', required=False)
 
     args = parser.parse_args()
