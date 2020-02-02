@@ -215,8 +215,8 @@ class AnalysesManager(object):
             # mfilter <- ram
             self.register_analysis(CPU(self), analyses_tree=static_analysis)
             self.register_analysis(RAM(self), analyses_tree=static_analysis)
-            # self.register_analysis(SINTC(self), analyses_tree=static_analysis)
-            # self.register_analysis(STimer(self), analyses_tree=static_analysis)
+            self.register_analysis(SINTC(self), analyses_tree=static_analysis)
+            self.register_analysis(STimer(self), analyses_tree=static_analysis)
             self.register_analysis(PlatformDevices(self), analyses_tree=static_analysis)
 
             self.register_analysis(LibTooling(self), analyses_tree=static_analysis)

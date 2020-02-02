@@ -67,6 +67,7 @@ class Filter(Analysis):
         support = get_database('support')
         status = support.select('support', target=target, arch='mips')
         if status:
+            self.info(firmware, 'mips/{} is supported'.format(target), 1)
             return True
         else:
             self.context['input'] = 'mips/{} is not supported yet'.format(target)
@@ -83,7 +84,7 @@ class Filter(Analysis):
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-        self.name = 'filter'
+        self.name = 'mfilter'
         self.description = 'some machines are not possible to support yet'
         self.required = []
         self.context['hint'] = 'cannot support this machine yet'

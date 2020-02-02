@@ -34,6 +34,9 @@ class SRCodeController(object):
             if line.startswith('#'):
                 prepared_content.append(line)
                 continue
+            # syntax case ...
+            # case '0' ... '7':
+            line = line.replace('case \'0\' ... \'7\':', 'case \'0\':')
             # builtin keywords
             line = line.replace('__inline__', '')
             line = line.replace('volatile', '')
@@ -259,7 +262,9 @@ class SRCodeController(object):
                 self.__traverse(block, funccalls)
         elif isinstance(body, c_ast.FuncCall):
             funccalls.append(body.name.name)
+            self.__traverse(body.args, funccalls)
         elif isinstance(body, c_ast.If):
+            self.__traverse(body.cond, funccalls)
             self.__traverse(body.iftrue, funccalls)
             self.__traverse(body.iffalse, funccalls)
         elif isinstance(body, c_ast.DoWhile) or \
@@ -281,7 +286,14 @@ class SRCodeController(object):
         elif isinstance(body, c_ast.Default):
             for stmt in body.stmts:
                 self.__traverse(stmt, funccalls)
+        elif isinstance(body, c_ast.ExprList):
+            for expr in body.exprs:
+                self.__traverse(expr, funccalls)
+        elif isinstance(body, c_ast.UnaryOp):
+            self.__traverse(body.expr, funccalls)
         elif isinstance(body, c_ast.Break):
+            return
+        elif isinstance(body, c_ast.Cast):
             return
         elif isinstance(body, c_ast.EmptyStatement):
             return
@@ -290,6 +302,8 @@ class SRCodeController(object):
         elif isinstance(body, c_ast.Constant):
             return
         elif isinstance(body, c_ast.StructRef):
+            return
+        elif isinstance(body, c_ast.Return):
             return
         elif body is None:
             return

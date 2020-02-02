@@ -44,4 +44,5 @@ class LoadAddr(Analysis):
         self.description = 'resolve image loading address'
         self.context['hint'] = 'problem in getting image loading address'
         self.critical = False
-        self.required = ['srcode']
+        self.required = ['mfilter']
+
