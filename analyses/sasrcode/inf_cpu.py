@@ -5,6 +5,7 @@ from analyses.analysis import Analysis
 from slcore.database.dbf import get_database
 from slcore.naive_parsers.cpu import find_cpu_in_strings
 from slcore.parser import get_all_strings
+from settings import *
 
 
 class CPU(Analysis):
@@ -72,7 +73,8 @@ class CPU(Analysis):
             results = [' '.join(results.split()[2:])]
 
         command = results[0]
-        path_to_gcc = firmware.get_path_to_gcc()
+        path_to_prefix = firmware.get_path_to_gcc()
+        path_to_gcc = path_to_prefix + 'gcc'
         if path_to_gcc is None:
             self.context['input'] = 'no gcc available'
             return False
@@ -80,7 +82,6 @@ class CPU(Analysis):
         # alter -o to -E
         args = command.strip().split()
         args[0] = path_to_gcc  # always true
-        args = [i.replace('/root/firmware', '/mnt/salamander/srcode/share') for i in args]
         args[-4] = '-E'
         path_to_cpu_probe = 'arch/mips/kernel/cpu-probe.'
         args[-2] = path_to_cpu_probe + 'i'
@@ -546,6 +547,6 @@ class CPU(Analysis):
         self.critical = False
         self.required = ['mfilter']
         #
-        self.mips_cpus = yaml.safe_load(open(os.path.join(os.getcwd(), 'database/cpu.mips.yaml')))
+        self.mips_cpus = yaml.safe_load(open(os.path.join(BASE_DIR, 'slcore/database/cpu.mips.yaml')))
         self.qemu_devices = get_database('qemu.devices')
 

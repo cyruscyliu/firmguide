@@ -4,9 +4,16 @@ support:
     machine_ids: ["0x10000030"]
     uart: serial8250
     profile: "examples/mips/bcm47xx/profile.yaml"
+  ath79:
+    device_tree: False
+    uart: serial8250
   ar7:
     device_tree: False
     uart: serial8250
+  ar231x:
+    device_tree: False
+  adm5120:
+    device_tree: False
   cavium-octeon:
     device_tree: True
     uart: serial8250
@@ -48,9 +55,6 @@ support:
     uart: serial8250
 others:
   alchemy:
-    device_tree: False
-    uart: serial8250
-  ath79:
     device_tree: False
     uart: serial8250
   bcm63xx:
