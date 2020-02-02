@@ -1,3 +1,5 @@
+components:
+    path_to_rootfs: 'examples/rootfs/mips.rootfs'
 basics:
   architecture: "mips"
   endian: "l"
@@ -12,7 +14,7 @@ cpu_pp:
   name: "mips_pp"
 ram:
   base: "0"
-  size: "1024 * MiB"
+  size: "128 * MiB"
   priority: "-2"
 flash:
   type: "nor"
@@ -20,12 +22,14 @@ flash:
   section_size: "32 * KiB"
   size: "32 * MiB"
 uart:
-  name: "uart"
-  mmio_base: "0x18000300"
-  mmio_size: "0x200"
-  baud_rate: "115200"
-  reg_shift: "0"
-  irq: "2"
+  num: 1
+  uart@0:
+    name: "serial8250"
+    mmio_base: "0x18000300"
+    mmio_size: "0x200"
+    baud_rate: "115200"
+    reg_shift: "0"
+    irq: "2"
 bamboo:
   "bcma":
     mmio_base: "0x18000000"

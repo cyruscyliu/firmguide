@@ -219,6 +219,12 @@ class SimpleFirmware(Firmware):
                 break
         return profile
 
+    def set_path_to_rootfs(self, *args, **kwargs):
+        self.set_general('components', 'path_to_rootfs', value=args[0])
+
+    def get_path_to_rootfs(self, *args, **kwargs):
+        return self.get_general('components', 'path_to_rootfs')
+
     def set_path_to_vmlinux(self, *args, **kwargs):
         self.set_general('components', 'path_to_vmlinux', value=args[0])
 
