@@ -3260,5 +3260,6 @@ def find_machine_id(path_to_kernel):
             else:
                 target_machine_id.append((hex(int(k)), machine_ids[k]))
 
+    print(target_machine_id)
     return [i[0] for i in target_machine_id]
 

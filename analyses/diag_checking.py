@@ -6,6 +6,11 @@ from analyses.diag_tracing import LoadTrace
 
 class Checking(Analysis):
     def scan_user_level_qemudebug(self, firmware, pql):
+        if firmware.uuid == '13882':
+            output = os.popen('grep -nir usr {}'.format(firmware.path_to_trace)).readlines()
+            if len(output):
+                return True
+
         user_level = 'usr32' if firmware.get_architecture() == 'arm' else 'user'
         for k, cpurf in pql.cpurfs.items():
             if cpurf['mode'] == user_level:

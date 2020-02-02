@@ -55,7 +55,10 @@ class DoTracing(Analysis):
 
     def run(self, firmware):
         # nochain is too too slow
-        trace_flags = '-d in_asm,int,cpu -D {}'.format(firmware.path_to_trace)
+        if firmware.uuid == "13882":
+            trace_flags = '-d in_asm,int -D {}'.format(firmware.path_to_trace)
+        else:
+            trace_flags = '-d in_asm,int,cpu -D {}'.format(firmware.path_to_trace)
         qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
         full_command = ' '.join([firmware.running_command, trace_flags, qmp_flags])
         try:
