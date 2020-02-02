@@ -55,7 +55,7 @@ class DoTracing(Analysis):
 
     def run(self, firmware):
         # nochain is too too slow
-        if firmware.uuid == "13882":
+        if firmware.uuid in ['9692', '9703', '9707', '9715', '7998', '13882', '13890', '13893', '13901']:
             trace_flags = '-d in_asm,int -D {}'.format(firmware.path_to_trace)
         else:
             trace_flags = '-d in_asm,int,cpu -D {}'.format(firmware.path_to_trace)

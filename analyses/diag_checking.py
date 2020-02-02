@@ -6,7 +6,7 @@ from analyses.diag_tracing import LoadTrace
 
 class Checking(Analysis):
     def scan_user_level_qemudebug(self, firmware, pql):
-        if firmware.uuid == '13882':
+        if firmware.uuid in ['9692', '9703', '9707', '9715', '7998', '13882', '13890', '13893', '13901']:
             output = os.popen('grep -nir usr {}'.format(firmware.path_to_trace)).readlines()
             if len(output):
                 return True
