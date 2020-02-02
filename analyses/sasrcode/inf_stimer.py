@@ -12,10 +12,6 @@ class STimer(Analysis):
         """
         here is for 'simple timer solution'
         """
-        # mask register
-        # timer irqn and proper mmio init values to trigger timer's callback
-        # proper mmio init values to pass multi-level of intc checkings
-        # address to pull down intc signal
         arch = firmware.get_architecture()
         if arch == 'arm':
             entry_point = ''

@@ -15,14 +15,14 @@ logger = logging.getLogger()
 
 def run(args):
     # 1. setup a working dir
-    target_dir = setup_target_dir('srcode')
+    target_dir = setup_target_dir(args.uuid)
 
     # 2. prepare a firmware
     firmware = get_firmware('simple')
     firmware.uuid = args.uuid
     firmware.target_dir = target_dir
     firmware.set_profile(target_dir=target_dir, first=True)
-    firmware.set_uuid('srcode')
+    firmware.set_uuid(args.uuid)
     firmware.set_architecture(args.arch)
 
     path_to_source_code = args.source_code

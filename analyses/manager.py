@@ -26,6 +26,7 @@ from analyses.sasrcode.inf_cpu import CPU
 from analyses.sasrcode.inf_ram import RAM
 from analyses.sasrcode.inf_sintc import SINTC
 from analyses.sasrcode.inf_stimer import STimer
+from analyses.sasrcode.inf_platform_devices import PlatformDevices
 from analyses.sasrcode.inf_libtooling import LibTooling
 from analyses.sasrcode.inf_loaddr import LoadAddr
 
@@ -215,7 +216,9 @@ class AnalysesManager(object):
             self.register_analysis(CPU(self), analyses_tree=static_analysis)
             self.register_analysis(RAM(self), analyses_tree=static_analysis)
             # self.register_analysis(SINTC(self), analyses_tree=static_analysis)
-            self.register_analysis(STimer(self), analyses_tree=static_analysis)
+            # self.register_analysis(STimer(self), analyses_tree=static_analysis)
+            self.register_analysis(PlatformDevices(self), analyses_tree=static_analysis)
+
             self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
             # self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)
             self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
