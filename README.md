@@ -229,6 +229,6 @@ diagnose trace
 ./slbin.py -f /root/images/09504287ac27e5d20e21d85a8548d7b2c48ad5d2.trx -u 14235 -a mips -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/brcm47xx/mips74k/openwrt-15.05-brcm47xx-mips74k-asus-rt-n10u-squashfs.trx
 ./slbin.py -f /root/images/68c92d58b255a738ec447a912a96aa5912c49dc1.trx -u 14246 -a mips -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/brcm47xx/mips74k/openwrt-15.05-brcm47xx-mips74k-asus-rt-n12-squashfs.trx
 ./slbin.py -f /root/images/7b93b4f4f812783ea5573ea6c6131cb683106f46.bin -u 14273 -a mips -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/brcm47xx/mips74k/openwrt-15.05-brcm47xx-mips74k-linksys-e2500-v2-squashfs.bin
-./slbin.py -f /root/images/764481eee24abdfa0a3462018c68af9ceee7592e.chk -u 10459 -a mips -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/brcm47xx/mips74k/openwrt-15.05.1-brcm47xx-mips74k-netgear-wnr3000rp-squashfs.chk # unknown/bad log
-./slbin.py -f /root/images/6ab6e09f965e1680c4f356978f6bb8389294eaf5.trx -u 10192 -a mips -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/brcm47xx/mips74k/openwrt-15.05.1-brcm47xx-mips74k-asus-rt-n10u-squashfs.trx # initramfs/bad log
+./slbin.py -f /root/images/764481eee24abdfa0a3462018c68af9ceee7592e.chk -u 10459 -a mips -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/brcm47xx/mips74k/openwrt-15.05.1-brcm47xx-mips74k-netgear-wnr3000rp-squashfs.chk
+./slbin.py -f /root/images/6ab6e09f965e1680c4f356978f6bb8389294eaf5.trx -u 10192 -a mips -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/brcm47xx/mips74k/openwrt-15.05.1-brcm47xx-mips74k-asus-rt-n10u-squashfs.trx
 """
