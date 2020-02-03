@@ -237,6 +237,14 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         pass
 
     @abc.abstractmethod
+    def set_path_to_rootfs(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_path_to_rootfs(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
     def set_path_to_vmlinux(self, *args, **kwargs):
         pass
 

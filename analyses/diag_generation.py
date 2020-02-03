@@ -27,10 +27,13 @@ class CodeGeneration(Analysis):
             enlarge_image(firmware.get_path(), flash_size)
 
         pack(firmware.components, kernel_load_address=kernel_load_address)
+        image = firmware.get_path_to_rootfs()
+        if image is None:
+            image = firmware.get_path()
         running_command = machine_compiler.qemuc.get_command(
             firmware.get_architecture(), firmware.get_endian(), firmware.get_machine_name(),
             firmware.get_path_to_uimage(),
-            flash=firmware.get_flash_type(), image=firmware.get_path(),
+            flash=firmware.get_flash_type(), image=image,
             dtb=firmware.get_path_to_dtb()
         )
 

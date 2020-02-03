@@ -56,6 +56,7 @@ class QEMUController(object):
         elif flash == 'nand':
             running_command += ' -drive file={},if=mtd,format=raw'.format(image)
         running_command += ' -nographic'
+        running_command += ' -append "console=ttyS0"'
         return running_command
 
     def patch(self, *args, **kwargs):
@@ -106,8 +107,8 @@ class QEMUController(object):
         arch = kwargs.pop('arch', 'arm')
         endian = kwargs.pop('endian', 'l')
         trace_to = '{}-{}-{}.trace'.format(uuid, arch, endian)
-        trace_flags = '-d in_asm,int,cpu -D {}'.format(trace_to)
-
+        # trace_flags = '-d in_asm,int,cpu -D {}'.format(trace_to)
+        trace_flags = '-d in_asm,int -D {}'.format(trace_to)
         qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
 
         for command in args:
