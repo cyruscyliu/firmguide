@@ -23,6 +23,7 @@ def run(args):
     firmware.target_dir = target_dir
     firmware.set_profile(target_dir=target_dir, first=True)
     firmware.set_uuid(args.uuid)
+    firmware.set_path(args.firmware)
     firmware.set_architecture(args.arch)
 
     path_to_source_code = args.source_code
@@ -41,7 +42,7 @@ def run(args):
         firmware.srcodec.set_makeout(args.makeout)
 
     # 3. analyze the source code
-    status = run_static_analysis(firmware, binary=False)
+    status = run_static_analysis(firmware)
 
     # 4. take snapshots to save results
     status = snapshot(firmware)
@@ -59,13 +60,14 @@ if __name__ == '__main__':
 
     # analysis
     group = parser.add_argument_group('analysis')
-    group.add_argument('-a', '--arch', type=str, choices=['arm', 'arm64', 'mips'], required=True)
-    group.add_argument('-e', '--endian', type=str, choices=['b', 'l'], required=False)
-    group.add_argument('-b', '--brand', type=str, choices=['openwrt'], required=False)
-    group.add_argument('-s', '--source_code', type=str, metavar='path/to/source_code', required=True)
-    group.add_argument('-gcc', '--gcc', type=str, metavar='path/to/prefix', required=True)
+    group.add_argument('-a', '--arch', choices=['arm', 'arm64', 'mips'], required=True)
+    group.add_argument('-e', '--endian', choices=['b', 'l'], required=False)
+    group.add_argument('-b', '--brand', choices=['openwrt'], required=False)
+    group.add_argument('-f', '--firmware', required=True)
+    group.add_argument('-s', '--source_code', metavar='path/to/source_code', required=True)
+    group.add_argument('-gcc', '--gcc', metavar='path/to/prefix', required=True)
     group.add_argument('-u', '--uuid', type=str, required=True)
-    group.add_argument('-mkout', '--makeout', type=str, metavar='path/to/makeout', required=False)
+    group.add_argument('-mkout', '--makeout', metavar='path/to/makeout', required=True)
 
     args = parser.parse_args()
     if args.debug:
