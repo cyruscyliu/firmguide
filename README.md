@@ -121,7 +121,7 @@ diagnose trace
 
 ## Commands
 
-"""
+```
 ./slbin.py -f /root/images/278a494b4a543f4a48dbb56d7ce226a23a3fbcc3.bin -u 9692 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/generic/openwrt-15.05.1-oxnas-kd20-u-boot-initramfs.bin
 ./slbin.py -f /root/images/95483e6f102fa1f462eeda09ed945325e5b1bfb9.bin -u 9703 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/generic/openwrt-15.05.1-oxnas-pogoplug-pro-u-boot-initramfs.bin
 ./slbin.py -f /root/images/6b6385ae3faf9b99ec2a290a5fb153752de395de.bin -u 9707 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/generic/openwrt-15.05.1-oxnas-pogoplug-v3-u-boot-initramfs.bin
@@ -231,4 +231,4 @@ diagnose trace
 ./slbin.py -f /root/images/7b93b4f4f812783ea5573ea6c6131cb683106f46.bin -u 14273 -a mips -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/brcm47xx/mips74k/openwrt-15.05-brcm47xx-mips74k-linksys-e2500-v2-squashfs.bin
 ./slbin.py -f /root/images/764481eee24abdfa0a3462018c68af9ceee7592e.chk -u 10459 -a mips -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/brcm47xx/mips74k/openwrt-15.05.1-brcm47xx-mips74k-netgear-wnr3000rp-squashfs.chk
 ./slbin.py -f /root/images/6ab6e09f965e1680c4f356978f6bb8389294eaf5.trx -u 10192 -a mips -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/brcm47xx/mips74k/openwrt-15.05.1-brcm47xx-mips74k-asus-rt-n10u-squashfs.trx
-"""
+```
