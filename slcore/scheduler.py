@@ -28,9 +28,9 @@ def run_statistics(firmware):
     statistics(firmware)
 
 
-def run_dynamic_analysis(firmware):
+def run_dynamic_analysis(firmware, check_only=False):
     analyses_manager = AnalysesManager(firmware)
-    analyses_manager.register_dynamic_analysis()
+    analyses_manager.register_dynamic_analysis(check_only=check_only)
 
     max_iteration = firmware.max_iteration
 

@@ -231,13 +231,14 @@ class AnalysesManager(object):
         self.register_analysis(CodeGeneration(self), analyses_tree=dynamic_analysis)
         if tracing:
             self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
+        self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
         self.register_analysis(Checking(self), analyses_tree=dynamic_analysis)
         if not check_only:
-            self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(DeadLoop2(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(Panic(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)
+            pass
 

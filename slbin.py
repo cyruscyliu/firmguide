@@ -32,8 +32,8 @@ def run(args):
             firmware.set_url(args.url)
         status = run_static_analysis(firmware)
     else:
-        firmware.max_iteration = args.max
-        status = run_dynamic_analysis(firmware)
+        firmware.max_iteration = 1
+        status = run_dynamic_analysis(firmware, check_only=True)
 
     # 5. take snapshots to save results
     return snapshot(firmware)
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     group = parser.add_argument_group('diagnosis')
     group.add_argument('-t', '--trace', metavar='path/to/uuid-arch-endian.trace')
     group.add_argument('-tf', '--trace_format', choices=['qemudebug'], default='qemudebug')
-    group.add_argument('-m', '--max', type=int, help='max times of iteration', default=20)
+    group.add_argument('-m', '--max', type=int, help='max times of iteration', default=1)
 
     args = parser.parse_args()
     if args.debug:
