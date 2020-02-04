@@ -31,7 +31,7 @@ class SINTC(Analysis):
         if firmware.uuid in ['bcm47xx']:
             firmware.srcodec.fix_gnu_extensions(path_to_pentry_point)
             funccalls = firmware.srcodec.traverse_func(path_to_pentry_point, entry_point)
-        elif firmware.uuid == 'ar71xx':
+        elif firmware.uuid == 'ar71xx_generic':
             funccalls = [
                 'soc_is_ar71xx',
                 'soc_is_ar724x',
@@ -106,7 +106,7 @@ class SINTC(Analysis):
         super().__init__(analysis_manager)
         self.name = 'sintc'
         self.description = 'source code info analysis (llvm)'
-        self.required = ['cpu']
+        self.required = ['ram']
         self.context['hint'] = ''
         self.critical = False
 

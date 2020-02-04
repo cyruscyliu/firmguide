@@ -28,6 +28,6 @@ class RAM(Analysis):
         super().__init__(analysis_manager)
         self.name = 'ram'
         self.description = 'allocate 32M(ARM)/128M(MIPS) ram by default'
-        self.required = ['mfilter']
+        self.required = ['cpu']
         self.critical = False
 

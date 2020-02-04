@@ -43,18 +43,48 @@ class SRCodeController(object):
             line = line.replace('asm', '')
             import re
             # syntax {} implicit function
+            # line = re.sub('do \{.*\} while \(0\)', '', line)
             line = line.replace('({', '{').replace('})', '}')
             line = line.replace('= ({', '= 0; ({')
-            line = line.replace('= {', '= 0; {')
+            # res = { int __res; if (0 == 0)  ; else  ; __res;  }
+            line = re.sub('res = \{ int __res; if \(\d == 0\)  ; else  ; __res; \}', 'res = 0', line)
+            # res = { int __res;  ; __res; }
+            line = re.sub('res = \{ int __res;  ; __res; \}', 'res = 0', line)
+            # *remainder = { };
+            line = re.sub('\*remainder = \{.*\}', '', line)
+            # struct idr_layer *hint = { };
+            line = re.sub('struct idr_layer \*hint = \{.*\};', 'struct idr_layer *hint = 0;', line)
+            line = line.replace('= { int', '= 0; {')
+            line = re.sub('\{ void.*\}', '0', line)
+            # ((pte).pte) |= {BUG(); 1; };
+            line = line.replace('{BUG(); 1; }', '0')
+            # { int __res; if (0 == 0)  ; else  ; __res; }
+            line = line.replace('{ int __res; if (0 == 0)  ; else  ; __res; }', '0')
+            line = line.replace('0 ...', '')
+            # (current_thread_info()->task)->thread.fpu.fcr31 =
+            line = line.replace(
+                '(current_thread_info()->task)->thread.fpu.fcr31 =',
+                '(current_thread_info()->task)->thread.fpu.fcr31 = 0')
+            # timer->node.expires = { (ktime_t){ .tv64 = (timer->node.expires).tv64 + (ns) }; };
+            line = line.replace(
+                'timer->node.expires = { (ktime_t){ .tv64 = (timer->node.expires).tv64 + (ns) }; };',
+                'timer->node.expires = (ktime_t){ .tv64 = (timer->node.expires).tv64 + (ns) };')
+            # timer->_softexpires = { (ktime_t){ .tv64 = (timer->_softexpires).tv64 + (ns) }; };
+            line = line.replace(
+                'timer->_softexpires = { (ktime_t){ .tv64 = (timer->_softexpires).tv64 + (ns) }; };',
+                'timer->_softexpires = (ktime_t){ .tv64 = (timer->_softexpires).tv64 + (ns) }; ')
+            line = re.sub('= { unsigned.*?\}', '0', line)
+            # {unsigned long __ms=(100); while (__ms--) __udelay(1000);}
+            line = line.replace('{unsigned long __ms=(100); while (__ms--) __udelay(1000);}', '0')
             # struct platform_device_info pdevinfo = {
             line = line.replace(
                 'struct platform_device_info pdevinfo = 0; {',
                 'struct platform_device_info pdevinfo = {')
             line = line.replace(' return {', ' return 0; {')
             line = re.sub('\(\{.*?\}\)', '(0)', line)
-            line = re.sub('; \{.*\};', ';', line)
+            line = re.sub('; \{.*\}', '', line)
             line = re.sub('\? \{.*\}', '? 0', line)
-            line = re.sub('^\s*\{.*\};', '', line)
+            line = re.sub('^\s*\{.*\};', ';', line)
             line = re.sub('& \{.*?\}', '& 0', line)
             # ((32) & 31))) } };
             line = line.replace('((32) & 31))) } };', '((32) & 31))) } });')
@@ -117,6 +147,17 @@ class SRCodeController(object):
         with open(path, 'w') as f:
             f.writelines(prepared_content)
 
+    def get_system_map(self):
+        path = os.path.join(self.srcode, 'System.map')
+
+        system_map = {}
+        with open(path) as f:
+            for line in f:
+                # ffffffff803687e8 T arch_init_irq
+                addr, type_, sym = line.strip().split()
+                system_map[sym] = {'addr': addr, 'type': type_}
+        return system_map
+
     def symbol2address(self, symbol):
         system_map = os.path.join(self.srcode, 'System.map')
 
@@ -164,7 +205,7 @@ class SRCodeController(object):
     def run(self, command):
         cwd = os.getcwd()
         os.chdir(self.srcode)
-        status = os.system(command)
+        status = os.system(command + '>/dev/null 2>&1')
         os.chdir(cwd)
         return status
 
@@ -220,7 +261,7 @@ class SRCodeController(object):
             items.insert(-4, '-include{}'.format(fake_def))
         return ' '.join(items)
 
-    def __adject_to_preprocess(self, command):
+    def __adjuct_to_preprocess(self, command):
         items = command.split()
         items[-2] = items[-2].replace('.o', '.i')
         items[-4] = '-E'
@@ -249,7 +290,7 @@ class SRCodeController(object):
                 return None
 
         command = self.__correct_gcc(command)
-        command = self.__adject_to_preprocess(command)
+        command = self.__adjuct_to_preprocess(command)
         status = self.run(command)
         if status == 0:
             return path.replace('.c', '.i')
