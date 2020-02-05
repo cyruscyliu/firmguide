@@ -6,9 +6,9 @@ import logging.config
 
 from logger import setup_logging
 from slcore.environment import setup_target_dir # srcode
-from profile.firmwaref import get_firmware
+from slcore.profile.firmwaref import get_firmware
 from slcore.environment import snapshot, archive # firmware
-from slcore.scheduler import run_static_analysis # firmware
+from slcore.scheduler import run_static_analysis, run_dynamic_analysis # firmware
 from slcore.srcodec import SRCodeController
 
 logger = logging.getLogger()
@@ -21,10 +21,10 @@ def run(args):
     firmware = get_firmware('simple')
     firmware.uuid = args.uuid
     firmware.target_dir = target_dir
-    firmware.set_profile(target_dir=target_dir, first=True)
+    firmware.set_profile(target_dir=target_dir, first=args.rerun)
     firmware.set_uuid(args.uuid)
-    firmware.set_path(args.firmware)
     firmware.set_architecture(args.arch)
+    firmware.set_machine_name(args.uuid)
 
     path_to_source_code = args.source_code
     path_to_vmlinux = os.path.join(path_to_source_code, 'vmlinux')
@@ -34,6 +34,7 @@ def run(args):
     firmware.set_path_to_dot_config(path_to_dot_config)
     firmware.set_path_to_gcc(args.gcc)
     firmware.srcodec = SRCodeController(path_to_source_code, args.arch, args.gcc)
+    firmware.rerun = args.rerun
 
     if args.endian:
         firmware.set_endian(args.endian)
@@ -47,7 +48,13 @@ def run(args):
     # 4. take snapshots to save results
     status = snapshot(firmware)
 
-    # 5. archive
+    # 5. invoke dynamic analysis
+    firmware.max_iteration = 1
+    status = run_dynamic_analysis(firmware, check_only=True)
+
+    # 6. take snapshots to save results
+    status = snapshot(firmware)
+
     return archive(firmware)
 
 

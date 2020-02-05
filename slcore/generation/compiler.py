@@ -151,7 +151,7 @@ class CompilerToQEMUMachine(object):
         self.qemuc.recover()
 
     def processing_image(self):
-        path_to_image = self.firmware.get_path()
+        path_to_image = self.firmware.get_components().get_path_to_raw()
         flash_size = self.firmware.get_flash_size()
         flash_size = flash_size.replace('MiB', '0x100000')
         flash_size = eval(flash_size)

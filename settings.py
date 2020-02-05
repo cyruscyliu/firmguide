@@ -4,6 +4,7 @@ settings for the whole project
 import os
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+TESTS_DIR = os.path.join(BASE_DIR, 'tests')
 
 # ====== core =====
 

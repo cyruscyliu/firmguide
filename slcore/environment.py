@@ -1,11 +1,10 @@
 import os
 import yaml
-import shutil
 import tempfile
 
-from logger import logger_info, logger_debug
 from settings import *
-from profile.firmwaref import get_firmware
+from logger import logger_info, logger_debug
+from slcore.profile.firmwaref import get_firmware
 
 
 def restore_analysis(firmware):
@@ -57,13 +56,11 @@ def setup_target_dir(uuid):
     return target_dir
 
 
-def migrate(components, path_to_profile, quick=False, trace_format='qemudebug', max_=20):
-    assert components is not None
-
+def migrate(uuid, path_to_profile=None):
     firmware = get_firmware('simple')
 
     # two basics
-    firmware.uuid = components.uuid
+    firmware.uuid = uuid
     firmware.target_dir = setup_target_dir(firmware.uuid)
 
     # load profile from path_to_profile
@@ -76,25 +73,7 @@ def migrate(components, path_to_profile, quick=False, trace_format='qemudebug', 
         firmware.set_profile(target_dir=firmware.get_target_dir(), first=True)
         logger_info(firmware.uuid, 'environment', 'migrate', 'create new profile {}'.format(firmware.path_to_profile), 1)
 
-    firmware.set_uuid(components.uuid)
-    firmware.set_name(components.get_image_name())
-    firmware.set_path(components.get_path())
-    firmware.set_working_path(components.get_path())
-    firmware.set_components(components)
-    firmware.set_architecture(components.arch)
-    firmware.set_endian(components.endian)
-
-    firmware.trace_format = trace_format
-    firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
-        firmware.get_uuid(), firmware.get_architecture(), firmware.get_endian())
-    firmware.do_not_diagnosis = quick
-    firmware.max_iteration = max_
-
-    # copy the firmware to working path
-    if not os.path.exists(firmware.working_path):
-        shutil.copy(
-            os.path.join(os.getcwd(), firmware.get_path()),
-            os.path.join(firmware.working_path))
+    firmware.set_uuid(uuid)
     return firmware
 
 

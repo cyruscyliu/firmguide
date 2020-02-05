@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-from profile.stats import statistics
-from profile.firmwaref import get_firmware
+from slcore.profile.stats import statistics
+from slcore.profile.firmwaref import get_firmware
 
 def run():
     firmware = get_firmware('simple')

@@ -11,24 +11,24 @@ from analyses.diag_deadloop2 import DeadLoop2
 from analyses.diag_panic import Panic
 from analyses.diag_init_value import InitValue
 
-from analyses.diag_generation import CodeGeneration
+from analyses.generation import CodeGeneration
 from analyses.diag_tracing import DoTracing, LoadTrace
 from analyses.diag_checking import Checking
 
-from analyses.sabinary.inf_kernel import Kernel
-from analyses.sabinary.inf_strings import Strings
-from analyses.sabinary.inf_hardcode import HardCode
-from analyses.sabinary.inf_openwrt import OpenWRT
+from analyses.binary_analysis.inf_kernel import Kernel
+from analyses.binary_analysis.inf_strings import Strings
+from analyses.binary_analysis.inf_hardcode import HardCode
+from analyses.binary_analysis.inf_openwrt import OpenWRT
 
-from analyses.sasrcode.device_tree import DeviceTree
-from analyses.sasrcode.mfilter import Filter
-from analyses.sasrcode.cpu import CPU
-from analyses.sasrcode.ram import RAM
-from analyses.sasrcode.sintc import SINTC
-from analyses.sasrcode.stimer import STimer
-from analyses.sasrcode.platform_devices import PlatformDevices
-from analyses.sasrcode.libtooling import LibTooling
-from analyses.sasrcode.loaddr import LoadAddr
+from analyses.static_analysis.device_tree import DeviceTree
+from analyses.static_analysis.mfilter import Filter
+from analyses.static_analysis.cpu import CPU
+from analyses.static_analysis.ram import RAM
+from analyses.static_analysis.sintc import SINTC
+from analyses.static_analysis.stimer import STimer
+from analyses.static_analysis.platform_devices import PlatformDevices
+from analyses.static_analysis.libtooling import LibTooling
+from analyses.static_analysis.loaddr import LoadAddr
 
 
 class AnalysesManager(object):
