@@ -152,11 +152,12 @@ class PlatformDevices(Analysis):
                     uart_name = 'serial8250'
                     uart_mmio_base = eval('(0x18000000 + 0x00020000)')
                     uart_mmio_size = eval('(0x18000000 + 0x00020000) + 0x100 - 1') + 1 - uart_mmio_base
-                    uart_irq = eval('(8 + (3))')
+                    uart_irqn = eval('(8 + (3))')
                     uart_reg_shift = eval('2')
+                    firmware.set_uart('0', uart_name, uart_mmio_base, uart_irqn, uart_reg_shift, uart_mmio_size)
                     self.info(firmware, 'get uart name {}'.format(uart_name), 1)
                     self.info(firmware, 'get uart mmio base {} size {}'.format(hex(uart_mmio_base), hex(uart_mmio_size)), 1)
-                    self.info(firmware, 'get uart irq {}'.format(uart_irq), 1)
+                    self.info(firmware, 'get uart irq {}'.format(uart_irqn), 1)
                     self.info(firmware, 'get uart reg shift {}'.format(uart_reg_shift), 1)
                     # [CONDITIONAL] platform_device_register(&ar933x_uart_device);
                     # static struct resource ar933x_uart_resources[] = {
@@ -208,6 +209,7 @@ class PlatformDevices(Analysis):
                     mmio_name = 'ag71xx' # duplicated
                     mmio_base = 0x19000000
                     mmio_size = 0x200
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
                     self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
                     # static struct resource ath79_eth1_resources[] = {
                     #   {
@@ -235,6 +237,7 @@ class PlatformDevices(Analysis):
                     mmio_name = 'ag71xx' # duplicated
                     mmio_base = 0x1a000000
                     mmio_size = 0x200
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
                     self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
                 elif caller ==  'ath79_register_mdio':
                     # [DIRECT] platform_device_register(mdio_dev);
@@ -261,6 +264,7 @@ class PlatformDevices(Analysis):
                     mmio_name = 'ag71xx-mdio'
                     mmio_base = 0x1a000000
                     mmio_size = 0x200
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
                     self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
                     # static struct resource ath79_mdio0_resources[] = {
                     #   {
@@ -281,6 +285,7 @@ class PlatformDevices(Analysis):
                     mmio_name = 'ag71xx-mdio'
                     mmio_base = 0x19000000
                     mmio_size = 0x200
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
                     self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
                 elif caller == 'ath79_register_spi':
                     # [DIRECT] platform_device_register(&ath79_spi_device);
@@ -326,6 +331,7 @@ class PlatformDevices(Analysis):
                     # ath79_wmac_resources[1].end = (0 + (2));
                     mmio_base = eval('(0x18000000 + 0x000C0000)')
                     mmio_size = 0x30000
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
                     self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
                     # [CONDITIONAL] ar933x_wmac
                     # ath79_wmac_device.name = "ar933x_wmac";
@@ -336,6 +342,7 @@ class PlatformDevices(Analysis):
                     mmio_name = 'ar933x_wmac'
                     mmio_base = eval('(0x18000000 + 0x00100000)')
                     mmio_size = 0x20000
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
                     self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
                     # [CONDITIONAL] ar934x_wmac_setup
                     # ath79_wmac_device.name = "ar934x_wmac"; # duplicated
@@ -346,6 +353,7 @@ class PlatformDevices(Analysis):
                     mmio_name = 'ar934x_wmac'
                     mmio_base = eval('(0x18000000 + 0x00100000)')
                     mmio_size = 0x20000
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
                     self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
                     # [CONDITIONAL] qca953x_wmac_setup
                     # ath79_wmac_device.name = "qca953x_wmac";
@@ -356,6 +364,7 @@ class PlatformDevices(Analysis):
                     mmio_name = 'qca953x_wmac' #duplicated, share the same mmio space but have different functionality
                     mmio_base = eval('(0x18000000 + 0x00100000)')
                     mmio_size = 0x20000
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
                     self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
                     # [CONDITIONAL] qca955x_wmac_setup
                     # ath79_wmac_device.name = "qca953x_wmac";
@@ -366,6 +375,7 @@ class PlatformDevices(Analysis):
                     mmio_name = 'qca955x_wmac' #duplicated
                     mmio_base = eval('(0x18000000 + 0x00100000)')
                     mmio_size = 0x20000
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
                     self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
                     # [CONDITIONAL] qca956x_wmac_setup
                     # ath79_wmac_device.name = "qca956x_wmac";
@@ -376,6 +386,7 @@ class PlatformDevices(Analysis):
                     mmio_name = 'qca956x_wmac' #duplicated
                     mmio_base = eval('(0x18000000 + 0x00100000)')
                     mmio_size = 0x20000
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
                     self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
                 else:
                     self.warning(firmware, 'platform_device_register found but no handlers', 0)
@@ -395,6 +406,7 @@ class PlatformDevices(Analysis):
                     mmio_name = 'ar933x-uart'
                     mmio_base = eval('(0x18000000 + 0x00060000) + 0x08')
                     mmio_size = eval('(0x18000000 + 0x00060000) + 0x08 + 0x8 - 1') + 1 - mmio_base
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
                     self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
                 else:
                     self.warning(firmware, 'platform_device_register_full found but no handlers', 0)
@@ -460,6 +472,7 @@ class PlatformDevices(Analysis):
                     mmio_name = 'ath79_gpio'
                     mmio_base = eval('((0x18000000 + 0x00040000))')
                     mmio_size = eval('(0x100)')
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
                     self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
                 else:
                     self.warning(firmware, 'platform_device_register_full found but no handlers', 0)
@@ -502,6 +515,7 @@ class PlatformDevices(Analysis):
                     flash_type = 'nor'
                     flash_interface = 'spi'
                     flash_name = 'm25p80'
+                    firmware.set_flash('0', flash_name, flash_type, flash_interface, flash_base, flash_size)
                     self.info(firmware, 'get {} {} flash {}'.format(flash_interface, flash_type, flash_name), 1)
                 else:
                     self.warning(firmware, 'spi_register_board_info found but no handlers', 0)
@@ -633,6 +647,7 @@ class PlatformDevices(Analysis):
         elif firmware.uuid == 'ar71xx_generic':
             pass
 
+        firmware.update_bamboo_devices()
         return True
 
     def __init__(self, analysis_manager):

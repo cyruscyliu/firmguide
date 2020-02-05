@@ -189,7 +189,7 @@ class AnalysesManager(object):
                     if not res and a.is_critical():
                         return False
                 except NotImplementedError as e:
-                    logger_warning(self.firmware.get_uuid(), 'analysis', 'exception', e, 0)
+                    logger_warning(self.firmware.get_uuid(), 'analysis', 'exception', e.args[0], 0)
                     return False
 
                 finish(self.firmware, a)
@@ -224,7 +224,7 @@ class AnalysesManager(object):
         self.register_analysis(STimer(self), analyses_tree=static_analysis)
         self.register_analysis(PlatformDevices(self), analyses_tree=static_analysis)
 
-        self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
+        # self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
         # self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)
         # mfilter <- loadaddr
         self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)

@@ -35,10 +35,11 @@ class PreProcessor(object):
             self.debug('ram prioirty not exists, refer to "0"')
 
     def preprocess_flash_section_size(self):
-        if self.firmware.get_flash_type() == 'nor' and self.firmware.get_flash_section_size() is None:
-            section_size = '64 * KiB'
-            self.firmware.set_flash_section_size(section_size)
-            self.debug('nor flash section size not exists, refer to {}'.format(section_size))
+        for i in range(0, self.firmware.get_flash_num()):
+            if self.firmware.get_flash_type(i) == 'nor' and self.firmware.get_flash_section_size(i) is None:
+                section_size = '64 * KiB'
+                self.firmware.set_flash_section_size(section_size, i)
+                self.debug('nor flash section size not exists, refer to {}'.format(section_size))
 
     def preprocess(self):
         # handle non-critical things

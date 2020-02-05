@@ -160,7 +160,6 @@ class SimpleFirmware(Firmware):
 
     def print_profile(self):
         path_to_profile = os.path.join(self.target_dir, 'profile.yaml')
-        print(path_to_profile)
         os.system('cat {}'.format(path_to_profile))
 
     def get_uuid(self, *args, **kwargs):
@@ -371,6 +370,33 @@ class SimpleFirmware(Firmware):
     def set_timer_mmio_base(self, *args, **kwargs):
         self.set_general('timer', 'mmio_base', value=args[0])
 
+    def set_uart(self, id_, name, base, irqn, reg_shift, size, baud_rate=None):
+        self.set_uart_name(name, id_)
+        self.set_uart_mmio_base(hex(base), id_)
+        self.set_uart_reg_shift(hex(reg_shift), id_)
+        self.set_uart_irq(hex(irqn), id_)
+        self.set_uart_mmio_size(hex(size), id_)
+        if baud_rate is not None:
+            self.set_uart_baud_rate(hex(baud_rate), id_)
+        num = self.get_uart_num()
+        self.set_uart_num(num + 1)
+
+    def get_uart(self):
+        num = self.get_uart_num()
+
+        uart = []
+        for i in range(0, num):
+            t = {
+                'name': self.get_uart_name(i),
+                'base': self.get_uart_mmio_base(i),
+                'irqn': self.get_uart_reg_shift(i),
+                'reg_shift': self.get_uart_irq(i),
+                'size': self.get_uart_mmio_size(i),
+                'baud_rate': self.get_uart_baud_rate(i),
+            }
+            uart.append(t)
+        return uart
+
     def set_uart_num(self, *args, **kwargs):
         self.set_general('uart', 'num', value=args[0])
 
@@ -428,18 +454,89 @@ class SimpleFirmware(Firmware):
         uart_index = args[1]
         self.set_general('uart', 'uart@{}'.format(uart_index), 'irq', value=args[0])
 
+    def set_flash(self, id_, name, type_, interface, base, size, section_size=None):
+        self.set_flash_name(name, id_)
+        self.set_flash_type(type_, id_)
+        self.set_flash_interface(interface, id_)
+        self.set_flash_base(hex(base), id_)
+        self.set_flash_size(hex(size), id_)
+        if section_size is not None:
+            self.set_flash_section_size(hex(section_size), id_)
+        num = self.get_flash_num()
+        self.set_flash_num(num + 1)
+
+    def get_flash(self):
+        num = self.get_flash_num()
+
+        flash = []
+        for i in range(0, num):
+            t = {
+                'name': self.get_flash_name(i),
+                'type': self.get_flash_type(i),
+                'interface': self.get_flash_interface(i),
+                'base': self.get_flash_base(i),
+                'size': self.get_flash_size(i),
+                'section_size': self.get_flash_section_size(i),
+            }
+            flash.append(t)
+        return flash
+
+    def set_flash_num(self, *args, **kwargs):
+        self.set_general('flash', 'num', value=args[0])
+
+    def get_flash_num(self, *args, **kwargs):
+        flash_num = self.get_general('flash', 'num')
+        if flash_num is None:
+            self.set_flash_num(0)
+        return self.get_general('flash', 'num')
+
+    def get_flash_name(self, *args, **kwargs):
+        flash_index = args[0]
+        return self.get_general('flash', 'flash@{}'.format(flash_index), 'name')
+
+    def set_flash_name(self, *args, **kwargs):
+        flash_index = args[1]
+        self.set_general('flash', 'flash@{}'.format(flash_index), 'name', value=args[0])
+
+    def get_flash_type(self, *args, **kwargs):
+        flash_index = args[0]
+        return self.get_general('flash', 'flash@{}'.format(flash_index), 'type')
+
+    def set_flash_type(self, *args, **kwargs):
+        flash_index = args[1]
+        self.set_general('flash', 'flash@{}'.format(flash_index), 'type', value=args[0])
+
+    def get_flash_interface(self, *args, **kwargs):
+        flash_index = args[0]
+        return self.get_general('flash', 'flash@{}'.format(flash_index), 'interface')
+
+    def set_flash_interface(self, *args, **kwargs):
+        flash_index = args[1]
+        self.set_general('flash', 'flash@{}'.format(flash_index), 'interface', value=args[0])
+
     def get_flash_base(self, *args, **kwargs):
-        return self.get_general('flash', 'base')
+        flash_index = args[0]
+        return self.get_general('flash', 'flash@{}'.format(flash_index), 'base')
 
     def set_flash_base(self, *args, **kwargs):
-        self.set_general('flash', 'base', value=args[0])
+        flash_index = args[1]
+        self.set_general('flash', 'flash@{}'.format(flash_index), 'base', value=args[0])
+
+    def get_flash_size(self, *args, **kwargs):
+        flash_index = args[0]
+        return self.get_general('flash', 'flash@{}'.format(flash_index), 'size')
+
+    def set_flash_size(self, *args, **kwargs):
+        flash_index = args[1]
+        self.set_general('flash', 'flash@{}'.format(flash_index), 'size', value=args[0])
 
     def get_flash_section_size(self, *args, **kwargs):
-        return self.get_general('flash', 'section_size')
+        flash_index = args[0]
+        return self.get_general('flash', 'flash@{}'.format(flash_index), 'section_size')
 
     def set_flash_section_size(self, *args, **kwargs):
-        self.set_general('flash', 'section_size', value=args[0])
-        pass
+        flash_index = args[1]
+        self.set_general('flash', 'flash@{}'.format(flash_index), 'section_size', value=args[0])
 
     def probe_bridge(self):
         return 'bridge' in self.profile
@@ -510,18 +607,6 @@ class SimpleFirmware(Firmware):
 
     def set_dts(self, *args, **kwargs):
         pass
-
-    def get_flash_size(self, *args, **kwargs):
-        return self.get_general('flash', 'size')
-
-    def set_flash_size(self, *args, **kwargs):
-        self.set_general('flash', 'size', value=args[0])
-
-    def set_flash_type(self, *args, **kwargs):
-        self.set_general('flash', 'type', value=args[0])
-
-    def get_flash_type(self, *args, **kwargs):
-        return self.get_general('flash', 'type')
 
     def copy_profile(self, *args, **kwargs):
         path_to_profile = args[0]

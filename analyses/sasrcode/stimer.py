@@ -20,12 +20,10 @@ class STimer(Analysis):
 
         address = firmware.srcodec.symbol2address(entry_point)
         path_to_entry_point = firmware.srcodec.addr2file(address)
-        self.info(firmware, 'backbone start_kernel -> init_time -> {}({})'.format(entry_point, path_to_entry_point), 1)
         cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
         path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-        self.debug(firmware, 'get {}'.format(path_to_pentry_point), 1)
         funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, entry_point, mode='sparse')
-        self.debug(firmware, 'get {} in {}'.format(funccalls, entry_point), 1)
+        self.debug(firmware, '{} -> {}'.format(entry_point, funccalls), 1)
 
         has_device_tree = False
         for funccall in funccalls:

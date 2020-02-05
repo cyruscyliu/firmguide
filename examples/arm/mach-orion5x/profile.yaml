@@ -190,10 +190,12 @@ kernel:
 cpu:
   model: arm926
 flash:
-  base: '0xf4000000'
-  section_size: 64 * KiB
-  size: 8 * MiB
-  type: nor
+  num: 1
+  flash@0:
+    base: '0xf4000000'
+    section_size: 64 * KiB
+    size: 8 * MiB
+    type: nor
 interrupt_controller:
   mmio_base: '0xf1020100'
   mmio_size: '0x200'

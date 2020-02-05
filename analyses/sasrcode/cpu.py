@@ -507,17 +507,17 @@ class CPU(Analysis):
                 targets = ['74Kf']
 
         # choose the one has private peripheral
-        # wanted_cpus = ['74Kf']
+        wanted_cpus = ['74Kf']
         if len(targets):
-            # for target_cpu in targets:
-                # if target_cpu in wanted_cpus:
-                    # firmware.set_cpu_model(target_cpu)
-                    # self.info(firmware, 'get cpu model: {} which has private peripheral'.format(target_cpu), 1)
-                    # cpu_pp_name = self.qemu_devices.select('cpu_private', like=target_cpu)
-                    # if cpu_pp_name is not None:
-                    #     firmware.set_cpu_pp_name(cpu_pp_name)
-                    #     self.info(firmware, 'cpu private peripheral {} found'.format(cpu_pp_name), 1)
-                    # return True
+            for target_cpu in targets:
+                if target_cpu in wanted_cpus:
+                    firmware.set_cpu_model(target_cpu)
+                    self.info(firmware, 'get cpu model: {} which has private peripheral'.format(target_cpu), 1)
+                    cpu_pp_name = self.qemu_devices.select('cpu_private', like=target_cpu)
+                    if cpu_pp_name is not None:
+                        firmware.set_cpu_pp_name(cpu_pp_name)
+                        self.info(firmware, 'cpu private peripheral {} found'.format(cpu_pp_name), 1)
+                    return True
             firmware.set_cpu_model(targets)
             self.info(firmware, 'get cpu models: {}'.format(targets), 1)
             return True

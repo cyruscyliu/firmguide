@@ -15,24 +15,20 @@ def run_diagnosis(firmware):
 
 def run_binary_analysis(firmware):
     # restore what we have done
-    # restore_analysis(firmware)
-
     analyses_manager = AnalysesManager(firmware)
     analyses_manager.register_binary_analysis()
     status = analyses_manager.run_binary_analysis()
 
-    # save_analysis(firmware)
-
 
 def run_static_analysis(firmware, binary=True):
     # restore what we have done
-    # restore_analysis(firmware)
+    restore_analysis(firmware)
 
     analyses_manager = AnalysesManager(firmware)
     analyses_manager.register_static_analysis()
     status = analyses_manager.run_static_analysis()
 
-    # save_analysis(firmware)
+    save_analysis(firmware)
 
 
 def run_statistics(firmware):

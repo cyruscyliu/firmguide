@@ -22,15 +22,11 @@ def restore_analysis(firmware):
         else:
             firmware.analysis_progress = analysis_progress
 
-    logger_info(firmware.get_uuid(), 'environment', 'restore_analysis', firmware.brief(), 0)
-
 
 def save_analysis(firmware):
     analysis = os.path.join(firmware.target_dir, 'analysis')
     with open(analysis, 'w') as f:
         yaml.safe_dump(firmware.analysis_progress, f)
-
-    logger_info(firmware.get_uuid(), 'environment', 'save_analysis', firmware.summary(), 0)
 
 
 def finished(firmware, analysis):

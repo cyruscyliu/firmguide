@@ -21,7 +21,7 @@ class CodeGeneration(Analysis):
         machine_compiler.make()
 
         kernel_load_address = firmware.get_kernel_load_address()
-        flash_size = firmware.get_flash_size()
+        flash_size = firmware.get_flash_size(0)
         if flash_size:
             flash_size = eval(flash_size.replace('MiB', '0x100000'))
             enlarge_image(firmware.get_path(), flash_size)
@@ -33,7 +33,7 @@ class CodeGeneration(Analysis):
         running_command = machine_compiler.qemuc.get_command(
             firmware.get_architecture(), firmware.get_endian(), firmware.get_machine_name(),
             firmware.get_path_to_uimage(),
-            flash=firmware.get_flash_type(), image=image,
+            flash=firmware.get_flash_type(0), image=image,
             dtb=firmware.get_path_to_dtb()
         )
 

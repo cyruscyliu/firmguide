@@ -17,10 +17,12 @@ ram:
   size: "128 * MiB"
   priority: "-2"
 flash:
-  type: "nor"
-  base: "0x1c000000"
-  section_size: "32 * KiB"
-  size: "32 * MiB"
+  num: 1
+  flash@0:
+    type: "nor"
+    base: "0x1c000000"
+    section_size: "32 * KiB"
+    size: "32 * MiB"
 uart:
   num: 1
   uart@0:

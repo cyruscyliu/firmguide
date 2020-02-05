@@ -484,99 +484,19 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     # ==== uart ====
     def probe_uart(self, *args, **kwargs):
+        SERIAL_ATTRIBUTES = [
+            'id', 'name', 'base', 'size',
+            'reg_shift', 'baud_rate', 'irqn'
+        ]
         return self.get_uart_num() > 0
-
-    @abc.abstractmethod
-    def set_uart_num(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_uart_num(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_uart_name(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_uart_name(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_uart_mmio_size(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_uart_mmio_size(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_uart_mmio_base(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_uart_mmio_base(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_uart_baud_rate(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_uart_baud_rate(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_uart_reg_shift(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_uart_reg_shift(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_uart_irq(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_uart_irq(self, *args, **kwargs):
-        pass
 
     # ==== flash ====
     def probe_flash(self, *args, **kwargs):
-        return self.get_flash_type() is not None
-
-    @abc.abstractmethod
-    def get_flash_base(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_flash_base(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_flash_type(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_flash_type(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_flash_size(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_flash_size(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_flash_section_size(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_flash_section_size(self, *args, **kwargs):
-        pass
+        FLASH_ATTRIBUTES = [
+            'id', 'name', 'base', 'size',
+            'type', 'interface', 'section_size'
+        ]
+        return self.get_flash_num() > 0
 
     # ==== bamboo devices ====
     @abc.abstractmethod

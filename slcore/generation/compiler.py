@@ -257,15 +257,14 @@ class CompilerToQEMUMachine(object):
     # half independent
     def resolve_uart(self):
         # get uarts information
-        uart_num = self.firmware.get_uart_num()
-        for i in range(0, uart_num):
-            uart_mmio_base = self.firmware.get_uart_mmio_base(i)
+        for i, uart in enumerate(self.firmware.get_uart()):
+            uart_mmio_base = uart['base']
             self.check_analysis(uart_mmio_base, 'uart_mmio_base')
-            uart_baud_rate = self.firmware.get_uart_baud_rate(i)
+            uart_baud_rate = uart['baud_rate']
             self.check_analysis(uart_baud_rate, 'uart_baud_rate')
-            uart_reg_shift = self.firmware.get_uart_reg_shift(i)
+            uart_reg_shift = uart['reg_shift']
             self.check_analysis(uart_reg_shift, 'uart_reg_shift')
-            uart_irq = self.firmware.get_uart_irq(i)
+            uart_irq = uart['irqn']
             self.check_analysis(uart_irq, 'uart_irq')
 
             # resolve their IRQs
@@ -276,7 +275,6 @@ class CompilerToQEMUMachine(object):
                         uart_mmio_base, uart_reg_shift, uart_irq_api, uart_baud_rate, i, self.endianness))
             ])
         self.machine['includings'].extend(['hw/char/serial.h'])
-
 
     # half independent
     def resolve_abelia_devices(self):
@@ -310,16 +308,17 @@ class CompilerToQEMUMachine(object):
 
         # flash
         if self.firmware.probe_flash():
-            flash_type = self.firmware.get_flash_type()
+            flash = self.firmware.get_flash()[0]
+            flash_type = flash['type']
             self.check_analysis(flash_type, 'flash_type')
             self.machine['includings'].extend(['sysemu/blockdev.h', 'hw/block/flash.h'])
             self.machine_init['declaration'].extend([indent('DriveInfo *dinfo;', 1)])
             if flash_type == 'nor':
-                flash_base = self.firmware.get_flash_base()
+                flash_base = flash['base']
                 self.check_analysis(flash_base, 'flash_base')
-                flash_size = self.firmware.get_flash_size()
+                flash_size = flash['size']
                 self.check_analysis(flash_size, 'flash_size')
-                flash_section_size = self.firmware.get_flash_section_size()
+                flash_section_size = flash['section_size']
                 self.check_analysis(flash_section_size, 'flash_section_size')
                 self.machine_init['body'].extend([
                     indent('dinfo = drive_get(IF_PFLASH, 0, 0);', 1),
