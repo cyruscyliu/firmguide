@@ -23,7 +23,7 @@ sudo -H python3.7 -m pip install --upgrade pip
 sudo rm /usr/bin/python && sudo ln -s /usr/bin/python3.7 /usr/bin/python
 
 # install required python packages
-sudo -H pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable capstone python-Levenshtein z3-solver
+sudo -H pip3.7 install qmp pyyaml fdt fuzzywuzzy networkx pyquery prettytable capstone python-Levenshtein z3-solver pydot
 git clone https://github.com/cyruscyliu/pymake.git ~/pymake && cd ~/pymake && sudo -H pip3.7 install .
 git clone https://github.com/cyruscyliu/pyqemulog ~/pyqemulog && cd ~/pyqemulog && sudo -H pip3.7 install .
 
@@ -59,6 +59,10 @@ apt-get update && apt-get install -y build-essential wget lsb-core software-prop
 wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 9 && \
 ln -s /usr/bin/clang-9 /usr/bin/clang && ln -s /usr/bin/llvm-link-9 /usr/bin/llvm-link  && ln -s /usr/bin/opt-9 /usr/bin/opt
 pip3.7 install networkx matplotlib graphviz
+
+# install sparse
+git clone git://git.kernel.org/pub/scm/devel/sparse/sparse.git ~/sparse && \
+cd ~/sparse && make && sudo cp ./graph /usr/bin && cd ~-
 ```
 
 ## Usage
