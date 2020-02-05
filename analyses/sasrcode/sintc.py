@@ -28,51 +28,7 @@ class SINTC(Analysis):
         cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
         path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
         self.debug(firmware, 'get {}'.format(path_to_pentry_point), 1)
-        if firmware.uuid in ['bcm47xx']:
-            firmware.srcodec.fix_gnu_extensions(path_to_pentry_point)
-            funccalls = firmware.srcodec.traverse_func(path_to_pentry_point, entry_point)
-        elif firmware.uuid == 'ar71xx':
-            funccalls = [
-                'soc_is_ar71xx',
-                'soc_is_ar724x',
-                'soc_is_ar913x',
-                'soc_is_ar933x',
-                'soc_is_ar934x',
-                'soc_is_qca953x',
-                'soc_is_qca955x',
-                'soc_is_qca956x',
-                'BUG',
-                'mips_cpu_irq_init',
-                'ath79_misc_irq_init',
-                'ar934x_ip2_irq_init',
-                'qca955x_irq_init',
-                'soc_is_qca956x',
-                'qca956x_irq_init',
-            ]
-        elif firmware.uuid == 'adm5120':
-            funccalls = [
-                'mips_cpu_irq_init',
-                'adm5120_intc_irq_init'
-            ]
-        elif firmware.uuid == 'ar231x':
-            funccalls = [
-                'clear_c0_status',
-                 'mips_cpu_irq_init',
-                 'ar5312_irq_init',
-                 'ar2315_irq_init'
-            ]
-        elif firmware.uuid == 'ralink':
-            funccalls = [
-                'of_irq_init'
-            ]
-        elif firmware.uuid == 'ar7':
-            funccalls = [
-                'mips_cpu_irq_init',
-                'ar7_irq_init'
-            ]
-        else:
-            funccalls = []
-            self.debug(firmware, 'source at {}, please check by yourself'.format(firmware.srcodec.srcode), 1)
+        funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, entry_point, mode='sparse')
         self.debug(firmware, 'get {} in {}'.format(funccalls, entry_point), 1)
 
         has_device_tree = False
@@ -106,7 +62,7 @@ class SINTC(Analysis):
         super().__init__(analysis_manager)
         self.name = 'sintc'
         self.description = 'source code info analysis (llvm)'
-        self.required = ['cpu']
+        self.required = ['ram']
         self.context['hint'] = ''
         self.critical = False
 

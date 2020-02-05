@@ -24,19 +24,7 @@ class STimer(Analysis):
         cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
         path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
         self.debug(firmware, 'get {}'.format(path_to_pentry_point), 1)
-        if firmware.uuid in ['bcm47xx', 'ar71xx', 'ralink', 'ar7']:
-            firmware.srcodec.fix_gnu_extensions(path_to_pentry_point)
-            funccalls = firmware.srcodec.traverse_func(path_to_pentry_point, entry_point)
-        elif firmware.uuid == 'adm5120':
-            funccalls = []
-        elif firmware.uuid == 'ar231x':
-            funccalls = [
-                'ar5312_time_init',
-                'ar2315_time_init'
-            ]
-        else:
-            funccalls = []
-            self.debug(firmware, 'source at {}, please check by yourself'.format(firmware.srcodec.srcode), 1)
+        funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, entry_point, mode='sparse')
         self.debug(firmware, 'get {} in {}'.format(funccalls, entry_point), 1)
 
         has_device_tree = False

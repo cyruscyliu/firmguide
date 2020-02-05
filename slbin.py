@@ -9,7 +9,7 @@ from slcore.environment import setup_target_dir # uuid
 from slcore.compositor import unpack # components
 from slcore.machines import find_machine # components
 from slcore.environment import migrate, snapshot # components + firmware
-from slcore.scheduler import run_static_analysis, run_dynamic_analysis # firmware
+from slcore.scheduler import run_binary_analysis, run_dynamic_analysis # firmware
 
 def run(args):
     # 1. setup a working dir
@@ -30,7 +30,7 @@ def run(args):
             firmware.set_brand(args.brand)
         if args.url:
             firmware.set_url(args.url)
-        status = run_static_analysis(firmware)
+        status = run_binary_analysis(firmware)
     else:
         firmware.max_iteration = 1
         status = run_dynamic_analysis(firmware, check_only=True)

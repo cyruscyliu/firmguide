@@ -20,15 +20,15 @@ from analyses.sabinary.inf_strings import Strings
 from analyses.sabinary.inf_hardcode import HardCode
 from analyses.sabinary.inf_openwrt import OpenWRT
 
-from analyses.sasrcode.inf_device_tree import DeviceTree
-from analyses.sasrcode.inf_mfilter import Filter
-from analyses.sasrcode.inf_cpu import CPU
-from analyses.sasrcode.inf_ram import RAM
-from analyses.sasrcode.inf_sintc import SINTC
-from analyses.sasrcode.inf_stimer import STimer
-from analyses.sasrcode.inf_platform_devices import PlatformDevices
-from analyses.sasrcode.inf_libtooling import LibTooling
-from analyses.sasrcode.inf_loaddr import LoadAddr
+from analyses.sasrcode.device_tree import DeviceTree
+from analyses.sasrcode.mfilter import Filter
+from analyses.sasrcode.cpu import CPU
+from analyses.sasrcode.ram import RAM
+from analyses.sasrcode.sintc import SINTC
+from analyses.sasrcode.stimer import STimer
+from analyses.sasrcode.platform_devices import PlatformDevices
+from analyses.sasrcode.libtooling import LibTooling
+from analyses.sasrcode.loaddr import LoadAddr
 
 
 class AnalysesManager(object):
@@ -39,6 +39,7 @@ class AnalysesManager(object):
         self.analyses_remaining = {}  # name:analysis
         self.last_analysis_status = True
 
+        self.binary_analysis = None
         self.static_analysis = None
         self.dynamic_analysis = None
 
@@ -194,35 +195,40 @@ class AnalysesManager(object):
                 finish(self.firmware, a)
         return True
 
+    def run_binary_analysis(self):
+        return self.run(target_analyses_tree=self.binary_analysis)
+
     def run_static_analysis(self):
         return self.run(target_analyses_tree=self.static_analysis)
 
     def run_dynamic_analyses(self):
         return self.run(target_analyses_tree=self.dynamic_analysis)
 
-    def register_static_analysis(self, binary=True):
+    def register_binary_analysis(self):
+        binary_analysis = self.new_analyses_tree()
+        self.register_analysis(Kernel(self), analyses_tree=binary_analysis)
+        self.register_analysis(Strings(self), analyses_tree=binary_analysis)
+        self.register_analysis(HardCode(self), analyses_tree=binary_analysis)
+        self.register_analysis(OpenWRT(self), analyses_tree=binary_analysis)
+        self.binary_analysis = binary_analysis
+
+    def register_static_analysis(self):
         static_analysis = self.new_analyses_tree()
         self.static_analysis = static_analysis
 
-        if binary:
-            self.register_analysis(Kernel(self), analyses_tree=static_analysis)
-            self.register_analysis(Strings(self), analyses_tree=static_analysis)
-            self.register_analysis(HardCode(self), analyses_tree=static_analysis)
-            self.register_analysis(OpenWRT(self), analyses_tree=static_analysis)
-        else:
-            # mfilter <- cpu
-            self.register_analysis(Filter(self), analyses_tree=static_analysis)
-            # mfilter <- ram
-            self.register_analysis(CPU(self), analyses_tree=static_analysis)
-            self.register_analysis(RAM(self), analyses_tree=static_analysis)
-            self.register_analysis(SINTC(self), analyses_tree=static_analysis)
-            self.register_analysis(STimer(self), analyses_tree=static_analysis)
-            self.register_analysis(PlatformDevices(self), analyses_tree=static_analysis)
+        # mfilter <- cpu <- ram <- sintc <- stimer <- platform devices
+        self.register_analysis(Filter(self), analyses_tree=static_analysis)
+        self.register_analysis(CPU(self), analyses_tree=static_analysis)
+        self.register_analysis(RAM(self), analyses_tree=static_analysis)
+        self.register_analysis(SINTC(self), analyses_tree=static_analysis)
+        self.register_analysis(STimer(self), analyses_tree=static_analysis)
+        self.register_analysis(PlatformDevices(self), analyses_tree=static_analysis)
 
-            self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
-            # self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)
-            self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
-            # self.register_analysis(CodeGeneration(self), analyses_tree=static_analysis)
+        self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
+        # self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)
+        # mfilter <- loadaddr
+        self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
+        # self.register_analysis(CodeGeneration(self), analyses_tree=static_analysis)
 
     def register_dynamic_analysis(self, tracing=True, check_only=False):
         dynamic_analysis = self.new_analyses_tree()
