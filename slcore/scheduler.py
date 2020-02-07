@@ -5,10 +5,9 @@ from slcore.environment import restore_analysis, save_analysis
 
 
 def run_binary_analysis(firmware):
-    # restore what we have done
     analyses_manager = AnalysesManager(firmware)
-    analyses_manager.register_binary_analysis()
-    status = analyses_manager.run_binary_analysis()
+    analyses_tree = analyses_manager.register_binary_analysis()
+    status = analyses_manager.run(target_analyses_tree=analyses_tree)
 
     return False
 
@@ -18,15 +17,16 @@ def run_static_analysis(firmware, binary=True):
     restore_analysis(firmware)
 
     analyses_manager = AnalysesManager(firmware)
-    analyses_manager.register_static_analysis()
-    status = analyses_manager.run_static_analysis()
+    analyses_tree = analyses_manager.register_static_analysis()
+    status = analyses_manager.run(target_analyses_tree=analyses_tree)
 
     save_analysis(firmware)
+    return status
 
 
 def run_diagnosis(firmware, check_only=False):
     analyses_manager = AnalysesManager(firmware)
-    analyses_manager.register_dynamic_analysis(check_only=check_only)
+    analyses_tree = analyses_manager.register_diagnosis(check_only=check_only)
 
     max_iteration = firmware.max_iteration
 
@@ -34,7 +34,7 @@ def run_diagnosis(firmware, check_only=False):
     while max_iteration:
         max_iteration -= 1
         try:
-            status = analyses_manager.run_dynamic_analyses()
+            status = analyses_manager.run(target_analyses_tree=analyses_tree)
         except SystemExit:
             break
 
