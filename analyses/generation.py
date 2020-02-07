@@ -21,8 +21,8 @@ class CodeGeneration(Analysis):
         machine_compiler.make()
 
         kernel_load_address = firmware.get_kernel_load_address()
-        # kernel = pack_kernel(firmware.components, load_address=kernel_load_address)
-        kernel = '/root/openwrt-build-docker/share/15.05-cc3a47a374475253f93a08eea6eaadce/./chaos_calmer-15.05/build_dir/target-mips_34kc_uClibc-0.9.33.2/linux-ar71xx_generic/linux-3.18.20/vmlinux'
+        kernel = pack_kernel(firmware.components, load_address=kernel_load_address)
+        # kernel = '/root/openwrt-build-docker/share/15.05-cc3a47a374475253f93a08eea6eaadce/./chaos_calmer-15.05/build_dir/target-mips_34kc_uClibc-0.9.33.2/linux-ar71xx_generic/linux-3.18.20/vmlinux'
 
 
         if firmware.probe_flash():
@@ -36,8 +36,8 @@ class CodeGeneration(Analysis):
         running_command = machine_compiler.qemuc.get_command(
             firmware.get_architecture(), firmware.get_endian(), firmware.get_machine_name(),
             kernel,
-            # flash=firmware.get_flash_type(0), image=image,
-            flash=None, image=image,
+            flash=firmware.get_flash_type(0), image=image,
+            # flash=None, image=image,
             dtb=firmware.get_components().get_path_to_dtb()
         )
 

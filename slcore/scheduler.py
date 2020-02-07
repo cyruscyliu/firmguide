@@ -1,16 +1,7 @@
+from logger import logger_info, logger_warning
 from analyses.manager import AnalysesManager
 from slcore.generation.compilerf import get_compiler
-from slcore.profile.stats import statistics
-
-from logger import logger_info, logger_warning
-from slcore.environment import restore_analysis, save_analysis, \
-    setup_diagnosis, setup_statistics
-
-
-def run_diagnosis(firmware):
-    analyses_manager = AnalysesManager(firmware)
-    analyses_manager.register_dynamic_analysis(tracing=False)
-    status = analyses_manager.run_dynamic_analyses()
+from slcore.environment import restore_analysis, save_analysis
 
 
 def run_binary_analysis(firmware):
@@ -18,6 +9,8 @@ def run_binary_analysis(firmware):
     analyses_manager = AnalysesManager(firmware)
     analyses_manager.register_binary_analysis()
     status = analyses_manager.run_binary_analysis()
+
+    return False
 
 
 def run_static_analysis(firmware, binary=True):
@@ -31,16 +24,13 @@ def run_static_analysis(firmware, binary=True):
     save_analysis(firmware)
 
 
-def run_statistics(firmware):
-    statistics(firmware)
-
-
-def run_dynamic_analysis(firmware, check_only=False):
+def run_diagnosis(firmware, check_only=False):
     analyses_manager = AnalysesManager(firmware)
     analyses_manager.register_dynamic_analysis(check_only=check_only)
 
     max_iteration = firmware.max_iteration
 
+    status = False
     while max_iteration:
         max_iteration -= 1
         try:
@@ -49,4 +39,6 @@ def run_dynamic_analysis(firmware, check_only=False):
             break
 
     firmware.set_iteration(firmware.max_iteration - max_iteration)
+
+    return status
 

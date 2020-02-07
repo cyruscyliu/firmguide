@@ -649,6 +649,9 @@ class PlatformDevices(Analysis):
             mmio_size = 0x100
             firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
             self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            ## =========== from stimer.py ==============
+            firmware.insert_bamboo_devices(0x18050000, 0x4, value=0x10)
+            ## =========================================
             # ath79_ddr_base = __ioremap_mode(((0x18000000 + 0x00000000)), (0x100), ...);
             mmio_name = 'ath79_ddr'
             mmio_base = eval('((0x18000000 + 0x00000000))')

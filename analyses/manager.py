@@ -15,10 +15,9 @@ from analyses.generation import CodeGeneration
 from analyses.diag_tracing import DoTracing, LoadTrace
 from analyses.diag_checking import Checking
 
-from analyses.binary_analysis.inf_kernel import Kernel
-from analyses.binary_analysis.inf_strings import Strings
-from analyses.binary_analysis.inf_hardcode import HardCode
-from analyses.binary_analysis.inf_openwrt import OpenWRT
+from analyses.binary_analysis.kernel import Kernel
+from analyses.binary_analysis.strings import Strings
+from analyses.binary_analysis.openwrt import OpenWRT
 
 from analyses.static_analysis.device_tree import DeviceTree
 from analyses.static_analysis.mfilter import Filter
@@ -208,7 +207,6 @@ class AnalysesManager(object):
         binary_analysis = self.new_analyses_tree()
         self.register_analysis(Kernel(self), analyses_tree=binary_analysis)
         self.register_analysis(Strings(self), analyses_tree=binary_analysis)
-        self.register_analysis(HardCode(self), analyses_tree=binary_analysis)
         self.register_analysis(OpenWRT(self), analyses_tree=binary_analysis)
         self.binary_analysis = binary_analysis
 
