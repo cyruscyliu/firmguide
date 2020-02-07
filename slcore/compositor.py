@@ -7,6 +7,7 @@ import binwalk
 import tempfile
 
 from logger import logger_info, logger_debug, logger_warning
+from settings import *
 
 TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE = 1, 2, 3
 
@@ -132,6 +133,8 @@ def pack_kernel(components, load_address="0x00008000"):
 
 def pack_image(components, flash_size=None):
     rootfs = components.get_path_to_rootfs()
+    if rootfs is None:
+        rootfs = DEFAULT_ROOTFS
     enlarge_image(rootfs, flash_size)
     return rootfs
 

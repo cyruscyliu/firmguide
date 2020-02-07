@@ -8,8 +8,8 @@ from analyses.analysis import Analysis
 from pycparser import c_parser, c_ast, parse_file
 
 DONOT_ANALYSIS = [
-    'kmemdup', 'kfree', 'msleep',
-    '__builtin_unreachable', 'clk_get', 'panic', 'clk_get_rate', 'clk_put',
+    'kmemdup', 'kfree', 'msleep', '__builtin_memcmp', 'add_memory_region', 'detect_memory_region',
+    'clk_get', 'clk_get_rate', 'clk_put', 'sprintf',  '__udelay',
     '__builtin_memset', 'pcibios_init', 'ipc_ns_init', 'init_mmap_min_addr', 'net_ns_init',
     'wq_sysfs_init', 'ksysfs_init', 'init_jiffies_clocksource', 'init_zero_pfn', 'fsnotify_init',
     'filelock_init', 'init_script_binfmt', 'init_elf_binfmt', 'debugfs_init', 'prandom_init',
@@ -152,7 +152,8 @@ class PlatformDevices(Analysis):
                     uart_name = 'serial8250'
                     uart_mmio_base = eval('(0x18000000 + 0x00020000)')
                     uart_mmio_size = eval('(0x18000000 + 0x00020000) + 0x100 - 1') + 1 - uart_mmio_base
-                    uart_irqn = eval('(8 + (3))')
+                    # uart_irqn = eval('(8 + (3))')
+                    uart_irqn = 0
                     uart_reg_shift = eval('2')
                     firmware.set_uart('0', uart_name, uart_mmio_base, uart_irqn, uart_reg_shift, uart_mmio_size)
                     self.info(firmware, 'get uart name {}'.format(uart_name), 1)
@@ -475,9 +476,34 @@ class PlatformDevices(Analysis):
                     firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
                     self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
                 else:
-                    self.warning(firmware, 'platform_device_register_full found but no handlers', 0)
+                    self.warning(firmware, '__ioremap found but no handlers', 0)
             else:
-                self.warning(firmware, 'platform_device_register_full found but no handlers', 0)
+                self.warning(firmware, '__ioremap found but no handlers', 0)
+
+        # [FUNCTION] __iounmap() -> ()__ioremap_mode() -> ()__ioremap()
+        if '__iounmap' in funccalls:
+            funccalls.remove('__iounmap')
+            if firmware.uuid == 'ar71xx_generic':
+                if caller == 'ath79_mii_ctrl_set_if':
+                    # ath79_mii_ctrl_set_if(no address)
+                    # [DIRECT] base = __ioremap_mode(((0x18000000 + 0x00070000)), (0x100), ...)
+                    mmio_name = 'reserved0'
+                    mmio_base = eval('(0x18000000 + 0x00070000)')
+                    mmio_size = 0x100
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+                elif caller == 'ath79_set_pll':
+                    # ath79_set_pll(no address)
+                    # [DIRECT] base = __ioremap_mode(((0x18000000 + 0x00050000)), (0x100), ...)
+                    mmio_name = 'reserved1'
+                    mmio_base = eval('(0x18000000 + 0x00050000)')
+                    mmio_size = 0x100
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+                else:
+                    self.warning(firmware, '__ioremap_mode found but no handlers', 0)
+            else:
+                self.warning(firmware, '__ioremap_mode found but no handlers', 0)
 
         # [FUNCTION] spi_register_board_info && flash_platform_data
         if 'spi_register_board_info' in funccalls:
@@ -521,6 +547,70 @@ class PlatformDevices(Analysis):
                     self.warning(firmware, 'spi_register_board_info found but no handlers', 0)
             else:
                 self.warning(firmware, 'spi_register_board_info found but no handlers', 0)
+        # [FUNCTION] panic()
+        if 'panic' in funccalls:
+            # panic() is a very strong mark of exceptional path
+            funccalls.remove('panic')
+            if firmware.uuid == 'ar71xx_generic':
+                if caller == 'ath79_detect_sys_type':
+                    # by manually analysis, we know
+                    # ath79_reset_rr(0x90)
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00a0 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00c0 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0100 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1100 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00b0 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0110 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0120 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1120 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x2120 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0160 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0140 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0130 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1130 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0150 or
+                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1150
+                    mmio_name = 'ath79_reset_rr'
+                    mmio_base = eval('(0x18060000 + 0x90)')
+                    mmio_size = 0x4
+                    mmio_value = 0x00b0
+                    # firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
+                else:
+                    self.warning(firmware, 'panic found but no handlers', 0)
+            else:
+                self.warning(firmware, 'panic found but no handlers', 0)
+        # [FUNCTION] BUG()/BUG_ON(cond) -> __builtin_unreachable
+        if '__builtin_unreachable' in funccalls:
+            funccalls.remove('__builtin_unreachable')
+            # BUG()/BUG_ON() is a very strong mark of exceptional path
+            if firmware.uuid == 'ar71xx_generic':
+                if caller == 'ath79_register_wmac':
+                    # if (soc_is_ar913x()) ar913x_wmac_setup();
+                    # else if (soc_is_ar933x()) ar933x_wmac_setup();
+                    # else if (soc_is_ar934x()) ar934x_wmac_setup();
+                    # else if (soc_is_qca953x()) qca953x_wmac_setup();
+                    # else if (soc_is_qca955x()) qca955x_wmac_setup();
+                    # else if (soc_is_qca956x()) qca956x_wmac_setup();
+                    # else BUG();
+                    # by manually analysis, we know
+                    # (ath79_soc == ATH79_SOC_AR9130 || ath79_soc == ATH79_SOC_AR9132);
+                    # (ath79_soc == ATH79_SOC_AR9330 || ath79_soc == ATH79_SOC_AR9331);
+                    # (ath79_soc == ATH79_SOC_AR9341) || (ath79_soc == ATH79_SOC_AR9342) || (ath79_soc == ATH79_SOC_AR9344);
+                    # (ath79_soc == ATH79_SOC_QCA9533);
+                    # (ath79_soc == ATH79_SOC_QCA9556) || (ath79_soc == ATH79_SOC_QCA9558);
+                    # (ath79_soc == ATH79_SOC_TP9343) || (ath79_soc == ATH79_SOC_QCA9561);
+                    # we need a ud analysis, manually we know
+                    # ath79_soc is defined in ath79_detect_sys_type which is analyzed just above
+                    # ath79_soc is used in ath79_register_wmac and has several reasonable values
+                    # so ath79_reset_rr's value could be 0x00b0, so ath79_soc is ATH79_SOC_AR9130
+                    mmio_name = 'ath79_reset_rr'
+                    mmio_base = eval('(0x18060000 + 0x90)')
+                    mmio_size = 0x4
+                    mmio_value = 0x00b0
+                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
+                self.warning(firmware, 'BUG()/BUG() found but no handlers', 0)
+            else:
+                self.warning(firmware, 'BUG()/BUG() found but no handlers', 0)
 
         if len(funccalls):
             self.debug(firmware, '{} -> {}(unhandled)'.format(caller, funccalls), 1)
@@ -533,11 +623,48 @@ class PlatformDevices(Analysis):
             address, path_to_ep, funccalls = self.get_funccalls(firmware, ep, caller=caller)
             funccalls = self.parse_funcalls(firmware, ep, funccalls)
             self.traverse_funccalls(firmware, funccalls, caller=ep, depth=depth+1)
-
     def run(self, firmware):
         """
         here is for platform_devices
         """
+        # mips
+        # setup_arch->cpu_probe
+        # setup_arch->prom_init
+        # setup_arch->setup_early_printk -> FP -> prom_putchar
+        #   note: uarts will be determined in do_initcalls
+        # setup_arch->arch_mem_init->plat_mem_setup
+        funccalls = ['plat_mem_setup']
+        self.traverse_funccalls(firmware, funccalls, caller='setup_arch -> arch_mem_init')
+        if firmware.uuid == 'ar71xx_generic':
+            # __ioremap_mode will be ignored
+            # ath79_reset_base = __ioremap_mode(((0x18000000 + 0x00060000)), (0x100), ...);
+            mmio_name = 'ath79_reset'
+            mmio_base = eval('((0x18000000 + 0x00060000))')
+            mmio_size = 0x100
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            # ath79_pll_base = __ioremap_mode(((0x18000000 + 0x00050000)), (0x100), ...);
+            mmio_name = 'ath79_pll'
+            mmio_base = eval('((0x18000000 + 0x00050000))')
+            mmio_size = 0x100
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            # ath79_ddr_base = __ioremap_mode(((0x18000000 + 0x00000000)), (0x100), ...);
+            mmio_name = 'ath79_ddr'
+            mmio_base = eval('((0x18000000 + 0x00000000))')
+            mmio_size = 0x100
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            # plat_mem_setup -> ath79_detect_sys_type(no address)
+            # plat_mem_setup -> ath79_detect_sys_type(arch/mips/ath79/setup.c)
+            path_to_entry_point = 'arch/mips/ath79/setup.c'
+            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
+            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
+            funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, 'ath79_detect_sys_type', mode='sparse')
+            self.info(firmware, '{} -> {}'.format('ath79_detect_sys_type', funccalls), 1)
+            self.parse_funcalls(firmware, 'ath79_detect_sys_type', funccalls)
+            # detect_memory_region(built-in function)
+
         # do_initcall analysis
         # "early", "core", "postcore", "arch", "subsys", "fs", "device", "late",
         system_map = firmware.srcodec.get_system_map()
@@ -565,7 +692,9 @@ class PlatformDevices(Analysis):
             path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
             funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, 'ath79_gpio_init', mode='sparse')
             self.info(firmware, '{} -> {}'.format('ath79_gpio_init', funccalls), 1)
-            self.parse_funcalls(firmware, 'ath79_gpio_init', ['__ioremap'])
+            funccalls.append('__ioremap') # __ioremap is missing
+            funccalls = self.parse_funcalls(firmware, 'ath79_gpio_init', funccalls)
+            self.traverse_funccalls(firmware, funccalls, caller='ath79_gpio_init')
             # [][checked] ath79_register_uart(arch/mips/ath79/dev-common.c)
             # [][checked] ath79_register_wdt(arch/mips/ath79/dev-common.c)
             # [][checked] mips_machine_setup(arch/mips/kernel/mips_machine.c)
@@ -590,16 +719,38 @@ class PlatformDevices(Analysis):
             # [][][][]done]
             # [][][][][checked] ath79_register_mdio(arch/mips/ath79/dev-eth.c)
             # [][][][][][checked] ath79_set_pll(no address)
-            # [][][][][][checked] ar934x_get_mdio_ref_clock(no address)
+            path_to_entry_point = 'arch/mips/ath79/dev-eth.c'
+            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
+            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
+            funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, 'ath79_set_pll', mode='sparse')
+            self.info(firmware, '{} -> {}'.format('ath79_set_pll', funccalls), 1)
+            funccalls = self.parse_funcalls(firmware, 'ath79_set_pll', funccalls)
+            self.traverse_funccalls(firmware, funccalls, caller='ath79_set_pll')
+            # [][][][][][unchecked] ar934x_get_mdio_ref_clock(no address)
             # [][][][][][DIRECT] platform_device_register(mdio_dev);
             # [][][][][done]
             # [][][][][checked] ath79_init_mac(arch/mips/ath79/dev-eth.c)
             # [][][][][checked] ath79_register_eth(arch/mips/ath79/dev-eth.c)
-            # [][][][][][checked] ath79_init_eth_pll_data(no address)
+            # [][][][][][unchecked] ath79_init_eth_pll_data(no address)
             # [][][][][][checked] ath79_setup_phy_if_mode(no address)
+            path_to_entry_point = 'arch/mips/ath79/dev-eth.c'
+            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
+            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
+            funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, 'ath79_setup_phy_if_mode', mode='sparse')
+            self.info(firmware, '{} -> {}'.format('ath79_setup_phy_if_mode', funccalls), 1)
+            funccalls = self.parse_funcalls(firmware, 'ath79_setup_phy_if_mode', funccalls)
+            self.traverse_funccalls(firmware, funccalls, caller='ath79_setup_phy_if_mode')
+            # [][][][][][][checked] ath79_mii_ctrl_set_if(no address)
+            path_to_entry_point = 'arch/mips/ath79/dev-eth.c'
+            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
+            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
+            funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, 'ath79_mii_ctrl_set_if', mode='sparse')
+            self.info(firmware, '{} -> {}'.format('ath79_mii_ctrl_set_if', funccalls), 1)
+            funccalls = self.parse_funcalls(firmware, 'ath79_mii_ctrl_set_if', funccalls)
+            self.traverse_funccalls(firmware, funccalls, caller='ath79_mii_ctrl_set_if')
             # [][][][][][checked] get_random_bytes(drivers/char/random.c)
-            # [][][][][][checked] ath79_device_reset_set which is out of our scope by its name
-            # [][][][][][checked] ath79_device_reset_clear which is out of our scope by its name
+            # [][][][][][unchecked] ath79_device_reset_set(inline in header)
+            # [][][][][][unchecked] ath79_device_reset_clear(inline in header)
             # [][][][][][DIRECT] platform_device_register(pdev)
             # [][][][][done]
             # [][][][][checked] ath79_register_wmac(arch/mips/include/asm/mach-ath79/ath79.h)
@@ -607,12 +758,9 @@ class PlatformDevices(Analysis):
             path_to_entry_point = 'arch/mips/ath79/dev-wmac.c'
             cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
             path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-            entry_point = [
-                'ar913x_wmac_setup', 'ar933x_wmac_setup', 'ar934x_wmac_setup',
-                'qca953x_wmac_setup','qca955x_wmac_setup', 'qca956x_wmac_setup', 'platform_device_register']
             funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, 'ath79_register_wmac', mode='sparse')
             self.info(firmware, '{} -> {}'.format('ath79_register_wmac', funccalls), 1)
-            funccalls = self.parse_funcalls(firmware, 'ath79_register_wmac', entry_point)
+            funccalls = self.parse_funcalls(firmware, 'ath79_register_wmac', funccalls)
             self.traverse_funccalls(firmware, funccalls, caller='ath79_register_wmac')
             # [][][][][][DIRECT] platform_device_register(&ath79_wmac_device);
             # [][][][][done]

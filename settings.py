@@ -26,3 +26,6 @@ QEMU_GLOBAL = False
 LLVM_OPT='opt'
 LLVM_LINK='llvm-link'
 LLVM_CLANG='clang'
+
+# ===== rootfs =====
+DEFAULT_ROOTFS = os.path.join(BASE_DIR, 'examples/rootfs/rootfs.default')

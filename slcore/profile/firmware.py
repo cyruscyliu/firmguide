@@ -11,6 +11,9 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         # at beginning, you must uuid because your profile
         # is not ready, after your profile is ready, you
         # are suppose to use get_uuid()/set_uuid()
+        # firmware is created/loaded/clean before an analysis
+        # firmware is held in an analysis
+        # firmware should be serialized after an analysis
         self.uuid = None
 
         # the following arguments will not go to your profile
