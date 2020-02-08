@@ -22,11 +22,11 @@ class SINTC(Analysis):
         elif arch == 'mips':
             entry_point = 'arch_init_irq'
 
-        address = firmware.srcodec.symbol2address(entry_point)
-        path_to_entry_point = firmware.srcodec.addr2file(address)
-        cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
-        path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-        funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, entry_point, mode='sparse')
+        srcodec = firmware.get_srcodec()
+        path_to_entry_point = srcodec.symbol2file(entry_point)
+        cmdline = srcodec.get_cmdline(path_to_entry_point)
+        path_to_pentry_point = srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
+        funccalls = srcodec.get_funccalls(path_to_pentry_point, entry_point, mode='sparse')
         self.debug(firmware, '{} -> {}'.format(entry_point, funccalls), 1)
 
         has_device_tree = False

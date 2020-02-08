@@ -25,11 +25,11 @@ class STimer(Analysis):
         # this machine can use the r4k compatile counter as interrupt source
         # and clock source. At the same time, mips_hpt_frequency must be defined
         # to not zero in plat_time_init. Other cases can be discussed seperately.
-        address = firmware.srcodec.symbol2address(entry_point)
-        path_to_entry_point = firmware.srcodec.addr2file(address)
-        cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
-        path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-        funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, entry_point, mode='sparse')
+        srcodec = firmware.get_srcodec()
+        path_to_entry_point = srcodec.symbol2file(entry_point)
+        cmdline = srcodec.get_cmdline(path_to_entry_point)
+        path_to_pentry_point = srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
+        funccalls = srcodec.get_funccalls(path_to_pentry_point, entry_point, mode='sparse')
         self.debug(firmware, '{} -> {}'.format(entry_point, funccalls), 1)
 
         all_funccalls = []
@@ -38,11 +38,10 @@ class STimer(Analysis):
         for funccall in funccalls:
             if 'r4k_clockevent_init' == funccall or 'init_r4k_clocksource' == funccall:
                 continue
-            address = firmware.srcodec.symbol2address(funccall)
-            if address is None:
+            path_to_entry_point = firmware.srcodec.symbol2file(funccall)
+            if path_to_entry_point is None:
                 self.warning(firmware, '{} -> {}(no address)'.format(entry_point, funccall), 1)
                 continue
-            path_to_entry_point = firmware.srcodec.addr2file(address)
             self.debug(firmware, '{} -> {}({})'.format(entry_point, funccall, path_to_entry_point), 1)
             cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
             path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)

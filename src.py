@@ -6,11 +6,11 @@ import argparse
 import logging.config
 
 from logger import setup_logging
-from slcore.environment import setup_target_dir # srcode
-from slcore.profile.firmwaref import get_firmware
-from slcore.environment import snapshot, archive # firmware
+from slcore.environment import setup_target_dir, migrate
+from slcore.environment import snapshot, archive
 from slcore.scheduler import run_static_analysis, run_diagnosis
 from slcore.srcodec import SRCodeController
+from slcore.qemuc import QEMUController
 from slcore.compositor import unpack
 
 logger = logging.getLogger()
@@ -39,7 +39,8 @@ def run(args):
 
     # 2.1 low level source code controller
     srcodec = SRCodeController()
-    srcodec.set_path_to_source_code(args.source_code)
+    path_to_source_code = args.source_code
+    srcodec.set_path_to_source_code(path_to_source_code)
     srcodec.set_path_to_vmlinux(os.path.join(path_to_source_code, 'vmlinux'))
     srcodec.set_path_to_dot_config(os.path.join(path_to_source_code, '.config'))
     srcodec.set_path_to_cross_compile(args.gcc)

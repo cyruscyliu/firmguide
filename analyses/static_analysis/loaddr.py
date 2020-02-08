@@ -10,7 +10,7 @@ class LoadAddr(Analysis):
             self.info(firmware, 'get arm loading address 0x{:x} by default'.format(0x8000), 1)
             return True
 
-        path_to_srcode = firmware.get_path_to_source_code()
+        path_to_srcode = firmware.get_srcodec().get_path_to_source_code()
         lds_names = ['kernel/vmlinux.lds', 'vmlinux.lds', 'ld.script', 'kernel/ld.script']
 
         for lds_name in lds_names:

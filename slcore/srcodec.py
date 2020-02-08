@@ -30,7 +30,7 @@ class SRCodeController(Common):
 
     def symbol2file(self, symbol, relative=True):
         if self.system_map is None:
-            path = os.path.join(self.srcode, 'System.map')
+            path = os.path.join(self.path_to_source_code, 'System.map')
             self.system_map = parse_system_map(path)
 
         if symbol in self.system_map:
@@ -52,7 +52,7 @@ class SRCodeController(Common):
         get_cmdline('arch/arm/mm/proc-xxx.c')
 
         """
-        full_path = os.path.join(self.srcode, path)
+        full_path = os.path.join(self.path_to_source_code, path)
         full_dir = os.path.dirname(full_path)
         base = os.path.basename(full_path)
         full_cmd = os.path.join(full_dir, '.{}.cmd'.format(base.replace('.c', '.o')))
@@ -65,13 +65,13 @@ class SRCodeController(Common):
 
     def run(self, command):
         cwd = os.getcwd()
-        os.chdir(self.srcode)
+        os.chdir(self.path_to_source_code)
         status = os.system(command + '>/dev/null 2>&1')
         os.chdir(cwd)
         return status
 
     def __has_gcc(self, line):
-        gcc = [os.path.basename(self.prefix) + 'gcc', 'ccache_cc']
+        gcc = [os.path.basename(self.path_to_cross_compile) + 'gcc', 'ccache_cc']
         for i in gcc:
             if line.split()[0].endswith(i):# or line.split()[1].endswith(gcc):
                 return True
@@ -79,7 +79,7 @@ class SRCodeController(Common):
 
     def __correct_gcc(self, command):
         items = command.split()
-        items[0] = self.prefix + 'gcc'
+        items[0] = self.path_to_cross_compile + 'gcc'
         return ' '.join(items)
 
     def __adjuct_to_preprocess(self, command):
@@ -92,12 +92,12 @@ class SRCodeController(Common):
         """
         preprocess('arch/arm/mm/proc-xxx.c')
         """
-        if self.makeout is None:
+        if self.path_to_makeout is None:
             return
 
         command = None
         target = os.path.basename(path)
-        with open(self.makeout) as f:
+        with open(self.path_to_makeout ) as f:
             for line in f:
                 if not self.__has_gcc(line):
                     continue
@@ -121,7 +121,7 @@ class SRCodeController(Common):
         return funccalls
 
     def __get_funccalls_by_sparse(self, path, funcname):
-        path = os.path.join(self.srcode, path)
+        path = os.path.join(self.path_to_source_code, path)
         output = os.popen('graph {}'.format(path)).readlines()
         output = ''.join(output)
 

@@ -38,7 +38,7 @@ class CPU(Analysis):
                 # continue
             # get you want from asm2json(path_to_preprocessed_file)
             # which is difficult because you have to evaluate globals defined by macros
-        path_to_vmlinux = firmware.get_path_to_vmlinux()
+        path_to_vmlinux = firmware.get_srcodec().get_path_to_vmlinux()
         strings = get_all_strings([path_to_vmlinux])
         cpu = find_cpu_in_strings(strings)
         if cpu is not None:
@@ -59,8 +59,8 @@ class CPU(Analysis):
 
     def infer_mips_cpu(self, firmware):
         # find command
-        path_to_srcode = firmware.get_path_to_source_code()
-        path_to_mkout = firmware.get_path_to_makeout()
+        path_to_srcode = firmware.get_srcodec().get_path_to_source_code()
+        path_to_mkout = firmware.get_srcodec().get_path_to_makeout()
 
         results = os.popen('grep cpu-probe.c {}'.format(path_to_mkout)).readlines()
         if len(results) != 1:
@@ -73,7 +73,7 @@ class CPU(Analysis):
             results = [' '.join(results.split()[2:])]
 
         command = results[0]
-        path_to_prefix = firmware.get_path_to_gcc()
+        path_to_prefix = firmware.get_srcodec().get_path_to_cross_compile()
         path_to_gcc = path_to_prefix + 'gcc'
         if path_to_gcc is None:
             self.context['input'] = 'no gcc available'

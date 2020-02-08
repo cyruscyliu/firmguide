@@ -35,7 +35,7 @@ class Filter(Analysis):
             'boot', 'common', 'configs', 'crypto', 'firmware', 'include', 'kernel',
             'kvm', 'lib', 'mm', 'net', 'nvfpe', 'oprofile', 'tools', 'xen'
         ]
-        self.path_to_srcode = firmware.get_path_to_source_code()
+        self.path_to_srcode = firmware.get_srcodec().get_path_to_source_code()
         self.arch = 'arm'
         target = self.find_dir_compiled(exclude=exclude)
         if target is None:
@@ -54,7 +54,7 @@ class Filter(Analysis):
             'boot', 'configs', 'fw', 'include', 'kernel', 'kvm', 'lib', 'mm',
             'math-emu', 'lib', 'net', 'oprofile', 'paravirt', 'pci', 'power'
         ]
-        self.path_to_srcode = firmware.get_path_to_source_code()
+        self.path_to_srcode = firmware.get_srcodec().get_path_to_source_code()
         self.arch = 'mips'
         target = self.find_dir_compiled(exclude=exclude)
         if target is None:

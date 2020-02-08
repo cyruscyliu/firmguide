@@ -57,7 +57,7 @@ class PlatformDevices(Analysis):
         # from source code using regular expression
         # MIPS_MACHINE(ATH79_MACH_CARAMBOLA2, "CARAMBOLA2", "8devices Carambola2 board", carambola2_setup);
         string = ''
-        with open(os.path.join(firmware.srcodec.srcode, path_to_st)) as f:
+        with open(os.path.join(firmware.srcodec.get_path_to_source_code(), path_to_st)) as f:
             for line in f:
                 string += line.strip()
         match = re.search(r'MIPS_MACHINE\(\s*[_A-Z0-9]+\s*,\s*".*?"\s*,\s*".*?"\s*,\s*([_a-zA-Z0-9]+)\s*\)', string)
@@ -65,32 +65,31 @@ class PlatformDevices(Analysis):
         return setup
 
     def get_funccalls(self, firmware, ep, caller='do_initcall'):
-        address = firmware.srcodec.symbol2address(ep)
-        if address is None:
+        path_to_entry_point = firmware.srcodec.symbol2file(ep)
+        if path_to_entry_point is None:
             self.warning(firmware, '{} -> {}(no address)'.format(caller, ep), 1)
             return None, None, []
 
-        path_to_entry_point = firmware.srcodec.addr2file(address)
         if not path_to_entry_point.startswith('arch'):
             self.debug(firmware, '{} -> {}({})'.format(caller, ep, path_to_entry_point), 1)
-            return address, path_to_entry_point, []
+            return None, path_to_entry_point, []
 
         dirs = path_to_entry_point.split('/')
         # self.debug(firmware, '{} -> {}({})'.format(caller, ep, path_to_entry_point), 1)
         if dirs[2] == 'include':
             self.warning(firmware, '{} -> {}(inline in header)'.format(caller, ep, path_to_entry_point), 1)
-            return address, path_to_entry_point, []
+            return None, path_to_entry_point, []
 
         cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
         path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
         if path_to_pentry_point is None:
             self.debug(firmware, '{} -> {}(error in preprocessing)'.format(caller, ep, path_to_entry_point), 1)
-            return address, None, []
+            return None, None, []
 
         funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, ep, mode='sparse')
         self.debug(firmware, '{} -> {}'.format(ep, funccalls), 1)
 
-        return address, path_to_entry_point, funccalls
+        return None, path_to_entry_point, funccalls
 
     def parse_funcalls(self, firmware, caller, funccalls):
         # remove duplicated functions
@@ -623,6 +622,7 @@ class PlatformDevices(Analysis):
             address, path_to_ep, funccalls = self.get_funccalls(firmware, ep, caller=caller)
             funccalls = self.parse_funcalls(firmware, ep, funccalls)
             self.traverse_funccalls(firmware, funccalls, caller=ep, depth=depth+1)
+
     def run(self, firmware):
         """
         here is for platform_devices
@@ -670,7 +670,7 @@ class PlatformDevices(Analysis):
 
         # do_initcall analysis
         # "early", "core", "postcore", "arch", "subsys", "fs", "device", "late",
-        system_map = firmware.srcodec.parse_system_map()
+        system_map = firmware.srcodec.system_map
         funccalls = []
         for symbol, v in system_map.items():
             ep = None
