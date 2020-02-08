@@ -21,7 +21,6 @@ class CompilerToQEMUMachine(object):
 
         self.location = {
             'machine': {'arm': 'hw/arm', 'mips': 'hw/mips', 'interrupt_controller': 'hw/intc'},
-            'makefile': {'arm': 'hw/arm/Makefile.objs', 'mips': 'hw/mips/Makefile.objs', 'interrupt_controller': 'hw/intc/Makefile.objs'}
         }
         self.machine = {'includings': [], 'defines': [], 'define_machine': []}
         self.machine_mmio_ops = []
@@ -38,13 +37,16 @@ class CompilerToQEMUMachine(object):
             self.endianness = 'DEVICE_LITTLE_ENDIAN'
         else:
             self.endianness = 'DEVICE_BIG_ENDIAN'
-        self.architecture = firmware.get_architecture()
+        self.architecture = firmware.get_arch()
         self.cpu_pp_model = self.firmware.probe_cpu_pp_model()
         self.interrupt_controller = self.firmware.probe_interrupt_controller()
 
     def check_analysis(self, to_be_checked, name):
         if to_be_checked is None:
             raise NotImplementedError(self.feedback('analysis', name))
+
+    def has_sintc(self):
+        return len(self.custom_devices['interrupt_controller']['source']) > 0
 
     def feedback(self, t, name):
         if t == 'analysis':
@@ -136,34 +138,6 @@ class CompilerToQEMUMachine(object):
         lines.append('};\n')
         return lines
 
-
-    def install(self):
-        prefix = os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0')
-        for root, dirs, files in os.walk(prefix):
-            if len(dirs):
-                continue
-            for f in files:
-                full = os.path.join(root, f)
-                target = self.qemuc.patch(full, full[len(prefix)+1:])
-                self.debug('install {} at {}'.format(full, target), 'install')
-
-    def uninstall(self):
-        self.qemuc.recover()
-
-    def processing_image(self):
-        path_to_image = self.firmware.get_components().get_path_to_raw()
-        flash_size = self.firmware.get_flash_size()
-        flash_size = flash_size.replace('MiB', '0x100000')
-        flash_size = eval(flash_size)
-        size_of_image = os.path.getsize(path_to_image)
-        if size_of_image == flash_size:
-            return
-        os.system('dd if=/dev/zero of={} seek={} bs=1 count={} > /dev/null 2>&1'.format(
-            path_to_image, size_of_image, flash_size - size_of_image))
-
-    def make(self):
-        self.qemuc.compile(cflags='-Wmaybe-uninitialized ', cpu=4)
-
     def compile(self):
         self.preprocessor.preprocess()
         self.resolve_machine_includings()
@@ -248,7 +222,7 @@ class CompilerToQEMUMachine(object):
             indent('object_property_set_bool(OBJECT(&s->ic), true, "realized", &err);', 1),
             indent('sysbus_mmio_map(SYS_BUS_DEVICE(&s->ic), 0, {});'.format(ic_mmio_base), 1)
         ])
-        self.info('solved abelia interrupt controller', 'compile')
+        self.debug('solved abelia interrupt controller', 'compile')
 
     @abc.abstractmethod
     def resolve_uart_irq_api(self, uart_irq):
@@ -305,34 +279,6 @@ class CompilerToQEMUMachine(object):
         if self.firmware.probe_uart():
             self.resolve_uart()
             self.debug('resolve abelia uart', 'compile')
-
-        # flash
-        if self.firmware.probe_flash():
-            flash = self.firmware.get_flash()[0]
-            flash_type = flash['type']
-            self.check_analysis(flash_type, 'flash_type')
-            self.machine['includings'].extend(['sysemu/blockdev.h', 'hw/block/flash.h'])
-            self.machine_init['declaration'].extend([indent('DriveInfo *dinfo;', 1)])
-            if flash_type == 'nor':
-                flash_base = flash['base']
-                self.check_analysis(flash_base, 'flash_base')
-                flash_size = flash['size']
-                self.check_analysis(flash_size, 'flash_size')
-                flash_section_size = flash['section_size']
-                self.check_analysis(flash_section_size, 'flash_section_size')
-                self.machine_init['body'].extend([
-                    indent('dinfo = drive_get(IF_PFLASH, 0, 0);', 1),
-                    indent('pflash_cfi01_register({}, "flash", {}, dinfo ? blk_by_legacy_dinfo(dinfo): NULL, '
-                           '{}, 4, 0, 0, 0, 0, 0);'.format(flash_base, flash_size, flash_section_size), 1)
-                ])
-            elif flash_type == 'nand':
-                self.machine_init['body'].extend([
-                    indent('dinfo = drive_get(IF_MTD, 0, 0);', 1),
-                    indent('nand_init(dinfo ? blk_by_legacy_dinfo(dinfo): NULL, 0xec, 0x73);')
-                ])
-            else:
-                raise NotImplementedError()
-            self.debug('resolve abelia flash', 'compile')
 
     def resolve_bamboo_devices(self):
         machine_name = self.firmware.get_machine_name()
@@ -439,7 +385,7 @@ class CompilerToQEMUMachine(object):
 
     # half dependent
     def resolve_load_kernel(self):
-        architecture = self.firmware.get_architecture()
+        architecture = self.firmware.get_arch()
         self.check_analysis(architecture, 'architecture')
         if architecture == 'arm':
             self.machine['includings'].extend(['hw/arm/arm.h'])
@@ -493,7 +439,7 @@ class CompilerToQEMUMachine(object):
         self.check_analysis(machine_desc, 'machine_description')
         machine_name = self.firmware.get_machine_name()
         self.check_analysis(machine_name, 'machine_name')
-        architecture = self.firmware.get_architecture()
+        architecture = self.firmware.get_arch()
         self.check_analysis(architecture, 'architecture')
         ram_size = self.firmware.get_ram_size()
         self.check_analysis(ram_size, 'ram_size')
@@ -595,7 +541,7 @@ class CompilerToQEMUMachine(object):
         self.source = ''.join(source)
         # save it locally
         machine_name = self.firmware.get_machine_name()
-        architecture = self.firmware.get_architecture()
+        architecture = self.firmware.get_arch()
 
         os.makedirs(os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0'), exist_ok=True)
         source_target = os.path.join(
@@ -634,58 +580,4 @@ class CompilerToQEMUMachine(object):
                 f.write(self.custom_devices['interrupt_controller']['header'])
                 f.flush()
             self.debug('link {} header at {}'.format(k, source_target), 'link')
-
-        self.resolve_makefiles()
-
-    def resolve_makefile(self, path, label, content):
-        """
-        :param path: path to makefile, str
-        :param label: label to be checked, str
-        :param content: content to be extend, list
-        """
-        original = self.qemuc.get_file_path(path)
-        with open(original) as f:
-            lines = f.readlines()
-
-        if not lines[-1].endswith('\n'):
-            lines[-1] = lines[-1] + '\n'
-        if label not in lines:
-            lines.extend(content)
-
-        target = os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0', path)
-        os.makedirs(os.path.dirname(target), exist_ok=True)
-        with open(target, 'w') as f:
-            f.writelines(lines)
-            f.flush()
-        return target
-
-    def resolve_makefiles(self):
-        machine_name = self.firmware.get_machine_name()
-        architecture = self.firmware.get_architecture()
-        #
-        config = 'CONFIG_{}=y\n'.format(to_upper(machine_name))
-        path = os.path.join(self.location['configs'])
-        content = [config]
-        target = self.resolve_makefile(path, config, content)
-        self.debug('resolve CONFIG option at {}'.format(target), 'link')
-        #
-        kconfig = 'config {}\n'.format(to_upper(machine_name))
-        path = os.path.join(self.location['kconfig'])
-        content = ['\n', kconfig, '    bool\n']
-        target = self.resolve_makefile(path, kconfig, content)
-        self.debug('resolve kconfig at {}'.format(target), 'link')
-        #
-        makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(to_upper(machine_name), machine_name)
-        path = os.path.join(self.location['makefile'][architecture])
-        content = [makefile]
-        target = self.resolve_makefile(path, makefile, content)
-        self.debug('resolve Makefile at {}'.format(target), 'link')
-        #
-        if len(self.custom_devices['interrupt_controller']['source']):
-            ic_name = self.firmware.get_interrupt_controller_name()
-            makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(to_upper(machine_name), ic_name)
-            path = os.path.join(self.location['makefile']['interrupt_controller'])
-            content = [makefile]
-            target = self.resolve_makefile(path, makefile, content)
-            self.debug('resolve sintc Makefile at {}'.format(target), 'link')
 

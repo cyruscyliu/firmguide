@@ -33,6 +33,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.path_to_summary = None  # /tmp/uuid/stats.yaml
 
         self.components = None
+        self.srcodec = None
+        self.qemuc = None
 
         self.running_command = None
         self.trace_format = None
@@ -98,12 +100,24 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def set_components(self, components):
         self.components = components
 
+    def get_qemuc(self):
+        return self.qemuc
+
+    def set_qemuc(self, qemuc):
+        self.qemuc = qemuc
+
+    def get_srcodec(self):
+        return self.srcodec
+
+    def set_qemuc(self, srcodec):
+        self.srcodec = srcodec
+
     @abc.abstractmethod
-    def set_architecture(self, *args, **kwargs):
+    def set_arch(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def get_architecture(self, *args, **kwargs):
+    def get_arch(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod

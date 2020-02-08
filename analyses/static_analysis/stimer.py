@@ -12,7 +12,7 @@ class STimer(Analysis):
         """
         here is for 'simple timer solution'
         """
-        arch = firmware.get_architecture()
+        arch = firmware.get_arch()
         if arch == 'arm':
             entry_point = ''
         elif arch == 'mips':

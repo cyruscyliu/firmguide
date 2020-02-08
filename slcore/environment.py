@@ -1,5 +1,6 @@
 import os
 import yaml
+import shutil
 import tempfile
 
 from settings import *
@@ -52,11 +53,10 @@ def finish(firmware, analysis):
 def setup_target_dir(uuid):
     target_dir = os.path.join(WORKING_DIR, uuid)
     os.makedirs(target_dir, exist_ok=True)
-    logger_info(uuid, 'environment', 'tdir', 'process in {}'.format(target_dir), 1)
     return target_dir
 
 
-def migrate(uuid, path_to_profile=None):
+def migrate(uuid, path_to_profile=None, components=None):
     firmware = get_firmware('simple')
 
     # two basics
@@ -74,6 +74,19 @@ def migrate(uuid, path_to_profile=None):
         logger_info(firmware.uuid, 'environment', 'migrate', 'create new profile {}'.format(firmware.path_to_profile), 1)
 
     firmware.set_uuid(uuid)
+
+    # handle components
+    if components is not None:
+        # copy the firmware to working path
+        firmware.set_working_path(
+            os.path.join(firmware.get_target_dir(), components.get_raw_name()))
+        if not os.path.exists(firmware.working_path):
+            shutil.copy(
+                os.path.join(os.getcwd(), components.get_path_to_raw()),
+                os.path.join(firmware.working_path)
+        )
+        firmware.set_components(components)
+
     return firmware
 
 
@@ -124,7 +137,7 @@ def setup_diagnosis(args, firmware):
     # 3 uuid.arch.endian.trace
     architecture = name.split('-')[1]
     assert architecture in ['arm', 'mips'], 'cannot support this architecture {}'.format(architecture)
-    firmware.set_architecture(architecture)
+    firmware.set_arch(architecture)
     endian = name.split('-')[2]
     assert endian in ['l', 'b'], 'cannot support this endianness {}'.format(endian)
     firmware.set_endian(endian)

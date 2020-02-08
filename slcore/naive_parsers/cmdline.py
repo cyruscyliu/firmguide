@@ -2,6 +2,18 @@ from slcore.parser import get_candidates, get_all_strings
 
 import os
 
+def parse_cmdfile(path):
+    """
+    Linux kernel will write compilation commands w.s.t to relavent objects
+    to .xxx.o.cmd in the same directories.
+
+    the format is xxx.o := command for the first line
+    """
+    with open(path) as f:
+        cmdline = f.readline().strip().split(':=')[1]
+    return cmdline
+
+
 def split_cmdline(valid_cmdline):
     kv_pairs = {}
 

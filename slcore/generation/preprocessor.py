@@ -34,17 +34,9 @@ class PreProcessor(object):
                 self.firmware.set_uart_baud_rate(baud_rate, i)
                 self.debug('uart baud rate not exist, refre to {}'.format(baud_rate))
 
-    def preprocess_flash_section_size(self):
-        for i in range(0, self.firmware.get_flash_num()):
-            if self.firmware.get_flash_type(i) == 'nor' and self.firmware.get_flash_section_size(i) is None:
-                section_size = '64 * KiB'
-                self.firmware.set_flash_section_size(section_size, i)
-                self.debug('nor flash section size not exists, refer to {}'.format(section_size))
-
     def preprocess(self):
         # handle non-critical things
         self.preprocess_machine_description()
         self.preprocess_ram_priority()
         self.preprocess_uart_baud_rate()
-        self.preprocess_flash_section_size()
 

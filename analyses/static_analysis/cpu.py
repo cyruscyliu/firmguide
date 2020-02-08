@@ -15,7 +15,7 @@ class CPU(Analysis):
         """
         # https://lwn.net/Articles/426006/
         # https://github.com/ulfalizer/Kconfiglib
-        # architecture = firmware.get_architecture()
+        # architecture = firmware.get_arch()
         # path_to_source_code = firmware.get_path_to_source_code()
         # path_to_mm = os.path.join(path_to_source_code, 'arch/{}/mm'.format(architecture))
 
@@ -50,9 +50,9 @@ class CPU(Analysis):
 
     def run(self, firmware):
         # only for mips
-        if firmware.get_architecture() == 'arm':
+        if firmware.get_arch() == 'arm':
             return self.infer_arm_cpu(firmware)
-        elif firmware.get_architecture() == 'mips':
+        elif firmware.get_arch() == 'mips':
             return self.infer_mips_cpu(firmware)
 
         return False

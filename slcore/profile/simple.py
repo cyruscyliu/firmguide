@@ -169,10 +169,10 @@ class SimpleFirmware(Firmware):
     def set_uuid(self, *args, **kwargs):
         self.set_general('basics', 'uuid', value=args[0])
 
-    def set_architecture(self, *args, **kwargs):
+    def set_arch(self, *args, **kwargs):
         self.set_general('basics', 'architecture', value=args[0])
 
-    def get_architecture(self, *args, **kwargs):
+    def get_arch(self, *args, **kwargs):
         return self.get_general('basics', 'architecture')
 
     def get_endian(self, *args, **kwargs):

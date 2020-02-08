@@ -7,7 +7,7 @@ class RAM(Analysis):
         if ram_size is not None:
             self.info(firmware, 'get memory size {}'.format(ram_size), 1)
             return True
-        arch = firmware.get_architecture()
+        arch = firmware.get_arch()
         if arch == 'arm':
             rs = 32
         elif arch == 'mips':

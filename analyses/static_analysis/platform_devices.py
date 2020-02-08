@@ -416,17 +416,17 @@ class PlatformDevices(Analysis):
 
         # [FUNCTION] void mips_machine_setup(void);
         # this function decides which machine->setup to be called according to a kernel boot args
-        if firmware.get_architecture() == 'mips' and 'mips_machine_setup' in funccalls:
+        if firmware.get_arch() == 'mips' and 'mips_machine_setup' in funccalls:
             funccalls.remove('mips_machine_setup')
             # according to arch/mips/include/asm/mips_machine.h, we have
-            # system_map = firmware.srcodec.get_system_map()
+            # system_map = firmware.srcodec.parse_system_map()
             # for symbol, v in system_map.items():
                 # machine_id_##_type
                 # if symbol.startswith('machine_id'):
                     # addr2line not work for data
                     # machine_type = symbol[11:]
                     # output = os.popen('grep -nir "MIPS_MACHINE({}" {}/arch/{}'.format(
-                        # machine_type, firmware.srcodec.srcode, firmware.get_architecture())).readlines()
+                        # machine_type, firmware.srcodec.srcode, firmware.get_arch())).readlines()
                     # assert len(output), 'where is the symbol {}'.format(machine_type)
                     # output = output[0].split(':')[0][len(firmware.srcodec.srcode)+1:]
                     # machine_setup = self.traverse_struct(firmware, output)
@@ -670,7 +670,7 @@ class PlatformDevices(Analysis):
 
         # do_initcall analysis
         # "early", "core", "postcore", "arch", "subsys", "fs", "device", "late",
-        system_map = firmware.srcodec.get_system_map()
+        system_map = firmware.srcodec.parse_system_map()
         funccalls = []
         for symbol, v in system_map.items():
             ep = None

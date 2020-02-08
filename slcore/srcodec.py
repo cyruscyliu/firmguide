@@ -4,6 +4,8 @@ source code controller
 from settings import *
 from logger import logger_info
 from pycparser import c_parser, c_ast, parse_file
+from slcore.compositor import Common
+from slcore.naive_parsers.symbols import parse_system_map, addr2file
 
 import os
 import qmp
@@ -12,57 +14,38 @@ import subprocess
 
 BACKUP, PATCH, COMPILE, LINK = 0, 1, 2, 3
 
-class SRCodeController(object):
-    def __init__(self, srcode, arch, prefix, cpu=4):
-        self.srcode = srcode
-        self.arch = arch
-        self.prefix = prefix
+SOURCE_CODE_ATTRIBUTES = [
+    'path_to_source_code', 'path_to_cross_compile',
+    'path_to_makeout', 'arch', 'endian', 'path_to_vmlinux',
+    'system_map', 'path_to_dot_config'
+]
 
-        self.makeout = None
-        self.cpu = cpu
-
+class SRCodeController(Common):
+    def __init__(self):
+        super().__init__()
         # mode
-        self.llvm = False
         self.sparse = not os.system('which graph >/dev/null')
 
-    def get_system_map(self):
-        path = os.path.join(self.srcode, 'System.map')
+        self.set_attributes(SOURCE_CODE_ATTRIBUTES)
 
-        system_map = {}
-        with open(path) as f:
-            for line in f:
-                # ffffffff803687e8 T arch_init_irq
-                addr, type_, sym = line.strip().split()
-                system_map[sym] = {'addr': addr, 'type': type_}
-        return system_map
+    def symbol2file(self, symbol, relative=True):
+        if self.system_map is None:
+            path = os.path.join(self.srcode, 'System.map')
+            self.system_map = parse_system_map(path)
 
-    def symbol2address(self, symbol):
-        system_map = os.path.join(self.srcode, 'System.map')
+        if symbol in self.system_map:
+            address = self.system_map[symbol]['addr']
+        else:
+            return None
 
-        with open(system_map) as f:
-            for line in f:
-                # ffffffff803687e8 T arch_init_irq
-                addr, type_, sym = line.strip().split()
-                if sym == symbol:
-                    return int(addr, 16) & 0xFFFFFFFF
+        f = addr2file(self.path_to_vmlinux, address)
 
-        return None
-
-    def addr2file(self, address):
-        path_to_vmlinux = os.path.join(self.srcode, 'vmlinux')
-
-        output = os.popen('addr2line -e {} {}'.format(path_to_vmlinux, hex(address))).readlines()
-        if len(output):
-            # /abs/path/to/linux-3.18.20/arch/mips/bcm47xx/irq.c:69
-            f, l = output[0].split(':')
-            s = f
-            while s != '/':
-                s, _ = os.path.split(s)
-                if os.path.realpath(s) == os.path.realpath(self.srcode):
-                    break
-            return f[len(s)+1:]
-
-        return None
+        if f is None:
+            return None
+        if relative:
+            return f[len(os.path.realpath(self.path_to_source_code)) + 1:]
+        else:
+            return f
 
     def get_cmdline(self, path):
         """
@@ -86,43 +69,6 @@ class SRCodeController(object):
         status = os.system(command + '>/dev/null 2>&1')
         os.chdir(cwd)
         return status
-
-    def set_makeout(self, makeout):
-        self.makeout = makeout
-
-    def get_makeout(self):
-        if self.makeout is not None:
-            return self.makeout
-
-        self.makeout = os.path.join(self.srcode, 'makeout.txt')
-        self.run('make -j{} ARCH={} CROSS_COMPILE={}'.format(self.cpu, self.arch, self.prefix))
-
-        return self.makeout
-
-    def __backup(compress=True, copy=False):
-        pass
-
-    def __patch():
-        if self.patch:
-            return
-        self.patch = True
-
-    def __build():
-        if self.build:
-            return
-        self.build = True
-        pass
-
-    def __link():
-        pass
-
-    def apply_to_llvm(self, backup=True, patch=True, build=True, link=True):
-        self.__backup()
-        self.__patch()
-        if build:
-            self.__build()
-        if link:
-            self.__link()
 
     def __has_gcc(self, line):
         gcc = [os.path.basename(self.prefix) + 'gcc', 'ccache_cc']
@@ -210,13 +156,8 @@ class SRCodeController(object):
 
         return funccalls
 
-    def __get_funccalls_by_llvm(self, path, funcname):
-        pass
-
     def get_funccalls(self, path, funcname, mode='sparse'):
         if self.sparse and mode == 'sparse':
             return self.__get_funccalls_by_sparse(path, funcname)
-        elif self.llvm and mode == 'kerberos':
-            return self.__get_funccalls_by_kerberos(path, funcname)
         return []
 

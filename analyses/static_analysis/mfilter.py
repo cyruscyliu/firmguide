@@ -70,7 +70,7 @@ class Filter(Analysis):
             return False
 
     def run(self, firmware):
-        arch = firmware.get_architecture()
+        arch = firmware.get_arch()
         if arch == 'arm':
             return self.is_unsupport_arm_machine(firmware)
         elif arch == 'mips':

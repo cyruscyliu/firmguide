@@ -11,7 +11,7 @@ from analyses.diag_deadloop2 import DeadLoop2
 from analyses.diag_panic import Panic
 from analyses.diag_init_value import InitValue
 
-from analyses.generation import CodeGeneration
+from analyses.preparation import Preparation
 from analyses.diag_tracing import DoTracing, LoadTrace
 from analyses.diag_checking import Checking
 
@@ -220,7 +220,7 @@ class AnalysesManager(object):
     def register_diagnosis(self, tracing=True, check_only=False):
         dynamic_analysis = self.new_analyses_tree()
 
-        self.register_analysis(CodeGeneration(self), analyses_tree=dynamic_analysis)
+        self.register_analysis(Preparation(self), analyses_tree=dynamic_analysis)
         if tracing:
             self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
         self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)

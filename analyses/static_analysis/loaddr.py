@@ -5,7 +5,7 @@ from analyses.analysis import Analysis
 
 class LoadAddr(Analysis):
     def run(self, firmware):
-        if firmware.get_architecture() == 'arm':
+        if firmware.get_arch() == 'arm':
             firmware.set_kernel_load_address('0x00008000')
             self.info(firmware, 'get arm loading address 0x{:x} by default'.format(0x8000), 1)
             return True

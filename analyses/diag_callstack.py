@@ -103,9 +103,9 @@ class CallStack(Analysis):
         assert isinstance(trace, LoadTrace)
         pql = trace.pql
 
-        if firmware.get_architecture() == 'arm':
+        if firmware.get_arch() == 'arm':
             callstack = ARMCallStack()
-        elif firmware.get_architecture() == 'mips':
+        elif firmware.get_arch() == 'mips':
             callstack = MIPSCallStack()
         else:
             self.context['input'] = 'cannot support this architecture'

@@ -62,6 +62,4 @@ class ARMCompiler(CompilerToQEMUMachine):
 
     def __init__(self, firmware):
         super().__init__(firmware)
-        self.location['configs'] = 'default-configs/arm-softmmu.mak'
-        self.location['kconfig'] = 'hw/arm/Kconfig'
 
