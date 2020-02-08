@@ -50,7 +50,7 @@ class Preparation(Analysis):
 
         # 4. prepare -initrd path/to/cpio
         path_to_initramfs = \
-            os.path.join(BASE_DIR, 'examples/rootfs/{}.cpio'.format(firmware.get_machine_name()))
+            os.path.join(BASE_DIR, 'examples/rootfs/{}.cpio.rootfs'.format(firmware.get_arch()))
         path_to_initramfs = pack_initramfs(
             firmware.get_components(), mounted_to=path_to_initramfs)
         running_command = firmware.qemuc.get_command(
