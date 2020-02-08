@@ -12,11 +12,7 @@ class STimer(Analysis):
         """
         here is for 'simple timer solution'
         """
-        arch = firmware.get_arch()
-        if arch == 'arm':
-            entry_point = ''
-        elif arch == 'mips':
-            entry_point = 'time_init'
+        entry_point = 'time_init'
 
         # this is a simple implementation
         # For mips, time_init includes plat_time_init and
@@ -51,11 +47,10 @@ class STimer(Analysis):
             self.debug(firmware, '{} -> {}'.format(funccall, funccalls2), 1)
             all_funccalls.extend(funccalls2)
 
-        if arch == 'mips':
-            if 'r4k_clockevent_init' in all_funccalls:
-                self.info(firmware, 'get mips internel timer as interrupt source', 1)
-            if 'init_r4k_clocksource' in all_funccalls:
-                self.info(firmware, 'get mips internel timer as clock source', 1)
+        if 'r4k_clockevent_init' in all_funccalls:
+            self.info(firmware, 'get mips internel timer as interrupt source', 1)
+        if 'init_r4k_clocksource' in all_funccalls:
+            self.info(firmware, 'get mips internel timer as clock source', 1)
 
         if firmware.uuid == 'ar71xx_generic':
             entry_point = ['ath79_clocks_init', 'ath79_get_sys_clk_rate']

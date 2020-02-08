@@ -152,7 +152,7 @@ class PlatformDevices(Analysis):
                     uart_mmio_base = eval('(0x18000000 + 0x00020000)')
                     uart_mmio_size = eval('(0x18000000 + 0x00020000) + 0x100 - 1') + 1 - uart_mmio_base
                     # uart_irqn = eval('(8 + (3))')
-                    uart_irqn = 0
+                    uart_irqn = 6
                     uart_reg_shift = eval('2')
                     firmware.set_uart('0', uart_name, uart_mmio_base, uart_irqn, uart_reg_shift, uart_mmio_size)
                     self.info(firmware, 'get uart name {}'.format(uart_name), 1)
@@ -643,6 +643,10 @@ class PlatformDevices(Analysis):
             mmio_size = 0x100
             firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
             self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            ## =========== from stinc.py =============
+            firmware.insert_bamboo_devices(0x18060010, 0x4, value=0x10000000)
+            firmware.insert_bamboo_devices(0x18060014, 0x4, value=0x10000000)
+            ## =======================================
             # ath79_pll_base = __ioremap_mode(((0x18000000 + 0x00050000)), (0x100), ...);
             mmio_name = 'ath79_pll'
             mmio_base = eval('((0x18000000 + 0x00050000))')

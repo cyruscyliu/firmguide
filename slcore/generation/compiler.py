@@ -551,7 +551,7 @@ class CompilerToQEMUMachine(object):
         with open(source_target, 'w') as f:
             f.write(self.source)
             f.flush()
-        self.debug('link abelia and bamboo devices at {}'.format(source_target), 'link')
+        self.debug('link abelia and bamboo devices at {}'.format(source_target.split('qemu-4.0.0')[1][1:]), 'link')
 
         #
         for k, v in self.custom_devices.items():
@@ -569,7 +569,7 @@ class CompilerToQEMUMachine(object):
             with open(source_target, 'w') as f:
                 f.write(self.custom_devices['interrupt_controller']['source'])
                 f.flush()
-            self.debug('link {} source at {}'.format(k, source_target), 'link')
+            self.debug('link {} source at {}'.format(k, source_targets.plit('qemu-4.0.0')[1][1:]), 'link')
             header_target = os.path.join(
                 self.firmware.get_target_dir(), 'qemu-4.0.0', 'include',
                 self.location['machine']['interrupt_controller'],
@@ -579,5 +579,5 @@ class CompilerToQEMUMachine(object):
             with open(header_target, 'w') as f:
                 f.write(self.custom_devices['interrupt_controller']['header'])
                 f.flush()
-            self.debug('link {} header at {}'.format(k, source_target), 'link')
+            self.debug('link {} header at {}'.format(k, source_target.split('qemu-4.0.0')[1][1:]), 'link')
 

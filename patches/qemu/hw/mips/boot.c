@@ -131,8 +131,7 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
             initrd_size = load_image_targphys(info->initrd_filename,
                                               initrd_offset,
                                               ram_size - initrd_offset);
-        }
-        if (initrd_size == (target_ulong) -1) {
+        } else {
             error_report("could not load initial ram disk '%s'",
                          info->initrd_filename);
             exit(1);
