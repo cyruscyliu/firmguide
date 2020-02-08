@@ -99,7 +99,7 @@ class DataAbort(Analysis):
         assert isinstance(trace, LoadTrace)
         pql = trace.pql
 
-        if firmware.get_architecture() == 'arm':
+        if firmware.get_arch() == 'arm':
             return self.handle_arm_dabt(firmware, pql)
         else:
             return self.handle_mips_dabt(firmware, pql)

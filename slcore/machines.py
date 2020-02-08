@@ -1,4 +1,3 @@
-from logger import logger_info, logger_debug
 from slcore.database.dbf import get_database
 from slcore.naive_parsers.machine_id import find_machine_id
 from slcore.dt_parsers.compatible import find_compatible
@@ -19,23 +18,16 @@ def find_machine_by_id(arch, machine_ids):
         if profile is not None:
             return profile
 
-def find_machine(components):
+def find_machine(components, arch):
     if components is None:
         return None
 
     if components.has_device_tree():
-        compatible = find_compatible(components.get_dtb())
-        logger_debug(components.uuid, 'machines', 'find_machine', 'compatible: {}'.format(compatible), 1)
-        machine = find_machine_by_compatible(components.arch, compatible)
+        compatible = find_compatible(components.get_path_to_dtb())
+        machine = find_machine_by_compatible(arch, compatible)
     else:
-        machine_ids = find_machine_id(components.get_kernel())
-        logger_debug(components.uuid, 'machines', 'find_machine', 'machine_ids: {}'.format(machine_ids), 1)
-        machine = find_machine_by_id(components.arch, machine_ids)
-
-    if machine:
-        logger_info(components.uuid, 'machines', 'find_machine', 'machine at {}'.format(machine), 1)
-    else:
-        logger_debug(components.uuid, 'machines', 'find_machine', 'no machine available', 0)
+        machine_ids = find_machine_id(components.get_path_to_kernel())
+        machine = find_machine_by_id(arch, machine_ids)
 
     return machine
 

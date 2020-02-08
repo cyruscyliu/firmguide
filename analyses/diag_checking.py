@@ -11,7 +11,7 @@ class Checking(Analysis):
             if len(output):
                 return True
 
-        user_level = 'usr32' if firmware.get_architecture() == 'arm' else 'user'
+        user_level = 'usr32' if firmware.get_arch() == 'arm' else 'user'
         for k, cpurf in pql.cpurfs.items():
             if cpurf['mode'] == user_level:
                 return True

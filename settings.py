@@ -4,6 +4,7 @@ settings for the whole project
 import os
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+TESTS_DIR = os.path.join(BASE_DIR, 'tests')
 
 # ====== core =====
 
@@ -25,3 +26,6 @@ QEMU_GLOBAL = False
 LLVM_OPT='opt'
 LLVM_LINK='llvm-link'
 LLVM_CLANG='clang'
+
+# ===== rootfs =====
+DEFAULT_ROOTFS = os.path.join(BASE_DIR, 'examples/rootfs/rootfs.default')

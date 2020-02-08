@@ -266,9 +266,9 @@ class InitValue(Analysis):
             self.context['input'] = 'all functions return normally'
             return False
 
-        if firmware.get_architecture() == 'arm':
+        if firmware.get_arch() == 'arm':
             self.init_value = ARM32InitValue()
-        elif firmware.get_architecture() == 'mips':
+        elif firmware.get_arch() == 'mips':
             self.init_value = MIPSInitValue()
         else:
             self.context['input'] = 'cannot support this architecture'

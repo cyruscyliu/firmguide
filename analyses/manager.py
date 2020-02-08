@@ -11,24 +11,23 @@ from analyses.diag_deadloop2 import DeadLoop2
 from analyses.diag_panic import Panic
 from analyses.diag_init_value import InitValue
 
-from analyses.diag_generation import CodeGeneration
+from analyses.preparation import Preparation
 from analyses.diag_tracing import DoTracing, LoadTrace
 from analyses.diag_checking import Checking
 
-from analyses.sabinary.inf_kernel import Kernel
-from analyses.sabinary.inf_strings import Strings
-from analyses.sabinary.inf_hardcode import HardCode
-from analyses.sabinary.inf_openwrt import OpenWRT
+from analyses.binary_analysis.kernel import Kernel
+from analyses.binary_analysis.strings import Strings
+from analyses.binary_analysis.openwrt import OpenWRT
 
-from analyses.sasrcode.device_tree import DeviceTree
-from analyses.sasrcode.mfilter import Filter
-from analyses.sasrcode.cpu import CPU
-from analyses.sasrcode.ram import RAM
-from analyses.sasrcode.sintc import SINTC
-from analyses.sasrcode.stimer import STimer
-from analyses.sasrcode.platform_devices import PlatformDevices
-from analyses.sasrcode.libtooling import LibTooling
-from analyses.sasrcode.loaddr import LoadAddr
+from analyses.static_analysis.device_tree import DeviceTree
+from analyses.static_analysis.mfilter import Filter
+from analyses.static_analysis.cpu import CPU
+from analyses.static_analysis.ram import RAM
+from analyses.static_analysis.sintc import SINTC
+from analyses.static_analysis.stimer import STimer
+from analyses.static_analysis.platform_devices import PlatformDevices
+from analyses.static_analysis.libtooling import LibTooling
+from analyses.static_analysis.loaddr import LoadAddr
 
 
 class AnalysesManager(object):
@@ -38,10 +37,6 @@ class AnalysesManager(object):
         self.analyses_forest = {}  # analysis blocks
         self.analyses_remaining = {}  # name:analysis
         self.last_analysis_status = True
-
-        self.binary_analysis = None
-        self.static_analysis = None
-        self.dynamic_analysis = None
 
     def print_analysis_chain(self, chain):
         logger_info(self.firmware.get_uuid(), 'analysis', 'chain', '->'.join(chain), 1)
@@ -189,32 +184,24 @@ class AnalysesManager(object):
                     if not res and a.is_critical():
                         return False
                 except NotImplementedError as e:
-                    logger_warning(self.firmware.get_uuid(), 'analysis', 'exception', e, 0)
+                    logger_warning(self.firmware.get_uuid(), 'analysis', 'exception', e.args[0], 0)
                     return False
 
                 finish(self.firmware, a)
         return True
 
-    def run_binary_analysis(self):
-        return self.run(target_analyses_tree=self.binary_analysis)
-
-    def run_static_analysis(self):
-        return self.run(target_analyses_tree=self.static_analysis)
-
-    def run_dynamic_analyses(self):
-        return self.run(target_analyses_tree=self.dynamic_analysis)
-
     def register_binary_analysis(self):
         binary_analysis = self.new_analyses_tree()
+
         self.register_analysis(Kernel(self), analyses_tree=binary_analysis)
         self.register_analysis(Strings(self), analyses_tree=binary_analysis)
-        self.register_analysis(HardCode(self), analyses_tree=binary_analysis)
         self.register_analysis(OpenWRT(self), analyses_tree=binary_analysis)
         self.binary_analysis = binary_analysis
 
+        return binary_analysis
+
     def register_static_analysis(self):
         static_analysis = self.new_analyses_tree()
-        self.static_analysis = static_analysis
 
         # mfilter <- cpu <- ram <- sintc <- stimer <- platform devices
         self.register_analysis(Filter(self), analyses_tree=static_analysis)
@@ -223,18 +210,17 @@ class AnalysesManager(object):
         self.register_analysis(SINTC(self), analyses_tree=static_analysis)
         self.register_analysis(STimer(self), analyses_tree=static_analysis)
         self.register_analysis(PlatformDevices(self), analyses_tree=static_analysis)
-
-        self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
+        # self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
         # self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)
         # mfilter <- loadaddr
         self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
-        # self.register_analysis(CodeGeneration(self), analyses_tree=static_analysis)
 
-    def register_dynamic_analysis(self, tracing=True, check_only=False):
+        return static_analysis
+
+    def register_diagnosis(self, tracing=True, check_only=False):
         dynamic_analysis = self.new_analyses_tree()
-        self.dynamic_analysis = dynamic_analysis
 
-        self.register_analysis(CodeGeneration(self), analyses_tree=dynamic_analysis)
+        self.register_analysis(Preparation(self), analyses_tree=dynamic_analysis)
         if tracing:
             self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
         self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
@@ -247,4 +233,6 @@ class AnalysesManager(object):
             # self.register_analysis(Panic(self), analyses_tree=dynamic_analysis)
             # self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)
             pass
+
+        return dynamic_analysis
 

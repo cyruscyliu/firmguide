@@ -16,13 +16,6 @@ class PreProcessor(object):
     def debug(self, message):
         logger_debug(self.firmware.get_uuid(), 'code_generation', 'proprocessing', message, 0)
 
-    def preprocess_machine_name(self):
-        if self.firmware.get_machine_name() is None:
-            # it's ok if we cannot find a machine name
-            tmp_machine_name = 'salamander' + hashlib.md5(self.firmware.get_name().encode('utf-8')).hexdigest()
-            self.firmware.set_machine_name(tmp_machine_name)
-            self.debug('machine name not exists, refer to {}'.format(tmp_machine_name))
-
     def preprocess_machine_description(self):
         if self.firmware.get_machine_description() is None:
             # it's ok if we cannot find a machine description
@@ -34,16 +27,16 @@ class PreProcessor(object):
             self.firmware.set_ram_priority("0")
             self.debug('ram prioirty not exists, refer to "0"')
 
-    def preprocess_flash_section_size(self):
-        if self.firmware.get_flash_type() == 'nor' and self.firmware.get_flash_section_size() is None:
-            section_size = '64 * KiB'
-            self.firmware.set_flash_section_size(section_size)
-            self.debug('nor flash section size not exists, refer to {}'.format(section_size))
+    def preprocess_uart_baud_rate(self):
+        for i in range(0, self.firmware.get_uart_num()):
+            if self.firmware.get_uart_baud_rate(i) is None:
+                baud_rate = "115200"
+                self.firmware.set_uart_baud_rate(baud_rate, i)
+                self.debug('uart baud rate not exist, refre to {}'.format(baud_rate))
 
     def preprocess(self):
         # handle non-critical things
-        self.preprocess_machine_name()
         self.preprocess_machine_description()
         self.preprocess_ram_priority()
-        self.preprocess_flash_section_size()
+        self.preprocess_uart_baud_rate()
 

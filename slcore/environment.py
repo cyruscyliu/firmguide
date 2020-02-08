@@ -3,9 +3,9 @@ import yaml
 import shutil
 import tempfile
 
-from logger import logger_info, logger_debug
 from settings import *
-from profile.firmwaref import get_firmware
+from logger import logger_info, logger_debug
+from slcore.profile.firmwaref import get_firmware
 
 
 def restore_analysis(firmware):
@@ -22,15 +22,11 @@ def restore_analysis(firmware):
         else:
             firmware.analysis_progress = analysis_progress
 
-    logger_info(firmware.get_uuid(), 'environment', 'restore_analysis', firmware.brief(), 0)
-
 
 def save_analysis(firmware):
     analysis = os.path.join(firmware.target_dir, 'analysis')
     with open(analysis, 'w') as f:
         yaml.safe_dump(firmware.analysis_progress, f)
-
-    logger_info(firmware.get_uuid(), 'environment', 'save_analysis', firmware.summary(), 0)
 
 
 def finished(firmware, analysis):
@@ -57,17 +53,14 @@ def finish(firmware, analysis):
 def setup_target_dir(uuid):
     target_dir = os.path.join(WORKING_DIR, uuid)
     os.makedirs(target_dir, exist_ok=True)
-    logger_info(uuid, 'environment', 'tdir', 'process in {}'.format(target_dir), 1)
     return target_dir
 
 
-def migrate(components, path_to_profile, quick=False, trace_format='qemudebug', max_=20):
-    assert components is not None
-
+def migrate(uuid, path_to_profile=None, components=None):
     firmware = get_firmware('simple')
 
     # two basics
-    firmware.uuid = components.uuid
+    firmware.uuid = uuid
     firmware.target_dir = setup_target_dir(firmware.uuid)
 
     # load profile from path_to_profile
@@ -80,25 +73,20 @@ def migrate(components, path_to_profile, quick=False, trace_format='qemudebug', 
         firmware.set_profile(target_dir=firmware.get_target_dir(), first=True)
         logger_info(firmware.uuid, 'environment', 'migrate', 'create new profile {}'.format(firmware.path_to_profile), 1)
 
-    firmware.set_uuid(components.uuid)
-    firmware.set_name(components.get_image_name())
-    firmware.set_path(components.get_path())
-    firmware.set_working_path(components.get_path())
-    firmware.set_components(components)
-    firmware.set_architecture(components.arch)
-    firmware.set_endian(components.endian)
+    firmware.set_uuid(uuid)
 
-    firmware.trace_format = trace_format
-    firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
-        firmware.get_uuid(), firmware.get_architecture(), firmware.get_endian())
-    firmware.do_not_diagnosis = quick
-    firmware.max_iteration = max_
+    # handle components
+    if components is not None:
+        # copy the firmware to working path
+        firmware.set_working_path(
+            os.path.join(firmware.get_target_dir(), components.get_raw_name()))
+        if not os.path.exists(firmware.working_path):
+            shutil.copy(
+                os.path.join(os.getcwd(), components.get_path_to_raw()),
+                os.path.join(firmware.working_path)
+        )
+        firmware.set_components(components)
 
-    # copy the firmware to working path
-    if not os.path.exists(firmware.working_path):
-        shutil.copy(
-            os.path.join(os.getcwd(), firmware.get_path()),
-            os.path.join(firmware.working_path))
     return firmware
 
 
@@ -149,7 +137,7 @@ def setup_diagnosis(args, firmware):
     # 3 uuid.arch.endian.trace
     architecture = name.split('-')[1]
     assert architecture in ['arm', 'mips'], 'cannot support this architecture {}'.format(architecture)
-    firmware.set_architecture(architecture)
+    firmware.set_arch(architecture)
     endian = name.split('-')[2]
     assert endian in ['l', 'b'], 'cannot support this endianness {}'.format(endian)
     firmware.set_endian(endian)

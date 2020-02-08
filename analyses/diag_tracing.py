@@ -19,12 +19,12 @@ class LoadTrace(Analysis):
         self.pql = None
 
     def run(self, firmware):
-        if firmware.get_architecture() == 'arm':
+        if firmware.get_arch() == 'arm':
             if firmware.get_endian() == 'l':
                 self.pql = get_pql('aarch32', 'little', firmware.path_to_trace)
             else:
                 self.pql = get_pql('aarch32', 'big', firmware.path_to_trace)
-        elif firmware.get_architecture() == 'mips':
+        elif firmware.get_arch() == 'mips':
             if firmware.get_endian() == 'l':
                 self.pql = get_pql('mips', 'little', firmware.path_to_trace)
             else:
