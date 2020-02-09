@@ -3,7 +3,7 @@ import os
 from pyqemulog import PQLI
 
 from analyses.analysis import Analysis
-from analyses.diag_tracing import LoadTrace
+from analyses.trace import LoadTrace
 
 
 class Panic(Analysis):

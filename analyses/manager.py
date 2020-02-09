@@ -6,14 +6,14 @@ from slcore.environment import finished, finish
 from analyses.analysis import Analysis, AnalysisGroup
 from analyses.diag_bamboos import Bamboos
 from analyses.diag_callstack import CallStack
-from analyses.diag_dabt import DataAbort
 from analyses.diag_deadloop2 import DeadLoop2
 from analyses.diag_panic import Panic
 from analyses.diag_init_value import InitValue
 
 from analyses.preparation import Preparation
-from analyses.diag_tracing import DoTracing, LoadTrace
-from analyses.diag_checking import Checking
+from analyses.trace import DoTracing, LoadTrace
+from analyses.c_data_abort import DataAbort
+from analyses.c_user_level import Checking
 
 from analyses.binary_analysis.kernel import Kernel
 from analyses.binary_analysis.strings import Strings
@@ -217,22 +217,19 @@ class AnalysesManager(object):
 
         return static_analysis
 
-    def register_diagnosis(self, tracing=True, check_only=False):
+    def register_diagnosis(self):
         dynamic_analysis = self.new_analyses_tree()
 
         self.register_analysis(Preparation(self), analyses_tree=dynamic_analysis)
-        if tracing:
-            self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
+        self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
         self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
         self.register_analysis(Checking(self), analyses_tree=dynamic_analysis)
-        if not check_only:
-            # self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
-            # self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
-            # self.register_analysis(DeadLoop2(self), analyses_tree=dynamic_analysis)
-            # self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
-            # self.register_analysis(Panic(self), analyses_tree=dynamic_analysis)
-            # self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)
-            pass
+        self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
+        # self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
+        # self.register_analysis(DeadLoop2(self), analyses_tree=dynamic_analysis)
+        # self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
+        # self.register_analysis(Panic(self), analyses_tree=dynamic_analysis)
+        # self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)
 
         return dynamic_analysis
 

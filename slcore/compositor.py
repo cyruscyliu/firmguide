@@ -97,6 +97,8 @@ def __handle_legacy_uimage(image_path, uimage3=False, uimage3_offset=None):
     os.system('dd if={0}.bak of={0} bs=1 count=64 >/dev/null 2>&1'.format(image_path))
     os.system('dd if=/dev/zero of={} bs=1 seek=31 count=1 >/dev/null 2>&1'.format(image_path))
     os.system('dd if={} of={} bs=1 seek=64 >/dev/null 2>&1'.format(uncompressed_kernel, image_path))
+    # don't forget this
+    kernel = uncompressed_kernel
 
     # find dtb in mips legacy uimage
     module = __binwalk_scan_all(image_path, tempfile.gettempdir(), extract=False)

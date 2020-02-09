@@ -7,7 +7,7 @@ from pyqemulog import PQLI
 
 from analyses.analysis import Analysis
 from analyses.diag_callstack import CallStack, CallRecord
-from analyses.diag_tracing import LoadTrace
+from analyses.trace import LoadTrace
 
 from z3 import *
 from capstone import *

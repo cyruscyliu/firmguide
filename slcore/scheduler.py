@@ -24,9 +24,9 @@ def run_static_analysis(firmware, binary=True):
     return status
 
 
-def run_diagnosis(firmware, check_only=False):
+def run_diagnosis(firmware):
     analyses_manager = AnalysesManager(firmware)
-    analyses_tree = analyses_manager.register_diagnosis(check_only=check_only)
+    analyses_tree = analyses_manager.register_diagnosis()
 
     max_iteration = firmware.max_iteration
 
