@@ -4,16 +4,13 @@ from logger import logger_info, logger_warning
 from slcore.environment import finished, finish
 
 from analyses.analysis import Analysis, AnalysisGroup
-from analyses.diag_bamboos import Bamboos
-from analyses.diag_callstack import CallStack
-from analyses.diag_deadloop2 import DeadLoop2
-from analyses.diag_panic import Panic
-from analyses.diag_init_value import InitValue
 
 from analyses.preparation import Preparation
 from analyses.trace import DoTracing, LoadTrace
-from analyses.c_data_abort import DataAbort
 from analyses.c_user_level import Checking
+from analyses.c_data_abort import DataAbort
+from analyses.c_panic import Panic
+from analyses.bamboos import Bamboos
 
 from analyses.binary_analysis.kernel import Kernel
 from analyses.binary_analysis.strings import Strings
@@ -226,8 +223,6 @@ class AnalysesManager(object):
         self.register_analysis(Checking(self), analyses_tree=dynamic_analysis)
         self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
         # self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
-        # self.register_analysis(DeadLoop2(self), analyses_tree=dynamic_analysis)
-        # self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
         # self.register_analysis(Panic(self), analyses_tree=dynamic_analysis)
         # self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)
 

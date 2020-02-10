@@ -164,7 +164,6 @@ def fix_cmdline(components):
     if len(cmdline) == 1:
         return
     length = len(cmdline) - 1
-    print('dd if=/dev/zero of={0} bs=1 seek={1} count={2} >/dev/null 2>&1'.format(kernel, int(start) + 8, length))
     os.system('dd if=/dev/zero of={0} bs=1 seek={1} count={2} conv=notrunc >/dev/null 2>&1'.format(kernel, int(start) + 8, length))
 
 

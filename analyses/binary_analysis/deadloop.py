@@ -278,3 +278,4 @@ class DeadLoop(Analysis):
                     new = 0
                     id_ += 1
                 ln += 1
+

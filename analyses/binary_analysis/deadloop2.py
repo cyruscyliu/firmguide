@@ -1,7 +1,7 @@
 from pyqemulog import PQLI
 
 from analyses.analysis import Analysis
-from analyses.diag_callstack import CallStack, CallRecord
+from analyses.callstack import CallStack, CallRecord
 from analyses.trace import LoadTrace
 
 
@@ -51,3 +51,4 @@ class DeadLoop2(Analysis):
         self.critical = False
         self.required = ['callstack']
         self.type = 'diag'
+

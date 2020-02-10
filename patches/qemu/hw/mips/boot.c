@@ -71,9 +71,8 @@ static void GCC_FMT_ATTR(3, 4) prom_set(uint32_t* prom_buf, int index,
 
 static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info *info)
 {
-    int64_t kernel_entry, kernel_high, initrd_size;
-    long kernel_size, prom_size;
-    ram_addr_t initrd_offset;
+    uint64_t kernel_entry, kernel_high, initrd_offset;
+    long kernel_size, prom_size, initrd_size;
     uint32_t *prom_buf, *boot_loader_buf;
     int big_endian, prom_index = 0;
 
@@ -91,26 +90,16 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
      */
     
     /* load kernel */
-    kernel_size = load_elf(info->kernel_filename, NULL, 
-                           cpu_mips_kseg0_to_phys, NULL,
-                           (uint64_t *)&kernel_entry, NULL,
-                           (uint64_t *)&kernel_high, big_endian, EM_MIPS, 1, 0);
-
-    if (kernel_size >= 0) {
-        if ((kernel_entry & ~0x7fffffffULL) == 0x80000000)
-            kernel_entry = (int32_t)kernel_entry;
-    } else {
+    kernel_size = load_elf(info->kernel_filename, NULL, cpu_mips_kseg0_to_phys, NULL,
+                           &kernel_entry, NULL, &kernel_high, big_endian, EM_MIPS, 1, 0);
+    if (kernel_size < 0) {  
         hwaddr ep, loadaddr;
         int is_linux;
-
-        kernel_size = load_uimage(info->kernel_filename, &ep,
-                                  &loadaddr, &is_linux,
+        kernel_size = load_uimage(info->kernel_filename, &ep, &loadaddr, &is_linux,
                                   cpu_mips_kseg0_to_phys, NULL);
-        kernel_high = loadaddr + kernel_size;
-
-        if (kernel_size >=0) {
-            kernel_entry = (uint32_t)ep;
-        } else {
+        kernel_entry = (uint64_t)ep;
+        kernel_high = cpu_mips_kseg0_to_phys(NULL, loadaddr) + (uint64_t)kernel_size;
+        if (kernel_size < 0) {
             error_report("could not load kernel '%s'", info->kernel_filename);
             exit(1);
         }
@@ -128,8 +117,7 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
                              info->initrd_filename);
                 exit(1);
             }
-            initrd_size = load_image_targphys(info->initrd_filename,
-                                              initrd_offset,
+            initrd_size = load_image_targphys(info->initrd_filename, initrd_offset,
                                               ram_size - initrd_offset);
         } else {
             error_report("could not load initial ram disk '%s'",
