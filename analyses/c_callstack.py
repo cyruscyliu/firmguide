@@ -1,5 +1,5 @@
 from analyses.analysis import Analysis
-from analyses.diag_tracing import LoadTrace
+from analyses.trace import LoadTrace
 from capstone import *
 import struct
 

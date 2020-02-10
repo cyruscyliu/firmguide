@@ -2,7 +2,7 @@
 Add bamboo devices after DataAbort and InitValue.
 """
 from analyses.analysis import Analysis
-from analyses.diag_dabt import DataAbort
+from analyses.c_data_abort import DataAbort
 from analyses.static_analysis.libtooling import LibTooling
 
 

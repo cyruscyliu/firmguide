@@ -95,8 +95,10 @@ def __handle_legacy_uimage(image_path, uimage3=False, uimage3_offset=None):
         os.path.dirname(image_path), '{:x}'.format(uimage3_offset + 0x40).upper())
     os.system('mv {0} {0}.bak'.format(image_path))
     os.system('dd if={0}.bak of={0} bs=1 count=64 >/dev/null 2>&1'.format(image_path))
-    os.system('dd if=/dev/zero of={} bs=1 seek=31 count=1 >/dev/null 2>&1'.format(image_path))
+    os.system('dd if=/dev/zero of={} bs=1 seek=31 count=1 conv=notrunc >/dev/null 2>&1'.format(image_path))
     os.system('dd if={} of={} bs=1 seek=64 >/dev/null 2>&1'.format(uncompressed_kernel, image_path))
+    # don't forget this
+    kernel = uncompressed_kernel
 
     # find dtb in mips legacy uimage
     module = __binwalk_scan_all(image_path, tempfile.gettempdir(), extract=False)
@@ -124,7 +126,7 @@ def enlarge_image(path, target_size):
         path, size_of_image, target_size - size_of_image))
 
 
-def pack_kernel(components, arch='arm', load_address="0x00008000"):
+def pack_kernel(components, arch='arm', load_address="0x00008000", fix_cmdline=None):
     kernel = components.get_path_to_kernel()
     uimage = components.get_path_to_uimage()
     os.system('mkimage -A {0} -C none -O linux -T kernel -d {1} -a {2} -e {2} {3} >/dev/null 2>&1'.format(arch, kernel, load_address, uimage))
@@ -138,8 +140,32 @@ def pack_image(components, flash_size=None):
     enlarge_image(rootfs, flash_size)
     return rootfs
 
+
 def pack_initramfs(components, mounted_to=None):
     return mounted_to
+
+
+def fix_cmdline(components):
+    # this api should be called before pack_kernel
+    kernel = components.get_path_to_kernel()
+    os.system('cp {0} {0}.bak'.format(kernel))
+
+    output = os.popen('strings -t d {} | grep CMDLINE'.format(kernel)).readlines()
+    if not len(output):
+        return
+
+    # 408 CMDLINE:board=BXU2000n-2-A1 console=ttyS0,115200 \
+    #     mtdparts=spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,1408k(kernel), \
+    #     8448k(rootfs),6016k(user),64k(cfg),64k(oem),64k(art)ro
+    # 0x408: CMDL
+    # 0x40C: INE:
+    # 0x410: \0   0x410 = start + 0x8
+    start, label, cmdline = output[0].strip().partition('CMDLINE')
+    if len(cmdline) == 1:
+        return
+    length = len(cmdline) - 1
+    os.system('dd if=/dev/zero of={0} bs=1 seek={1} count={2} conv=notrunc >/dev/null 2>&1'.format(kernel, int(start) + 8, length))
+
 
 def unpack(path, target_dir=None, extract=True):
     """

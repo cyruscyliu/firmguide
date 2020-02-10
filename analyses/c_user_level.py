@@ -1,7 +1,7 @@
 import os
 
 from analyses.analysis import Analysis
-from analyses.diag_tracing import LoadTrace
+from analyses.trace import LoadTrace
 
 
 class Checking(Analysis):
@@ -44,6 +44,6 @@ class Checking(Analysis):
         self.description = 'check whether we have done our job'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = False
-        self.required = ['load_trace', 'code_generation', 'do_tracing']
+        self.required = ['load_trace', 'preparation', 'do_tracing']
         self.type = 'diag'
 

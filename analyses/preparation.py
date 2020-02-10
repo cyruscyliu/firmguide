@@ -1,5 +1,5 @@
 from slcore.generation.compilerf import get_compiler
-from slcore.compositor import pack_kernel, pack_image, pack_initramfs
+from slcore.compositor import pack_kernel, pack_image, pack_initramfs, fix_cmdline
 from slcore.generation.common import to_upper
 from analyses.analysis import Analysis
 from settings import *
@@ -32,6 +32,9 @@ class Preparation(Analysis):
         firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
 
         # 3. prepare -k path/to/kernel
+        # 3.1 If a mips firmware has CMDLINE: filled, it will not use our customed cmdline.
+        fix_cmdline(firmware.get_components())
+        # 3.2 add a uimage header on the kernel image
         load_address = firmware.get_kernel_load_address()
         if firmware.get_srcodec():
             # we use vmlinux if any
@@ -67,7 +70,7 @@ class Preparation(Analysis):
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-        self.name = 'code_generation'
+        self.name = 'preparation'
         self.description = 'generate qemu code from profile'
         self.context['hint'] = 'some properties are not satisfied'
         self.critical = True

@@ -305,6 +305,7 @@ class PlatformDevices(Analysis):
                     flash_base = eval('0x1f000000')
                     flash_size = 0x01000000
                     self.info(firmware, 'get flash base {} size {}'.format(hex(flash_base), hex(flash_size)), 1)
+                    firmware.insert_bamboo_devices(flash_base, flash_size, value=0)
                 elif caller == 'ath79_register_wmac':
                     # static struct ath9k_platform_data ath79_wmac_data = {
                     #   .led_pin = -1,
@@ -540,7 +541,8 @@ class PlatformDevices(Analysis):
                     flash_type = 'nor'
                     flash_interface = 'spi'
                     flash_name = 'm25p80'
-                    firmware.set_flash('0', flash_name, flash_type, flash_interface, flash_base, flash_size)
+                    # flash is not going to be set any more
+                    # firmware.set_flash('0', flash_name, flash_type, flash_interface, flash_base, flash_size)
                     self.info(firmware, 'get {} {} flash {}'.format(flash_interface, flash_type, flash_name), 1)
                 else:
                     self.warning(firmware, 'spi_register_board_info found but no handlers', 0)

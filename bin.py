@@ -18,7 +18,8 @@ def run(args):
     components = unpack(args.firmware, target_dir=target_dir)
     if not components.supported:
         return
-    machine = find_machine(components, args.arch)
+    # machine = find_machine(components, args.arch)
+    machine = '/root/esv/examples/mips/ath79/profile.yaml'
     if machine is None:
         return
 
@@ -34,7 +35,7 @@ def run(args):
         firmware.get_uuid(), firmware.get_arch(), firmware.get_endian()
     )
     firmware.qemuc = QEMUController()
-    status = run_diagnosis(firmware, check_only=True)
+    status = run_diagnosis(firmware)
 
     # 4 run your own analysis
     # at here, the firmware has been launched,

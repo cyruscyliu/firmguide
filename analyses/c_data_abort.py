@@ -1,7 +1,7 @@
 from capstone.mips_const import MIPS_OP_REG, MIPS_OP_IMM, MIPS_OP_MEM
 
 from analyses.analysis import Analysis
-from analyses.diag_tracing import LoadTrace
+from analyses.trace import LoadTrace
 from capstone import *
 import struct
 
@@ -110,7 +110,7 @@ class DataAbort(Analysis):
         self.description = 'find data abort info'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = False
-        self.required = ['init_value']
+        self.required = ['check']
         self.type = 'diag'
         #
         self.dead_addresses = []

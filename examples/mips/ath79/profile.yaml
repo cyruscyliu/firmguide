@@ -1,0 +1,113 @@
+bamboo:
+  stub0:
+    mmio_base: '0x18060000'
+    mmio_size: '0x8'
+    registers:
+      stub_reserved0: {offset: 0x0 ... 0x4, value: '0x0'}
+  stub1:
+    mmio_base: '0x18060010'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved1: {offset: '0x0', value: '0x10000000'}
+  stub10:
+    mmio_base: '0x19000000'
+    mmio_size: '0x200'
+    registers:
+      stub_reserved10: {offset: 0x0 ... 0x1fc, value: '0x0'}
+  stub11:
+    mmio_base: '0x1f000000'
+    mmio_size: '0x1000000'
+    registers:
+      stub_reserved11: {offset: 0x0 ... 0xfffffc, value: '0x0'}
+  stub12:
+    mmio_base: '0x18070000'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved12: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub13:
+    mmio_base: '0x180c0000'
+    mmio_size: '0x30000'
+    registers:
+      stub_reserved13: {offset: 0x0 ... 0x2fffc, value: '0x0'}
+  stub14:
+    mmio_base: '0x18100000'
+    mmio_size: '0x20000'
+    registers:
+      stub_reserved14: {offset: 0x0 ... 0x1fffc, value: '0x0'}
+  stub15:
+    mmio_base: '0x18060090'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved15: {offset: '0x0', value: '0xb0'}
+  stub16:
+    mmio_base: '0x18060094'
+    mmio_size: '0x6c'
+    registers:
+      stub_reserved16: {offset: 0x0 ... 0x68, value: '0x0'}
+  stub2:
+    mmio_base: '0x18060018'
+    mmio_size: '0x78'
+    registers:
+      stub_reserved2: {offset: 0x0 ... 0x74, value: '0x0'}
+  stub3:
+    mmio_base: '0x18060014'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved3: {offset: '0x0', value: '0x10000000'}
+  stub4:
+    mmio_base: '0x18050004'
+    mmio_size: '0xfc'
+    registers:
+      stub_reserved4: {offset: 0x0 ... 0xf8, value: '0x0'}
+  stub5:
+    mmio_base: '0x18050000'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved5: {offset: '0x0', value: '0x10'}
+  stub6:
+    mmio_base: '0x18000000'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved6: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub7:
+    mmio_base: '0x18060008'
+    mmio_size: '0x8'
+    registers:
+      stub_reserved7: {offset: 0x0 ... 0x4, value: '0x0'}
+  stub8:
+    mmio_base: '0x18040000'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved8: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub9:
+    mmio_base: '0x1a000000'
+    mmio_size: '0x200'
+    registers:
+      stub_reserved9: {offset: 0x0 ... 0x1fc, value: '0x0'}
+basics: {architecture: mips, endian: b, machine_description: ar71xx_generic, machine_name: ar71xx_generic,
+  uuid: ar71xx_generic}
+components: {output: '0x00000000    uImage header, header size: 64 bytes, created:
+    2020-01-03 10:04:13, image size: 1261910 bytes, Data Address: 0x80060000, Entry
+    Point: 0x80060000, OS: Linux, CPU: MIPS, compression type: lzma, image name: "MIPS
+    OpenWrt Linux-3.18.20"
+
+    0x00000040    LZMA compressed data, properties: 0x6D, dictionary size: 8388608
+    bytes, uncompressed size: 3846796 bytes
+
+    ', path_to_dtb: null, path_to_image: /root/esv/../build/ar71xx_generic/_openwrt-15.05-ar71xx-generic-bxu2000n-2-a1-kernel.bin.extracted/0.uimage,
+  path_to_kernel: /root/esv/../build/ar71xx_generic/_openwrt-15.05-ar71xx-generic-bxu2000n-2-a1-kernel.bin.extracted/40,
+  path_to_raw: /root/openwrt-build-docker/share/15.05-cc3a47a374475253f93a08eea6eaadce/./chaos_calmer-15.05/bin/ar71xx/openwrt-15.05-ar71xx-generic-bxu2000n-2-a1-kernel.bin,
+  path_to_rootfs: null, path_to_uimage: /root/esv/../build/ar71xx_generic/_openwrt-15.05-ar71xx-generic-bxu2000n-2-a1-kernel.bin.extracted/0.uimage,
+  supported: true, type: 2}
+cpu: {model: 74Kf}
+cpu_pp: {name: mips-default}
+kernel: {kernel_load_address: '0x80060000'}
+mapping:
+  '0x80000000': {pa: '0x00000000', size: '0x20000000', va: '0x80000000'}
+  '0xa0000000': {pa: '0x00000000', size: '0x20000000', va: '0xa0000000'}
+ram: {base: '0x0', priority: '0', size: 128 * MiB}
+runtime: {iteration: 1, user_mode: true}
+uart:
+  num: 1
+  uart@0: {baud_rate: '115200', irq: '0x6', mmio_base: '0x18020000', mmio_size: '0x100',
+    name: serial8250, reg_shift: '0x2'}

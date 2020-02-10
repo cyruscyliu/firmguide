@@ -12,7 +12,7 @@ class LoadTrace(Analysis):
         self.description = 'load trace from do_tracing'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = True
-        self.required = ['do_tracing', 'code_generation']
+        self.required = ['do_tracing', 'preparation']
         self.type = 'diag'
 
         # store trace context
@@ -47,7 +47,7 @@ class DoTracing(Analysis):
         self.description = 'tracing for diagnosis'
         self.context['hint'] = 'user interrup or QEMU internal error'
         self.critical = True
-        self.required = ['code_generation']
+        self.required = ['preparation']
         self.type = 'diag'
 
     def analysis_status(self, status):
