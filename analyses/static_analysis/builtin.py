@@ -2,6 +2,7 @@
 UNMODELED_SKIP_LIST:  WE DON'T ANALYZE THEM
   MODELED_SKIP_TABLE: WE DON'T ANALYZE THEM ANY MORE
 """
+
 def _default(analysis, firmware, **kwargs):
     pass
 
@@ -19,9 +20,9 @@ def _irq_set_chip_and_handler_name(analysis, firmware, **kwargs):
             for i in range(0, 8):
                 analysis.debug(firmware, '{0} {0} direct handle_percpu_irq  mips_cpu_irq_controller'.format(i), 1)
         else:
-            analysis.warning(firmware, 'irq_set_chip_and_handler_name found w/o handler', 0)
+            analysis.warning(firmware, '{} -> irq_set_chip_and_handler_name(w/o handler)'.format(caller), 0)
     else:
-        analysis.warning(firmware, 'irq_set_chip_and_handler_name found w/o handler', 0)
+        analysis.warning(firmware, '{} -> irq_set_chip_and_handler_name(w/o handler)'.format(caller), 0)
 
 
 def ___irq_set_handler(analysis, firmware, **kwargs):
@@ -43,15 +44,17 @@ def ___irq_set_handler(analysis, firmware, **kwargs):
             analysis.info(firmware, '6 6 chained ath79_misc_irq_handler None ', 1)
             analysis.info(firmware, '6 6 irqn = 8 + __ffs(readl(base+0x10)&readl(base+0x14))', 1)
         else:
-            analysis.warning(firmware, '__irq_set_handler found w/o handler', 0)
+            analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)', 0)
     elif firmware.uuid == 'rampis_rt3883':
         if caller == 'intc_of_init':
             # irq_set_chained_handler(irq, ralink_intc_irq_handler);
             analysis.debug(firmware, 'to reach generic_handler_irq, readl(rt_intc_membase+0x00) != 0', 1)
             analysis.info(firmware, '? ? chained ralink_intc_irq_handler None ', 1)
             analysis.info(firmware, '? ? irqn = remap(__ffs(readl(rt_intc_membase+0x00))', 1)
+        else:
+            analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)', 0)
     else:
-        analysis.warning(firmware, '__irq_set_handler found w/o handler', 0)
+        analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)', 0)
 
 
 def _irq_domain_add_legacy(analysis, firmware, **kwargs):
@@ -63,22 +66,122 @@ def _irq_domain_add_legacy(analysis, firmware, **kwargs):
             # domain = irq_domain_add_legacy(of_node, 8, 0, 0, &mips_cpu_intc_irq_domain_ops, ((void *)0));
             for i in range(0, 8):
                 analysis.debug(firmware, '{0} {0} direct mips_cpu_intc_irq_domain_ops None'.format(i), 1)
-        if caller == 'intc_of_init':
+        elif caller == 'intc_of_init':
             # domain = irq_domain_add_legacy(node, 32, 8, 0, &irq_domain_ops, ((void *)0));
             for i in range(0, 32):
                 analysis.debug(firmware, '{0} {1} direct mips_cpu_intc_irq_domain_ops None'.format(i, i+8), 1)
         else:
-            analysis.warning(firmware, 'irq_domain_add_legacy found w/o handler', 0)
+            analysis.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
     else:
-        analysis.warning(firmware, 'irq_domain_add_legacy found w/o handler', 0)
+        analysis.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
 
 
-MODELED_SKIP_TABLE= {
-    'irq_modify_status': {'handle': _default},
-    'irq_set_chip_and_handler_name': {'handle': _irq_set_chip_and_handler_name},
-    '__irq_set_handler': {'handle': ___irq_set_handler},
-    'irq_domain_add_legacy': {'handle': _irq_domain_add_legacy}
-}
+def ___ioremap(analysis, firmware, **kwargs):
+    # [FUNCTION] void __iomem * __ioremap(phys_t offset, phys_t size, unsigned long flags);
+    caller = kwargs.pop('caller')
+    if firmware.uuid == 'ar71xx_generic':
+        if caller == 'ath79_gpio_init':
+            # ath79_gpio_base = __ioremap_mode(((0x18000000 + 0x00040000)), (0x100), ...)
+            mmio_name = 'ath79_gpio'
+            mmio_base = eval('((0x18000000 + 0x00040000))')
+            mmio_size = eval('(0x100)')
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+        else:
+            analysis.warning(firmware, '{} -> __ioremap(w/o handler)'.format(caller), 0)
+    elif firmware.uuid == 'rampis_rt3883':
+        if caller == 'intc_of_init':
+            # rt_intc_membase = __ioremap_mode((res.start), (resource_size(&res)), ...)
+            mmio_name = '?'
+            mmio_base = 0xFFFFFFFF
+            mmio_size = 0xFFFFFFFF
+            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+        else:
+            analysis.warning(firmware, '{} -> __ioremap(w/o handler)'.format(caller), 0)
+    else:
+        analysis.warning(firmware, '{} -> __ioremap(w/o handler)'.format(caller), 0)
+
+
+def _panic(analysis, firmware, **kwargs):
+    # [FUNCTION] panic()
+    # panic() is a very strong mark of exceptional path
+    caller = kwargs.pop('caller')
+    if firmware.uuid == 'ar71xx_generic':
+        if caller == 'ath79_detect_sys_type':
+            # by manually analysis, we know
+            # ath79_reset_rr(0x90)
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00a0 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00c0 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0100 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1100 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00b0 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0110 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0120 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1120 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x2120 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0160 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0140 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0130 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1130 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0150 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1150
+            mmio_name = 'ath79_reset_rr'
+            mmio_base = eval('(0x18060000 + 0x90)')
+            mmio_size = 0x4
+            mmio_value = 0x00b0
+            # firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
+        else:
+            analysis.warning(firmware, '{} -> panic(w/o handler)'.format(caller), 0)
+    elif firmware.uuid == 'rampis_rt3883':
+        if caller == 'mips_cpu_intc_init':
+            # return from any function in MODELED_SKIP_TABLE
+            pass
+        elif caller == 'intc_of_init':
+            # return from any function in UNMODELED_SKIP_LIST
+            pass
+    else:
+        analysis.warning(firmware, '{} -> panic(w/o handler)'.format(caller), 0)
+
+
+def _r4k_clockevent_init(analysis, firmware, **kwargs):
+    analysis.info(firmware, 'get mips internel timer as interrupt source', 1)
+
+
+def _init_r4k_clocksource(analysis, firmware, **kwargs):
+     analysis.info(firmware, 'get mips internel timer as clock source', 1)
+
+
+def ___builtin_unreachable(analysis, firmware, **kwargs):
+     # BUG()/BUG_ON() is a very strong mark of exceptional path
+     caller = kwargs.pop('caller')
+     if firmware.uuid == 'ar71xx_generic':
+         if caller == 'ath79_register_wmac':
+             # if (soc_is_ar913x()) ar913x_wmac_setup();
+             # else if (soc_is_ar933x()) ar933x_wmac_setup();
+             # else if (soc_is_ar934x()) ar934x_wmac_setup();
+             # else if (soc_is_qca953x()) qca953x_wmac_setup();
+             # else if (soc_is_qca955x()) qca955x_wmac_setup();
+             # else if (soc_is_qca956x()) qca956x_wmac_setup();
+             # else BUG();
+             # by manually analysis, we know
+             # (ath79_soc == ATH79_SOC_AR9130 || ath79_soc == ATH79_SOC_AR9132);
+             # (ath79_soc == ATH79_SOC_AR9330 || ath79_soc == ATH79_SOC_AR9331);
+             # (ath79_soc == ATH79_SOC_AR9341) || (ath79_soc == ATH79_SOC_AR9342) || (ath79_soc == ATH79_SOC_AR9344);
+             # (ath79_soc == ATH79_SOC_QCA9533);
+             # (ath79_soc == ATH79_SOC_QCA9556) || (ath79_soc == ATH79_SOC_QCA9558);
+             # (ath79_soc == ATH79_SOC_TP9343) || (ath79_soc == ATH79_SOC_QCA9561);
+             # we need a ud analysis, manually we know
+             # ath79_soc is defined in ath79_detect_sys_type which is analyzed just above
+             # ath79_soc is used in ath79_register_wmac and has several reasonable values
+             # so ath79_reset_rr's value could be 0x00b0, so ath79_soc is ATH79_SOC_AR9130
+             mmio_name = 'ath79_reset_rr'
+             mmio_base = eval('(0x18060000 + 0x90)')
+             mmio_size = 0x4
+             mmio_value = 0x00b0
+             firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
+         analysis.warning(firmware, '{} -> BUG()/BUG_ON() found but no handlers'.format(caller), 0)
+     else:
+         analysis.warning(firmware, '{} -> BUG()/BUG_ON() found but no handlers'.format(caller), 0)
 
 
 UNMODELED_SKIP_LIST = [
@@ -123,6 +226,26 @@ UNMODELED_SKIP_LIST = [
     'init_root_keyring', 'prandom_reseed', 'pci_resource_alignment_sysfs_init', 'pci_sysfs_init',
     'deferred_probe_initcall', 'tcp_congestion_default', 'ar933x_uart_init', 'ap83_spi_init', 'ath79_spi_driver_init',
     'ip17xx_init', 'ar8xxx_init', 'rtl8366s_module_init', 'rtl8366rb_module_init', 'rtl8367_module_init', 'atheros_init',
-    'mv88e6060_init', 'mv88e6063_init', 'ag71xx_module_init', 'ath79_wdt_driver_init', 'strlcpy', 'printk'
+    'mv88e6060_init', 'mv88e6063_init', 'ag71xx_module_init', 'ath79_wdt_driver_init', 'strlcpy', 'printk',
+    'irq_create_mapping', 'of_address_to_resource', 'of_property_read_u32_array', 'irq_of_parse_and_map',
+    'irq_set_handler_data', 'arch_mem_addpart', 'print_memory_map', 'mips_parse_crashkernel', 'bootmem_init',
+    'cpu_report', 'check_bugs_early', 'resource_init', 'plat_smp_setup', 'prefill_possible_map', 'cpu_cache_init',
+    'paging_init',
+    # for performance consideration
+    'set_isa'
 ]
+
+
+MODELED_SKIP_TABLE= {
+    'irq_modify_status': {'handle': _default},
+    'irq_set_chip_and_handler_name': {'handle': _irq_set_chip_and_handler_name},
+    '__irq_set_handler': {'handle': ___irq_set_handler},
+    'irq_domain_add_legacy': {'handle': _irq_domain_add_legacy},
+    '__ioremap': {'handle': ___ioremap},
+    'panic': {'handle': _panic},
+    'r4k_clockevent_init': {'handle': _r4k_clockevent_init},
+    'init_r4k_clocksource': {'handle': _init_r4k_clocksource},
+    '__builtin_unreachable': {'handle': ___builtin_unreachable},
+}
+
 

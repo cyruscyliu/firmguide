@@ -9,7 +9,7 @@ from pycparser import c_parser, c_ast, parse_file
 from analyses.static_analysis.builtin import UNMODELED_SKIP_LIST, MODELED_SKIP_TABLE
 
 
-class PlatformDevices(Analysis):
+class ExecutionFlow(Analysis):
     def traverse_struct(self, firmware, path_to_st):
         # because we cannot use pycparser now, simply we can get the setup function
         # from source code using regular expression
@@ -25,17 +25,22 @@ class PlatformDevices(Analysis):
     def get_funccalls(self, firmware, ep, caller='do_initcall'):
         path_to_entry_point = firmware.srcodec.symbol2file(ep)
         if path_to_entry_point is None:
+            path_to_entry_point = firmware.srcodec.symbol2fileg(ep)
+        if path_to_entry_point is None:
             self.warning(firmware, '{} -> {}(no address)'.format(caller, ep), 1)
             return None, None, [], {}
 
         if not path_to_entry_point.startswith('arch'):
-            self.warning(firmware, '{} -> {}(built-in function in {})'.format(caller, ep, path_to_entry_point), 1)
+            self.debug(firmware, '{} -> {}(built-in function in {})'.format(caller, ep, path_to_entry_point), 1)
             return None, path_to_entry_point, [], {}
 
         dirs = path_to_entry_point.split('/')
         if dirs[2] == 'include':
-            self.warning(firmware, '{} -> {}(inline in header)'.format(caller, ep, path_to_entry_point), 1)
-            return None, path_to_entry_point, [], {}
+            path_to_entry_point = firmware.srcodec.symbol2fileg(ep)
+            if path_to_entry_point is None:
+                self.warning(firmware, '{} -> {}(inline in header)'.format(caller, ep, path_to_entry_point), 1)
+                return None, path_to_entry_point, [], {}
+        self.debug(firmware, '{} -> {}({})'.format(caller, ep, path_to_entry_point), 1)
 
         cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
         path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
@@ -44,9 +49,7 @@ class PlatformDevices(Analysis):
             return None, None, [], {}
 
         funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, ep, mode='sparse')
-        self.debug(firmware, '{} -> {}'.format(ep, funccalls), 1)
         gs = firmware.srcodec.get_globals(path_to_pentry_point, ep, mode='sparse')
-        self.debug(firmware, '{}.globals -> {}'.format(ep, list(gs)), 1)
 
         return None, path_to_entry_point, funccalls, gs
 
@@ -56,7 +59,6 @@ class PlatformDevices(Analysis):
                 self.debug(firmware, '{} -> {}(global defined)'.format(caller, g), 1)
 
     def parse_funcalls(self, firmware, caller, funccalls):
-        # remove duplicated functions
         funccalls = list(set(funccalls))
 
         # remove functions we donot want to analyze
@@ -433,23 +435,6 @@ class PlatformDevices(Analysis):
             else:
                 self.warning(firmware, 'platform_device_register_full found but no handlers', 0)
 
-        # [FUNCTION] void __iomem * __ioremap(phys_t offset, phys_t size, unsigned long flags);
-        if '__ioremap' in funccalls:
-            funccalls.remove('__ioremap')
-            if firmware.uuid == 'ar71xx_generic':
-                if caller == 'ath79_gpio_init':
-                    # ath79_gpio_init(arch/mips/include/asm/mach-ath79/ath79.h)
-                    # [DIRECT] ath79_gpio_base = __ioremap_mode(((0x18000000 + 0x00040000)), (0x100), ...)
-                    mmio_name = 'ath79_gpio'
-                    mmio_base = eval('((0x18000000 + 0x00040000))')
-                    mmio_size = eval('(0x100)')
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-                else:
-                    self.warning(firmware, '__ioremap found but no handlers', 0)
-            else:
-                self.warning(firmware, '__ioremap found but no handlers', 0)
-
         # [FUNCTION] __iounmap() -> ()__ioremap_mode() -> ()__ioremap()
         if '__iounmap' in funccalls:
             funccalls.remove('__iounmap')
@@ -518,70 +503,6 @@ class PlatformDevices(Analysis):
                     self.warning(firmware, 'spi_register_board_info found but no handlers', 0)
             else:
                 self.warning(firmware, 'spi_register_board_info found but no handlers', 0)
-        # [FUNCTION] panic()
-        if 'panic' in funccalls:
-            # panic() is a very strong mark of exceptional path
-            funccalls.remove('panic')
-            if firmware.uuid == 'ar71xx_generic':
-                if caller == 'ath79_detect_sys_type':
-                    # by manually analysis, we know
-                    # ath79_reset_rr(0x90)
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00a0 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00c0 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0100 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1100 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00b0 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0110 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0120 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1120 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x2120 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0160 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0140 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0130 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1130 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0150 or
-                    # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1150
-                    mmio_name = 'ath79_reset_rr'
-                    mmio_base = eval('(0x18060000 + 0x90)')
-                    mmio_size = 0x4
-                    mmio_value = 0x00b0
-                    # firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
-                else:
-                    self.warning(firmware, 'panic found but no handlers', 0)
-            else:
-                self.warning(firmware, 'panic found but no handlers', 0)
-        # [FUNCTION] BUG()/BUG_ON(cond) -> __builtin_unreachable
-        if '__builtin_unreachable' in funccalls:
-            funccalls.remove('__builtin_unreachable')
-            # BUG()/BUG_ON() is a very strong mark of exceptional path
-            if firmware.uuid == 'ar71xx_generic':
-                if caller == 'ath79_register_wmac':
-                    # if (soc_is_ar913x()) ar913x_wmac_setup();
-                    # else if (soc_is_ar933x()) ar933x_wmac_setup();
-                    # else if (soc_is_ar934x()) ar934x_wmac_setup();
-                    # else if (soc_is_qca953x()) qca953x_wmac_setup();
-                    # else if (soc_is_qca955x()) qca955x_wmac_setup();
-                    # else if (soc_is_qca956x()) qca956x_wmac_setup();
-                    # else BUG();
-                    # by manually analysis, we know
-                    # (ath79_soc == ATH79_SOC_AR9130 || ath79_soc == ATH79_SOC_AR9132);
-                    # (ath79_soc == ATH79_SOC_AR9330 || ath79_soc == ATH79_SOC_AR9331);
-                    # (ath79_soc == ATH79_SOC_AR9341) || (ath79_soc == ATH79_SOC_AR9342) || (ath79_soc == ATH79_SOC_AR9344);
-                    # (ath79_soc == ATH79_SOC_QCA9533);
-                    # (ath79_soc == ATH79_SOC_QCA9556) || (ath79_soc == ATH79_SOC_QCA9558);
-                    # (ath79_soc == ATH79_SOC_TP9343) || (ath79_soc == ATH79_SOC_QCA9561);
-                    # we need a ud analysis, manually we know
-                    # ath79_soc is defined in ath79_detect_sys_type which is analyzed just above
-                    # ath79_soc is used in ath79_register_wmac and has several reasonable values
-                    # so ath79_reset_rr's value could be 0x00b0, so ath79_soc is ATH79_SOC_AR9130
-                    mmio_name = 'ath79_reset_rr'
-                    mmio_base = eval('(0x18060000 + 0x90)')
-                    mmio_size = 0x4
-                    mmio_value = 0x00b0
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
-                self.warning(firmware, 'BUG()/BUG_ON() found but no handlers', 0)
-            else:
-                self.warning(firmware, 'BUG()/BUG_ON() found but no handlers', 0)
 
         # [FUNCTION] void __init of_irq_init(const struct of_device_id *matches)
         if 'of_irq_init' in funccalls:
@@ -601,8 +522,6 @@ class PlatformDevices(Analysis):
             else:
                 self.warning(firmware, 'of_irq_init found w/o handler', 0)
 
-        if len(funccalls):
-            self.debug(firmware, '{} -> {}(unhandled)'.format(caller, funccalls), 1)
         return funccalls
 
     def traverse_funccalls(self, firmware, entry_point, caller=None, depth=0):
@@ -620,7 +539,6 @@ class PlatformDevices(Analysis):
         funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, ep, mode='sparse')
         self.info(firmware, '{} -> {}'.format(ep, funccalls), 1)
         gs = firmware.srcodec.get_globals(path_to_pentry_point, ep, mode='sparse')
-        self.info(firmware, '{}.globals -> {}'.format(ep, list(gs)), 1)
         funccalls = self.parse_funcalls(firmware, ep, funccalls)
         self.parse_globals(firmware, ep, gs)
         self.traverse_funccalls(firmware, funccalls, caller=ep)
@@ -632,20 +550,18 @@ class PlatformDevices(Analysis):
         srcodec = firmware.get_srcodec()
 
         # ==== setup ====
+        ep = 'setup_arch'
         # mips
         #   setup_arch->cpu_probe
         #   setup_arch->prom_init
         #   setup_arch->setup_early_printk -> FP -> prom_putchar
-        #       note: uarts will be determined in do_initcalls
+        #       note: ingore FP here, because uarts will be determined in do_initcalls
         #   setup_arch->arch_mem_init->plat_mem_setup
-        funccalls = ['plat_mem_setup']
-        self.traverse_funccalls(firmware, funccalls, caller='setup_arch -> arch_mem_init')
+        self.traverse_funccalls(firmware, [ep], caller='start_kernel')
         if firmware.uuid == 'ar71xx_generic':
             # __ioremap_mode will be ignored
             # ath79_reset_base = __ioremap_mode(((0x18000000 + 0x00060000)), (0x100), ...);
-            mmio_name = 'ath79_reset'
-            mmio_base = eval('((0x18000000 + 0x00060000))')
-            mmio_size = 0x100
+            mmio_name = 'ath79_reset'; mmio_base = eval('((0x18000000 + 0x00060000))'); mmio_size = 0x100
             firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
             self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
             ## =========== from stinc.py =============
@@ -653,23 +569,16 @@ class PlatformDevices(Analysis):
             firmware.insert_bamboo_devices(0x18060014, 0x4, value=0x10000000)
             ## =======================================
             # ath79_pll_base = __ioremap_mode(((0x18000000 + 0x00050000)), (0x100), ...);
-            mmio_name = 'ath79_pll'
-            mmio_base = eval('((0x18000000 + 0x00050000))')
-            mmio_size = 0x100
+            mmio_name = 'ath79_pll'; mmio_base = eval('((0x18000000 + 0x00050000))'); mmio_size = 0x100
             firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
             self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
             ## =========== from stimer.py ==============
             firmware.insert_bamboo_devices(0x18050000, 0x4, value=0x10)
             ## =========================================
             # ath79_ddr_base = __ioremap_mode(((0x18000000 + 0x00000000)), (0x100), ...);
-            mmio_name = 'ath79_ddr'
-            mmio_base = eval('((0x18000000 + 0x00000000))')
-            mmio_size = 0x100
+            mmio_name = 'ath79_ddr'; mmio_base = eval('((0x18000000 + 0x00000000))'); mmio_size = 0x100
             firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
             self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-            # plat_mem_setup -> ath79_detect_sys_type(no address)
-            # plat_mem_setup -> ath79_detect_sys_type(arch/mips/ath79/setup.c)
-            self.traverse_no_address_funccall(firmware, 'ath79_detect_sys_type', 'arch/mips/ath79/setup.c')
 
         # ===== intc subsystem =====
         # 1 intc initilization
@@ -687,7 +596,56 @@ class PlatformDevices(Analysis):
         # mostly, timer interrupt is IRQ7 and you won't worry about it
 
         # ==== timer subsystem ====
-        exit(1)
+        ep = 'time_init'
+        # this is a simple implementation
+        # For mips, time_init includes plat_time_init and
+        # mips_clockevent_init, cpu_has_mfc0_count_bug, init_mips_clocksource.
+        # Recursively, if time_init has r4k_clockevent_init, r4k_clockevent_init
+        # this machine can use the r4k compatile counter as interrupt source
+        # and clock source. At the same time, mips_hpt_frequency must be defined
+        # to not zero in plat_time_init. Other cases can be discussed seperately.
+        self.traverse_funccalls(firmware, [ep], caller='start_kernel')
+
+        if firmware.uuid == 'ar71xx_generic':
+            entry_point = ['ath79_clocks_init', 'ath79_get_sys_clk_rate']
+            # by manually analysis, to guarentee mips_hpt_frequency not zero
+            # ath79_clocks_init has BUG_ON() and is related to ath79_soc set to ar9130,
+            # so ar913x_clocks_init will be called and we have
+            # ref_rate = 5000000;
+            # pll = ath79_pll_rr(0x00);             pll      = *(ath79_pll_rr+0x00)
+            # div = ((pll >> 0) & 0x3ff);           div      = (pll >> 0) & 0x3ff
+            # freq = div * ref_rate;                freq     = ((pll >> 0) & 0x3ff) * 5000000
+            # cpu_rate = freq;                      cpu_rate = ((pll >> 0) & 0x3ff) * 5000000
+            # div = ((pll >> 22) & 0x3) + 1;        div      = (pll >> 22) & 0x3) + 1
+            # ddr_rate = freq / div;                ddr_rate = (((pll >> 0) & 0x3ff) * 5000000) / ((pll >> 22) & 0x3) + 1)
+            # div = (((pll >> 19) & 0x1) + 1) * 2;  div      = (((pll >> 19) & 0x1) + 1) * 2
+            # ahb_rate = cpu_rate / div;            ahb_rate = ((pll >> 0) & 0x3ff) * 5000000 / (((pll >> 19) & 0x1) + 1) * 2
+            # [FUNCTION] clk_register_clkdev(clk, id, ((void *)0));
+            # this function is used to register a clock device with a rate
+            # [FUNCTION] clk_get, clk_get_rate
+            # these two functions can be used together get the rate of a clkdev by its id
+            # ath79_add_sys_clkdev("ref", ref_rate); # an id is a string, a rate is a int
+            # ath79_add_sys_clkdev("cpu", cpu_rate);
+            # ath79_add_sys_clkdev("ddr", ddr_rate);
+            # ath79_add_sys_clkdev("ahb", ahb_rate);
+            # [FUNCTION] clk_add_alias is obviously to add a new clock alias
+            # clk_add_alias("wdt", ((void *)0), "ahb", ((void *)0));
+            # clk_add_alias("uart", ((void *)0), "ahb", ((void *)0));
+            # at last, we have 6 clocks with differate rates, they are ref, cpu, ddr, ahb, wdt(=ahb), uart(=ahb)
+            # in plat_time_init, we know mips_hpt_frequency = cpu_clk_rate / 2 = cpu_rate = ((pll >> 0) & 0x3ff) * 5000000
+            # so the constraint is ((pll >> 0) & 0x3ff) * 5000000 / 2 != 0
+            # such that ((pll >> 0) & 0x3ff) * 5000000 > 2
+            # such that ((pll >> 0) & 0x3ff) > 1
+            # such that the low 10 bits of pll should be large than 0, the first reasonable value is 1 -> 2.5M
+            mmio_name = 'ath79_pll_rr'
+            mmio_base = eval('(0x18050000 + 0x00)')
+            mmio_size = 0x4
+            mmio_value = 0x10
+            # will be updated in platform_devices.py
+            # firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
+            self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+        else:
+            self.warning(firmware, 'you need analyze plat_time_init to guarentee mips_hpt_frequency not 0', 0)
 
         # do_initcall analysis
         # "early", "core", "postcore", "arch", "subsys", "fs", "device", "late",
@@ -829,5 +787,4 @@ class PlatformDevices(Analysis):
         self.required = ['stimer']
         self.context['hint'] = ''
         self.critical = False
-
 

@@ -28,6 +28,29 @@ class SRCodeController(Common):
 
         self.set_attributes(SOURCE_CODE_ATTRIBUTES)
 
+    def symbol2fileg(self, symbol, relative=True):
+        search_in = os.path.join(self.path_to_source_code, 'arch/{}'.format(self.arch))
+
+        f = None
+        with os.popen('find {} -name "*.c" | xargs grep " {}"'.format(search_in, symbol)) as o:
+            for line in o:
+                # arch/mips/kernel/setup.c: * arch_mem_init -
+                # arch/mips/kernel/setup.c:static void __init arch_mem_init(char **cmdline_p)
+                # arch/mips/kernel/setup.c:       arch_mem_init(cmdline_p);
+                fs, c = line.strip().split(':')[0:2]
+                if c.strip().startswith('*'):
+                    continue
+                if c.strip().endswith(';'):
+                    continue
+                f = os.path.realpath(fs)
+
+        if f is None:
+            return f
+        if relative:
+            return f[len(os.path.realpath(self.path_to_source_code)) + 1:]
+        else:
+            return f
+
     def symbol2file(self, symbol, relative=True):
         if self.system_map is None:
             path = os.path.join(self.path_to_source_code, 'System.map')
