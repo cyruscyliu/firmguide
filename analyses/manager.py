@@ -20,7 +20,6 @@ from analyses.static_analysis.device_tree import DeviceTree
 from analyses.static_analysis.mfilter import Filter
 from analyses.static_analysis.cpu import CPU
 from analyses.static_analysis.ram import RAM
-from analyses.static_analysis.sintc import SINTC
 from analyses.static_analysis.stimer import STimer
 from analyses.static_analysis.platform_devices import PlatformDevices
 from analyses.static_analysis.libtooling import LibTooling
@@ -200,12 +199,11 @@ class AnalysesManager(object):
     def register_static_analysis(self):
         static_analysis = self.new_analyses_tree()
 
-        # mfilter <- cpu <- ram <- sintc <- stimer <- platform devices
+        # mfilter <- cpu <- ram <- stimer <- platform devices
         self.register_analysis(Filter(self), analyses_tree=static_analysis)
         self.register_analysis(CPU(self), analyses_tree=static_analysis)
         self.register_analysis(RAM(self), analyses_tree=static_analysis)
-        self.register_analysis(SINTC(self), analyses_tree=static_analysis)
-        self.register_analysis(STimer(self), analyses_tree=static_analysis)
+        # self.register_analysis(STimer(self), analyses_tree=static_analysis)
         self.register_analysis(PlatformDevices(self), analyses_tree=static_analysis)
         # self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
         # self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)

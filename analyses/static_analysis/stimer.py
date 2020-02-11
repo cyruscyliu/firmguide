@@ -91,7 +91,7 @@ class STimer(Analysis):
             # firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
             self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
         else:
-            self.warning(firmware, 'you need analyze plat_time_init to guarentee mips_hpt_frequency not 0')
+            self.warning(firmware, 'you need analyze plat_time_init to guarentee mips_hpt_frequency not 0', 0)
 
         has_device_tree = False
         for funccall in all_funccalls:

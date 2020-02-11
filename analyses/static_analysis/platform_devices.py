@@ -6,50 +6,8 @@ import re
 
 from analyses.analysis import Analysis
 from pycparser import c_parser, c_ast, parse_file
+from analyses.static_analysis.builtin import UNMODELED_SKIP_LIST, MODELED_SKIP_TABLE
 
-DONOT_ANALYSIS = [
-    'kmemdup', 'kfree', 'msleep', '__builtin_memcmp', 'add_memory_region', 'detect_memory_region',
-    'clk_get', 'clk_get_rate', 'clk_put', 'sprintf',  '__udelay',
-    '__builtin_memset', 'pcibios_init', 'ipc_ns_init', 'init_mmap_min_addr', 'net_ns_init',
-    'wq_sysfs_init', 'ksysfs_init', 'init_jiffies_clocksource', 'init_zero_pfn', 'fsnotify_init',
-    'filelock_init', 'init_script_binfmt', 'init_elf_binfmt', 'debugfs_init', 'prandom_init',
-    'sock_init', 'netlink_proto_init', 'bdi_class_init', 'mm_sysfs_init', 'kobject_uevent_init',
-    'gpiolib_sysfs_init', 'pcibus_class_init', 'pci_driver_init', 'tty_class_init', 'pi_init',
-    'i2c_init', 'frame_info_init', 'debugfs_mips', 'signal_setup', 'trap_pm_init', 'r4k_cache_init_pm',
-    'r4k_tlb_init_pm', 'topology_init', 'init_vdso', 'uid_cache_init', 'param_sysfs_init', 'pm_sysrq_init',
-    'default_bdi_init', 'percpu_enable_async', 'init_reserve_notifier', 'init_admin_reserve',
-    'init_user_reserve', 'cryptomgr_init', 'init_bio', 'blk_settings_init', 'blk_ioc_init',
-    'blk_softirq_init', 'blk_iopoll_setup', 'blk_mq_init', 'genhd_device_init', 'gpiolib_debugfs_init',
-    'nxp_74hc153_init', 'pcf857x_init', 'pci_slot_init', 'misc_init', 'dma_buf_init', 'mtdsplit_seama_init',
-    'mtdsplit_squashfs_init', 'mtdsplit_lzma_init', 'phy_init', 'i2c_gpio_init', 'watchdog_init', 'leds_init',
-    'proto_init', 'net_dev_init', 'neigh_init', 'fib_rules_init', 'pktsched_init', 'tc_filter_init',
-    'tc_action_init', 'genl_init', 'wireless_nlevent_init', 'mips_dma_init', 'clocksource_done_booting',
-    'init_pipe_fs', 'eventpoll_init', 'anon_inode_init', 'proc_cmdline_init', 'proc_consoles_init',
-    'proc_cpuinfo_init', 'proc_devices_init', 'proc_interrupts_init', 'proc_loadavg_init', 'proc_meminfo_init',
-    'proc_stat_init', 'proc_uptime_init', 'proc_version_init', 'proc_softirqs_init', 'proc_kmsg_init',
-    'init_ramfs_fs', 'blk_scsi_ioctl_init', 'chr_dev_init', 'firmware_class_init', 'sysctl_core_init',
-    'inet_init', 'ipv4_offload_init', 'af_unix_init', 'ipv6_offload_init', 'debugfs_unaligned', 'segments_info',
-    'proc_execdomains_init', 'ioresources_init', 'init_posix_timers', 'init_posix_cpu_timers',
-    'timekeeping_init_ops', 'init_clocksource_sysfs', 'init_timer_list_procfs', 'alarmtimer_init',
-    'clockevents_init_sysfs', 'init_tstats_procfs', 'futex_init', 'proc_modules_init', 'kallsyms_init',
-    'utsname_sysctl_init', 'crashlog_init_fs', 'init_per_zone_wmark_min', 'kswapd_init', 'setup_vmstat',
-    'workingset_init', 'proc_vmalloc_init', 'procswaps_init', 'slab_sysfs_init', 'fcntl_init',
-    'proc_filesystems_init', 'dio_init', 'fsnotify_mark_init', 'inotify_user_setup', 'proc_locks_init',
-    'init_devpts_fs', 'init_squashfs_fs', 'init_jffs2_fs', 'ovl_init', 'ipc_init', 'ipc_sysctl_init',
-    'key_proc_init', 'crypto_algapi_init', 'aes_init', 'proc_genhd_init', 'noop_init', 'deadline_init',
-    'phy_core_init', 'pci_proc_init', 'pty_init', 'sysrq_init', 'serial8250_init', 'topology_sysfs_init',
-    'init_mtd', 'mtdsplit_uimage_init', 'redboot_parser_init', 'cmdline_parser_init', 'myloader_mtd_parser_init',
-    'tplink_parser_init', 'cybertan_parser_init', 'init_mtdblock', 'cfi_probe_init', 'physmap_init', 'm25p80_driver_init',
-    'net_olddevs_init', 'swconfig_init', 'marvell_init', 'rtl_init', 'ksphy_init', 'gpio_led_driver_init',
-    'timer_trig_init', 'defon_trig_init', 'netdev_trig_init', 'staging_init', 'llc_init', 'snap_init',
-    'blackhole_module_init', 'fq_codel_module_init', 'gre_offload_init', 'sysctl_ipv4_init', 'ipv4_netfilter_init',
-    'cubictcp_register', 'packet_init', 'br_init', 'br_netfilter_init', 'dsa_init_module', 'vlan_proto_init',
-    'init_oops_id', 'pm_qos_power_init', 'printk_late_init', 'tk_debug_sleep_time_init', 'fault_around_debugfs',
-    'init_root_keyring', 'prandom_reseed', 'pci_resource_alignment_sysfs_init', 'pci_sysfs_init',
-    'deferred_probe_initcall', 'tcp_congestion_default', 'ar933x_uart_init', 'ap83_spi_init', 'ath79_spi_driver_init',
-    'ip17xx_init', 'ar8xxx_init', 'rtl8366s_module_init', 'rtl8366rb_module_init', 'rtl8367_module_init', 'atheros_init',
-    'mv88e6060_init', 'mv88e6063_init', 'ag71xx_module_init', 'ath79_wdt_driver_init', 'strlcpy', 'printk'
-]
 
 class PlatformDevices(Analysis):
     def traverse_struct(self, firmware, path_to_st):
@@ -68,38 +26,50 @@ class PlatformDevices(Analysis):
         path_to_entry_point = firmware.srcodec.symbol2file(ep)
         if path_to_entry_point is None:
             self.warning(firmware, '{} -> {}(no address)'.format(caller, ep), 1)
-            return None, None, []
+            return None, None, [], {}
 
         if not path_to_entry_point.startswith('arch'):
-            self.debug(firmware, '{} -> {}({})'.format(caller, ep, path_to_entry_point), 1)
-            return None, path_to_entry_point, []
+            self.warning(firmware, '{} -> {}(built-in function in {})'.format(caller, ep, path_to_entry_point), 1)
+            return None, path_to_entry_point, [], {}
 
         dirs = path_to_entry_point.split('/')
-        # self.debug(firmware, '{} -> {}({})'.format(caller, ep, path_to_entry_point), 1)
         if dirs[2] == 'include':
             self.warning(firmware, '{} -> {}(inline in header)'.format(caller, ep, path_to_entry_point), 1)
-            return None, path_to_entry_point, []
+            return None, path_to_entry_point, [], {}
 
         cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
         path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
         if path_to_pentry_point is None:
             self.debug(firmware, '{} -> {}(error in preprocessing)'.format(caller, ep, path_to_entry_point), 1)
-            return None, None, []
+            return None, None, [], {}
 
         funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, ep, mode='sparse')
         self.debug(firmware, '{} -> {}'.format(ep, funccalls), 1)
+        gs = firmware.srcodec.get_globals(path_to_pentry_point, ep, mode='sparse')
+        self.debug(firmware, '{}.globals -> {}'.format(ep, list(gs)), 1)
 
-        return None, path_to_entry_point, funccalls
+        return None, path_to_entry_point, funccalls, gs
+
+    def parse_globals(self, firmware, caller, gs):
+        for g, ops in gs.items():
+            if 'store' in ops:
+                self.debug(firmware, '{} -> {}(global defined)'.format(caller, g), 1)
 
     def parse_funcalls(self, firmware, caller, funccalls):
         # remove duplicated functions
         funccalls = list(set(funccalls))
 
-        # remove functions we donot want to analysis
-        for da in DONOT_ANALYSIS:
+        # remove functions we donot want to analyze
+        for da in UNMODELED_SKIP_LIST:
             if da in funccalls:
                 self.debug(firmware, '{} -> {}(built-in function)'.format(caller, da), 1)
                 funccalls.remove(da)
+
+        # remove functions we have already analyzed
+        for da in MODELED_SKIP_TABLE:
+            if da in funccalls:
+                funccalls.remove(da)
+                MODELED_SKIP_TABLE[da]['handle'](self, firmware, caller=caller)
 
         # remove funcations addr2line cannot handle correct
         for da in ['ath79_gpio_init', 'ath79_gpio_function_setup']:
@@ -609,9 +579,27 @@ class PlatformDevices(Analysis):
                     mmio_size = 0x4
                     mmio_value = 0x00b0
                     firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
-                self.warning(firmware, 'BUG()/BUG() found but no handlers', 0)
+                self.warning(firmware, 'BUG()/BUG_ON() found but no handlers', 0)
             else:
-                self.warning(firmware, 'BUG()/BUG() found but no handlers', 0)
+                self.warning(firmware, 'BUG()/BUG_ON() found but no handlers', 0)
+
+        # [FUNCTION] void __init of_irq_init(const struct of_device_id *matches)
+        if 'of_irq_init' in funccalls:
+            funccalls.remove('of_irq_init')
+            if firmware.uuid == 'rampis_rt3883':
+                if caller == 'arch_init_irq':
+                    # you have to analyze its parameter
+                    # static struct of_device_id __attribute__ ((__section__(".init.data"))) of_irq_ids[] = {
+                    #   { .compatible = "mti,cpu-interrupt-controller", .data = mips_cpu_intc_init  },
+                    #   { .compatible = "ralink,rt2880-intc", .data = intc_of_init  },
+                    #   {},
+                    # };
+                    # of_irq_init(of_irq_ids);
+                    funccalls.extend(['mips_cpu_intc_init', 'intc_of_init'])
+                else:
+                    self.warning(firmware, 'of_irq_init found w/o handler', 0)
+            else:
+                self.warning(firmware, 'of_irq_init found w/o handler', 0)
 
         if len(funccalls):
             self.debug(firmware, '{} -> {}(unhandled)'.format(caller, funccalls), 1)
@@ -621,20 +609,35 @@ class PlatformDevices(Analysis):
         if depth == 4:
             return
         for ep in entry_point:
-            address, path_to_ep, funccalls = self.get_funccalls(firmware, ep, caller=caller)
+            address, path_to_ep, funccalls, gs = self.get_funccalls(firmware, ep, caller=caller)
             funccalls = self.parse_funcalls(firmware, ep, funccalls)
+            self.parse_globals(firmware, ep, gs)
             self.traverse_funccalls(firmware, funccalls, caller=ep, depth=depth+1)
 
+    def traverse_no_address_funccall(self, firmware, ep, path_to_entry_point):
+        cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
+        path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
+        funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, ep, mode='sparse')
+        self.info(firmware, '{} -> {}'.format(ep, funccalls), 1)
+        gs = firmware.srcodec.get_globals(path_to_pentry_point, ep, mode='sparse')
+        self.info(firmware, '{}.globals -> {}'.format(ep, list(gs)), 1)
+        funccalls = self.parse_funcalls(firmware, ep, funccalls)
+        self.parse_globals(firmware, ep, gs)
+        self.traverse_funccalls(firmware, funccalls, caller=ep)
+
+    def traverse_indirect_funccall(self, firmware, ep, caller):
+        self.traverse_funccalls(firmware, [ep], caller=caller)
+
     def run(self, firmware):
-        """
-        here is for platform_devices
-        """
+        srcodec = firmware.get_srcodec()
+
+        # ==== setup ====
         # mips
-        # setup_arch->cpu_probe
-        # setup_arch->prom_init
-        # setup_arch->setup_early_printk -> FP -> prom_putchar
-        #   note: uarts will be determined in do_initcalls
-        # setup_arch->arch_mem_init->plat_mem_setup
+        #   setup_arch->cpu_probe
+        #   setup_arch->prom_init
+        #   setup_arch->setup_early_printk -> FP -> prom_putchar
+        #       note: uarts will be determined in do_initcalls
+        #   setup_arch->arch_mem_init->plat_mem_setup
         funccalls = ['plat_mem_setup']
         self.traverse_funccalls(firmware, funccalls, caller='setup_arch -> arch_mem_init')
         if firmware.uuid == 'ar71xx_generic':
@@ -666,13 +669,25 @@ class PlatformDevices(Analysis):
             self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
             # plat_mem_setup -> ath79_detect_sys_type(no address)
             # plat_mem_setup -> ath79_detect_sys_type(arch/mips/ath79/setup.c)
-            path_to_entry_point = 'arch/mips/ath79/setup.c'
-            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
-            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-            funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, 'ath79_detect_sys_type', mode='sparse')
-            self.info(firmware, '{} -> {}'.format('ath79_detect_sys_type', funccalls), 1)
-            self.parse_funcalls(firmware, 'ath79_detect_sys_type', funccalls)
-            # detect_memory_region(built-in function)
+            self.traverse_no_address_funccall(firmware, 'ath79_detect_sys_type', 'arch/mips/ath79/setup.c')
+
+        # ===== intc subsystem =====
+        # 1 intc initilization
+        ep = 'init_IRQ'
+        self.traverse_funccalls(firmware, [ep], caller='start_kernel')
+        # ralink_rt3883: arch_init_irq -> [of_irq_init']
+        if firmware.uuid == 'ar71xx_generic':
+            # arch_init_irq -> ath79_misc_irq_init(no address)
+            self.traverse_no_address_funccall(firmware, 'ath79_misc_irq_init', 'arch/mips/ath79/irq.c')
+        # 2. do_asm_IRQ/plat_irq_dispatch
+        if firmware.get_arch() == 'arm':
+            ep = 'do_asm_IRQ'
+            self.traverse_funccalls(firmware, [ep], caller='start_kernel')
+        # for mips, you could skip plat_irq_dispatch because it is very general
+        # mostly, timer interrupt is IRQ7 and you won't worry about it
+
+        # ==== timer subsystem ====
+        exit(1)
 
         # do_initcall analysis
         # "early", "core", "postcore", "arch", "subsys", "fs", "device", "late",
@@ -809,9 +824,10 @@ class PlatformDevices(Analysis):
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-        self.name = 'platform_devices'
+        self.name = 'excflow'
         self.description = 'source code info analysis (llvm)'
         self.required = ['stimer']
         self.context['hint'] = ''
         self.critical = False
+
 
