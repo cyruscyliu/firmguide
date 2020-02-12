@@ -4,7 +4,6 @@ These interfaces unpack, pack given firmware blob to uImages.
 import os
 import types
 import binwalk
-import tempfile
 
 from logger import logger_info, logger_debug, logger_warning
 from settings import *
@@ -101,7 +100,7 @@ def __handle_legacy_uimage(image_path, uimage3=False, uimage3_offset=None):
     kernel = uncompressed_kernel
 
     # find dtb in mips legacy uimage
-    module = __binwalk_scan_all(image_path, tempfile.gettempdir(), extract=False)
+    module = __binwalk_scan_all(image_path, os.path.dirname(image_path), extract=False)
     for result in module.results:
         if str(result.description.lower()).find('mips built-in fdt') != -1:
             dtb = module.extractor.output[result.file.path].carved[result.offset]

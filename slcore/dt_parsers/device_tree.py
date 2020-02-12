@@ -22,14 +22,6 @@ class DeviceTree(Analysis):
             return None
         return path_to
 
-    def cpu07_parse_cpu_from_device_tree(self, firmware):
-        path_to_cpu = '/cpus/cpu@0'
-
-        compatible = self.dts.get_property('compatible', path_to_cpu).data[0]
-        compatible = self.qemu_devices.select('cpu', like=compatible)
-        firmware.set_cpu_model(compatible)
-        self.info(firmware, 'get cpu model: {}'.format(compatible), 1)
-
     def ic01_parse_ic_from_device_tree(self, firmware):
         ic_parent = self.dts.get_property('interrupt-parent').data[0]
         path_to_ic = None
@@ -291,8 +283,6 @@ class DeviceTree(Analysis):
 
         model = self.dts.get_property('model').data[0]
         firmware.set_machine_name(machine_name_wrapper(model))
-
-        self.cpu07_parse_cpu_from_device_tree(firmware)
 
         # check whether the cpu private peripheral is supported or not
         cpu = firmware.get_cpu_model()

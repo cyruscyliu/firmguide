@@ -21,7 +21,6 @@ from analyses.static_analysis.mfilter import Filter
 from analyses.static_analysis.cpu import CPU
 from analyses.static_analysis.ram import RAM
 from analyses.static_analysis.excflow import ExecutionFlow
-from analyses.static_analysis.libtooling import LibTooling
 from analyses.static_analysis.loaddr import LoadAddr
 
 
@@ -198,13 +197,12 @@ class AnalysesManager(object):
     def register_static_analysis(self):
         static_analysis = self.new_analyses_tree()
 
-        # mfilter <- cpu <- ram <- stimer <- platform devices
+        # mfilter <- cpu <- ram <- dt <- excflow
         self.register_analysis(Filter(self), analyses_tree=static_analysis)
+        self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)
         # self.register_analysis(CPU(self), analyses_tree=static_analysis)
         # self.register_analysis(RAM(self), analyses_tree=static_analysis)
-        self.register_analysis(ExecutionFlow(self), analyses_tree=static_analysis)
-        # self.register_analysis(LibTooling(self), analyses_tree=static_analysis)
-        # self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)
+        # self.register_analysis(ExecutionFlow(self), analyses_tree=static_analysis)
         # mfilter <- loadaddr
         self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
 
