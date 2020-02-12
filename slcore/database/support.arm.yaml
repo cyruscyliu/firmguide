@@ -1,191 +1,153 @@
-support:
-  mach-axxia:
+mach-actions:
     device_tree: True
-    uart: pl011
-  mach-bcm:
+mach-alpine:
     device_tree: True
-    uart: dw-apb-uart
-  mach-berlin:
+mach-artpec:
     device_tree: True
-    uart: dw-apb-uart
-  mach-cns3xxx:
-    device_tree: False
-    uart: serial8250
-  mach-davinci:
-    device_tree: False
-    uart: serial8250
-  mach-dove:
-    device_tree: False
-    uart: serial8250
-  mach-ebsa110:
-    device_tree: False
-    uart: serial8250
-  mach-footbridge:
-    device_tree: False
-    uart: serial8250
-  mach-genimi:
-    device_tree: False
-    uart: serial8250
-  mach-highbank:
+mach-at91:
     device_tree: True
-    uart: pl011
-  mach-hisi:
+mach-axxia:
     device_tree: True
-    uart: pl011
-  mach-integrator:
+mach-bcm:
     device_tree: True
-    uart: pl011
-  mach-ep93xx:
-    device_tree: False
-    uart: dw-apb-uart
-  mach-exynos:
-    device_tree: False
-    uart: exynos4210-uart
-  mach-iop13xx:
-    device_tree: False
-    uart: serial8250
-  mach-iop32x:
-    device_tree: False
-    uart: serial8250
-  mach-iop33x:
-    device_tree: False
-    uart: serial8250
-  mach-ixp4xx:
-    device_tree: False
-    uart: serial8250
-  mach-keystone:
+mach-berlin:
     device_tree: True
-    uart: serial8250
-  mach-ks8695:
+mach-clps711x:
+    device_tree: True
+mach-cns3xxx:
+    device_tree: True
+mach-davinci:
+    device_tree: True
+mach-digicolor:
+    device_tree: True
+mach-dove:
     device_tree: False
-    uart: serial8250
-  mach-lpc32xx:
-    device_tree: True
-    uart: serial8250
-  mach-mediatek:
-    device_tree: True
-    uart: serial8250
-  mach-mv78xx0:
+mach-ebsa110:
     device_tree: False
-    uart: serial8250
-  mach-mvebu:
+mach-efm32:
     device_tree: True
-    uart: dw-apb-uart
-  mach-socfpga:
-    device_tree: True
-    uart: dw-apb-uart
-  mach-spear:
-    device_tree: True
-    uart: pl011
-  mach-nomadik:
-    device_tree: True
-    uart: pl011
-  mach-nspire:
-    device_tree: True
-    uart: pl011
-  mach-omap1:
+mach-ep93xx:
+    device_true: False
+mach-exynos:
+    device_true: True
+mach-footbridge:
     device_tree: False
-    uart: serial8250
-  mach-orion5x:
+mach-genimi:
+    device_tree: True
+mach-highbank:
+    device_tree: True
+mach-hisi:
+    device_tree: True
+mach-imx:
+    device_tree: True
+mach-integrator:
+    device_tree: True
+mach-iop13xx:
     device_tree: False
+mach-iop32x:
+    device_tree: False
+mach-iop33x:
+    device_tree: False
+mach-ixp4xx:
+    device_tree: True
+mach-keystone:
+    device_tree: True
+mach-ks8695:
+    device_tree: False
+mach-lpc32xx:
+    device_tree: True
+mach-mediatek:
+    device_tree: True
+mach-meson:
+    device_tree: True
+mach-milbeaut:
+    device_tree: True
+mach-mmp:
+    device_tree: True
+mach-moxart:
+    device_tree: False
+mach-msm:
+    device_tree: False
+mach-mv78xx0:
+    device_tree: False
+mach-mvebu:
+    device_tree: True
+mach-mxs:
+    device_tree: True
+mach-nomadik:
+    device_tree: True
+mach-npcm:
+    device_tree: True
+mach-netx:
+    device_tree: False
+mach-nspire:
+    device_tree: False
+mach-omap1:
+    device_tree: False
+mach-omap2:
+    device_tree: True
+mach-orion5x:
+    device_tree: True
     machine_ids: ["0x661", "0x709"]
     uart: serial8250
     profile: "examples/arm/mach-orion5x/profile.yaml"
-  mach-oxnas:
+mach-oxnas:
     device_tree: True
     compatible: ["plxtech,nas7820", "plxtech,nas782x"]
     uart: serial8250
     profile: "examples/arm/mach-oxnas/profile.yaml"
-  mach-picoxcell:
+mach-picoxcell:
     device_tree: True
-    uart: dw-apb-uart
-  mach-rockchip:
+mach-prima2:
     device_tree: True
-    uart: dw-apb-uart
-  mach-pxa:
-    device_tree: False
-    uart: serial8250
-  mach-realview:
-    device_tree: False
-    uart: realview-uart
-  mach-rpc:
-    device_tree: False
-    uart: serial8250
-  mach-sunxi:
+mach-pxa:
     device_tree: True
-    uart: dw-apb-uar
-  mach-u300:
-    device_tree: True
-    uart: pl011
-  mach-ux500:
-    device_tree: True
-    uart: pl011
-  mach-versatile:
-    device_tree: False
-    uart: pl110
-  mach-vexpress:
-    device_tree: True
-    uart: pl011
-  mach-w90x900:
-    device_tree: False
-    uart: serial8250
-others:
-  mach-imx:
-    device_tree: True
-    uart: imx1-uart
-  mach-efm32:
-    device_tree: True
-    uart: efm32,uar
-  mach-meson:
-    device_tree: True
-    uart: meson-uar
-  mach-mmp:
-    device_tree: False
-    uart: mmp-uart
-  mach-moxart:
-    invalid: True
-  mach-msm:
-    device_tree: False
-    uart: msm_serial
-  mach-mxs:
-    device_tree: True
-    uart: imx23-auart
-  mach-netx:
-    device_tree: False
-    uart: netx-uart
-  mach-omap2:
-    device_tree: False
-    uart: omap2-uart
-  mach-prima2:
-    device_tree: True
-    uart: prima2-uar
-  mach-qcom:
+mach-qcom:
     device_true: True
-    uart: msm-uartdm
-  mach-s3c24xx:
+mach-realview:
+    device_tree: True
+mach-rockchip:
+    device_tree: True
+mach-rpc:
     device_tree: False
-    uart: s3c24xx-uart
-  mach-s3c64xx:
+mach-s3c24xx:
+    device_tree: True
+mach-s3c64xx:
+    device_tree: True
+mach-s5pv210:
+    device_true: True
+mach-sa1100:
     device_tree: False
-    uart: s3c64xx-uart
-  mach-s5pv210:
+mach-shmobile:
     device_true: True
-    uart: s5pv210-uart
-  mach-sa1100:
+mach-socfpga:
+    device_tree: True
+mach-spear:
+    device_tree: True
+mach-sti:
+    device_true: True
+mach-stm32:
+    device_treu: True
+mach-sunxi:
+    device_tree: True
+mach-tango:
+    device_tree: True
+mach-tegra:
+    device_true: True
+mach-u300:
+    device_tree: True
+mach-ux500:
+    device_tree: True
+mach-versatile:
+    device_tree: True
+mach-vexpress:
+    device_tree: True
+mach-vt8500:
+    device_true: True
+mach-w90x900:
     device_tree: False
-    uart: sa11x0-uart
-  mach-shmobile:
+mach-zx:
+    device_tree: True
+mach-zynq:
     device_true: True
-    uart: em-uart
-  mach-sti:
-    device_true: True
-    uart: asc
-  mach-tegra:
-    device_true: True
-    uart: tegra20-uart
-  mach-vt8500:
-    device_true: True
-    uart: vt8500-uart
-  mach-zynq:
-    device_true: True
-    uart: uart-r1p8
+

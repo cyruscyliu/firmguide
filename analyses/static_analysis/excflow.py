@@ -54,17 +54,34 @@ class ExecutionFlow(Analysis):
         return None, path_to_entry_point, funccalls, gs
 
     def parse_globals(self, firmware, caller, gs):
+        """
+        Globals will not trigger analysis but serve for debugging.
+        Global data/function pointer both will influence execution flow.
+        Global data is interesting when
+        1) it is defined by the value from nvram
+        2) it is defined by the value from ioremap().
+        Global data is interesting when
+        1) it is defined conditionally
+        2) it is defined according to CMDLINE
+        """
         for g, ops in gs.items():
             if 'store' in ops:
+                self.globals.append(g)
                 self.debug(firmware, '{} -> {}(global defined)'.format(caller, g), 1)
+            if 'load' in ops and g not in self.globals:
+                self.warning(firmware, '{} -> {}(global used before defined)'.format(caller, g), 1)
 
     def parse_funcalls(self, firmware, caller, funccalls):
-        funccalls = list(set(funccalls))
+        def remove_duplicated(seq):
+                seen = set()
+                seen_add = seen.add
+                return [x for x in seq if not (x in seen or seen_add(x))]
+        funccalls = remove_duplicated(funccalls)
 
         # remove functions we donot want to analyze
         for da in UNMODELED_SKIP_LIST:
             if da in funccalls:
-                self.debug(firmware, '{} -> {}(built-in function)'.format(caller, da), 1)
+                # self.debug(firmware, '{} -> {}(built-in function)'.format(caller, da), 1)
                 funccalls.remove(da)
 
         # remove functions we have already analyzed
@@ -88,303 +105,6 @@ class ExecutionFlow(Analysis):
         if '__platform_driver_register' in funccalls:
             funccalls.remove('__platform_driver_register')
 
-        # [FUNCTION] int platform_device_register(struct platform_device *);
-        # [STRUCT] platform_devcie, resource, plat_serial8250_port
-        if 'platform_device_register' in funccalls:
-            funccalls.remove('platform_device_register')
-            if firmware.uuid == 'ar71xx_generic':
-                if caller == 'ath79_register_uart':
-                    # ath79_setup -> ath79_register_uart(arch/mips/ath79/dev-common.c)
-                    # [CONDITIONAL] platform_device_register(&ath79_uart_device);
-                    # static struct resource ath79_uart_resources[] = {
-                    #   {
-                    #     .start = (0x18000000 + 0x00020000),
-                    #     .end = (0x18000000 + 0x00020000) + 0x100 - 1,
-                    #     .flags = 0x00000200,
-                    #   },
-                    # };
-                    # static struct plat_serial8250_port ath79_uart_data[] = {
-                    #   {
-                    #     .mapbase = (0x18000000 + 0x00020000),
-                    #     .irq = (8 + (3)),
-                    #     .flags = ((( upf_t ) (1 << 28)) | (( upf_t ) (1 << 6)) | (( upf_t ) (1 << 31))),
-                    #     .iotype = (3),
-                    #     .regshift = 2,
-                    #   }, {
-                    #   }
-                    # };
-                    # static struct platform_device ath79_uart_device = {
-                    #   .name = "serial8250",
-                    #   .id = PLAT8250_DEV_PLATFORM,
-                    #   .resource = ath79_uart_resources,
-                    #   .num_resources = ...,
-                    #   .dev = { .platform_data = ath79_uart_data },
-                    # };
-                    uart_name = 'serial8250'
-                    uart_mmio_base = eval('(0x18000000 + 0x00020000)')
-                    uart_mmio_size = eval('(0x18000000 + 0x00020000) + 0x100 - 1') + 1 - uart_mmio_base
-                    # uart_irqn = eval('(8 + (3))')
-                    uart_irqn = 6
-                    uart_reg_shift = eval('2')
-                    firmware.set_uart('0', uart_name, uart_mmio_base, uart_irqn, uart_reg_shift, uart_mmio_size)
-                    self.info(firmware, 'get uart name {}'.format(uart_name), 1)
-                    self.info(firmware, 'get uart mmio base {} size {}'.format(hex(uart_mmio_base), hex(uart_mmio_size)), 1)
-                    self.info(firmware, 'get uart irq {}'.format(uart_irqn), 1)
-                    self.info(firmware, 'get uart reg shift {}'.format(uart_reg_shift), 1)
-                    # [CONDITIONAL] platform_device_register(&ar933x_uart_device);
-                    # static struct resource ar933x_uart_resources[] = {
-                    #   {
-                    #     .start = (0x18000000 + 0x00020000),
-                    #     .end = (0x18000000 + 0x00020000) + 0x100 - 1,
-                    #     .flags = 0x00000200,
-                    #   }, {
-                    #     .start = (8 + (3)),
-                    #     .end = (8 + (3)),
-                    #     .flags = 0x00000400,
-                    #   },
-                    # };
-                    # static struct platform_device ar933x_uart_device = {
-                    #   .name = "ar933x-uart",
-                    #   .id = -1,
-                    #   .resource = ar933x_uart_resources,
-                    #   .num_resources = .
-                    # };
-                    # cannot support ar933x-uart, but the start address of the ar933x-uart is equal to the serial8250
-                    # either is ok, the conditions are ignored
-                elif caller == 'ath79_register_eth':
-                    # [DIRECT] platform_device_register(pdev)
-                    # [CONDITIONAL] pdev = &ath79_eth0_device # 1st
-                    # [CONDITIONAL] pdev = &ath79_eth1_device # 2nd
-                    #  static struct resource ath79_eth0_resources[] = {
-                    #   {
-                    #     .name = "mac_base",
-                    #     .flags = 0x00000200,
-                    #     .start = 0x19000000,
-                    #     .end = 0x19000000 + 0x200 - 1,
-                    #   }, {
-                    #     .name = "mac_irq",
-                    #     .flags = 0x00000400,
-                    #     .start = (0 + (4)),
-                    #     .end = (0 + (4)),
-                    #  },
-                    # };
-                    # struct ag71xx_platform_data ath79_eth0_data = {
-                    #   .reset_bit = (1UL << (9)),
-                    # };
-                    # struct platform_device ath79_eth0_device = {
-                    #   .name = "ag71xx",
-                    #   .id = 0,
-                    #   .resource = ath79_eth0_resources,
-                    #   .num_resources = ...
-                    #   .dev = { .platform_data = &ath79_eth0_data, },
-                    # };
-                    mmio_name = 'ag71xx' # duplicated
-                    mmio_base = 0x19000000
-                    mmio_size = 0x200
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-                    # static struct resource ath79_eth1_resources[] = {
-                    #   {
-                    #     .name = "mac_base",
-                    #     .flags = 0x00000200,
-                    #     .start = 0x1a000000,
-                    #     .end = 0x1a000000 + 0x200 - 1,
-                    #   }, {
-                    #     .name = "mac_irq",
-                    #     .flags = 0x00000400,
-                    #     .start = (0 + (5)),
-                    #     .end = (0 + (5)),
-                    #   },
-                    # };
-                    # struct ag71xx_platform_data ath79_eth1_data = {
-                    #   .reset_bit = (1UL << (13)),
-                    # };
-                    # struct platform_device ath79_eth1_device = {
-                    #   .name = "ag71xx",
-                    #   .id = 1,
-                    #   .resource = ath79_eth1_resources,
-                    #   .num_resources =  ...
-                    #   .dev = { .platform_data = &ath79_eth1_data, },
-                    # };
-                    mmio_name = 'ag71xx' # duplicated
-                    mmio_base = 0x1a000000
-                    mmio_size = 0x200
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-                elif caller ==  'ath79_register_mdio':
-                    # [DIRECT] platform_device_register(mdio_dev);
-                    # [CONDITIONAL] mdio_dev = &ath79_mdio1_device; # 2nd
-                    # [CONDITIONAL] mdio_dev = &ath79_mdio0_device; # 1st
-                    # [CONDITIONAL] mdio_dev = &ath79_mdio1_device; # duplicated
-                    # [CONDITIONAL] mdio_dev = &ath79_mdio0_device; # duplicated
-                    # static struct resource ath79_mdio1_resources[] = {
-                    #   {
-                    #     .name = "mdio_base",
-                    #     .flags = 0x00000200,
-                    #     .start = 0x1a000000,
-                    #     .end = 0x1a000000 + 0x200 - 1,
-                    #   }
-                    # };
-                    # struct ag71xx_mdio_platform_data ath79_mdio1_data;
-                    # struct platform_device ath79_mdio1_device = {
-                    #   .name = "ag71xx-mdio",
-                    #   .id = 1,
-                    #   .resource = ath79_mdio1_resources,
-                    #   .num_resources = ...,
-                    #   .dev = { .platform_data = &ath79_mdio1_data, },
-                    # };
-                    mmio_name = 'ag71xx-mdio'
-                    mmio_base = 0x1a000000
-                    mmio_size = 0x200
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-                    # static struct resource ath79_mdio0_resources[] = {
-                    #   {
-                    #     .name = "mdio_base",
-                    #     .flags = 0x00000200,
-                    #     .start = 0x19000000,
-                    #     .end = 0x19000000 + 0x200 - 1,
-                    #   }
-                    # };
-                    # struct ag71xx_mdio_platform_data ath79_mdio0_data;
-                    # struct platform_device ath79_mdio0_device = {
-                    #   .name = "ag71xx-mdio",
-                    #   .id = 0,
-                    #   .resource = ath79_mdio0_resources,
-                    #   .num_resources = ...,
-                    #   .dev = { .platform_data = &ath79_mdio0_data, },
-                    # }
-                    mmio_name = 'ag71xx-mdio'
-                    mmio_base = 0x19000000
-                    mmio_size = 0x200
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-                elif caller == 'ath79_register_spi':
-                    # [DIRECT] platform_device_register(&ath79_spi_device);
-                    # static struct resource ath79_spi_resources[] = {
-                    #   {
-                    #     .start = 0x1f000000,
-                    #     .end = 0x1f000000 + 0x01000000 - 1,
-                    #     .flags = 0x00000200,
-                    #   },
-                    # };
-                    # static struct platform_device ath79_spi_device = {
-                    #   .name = "ath79-spi",
-                    #   .id = -1,
-                    #   .resource = ath79_spi_resources,
-                    #   .num_resources = ...
-                    # };
-                    flash_base = eval('0x1f000000')
-                    flash_size = 0x01000000
-                    self.info(firmware, 'get flash base {} size {}'.format(hex(flash_base), hex(flash_size)), 1)
-                    firmware.insert_bamboo_devices(flash_base, flash_size, value=0)
-                elif caller == 'ath79_register_wmac':
-                    # static struct ath9k_platform_data ath79_wmac_data = {
-                    #   .led_pin = -1,
-                    # };
-                    # static struct resource ath79_wmac_resources[] = {
-                    #   {
-                    #     .flags = 0x00000200,
-                    #   }, {
-                    #     .flags = 0x00000400,
-                    #   },
-                    # };
-                    # static struct platform_device ath79_wmac_device = {
-                    #   .name = "ath9k",
-                    #   .id = -1,
-                    #   .resource = ath79_wmac_resources,
-                    #   .num_resources =
-                    #   .dev = { .platform_data = &ath79_wmac_data, },
-                    # };
-                    mmio_name = 'ath9k'
-                    # [CONDITIONAL] ar913x_wmac_setup
-                    # ath79_wmac_resources[0].start = (0x18000000 + 0x000C0000);
-                    # ath79_wmac_resources[0].end = (0x18000000 + 0x000C0000) + 0x30000 - 1;
-                    # ath79_wmac_resources[1].start = (0 + (2));
-                    # ath79_wmac_resources[1].end = (0 + (2));
-                    mmio_base = eval('(0x18000000 + 0x000C0000)')
-                    mmio_size = 0x30000
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-                    # [CONDITIONAL] ar933x_wmac
-                    # ath79_wmac_device.name = "ar933x_wmac";
-                    # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
-                    # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
-                    # ath79_wmac_resources[1].start = (0 + (2));
-                    # ath79_wmac_resources[1].end = (0 + (2));
-                    mmio_name = 'ar933x_wmac'
-                    mmio_base = eval('(0x18000000 + 0x00100000)')
-                    mmio_size = 0x20000
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-                    # [CONDITIONAL] ar934x_wmac_setup
-                    # ath79_wmac_device.name = "ar934x_wmac"; # duplicated
-                    # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
-                    # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
-                    # ath79_wmac_resources[1].start = (((8 + 32) + 6) + (1));
-                    # ath79_wmac_resources[1].end = (((8 + 32) + 6) + (1));
-                    mmio_name = 'ar934x_wmac'
-                    mmio_base = eval('(0x18000000 + 0x00100000)')
-                    mmio_size = 0x20000
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-                    # [CONDITIONAL] qca953x_wmac_setup
-                    # ath79_wmac_device.name = "qca953x_wmac";
-                    # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
-                    # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
-                    # ath79_wmac_resources[1].start = (0 + (2));
-                    # ath79_wmac_resources[1].end = (0 + (2));
-                    mmio_name = 'qca953x_wmac' #duplicated, share the same mmio space but have different functionality
-                    mmio_base = eval('(0x18000000 + 0x00100000)')
-                    mmio_size = 0x20000
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-                    # [CONDITIONAL] qca955x_wmac_setup
-                    # ath79_wmac_device.name = "qca953x_wmac";
-                    # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
-                    # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
-                    # ath79_wmac_resources[1].start = (0 + (2));
-                    # ath79_wmac_resources[1].end = (0 + (2));
-                    mmio_name = 'qca955x_wmac' #duplicated
-                    mmio_base = eval('(0x18000000 + 0x00100000)')
-                    mmio_size = 0x20000
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-                    # [CONDITIONAL] qca956x_wmac_setup
-                    # ath79_wmac_device.name = "qca956x_wmac";
-                    # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
-                    # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
-                    # ath79_wmac_resources[1].start = (((8 + 32) + 6) + (1));
-                    # ath79_wmac_resources[1].end = (((8 + 32) + 6) + (1));
-                    mmio_name = 'qca956x_wmac' #duplicated
-                    mmio_base = eval('(0x18000000 + 0x00100000)')
-                    mmio_size = 0x20000
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-                else:
-                    self.warning(firmware, 'platform_device_register found but no handlers', 0)
-            else:
-                self.warning(firmware, 'platform_device_register found but no handlers', 0)
-
-        # [FUNCTION] platform_device_register_full
-        if 'platform_device_register_full' in funccalls:
-            funccalls.remove('platform_device_register_full')
-            if firmware.uuid == 'ar71xx_generic':
-                if caller == 'ath79_register_wdt':
-                    # ath79_setup -> ath79_register_wdt(arch/mips/ath79/dev-common.c)
-                    # [DIRECT] platform_device_register_simple("ath79-wdt", -1, &res, 1);
-                    # res.flags = 0x00000200;
-                    # res.start = (0x18000000 + 0x00060000) + 0x08;
-                    # res.end = res.start + 0x8 - 1;
-                    mmio_name = 'ar933x-uart'
-                    mmio_base = eval('(0x18000000 + 0x00060000) + 0x08')
-                    mmio_size = eval('(0x18000000 + 0x00060000) + 0x08 + 0x8 - 1') + 1 - mmio_base
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-                else:
-                    self.warning(firmware, 'platform_device_register_full found but no handlers', 0)
-            else:
-                self.warning(firmware, 'platform_device_register_full found but no handlers', 0)
 
         # [FUNCTION] void mips_machine_setup(void);
         # this function decides which machine->setup to be called according to a kernel boot args
@@ -406,34 +126,6 @@ class ExecutionFlow(Analysis):
                     # funccalls.append(machine_setup)
             funccalls.append('bhu_bxu2000n2_a1_setup')
 
-        # [FUNCIIONS] platform_device_alloc, platform_device_add_data, platform_device_add(pdev);
-        if 'platform_device_alloc' in funccalls:
-            funccalls.remove('platform_device_alloc')
-            if 'platform_device_add_data' in funccalls:
-                funccalls.remove('platform_device_add_data')
-            if 'platform_device_add' in funccalls:
-                funccalls.remove('platform_device_add')
-            if 'platform_device_put' in funccalls:
-                funccalls.remove('platform_device_put')
-            if firmware.uuid == 'ar71xx_generic':
-                if caller == 'ath79_register_leds_gpio':
-                    # bhu_bxu2000n2_a1_setup -> ath79_register_leds_gpio(arch/mips/ath79/dev-leds-gpio.c)
-                    # [DIRECT] no resouces found
-                    # pdev = platform_device_alloc("leds-gpio", id);
-                    # err = platform_device_add_data(pdev, &pdata, sizeof(pdata));
-                    # err = platform_device_add(pdev);
-                    pass
-                elif caller == 'ath79_register_gpio_keys_polled':
-                    # bhu_bxu2000n2_a1_setup -> ath79_register_gpio_keys_polled(arch/mips/ath79/dev-gpio-buttons.c)
-                    # [DIRECT] no reources found
-                    # pdev = platform_device_alloc("gpio-keys-polled", id);
-                    # err = platform_device_add_data(pdev, &pdata, sizeof(pdata));
-                    # err = platform_device_add(pdev);
-                    pass
-                else:
-                    self.warning(firmware, 'platform_device_register_full found but no handlers', 0)
-            else:
-                self.warning(firmware, 'platform_device_register_full found but no handlers', 0)
 
         # [FUNCTION] __iounmap() -> ()__ioremap_mode() -> ()__ioremap()
         if '__iounmap' in funccalls:
@@ -529,6 +221,11 @@ class ExecutionFlow(Analysis):
             return
         for ep in entry_point:
             address, path_to_ep, funccalls, gs = self.get_funccalls(firmware, ep, caller=caller)
+            # We can control the excflow because of "complete properties" policy.
+            # 1) cpu: setup_arch->cpu_probe
+            if firmware.machines[-1].get_cpus() == 0 and \
+                    caller == 'setup_arch' and ep == 'cpu_probe':
+                continue
             funccalls = self.parse_funcalls(firmware, ep, funccalls)
             self.parse_globals(firmware, ep, gs)
             self.traverse_funccalls(firmware, funccalls, caller=ep, depth=depth+1)
@@ -579,6 +276,8 @@ class ExecutionFlow(Analysis):
             mmio_name = 'ath79_ddr'; mmio_base = eval('((0x18000000 + 0x00000000))'); mmio_size = 0x100
             firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
             self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+
+        exit(1)
 
         # ===== intc subsystem =====
         # 1 intc initilization
@@ -783,8 +482,10 @@ class ExecutionFlow(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'excflow'
-        self.description = 'source code info analysis (llvm)'
-        self.required = ['stimer']
+        self.description = 'source code info analysis (sparse)'
+        self.required = ['mfilter', 'device_tree']
         self.context['hint'] = ''
         self.critical = False
+        #
+        self.globals = []
 

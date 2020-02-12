@@ -1,95 +1,78 @@
-support:
-  bcm47xx:
+alchemy:
+    device_tree: False
+ar7:
+    device_tree: True
+ar25:
+    deivce_tree: False
+ath79:
+    device_tree: True
+ar231x:
+    device_tree: False
+adm5120:
+    device_tree: False
+bcm47xx:
     device_tree: False
     machine_ids: ["0x10000030"]
     uart: serial8250
     profile: "examples/mips/bcm47xx/profile.yaml"
-  ath79:
+bcm63xx:
     device_tree: False
-    uart: serial8250
-  ar7:
-    device_tree: False
-    uart: serial8250
-  ar231x:
-    device_tree: False
-  adm5120:
-    device_tree: False
-  cavium-octeon:
+bmips:
     device_tree: True
-    uart: serial8250
-  cobalt:
-    device_tree: False
-    uart: serial8250
-  emma:
-    device_tree: False
-    uart: serial8250
-  jazz:
-    device_tree: False
-    uart: serial8250
-  jz4740:
-    device_tree: False
-    uart: serial8250
-  lantiq:
+cavium-octeon:
     device_tree: True
-    uart: serial8250
-  loongson1:
+cobalt:
     device_tree: False
-    uart: serial8250
-  mti-malta:
+dec:
     device_tree: False
-    uart: serial8250
-  mti-sead3:
+emma:
     device_tree: False
-    uart: serial8250
-  netlogic:
+jazz:
+    device_tree: False
+jz4740:
     device_tree: True
-    uart: serial8250
-  ralink:
+lantiq:
     device_tree: True
-    uart: serial8250
-  rb532:
+lasat:
     device_tree: False
-    uart: serial8250
-  sgi-ip32:
+loongson:
     device_tree: False
-    uart: serial8250
-others:
-  alchemy:
+loongson1:
     device_tree: False
-    uart: serial8250
-  bcm63xx:
+loongson32:
     device_tree: False
-    uart: serial8250
-  lasat:
+loongson64:
     device_tree: False
-    uart: serial8250
-  loongson:
+mti-malta:
+    device_tree: True
+mti-sead3:
+    device_tree: True
+netlogic:
     device_tree: False
-    uart: serial8250
-  paravirt:
+paravirt:
     device_tree: False
-    uart: kvm_virtio
-  pmcs-msp71xx:
+pistachio:
+    device_tree: True
+pmcs-msp71xx:
     device_tree: False
-    uart: serial8250
-  pnx833x:
+pnx833x:
     device_tree: False
-    uart: pnx8xxx-uart
-  sni:
+ralink:
+    device_tree: True
+rb532:
     device_tree: False
-    uart: serial8250
-  sgi-ip22:
+sgi-ip22:
     device_tree: False
-    uart: ARCS console
-  sgi-ip27:
+sgi-ip27:
     device_tree: False
-    uart: serial8250
-  sibyte:
+sgi-ip32:
     device_tree: False
-    uart: cfe
-  txx9:
+sibyte:
     device_tree: False
-    uart: txx9
-  vr41xx:
+sni:
     device_tree: False
-    uart: vr41xx console
+txx9:
+    device_tree: False
+vr41xx:
+    device_tree: False
+

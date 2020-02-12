@@ -24,16 +24,16 @@ class SupportMachines(Database):
         action = args[0]
 
         if action == 'profile' and machine_id is not None:
-            for k, v in info['support'].items():
+            for k, v in info.items():
                 if 'machine_ids' in v and machine_id in v['machine_ids']:
                     return os.path.join(BASE_DIR, v['profile'])
         elif action == 'profile' and compatible is not None:
-            for k, v in info['support'].items():
+            for k, v in info.items():
                 if 'compatible' in v and compatible in v['compatible']:
                     return os.path.join(BASE_DIR, v['profile'])
         elif action == 'support':
             assert target is not None
-            return target in info['support']
+            return target in info
 
     def add(self, *args, **kwargs):
         raise NotImplementedError('you are not expected to modify this table')

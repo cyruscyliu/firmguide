@@ -152,36 +152,377 @@ def _init_r4k_clocksource(analysis, firmware, **kwargs):
 
 
 def ___builtin_unreachable(analysis, firmware, **kwargs):
-     # BUG()/BUG_ON() is a very strong mark of exceptional path
-     caller = kwargs.pop('caller')
-     if firmware.uuid == 'ar71xx_generic':
-         if caller == 'ath79_register_wmac':
-             # if (soc_is_ar913x()) ar913x_wmac_setup();
-             # else if (soc_is_ar933x()) ar933x_wmac_setup();
-             # else if (soc_is_ar934x()) ar934x_wmac_setup();
-             # else if (soc_is_qca953x()) qca953x_wmac_setup();
-             # else if (soc_is_qca955x()) qca955x_wmac_setup();
-             # else if (soc_is_qca956x()) qca956x_wmac_setup();
-             # else BUG();
-             # by manually analysis, we know
-             # (ath79_soc == ATH79_SOC_AR9130 || ath79_soc == ATH79_SOC_AR9132);
-             # (ath79_soc == ATH79_SOC_AR9330 || ath79_soc == ATH79_SOC_AR9331);
-             # (ath79_soc == ATH79_SOC_AR9341) || (ath79_soc == ATH79_SOC_AR9342) || (ath79_soc == ATH79_SOC_AR9344);
-             # (ath79_soc == ATH79_SOC_QCA9533);
-             # (ath79_soc == ATH79_SOC_QCA9556) || (ath79_soc == ATH79_SOC_QCA9558);
-             # (ath79_soc == ATH79_SOC_TP9343) || (ath79_soc == ATH79_SOC_QCA9561);
-             # we need a ud analysis, manually we know
-             # ath79_soc is defined in ath79_detect_sys_type which is analyzed just above
-             # ath79_soc is used in ath79_register_wmac and has several reasonable values
-             # so ath79_reset_rr's value could be 0x00b0, so ath79_soc is ATH79_SOC_AR9130
-             mmio_name = 'ath79_reset_rr'
-             mmio_base = eval('(0x18060000 + 0x90)')
-             mmio_size = 0x4
-             mmio_value = 0x00b0
-             firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
+    # BUG()/BUG_ON() is a very strong mark of exceptional path
+    caller = kwargs.pop('caller')
+    if caller == 'cpu_probe':
+        # __BUG_ON((unsigned long)(!__cpu_name[cpu]));
+        # => __cpu_name[cpu] != 0 => c->processor_id & 0xff0000 must be in [...]
+        # __BUG_ON((unsigned long)(c->cputype == CPU_UNKNOWN));
+        # => c->cputype != CPU_UNKNOWN => c->processor_id & 0xff0000 must be in [...]
+        # __BUG_ON((unsigned long)(current_cpu_type() != c->cputype));
+        # => c->cputype == __get_cpu_type(cpu_data[0].cputype) => c->processor_id & 0xff0000 must be in [...]
+        # => c->processor_id = `inline assembly` = read_cpu_id()
+        # NOTE: inline assembly will be replaced in advance
+        # I guess this is way too much difficult to analyze so we have to simpify
+        # it in advance. From past experiences, we know 1) the situation itself is
+        # way too complicated 2) not all kernel source have same pattern 3) suppose
+        # we have source, we can obtain CPU/arch/endian from the vmlinux. So, we decide
+        # to give it up.
+        pass
+
+    if firmware.uuid == 'ar71xx_generic':
+        if caller == 'ath79_register_wmac':
+            # if (soc_is_ar913x()) ar913x_wmac_setup();
+            # else if (soc_is_ar933x()) ar933x_wmac_setup();
+            # else if (soc_is_ar934x()) ar934x_wmac_setup();
+            # else if (soc_is_qca953x()) qca953x_wmac_setup();
+            # else if (soc_is_qca955x()) qca955x_wmac_setup();
+            # else if (soc_is_qca956x()) qca956x_wmac_setup();
+            # else BUG();
+            # by manually analysis, we know
+            # (ath79_soc == ATH79_SOC_AR9130 || ath79_soc == ATH79_SOC_AR9132);
+            # (ath79_soc == ATH79_SOC_AR9330 || ath79_soc == ATH79_SOC_AR9331);
+            # (ath79_soc == ATH79_SOC_AR9341) || (ath79_soc == ATH79_SOC_AR9342) || (ath79_soc == ATH79_SOC_AR9344);
+            # (ath79_soc == ATH79_SOC_QCA9533);
+            # (ath79_soc == ATH79_SOC_QCA9556) || (ath79_soc == ATH79_SOC_QCA9558);
+            # (ath79_soc == ATH79_SOC_TP9343) || (ath79_soc == ATH79_SOC_QCA9561);
+            # we need a ud analysis, manually we know
+            # ath79_soc is defined in ath79_detect_sys_type which is analyzed just above
+            # ath79_soc is used in ath79_register_wmac and has several reasonable values
+            # so ath79_reset_rr's value could be 0x00b0, so ath79_soc is ATH79_SOC_AR9130
+            mmio_name = 'ath79_reset_rr'
+            mmio_base = eval('(0x18060000 + 0x90)')
+            mmio_size = 0x4
+            mmio_value = 0x00b0
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
+        analysis.warning(firmware, '{} -> BUG()/BUG_ON() found but no handlers'.format(caller), 0)
+    else:
          analysis.warning(firmware, '{} -> BUG()/BUG_ON() found but no handlers'.format(caller), 0)
-     else:
-         analysis.warning(firmware, '{} -> BUG()/BUG_ON() found but no handlers'.format(caller), 0)
+
+
+def _platform_device_register(analysis, firmware, **kwargs):
+    # [FUNCTION] int platform_device_register(struct platform_de:vice *);
+    # [STRUCT] platform_devcie, resource, plat_serial8250_port
+    caller = kwargs.pop('caller')
+    if firmware.uuid == 'ar71xx_generic':
+        if caller == 'ath79_register_uart':
+            # ath79_setup -> ath79_register_uart(arch/mips/ath79/dev-common.c)
+            # [CONDITIONAL] platform_device_register(&ath79_uart_device);
+            # static struct resource ath79_uart_resources[] = {
+            #   {
+            #     .start = (0x18000000 + 0x00020000),
+            #     .end = (0x18000000 + 0x00020000) + 0x100 - 1,
+            #     .flags = 0x00000200,
+            #   },
+            # };
+            # static struct plat_serial8250_port ath79_uart_data[] = {
+            #   {
+            #     .mapbase = (0x18000000 + 0x00020000),
+            #     .irq = (8 + (3)),
+            #     .flags = ((( upf_t ) (1 << 28)) | (( upf_t ) (1 << 6)) | (( upf_t ) (1 << 31))),
+            #     .iotype = (3),
+            #     .regshift = 2,
+            #   }, {
+            #   }
+            # };
+            # static struct platform_device ath79_uart_device = {
+            #   .name = "serial8250",
+            #   .id = PLAT8250_DEV_PLATFORM,
+            #   .resource = ath79_uart_resources,
+            #   .num_resources = ...,
+            #   .dev = { .platform_data = ath79_uart_data },
+            # };
+            uart_name = 'serial8250'
+            uart_mmio_base = eval('(0x18000000 + 0x00020000)')
+            uart_mmio_size = eval('(0x18000000 + 0x00020000) + 0x100 - 1') + 1 - uart_mmio_base
+            # uart_irqn = eval('(8 + (3))')
+            uart_irqn = 6
+            uart_reg_shift = eval('2')
+            firmware.set_uart('0', uart_name, uart_mmio_base, uart_irqn, uart_reg_shift, uart_mmio_size)
+            analysis.info(firmware, 'get uart name {}'.format(uart_name), 1)
+            analysis.info(firmware, 'get uart mmio base {} size {}'.format(hex(uart_mmio_base), hex(uart_mmio_size)), 1)
+            analysis.info(firmware, 'get uart irq {}'.format(uart_irqn), 1)
+            analysis.info(firmware, 'get uart reg shift {}'.format(uart_reg_shift), 1)
+            # [CONDITIONAL] platform_device_register(&ar933x_uart_device);
+            # static struct resource ar933x_uart_resources[] = {
+            #   {
+            #     .start = (0x18000000 + 0x00020000),
+            #     .end = (0x18000000 + 0x00020000) + 0x100 - 1,
+            #     .flags = 0x00000200,
+            #   }, {
+            #     .start = (8 + (3)),
+            #     .end = (8 + (3)),
+            #     .flags = 0x00000400,
+            #   },
+            # };
+            # static struct platform_device ar933x_uart_device = {
+            #   .name = "ar933x-uart",
+            #   .id = -1,
+            #   .resource = ar933x_uart_resources,
+            #   .num_resources = .
+            # };
+            # cannot support ar933x-uart, but the start address of the ar933x-uart is equal to the serial8250
+            # either is ok, the conditions are ignored
+        elif caller == 'ath79_register_eth':
+            # [DIRECT] platform_device_register(pdev)
+            # [CONDITIONAL] pdev = &ath79_eth0_device # 1st
+            # [CONDITIONAL] pdev = &ath79_eth1_device # 2nd
+            #  static struct resource ath79_eth0_resources[] = {
+            #   {
+            #     .name = "mac_base",
+            #     .flags = 0x00000200,
+            #     .start = 0x19000000,
+            #     .end = 0x19000000 + 0x200 - 1,
+            #   }, {
+            #     .name = "mac_irq",
+            #     .flags = 0x00000400,
+            #     .start = (0 + (4)),
+            #     .end = (0 + (4)),
+            #  },
+            # };
+            # struct ag71xx_platform_data ath79_eth0_data = {
+            #   .reset_bit = (1UL << (9)),
+            # };
+            # struct platform_device ath79_eth0_device = {
+            #   .name = "ag71xx",
+            #   .id = 0,
+            #   .resource = ath79_eth0_resources,
+            #   .num_resources = ...
+            #   .dev = { .platform_data = &ath79_eth0_data, },
+            # };
+            mmio_name = 'ag71xx' # duplicated
+            mmio_base = 0x19000000
+            mmio_size = 0x200
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            # static struct resource ath79_eth1_resources[] = {
+            #   {
+            #     .name = "mac_base",
+            #     .flags = 0x00000200,
+            #     .start = 0x1a000000,
+            #     .end = 0x1a000000 + 0x200 - 1,
+            #   }, {
+            #     .name = "mac_irq",
+            #     .flags = 0x00000400,
+            #     .start = (0 + (5)),
+            #     .end = (0 + (5)),
+            #   },
+            # };
+            # struct ag71xx_platform_data ath79_eth1_data = {
+            #   .reset_bit = (1UL << (13)),
+            # };
+            # struct platform_device ath79_eth1_device = {
+            #   .name = "ag71xx",
+            #   .id = 1,
+            #   .resource = ath79_eth1_resources,
+            #   .num_resources =  ...
+            #   .dev = { .platform_data = &ath79_eth1_data, },
+            # };
+            mmio_name = 'ag71xx' # duplicated
+            mmio_base = 0x1a000000
+            mmio_size = 0x200
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+        elif caller ==  'ath79_register_mdio':
+            # [DIRECT] platform_device_register(mdio_dev);
+            # [CONDITIONAL] mdio_dev = &ath79_mdio1_device; # 2nd
+            # [CONDITIONAL] mdio_dev = &ath79_mdio0_device; # 1st
+            # [CONDITIONAL] mdio_dev = &ath79_mdio1_device; # duplicated
+            # [CONDITIONAL] mdio_dev = &ath79_mdio0_device; # duplicated
+            # static struct resource ath79_mdio1_resources[] = {
+            #   {
+            #     .name = "mdio_base",
+            #     .flags = 0x00000200,
+            #     .start = 0x1a000000,
+            #     .end = 0x1a000000 + 0x200 - 1,
+            #   }
+            # };
+            # struct ag71xx_mdio_platform_data ath79_mdio1_data;
+            # struct platform_device ath79_mdio1_device = {
+            #   .name = "ag71xx-mdio",
+            #   .id = 1,
+            #   .resource = ath79_mdio1_resources,
+            #   .num_resources = ...,
+            #   .dev = { .platform_data = &ath79_mdio1_data, },
+            # };
+            mmio_name = 'ag71xx-mdio'
+            mmio_base = 0x1a000000
+            mmio_size = 0x200
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            # static struct resource ath79_mdio0_resources[] = {
+            #   {
+            #     .name = "mdio_base",
+            #     .flags = 0x00000200,
+            #     .start = 0x19000000,
+            #     .end = 0x19000000 + 0x200 - 1,
+            #   }
+            # };
+            # struct ag71xx_mdio_platform_data ath79_mdio0_data;
+            # struct platform_device ath79_mdio0_device = {
+            #   .name = "ag71xx-mdio",
+            #   .id = 0,
+            #   .resource = ath79_mdio0_resources,
+            #   .num_resources = ...,
+            #   .dev = { .platform_data = &ath79_mdio0_data, },
+            # }
+            mmio_name = 'ag71xx-mdio'
+            mmio_base = 0x19000000
+            mmio_size = 0x200
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+        elif caller == 'ath79_register_spi':
+            # [DIRECT] platform_device_register(&ath79_spi_device);
+            # static struct resource ath79_spi_resources[] = {
+            #   {
+            #     .start = 0x1f000000,
+            #     .end = 0x1f000000 + 0x01000000 - 1,
+            #     .flags = 0x00000200,
+            #   },
+            # };
+            # static struct platform_device ath79_spi_device = {
+            #   .name = "ath79-spi",
+            #   .id = -1,
+            #   .resource = ath79_spi_resources,
+            #   .num_resources = ...
+            # };
+            flash_base = eval('0x1f000000')
+            flash_size = 0x01000000
+            analysis.info(firmware, 'get flash base {} size {}'.format(hex(flash_base), hex(flash_size)), 1)
+            firmware.insert_bamboo_devices(flash_base, flash_size, value=0)
+        elif caller == 'ath79_register_wmac':
+            # static struct ath9k_platform_data ath79_wmac_data = {
+            #   .led_pin = -1,
+            # };
+            # static struct resource ath79_wmac_resources[] = {
+            #   {
+            #     .flags = 0x00000200,
+            #   }, {
+            #     .flags = 0x00000400,
+            #   },
+            # };
+            # static struct platform_device ath79_wmac_device = {
+            #   .name = "ath9k",
+            #   .id = -1,
+            #   .resource = ath79_wmac_resources,
+            #   .num_resources =
+            #   .dev = { .platform_data = &ath79_wmac_data, },
+            # };
+            mmio_name = 'ath9k'
+            # [CONDITIONAL] ar913x_wmac_setup
+            # ath79_wmac_resources[0].start = (0x18000000 + 0x000C0000);
+            # ath79_wmac_resources[0].end = (0x18000000 + 0x000C0000) + 0x30000 - 1;
+            # ath79_wmac_resources[1].start = (0 + (2));
+            # ath79_wmac_resources[1].end = (0 + (2));
+            mmio_base = eval('(0x18000000 + 0x000C0000)')
+            mmio_size = 0x30000
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            # [CONDITIONAL] ar933x_wmac
+            # ath79_wmac_device.name = "ar933x_wmac";
+            # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
+            # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
+            # ath79_wmac_resources[1].start = (0 + (2));
+            # ath79_wmac_resources[1].end = (0 + (2));
+            mmio_name = 'ar933x_wmac'
+            mmio_base = eval('(0x18000000 + 0x00100000)')
+            mmio_size = 0x20000
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            # [CONDITIONAL] ar934x_wmac_setup
+            # ath79_wmac_device.name = "ar934x_wmac"; # duplicated
+            # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
+            # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
+            # ath79_wmac_resources[1].start = (((8 + 32) + 6) + (1));
+            # ath79_wmac_resources[1].end = (((8 + 32) + 6) + (1));
+            mmio_name = 'ar934x_wmac'
+            mmio_base = eval('(0x18000000 + 0x00100000)')
+            mmio_size = 0x20000
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            # [CONDITIONAL] qca953x_wmac_setup
+            # ath79_wmac_device.name = "qca953x_wmac";
+            # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
+            # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
+            # ath79_wmac_resources[1].start = (0 + (2));
+            # ath79_wmac_resources[1].end = (0 + (2));
+            mmio_name = 'qca953x_wmac' #duplicated, share the same mmio space but have different functionality
+            mmio_base = eval('(0x18000000 + 0x00100000)')
+            mmio_size = 0x20000
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            # [CONDITIONAL] qca955x_wmac_setup
+            # ath79_wmac_device.name = "qca953x_wmac";
+            # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
+            # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
+            # ath79_wmac_resources[1].start = (0 + (2));
+            # ath79_wmac_resources[1].end = (0 + (2));
+            mmio_name = 'qca955x_wmac' #duplicated
+            mmio_base = eval('(0x18000000 + 0x00100000)')
+            mmio_size = 0x20000
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            # [CONDITIONAL] qca956x_wmac_setup
+            # ath79_wmac_device.name = "qca956x_wmac";
+            # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
+            # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
+            # ath79_wmac_resources[1].start = (((8 + 32) + 6) + (1));
+            # ath79_wmac_resources[1].end = (((8 + 32) + 6) + (1));
+            mmio_name = 'qca956x_wmac' #duplicated
+            mmio_base = eval('(0x18000000 + 0x00100000)')
+            mmio_size = 0x20000
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+        else:
+            analysis.warning(firmware, 'platform_device_register found but no handlers', 0)
+    else:
+        analysis.warning(firmware, 'platform_device_register found but no handlers', 0)
+
+
+def _platform_device_register_full(analysis, firmware, **kwargs):
+    # [FUNCTION] platform_device_register_full
+    caller = kwargs.pop('caller')
+    if firmware.uuid == 'ar71xx_generic':
+        if caller == 'ath79_register_wdt':
+            # ath79_setup -> ath79_register_wdt(arch/mips/ath79/dev-common.c)
+            # [DIRECT] platform_device_register_simple("ath79-wdt", -1, &res, 1);
+            # res.flags = 0x00000200;
+            # res.start = (0x18000000 + 0x00060000) + 0x08;
+            # res.end = res.start + 0x8 - 1;
+            mmio_name = 'ar933x-uart'
+            mmio_base = eval('(0x18000000 + 0x00060000) + 0x08')
+            mmio_size = eval('(0x18000000 + 0x00060000) + 0x08 + 0x8 - 1') + 1 - mmio_base
+            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
+            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+        else:
+            analysis.warning(firmware, 'platform_device_register_full found but no handlers', 0)
+    else:
+        analysis.warning(firmware, 'platform_device_register_full found but no handlers', 0)
+
+
+def _platform_device_alloc(analysis, firmware, **kwargs):
+    # [FUNCIIONS] platform_device_alloc, platform_device_add_data, platform_device_add(pdev);
+    caller = kwargs.pop('caller')
+    if firmware.uuid == 'ar71xx_generic':
+        if caller == 'ath79_register_leds_gpio':
+            # bhu_bxu2000n2_a1_setup -> ath79_register_leds_gpio(arch/mips/ath79/dev-leds-gpio.c)
+            # [DIRECT] no resouces found
+            # pdev = platform_device_alloc("leds-gpio", id);
+            # err = platform_device_add_data(pdev, &pdata, sizeof(pdata));
+            # err = platform_device_add(pdev);
+            pass
+        elif caller == 'ath79_register_gpio_keys_polled':
+            # bhu_bxu2000n2_a1_setup -> ath79_register_gpio_keys_polled(arch/mips/ath79/dev-gpio-buttons.c)
+            # [DIRECT] no reources found
+            # pdev = platform_device_alloc("gpio-keys-polled", id);
+            # err = platform_device_add_data(pdev, &pdata, sizeof(pdata));
+            # err = platform_device_add(pdev);
+            pass
+        else:
+            analysis.warning(firmware, 'platform_device_register_full found but no handlers', 0)
+    else:
+        analysis.warning(firmware, 'platform_device_register_full found but no handlers', 0)
+
 
 
 UNMODELED_SKIP_LIST = [
@@ -230,13 +571,13 @@ UNMODELED_SKIP_LIST = [
     'irq_create_mapping', 'of_address_to_resource', 'of_property_read_u32_array', 'irq_of_parse_and_map',
     'irq_set_handler_data', 'arch_mem_addpart', 'print_memory_map', 'mips_parse_crashkernel', 'bootmem_init',
     'cpu_report', 'check_bugs_early', 'resource_init', 'plat_smp_setup', 'prefill_possible_map', 'cpu_cache_init',
-    'paging_init',
-    # for performance consideration
-    'set_isa'
+    'paging_init', 'device_tree_init', 'strlcat', 'set_isa', 'decode_configs', 'spram_config',
+    # some functions we think are not neccessory to be analyzed
+    'prom_init', 'setup_early_printk', 'cpu_probe'
 ]
 
 
-MODELED_SKIP_TABLE= {
+MODELED_SKIP_TABLE = {
     'irq_modify_status': {'handle': _default},
     'irq_set_chip_and_handler_name': {'handle': _irq_set_chip_and_handler_name},
     '__irq_set_handler': {'handle': ___irq_set_handler},
@@ -246,6 +587,11 @@ MODELED_SKIP_TABLE= {
     'r4k_clockevent_init': {'handle': _r4k_clockevent_init},
     'init_r4k_clocksource': {'handle': _init_r4k_clocksource},
     '__builtin_unreachable': {'handle': ___builtin_unreachable},
+    'platform_device_register': {'handle': _platform_device_register},
+    'platform_devcie_register_full': {'handle': _platform_device_register_full},
+    'platform_device_alloc': {'handle': _platform_device_alloc},
+    'platform_device_add_data': {'handle': _default},
+    'platform_device_add': {'handle': _default},
 }
 
 

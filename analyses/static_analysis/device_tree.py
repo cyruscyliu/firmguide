@@ -37,6 +37,18 @@ class DeviceTree(Analysis):
             firmware.machines.append(machine)
         self.info(firmware, 'get {} different dts'.format(len(firmware.machines)), 1)
 
+        # At last, we have to manage all machines above. We add a virtual
+        # machine which is always firmware.machine[-1] recording how much effort
+        # we have made.
+        machine = Machine()
+        machinen = len(firmware.machines)
+        cpun = 0 # meaning that all cpus are determined
+        intcn = machinen # meanint that all intc have not been determined yet
+        uartn = 0 # meaning that all uarts are determined
+        machine.set_cpus(cpun)
+        machine.set_intc(intcn)
+        machine.set_uarts(uartn)
+
         return True
 
     def __init__(self, analysis_manager):

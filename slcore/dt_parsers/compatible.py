@@ -1,11 +1,8 @@
 import fdt
 
 def find_compatible_in_fdt(dts):
-    compatibles = dts.get_property('compatible', '/')
-    if compatibles is None:
-        return None
-    else:
-        return compatibles.data
+    compatible = dts.get_property('compatible', '/').data
+    return compatible
 
 def find_compatible(path_to_dtb):
     if path_to_dtb is None:
