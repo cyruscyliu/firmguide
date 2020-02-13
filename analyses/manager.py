@@ -197,8 +197,8 @@ class AnalysesManager(object):
         static_analysis = self.new_analyses_tree()
 
         self.register_analysis(Filter(self), analyses_tree=static_analysis)
-        self.register_analysis(RAM(self), analyses_tree=static_analysis)
         self.register_analysis(DeviceTree(self), analyses_tree=static_analysis)
+        self.register_analysis(RAM(self), analyses_tree=static_analysis)
         self.register_analysis(ExecutionFlow(self), analyses_tree=static_analysis)
         self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
 

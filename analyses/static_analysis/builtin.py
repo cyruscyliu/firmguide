@@ -7,6 +7,33 @@ def _default(analysis, firmware, **kwargs):
     pass
 
 
+def _clockevents_register_device(analysis, firmware, **kwargs):
+    # [FUNCTION] extern void clockevents_register_device(struct clock_event_device *dev);
+    caller = kwargs.pop('caller')
+    if firmware.uuid == 'rampis_rt3883':
+        if caller == 'r4k_clockevent_init':
+            # cd->event_handler = mips_event_handler;
+            # clockevents_register_device(cd);
+            analysis.info(firmware, 'found clockevent device, irq=7, event_handler=mips_event_handler', 1)
+        else:
+            analysis.warning(firmware, '{} -> clockevents_register_device(w/o handler)'.format(caller), 0)
+    else:
+        analysis.warning(firmware, '{} -> clockevents_register_device(w/o handler)'.format(caller), 0)
+
+
+def _setup_irq(analysis, firmware, **kwargs):
+    # [FUNCTION] extern int setup_irq(unsigned int irq, struct irqaction *new);
+    caller = kwargs.pop('caller')
+    if firmware.uuid == 'rampis_rt3883':
+        if caller == 'r4k_clockevent_init':
+            # setup_irq(irq, &c0_compare_irqaction);
+            analysis.info(firmware, 'found timer interrupt, irq=7, handler=c0_compare_interrupt', 1)
+        else:
+            analysis.warning(firmware, '{} -> setup_irq(w/o handler)'.format(caller), 0)
+    else:
+        analysis.warning(firmware, '{} -> setup_irq(w/o handler)'.format(caller), 0)
+
+
 def _irq_set_chip_and_handler_name(analysis, firmware, **kwargs):
     # [FUNCTION] extern void irq_set_chip_and_handler_name(
     # unsigned int irq, struct irq_chip *chip, irq_flow_handler_t handle, const char *name);
@@ -21,6 +48,15 @@ def _irq_set_chip_and_handler_name(analysis, firmware, **kwargs):
                 analysis.debug(firmware, '{0} {0} direct handle_percpu_irq  mips_cpu_irq_controller'.format(i), 1)
         else:
             analysis.warning(firmware, '{} -> irq_set_chip_and_handler_name(w/o handler)'.format(caller), 0)
+    elif firmware.uuid == 'rampis_rt3883':
+        if caller == 'mips_cpu_intc_map':
+            # irq_set_chip_and_handler(irq, chip, handle_percpu_irq);
+            analysis.info(firmware, 'hw0-7 -> irqn0->7, handle_percpu_irq, mips_cpu_irq_controller', 1)
+        elif caller == 'intc_map':
+            # irq_set_chip_and_handler(irq, &ralink_intc_irq_chip, handle_level_irq);
+            analysis.info(firmware, 'hw0-31 -> irqn8->39, handle_level_irq, ralink_intc_irq_chip', 1)
+        else:
+            analysis.warning(firmware, '{} -> irq_set_chip_and_handler_name(w/o handler)'.format(caller), 0)
     else:
         analysis.warning(firmware, '{} -> irq_set_chip_and_handler_name(w/o handler)'.format(caller), 0)
 
@@ -29,8 +65,8 @@ def ___irq_set_handler(analysis, firmware, **kwargs):
     # [FUNCTION] extern void __irq_set_handler(
     # unsigned int irq, irq_flow_handler_t handle, int is_chained, const char *name);
     caller = kwargs.pop('caller')
+    analysis.info(firmware, '{} -> __irq_set_handler(found, level2 intc mmio->irqn mapping)'.format(caller), 0)
     if firmware.uuid == 'ar71xx_generic':
-        # irq_set_chained_handler((0 + (6)), ath79_misc_irq_handler);
         # When we meet chained handler, we must go deeply. What's the
         # mapping between hwirqn and irqn? Usually, hwirqn comes from
         # mmio or mmios, say hwirqn = F(m1, m2). Perform the reachability
@@ -40,42 +76,23 @@ def ___irq_set_handler(analysis, firmware, **kwargs):
         # Let irqn = 8, then we can get its hwirqns, and mmios with proper
         # init values.
         if caller == 'ath79_misc_irq_init':
+            # irq_set_chained_handler((0 + (6)), ath79_misc_irq_handler);
             analysis.debug(firmware, 'to reach generic_handler_irq, (readl(base + 0x10) & readl(base + 0x14)) != 0', 1)
-            analysis.info(firmware, '6 6 chained ath79_misc_irq_handler None ', 1)
-            analysis.info(firmware, '6 6 irqn = 8 + __ffs(readl(base+0x10)&readl(base+0x14))', 1)
+            analysis.info(firmware, 'irqn = 8 + __ffs(readl(base+0x10)&readl(base+0x14))', 1)
         else:
             analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)', 0)
     elif firmware.uuid == 'rampis_rt3883':
         if caller == 'intc_of_init':
             # irq_set_chained_handler(irq, ralink_intc_irq_handler);
             analysis.debug(firmware, 'to reach generic_handler_irq, readl(rt_intc_membase+0x00) != 0', 1)
-            analysis.info(firmware, '? ? chained ralink_intc_irq_handler None ', 1)
-            analysis.info(firmware, '? ? irqn = remap(__ffs(readl(rt_intc_membase+0x00))', 1)
+            analysis.info(firmware, 'irqn = remap(__ffs(readl(rt_intc_membase+0x00))', 1)
         else:
             analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)', 0)
     else:
         analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)', 0)
 
 
-def _irq_domain_add_legacy(analysis, firmware, **kwargs):
-    # [FUNCTION]  struct irq_domain *irq_domain_add_legacy(struct device_node *of_node, unsigned int size,
-    # unsigned int first_irq, irq_hw_number_t first_hwirq, const struct irq_domain_ops *ops, void *host_data);
-    caller = kwargs.pop('caller')
-    if firmware.uuid == 'rampis_rt3883':
-        if caller == 'mips_cpu_intc_init':
-            # domain = irq_domain_add_legacy(of_node, 8, 0, 0, &mips_cpu_intc_irq_domain_ops, ((void *)0));
-            for i in range(0, 8):
-                analysis.debug(firmware, '{0} {0} direct mips_cpu_intc_irq_domain_ops None'.format(i), 1)
-        elif caller == 'intc_of_init':
-            # domain = irq_domain_add_legacy(node, 32, 8, 0, &irq_domain_ops, ((void *)0));
-            for i in range(0, 32):
-                analysis.debug(firmware, '{0} {1} direct mips_cpu_intc_irq_domain_ops None'.format(i, i+8), 1)
-        else:
-            analysis.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
-    else:
-        analysis.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
-
-
+# TODO remove in the future
 def ___ioremap(analysis, firmware, **kwargs):
     # [FUNCTION] void __iomem * __ioremap(phys_t offset, phys_t size, unsigned long flags);
     caller = kwargs.pop('caller')
@@ -92,10 +109,7 @@ def ___ioremap(analysis, firmware, **kwargs):
     elif firmware.uuid == 'rampis_rt3883':
         if caller == 'intc_of_init':
             # rt_intc_membase = __ioremap_mode((res.start), (resource_size(&res)), ...)
-            mmio_name = '?'
-            mmio_base = 0xFFFFFFFF
-            mmio_size = 0xFFFFFFFF
-            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            pass
         else:
             analysis.warning(firmware, '{} -> __ioremap(w/o handler)'.format(caller), 0)
     else:
@@ -132,13 +146,6 @@ def _panic(analysis, firmware, **kwargs):
             # firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
         else:
             analysis.warning(firmware, '{} -> panic(w/o handler)'.format(caller), 0)
-    elif firmware.uuid == 'rampis_rt3883':
-        if caller == 'mips_cpu_intc_init':
-            # return from any function in MODELED_SKIP_TABLE
-            pass
-        elif caller == 'intc_of_init':
-            # return from any function in UNMODELED_SKIP_LIST
-            pass
     else:
         analysis.warning(firmware, '{} -> panic(w/o handler)'.format(caller), 0)
 
@@ -200,331 +207,6 @@ def ___builtin_unreachable(analysis, firmware, **kwargs):
          analysis.warning(firmware, '{} -> BUG()/BUG_ON() found but no handlers'.format(caller), 0)
 
 
-def _platform_device_register(analysis, firmware, **kwargs):
-    # [FUNCTION] int platform_device_register(struct platform_de:vice *);
-    # [STRUCT] platform_devcie, resource, plat_serial8250_port
-    caller = kwargs.pop('caller')
-    if firmware.uuid == 'ar71xx_generic':
-        if caller == 'ath79_register_uart':
-            # ath79_setup -> ath79_register_uart(arch/mips/ath79/dev-common.c)
-            # [CONDITIONAL] platform_device_register(&ath79_uart_device);
-            # static struct resource ath79_uart_resources[] = {
-            #   {
-            #     .start = (0x18000000 + 0x00020000),
-            #     .end = (0x18000000 + 0x00020000) + 0x100 - 1,
-            #     .flags = 0x00000200,
-            #   },
-            # };
-            # static struct plat_serial8250_port ath79_uart_data[] = {
-            #   {
-            #     .mapbase = (0x18000000 + 0x00020000),
-            #     .irq = (8 + (3)),
-            #     .flags = ((( upf_t ) (1 << 28)) | (( upf_t ) (1 << 6)) | (( upf_t ) (1 << 31))),
-            #     .iotype = (3),
-            #     .regshift = 2,
-            #   }, {
-            #   }
-            # };
-            # static struct platform_device ath79_uart_device = {
-            #   .name = "serial8250",
-            #   .id = PLAT8250_DEV_PLATFORM,
-            #   .resource = ath79_uart_resources,
-            #   .num_resources = ...,
-            #   .dev = { .platform_data = ath79_uart_data },
-            # };
-            uart_name = 'serial8250'
-            uart_mmio_base = eval('(0x18000000 + 0x00020000)')
-            uart_mmio_size = eval('(0x18000000 + 0x00020000) + 0x100 - 1') + 1 - uart_mmio_base
-            # uart_irqn = eval('(8 + (3))')
-            uart_irqn = 6
-            uart_reg_shift = eval('2')
-            firmware.set_uart('0', uart_name, uart_mmio_base, uart_irqn, uart_reg_shift, uart_mmio_size)
-            analysis.info(firmware, 'get uart name {}'.format(uart_name), 1)
-            analysis.info(firmware, 'get uart mmio base {} size {}'.format(hex(uart_mmio_base), hex(uart_mmio_size)), 1)
-            analysis.info(firmware, 'get uart irq {}'.format(uart_irqn), 1)
-            analysis.info(firmware, 'get uart reg shift {}'.format(uart_reg_shift), 1)
-            # [CONDITIONAL] platform_device_register(&ar933x_uart_device);
-            # static struct resource ar933x_uart_resources[] = {
-            #   {
-            #     .start = (0x18000000 + 0x00020000),
-            #     .end = (0x18000000 + 0x00020000) + 0x100 - 1,
-            #     .flags = 0x00000200,
-            #   }, {
-            #     .start = (8 + (3)),
-            #     .end = (8 + (3)),
-            #     .flags = 0x00000400,
-            #   },
-            # };
-            # static struct platform_device ar933x_uart_device = {
-            #   .name = "ar933x-uart",
-            #   .id = -1,
-            #   .resource = ar933x_uart_resources,
-            #   .num_resources = .
-            # };
-            # cannot support ar933x-uart, but the start address of the ar933x-uart is equal to the serial8250
-            # either is ok, the conditions are ignored
-        elif caller == 'ath79_register_eth':
-            # [DIRECT] platform_device_register(pdev)
-            # [CONDITIONAL] pdev = &ath79_eth0_device # 1st
-            # [CONDITIONAL] pdev = &ath79_eth1_device # 2nd
-            #  static struct resource ath79_eth0_resources[] = {
-            #   {
-            #     .name = "mac_base",
-            #     .flags = 0x00000200,
-            #     .start = 0x19000000,
-            #     .end = 0x19000000 + 0x200 - 1,
-            #   }, {
-            #     .name = "mac_irq",
-            #     .flags = 0x00000400,
-            #     .start = (0 + (4)),
-            #     .end = (0 + (4)),
-            #  },
-            # };
-            # struct ag71xx_platform_data ath79_eth0_data = {
-            #   .reset_bit = (1UL << (9)),
-            # };
-            # struct platform_device ath79_eth0_device = {
-            #   .name = "ag71xx",
-            #   .id = 0,
-            #   .resource = ath79_eth0_resources,
-            #   .num_resources = ...
-            #   .dev = { .platform_data = &ath79_eth0_data, },
-            # };
-            mmio_name = 'ag71xx' # duplicated
-            mmio_base = 0x19000000
-            mmio_size = 0x200
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-            # static struct resource ath79_eth1_resources[] = {
-            #   {
-            #     .name = "mac_base",
-            #     .flags = 0x00000200,
-            #     .start = 0x1a000000,
-            #     .end = 0x1a000000 + 0x200 - 1,
-            #   }, {
-            #     .name = "mac_irq",
-            #     .flags = 0x00000400,
-            #     .start = (0 + (5)),
-            #     .end = (0 + (5)),
-            #   },
-            # };
-            # struct ag71xx_platform_data ath79_eth1_data = {
-            #   .reset_bit = (1UL << (13)),
-            # };
-            # struct platform_device ath79_eth1_device = {
-            #   .name = "ag71xx",
-            #   .id = 1,
-            #   .resource = ath79_eth1_resources,
-            #   .num_resources =  ...
-            #   .dev = { .platform_data = &ath79_eth1_data, },
-            # };
-            mmio_name = 'ag71xx' # duplicated
-            mmio_base = 0x1a000000
-            mmio_size = 0x200
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-        elif caller ==  'ath79_register_mdio':
-            # [DIRECT] platform_device_register(mdio_dev);
-            # [CONDITIONAL] mdio_dev = &ath79_mdio1_device; # 2nd
-            # [CONDITIONAL] mdio_dev = &ath79_mdio0_device; # 1st
-            # [CONDITIONAL] mdio_dev = &ath79_mdio1_device; # duplicated
-            # [CONDITIONAL] mdio_dev = &ath79_mdio0_device; # duplicated
-            # static struct resource ath79_mdio1_resources[] = {
-            #   {
-            #     .name = "mdio_base",
-            #     .flags = 0x00000200,
-            #     .start = 0x1a000000,
-            #     .end = 0x1a000000 + 0x200 - 1,
-            #   }
-            # };
-            # struct ag71xx_mdio_platform_data ath79_mdio1_data;
-            # struct platform_device ath79_mdio1_device = {
-            #   .name = "ag71xx-mdio",
-            #   .id = 1,
-            #   .resource = ath79_mdio1_resources,
-            #   .num_resources = ...,
-            #   .dev = { .platform_data = &ath79_mdio1_data, },
-            # };
-            mmio_name = 'ag71xx-mdio'
-            mmio_base = 0x1a000000
-            mmio_size = 0x200
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-            # static struct resource ath79_mdio0_resources[] = {
-            #   {
-            #     .name = "mdio_base",
-            #     .flags = 0x00000200,
-            #     .start = 0x19000000,
-            #     .end = 0x19000000 + 0x200 - 1,
-            #   }
-            # };
-            # struct ag71xx_mdio_platform_data ath79_mdio0_data;
-            # struct platform_device ath79_mdio0_device = {
-            #   .name = "ag71xx-mdio",
-            #   .id = 0,
-            #   .resource = ath79_mdio0_resources,
-            #   .num_resources = ...,
-            #   .dev = { .platform_data = &ath79_mdio0_data, },
-            # }
-            mmio_name = 'ag71xx-mdio'
-            mmio_base = 0x19000000
-            mmio_size = 0x200
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-        elif caller == 'ath79_register_spi':
-            # [DIRECT] platform_device_register(&ath79_spi_device);
-            # static struct resource ath79_spi_resources[] = {
-            #   {
-            #     .start = 0x1f000000,
-            #     .end = 0x1f000000 + 0x01000000 - 1,
-            #     .flags = 0x00000200,
-            #   },
-            # };
-            # static struct platform_device ath79_spi_device = {
-            #   .name = "ath79-spi",
-            #   .id = -1,
-            #   .resource = ath79_spi_resources,
-            #   .num_resources = ...
-            # };
-            flash_base = eval('0x1f000000')
-            flash_size = 0x01000000
-            analysis.info(firmware, 'get flash base {} size {}'.format(hex(flash_base), hex(flash_size)), 1)
-            firmware.insert_bamboo_devices(flash_base, flash_size, value=0)
-        elif caller == 'ath79_register_wmac':
-            # static struct ath9k_platform_data ath79_wmac_data = {
-            #   .led_pin = -1,
-            # };
-            # static struct resource ath79_wmac_resources[] = {
-            #   {
-            #     .flags = 0x00000200,
-            #   }, {
-            #     .flags = 0x00000400,
-            #   },
-            # };
-            # static struct platform_device ath79_wmac_device = {
-            #   .name = "ath9k",
-            #   .id = -1,
-            #   .resource = ath79_wmac_resources,
-            #   .num_resources =
-            #   .dev = { .platform_data = &ath79_wmac_data, },
-            # };
-            mmio_name = 'ath9k'
-            # [CONDITIONAL] ar913x_wmac_setup
-            # ath79_wmac_resources[0].start = (0x18000000 + 0x000C0000);
-            # ath79_wmac_resources[0].end = (0x18000000 + 0x000C0000) + 0x30000 - 1;
-            # ath79_wmac_resources[1].start = (0 + (2));
-            # ath79_wmac_resources[1].end = (0 + (2));
-            mmio_base = eval('(0x18000000 + 0x000C0000)')
-            mmio_size = 0x30000
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-            # [CONDITIONAL] ar933x_wmac
-            # ath79_wmac_device.name = "ar933x_wmac";
-            # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
-            # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
-            # ath79_wmac_resources[1].start = (0 + (2));
-            # ath79_wmac_resources[1].end = (0 + (2));
-            mmio_name = 'ar933x_wmac'
-            mmio_base = eval('(0x18000000 + 0x00100000)')
-            mmio_size = 0x20000
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-            # [CONDITIONAL] ar934x_wmac_setup
-            # ath79_wmac_device.name = "ar934x_wmac"; # duplicated
-            # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
-            # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
-            # ath79_wmac_resources[1].start = (((8 + 32) + 6) + (1));
-            # ath79_wmac_resources[1].end = (((8 + 32) + 6) + (1));
-            mmio_name = 'ar934x_wmac'
-            mmio_base = eval('(0x18000000 + 0x00100000)')
-            mmio_size = 0x20000
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-            # [CONDITIONAL] qca953x_wmac_setup
-            # ath79_wmac_device.name = "qca953x_wmac";
-            # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
-            # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
-            # ath79_wmac_resources[1].start = (0 + (2));
-            # ath79_wmac_resources[1].end = (0 + (2));
-            mmio_name = 'qca953x_wmac' #duplicated, share the same mmio space but have different functionality
-            mmio_base = eval('(0x18000000 + 0x00100000)')
-            mmio_size = 0x20000
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-            # [CONDITIONAL] qca955x_wmac_setup
-            # ath79_wmac_device.name = "qca953x_wmac";
-            # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
-            # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
-            # ath79_wmac_resources[1].start = (0 + (2));
-            # ath79_wmac_resources[1].end = (0 + (2));
-            mmio_name = 'qca955x_wmac' #duplicated
-            mmio_base = eval('(0x18000000 + 0x00100000)')
-            mmio_size = 0x20000
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-            # [CONDITIONAL] qca956x_wmac_setup
-            # ath79_wmac_device.name = "qca956x_wmac";
-            # ath79_wmac_resources[0].start = (0x18000000 + 0x00100000);
-            # ath79_wmac_resources[0].end = (0x18000000 + 0x00100000) + 0x20000 - 1;
-            # ath79_wmac_resources[1].start = (((8 + 32) + 6) + (1));
-            # ath79_wmac_resources[1].end = (((8 + 32) + 6) + (1));
-            mmio_name = 'qca956x_wmac' #duplicated
-            mmio_base = eval('(0x18000000 + 0x00100000)')
-            mmio_size = 0x20000
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-        else:
-            analysis.warning(firmware, 'platform_device_register found but no handlers', 0)
-    else:
-        analysis.warning(firmware, 'platform_device_register found but no handlers', 0)
-
-
-def _platform_device_register_full(analysis, firmware, **kwargs):
-    # [FUNCTION] platform_device_register_full
-    caller = kwargs.pop('caller')
-    if firmware.uuid == 'ar71xx_generic':
-        if caller == 'ath79_register_wdt':
-            # ath79_setup -> ath79_register_wdt(arch/mips/ath79/dev-common.c)
-            # [DIRECT] platform_device_register_simple("ath79-wdt", -1, &res, 1);
-            # res.flags = 0x00000200;
-            # res.start = (0x18000000 + 0x00060000) + 0x08;
-            # res.end = res.start + 0x8 - 1;
-            mmio_name = 'ar933x-uart'
-            mmio_base = eval('(0x18000000 + 0x00060000) + 0x08')
-            mmio_size = eval('(0x18000000 + 0x00060000) + 0x08 + 0x8 - 1') + 1 - mmio_base
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-        else:
-            analysis.warning(firmware, 'platform_device_register_full found but no handlers', 0)
-    else:
-        analysis.warning(firmware, 'platform_device_register_full found but no handlers', 0)
-
-
-def _platform_device_alloc(analysis, firmware, **kwargs):
-    # [FUNCIIONS] platform_device_alloc, platform_device_add_data, platform_device_add(pdev);
-    caller = kwargs.pop('caller')
-    if firmware.uuid == 'ar71xx_generic':
-        if caller == 'ath79_register_leds_gpio':
-            # bhu_bxu2000n2_a1_setup -> ath79_register_leds_gpio(arch/mips/ath79/dev-leds-gpio.c)
-            # [DIRECT] no resouces found
-            # pdev = platform_device_alloc("leds-gpio", id);
-            # err = platform_device_add_data(pdev, &pdata, sizeof(pdata));
-            # err = platform_device_add(pdev);
-            pass
-        elif caller == 'ath79_register_gpio_keys_polled':
-            # bhu_bxu2000n2_a1_setup -> ath79_register_gpio_keys_polled(arch/mips/ath79/dev-gpio-buttons.c)
-            # [DIRECT] no reources found
-            # pdev = platform_device_alloc("gpio-keys-polled", id);
-            # err = platform_device_add_data(pdev, &pdata, sizeof(pdata));
-            # err = platform_device_add(pdev);
-            pass
-        else:
-            analysis.warning(firmware, 'platform_device_register_full found but no handlers', 0)
-    else:
-        analysis.warning(firmware, 'platform_device_register_full found but no handlers', 0)
-
-
-
 UNMODELED_SKIP_LIST = [
     'early_init_dt_scan', 'of_flat_dt_get_machine_name', 'of_scan_flat_dt',
     'kmemdup', 'kfree', 'msleep', '__builtin_memcmp', 'add_memory_region', 'detect_memory_region',
@@ -572,26 +254,20 @@ UNMODELED_SKIP_LIST = [
     'irq_set_handler_data', 'arch_mem_addpart', 'print_memory_map', 'mips_parse_crashkernel', 'bootmem_init',
     'cpu_report', 'check_bugs_early', 'resource_init', 'plat_smp_setup', 'prefill_possible_map', 'cpu_cache_init',
     'paging_init', 'device_tree_init', 'strlcat', 'set_isa', 'decode_configs', 'spram_config',
-    # some functions we think are not neccessory to be analyzed
-    'prom_init', 'setup_early_printk', 'cpu_probe'
+    'prom_init', 'setup_early_printk', 'cpu_probe', 'cp0_compare_irq', 'c0_compare_int_usable',
+    'clockevent_delta2ns', 'clocks_calc_mult_shift', 'get_c0_compare_int', 'irq_modify_status',
 ]
 
 
 MODELED_SKIP_TABLE = {
-    'irq_modify_status': {'handle': _default},
     'irq_set_chip_and_handler_name': {'handle': _irq_set_chip_and_handler_name},
     '__irq_set_handler': {'handle': ___irq_set_handler},
-    'irq_domain_add_legacy': {'handle': _irq_domain_add_legacy},
     '__ioremap': {'handle': ___ioremap},
     'panic': {'handle': _panic},
-    'r4k_clockevent_init': {'handle': _r4k_clockevent_init},
     'init_r4k_clocksource': {'handle': _init_r4k_clocksource},
     '__builtin_unreachable': {'handle': ___builtin_unreachable},
-    'platform_device_register': {'handle': _platform_device_register},
-    'platform_devcie_register_full': {'handle': _platform_device_register_full},
-    'platform_device_alloc': {'handle': _platform_device_alloc},
-    'platform_device_add_data': {'handle': _default},
-    'platform_device_add': {'handle': _default},
+    'clockevents_register_device': {'handle': _clockevents_register_device},
+    'setup_irq': {'handle': _setup_irq},
 }
 
 

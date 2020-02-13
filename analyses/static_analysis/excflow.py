@@ -30,12 +30,11 @@ class ExecutionFlow(Analysis):
             self.warning(firmware, '{} -> {}(no address)'.format(caller, ep), 1)
             return None, None, [], {}
 
-        if not path_to_entry_point.startswith('arch'):
+        if path_to_entry_point.startswith('fs'):
             self.debug(firmware, '{} -> {}(built-in function in {})'.format(caller, ep, path_to_entry_point), 1)
             return None, path_to_entry_point, [], {}
 
-        dirs = path_to_entry_point.split('/')
-        if dirs[2] == 'include':
+        if path_to_entry_point.endswith('.h'):
             path_to_entry_point = firmware.srcodec.symbol2fileg(ep)
             if path_to_entry_point is None:
                 self.warning(firmware, '{} -> {}(inline in header)'.format(caller, ep, path_to_entry_point), 1)
@@ -67,9 +66,11 @@ class ExecutionFlow(Analysis):
         for g, ops in gs.items():
             if 'store' in ops:
                 self.globals.append(g)
-                self.debug(firmware, '{} -> {}(global defined)'.format(caller, g), 1)
+                # self.debug(firmware, '{} -> {}(global defined)'.format(caller, g), 1)
             if 'load' in ops and g not in self.globals:
-                self.warning(firmware, '{} -> {}(global used before defined)'.format(caller, g), 1)
+                # self.warning(firmware, '{} -> {}(global used before defined)'.format(caller, g), 1)
+                pass
+
 
     def parse_funcalls(self, firmware, caller, funccalls):
         def remove_duplicated(seq):
@@ -127,74 +128,29 @@ class ExecutionFlow(Analysis):
             funccalls.append('bhu_bxu2000n2_a1_setup')
 
 
-        # [FUNCTION] __iounmap() -> ()__ioremap_mode() -> ()__ioremap()
-        if '__iounmap' in funccalls:
-            funccalls.remove('__iounmap')
-            if firmware.uuid == 'ar71xx_generic':
-                if caller == 'ath79_mii_ctrl_set_if':
-                    # ath79_mii_ctrl_set_if(no address)
-                    # [DIRECT] base = __ioremap_mode(((0x18000000 + 0x00070000)), (0x100), ...)
-                    mmio_name = 'reserved0'
-                    mmio_base = eval('(0x18000000 + 0x00070000)')
-                    mmio_size = 0x100
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-                elif caller == 'ath79_set_pll':
-                    # ath79_set_pll(no address)
-                    # [DIRECT] base = __ioremap_mode(((0x18000000 + 0x00050000)), (0x100), ...)
-                    mmio_name = 'reserved1'
-                    mmio_base = eval('(0x18000000 + 0x00050000)')
-                    mmio_size = 0x100
-                    firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-                    self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+        # [FUNCTION]  struct irq_domain *irq_domain_add_legacy(struct device_node *of_node, unsigned int size,
+        # unsigned int first_irq, irq_hw_number_t first_hwirq, const struct irq_domain_ops *ops, void *host_data);
+        if 'irq_domain_add_legacy' in funccalls:
+            funccalls.remove('irq_domain_add_legacy')
+            if firmware.uuid == 'rampis_rt3883':
+                if caller == 'mips_cpu_intc_init':
+                    # domain = irq_domain_add_legacy(of_node, 8, 0, 0, &mips_cpu_intc_irq_domain_ops, ((void *)0));
+                    # for i in range(0, 8):
+                    #     analysis.debug(firmware, '{0} {0} direct mips_cpu_intc_irq_domain_ops None'.format(i), 1)
+                    # it not only tells us hw0-7 -> irqn0-7, but also shows irqchip in xxx_ops
+                    self.debug(firmware, '{} -> {}(FP -> [mips_cpu_intc_map])'.format(caller, 'irq_domain_add_legacy'), 1)
+                    funccalls.extend(['mips_cpu_intc_map'])
+                elif caller == 'intc_of_init':
+                    # domain = irq_domain_add_legacy(node, 32, 8, 0, &irq_domain_ops, ((void *)0));
+                    # for i in range(0, 32):
+                    #     analysis.debug(firmware, '{0} {1} direct mips_cpu_intc_irq_domain_ops None'.format(i, i+8), 1)
+                    # it not only tells us hw0-31 -> irqn8-39, but also shows irqchip in xxx_ops
+                    self.debug(firmware, '{} -> {}(FP -> [intc_map])'.format(caller, 'irq_domain_add_legacy'), 1)
+                    funccalls.extend(['intc_map'])
                 else:
-                    self.warning(firmware, '__ioremap_mode found but no handlers', 0)
+                    analysis.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
             else:
-                self.warning(firmware, '__ioremap_mode found but no handlers', 0)
-
-        # [FUNCTION] spi_register_board_info && flash_platform_data
-        if 'spi_register_board_info' in funccalls:
-            funccalls.remove('spi_register_board_info')
-            if firmware.uuid == 'ar71xx_generic':
-                if caller == 'ath79_register_spi':
-                    # static struct ath79_spi_controller_data ath79_spi0_cdata =
-                    # { .cs_type = ATH79_SPI_CS_TYPE_INTERNAL, .cs_line = 0, };
-                    # static struct ath79_spi_controller_data ath79_spi1_cdata =
-                    # { .cs_type = ATH79_SPI_CS_TYPE_INTERNAL, .cs_line = 1, };
-                    # static struct spi_board_info ath79_spi_info[] = {
-                    #   {
-                    #     .bus_num    = 0,
-                    #     .chip_select    = 0,
-                    #     .max_speed_hz   = 25000000,
-                    #     .modalias   = "m25p80",
-                    #     .controller_data = &ath79_spi0_cdata,
-                    #   },{
-                    #     .bus_num    = 0,
-                    #     .chip_select    = 1,
-                    #     .max_speed_hz   = 25000000,
-                    #     .modalias   = "m25p80",
-                    #     .controller_data = &ath79_spi1_cdata,
-                    #   }
-                    # };
-                    # ath79_spi0_cdata.is_flash = true;
-                    # ath79_spi_info[0].platform_data = pdata;
-                    # spi_register_board_info(ath79_spi_info, 1);
-                    # flash:
-                    #  num:
-                    #   flash@1:
-                    #     type = 'nor'
-                    #     interface = 'spi'
-                    #     name = 'm25p80'
-                    flash_type = 'nor'
-                    flash_interface = 'spi'
-                    flash_name = 'm25p80'
-                    # flash is not going to be set any more
-                    # firmware.set_flash('0', flash_name, flash_type, flash_interface, flash_base, flash_size)
-                    self.info(firmware, 'get {} {} flash {}'.format(flash_interface, flash_type, flash_name), 1)
-                else:
-                    self.warning(firmware, 'spi_register_board_info found but no handlers', 0)
-            else:
-                self.warning(firmware, 'spi_register_board_info found but no handlers', 0)
+                analysis.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
 
         # [FUNCTION] void __init of_irq_init(const struct of_device_id *matches)
         if 'of_irq_init' in funccalls:
@@ -209,6 +165,7 @@ class ExecutionFlow(Analysis):
                     # };
                     # of_irq_init(of_irq_ids);
                     funccalls.extend(['mips_cpu_intc_init', 'intc_of_init'])
+                    self.debug(firmware, '{} -> {}(FP -> [mips_cpu_intc_init, intc_of_init])'.format(caller, 'of_irq_init'), 1)
                 else:
                     self.warning(firmware, 'of_irq_init found w/o handler', 0)
             else:
@@ -221,11 +178,6 @@ class ExecutionFlow(Analysis):
             return
         for ep in entry_point:
             address, path_to_ep, funccalls, gs = self.get_funccalls(firmware, ep, caller=caller)
-            # We can control the excflow because of "complete properties" policy.
-            # 1) cpu: setup_arch->cpu_probe
-            if firmware.machines[-1].get_cpus() == 0 and \
-                    caller == 'setup_arch' and ep == 'cpu_probe':
-                continue
             funccalls = self.parse_funcalls(firmware, ep, funccalls)
             self.parse_globals(firmware, ep, gs)
             self.traverse_funccalls(firmware, funccalls, caller=ep, depth=depth+1)
@@ -246,15 +198,6 @@ class ExecutionFlow(Analysis):
     def run(self, firmware):
         srcodec = firmware.get_srcodec()
 
-        # ==== setup ====
-        ep = 'setup_arch'
-        # mips
-        #   setup_arch->cpu_probe
-        #   setup_arch->prom_init
-        #   setup_arch->setup_early_printk -> FP -> prom_putchar
-        #       note: ingore FP here, because uarts will be determined in do_initcalls
-        #   setup_arch->arch_mem_init->plat_mem_setup
-        self.traverse_funccalls(firmware, [ep], caller='start_kernel')
         if firmware.uuid == 'ar71xx_generic':
             # __ioremap_mode will be ignored
             # ath79_reset_base = __ioremap_mode(((0x18000000 + 0x00060000)), (0x100), ...);
@@ -277,20 +220,20 @@ class ExecutionFlow(Analysis):
             firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
             self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
 
-        exit(1)
-
         # ===== intc subsystem =====
         # 1 intc initilization
         ep = 'init_IRQ'
         self.traverse_funccalls(firmware, [ep], caller='start_kernel')
-        # ralink_rt3883: arch_init_irq -> [of_irq_init']
         if firmware.uuid == 'ar71xx_generic':
             # arch_init_irq -> ath79_misc_irq_init(no address)
             self.traverse_no_address_funccall(firmware, 'ath79_misc_irq_init', 'arch/mips/ath79/irq.c')
-        # 2. do_asm_IRQ/plat_irq_dispatch
+        # 2. do_asm_IRQ/plat_irq_dispatch(not neccesory)
         if firmware.get_arch() == 'arm':
             ep = 'do_asm_IRQ'
             self.traverse_funccalls(firmware, [ep], caller='start_kernel')
+        elif firmware.get_arch() == 'mips':
+            self.info(firmware, 'plat_irq_dispatch(found, level1 intc mmio->irqn mapping)', 1)
+
         # for mips, you could skip plat_irq_dispatch because it is very general
         # mostly, timer interrupt is IRQ7 and you won't worry about it
 
@@ -359,10 +302,27 @@ class ExecutionFlow(Analysis):
                 ep = symbol[11:]
                 if ep[-1] in ['0', '1', '2', '3', '4', '5', '6', '7']:
                     ep = ep[:-1]
-                    funccalls.append(ep)
+                # spawn_ksoftirqdearly
+                if ep.endswith('early'):
+                    ep = ep[:-5]
+                path_to_entry_point = firmware.srcodec.symbol2file(ep)
+                if path_to_entry_point is None:
+                    path_to_entry_point = firmware.srcodec.symbol2fileg(ep)
+                if path_to_entry_point is None:
+                    self.warning(firmware, '{} -> {}(no address)'.format('do_initcall', ep), 1)
+                    continue
+                if path_to_entry_point.endswith('.h'):
+                    path_to_entry_point = firmware.srcodec.symbol2fileg(ep)
+                    if path_to_entry_point is None:
+                        self.warning(firmware, '{} -> {}(inline in header)'.format('do_initcall', ep, path_to_entry_point), 1)
+                        continue
+                if not path_to_entry_point.startswith('arch'):
+                    continue
+                funccalls.append(ep)
 
         funccalls = self.parse_funcalls(firmware, 'do_initcall', funccalls)
         self.traverse_funccalls(firmware, funccalls, caller='do_initcall')
+        exit(1)
 
         # because symbols/addr2line sometimes don't work well, so we manullay set the value
         if firmware.uuid == 'ar71xx_generic':

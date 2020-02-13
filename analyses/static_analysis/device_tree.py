@@ -1,62 +1,37 @@
-import os
-import fdt
-
 from analyses.analysis import Analysis
 from slcore.profile.machine import Machine
+from slcore.dt_parsers.common import *
 
 
 class DeviceTree(Analysis):
-    def compile_dts(self, path_to_dts):
-        path_to_dtb = path_to_dts + '.dtb'
-        os.system('dtc -I dts -O dtb -f {} -o {} >/dev/null 2>&1'.format(path_to_dts, path_to_dtb))
-        return path_to_dtb
-
     def run(self, firmware):
         dir_to_dt_collection = firmware.get_dt_collection()
-
         if dir_to_dt_collection is None:
             return True
-        for path_to_dts in os.listdir(dir_to_dt_collection):
-            if path_to_dts.endswith('dtb'):
-                continue
-            if path_to_dts.endswith('dtsi'):
-                continue
+
+        # for path_to_dtb in compile_dts_in_dtcg(dir_to_dt_collection):
             # We must get dozen of device tree source files, to
             # handle them all, we propose a new data structure
             # named `machine` with CPU/RAM/INTC/TIMER/UART/BAMBOOS
             # detail in. For other situation, say CMDLINE diverging,
             # NVRAM diverging, we should duplicate the machine not
             # the firmware.
-            path_to_dts = os.path.join(dir_to_dt_collection, path_to_dts)
-            path_to_dtb = self.compile_dts(path_to_dts)
-            with open(path_to_dtb, 'rb') as f:
-                dtb = f.read()
-            dts = fdt.parse_dtb(dtb)
-            machine = Machine()
-            machine.parse_dts(dts)
-            firmware.machines.append(machine)
-        self.info(firmware, 'get {} different dts'.format(len(firmware.machines)), 1)
+            # dts = load_dtb(path_to_dtb)
+            # machine = Machine()
+            # machine.parse_dts(dts)
+            # firmware.machines.append(machine)
 
-        # At last, we have to manage all machines above. We add a virtual
-        # machine which is always firmware.machine[-1] recording how much effort
-        # we have made.
-        machine = Machine()
-        machinen = len(firmware.machines)
-        cpun = 0 # meaning that all cpus are determined
-        intcn = machinen # meanint that all intc have not been determined yet
-        uartn = 0 # meaning that all uarts are determined
-        machine.set_cpus(cpun)
-        machine.set_intc(intcn)
-        machine.set_uarts(uartn)
+            # for line in machine.__str__().strip().split('\n'):
+            #     self.debug(firmware, '{}'.format(line), 1)
 
         return True
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'device_tree'
-        self.description = 'parse firmware\'s device tree'
-        self.required = ['mfilter']
-        self.context['hint'] = 'device tree is not available'
+        self.description = 'parse device tree source in the kernel'
+        self.required = ['mfilter', 'ram']
+        self.context['hint'] = 'something wrong'
         self.critical = False
         self.settings = ['machines']
 
