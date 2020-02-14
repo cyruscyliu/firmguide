@@ -1,0 +1,12 @@
+./bin.py -f /root/images/ec5859077831e078987ebb05461d4ec834896f3e.bin -u 15007 -a arm -e l -b openwrt -l http://archive.openwrt.org/backfire/10.03/orion/openwrt-wrt350nv2-squashfs-recovery.bin
+./bin.py -f /root/images/278a494b4a543f4a48dbb56d7ce226a23a3fbcc3.bin -u 9692 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/generic/openwrt-15.05.1-oxnas-kd20-u-boot-initramfs.bin
+./bin.py -f /root/images/95483e6f102fa1f462eeda09ed945325e5b1bfb9.bin -u 9703 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/generic/openwrt-15.05.1-oxnas-pogoplug-pro-u-boot-initramfs.bin
+./bin.py -f /root/images/6b6385ae3faf9b99ec2a290a5fb153752de395de.bin -u 9707 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/generic/openwrt-15.05.1-oxnas-pogoplug-v3-u-boot-initramfs.bin
+./bin.py -f /root/images/2da39a873a89312a9860cfe8785691944da6c00a.bin -u 9715 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/generic/openwrt-15.05.1-oxnas-stg212-u-boot-initramfs.bin
+./bin.py -f /root/images/988a648617eab1121cc9893296dac74a06611561.bin -u 7276 -a arm -e l -b openwrt -l http://archive.openwrt.org/attitude_adjustment/12.09/orion/generic/openwrt-wrt350nv2-squashfs-recovery.bin
+./bin.py -f /root/images/ec5859077831e078987ebb05461d4ec834896f3e.bin -u 15007 -a arm -e l -b openwrt -l http://archive.openwrt.org/backfire/10.03/orion/openwrt-wrt350nv2-squashfs-recovery.bin
+./bin.py -f /root/images/2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin -u 13882 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin
+./bin.py -f /root/images/e364e96ce9edaeab94ccd750cca20e03fcabad54.bin -u 13890 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/openwrt-15.05-oxnas-pogoplug-pro-u-boot-initramfs.bin
+./bin.py -f /root/images/e976bfc45172ce4705ff926b31d82bf39e0879a8.bin -u 7996 -a arm -e l -b openwrt -l http://archive.openwrt.org/backfire/10.03.1/orion/openwrt-wrt350nv2-squashfs-recovery.bin
+./bin.py -f /root/images/a8a659c598a79e7d37101470952bfca1ccc16f7e.bin -u 13893 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/openwrt-15.05-oxnas-pogoplug-v3-u-boot-initramfs.bin
+./bin.py -f /root/images/404b62b1d28d82b6420d28c2de39d55e7019b6d4.bin -u 13901 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/openwrt-15.05-oxnas-stg212-u-boot-initramfs.bin
