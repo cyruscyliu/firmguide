@@ -80,11 +80,8 @@ class QEMUController(object):
             running_command += ' -drive file={},if=mtd,format=raw'.format(image)
 
         running_command += ' -nographic'
-        # if initrd:
-            # running_command += " -initrd {}".format(initrd)
-            # running_command += ' -append "console=ttyS0 rdinit=/sbin/init"'
-        # else:
-            # running_command += ' -append "console=ttyS0"'
+        if initrd:
+            running_command += " -initrd {}".format(initrd)
         running_command += ' -append "console=ttyS0"'
 
         return running_command

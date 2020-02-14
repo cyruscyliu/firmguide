@@ -5,11 +5,11 @@ import logging.config
 
 from logger import setup_logging, logger_info
 from slcore.compositor import unpack
-from slcore.machines import find_machine
 from slcore.environment import migrate, snapshot
 from slcore.environment import setup_target_dir
 from slcore.scheduler import run_binary_analysis, run_diagnosis
 from slcore.qemuc import QEMUController
+from slcore.machines import find_profile
 
 
 def run(args):
@@ -18,13 +18,12 @@ def run(args):
     components = unpack(args.firmware, target_dir=target_dir)
     if not components.supported:
         return
-    # machine = find_machine(components, args.arch)
-    machine = '/root/esv/examples/mips/ath79/profile.yaml'
-    if machine is None:
+    profile = find_profile(components, args.arch, brand=args.brand, url=args.url)
+    if profile is None:
         return
 
     # 2. setup analysis environment
-    firmware = migrate(args.uuid, path_to_profile=machine, components=components)
+    firmware = migrate(args.uuid, path_to_profile=profile, components=components)
     firmware.set_arch(args.arch)
     firmware.set_endian(args.endian)
 
