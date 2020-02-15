@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/cyruscyliu/esv/tree/master.svg?style=svg&circle-token=7f12caaa351d02731d57d8165e634dc3e3537d33)](https://circleci.com/gh/cyruscyliu/esv/tree/master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a7aacb11a3b14a7d8e069d8a440a43c0)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cyruscyliu/esv&amp;utm_campaign=Badge_Grade)
 
-Salamander is a project aiming to run and test any given firmware blob dynamically in a pure software way.
+Salamander is a project aiming to boot any Linux-based firmware blob in a pure software way.
 
 ###### who will need the Salamander
 + who want to run a Linux based firmware not supported officially
@@ -68,11 +68,11 @@ cd ~/sparse && make && sudo cp ./graph /usr/bin && cd ~-
 ## Usage
 
 ##### if you have a firmware blob
-+ the path to firmware [required]
++ the path to the firmware [required]
 + the uuid of the firmware [required]
 + the architecture and the endianness [required]
 + the brand of the firmware [optional]
-+ the url where your download it [optional]
++ the download url [optional]
 
 ```
 cd ~/salamander
@@ -107,17 +107,6 @@ cd ~/salamander
 ## Commands
 
 ```
-./bin.py -f /root/images/278a494b4a543f4a48dbb56d7ce226a23a3fbcc3.bin -u 9692 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/generic/openwrt-15.05.1-oxnas-kd20-u-boot-initramfs.bin
-./bin.py -f /root/images/95483e6f102fa1f462eeda09ed945325e5b1bfb9.bin -u 9703 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/generic/openwrt-15.05.1-oxnas-pogoplug-pro-u-boot-initramfs.bin
-./bin.py -f /root/images/6b6385ae3faf9b99ec2a290a5fb153752de395de.bin -u 9707 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/generic/openwrt-15.05.1-oxnas-pogoplug-v3-u-boot-initramfs.bin
-./bin.py -f /root/images/2da39a873a89312a9860cfe8785691944da6c00a.bin -u 9715 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05.1/oxnas/generic/openwrt-15.05.1-oxnas-stg212-u-boot-initramfs.bin
-./bin.py -f /root/images/988a648617eab1121cc9893296dac74a06611561.bin -u 7276 -a arm -e l -b openwrt -l http://archive.openwrt.org/attitude_adjustment/12.09/orion/generic/openwrt-wrt350nv2-squashfs-recovery.bin
-./bin.py -f /root/images/ec5859077831e078987ebb05461d4ec834896f3e.bin -u 15007 -a arm -e l -b openwrt -l http://archive.openwrt.org/backfire/10.03/orion/openwrt-wrt350nv2-squashfs-recovery.bin
-./bin.py -f /root/images/2b38a390ba53209a1fa4c6aed8489c14774db4c9.bin -u 13882 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin
-./bin.py -f /root/images/e364e96ce9edaeab94ccd750cca20e03fcabad54.bin -u 13890 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/openwrt-15.05-oxnas-pogoplug-pro-u-boot-initramfs.bin
-./bin.py -f /root/images/e976bfc45172ce4705ff926b31d82bf39e0879a8.bin -u 7996 -a arm -e l -b openwrt -l http://archive.openwrt.org/backfire/10.03.1/orion/openwrt-wrt350nv2-squashfs-recovery.bin
-./bin.py -f /root/images/a8a659c598a79e7d37101470952bfca1ccc16f7e.bin -u 13893 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/openwrt-15.05-oxnas-pogoplug-v3-u-boot-initramfs.bin
-./bin.py -f /root/images/404b62b1d28d82b6420d28c2de39d55e7019b6d4.bin -u 13901 -a arm -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/oxnas/generic/openwrt-15.05-oxnas-stg212-u-boot-initramfs.bin
 ./bin.py -f /root/images/2cdf62cd8169db1760eacb0bd1d2aa32039828c9.trx -u 14256 -a mips -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/brcm47xx/mips74k/openwrt-15.05-brcm47xx-mips74k-asus-rt-n66w-squashfs.trx
 ./bin.py -f /root/images/fff34ff978a4c4ee98fb0e32c293c3be52840a63.trx -u 14229 -a mips -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/brcm47xx/mips74k/openwrt-15.05-brcm47xx-mips74k-asus-rt-n10-squashfs.trx
 ./bin.py -f /root/images/155a86c671a812602f49a559178449ecc234c2b9.trx -u 14234 -a mips -e l -b openwrt -l http://archive.openwrt.org/chaos_calmer/15.05/brcm47xx/mips74k/openwrt-15.05-brcm47xx-mips74k-asus-rt-n10p-v2-squashfs.trx

@@ -95,6 +95,9 @@ def __handle_legacy_uimage(image_path, uimage3=False, uimage3_offset=None):
     os.system('mv {0} {0}.bak'.format(image_path))
     os.system('dd if={0}.bak of={0} bs=1 count=64 >/dev/null 2>&1'.format(image_path))
     os.system('dd if=/dev/zero of={} bs=1 seek=31 count=1 conv=notrunc >/dev/null 2>&1'.format(image_path))
+    # append 1M zeros as bss
+    os.system('dd if=/dev/zero of={} bs=1 seek={} count={} conv=notrunc >/dev/null 2>&1'.format(
+        uncompressed_kernel, os.path.getsize(uncompressed_kernel), 1048576))
     os.system('dd if={} of={} bs=1 seek=64 >/dev/null 2>&1'.format(uncompressed_kernel, image_path))
     # don't forget this
     kernel = uncompressed_kernel

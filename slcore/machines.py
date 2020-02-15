@@ -4,7 +4,7 @@ from slcore.dt_parsers.compatible import find_compatible
 from slcore.compositor import Common
 
 
-MD_ATRRIBUTES = ['machine_ids', 'compatible', 'profiles', 'device_tree']
+MD_ATRRIBUTES = ['machine_ids', 'compatible', 'profiles', 'device_tree', 'targets']
 
 
 class MD(Common):
@@ -13,7 +13,13 @@ class MD(Common):
         self.set_attributes(MD_ATRRIBUTES)
 
     def __str__(self):
-        pass
+        a = 'DEVICE TREE: {}, TARGETS: {}'.format(self.device_tree, self.targets)
+        a += '\n   PROFILES {}'.format(len(self.profiles))
+
+        if len(self.profiles):
+            for k, v in self.profiles.items():
+                a += '\n   {} {}'.format(k, v)
+        return a
 
     def has_device_tree(self):
         return self.device_tree
@@ -68,29 +74,30 @@ def find_profile(components, arch, brand=None, url=None):
             # T5 WHETHER OR NOT WE ARE PREPARED
             profile = md.find_profile_by_compatible(compatible)
             if profile is None:
-                # modeling 003
-                print('cannot support this firmware(003)')
+                # modeling 002
+                print('cannot support this firmware(002)')
                 print('1) prepare the source code which can generate your firmware')
                 print('2）see src.py -h for more details')
-                print('3) here is some reference: {}'.format(md.description()))
+                print('3) here is some reference: {}'.format(md))
             return profile
 
     # T4 MACHINE_ID_SIGNATURE
     machine_ids = find_machine_id(components.get_path_to_kernel())
     if machine_ids is None:
-        # modeling 002
-        print('cannot support this firmware(002)')
-        print('1) prepare the source code which can generate your firmware')
-        print('2）see src.py -h for more details')
-        print('3) here is some reference: {}'.format(md.description()))
-        return None
+        profile = list(md.get_profiles().keys())
+        if len(profile):
+            profile = profile[0]
+        else:
+            profile = None
+    else:
+        profile = md.find_profile_by_id(machine_ids)
+
     # T5 WHETHER OR NOT WE ARE PREPARED
-    profile = md.find_profile_by_id(machine_ids)
     if profile is None:
         # modeling 003
         print('cannot support this firmware(003)')
         print('1) prepare the source code which can generate your firmware')
         print('2）see src.py -h for more details')
-        print('3) here is some reference: {}'.format(md.description()))
+        print('3) here is some reference: {}'.format(md))
     return profile
 

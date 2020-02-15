@@ -29,13 +29,6 @@ ar7:
   device_tree: true
   targets:
     openwrt: [ar7]
-ar71xx:
-  compatible: {}
-  device_tree: null
-  machine_ids: {}
-  profiles: {}
-  targets:
-    openwrt: [ar71xx]
 ath25:
   compatible: {}
   device_tree: null
@@ -46,12 +39,11 @@ ath25:
 ath79:
   device_tree: true
   profiles:
-    examples/mips/ath79/ar71xx_generic.yaml: {brand: openwrt, revision: '15.05', version: 3.18.20}
+    examples/mips/ath79/profile.yaml: {brand: openwrt, revision: '15.05', version: 3.18.20}
   targets:
-    openwrt: [ath79]
+    openwrt: [ar71xx]
 bcm47xx:
   device_tree: false
-  machine_ids: {'0x10000030': examples/mips/bcm47xx/profile.yaml}
   profiles:
     examples/mips/bcm47xx/profile.yaml: {brand: openwrt, revision: '15.05', version: 3.18.20}
   targets:
