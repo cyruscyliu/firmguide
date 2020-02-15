@@ -42,6 +42,9 @@ class SRCodeController(Common):
                     continue
                 if c.strip().endswith(';'):
                     continue
+                fs_o = fs[:-1] + 'o'
+                if not os.path.exists(fs_o):
+                    continue
                 f = os.path.realpath(fs)
 
         if f is None:

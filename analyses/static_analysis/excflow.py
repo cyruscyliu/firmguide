@@ -232,7 +232,7 @@ class ExecutionFlow(Analysis):
             ep = 'do_asm_IRQ'
             self.traverse_funccalls(firmware, [ep], caller='start_kernel')
         elif firmware.get_arch() == 'mips':
-            self.info(firmware, 'plat_irq_dispatch(found, level1 intc mmio->irqn mapping)', 1)
+            self.info(firmware, 'interrupt -> plat_irq_dispatch(found, level1 intc mmio->irqn mapping)', 1)
 
         # for mips, you could skip plat_irq_dispatch because it is very general
         # mostly, timer interrupt is IRQ7 and you won't worry about it
@@ -247,6 +247,7 @@ class ExecutionFlow(Analysis):
         # and clock source. At the same time, mips_hpt_frequency must be defined
         # to not zero in plat_time_init. Other cases can be discussed seperately.
         self.traverse_funccalls(firmware, [ep], caller='start_kernel')
+        exit(1)
 
         if firmware.uuid == 'ar71xx_generic':
             entry_point = ['ath79_clocks_init', 'ath79_get_sys_clk_rate']
