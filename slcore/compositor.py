@@ -5,7 +5,6 @@ import os
 import types
 import binwalk
 
-from logger import logger_info, logger_debug, logger_warning
 from settings import *
 
 TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE = 1, 2, 3

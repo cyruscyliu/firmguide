@@ -16,13 +16,6 @@ ram:
   base: "0"
   size: "128 * MiB"
   priority: "-2"
-flash:
-  num: 1
-  flash@0:
-    type: "nor"
-    base: "0x1c000000"
-    section_size: "32 * KiB"
-    size: "32 * MiB"
 uart:
   num: 1
   uart@0:
@@ -33,6 +26,13 @@ uart:
     reg_shift: "0"
     irq: "2"
 bamboo:
+  flash:
+    mmio_base: "0x1c000000"
+    mmio_size: "0x04000000"
+    registers:
+      flash_as_mmio:
+          offset: "0x0 ... 0x03FFFFFC"
+          value: "0x0"
   "bcma":
     mmio_base: "0x18000000"
     mmio_size: "0x5000"
