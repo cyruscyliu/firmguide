@@ -199,31 +199,18 @@ class ExecutionFlow(Analysis):
         srcodec = firmware.get_srcodec()
 
         if firmware.uuid == 'ar71xx_generic':
-            # __ioremap_mode will be ignored
-            # ath79_reset_base = __ioremap_mode(((0x18000000 + 0x00060000)), (0x100), ...);
-            mmio_name = 'ath79_reset'; mmio_base = eval('((0x18000000 + 0x00060000))'); mmio_size = 0x100
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
             ## =========== from stinc.py =============
             firmware.insert_bamboo_devices(0x18060010, 0x4, value=0x10000000)
             firmware.insert_bamboo_devices(0x18060014, 0x4, value=0x10000000)
             ## =======================================
-            # ath79_pll_base = __ioremap_mode(((0x18000000 + 0x00050000)), (0x100), ...);
-            mmio_name = 'ath79_pll'; mmio_base = eval('((0x18000000 + 0x00050000))'); mmio_size = 0x100
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
             ## =========== from stimer.py ==============
             firmware.insert_bamboo_devices(0x18050000, 0x4, value=0x10)
             ## =========================================
-            # ath79_ddr_base = __ioremap_mode(((0x18000000 + 0x00000000)), (0x100), ...);
-            mmio_name = 'ath79_ddr'; mmio_base = eval('((0x18000000 + 0x00000000))'); mmio_size = 0x100
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
 
         # ===== intc subsystem =====
         # 1 intc initilization
         ep = 'init_IRQ'
-        self.traverse_funccalls(firmware, [ep], caller='start_kernel')
+        # self.traverse_funccalls(firmware, [ep], caller='start_kernel')
         if firmware.uuid == 'ar71xx_generic':
             # arch_init_irq -> ath79_misc_irq_init(no address)
             self.traverse_no_address_funccall(firmware, 'ath79_misc_irq_init', 'arch/mips/ath79/irq.c')
@@ -246,8 +233,7 @@ class ExecutionFlow(Analysis):
         # this machine can use the r4k compatile counter as interrupt source
         # and clock source. At the same time, mips_hpt_frequency must be defined
         # to not zero in plat_time_init. Other cases can be discussed seperately.
-        self.traverse_funccalls(firmware, [ep], caller='start_kernel')
-        exit(1)
+        # self.traverse_funccalls(firmware, [ep], caller='start_kernel')
 
         if firmware.uuid == 'ar71xx_generic':
             entry_point = ['ath79_clocks_init', 'ath79_get_sys_clk_rate']
@@ -292,6 +278,7 @@ class ExecutionFlow(Analysis):
 
         # do_initcall analysis
         # "early", "core", "postcore", "arch", "subsys", "fs", "device", "late",
+        path_to_entry_point = firmware.srcodec.symbol2file('remove_me_later')
         system_map = firmware.srcodec.system_map
         funccalls = []
         for symbol, v in system_map.items():
@@ -303,6 +290,11 @@ class ExecutionFlow(Analysis):
                 ep = symbol[11:]
                 if ep[-1] in ['0', '1', '2', '3', '4', '5', '6', '7']:
                     ep = ep[:-1]
+                if ep[-2:] in ['1s', '2s', '3s', '4s', '5s', '6s', '7s']:
+                    ep = ep[:-2]
+                # populate_rootfsrootfs
+                if ep.endswith('rootfs'):
+                    ep = ep[:-6]
                 # spawn_ksoftirqdearly
                 if ep.endswith('early'):
                     ep = ep[:-5]

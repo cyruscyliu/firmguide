@@ -161,6 +161,12 @@ def _panic(analysis, firmware, **kwargs):
             # if (!clk) panic("failed to add clock");
             # from builtin function will never be panic
             pass
+        elif caller == 'plat_of_setup':
+            # if (!of_have_populated_dt()) panic("device tree not present");
+            # from builtin function will never be panic
+            # if (of_platform_populate(((void *)0), of_ids, ((void *)0), ((void *)0))) panic("failed to populate DT");
+            # from builtin function will never be panic
+            pass
         else:
             analysis.warning(firmware, '{} -> panic(w/o handler)'.format(caller), 0)
     else:
@@ -270,7 +276,8 @@ UNMODELED_SKIP_LIST = [
     'paging_init', 'device_tree_init', 'strlcat', 'set_isa', 'decode_configs', 'spram_config',
     'prom_init', 'setup_early_printk', 'cpu_probe', 'cp0_compare_irq', 'c0_compare_int_usable',
     'clockevent_delta2ns', 'clocks_calc_mult_shift', 'get_c0_compare_int', 'irq_modify_status',
-    'cpu_has_mfc0_count_bug', 'clk_get_sys'
+    'cpu_has_mfc0_count_bug', 'clk_get_sys', 'debugfs_create_file', 'of_platform_populate', 'of_find_compatible_node',
+    'reset_controller_register'
 ]
 
 
