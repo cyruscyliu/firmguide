@@ -111,6 +111,13 @@ bamboo:
       stub_reserved22:
         offset: 0x0 ... 0xc
         value: '0x0'
+  stub23:
+    mmio_base: '0xf4000000'
+    mmio_size: '0x800000'
+    registers:
+      stub_reserved23:
+        offset: 0x0 ... 0x7FFFFC
+        value: '0x0'
   stub3:
     mmio_base: '0xf1020000'
     mmio_size: '0x100'
@@ -189,13 +196,6 @@ kernel:
   kernel_load_address: '0x00008000'
 cpu:
   model: arm926
-flash:
-  num: 1
-  flash@0:
-    base: '0xf4000000'
-    section_size: 64 * KiB
-    size: 8 * MiB
-    type: nor
 interrupt_controller:
   mmio_base: '0xf1020100'
   mmio_size: '0x200'

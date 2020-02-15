@@ -25,8 +25,8 @@ def restore_analysis(firmware):
 
 def save_analysis(firmware):
     analysis = os.path.join(firmware.target_dir, 'analysis')
-    with open(analysis, 'w') as f:
-        yaml.safe_dump(firmware.analysis_progress, f)
+    # with open(analysis, 'w') as f:
+    #     yaml.safe_dump(firmware.analysis_progress, f)
 
 
 def finished(firmware, analysis):
@@ -100,51 +100,4 @@ def snapshot(firmware):
 
 def archive(firmware):
     pass
-
-
-def setup_working_directory(args, firmware):
-    # prepare working directory
-    if args.working_dir is None:
-        working_dir = tempfile.gettempdir()
-    else:
-        working_dir = os.path.realpath(args.working_dir)
-    firmware.set_working_dir(working_dir)
-    os.makedirs(firmware.get_working_dir(), exist_ok=True)
-
-
-def setup_tmp_profile(firmware, label):
-    # get a empty profile
-    firmware.path_to_profile = os.path.join(tempfile.gettempdir(), '{}.yaml'.format(label))
-    firmware.create_empty_profile()
-    firmware.load_from_profile()
-
-
-def setup_diagnosis(args, firmware):
-    # a profile is need to simplify implementation
-    # but we only need a temp one, no need for uuid
-    setup_tmp_profile(firmware, 'diagnosis')
-
-    # 1 we need the trace
-    firmware.path_to_trace = args.trace
-    firmware.trace_format = args.trace_format
-
-    name = args.trace.split('.')[0]
-    # 2 and the uuid, we set it if any
-    uuid = name.split('-')[0]
-    firmware.uuid = uuid
-    firmware.set_uuid(uuid)
-
-    # 3 uuid.arch.endian.trace
-    architecture = name.split('-')[1]
-    assert architecture in ['arm', 'mips'], 'cannot support this architecture {}'.format(architecture)
-    firmware.set_arch(architecture)
-    endian = name.split('-')[2]
-    assert endian in ['l', 'b'], 'cannot support this endianness {}'.format(endian)
-    firmware.set_endian(endian)
-
-    firmware.max_iteration = args.max
-
-
-def setup_statistics(args, firmware):
-    setup_working_directory(args, firmware)
 

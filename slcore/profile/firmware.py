@@ -26,6 +26,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.analysis_progress = None  # /tmp/uuid/analyses
         self.profile = None  # /tmp/uuid/profile.ext, dickt
         self.profile_ext = 'yaml'
+        self.machines = []
 
         self.stat_reference = \
             yaml.safe_load(open(os.path.join(os.getcwd(), 'slcore/profile', 'stats.yaml')))
@@ -33,6 +34,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.path_to_summary = None  # /tmp/uuid/stats.yaml
 
         self.components = None
+        self.dt_collection = None
         self.srcodec = None
         self.qemuc = None
 
@@ -111,6 +113,12 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     def set_qemuc(self, srcodec):
         self.srcodec = srcodec
+
+    def get_dt_collection(self):
+        return self.dt_collection
+
+    def set_dt_collection(self, dtc):
+        self.dt_collection = dtc
 
     @abc.abstractmethod
     def set_arch(self, *args, **kwargs):

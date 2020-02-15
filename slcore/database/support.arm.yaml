@@ -1,191 +1,188 @@
-support:
-  mach-axxia:
-    device_tree: True
-    uart: pl011
-  mach-bcm:
-    device_tree: True
-    uart: dw-apb-uart
-  mach-berlin:
-    device_tree: True
-    uart: dw-apb-uart
-  mach-cns3xxx:
-    device_tree: False
-    uart: serial8250
-  mach-davinci:
-    device_tree: False
-    uart: serial8250
-  mach-dove:
-    device_tree: False
-    uart: serial8250
-  mach-ebsa110:
-    device_tree: False
-    uart: serial8250
-  mach-footbridge:
-    device_tree: False
-    uart: serial8250
-  mach-genimi:
-    device_tree: False
-    uart: serial8250
-  mach-highbank:
-    device_tree: True
-    uart: pl011
-  mach-hisi:
-    device_tree: True
-    uart: pl011
-  mach-integrator:
-    device_tree: True
-    uart: pl011
-  mach-ep93xx:
-    device_tree: False
-    uart: dw-apb-uart
-  mach-exynos:
-    device_tree: False
-    uart: exynos4210-uart
-  mach-iop13xx:
-    device_tree: False
-    uart: serial8250
-  mach-iop32x:
-    device_tree: False
-    uart: serial8250
-  mach-iop33x:
-    device_tree: False
-    uart: serial8250
-  mach-ixp4xx:
-    device_tree: False
-    uart: serial8250
-  mach-keystone:
-    device_tree: True
-    uart: serial8250
-  mach-ks8695:
-    device_tree: False
-    uart: serial8250
-  mach-lpc32xx:
-    device_tree: True
-    uart: serial8250
-  mach-mediatek:
-    device_tree: True
-    uart: serial8250
-  mach-mv78xx0:
-    device_tree: False
-    uart: serial8250
-  mach-mvebu:
-    device_tree: True
-    uart: dw-apb-uart
-  mach-socfpga:
-    device_tree: True
-    uart: dw-apb-uart
-  mach-spear:
-    device_tree: True
-    uart: pl011
-  mach-nomadik:
-    device_tree: True
-    uart: pl011
-  mach-nspire:
-    device_tree: True
-    uart: pl011
-  mach-omap1:
-    device_tree: False
-    uart: serial8250
-  mach-orion5x:
-    device_tree: False
-    machine_ids: ["0x661", "0x709"]
-    uart: serial8250
-    profile: "examples/arm/mach-orion5x/profile.yaml"
-  mach-oxnas:
-    device_tree: True
-    compatible: ["plxtech,nas7820", "plxtech,nas782x"]
-    uart: serial8250
-    profile: "examples/arm/mach-oxnas/profile.yaml"
-  mach-picoxcell:
-    device_tree: True
-    uart: dw-apb-uart
-  mach-rockchip:
-    device_tree: True
-    uart: dw-apb-uart
-  mach-pxa:
-    device_tree: False
-    uart: serial8250
-  mach-realview:
-    device_tree: False
-    uart: realview-uart
-  mach-rpc:
-    device_tree: False
-    uart: serial8250
-  mach-sunxi:
-    device_tree: True
-    uart: dw-apb-uar
-  mach-u300:
-    device_tree: True
-    uart: pl011
-  mach-ux500:
-    device_tree: True
-    uart: pl011
-  mach-versatile:
-    device_tree: False
-    uart: pl110
-  mach-vexpress:
-    device_tree: True
-    uart: pl011
-  mach-w90x900:
-    device_tree: False
-    uart: serial8250
-others:
-  mach-imx:
-    device_tree: True
-    uart: imx1-uart
-  mach-efm32:
-    device_tree: True
-    uart: efm32,uar
-  mach-meson:
-    device_tree: True
-    uart: meson-uar
-  mach-mmp:
-    device_tree: False
-    uart: mmp-uart
-  mach-moxart:
-    invalid: True
-  mach-msm:
-    device_tree: False
-    uart: msm_serial
-  mach-mxs:
-    device_tree: True
-    uart: imx23-auart
-  mach-netx:
-    device_tree: False
-    uart: netx-uart
-  mach-omap2:
-    device_tree: False
-    uart: omap2-uart
-  mach-prima2:
-    device_tree: True
-    uart: prima2-uar
-  mach-qcom:
-    device_true: True
-    uart: msm-uartdm
-  mach-s3c24xx:
-    device_tree: False
-    uart: s3c24xx-uart
-  mach-s3c64xx:
-    device_tree: False
-    uart: s3c64xx-uart
-  mach-s5pv210:
-    device_true: True
-    uart: s5pv210-uart
-  mach-sa1100:
-    device_tree: False
-    uart: sa11x0-uart
-  mach-shmobile:
-    device_true: True
-    uart: em-uart
-  mach-sti:
-    device_true: True
-    uart: asc
-  mach-tegra:
-    device_true: True
-    uart: tegra20-uart
-  mach-vt8500:
-    device_true: True
-    uart: vt8500-uart
-  mach-zynq:
-    device_true: True
-    uart: uart-r1p8
+mach-actions: {device_tree: true}
+mach-alpine: {device_tree: true}
+mach-artpec: {device_tree: true}
+mach-at91:
+  device_tree: true
+  targets:
+    openwrt: [at91]
+mach-axxia: {device_tree: true}
+mach-bcm:
+  device_tree: true
+  targets:
+    openwrt: [bcm53xx]
+mach-bcm2708:
+  compatible: {}
+  device_tree: null
+  machine_ids: {}
+  profiles: {}
+  targets:
+    openwrt: [brcm2708]
+mach-berlin: {device_tree: true}
+mach-clps711x: {device_tree: true}
+mach-cns21xx:
+  compatible: {}
+  device_tree: null
+  machine_ids: {}
+  profiles: {}
+  targets:
+    openwrt: [cns21xx]
+mach-cns3xxx:
+  device_tree: true
+  targets:
+    openwrt: [cns3xxx]
+mach-davinci: {device_tree: true}
+mach-digicolor: {device_tree: true}
+mach-dove: {device_tree: false}
+mach-ebsa110: {device_tree: false}
+mach-efm32: {device_tree: true}
+mach-ep93xx:
+  device_true: false
+  targets:
+    openwrt: [ep93xx]
+mach-exynos: {device_true: true}
+mach-footbridge: {device_tree: false}
+mach-gemini:
+  compatible: {}
+  device_tree: null
+  machine_ids: {}
+  profiles: {}
+  targets:
+    openwrt: [gemini]
+mach-genimi: {device_tree: true}
+mach-goldfish:
+  compatible: {}
+  device_tree: null
+  machine_ids: {}
+  profiles: {}
+  targets:
+    openwrt: [goldfish]
+mach-highbank: {device_tree: true}
+mach-hisi: {device_tree: true}
+mach-imx:
+  device_tree: true
+  targets:
+    openwrt: [imx21, imx6, layerscape]
+mach-integrator: {device_tree: true}
+mach-iop13xx: {device_tree: false}
+mach-iop32x:
+  device_tree: false
+  targets:
+    openwrt: [iop32x]
+mach-iop33x: {device_tree: false}
+mach-ixp4xx:
+  device_tree: true
+  targets:
+    openwrt: [ixp4xx]
+mach-keystone: {device_tree: true}
+mach-kirkwood:
+  compatible: {}
+  device_tree: null
+  machine_ids: {}
+  profiles: {}
+  targets:
+    openwrt: [kirkwood]
+mach-ks8695: {device_tree: false}
+mach-lpc32xx: {device_tree: true}
+mach-mcs814x:
+  compatible: {}
+  device_tree: null
+  machine_ids: {}
+  profiles: {}
+  targets:
+    openwrt: [mcs814x]
+mach-mediatek:
+  device_tree: true
+  targets:
+    openwrt: [mediatek]
+mach-meson: {device_tree: true}
+mach-milbeaut: {device_tree: true}
+mach-mmp: {device_tree: true}
+mach-moxart: {device_tree: false}
+mach-msm: {device_tree: false}
+mach-mv78xx0: {device_tree: false}
+mach-mvebu:
+  device_tree: true
+  targets:
+    openwrt: [mvebu]
+mach-mxs:
+  device_tree: true
+  targets:
+    openwrt: [mxs]
+mach-netx: {device_tree: false}
+mach-nomadik: {device_tree: true}
+mach-npcm: {device_tree: true}
+mach-nspire: {device_tree: false}
+mach-omap1: {device_tree: false}
+mach-omap2:
+  device_tree: true
+  targets:
+    openwrt: [omap, omap24xx, omap35xx, omap4]
+mach-orion5x:
+  device_tree: true
+  machine_ids: {'0x661': examples/arm/mach-orion5x/profile.yaml, '0x709': examples/arm/mach-orion5x/profile.yaml}
+  profiles:
+    examples/arm/mach-orion5x/profile.yaml: {brand: openwrt, revision: '10.03', version: 2.16.32.10}
+  targets:
+    openwrt: [orion]
+mach-oxnas:
+  compatible: {'plxtech,nas7820': examples/arm/mach-oxnas/profile.yaml, 'plxtech,nas782x': examples/arm/mach-oxnas/profile.yaml}
+  device_tree: true
+  profiles:
+    examples/arm/mach-oxnas/profile.yaml: {brand: openwrt, revision: '15.05', version: 3.18.20}
+  targets:
+    openwrt: [oxnas]
+mach-picoxcell: {device_tree: true}
+mach-prima2: {device_tree: true}
+mach-pxa:
+  device_tree: true
+  targets:
+    openwrt: [pxa]
+mach-qcom:
+  device_true: true
+  targets:
+    openwrt: [ipq40xx, ipq806x]
+mach-realview:
+  device_tree: true
+  targets:
+    openwrt: [realview]
+mach-rockchip: {device_tree: true}
+mach-rpc: {device_tree: false}
+mach-s3c2410:
+  compatible: {}
+  device_tree: null
+  machine_ids: {}
+  profiles: {}
+  targets:
+    openwrt: [s3c24xx]
+mach-s3c24xx: {device_tree: true}
+mach-s3c64xx: {device_tree: true}
+mach-s5pv210:
+  device_true: true
+  targets:
+    openwrt: [samsung]
+mach-sa1100: {device_tree: false}
+mach-shmobile: {device_true: true}
+mach-socfpga: {device_tree: true}
+mach-spear: {device_tree: true}
+mach-sti: {device_true: true}
+mach-stm32: {device_treu: true}
+mach-sunxi:
+  device_tree: true
+  targets:
+    openwrt: [sunxi]
+mach-tango: {device_tree: true}
+mach-tegra:
+  device_true: true
+  targets:
+    openwrt: [tegra]
+mach-u300: {device_tree: true}
+mach-ux500: {device_tree: true}
+mach-versatile: {device_tree: true}
+mach-vexpress: {device_tree: true}
+mach-vt8500: {device_true: true}
+mach-w90x900: {device_tree: false}
+mach-zx: {device_tree: true}
+mach-zynq:
+  device_true: true
+  targets:
+    openwrt: [zynq]

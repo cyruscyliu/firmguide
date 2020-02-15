@@ -1,46 +1,103 @@
 from slcore.database.dbf import get_database
 from slcore.naive_parsers.machine_id import find_machine_id
 from slcore.dt_parsers.compatible import find_compatible
+from slcore.compositor import Common
 
-def find_machine_by_compatible(arch, compatibles):
-    support = get_database('support') # T4
 
-    for compatible in compatibles:
-        profile = support.select('profile', arch=arch, compatible=compatible)
-        if profile is not None:
-            return profile
+MD_ATRRIBUTES = ['machine_ids', 'compatible', 'profiles', 'device_tree', 'targets']
 
-def find_machine_by_id(arch, machine_ids):
-    support = get_database('support') # T4
 
-    for machine_id in machine_ids:
-        profile = support.select('profile', arch=arch, machine_id=machine_id)
-        if profile is not None:
-            return profile
+class MD(Common):
+    def __init__(self):
+        super().__init__()
+        self.set_attributes(MD_ATRRIBUTES)
 
-def find_machine(components, arch):
+    def __str__(self):
+        a = 'DEVICE TREE: {}, TARGETS: {}'.format(self.device_tree, self.targets)
+        a += '\n   PROFILES {}'.format(len(self.profiles))
+
+        if len(self.profiles):
+            for k, v in self.profiles.items():
+                a += '\n   {} {}'.format(k, v)
+        return a
+
+    def has_device_tree(self):
+        return self.device_tree
+
+    def find_profile_by_compatible(self, compatible):
+        for cmptb in compatible:
+            if cmptb in self.compatible:
+                return self.compatible[cmptb]
+
+    def find_profile_by_id(self, machine_ids):
+        for machine_id in machine_ids:
+            if machine_id in self.machine_ids:
+                return self.machine_ids[machine_id]
+
+
+def find_latest_board(path_to_kenrel, arch, brand=None, url=None):
+    support = get_database('support')
+    revision, target, subtarget = [None] * 3
+
+    if url is not None and brand == 'openwrt':
+        from slcore.naive_parsers.openwrt import parse_openwrt_url
+        revision, target, subtarget = parse_openwrt_url(url)
+
+    board = support.select('board', arch=arch, brand=brand, target=target)
+    if board is not None:
+        md = MD()
+        md.set_attributes(attrs=board)
+        return md
+    else:
+        return None
+
+
+def find_profile(components, arch, brand=None, url=None):
     if components is None:
         return None
 
-    if components.has_device_tree():
-        compatible = find_compatible(components.get_path_to_dtb())
-        machine = find_machine_by_compatible(arch, compatible)
+    # T1: LATEST_BOARD_SIGNATURE
+    # BOARD=TARGET>SUBTARGET>MACHINE=compatible=machine_id>PROFILE
+    md = find_latest_board(components.get_path_to_kernel(), arch, url=url, brand=brand)
+    if md is None:
+        # modeling 001
+        print('cannot support this firmware(001)')
+        print('1) prepare the source code which can generate your firmware')
+        print('2）see src.py -h for more details')
+        return None
+
+    # T2 DEVICE_TREE_DISTRIBUTION
+    if md.has_device_tree():
+        # A3 BUILTIN DEVICE TREE
+        if components.has_device_tree():
+            compatible = find_compatible(components.get_path_to_dtb())
+            # T5 WHETHER OR NOT WE ARE PREPARED
+            profile = md.find_profile_by_compatible(compatible)
+            if profile is None:
+                # modeling 002
+                print('cannot support this firmware(002)')
+                print('1) prepare the source code which can generate your firmware')
+                print('2）see src.py -h for more details')
+                print('3) here is some reference: {}'.format(md))
+            return profile
+
+    # T4 MACHINE_ID_SIGNATURE
+    machine_ids = find_machine_id(components.get_path_to_kernel())
+    if machine_ids is None:
+        profile = list(md.get_profiles().keys())
+        if len(profile):
+            profile = profile[0]
+        else:
+            profile = None
     else:
-        machine_ids = find_machine_id(components.get_path_to_kernel())
-        machine = find_machine_by_id(arch, machine_ids)
-        # sometimes, a higher version of Linux kernel has device trees
-        # TODO find_machine_dir has too much FP
-        # machine_dirs = find_machine_dir(components.get_path_to_kernel(), arch) # T1
-        # if not len(machine_dirs):
-        #     print('error: find the source of this firmware and update machine signature')
-        #     return
-        # machine_dir = machine_dirs[0]
-        # kernel_version = find_kernel_version(components.get_path_to_kernel())
-        # if machine_has_device_tree(machine_dir, kernel_version): # T2
-        #     compatible = find_compatible(components.get_path_to_kernel())
-        #     machine = find_machine_by_compatible(compatible)
-        # else:
-        #     machine_ids = find_machine_id(components.get_path_to_kernel()) # T3
-        #     machine = find_machine_by_id(arch, machine_ids)
-    return machine
+        profile = md.find_profile_by_id(machine_ids)
+
+    # T5 WHETHER OR NOT WE ARE PREPARED
+    if profile is None:
+        # modeling 003
+        print('cannot support this firmware(003)')
+        print('1) prepare the source code which can generate your firmware')
+        print('2）see src.py -h for more details')
+        print('3) here is some reference: {}'.format(md))
+    return profile
 

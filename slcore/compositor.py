@@ -4,9 +4,7 @@ These interfaces unpack, pack given firmware blob to uImages.
 import os
 import types
 import binwalk
-import tempfile
 
-from logger import logger_info, logger_debug, logger_warning
 from settings import *
 
 TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE = 1, 2, 3
@@ -96,12 +94,15 @@ def __handle_legacy_uimage(image_path, uimage3=False, uimage3_offset=None):
     os.system('mv {0} {0}.bak'.format(image_path))
     os.system('dd if={0}.bak of={0} bs=1 count=64 >/dev/null 2>&1'.format(image_path))
     os.system('dd if=/dev/zero of={} bs=1 seek=31 count=1 conv=notrunc >/dev/null 2>&1'.format(image_path))
+    # append 1M zeros as bss
+    os.system('dd if=/dev/zero of={} bs=1 seek={} count={} conv=notrunc >/dev/null 2>&1'.format(
+        uncompressed_kernel, os.path.getsize(uncompressed_kernel), 1048576))
     os.system('dd if={} of={} bs=1 seek=64 >/dev/null 2>&1'.format(uncompressed_kernel, image_path))
     # don't forget this
     kernel = uncompressed_kernel
 
     # find dtb in mips legacy uimage
-    module = __binwalk_scan_all(image_path, tempfile.gettempdir(), extract=False)
+    module = __binwalk_scan_all(image_path, os.path.dirname(image_path), extract=False)
     for result in module.results:
         if str(result.description.lower()).find('mips built-in fdt') != -1:
             dtb = module.extractor.output[result.file.path].carved[result.offset]

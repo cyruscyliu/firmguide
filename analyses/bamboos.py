@@ -3,8 +3,6 @@ Add bamboo devices after DataAbort and InitValue.
 """
 from analyses.analysis import Analysis
 from analyses.c_data_abort import DataAbort
-from analyses.static_analysis.libtooling import LibTooling
-
 
 class Bamboos(Analysis):
     def convert_address(self, address):
@@ -20,17 +18,13 @@ class Bamboos(Analysis):
 
     def run(self, firmware):
         dabt = self.analysis_manager.get_analysis('data_abort')
-        libtooling = self.analysis_manager.get_analysis('kerberos')
         init_value = self.analysis_manager.get_analysis('init_value')
 
         firmware.load_bamboo_devices()
         self.mapping = firmware.get_va_pa_mapping()
 
         # get dead addresses/bamboo
-        if libtooling is None:
-            target_addresses = dabt.dead_addresses
-        else:
-            target_addresses = dabt.dead_addresses + libtooling.bamboo_address
+        target_addresses = dabt.dead_addresses
 
         for target_address in target_addresses:
             mmio_base = self.convert_address(int(target_address, 16) & 0xFFFFFFF0)

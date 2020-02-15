@@ -569,7 +569,7 @@ class CompilerToQEMUMachine(object):
             with open(source_target, 'w') as f:
                 f.write(self.custom_devices['interrupt_controller']['source'])
                 f.flush()
-            self.debug('link {} source at {}'.format(k, source_targets.plit('qemu-4.0.0')[1][1:]), 'link')
+            self.debug('link {} source at {}'.format(k, source_target.split('qemu-4.0.0')[1][1:]), 'link')
             header_target = os.path.join(
                 self.firmware.get_target_dir(), 'qemu-4.0.0', 'include',
                 self.location['machine']['interrupt_controller'],

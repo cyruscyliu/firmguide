@@ -1,95 +1,127 @@
-support:
-  bcm47xx:
-    device_tree: False
-    machine_ids: ["0x10000030"]
-    uart: serial8250
-    profile: "examples/mips/bcm47xx/profile.yaml"
-  ath79:
-    device_tree: False
-    uart: serial8250
-  ar7:
-    device_tree: False
-    uart: serial8250
-  ar231x:
-    device_tree: False
-  adm5120:
-    device_tree: False
-  cavium-octeon:
-    device_tree: True
-    uart: serial8250
-  cobalt:
-    device_tree: False
-    uart: serial8250
-  emma:
-    device_tree: False
-    uart: serial8250
-  jazz:
-    device_tree: False
-    uart: serial8250
-  jz4740:
-    device_tree: False
-    uart: serial8250
-  lantiq:
-    device_tree: True
-    uart: serial8250
-  loongson1:
-    device_tree: False
-    uart: serial8250
-  mti-malta:
-    device_tree: False
-    uart: serial8250
-  mti-sead3:
-    device_tree: False
-    uart: serial8250
-  netlogic:
-    device_tree: True
-    uart: serial8250
-  ralink:
-    device_tree: True
-    uart: serial8250
-  rb532:
-    device_tree: False
-    uart: serial8250
-  sgi-ip32:
-    device_tree: False
-    uart: serial8250
-others:
-  alchemy:
-    device_tree: False
-    uart: serial8250
-  bcm63xx:
-    device_tree: False
-    uart: serial8250
-  lasat:
-    device_tree: False
-    uart: serial8250
-  loongson:
-    device_tree: False
-    uart: serial8250
-  paravirt:
-    device_tree: False
-    uart: kvm_virtio
-  pmcs-msp71xx:
-    device_tree: False
-    uart: serial8250
-  pnx833x:
-    device_tree: False
-    uart: pnx8xxx-uart
-  sni:
-    device_tree: False
-    uart: serial8250
-  sgi-ip22:
-    device_tree: False
-    uart: ARCS console
-  sgi-ip27:
-    device_tree: False
-    uart: serial8250
-  sibyte:
-    device_tree: False
-    uart: cfe
-  txx9:
-    device_tree: False
-    uart: txx9
-  vr41xx:
-    device_tree: False
-    uart: vr41xx console
+adm5120:
+  device_tree: false
+  targets:
+    openwrt: [adm5120]
+adm8668:
+  compatible: {}
+  device_tree: null
+  machine_ids: {}
+  profiles: {}
+  targets:
+    openwrt: [adm8668]
+alchemy:
+  device_tree: false
+  targets:
+    openwrt: [au1000]
+amazon:
+  compatible: {}
+  device_tree: null
+  machine_ids: {}
+  profiles: {}
+  targets:
+    openwrt: [amazon]
+ar231x:
+  device_tree: false
+  targets:
+    openwrt: [atheros]
+ar25: {deivce_tree: false}
+ar7:
+  device_tree: true
+  targets:
+    openwrt: [ar7]
+ath25:
+  compatible: {}
+  device_tree: null
+  machine_ids: {}
+  profiles: {}
+  targets:
+    openwrt: [ath25]
+ath79:
+  device_tree: true
+  profiles:
+    examples/mips/ath79/profile.yaml: {brand: openwrt, revision: '15.05', version: 3.18.20}
+  targets:
+    openwrt: [ar71xx]
+bcm47xx:
+  device_tree: false
+  profiles:
+    examples/mips/bcm47xx/profile.yaml: {brand: openwrt, revision: '15.05', version: 3.18.20}
+  targets:
+    openwrt: [brcm47xx]
+bcm63xx:
+  device_tree: false
+  targets:
+    openwrt: [brcm63xx]
+bcm947xx:
+  compatible: {}
+  device_tree: null
+  machine_ids: {}
+  profiles: {}
+  targets:
+    openwrt: [brcm-2.4]
+bmips: {device_tree: true}
+cavium-octeon:
+  device_tree: true
+  targets:
+    openwrt: [octeon]
+cobalt:
+  device_tree: false
+  targets:
+    openwrt: [cobalt]
+dec: {device_tree: false}
+emma: {device_tree: false}
+ifxmips:
+  compatible: {}
+  device_tree: null
+  machine_ids: {}
+  profiles: {}
+  targets:
+    openwrt: [ifxmips]
+jazz: {device_tree: false}
+jz4740:
+  device_tree: true
+  targets:
+    openwrt: [xburst]
+lantiq:
+  device_tree: true
+  targets:
+    openwrt: [lantiq]
+lasat: {device_tree: false}
+loongson: {device_tree: false}
+loongson1: {device_tree: false}
+loongson32: {device_tree: false}
+loongson64: {device_tree: false}
+mti-malta:
+  device_tree: true
+  targets:
+    openwrt: [malta]
+mti-sead3: {device_tree: true}
+netlogic:
+  device_tree: false
+  targets:
+    openwrt: [netlogic]
+paravirt: {device_tree: false}
+pistachio:
+  device_tree: true
+  targets:
+    openwrt: [pistachio]
+pmcs-msp71xx: {device_tree: false}
+pnx833x: {device_tree: false}
+ralink:
+  device_tree: true
+  targets:
+    openwrt: [ramips]
+rb532:
+  device_tree: false
+  targets:
+    openwrt: [rb532]
+sgi-ip22: {device_tree: false}
+sgi-ip27: {device_tree: false}
+sgi-ip32: {device_tree: false}
+sibyte:
+  device_tree: false
+  targets:
+    openwrt: [sibyte]
+sni: {device_tree: false}
+txx9: {device_tree: false}
+vr41xx: {device_tree: false}

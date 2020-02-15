@@ -28,6 +28,29 @@ class SRCodeController(Common):
 
         self.set_attributes(SOURCE_CODE_ATTRIBUTES)
 
+    def symbol2fileg(self, symbol, relative=True):
+        search_in = os.path.join(self.path_to_source_code, 'arch/{}'.format(self.arch))
+
+        f = None
+        with os.popen('find {} -name "*.c" | xargs grep " {}"'.format(search_in, symbol)) as o:
+            for line in o:
+                # arch/mips/kernel/setup.c: * arch_mem_init -
+                # arch/mips/kernel/setup.c:static void __init arch_mem_init(char **cmdline_p)
+                # arch/mips/kernel/setup.c:       arch_mem_init(cmdline_p);
+                fs, c = line.strip().split(':')[0:2]
+                if c.strip().startswith('*'):
+                    continue
+                if c.strip().endswith(';'):
+                    continue
+                f = os.path.realpath(fs)
+
+        if f is None:
+            return f
+        if relative:
+            return f[len(os.path.realpath(self.path_to_source_code)) + 1:]
+        else:
+            return f
+
     def symbol2file(self, symbol, relative=True):
         if self.system_map is None:
             path = os.path.join(self.path_to_source_code, 'System.map')
@@ -72,6 +95,11 @@ class SRCodeController(Common):
 
     def __has_gcc(self, line):
         gcc = [os.path.basename(self.path_to_cross_compile) + 'gcc', 'ccache_cc']
+
+        items = line.split()
+        if not len(items):
+            return
+
         for i in gcc:
             if line.split()[0].endswith(i):# or line.split()[1].endswith(gcc):
                 return True
@@ -96,8 +124,8 @@ class SRCodeController(Common):
             return
 
         command = None
-        target = os.path.basename(path)
-        with open(self.path_to_makeout ) as f:
+        target = path
+        with open(self.path_to_makeout) as f:
             for line in f:
                 if not self.__has_gcc(line):
                     continue
@@ -120,14 +148,18 @@ class SRCodeController(Common):
 
         return funccalls
 
-    def __get_funccalls_by_sparse(self, path, funcname):
-        path = os.path.join(self.path_to_source_code, path)
-        output = os.popen('graph {}'.format(path)).readlines()
+    def __get_graph(self, path):
+        with os.popen('graph {} 2>/dev/null'.format(path)) as o:
+            output= o.readlines()
         output = ''.join(output)
 
         graphs = pydot.graph_from_dot_data(output)
         assert len(graphs) == 1, 'something wrong in graph'
-        graph = graphs[0]
+        return graphs[0]
+
+    def __get_funccalls_by_sparse(self, path, funcname):
+        path = os.path.join(self.path_to_source_code, path)
+        graph = self.__get_graph(path)
 
         # 1st, find the subgraph you want to analyze
         eps = {}
@@ -156,8 +188,58 @@ class SRCodeController(Common):
 
         return funccalls
 
+    def __get_globals_by_sparse(self, path, funcname):
+        path = os.path.join(self.path_to_source_code, path)
+        graph = self.__get_graph(path)
+
+        # 1st, find the subgraph you want to analyze
+        eps = {}
+        cfg = None
+        for subgraph in graph.get_subgraph_list():
+            attributes = subgraph.get_attributes()
+            if attributes['fun'].strip('"') == funcname:
+                cfg = subgraph
+            eps[attributes['ep']] = attributes['fun'].strip('"')
+        if cfg is None:
+            return []
+
+        gs = {}
+        def store(g):
+            if g not in gs:
+                gs[g] = []
+            gs[g].append('store')
+
+        def load(g):
+            if g not in gs:
+                gs[g] = []
+            gs[g].append('load')
+
+        # 2nd, traverse the subgraph and log all reading/writing operations
+        for node in cfg.get_node_list():
+            # 'ls': '"[ store(ath79_ip2_handler), store(ath79_ip3_handler) ]"'
+            # '"[ store('ath79_ip2_handler'), store('ath79_ip3_handler') ]"'
+            attrs = node.get_attributes()
+            if 'ls' in attrs:
+                eval(attrs['ls'].strip('"').replace('(', '(\'').replace(')', '\')'))
+
+        return gs
+
     def get_funccalls(self, path, funcname, mode='sparse'):
+        """
+        This function takes a preprocessed file as input and return external function
+        calls in a given function.
+        """
         if self.sparse and mode == 'sparse':
             return self.__get_funccalls_by_sparse(path, funcname)
         return []
+
+    def get_globals(self, path, funcname, mode='sparse'):
+        """
+        This function takes a preprocessed file as input and return global reading/writing
+        states in a given function.
+        """
+        if self.sparse and mode == 'sparse':
+            return self.__get_globals_by_sparse(path, funcname)
+        return {}
+
 
