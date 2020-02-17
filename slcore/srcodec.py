@@ -1,5 +1,8 @@
 """
 source code controller
++ symbol2file, symbol2fileg
++ cmdline/preprocess/compile/link one file
++ cfg/cg/gloabls
 """
 from settings import *
 from logger import logger_info

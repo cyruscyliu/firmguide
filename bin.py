@@ -33,6 +33,7 @@ def run(args):
     firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
         firmware.get_uuid(), firmware.get_arch(), firmware.get_endian()
     )
+    firmware.cancle_compilation = args.cancle_compilation
     firmware.qemuc = QEMUController()
     status = run_diagnosis(firmware)
 
@@ -61,6 +62,7 @@ if __name__ == '__main__':
 
     # diagnosis
     group = parser.add_argument_group('diagnosis')
+    group.add_argument('-cc', '--cancle_compilation', action='store_true', default=False)
     group.add_argument('-t', '--trace', metavar='path/to/uuid-arch-endian.trace')
     group.add_argument('-tf', '--trace_format', choices=['qemudebug'], default='qemudebug')
     group.add_argument('-m', '--max', type=int, help='max times of iteration', default=1)

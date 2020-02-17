@@ -11,6 +11,11 @@ after several experiments, I conclude
     the idealest ways to solve this problem. BTW, running in different directories looks quick and dirty but is
     really helpful. Another solution is to have a qemu controller which can lock/unlock qemu source code
     read/write and compilation.
+
+features
++ command construction
++ patch/recovery
++ compile/debug/trace
 """
 import os
 import qmp

@@ -8,7 +8,6 @@ from settings import *
 class Preparation(Analysis):
     def run(self, firmware):
         machine_compiler = get_compiler(firmware)
-        # TODO detouch qemuc from compiler
         # compiler only link files locally
 
         # 1. generate code(render in multi-levels)
@@ -16,20 +15,23 @@ class Preparation(Analysis):
         machine_compiler.link()
 
         # 2. install and make(compile qemu)
-        prefix = os.path.join(firmware.get_target_dir(), 'qemu-4.0.0')
-        for root, dirs, files in os.walk(prefix):
-            if len(dirs):
-                continue
-            for f in files:
-                full = os.path.join(root, f)
-                target = firmware.qemuc.patch(full, full[len(prefix)+1:])
-                self.debug(firmware, 'install {} at {}'.format(f, target), 'install')
-        firmware.qemuc.add_target(
-            to_upper(firmware.get_machine_name()), type_='hw', arch=firmware.get_arch(), endian=firmware.get_endian())
-        if machine_compiler.has_sintc():
+        if not firmware.cancle_compilation:
+            prefix = os.path.join(firmware.get_target_dir(), 'qemu-4.0.0')
+            for root, dirs, files in os.walk(prefix):
+                if len(dirs):
+                    continue
+                for f in files:
+                    full = os.path.join(root, f)
+                    target = firmware.qemuc.patch(full, full[len(prefix)+1:])
+                    self.debug(firmware, 'install {} at {}'.format(f, target), 'install')
             firmware.qemuc.add_target(
-                to_upper(firmware.get_machine_name()), type_='sintc')
-        firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
+                to_upper(firmware.get_machine_name()), type_='hw', arch=firmware.get_arch(), endian=firmware.get_endian())
+            if machine_compiler.has_sintc():
+                firmware.qemuc.add_target(
+                    to_upper(firmware.get_machine_name()), type_='sintc')
+            firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
+            # guarentee qemu is clean
+            firmware.qemuc.recover()
 
         # 3. prepare -k path/to/kernel
         # 3.1 If a mips firmware has CMDLINE: filled, it will not use our customed cmdline.
@@ -63,9 +65,6 @@ class Preparation(Analysis):
         )
         self.debug(firmware, 'get command: {}'.format(running_command), 1)
         firmware.running_command = running_command
-
-        # guarentee qemu is clean
-        firmware.qemuc.recover()
 
         return True
 

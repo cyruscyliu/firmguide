@@ -41,6 +41,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.running_command = None
         self.trace_format = None
         self.path_to_trace = None
+        self.cancle_compilation = False
 
         # flags
         self.do_not_diagnosis = False  # will stop early
