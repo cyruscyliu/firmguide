@@ -1,4 +1,5 @@
 import subprocess
+import tempfile
 import qmp
 
 from analyses.analysis import Analysis
@@ -59,16 +60,18 @@ class DoTracing(Analysis):
             trace_flags = '-d in_asm,int -D {}'.format(firmware.path_to_trace)
         else:
             trace_flags = '-d in_asm,int,cpu -D {}'.format(firmware.path_to_trace)
-        qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
+        socket = tempfile.NamedTemporaryFile()
+        qmp_flags = '-qmp unix:{},server,nowait'.format(socket.name)
         full_command = ' '.join([firmware.running_command, trace_flags, qmp_flags])
         try:
             self.info(firmware, full_command, 1)
             status = subprocess.run(full_command, timeout=20, shell=True).returncode
         except subprocess.TimeoutExpired:
             status = 0
-            qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
+            qemu = qmp.QEMUMonitorProtocol(socket.name)
             qemu.connect()
             qemu.cmd('quit')
             qemu.close()
+            socket.close()
         return self.analysis_status(status)
 
