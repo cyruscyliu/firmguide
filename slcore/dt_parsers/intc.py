@@ -1,6 +1,8 @@
 import os
 import fdt
 
+from slcore.dt_parsers.mmio import *
+
 
 COMPATIBLE_INTERRUPTS_INDEX = {
     'arm,gic-400': 1,
@@ -11,7 +13,7 @@ COMPATIBLE_INTERRUPTS_INDEX = {
     'brcm,brahma-b15-gic': 1,
 }
 
-def find_interrupts_index(dts, phandle):
+def __find_interrupts_index(dts, phandle):
     for pa, no, pros in dts.walk():
         if len(no):
             continue
@@ -21,7 +23,7 @@ def find_interrupts_index(dts, phandle):
             interrupt_cells = dts.get_property('#interrupt-cells', pa).data[0]
             if interrupt_cells == 1:
                 return 0
-            # in this situation, we should find the index in the table
+            # we should find the index in the table
             compatible = dts.get_property('compatible', pa).data
             for cmptb in compatible:
                 if cmptb in COMPATIBLE_INTERRUPTS_INDEX:
@@ -29,14 +31,35 @@ def find_interrupts_index(dts, phandle):
     return None
 
 
+def find_irqn_by_pphandle(dts, pphandle, cell):
+    interrupts_index = __find_interrupts_index(dts, pphandle)
+    if interrupts_index is None:
+        print('update COMPATIBLE_INTERRUPTS_INDEX for {}'.format(compatible))
+        return cell
+    else:
+        irqn = cell[interrupts_index]
+        return irqn
+
+
 def find_intc_by_phandle(dts, phandle):
-    flatten_intcs = find_flatten_intcs(dts)
+    flatten_intcs = find_flatten_intc_in_fdt(dts)
     for intc in flatten_intcs:
         if intc['phandle'] == phandle:
             return intc
 
 
-def find_flatten_intcs(dts):
+def find_flatten_intc_in_fdt(dts):
+    """
+    intc:      always, whether is an interrupt controller or not
+    phandle:   always, a number identifies an interrupt controller
+    master:    always, whether is a master interrupt controller or not
+    slave:     always, whether is a slave interrupt controller or not
+    intcp:     condit, the phandle of the parent interrupt controller, if the slave is true
+    irqn:      condit, the irq number to which the slave device connect, if the slave is true
+    compatible always, the compatible of the node
+    path:      always, the path of the node
+    reg:       always, see find_mmio_by_path for details
+    """
     flatten_intc_tree = {}
     for pa, no, pros in dts.walk():
         if len(no):
@@ -44,7 +67,7 @@ def find_flatten_intcs(dts):
         if dts.exist_property('interrupt-controller', pa):
             compatible = dts.get_property('compatible', pa)
             if compatible is None:
-                compatible = dts.get_property('compatible', os.path.dirname(pa))
+                compatible = dts.get_property('compatible', os.path.dirname(pa)).data
             else:
                 compatible = compatible.data
             if dts.exist_property('phandle', pa):
@@ -52,21 +75,16 @@ def find_flatten_intcs(dts):
                 if dts.exist_property('interrupt-parent', pa):
                     interrupt_parent = dts.get_property('interrupt-parent', pa).data[0]
                     interrupts = dts.get_property('interrupts', pa).data
-                    # ==== get real irqn ====
-                    interrupts_index = find_interrupts_index(dts, interrupt_parent)
-                    if interrupts_index is None:
-                        print('update COMPATIBLE_INTERRUPTS_INDEX for {}'.format(compatible))
-                    else:
-                        interrupts = interrupts[interrupts_index]
-                    # ====     done      ====
+                    interrupts = find_irqn_by_pphandle(dts, interrupt_parent, interrupts)
                     flatten_intc_tree[pa] = {
                         'phandle': phandle, 'intc': True, 'master': True, 'slave': True,
-                        'interrupt_parent': interrupt_parent, 'interrupts': interrupts,
+                        'intcp': interrupt_parent, 'irqn': interrupts,
                         'compatible': compatible}
                 else:
+                    # here is the intc connecting to the cpu
                     flatten_intc_tree[pa] = {
-                        'phandle': phandle, 'intc': True, 'master': True, 'slave': False,
-                        'compatible': compatible}
+                        'phandle': phandle, 'intc': True, 'master': True, 'slave': True,
+                        'compatible': compatible, 'intcp': -1, 'irqn': -1}
                 if dts.exist_property('#address-cells', pa):
                     flatten_intc_tree[pa]['address-cells'] = \
                         dts.get_property('#address-cells', pa).data[0]
@@ -74,9 +92,14 @@ def find_flatten_intcs(dts):
                     flatten_intc_tree[pa]['interrupt-cells'] = \
                         dts.get_property('#interrupt-cells', pa).data[0]
             else:
+                # here is the intc which will probably not being used
                 flatten_intc_tree[pa] = {
                     'intc': True, 'master': False, 'slave': False,
                     'compatible': compatible}
+            mmio = find_mmio_by_path(dts, pa)
+            if mmio is not None:
+                # only you need is the base address
+                flatten_intc_tree[pa]['reg'] = mmio['reg'][0]
 
     flatten_intcs = []
     for k, v in flatten_intc_tree.items():
@@ -84,64 +107,4 @@ def find_flatten_intcs(dts):
         flatten_intcs.append(v)
 
     return flatten_intcs
-
-
-def find_flatten_intc_tree_in_fdt(dts):
-    flatten_intc_tree = {}
-    for pa, no, pros in dts.walk():
-        if len(no):
-            continue
-        if dts.exist_property('interrupt-controller', pa):
-            compatible = dts.get_property('compatible', pa)
-            if compatible is None:
-                compatible = dts.get_property('compatible', os.path.dirname(pa))
-            else:
-                compatible = compatible.data
-            if dts.exist_property('phandle', pa):
-                phandle = dts.get_property('phandle', pa).data[0]
-                if dts.exist_property('interrupt-parent', pa):
-                    interrupt_parent = dts.get_property('interrupt-parent', pa).data[0]
-                    interrupts = dts.get_property('interrupts', pa).data
-                    # ==== get real irqn ====
-                    interrupts_index = find_interrupts_index(dts, interrupt_parent)
-                    if interrupts_index is None:
-                        print('update COMPATIBLE_INTERRUPTS_INDEX for {}'.format(compatible))
-                    else:
-                        interrupts = interrupts[interrupts_index]
-                    # ====     done      ====
-                    flatten_intc_tree[pa] = {
-                        'phandle': phandle, 'intc': True, 'master': True, 'slave': True,
-                        'interrupt_parent': interrupt_parent, 'interrupts': interrupts,
-                        'compatible': compatible}
-                else:
-                    flatten_intc_tree[pa] = {
-                        'phandle': phandle, 'intc': True, 'master': True, 'slave': False,
-                        'compatible': compatible}
-                if dts.exist_property('#address-cells', pa):
-                    flatten_intc_tree[pa]['address-cells'] = \
-                        dts.get_property('#address-cells', pa).data[0]
-                if dts.exist_property('#interrupt-cells', pa):
-                    flatten_intc_tree[pa]['interrupt-cells'] = \
-                        dts.get_property('#interrupt-cells', pa).data[0]
-            else:
-                flatten_intc_tree[pa] = {
-                    'intc': True, 'master': False, 'slave': False,
-                    'compatible': compatible}
-        elif dts.exist_property('interrupt-parent', pa):
-            compatible = dts.get_property('compatible', pa).data
-            interrupt_parent = dts.get_property('interrupt-parent', pa).data[0]
-            interrupts = dts.get_property('interrupts', pa).data
-            # ==== get real irqn ====
-            interrupts_index = find_interrupts_index(dts, interrupt_parent)
-            if interrupts_index is None:
-                print('update COMPATIBLE_INTERRUPTS_INDEX for {}'.format(compatible))
-            else:
-                interrupts = interrupts[interrupts_index]
-            # ====     done      ====
-            flatten_intc_tree[pa] = {
-                'intc': False, 'slave': True,
-                'interrupt_parent': interrupt_parent, 'interrupts': interrupts,
-                'compatible': compatible}
-
-    return flatten_intc_tree
 

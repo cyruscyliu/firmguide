@@ -1,0 +1,73 @@
+#### ARM GENERAL ####
+arm,general:
+    get_header: [target/arm/cpu-qom.h]
+    get_field: 
+        - ARMCPU *cpu;
+    get_body:
+        - s->cpu = ARM_CPU(object_new(machine->cpu_type)); 
+        - object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
+    get_irqn: qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ)
+#### MIPS(EL) GENERAL ####
+mips(el),general:
+    get_header: [target/mips/cpu-qom.h]
+    get_field: 
+        - MIPSCPU *cpu;
+    get_body:
+        - s->cpu = MIPS_CPU(object_new(machine->cpu_type));
+        - object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
+    get_irqn: qdev_get_gpio_in(DEVICE(s->cpu), MIPS_CPU_IRQ)
+#### OTHERS HERE ####
+#### ARM BEGIN ####
+arm,arm1026:
+    extend: arm,general
+    get_type: arm1026
+arm,arm1136:
+    extend: arm,general
+    get_type: arm1136 # arm1136-r2
+arm,arm1176:
+    extend: arm,general
+    get_type: arm1176
+arm,arm11mpcore:
+    extend: arm,general
+    get_type: arm11mpcore
+arm,arm926:
+    extend: arm,general
+    get_type: arm926
+arm,arm946:
+    extend: arm,general
+    get_type: arm946
+arm,cortex-a15:
+    extend: arm,general
+    get_type: cortex-a15
+arm,cortex-a7:
+    extend: arm,general
+    get_type: cortex-a7
+arm,cortex-a8:
+    extend: arm,general
+    get_type: cortex-a8
+arm,cortex-a9:
+    extend: arm,general
+    get_type: cortex-a9
+marvell,xscale:
+    extend: arm,general
+    get_type: pxa250  # pxa255 pxa260 pxa261 pxa262 pxa270 pxa270-a0 pxa270-a1 pxa270-b0 pxa270-b1 pxa270-c0 pxa270-c5
+intel,sa1100:
+    extend: arm,general
+    get_type: sa1100
+#### MIPS BEGIN ####
+mips,mips24Kc:
+    extend: mips(el),general
+    get_type: 24Kc
+mips,mips24KEc:
+    extend: mips(el),general
+    get_type: 24KEc
+mips,mips4KEc:
+    extend: mips(el),general
+    get_type: 4KEc
+mips,mips74Kc:
+    extend: mips(el),general
+    get_type: 74Kf
+mips,mips1004Kc:
+    extend: mips(el),general
+    get_type: 74Kf
+#### OTHERS HERE ####

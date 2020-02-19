@@ -49,7 +49,7 @@ class DatabaseQEMUModels(Database):
         compatible = kwargs.pop('compatible', None)
 
         # get the database
-        qemu_models = open(os.path.join(DATABASE_DIR, 'qemu.latest.yaml'))
+        qemu_models = open(os.path.join(DATABASE_DIR, 'qemu.{}.yaml'.format(self.t)))
         database_qemu_models = yaml.safe_load(qemu_models)
         qemu_models.close()
 
@@ -66,6 +66,9 @@ class DatabaseQEMUModels(Database):
     def update(self, *args, **kwargs):
         raise NotImplementedError('you are not expected to modify this table')
 
+    def __init__(self, t):
+        super().__init__()
+        self.t = t
 
 
 class DatabaseQEMUDevices(Database):

@@ -1,0 +1,24 @@
+intc,generic:
+    parameters: [name, reg, intcp]
+    get_irqn: qdev_get_gpio_in_named(DEVICE(&s->{{ name }}), {{ name|upper }}_IRQ, {{ irqn }})
+    get_header:
+        - hw/intc/{{ name }}.h
+    get_field: 
+        - '{{ name|upper }}State {{ name }};'
+    get_body:
+        - object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_{{ name|upper }});
+        - qdev_set_parent_bus(DEVICE(&s->{{ name }}), sysbus_get_default());
+        - object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized", &err);
+        - sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ reg.base }});
+        - qdev_connect_gpio_out(DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});
+ralink,rt2880-intc:
+    extend: intc,generic
+mti,cpu-interrupt-controller:
+    get_header:
+        - hw/mips/cpudevs.h
+    get_field: 
+        - ''
+    get_body:
+        - cpu_mips_irq_init_cpu(s->cpu);
+    get_irqn: s->cpu->env.irq[{{ irqn }}]
+

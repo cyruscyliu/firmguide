@@ -2,7 +2,7 @@ import os
 import fdt
 
 
-def find_parent_address(dts, path):
+def __find_parent_address(dts, path):
     # at most 2 levels
     node = dts.get_node(path)
     parent = node.parent
@@ -46,11 +46,24 @@ def __find_parent_size_cells(dts, path):
         return __find_parent_size_cells(dts, path)
 
 
+def find_mmio_by_path(dts, path):
+    flatten_mmio = find_flatten_mmio_in_fdt(dts)
+    for mmio in flatten_mmio:
+        if mmio['path'] == path:
+            return mmio
+
+
 def find_flatten_mmio_in_fdt(dts):
+    """
+    path:       the pathe of the node
+    compatible: the compatible of the node
+    reg:        the absolute address, size paris,
+                e.g. reg: [{base: 0, size: 1}, {base: 1, size: 1}]
+    """
     top_address_cells = dts.get_property('#address-cells', '/').data[0]
     top_size_cells = dts.get_property('#size-cells', '/').data[0]
 
-    flatten_mmio = {}
+    mmio = {}
     for pa, no, pros in dts.walk():
         if pa.find('pinctrl') != -1:
             continue
@@ -72,7 +85,8 @@ def find_flatten_mmio_in_fdt(dts):
         mmios = dts.get_property('reg', pa).data
 
         # if it has offsets
-        offset = find_parent_address(dts, pa)
+        offset = __find_parent_address(dts, pa)
+        mmio[pa] =  {'reg': [], 'compatible': dts.get_property('compatible', pa)}
         for i in range(len(mmios) // (size_cells + address_cells)):
             base = 0
             for j in range(address_cells):
@@ -80,6 +94,12 @@ def find_flatten_mmio_in_fdt(dts):
             size = 0
             for j in range(size_cells):
                 size += mmios[i * (size_cells + address_cells) + address_cells + j]
-            flatten_mmio[pa] = {'base': base + offset, 'size': size}
+            mmio[pa]['reg'].append({'base': base + offset, 'size': size})
+
+    flatten_mmio = []
+    for k, v in mmio.items():
+        v['path'] = k
+        flatten_mmio.append(v)
+
     return flatten_mmio
 

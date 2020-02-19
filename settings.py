@@ -6,6 +6,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 TESTS_DIR = os.path.join(BASE_DIR, 'tests')
 DATABASE_DIR = os.path.join(BASE_DIR, 'slcore/database')
+GENERATION_DIR = os.path.join(BASE_DIR, 'slcore/generation')
 
 # ====== core =====
 

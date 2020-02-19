@@ -1,0 +1,7 @@
+ns16550a:
+    parameters: [reg, reg_shift, intcp, irqn, id, endian]
+    get_header: [hw/char/serial.h]
+    get_field: 
+        - ''
+    get_body:
+        - serial_mm_init(get_system_memory(), {{ reg.base }}, {{ reg_shift }}, {{  intcp.get_irqn }}, serial_hd({{ id }}), {{ endian }});
