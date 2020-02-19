@@ -40,7 +40,11 @@ class INTC(Common):
         return '{}'.format(self.compatible)
 
 
-UART_ATTRIBUTES = ['path', 'compatible', 'irqn', 'baud_rate', 'base', 'size']
+UART_ATTRIBUTES = [
+    'path', 'compatible', 'id',
+    'irqn', 'baud_rate', 'base', 'size',
+    'endian', 'intp'
+]
 
 
 class UART(Common):
@@ -49,7 +53,7 @@ class UART(Common):
         self.set_attributes(UART_ATTRIBUTES)
 
     def __str__(self):
-        return '{}'.format(self.compatible)
+        return '{} -> {}({})'.format(self.compatible, self.intp, self.irqn)
 
 
 BAMBOO_ATTRIBUTES = ['path', 'compatible', 'base', 'size']
@@ -110,9 +114,11 @@ class Machine(Common):
             self.intcs.append(intc)
 
         self.uarts = []
-        for k, v in flatten_uart.items():
+        for uid, v in enumerate(flatten_uart):
             uart = UART()
+            v['intp'] = find_intc_by_phandle(dts, v['intp'])['compatible']
             uart.set_attributes(attrs=v)
+            uart.set_id(uid)
             self.uarts.append(uart)
 
         self.bamboos = []

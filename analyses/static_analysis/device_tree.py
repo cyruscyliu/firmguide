@@ -1,29 +1,39 @@
 from analyses.analysis import Analysis
+from slcore.database.dbf import get_database
 from slcore.profile.machine import Machine
 from slcore.dt_parsers.common import *
 
 
 class DeviceTree(Analysis):
     def run(self, firmware):
-        dir_to_dt_collection = firmware.get_dt_collection()
-        if dir_to_dt_collection is None:
+        path_to_dtb = firmware.get_components().get_path_to_dtb()
+        if path_to_dtb is None:
             return True
 
-        # for path_to_dtb in compile_dts_in_dtcg(dir_to_dt_collection):
-            # We must get dozen of device tree source files, to
-            # handle them all, we propose a new data structure
-            # named `machine` with CPU/RAM/INTC/TIMER/UART/BAMBOOS
-            # detail in. For other situation, say CMDLINE diverging,
-            # NVRAM diverging, we should duplicate the machine not
-            # the firmware.
-            # dts = load_dtb(path_to_dtb)
-            # machine = Machine()
-            # machine.parse_dts(dts)
-            # firmware.machines.append(machine)
+        # 1. load the dtb
+        dts = load_dtb(path_to_dtb)
+        machine = Machine()
+        machine.parse_dts(dts)
+        firmware.machine = machine
 
-            # for line in machine.__str__().strip().split('\n'):
-            #     self.debug(firmware, '{}'.format(line), 1)
+        # 2. handle the cpu
+        compatible = machine.cpus[0].get_compatible()
+        for cmptb in compatible:
+            qemu_devices = get_database('qemu.devices')
+            cpu_model = qemu_devices.select('cpu', compatible=cmptb)
+            if cpu_model is None:
+                self.warning(firmware, 'please update qemu.devices for {}'.format(cmptb))
+                continue
+            firmware.set_cpu_model(cpu_model)
+            self.info(firmware, 'get cpu {}'.format(cpu_model), 1)
 
+        # 3. handle the intc
+        # 3.1 handle intc one by one
+        # 3.2 connect them
+
+        # 4 handle the uart
+        for uart in machine.uarts:
+            uart.set_endian(firmware.get_endian())
         return True
 
     def __init__(self, analysis_manager):

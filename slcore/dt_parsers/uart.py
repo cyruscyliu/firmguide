@@ -26,7 +26,7 @@ def find_flatten_uart_in_fdt(dts, flatten_intc_tree=None, flatten_mmio=None, fla
     if path_to_uarts is None:
         return None
 
-    flatten_uart = {}
+    flatten_uart = []
     for i, path_to_uart in enumerate(path_to_uarts):
         compatible = dts.get_property('compatible', path_to_uart).data
 
@@ -74,13 +74,11 @@ def find_flatten_uart_in_fdt(dts, flatten_intc_tree=None, flatten_mmio=None, fla
             else:
                 irqn = interrupts[interrupts_index]
             # ====     done      ====
-        flatten_uart[path_to_uart] = {
-            'compatible': compatible,
-            'base': base, 'size': size, 'irqn': irqn,
+        flatten_uart.append({
+            'path': path_to_uart, 'compatible': compatible,
+            'base': base, 'size': size, 'irqn': irqn, 'intp': interrupt_parent,
             'baud_rate': baud_rate, 'reg_shift': reg_shift,
-        }
+        })
 
     return flatten_uart
-
-
 
