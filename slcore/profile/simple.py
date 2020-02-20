@@ -551,7 +551,8 @@ class SimpleFirmware(Firmware):
         return toh
 
     def save_profile(self, *args, **kwargs):
-        self.profile['components'] = self.components.get_attributes()
+        if self.components:
+            self.profile['components'] = self.components.get_attributes()
 
         with open(self.path_to_profile, 'w') as f:
             yaml.safe_dump(self.profile, f)

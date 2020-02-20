@@ -1,6 +1,4 @@
-from logger import logger_info, logger_warning
 from analyses.manager import AnalysesManager
-from slcore.generation.compilerf import get_compiler
 from slcore.environment import restore_analysis, save_analysis
 
 

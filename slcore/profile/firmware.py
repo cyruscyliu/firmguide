@@ -34,7 +34,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.path_to_summary = None  # /tmp/uuid/stats.yaml
 
         self.components = None
-        self.dt_collection = None
+        self.dtb = None
         self.srcodec = None
         self.qemuc = None
 
@@ -115,11 +115,11 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def set_qemuc(self, srcodec):
         self.srcodec = srcodec
 
-    def get_dt_collection(self):
-        return self.dt_collection
+    def get_dtb(self):
+        return self.dtb
 
-    def set_dt_collection(self, dtc):
-        self.dt_collection = dtc
+    def set_dtb(self, dtb):
+        self.dtb = dtb
 
     @abc.abstractmethod
     def set_arch(self, *args, **kwargs):

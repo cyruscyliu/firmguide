@@ -13,7 +13,7 @@ class TestDTRenderer(TestCase):
         firmware = get_firmware('simple')
         path_to_profile = os.path.join(TESTS_DIR, 'profile.yaml')
         firmware.set_profile(path_to_profile=path_to_profile)
-        firmware.set_dt_collection(os.path.join(TESTS_DIR, 'profile.dtb'))
+        firmware.set_dtb(os.path.join(TESTS_DIR, 'profile.dtb'))
 
         dt_renderer = DTRenderer(firmware)
         a = dt_renderer.render()
