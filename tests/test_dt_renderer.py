@@ -18,3 +18,4 @@ class TestDTRenderer(TestCase):
         dt_renderer = DTRenderer(firmware)
         a = dt_renderer.render()
         print(a)
+

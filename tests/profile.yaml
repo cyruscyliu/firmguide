@@ -1,6 +1,96 @@
-basics: {architecture: mips, endian: b, machine_description: ar71xx_generic, machine_name: ramips_rt3883,
-  uuid: ramips_rt3883}
+bamboo:
+  stub0:
+    mmio_base: '0x101c1000'
+    mmio_size: '0x1000'
+    registers:
+      stub_reserved0: {offset: 0x0 ... 0xffc, value: '0x0'}
+  stub1:
+    mmio_base: '0x101c0000'
+    mmio_size: '0x1000'
+    registers:
+      stub_reserved1: {offset: 0x0 ... 0xffc, value: '0x0'}
+  stub10:
+    mmio_base: '0x10000300'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved10: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub11:
+    mmio_base: '0x10000120'
+    mmio_size: '0x10'
+    registers:
+      stub_reserved11: {offset: 0x0 ... 0xc, value: '0x0'}
+  stub12:
+    mmio_base: '0x10000100'
+    mmio_size: '0x20'
+    registers:
+      stub_reserved12: {offset: 0x0 ... 0x1c, value: '0x0'}
+  stub13:
+    mmio_base: '0x10000000'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved13: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub2:
+    mmio_base: '0x10180000'
+    mmio_size: '0x9c40'
+    registers:
+      stub_reserved2: {offset: 0x0 ... 0x9c3c, value: '0x0'}
+  stub3:
+    mmio_base: '0x10140000'
+    mmio_size: '0x20000'
+    registers:
+      stub_reserved3: {offset: 0x0 ... 0x1fffc, value: '0x0'}
+  stub4:
+    mmio_base: '0x10100000'
+    mmio_size: '0x2710'
+    registers:
+      stub_reserved4: {offset: 0x0 ... 0x270c, value: '0x0'}
+  stub5:
+    mmio_base: '0x10000b00'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved5: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub6:
+    mmio_base: '0x10000688'
+    mmio_size: '0x24'
+    registers:
+      stub_reserved6: {offset: 0x0 ... 0x20, value: '0x0'}
+  stub7:
+    mmio_base: '0x10000660'
+    mmio_size: '0x24'
+    registers:
+      stub_reserved7: {offset: 0x0 ... 0x20, value: '0x0'}
+  stub8:
+    mmio_base: '0x10000638'
+    mmio_size: '0x24'
+    registers:
+      stub_reserved8: {offset: 0x0 ... 0x20, value: '0x0'}
+  stub9:
+    mmio_base: '0x10000600'
+    mmio_size: '0x34'
+    registers:
+      stub_reserved9: {offset: 0x0 ... 0x30, value: '0x0'}
+basics: {architecture: mips, endian: l, machine_name: ramips_rt3883, uuid: ramips_rt3883}
+components: {output: '0x00000000    uImage header, header size: 64 bytes, created:
+    2020-01-13 10:56:49, image size: 1266228 bytes, Data Address: 0x80000000, Entry
+    Point: 0x80000000, OS: Linux, CPU: MIPS, compression type: lzma, image name: "MIPS
+    OpenWrt Linux-3.18.20"
+
+    0x00000040    LZMA compressed data, properties: 0x6D, dictionary size: 8388608
+    bytes, uncompressed size: 3799796 bytes
+
+    0x00135274    Squashfs filesystem, little endian, version 4.0, compression:xz,
+    size: 2025336 bytes, 739 inodes, blocksize: 262144 bytes, created: 2020-01-13
+    10:56:32
+
+    ', path_to_dtb: /root/esv/../build/ramips_rt3883/_openwrt-15.05-ramips-rt3883-omni-emb-hpm-squashfs-sysupgrade.bin.extracted/_0.uimage.extracted/858.dtb,
+  path_to_image: /root/esv/../build/ramips_rt3883/_openwrt-15.05-ramips-rt3883-omni-emb-hpm-squashfs-sysupgrade.bin.extracted/0.uimage,
+  path_to_kernel: /root/esv/../build/ramips_rt3883/_openwrt-15.05-ramips-rt3883-omni-emb-hpm-squashfs-sysupgrade.bin.extracted/40,
+  path_to_raw: /mnt/iscsi/openwrt-build-docker/share/15.05-02cb6b676c588f7e428c253b747d1ebb/./chaos_calmer-15.05/build_dir/target-mipsel_74kc+dsp2_uClibc-0.9.33.2/OpenWrt-ImageBuilder-15.05-ramips-rt3883.Linux-x86_64/build_dir/target-mipsel_74kc+dsp2_uClibc-0.9.33.2/linux-ramips_rt3883/openwrt-15.05-ramips-rt3883-omni-emb-hpm-squashfs-sysupgrade.bin,
+  path_to_rootfs: /root/esv/../build/ramips_rt3883/_openwrt-15.05-ramips-rt3883-omni-emb-hpm-squashfs-sysupgrade.bin.extracted/135274.squashfs,
+  path_to_uimage: /root/esv/../build/ramips_rt3883/_openwrt-15.05-ramips-rt3883-omni-emb-hpm-squashfs-sysupgrade.bin.extracted/0.uimage,
+  supported: true, type: 2}
+kernel: {kernel_load_address: '0x80000000'}
 mapping:
   '0x80000000': {pa: '0x00000000', size: '0x20000000', va: '0x80000000'}
   '0xa0000000': {pa: '0x00000000', size: '0x20000000', va: '0xa0000000'}
-ram: {base: '0x0', priority: '0', size: 128 * MiB}
+ram: {base: '0x0', size: 128 * MiB}

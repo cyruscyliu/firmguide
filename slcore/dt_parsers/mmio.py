@@ -86,7 +86,7 @@ def find_flatten_mmio_in_fdt(dts):
 
         # if it has offsets
         offset = __find_parent_address(dts, pa)
-        mmio[pa] =  {'reg': [], 'compatible': dts.get_property('compatible', pa)}
+        mmio[pa] =  {'reg': [], 'compatible': dts.get_property('compatible', pa).data}
         for i in range(len(mmios) // (size_cells + address_cells)):
             base = 0
             for j in range(address_cells):
