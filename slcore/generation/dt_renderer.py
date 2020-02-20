@@ -111,8 +111,8 @@ class DTRenderer(object):
             'serial': find_flatten_serial_in_fdt,
         }
 
-    def __render_bamboo(self):
-        'bamboo': find_flatten_mmio_in_fdt
+    def __render_bamboo_devices(self):
+        pass
 
 
     def render(self):
