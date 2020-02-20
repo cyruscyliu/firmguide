@@ -34,7 +34,6 @@ def __find_interrupts_index(dts, phandle):
 def find_irqn_by_pphandle(dts, pphandle, cell):
     interrupts_index = __find_interrupts_index(dts, pphandle)
     if interrupts_index is None:
-        print('update COMPATIBLE_INTERRUPTS_INDEX for {}'.format(compatible))
         return cell
     else:
         irqn = cell[interrupts_index]
@@ -46,6 +45,15 @@ def find_intc_by_phandle(dts, phandle):
     for intc in flatten_intcs:
         if intc['phandle'] == phandle:
             return intc
+
+def find_pphandle_by_path(dts, path):
+    pphandle = dts.get_property('interrupt-parent', path)
+    if pphandle is None:
+        pnode = dts.get_node(path).parent
+        ppath = os.path.join(pnode.path, pnode.name)
+        return find_pphandle_by_path(dts, ppath)
+    else:
+        return pphandle.data[0]
 
 
 def find_flatten_intc_in_fdt(dts):
@@ -72,8 +80,11 @@ def find_flatten_intc_in_fdt(dts):
                 compatible = compatible.data
             if dts.exist_property('phandle', pa):
                 phandle = dts.get_property('phandle', pa).data[0]
-                if dts.exist_property('interrupt-parent', pa):
-                    interrupt_parent = dts.get_property('interrupt-parent', pa).data[0]
+                if dts.exist_property('interrupt-parent', pa) and \
+                        hasattr(dts.get_property('interrupt-parent', pa),'data'):
+                    interrupt_parent = find_pphandle_by_path(dts, pa)
+                    if not dts.exist_property('interrupts', pa):
+                        continue
                     interrupts = dts.get_property('interrupts', pa).data
                     interrupts = find_irqn_by_pphandle(dts, interrupt_parent, interrupts)
                     flatten_intc_tree[pa] = {

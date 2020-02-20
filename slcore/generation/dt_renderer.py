@@ -7,7 +7,7 @@ from slcore.dt_parsers.common import *
 from slcore.database.dbf import get_database
 from slcore.generation.render import Template
 from slcore.generation.common import *
-from logger import logger_info, logger_debug
+from logger import logger_info, logger_debug, logger_warning
 from settings import *
 
 
@@ -121,6 +121,9 @@ class DTRenderer(object):
     def debug(self, message, action):
         logger_debug(self.firmware.get_uuid(), 'dt_renderer', action, message, 0)
 
+    def warning(self, message, action):
+        logger_warning(self.firmware.get_uuid(), 'dt_renderer', action, message, 0)
+
     def __render_bamboo_devices(self):
         self.context['reset_get_field'] = []
         #
@@ -209,11 +212,14 @@ static const MemoryRegionOps {0}_ops = {{
 
         for k, v in self.rendering_handlers.items():
             flatten_ks = v(dts)
+            if flatten_ks is None:
+                self.warning('no {} found'.format(k), 'parse')
+                continue
             for flatten_k in flatten_ks:
                 # 1st check, compatible check
                 m = Model(k, flatten_k['compatible'])
                 if not m.supported:
-                    # print('!suport {} {}'.format(k, flatten_k['compatible']))
+                    self.warning('cannot support {} {}'.format(k, flatten_k['compatible']), 'parse')
                     continue
 
                 # 2nd check, parameters check
@@ -221,24 +227,28 @@ static const MemoryRegionOps {0}_ops = {{
                 if 'intcp' in flatten_k:
                     phandle = flatten_k['intcp']
                     if phandle not in intcp:
-                        # print('!cannot suport {} {}, {}'.format(k, m.effictive_compatible, 'intcp is missing'))
+                        if phandle != -1:
+                            self.warning('cannot support {} {}, {}'.format(k, m.effictive_compatible, 'intcp is missing'), 'parse')
                         continue
                     flatten_k['intcp'] = intcp[phandle].model
                     flatten_k['name'] = intcp[phandle].effictive_compatible.replace(',', '_').replace('-', '_')
 
                 flatten_k['upper'] = lambda x: x.upper()
                 flatten_k['endian'] = self.__get_endian()
-                # print('\ncontext:', flatten_k)
                 m_context = m.render(flatten_k)
                 if isinstance(m_context, str):
-                    # print('!cannot suport {} {}, {}'.format(k, m.effictive_compatible, m_context))
+                    self.warning('cannot suport {} {}, {}'.format(k, m.effictive_compatible, m_context), 'parse')
                     continue
                 self.__add_context(m_context)
 
         # bamboo devices have to be processed in a special way
         self.__render_bamboo_devices()
-        a = Template(self.machine).render(self.context)
-        source = Template(a).render(self.context)
+        try:
+            a = Template(self.machine).render(self.context)
+            source = Template(a).render(self.context)
+        except KeyError as e:
+            self.warning('error in parsing, missing {}'.format(e), 'render')
+            return
 
         os.makedirs(os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0'), exist_ok=True)
         source_target = os.path.join(
@@ -271,6 +281,9 @@ def contain(aa, b):
     """
     aa contains b
     """
+    if aa is None:
+        return False
+
     for a in aa:
         if a['path'] == b['path']:
             return True

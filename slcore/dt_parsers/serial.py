@@ -48,9 +48,15 @@ def find_flatten_serial_in_fdt(dts):
             baud_rate = dts.get_property('current-speed', path_to_serial).data[0]
         except AttributeError as e:
             baud_rate = 0x1c200
-        reg_shift = dts.get_property('reg-shift', path_to_serial).data[0]
+        reg_shift = dts.get_property('reg-shift', path_to_serial)
+        if reg_shift is not None:
+            reg_shift = reg_shift.data[0]
+        else:
+            continue
 
-        interrupt_parent = dts.get_property('interrupt-parent', path_to_serial).data[0]
+        interrupt_parent = find_pphandle_by_path(dts, path_to_serial)
+        if not dts.exist_property('interrupts', path_to_serial):
+            continue
         interrupts = dts.get_property('interrupts', path_to_serial).data
         irqn = find_irqn_by_pphandle(dts, interrupt_parent, interrupts)
 
