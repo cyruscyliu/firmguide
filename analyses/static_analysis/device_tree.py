@@ -1,10 +1,21 @@
 from analyses.analysis import Analysis
-from slcore.database.dbf import get_database
-from slcore.profile.machine import Machine
 from slcore.dt_parsers.common import *
+from slcore.generation.dt_renderer import Model
+from slcore.dt_parsers.intc import *
+from slcore.dt_parsers.serial import *
+from slcore.dt_parsers.mmio import *
 
 
 class DeviceTree(Analysis):
+    def contain(self, aa, b):
+        """
+        aa contains b
+        """
+        for a in aa:
+            if a['path'] == b['path']:
+                return True
+        return False
+
     def run(self, firmware):
         path_to_dtb = firmware.get_components().get_path_to_dtb()
         if path_to_dtb is None:
@@ -12,28 +23,23 @@ class DeviceTree(Analysis):
 
         # 1. load the dtb
         dts = load_dtb(path_to_dtb)
-        machine = Machine()
-        machine.parse_dts(dts)
-        firmware.machine = machine
 
-        # 2. handle the cpu
-        compatible = machine.cpus[0].get_compatible()
-        for cmptb in compatible:
-            qemu_devices = get_database('qemu.devices')
-            cpu_model = qemu_devices.select('cpu', compatible=cmptb)
-            if cpu_model is None:
-                self.warning(firmware, 'please update qemu.devices for {}'.format(cmptb))
+        # 2. create bdevices
+        # 2.1 get the intc/serail/mmio list
+        flatten_intc = find_flatten_intc_in_fdt(dts)
+        flatten_serial = find_flatten_serial_in_fdt(dts)
+        flatten_mmio = find_flatten_mmio_in_fdt(dts)
+        # 2.2 create bamboo devices
+        for mmio in flatten_mmio:
+            if self.contain(flatten_intc, mmio):
                 continue
-            firmware.set_cpu_model(cpu_model)
-            self.info(firmware, 'get cpu {}'.format(cpu_model), 1)
+            if self.contain(flatten_serial, mmio):
+                continue
+            for reg in mmio['reg']:
+                firmware.insert_bamboo_devices(
+                    reg['base'], reg['size'], value=0)
+        firmware.update_bamboo_devices()
 
-        # 3. handle the intc
-        # 3.1 handle intc one by one
-        # 3.2 connect them
-
-        # 4 handle the uart
-        for uart in machine.uarts:
-            uart.set_endian(firmware.get_endian())
         return True
 
     def __init__(self, analysis_manager):
@@ -41,7 +47,7 @@ class DeviceTree(Analysis):
         self.name = 'device_tree'
         self.description = 'parse device tree source in the kernel'
         self.required = ['mfilter', 'ram']
-        self.context['hint'] = 'something wrong'
+        self.context['hint'] = ''
         self.critical = False
-        self.settings = ['machines']
+        self.settings = ['bamboo_devices']
 
