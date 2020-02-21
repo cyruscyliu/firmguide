@@ -30,6 +30,8 @@ class Model(object):
         self.model = None
         self.effic_compatible = None
         self.buddy_compatbile = []
+        self.source = None
+        self.header = None
 
         for cmptb in self.compatible:
             model = self.__load_model(cmptb)
@@ -91,6 +93,18 @@ class Model(object):
             actual.append(Template(a).render(context or {}))
         self.model[key] = actual
 
+    def render_qdev(self, context):
+        try:
+            if self.source:
+                a = Template(self.source).render(context)
+                self.source = Template(a).render(context)
+            if self.header:
+                a = Template(self.header).render(context)
+                self.header = Template(a).render(context)
+            return self.source, self.header
+        except KeyError as e:
+            return e, e
+
     def __load_model(self, compatible):
         qemu_devices = get_database('qemu.{}'.format(self.t))
         model = qemu_devices.select('model', compatible=compatible)
@@ -106,12 +120,25 @@ class Model(object):
                 model[k] = v
         return model
 
+    def load_template(self):
+        if not self.external:
+            return
+        psource = os.path.join(GENERATION_DIR, '{}2.c'.format(self.t))
+        if os.path.exists(psource):
+            with open(psource) as f:
+                self.source = ''.join(f.readlines())
+        pheader = os.path.join(GENERATION_DIR, '{}2.h'.format(self.t))
+        if os.path.exists(pheader):
+            with open(pheader) as f:
+                self.header = ''.join(f.readlines())
+
 
 class DTRenderer(object):
     def __init__(self, firmware):
         self.firmware = firmware
 
         self.context = {}
+        firmware.set_machine_name(firmware.get_uuid())
         self.context['machine_name'] = firmware.get_machine_name()
         self.context['machine_description'] = self.context['machine_name']
         self.context['arch'] = firmware.get_arch()
@@ -214,18 +241,24 @@ static const MemoryRegionOps {0}_ops = {{
 
     def render(self):
         path_to_dtb = self.firmware.get_dtb()
-        with open(os.path.join(GENERATION_DIR, 'machine.c')) as f:
-            self.machine = ''.join(f.readlines())
         dts = load_dtb(path_to_dtb)
 
         # all intcp should replaced by a real intc
         intcp = {}
         flatten_intc = find_flatten_intc_in_fdt(dts)
-        for intc in flatten_intc:
-            m = Model('intc', intc['compatible'])
-            if not m.supported:
-                continue
-            intcp[intc['phandle']] = m
+        if flatten_intc is not None:
+            for intc in flatten_intc:
+                m = Model('intc', intc['compatible'])
+                if not m.supported:
+                    continue
+                intcp[intc['phandle']] = m
+        flatten_cpu = find_flatten_cpu_in_fdt(dts)
+        if flatten_cpu is not None:
+            for cpu in flatten_cpu:
+                m = Model('cpu', cpu['compatible'])
+                if not m.supported:
+                    continue
+                intcp[-1] = m
 
         for k, v in self.rendering_handlers.items():
             flatten_ks = v(dts)
@@ -244,14 +277,14 @@ static const MemoryRegionOps {0}_ops = {{
                 if 'intcp' in context:
                     phandle = context['intcp']
                     if phandle not in intcp:
-                        if phandle != -1:
-                            self.warning('cannot support {} {}, {}'.format(k, m.effic_compatible, 'intcp is missing'), 'parse')
+                        self.warning('cannot support {} {}, {}'.format(k, m.effic_compatible, 'intcp is missing'), 'parse')
                         continue
                     context['intcp'] = intcp[phandle].model
-                    context['name'] = intcp[phandle].effic_compatible.replace(',', '_').replace('-', '_')
 
                 context['upper'] = lambda x: x.upper()
                 context['endian'] = self.__get_endian()
+
+                m.load_template()
                 m_context = m.render(context)
                 if isinstance(m_context, str):
                     self.warning('cannot suport {} {}, {} is missing'.format(k, m.effic_compatible, m_context), 'parse')
@@ -259,19 +292,15 @@ static const MemoryRegionOps {0}_ops = {{
                 self.__add_context(m_context)
 
                 # the 3rd check, external check
-                if m.external and k == 'intc':
-                    with open(os.path.join(GENERATION_DIR, 'sintc2.c')) as f:
-                        external = ''.join(f.readlines())
-                    for x, y in context.items():
-                        m_context[x] = y
-                    m_context['license'] = self.context['license']
-                    try:
-                        a = Template(external).render(m_context)
-                        source = Template(a).render(self.context)
-                    except KeyError as e:
-                        self.warning('error in parsing, missing {}'.format(e), 'render')
-                        return
-                    self.external[context['name']] = {'type': k, 'source': source}
+                for x, y in m_context.items():
+                    context[x] = y
+                context['license'] = self.context['license']
+                source, header = m.render_qdev(context)
+                if isinstance(source, KeyError):
+                    self.warning('cannot suport {} {}, {} is missing'.format(k, m.effic_compatible, m_context), 'parse')
+                    return False
+                if m.external:
+                    self.external[context['name']] = {'type': k, 'source': source, 'header': header}
 
         # bamboo devices have to be processed in a special way
         self.__render_bamboo_devices()
@@ -280,28 +309,36 @@ static const MemoryRegionOps {0}_ops = {{
             source = Template(a).render(self.context)
         except KeyError as e:
             self.warning('error in parsing, missing {}'.format(e), 'render')
-            return
+            return False
 
-        os.makedirs(os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0'), exist_ok=True)
-        source_target = os.path.join(
-            self.firmware.get_target_dir(), 'qemu-4.0.0', self.location[self.context['arch']],
-            self.context['machine_name'] + '.c')
+        # save machine.c
+        base = os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0')
+        location = self.location[self.context['arch']]
+        fname =  self.context['machine_name'] + '.c'
+        self.__save(source, base, location, fname)
+        self.info('save at {}/{}/{}'.format(base, location, fname), 'link')
+
+        # save model.c
+        for k, v in self.external.items():
+            location = self.location[v['type']]
+            fname = k + '.c'
+            self.__save(v['source'], base, location, fname)
+            self.info('save at {}/{}/{}'.format(base, location, fname), 'link')
+
+            location = os.path.join('include', self.location[v['type']])
+            fname = k + '.h'
+            self.__save(v['header'], base, location, fname)
+            self.info('save at {}/{}/{}'.format(base, location, fname), 'link')
+        return False
+
+    def __save(self, s, base, location, fname):
+        os.makedirs(base, exist_ok=True)
+
+        source_target = os.path.join(base, location, fname)
         os.makedirs(os.path.dirname(source_target), exist_ok=True)
         with open(source_target, 'w') as f:
-            f.write(source)
+            f.write(s)
             f.flush()
-        self.info('save at {}'.format(source_target.split('qemu-4.0.0')[1][1:]), 'link')
-
-        for k, v in self.external.items():
-            source_target = os.path.join(
-                self.firmware.get_target_dir(), 'qemu-4.0.0', self.location[v['type']],
-                k + '.c'
-            )
-            os.makedirs(os.path.dirname(source_target), exist_ok=True)
-            with open(source_target, 'w') as f:
-                f.write(v['source'])
-                f.flush()
-            self.info('save at {}'.format(source_target.split('qemu-4.0.0')[1][1:]), 'link')
 
     def __get_endian(self):
         if self.context['endian'] == 'l':
@@ -318,6 +355,10 @@ static const MemoryRegionOps {0}_ops = {{
                     self.context[k] = [self.context[k], v]
             else:
                 self.context[k] = v
+
+    def load_template(self):
+        with open(os.path.join(GENERATION_DIR, 'machine.c')) as f:
+            self.machine = ''.join(f.readlines())
 
 
 def contain(aa, b):
@@ -342,14 +383,19 @@ def run_dt_renderer(firmware):
 
     # 2. create bdevices
     # 2.1 get the intc/serail/mmio list
-    flatten_intc = find_flatten_intc_in_fdt(dts)
-    flatten_serial = find_flatten_serial_in_fdt(dts)
+    exclusive_find_flatten_handlers = [
+        find_flatten_intc_in_fdt,
+        find_flatten_serial_in_fdt
+    ]
+    flatten_ks = []
+    for effh in exclusive_find_flatten_handlers:
+        context= effh(dts)
+        if context is not None:
+            flatten_ks.extend(context)
     flatten_mmio = find_flatten_mmio_in_fdt(dts)
     # 2.2 create bamboo devices
     for mmio in flatten_mmio:
-        if contain(flatten_intc, mmio):
-            continue
-        if contain(flatten_serial, mmio):
+        if contain(flatten_ks, mmio):
             continue
         for reg in mmio['reg']:
             firmware.insert_bamboo_devices(
@@ -358,23 +404,24 @@ def run_dt_renderer(firmware):
 
     # 3. render
     dt_renderer = DTRenderer(firmware)
-    dt_renderer.render()
+    dt_renderer.load_template()
+    status = dt_renderer.render()
+    if not status:
+        return False
 
     # 4. compiler
+    # 4.1 copy files to qemu/
     prefix = os.path.join(firmware.get_target_dir(), 'qemu-4.0.0')
-    for root, dirs, files in os.walk(prefix):
-        if len(dirs):
-            continue
-        for f in files:
-            full = os.path.join(root, f)
-            target = firmware.qemuc.patch(full, full[len(prefix)+1:])
-            self.debug(firmware, 'install {} at {}'.format(f, target), 'install')
+    firmware.qemuc.install(prefix)
+    # 4.2 update compilation targets
     firmware.qemuc.add_target(
-        to_upper(firmware.get_machine_name()), type_='hw', arch=firmware.get_arch(), endian=firmware.get_endian())
-    if machine_compiler.has_sintc():
-        firmware.qemuc.add_target(
-            to_upper(firmware.get_machine_name()), type_='sintc')
+        to_upper(firmware.get_machine_name()), firmware.get_machine_name(),
+        type_='hw',arch=firmware.get_arch(), endian=firmware.get_endian())
+    for k, v in dt_renderer.external.items():
+        firmware.qemuc.add_target(to_upper(k), k, type_=v['type'])
+    # 4.3 compile
     firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
-    # guarentee qemu is clean
+    # 4.3 keep qemu clean
     firmware.qemuc.recover()
+    return True
 

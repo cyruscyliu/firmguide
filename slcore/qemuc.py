@@ -49,7 +49,7 @@ class QEMUController(object):
             }, 'mipsb': {
                 'defconfig': 'default-configs/mips-softmmu.mak', 'kconfig': 'hw/mips/Kconfig',
                 'makefile':  'hw/mips/Makefile.objs',
-            }, 'sintc': {
+            }, 'intc': {
                 'makefile': 'hw/intc/Makefile.objs'
             }
         }
@@ -108,6 +108,14 @@ class QEMUController(object):
             self.new.append(dst)
         os.system('cp {} {}'.format(src, dst))
         return dst
+
+    def install(self, prefix):
+        for root, dirs, files in os.walk(prefix):
+            if len(dirs):
+                continue
+            for f in files:
+                full = os.path.join(root, f)
+                target = self.patch(full, full[len(prefix)+1:])
 
     def recover(self, *args, **kwargs):
         """
@@ -173,32 +181,32 @@ class QEMUController(object):
             f.flush()
         self.patch(target, original, bak=True)
 
-    def add_target(self, name, type_, arch=None, endian=None):
+    def add_target(self, hwname, fname, type_, arch=None, endian=None):
         """
-        add_target('hw_name', type_='hw', arch='arm', endian='l')
-        add_target('hw_name', type='sintc')
+        add_target('hwname', 'hwname', type_='hw', arch='arm', endian='l')
+        add_target('hwname', 'fname', type='intc')
 
         """
         if type_ == 'hw':
             build_system = self.build_system['{}{}'.format(arch, endian)]
             # update defconfig
-            config = 'CONFIG_{}=y\n'.format((name))
+            config = 'CONFIG_{}=y\n'.format(hwname)
             path = os.path.join(build_system['defconfig'])
             content = [config]
             target = self.__resolve_makefile(path, config, content)
             # update kconfig
-            kconfig = 'config {}\n'.format((name))
+            kconfig = 'config {}\n'.format(hwname)
             path = os.path.join(build_system['kconfig'])
             content = ['\n', kconfig, '    bool\n']
             target = self.__resolve_makefile(path, kconfig, content)
             # update makefile
-            makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format((name), name.lower())
+            makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(hwname, fname)
             path = os.path.join(build_system['makefile'])
             content = [makefile]
             target = self.__resolve_makefile(path, makefile, content)
-        elif type_ == 'sintc':
-            build_system = self.build_system['sintc']
-            makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format((name), 'sintc')
+        elif type_ == 'intc':
+            build_system = self.build_system['intc']
+            makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(hwname, fname)
             path = os.path.join(build_system['makefile'])
             content = [makefile]
             target = self.__resolve_makefile(path, makefile, content)

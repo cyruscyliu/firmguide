@@ -25,10 +25,11 @@ class Preparation(Analysis):
                     target = firmware.qemuc.patch(full, full[len(prefix)+1:])
                     self.debug(firmware, 'install {} at {}'.format(f, target), 'install')
             firmware.qemuc.add_target(
-                to_upper(firmware.get_machine_name()), type_='hw', arch=firmware.get_arch(), endian=firmware.get_endian())
+                to_upper(firmware.get_machine_name()), (firmware.get_machine_name()),
+                type_='hw', arch=firmware.get_arch(), endian=firmware.get_endian())
             if machine_compiler.has_sintc():
                 firmware.qemuc.add_target(
-                    to_upper(firmware.get_machine_name()), type_='sintc')
+                    to_upper(firmware.get_machine_name()), 'sintc', type_='sintc')
             firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
             # guarentee qemu is clean
             firmware.qemuc.recover()

@@ -2,6 +2,7 @@ import os
 import fdt
 
 from slcore.dt_parsers.mmio import *
+from slcore.dt_parsers.compatible import *
 
 
 COMPATIBLE_INTERRUPTS_INDEX = {
@@ -73,11 +74,7 @@ def find_flatten_intc_in_fdt(dts):
         if len(no):
             continue
         if dts.exist_property('interrupt-controller', pa):
-            compatible = dts.get_property('compatible', pa)
-            if compatible is None:
-                compatible = dts.get_property('compatible', os.path.dirname(pa)).data
-            else:
-                compatible = compatible.data
+            compatible = find_compatible_by_path(dts, pa)
             if dts.exist_property('phandle', pa):
                 phandle = dts.get_property('phandle', pa).data[0]
                 if dts.exist_property('interrupt-parent', pa) and \
