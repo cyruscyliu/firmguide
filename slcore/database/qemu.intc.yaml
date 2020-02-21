@@ -31,6 +31,7 @@ arm,arm11mp-gic:
         - object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized", &err);
         - sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ reg.base }} & 0xffff0000);
         - qdev_connect_gpio_out(DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});
+    buddy_compatible: ['arm,arm11mp-twd-timer', 'mpcore_wdt']
 mti,cpu-interrupt-controller:
     paramters: []
     get_irqn: s->cpu->env.irq[{{ irqn }}]

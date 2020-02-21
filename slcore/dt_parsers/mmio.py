@@ -65,8 +65,6 @@ def find_flatten_mmio_in_fdt(dts):
 
     mmio = {}
     for pa, no, pros in dts.walk():
-        if pa.find('pinctrl') != -1:
-            continue
         if not dts.exist_property('compatible', pa):
             continue
 

@@ -16,6 +16,8 @@ class Bamboo(object):
         self.mmio_size = None
         self.id = None
         self.value = None
+        self.path = None
+        self.compatible = None
 
     def __str__(self):
         return '{} from 0x{:x} to 0x{:x} 0x{:x}'.format(
@@ -54,7 +56,8 @@ class SimpleFirmware(Firmware):
             latest_bamboo_devices[bamboo.name] = {
                 'mmio_base': hex(bamboo.mmio_base),
                 'mmio_size': hex(bamboo.mmio_size),
-                'registers': {'stub_reserved{}'.format(bamboo.id): {'offset': offset, 'value': hex(bamboo.value)}}
+                'registers': {'stub_reserved{}'.format(bamboo.id): {'offset': offset, 'value': hex(bamboo.value)}},
+                'compatible': bamboo.compatible
             }
         self.set_general('bamboo', value=latest_bamboo_devices)
 
@@ -67,6 +70,7 @@ class SimpleFirmware(Firmware):
     def split_bamboo(self, bamboo, a, b, value):
         left = bamboo.mmio_base
         right = bamboo.mmio_base + bamboo.mmio_size
+        compatible = bamboo.compatible
 
         split_bamboos = [bamboo]
         if left == a:
@@ -74,34 +78,36 @@ class SimpleFirmware(Firmware):
             # ++++-------------
             bamboo.mmio_base = a + b
             bamboo.mmio_size = right - left - b
-            split_bamboos.append(self.get_bamboo(a, b, value))
+            split_bamboos.append(self.get_bamboo(a, b, value, compatible=compatible))
         elif right == a + b:
             # -----------------
             # -------------++++
             bamboo.mmio_size = a - left
-            split_bamboos.append(self.get_bamboo(a, b, value))
+            split_bamboos.append(self.get_bamboo(a, b, value, compatible=compatible))
         else:
             # -----------------
             # ------++++xxxxxxx
             bamboo.mmio_size = a - left
-            split_bamboos.append(self.get_bamboo(a, b, value))
-            split_bamboos.append(self.get_bamboo(a + b, right - a - b, bamboo.value))
+            split_bamboos.append(self.get_bamboo(a, b, value, compatible=compatible))
+            split_bamboos.append(self.get_bamboo(a + b, right - a - b, bamboo.value, compatible=compatible))
 
         return split_bamboos
 
-    def get_bamboo(self, mmio_base, mmio_size, value):
+    def get_bamboo(self, mmio_base, mmio_size, value, compatible=None):
         bamboo = Bamboo()
         bamboo.mmio_base = mmio_base
         bamboo.mmio_size = mmio_size
         bamboo.name = 'stub{}'.format(self.bamboo_mmio_count)
         bamboo.value = value
         bamboo.id = self.bamboo_mmio_count
+        bamboo.compatible = compatible
         self.bamboo_mmio_count += 1
         return bamboo
 
     def insert_bamboo_devices(self, *args, **kwargs):
         mmio_base, mmio_size = args
         value = kwargs.pop('value', 0)
+        compatible = kwargs.pop('compatible', None)
 
         # at first, we must ensure the list to be inserted is in order
         new_bamboos = []
@@ -121,7 +127,7 @@ class SimpleFirmware(Firmware):
                     return False
 
         if bamboos is None:
-            bamboos = self.get_bamboo(mmio_base, mmio_size, value)
+            bamboos = self.get_bamboo(mmio_base, mmio_size, value, compatible=compatible)
             new_bamboos.append(bamboos)
         else:
             new_bamboos.extend(bamboos)

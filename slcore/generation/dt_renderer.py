@@ -29,14 +29,14 @@ class Model(object):
         self.supported = False
         self.model = None
         self.effic_compatible = None
-        self.buddy_compatbile = []
+        self.buddy_compatible = []
         self.source = None
         self.header = None
 
         for cmptb in self.compatible:
             model = self.__load_model(cmptb)
             if model is None:
-                self.buddy_compatbile.append(cmptb)
+                self.buddy_compatible.append(cmptb)
                 continue
             self.effic_compatible = cmptb
             self.model = self.__expand_model(model)
@@ -45,7 +45,8 @@ class Model(object):
                 self.external = model['externel']
             else:
                 self.external = False
-            break
+            if 'buddy_compatible' in model:
+                self.buddy_compatible.extend(model['buddy_compatible'])
         self.context = None
 
     def render(self, context):
@@ -158,6 +159,7 @@ class DTRenderer(object):
         self.machine = None
         self.location = {'arm': 'hw/arm', 'mips': 'hw/mips', 'intc': 'hw/intc'}
         self.external = {}
+        self.skipped_bdevices = []
 
     def info(self, message, action):
         logger_info(self.firmware.get_uuid(), 'dt_renderer', action, message, 0)
@@ -215,6 +217,14 @@ static const MemoryRegionOps {0}_ops = {{
     .endianness = {3},
 }};"""
         for name, bamboo in bamboos.items():
+            # 4th check, skip bdevices in skipped_bdevices
+            skip = False
+            for compatible in bamboo['compatible']:
+                if compatible in self.skipped_bdevices:
+                    skip = True
+            if skip:
+                continue
+
             m_context = {'bamboo_get_field': [], 'bamboo_get_body': [], 'bamboo_get_suite': []}
             mmio_size = bamboo['mmio_size']
             mmio_base = bamboo['mmio_base']
@@ -302,6 +312,10 @@ static const MemoryRegionOps {0}_ops = {{
                 if m.external:
                     self.external[context['name']] = {'type': k, 'source': source, 'header': header}
 
+                # update the skipped_bdevices
+                self.skipped_bdevices.append(m.effic_compatible)
+                self.skipped_bdevices.extend(m.buddy_compatible)
+
         # bamboo devices have to be processed in a special way
         self.__render_bamboo_devices()
         try:
@@ -386,24 +400,11 @@ def run_dt_renderer(firmware):
         f.write(dts.to_dts())
 
     # 2. create bdevices
-    # 2.1 get the intc/serail/mmio list
-    exclusive_find_flatten_handlers = [
-        find_flatten_intc_in_fdt,
-        find_flatten_serial_in_fdt
-    ]
-    flatten_ks = []
-    for effh in exclusive_find_flatten_handlers:
-        context= effh(dts)
-        if context is not None:
-            flatten_ks.extend(context)
-    flatten_mmio = find_flatten_mmio_in_fdt(dts)
-    # 2.2 create bamboo devices
-    for mmio in flatten_mmio:
-        if contain(flatten_ks, mmio):
-            continue
+    for mmio in find_flatten_mmio_in_fdt(dts):
         for reg in mmio['reg']:
             firmware.insert_bamboo_devices(
-                reg['base'], reg['size'], value=0)
+                reg['base'], reg['size'],
+                value=0, compatible=mmio['compatible'])
     firmware.update_bamboo_devices()
 
     # 3. assign ram_size and ram priority
