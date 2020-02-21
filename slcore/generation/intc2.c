@@ -4,26 +4,25 @@
 #include "qemu/log.h"
 #include "qapi/error.h"
 #include "hw/intc/{{ name }}.h"
-
 {% for irqn_to_reg in intc_irqn_to_regs %}
-static const {{ name }}_to_reg {{ name }}_irq{{ irqn_to_reg.irqn }}_to_regs[] = {
+static struct {{ name }}_to_reg {{ name }}_irq{{ irqn_to_reg.irqn }}_to_regs[] = {
     {% for to_reg in irqn_to_reg.to_regs %}{
         .offset = {{ to_reg.offset }},
         .value  = {{ to_reg.value }},
         .size   = {{ to_reg.size }},
     },{% endfor %}{
-        .offset = -1
+        .offset = -1,
     }
-}
+};
 {% endfor %}
-static const {{ name }}_irqn_table_entry {{ name }}_irqn_table[] = {
+static struct {{ name }}_irqn_table_entry {{ name }}_irqn_table[] = {
     {% for irqn_to_reg in intc_irqn_to_regs %}{
          .irqn = {{ irqn_to_reg.irqn }},
-         .to_regs = &{{ name }}_irq{{ irqn_to_reg.irqn }}_to_regs,
+         .to_regs = {{ name }}_irq{{ irqn_to_reg.irqn }}_to_regs,
     },{% endfor %}{
-        .irqn = -1;
+        .irqn = -1,
     }
-}
+};
 
 static void {{ name }}_update(void *opaque)
 {
@@ -65,49 +64,6 @@ static void {{ name }}_update(void *opaque)
     }
 }
 
-static void {{ name }}_set_irq(void *opaque, int irq, int level)
-{
-    {{ name|upper }}State *s = opaque;
-    struct {{ name }}_irq_table_entry entry;
-    struct {{ name }}_to_regs *to_regs;
-    int i, j;
-
-    /* One and only one interrupt source will call me when
-     * it pull up or pull down the level of the signal.
-     * This behavior will make STATE_IDLE -> STATE_SET_ALARM,
-     * of STATE_MASK_ACK/STATE_MASK -> STATE_CLEAR.
-     * State is guaranteed for every interrupt source.
-     */
-    switch(s->state[irq]) {
-        case STATE_IDLE:
-            if (level) {
-                for (i = 0, entry = {{ name }}_irqn_table[i].irqn; entry.irqn != -1; i++) {
-                    if (entry.irqn != irqn) continue;
-                    to_regs = entry.to_regs;
-                    for (j = 0; to_regs[j].offset != -1; i++) {
-                        {{ name }}_write(s, to_regs[j].offset, to_regs[j].value, to_regs[j].size);
-                    }
-                }
-                s->state[irq] = STATE_SET_ALARM;
-            }
-            break;
-        case STATE_MASK_ACK:
-            if (!level) s->state[irq] = STATE_CLEAR;
-            break;
-        case STATE_UNMASK:
-            if (!level) {
-                s->state[irq] = STATE_CLEAR;
-                s->clear = deposit32(s->cause, irq, 1, level);
-            }
-            break;
-        case STATE_CLEAR:
-        case STATE_SET_ALARM:
-        case STATE_MASK:
-            break;
-    }
-    {{ name }}_update(s);
-}
-
 static uint64_t {{ name }}_read(void *opaque, hwaddr offset, unsigned size)
 {
     {{ name|upper }}State *s = opaque;
@@ -122,6 +78,11 @@ static uint64_t {{ name }}_read(void *opaque, hwaddr offset, unsigned size)
     }
     return res;
 }
+{% for register in intc_get_registers %}
+static uint64_t {{ name }}_{{ register.rname }}(int irqn, uint64_t old)
+{
+    return {{ register.action }};
+}{% endfor %}
 
 static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
 {
@@ -133,10 +94,10 @@ static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned
             return;{% for register in intc_get_registers %}
         case {{ register.offset }}:
             s->{{ register.rname }}= val;
-            for (i = 0; i < 32; i++) {
-                if({{ register.action }} == val)
-                    break
-            }
+            for (i = 0; i < 32; i++)
+                if ({{ name }}_{{ register.rname }}(i, s->{{ register.rname }}) == val)
+                    break;
+            if (i == 32) break;
             switch (s->state[i]) {
                 case STATE_SET_ALARM:{% if register.mask_ack %}
                     s->state[i] = STATE_MASK_ACK;{% endif %}{% if register.mask %}
@@ -162,6 +123,48 @@ static const MemoryRegionOps {{ name }}_ops = {
     .endianness = {{ endian }},
 };
 
+static void {{ name }}_set_irq(void *opaque, int irq, int level)
+{
+    {{ name|upper }}State *s = opaque;
+    struct {{ name }}_irqn_table_entry *entry;
+    struct {{ name }}_to_reg *to_regs;
+    int i, j;
+
+    /* One and only one interrupt source will call me when
+     * it pull up or pull down the level of the signal.
+     * This behavior will make STATE_IDLE -> STATE_SET_ALARM,
+     * of STATE_MASK_ACK/STATE_MASK -> STATE_CLEAR.
+     * State is guaranteed for every interrupt source.
+     */
+    switch(s->state[irq]) {
+        case STATE_IDLE:
+            if (level) {
+                for (i = 0, entry = &{{ name }}_irqn_table[i]; entry->irqn != -1; i++) {
+                    if (entry->irqn != irq) continue;
+                    to_regs = entry->to_regs;
+                    for (j = 0; to_regs[j].offset != -1; i++) {
+                        {{ name }}_write(s, to_regs[j].offset, to_regs[j].value, to_regs[j].size);
+                    }
+                }
+                s->state[irq] = STATE_SET_ALARM;
+            }
+            break;
+        case STATE_MASK_ACK:
+            if (!level) s->state[irq] = STATE_CLEAR;
+            break;
+        case STATE_UNMASK:
+            if (!level) {
+                s->state[irq] = STATE_CLEAR;
+            }
+            break;
+        case STATE_CLEAR:
+        case STATE_SET_ALARM:
+        case STATE_MASK:
+            break;
+    }
+    {{ name }}_update(s);
+}
+
 static void {{ name }}_init(Object *obj)
 {
     {{ name|upper }}State *s = {{ name|upper }}(obj);
@@ -179,7 +182,6 @@ static void {{ name }}_reset(DeviceState *dev)
 {
     {{ name|upper }}State *s = {{ name|upper }}(dev);{% for register in intc_get_registers %}
     s->{{ register.rname }} = 0;{% endfor %}
-    s->cause = 0;
 }
 
 static void {{ name }}_class_init(ObjectClass *klass, void *data)

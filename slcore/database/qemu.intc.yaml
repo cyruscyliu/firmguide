@@ -27,21 +27,21 @@ ralink,rt2880-intc:
     get_registers:
         - rname: r0
           offset: '0x00'
-          action: False
+          action: '0xFFFFFFFF'
           mask_ack: False
           mask: False
           unmask: False
           clean: False
         - rname: r1
           offset: '0x34'
-          action: 1 << i
+          action: 1 << irqn
           mask_ack: False
           mask: False
           unmask: True
           clean: False
         - rname: r2
           offset: '0x38'
-          action: 1 << i
+          action: 1 << irqn
           mask_ack: True
           mask: False
           unmask: False

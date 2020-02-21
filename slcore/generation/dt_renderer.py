@@ -146,7 +146,7 @@ class DTRenderer(object):
         self.context['board_id'] = firmware.get_board_id()
         self.context['ram_get_priority'] = firmware.get_ram_priority()
         self.context['ram_get_size'] = firmware.get_ram_size()
-        self.context['license'] = '/* \n * automatically generated, don\'t change\n */'
+        self.context['license'] = '/*\n * automatically generated, don\'t change\n */'
         self.context['upper'] = lambda x: x.upper()
 
         self.rendering_handlers = {
@@ -412,7 +412,7 @@ def run_dt_renderer(firmware):
     # 5. render
     dt_renderer = DTRenderer(firmware)
     dt_renderer.load_template()
-    tatus = dt_renderer.render()
+    status = dt_renderer.render()
     if not status:
         return False
 
@@ -422,10 +422,10 @@ def run_dt_renderer(firmware):
     firmware.qemuc.install(prefix)
     # 6.2 update compilation targets
     firmware.qemuc.add_target(
-        to_upper(firmware.get_machine_name()), firmware.get_machine_name(),
-        type_='hw',arch=firmware.get_arch(), endian=firmware.get_endian())
+        (firmware.get_machine_name()), firmware.get_machine_name(),
+        t='hw',arch=firmware.get_arch(), endian=firmware.get_endian())
     for k, v in dt_renderer.external.items():
-        firmware.qemuc.add_target(to_upper(k), k, type_=v['type'])
+        firmware.qemuc.add_target((firmware.get_machine_name()), k, t=v['type'])
     # 6.3 compile
     firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
     # 6.4 keep qemu clean

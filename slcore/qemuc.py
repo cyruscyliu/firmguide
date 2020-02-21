@@ -193,7 +193,6 @@ class QEMUController(object):
 
         """
         if t == 'hw':
-            print(self.build_system)
             build_system = self.build_system['{}{}'.format(arch, endian)]
             # update defconfig
             config = 'CONFIG_{}=y\n'.format(hwname.upper())

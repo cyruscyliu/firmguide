@@ -10,21 +10,20 @@
     OBJECT_CHECK({{ name|upper }}State, (obj), TYPE_{{ name|upper }})
 
 #define STATE_IDLE      0
-#define STATE_SET_SLARM 1
+#define STATE_SET_ALARM 1
 #define STATE_MASK_ACK  2
 #define STATE_MASK      3
-#define STATE_CLAER     4
+#define STATE_CLEAR     4
 #define STATE_UNMASK    5
 
 struct {{ name }}_to_reg {
-    const uint32_t offset;
-    const uint32_t value;
-    const uint32_t size;
+    uint32_t offset;
+    uint32_t value;
+    uint32_t size;
 };
 
 struct {{ name }}_irqn_table_entry {
-    const int32_t irqn;
-    const int32_t n_to_reg;
+    int32_t irqn;
     struct {{ name }}_to_reg *to_regs;
 };
 
