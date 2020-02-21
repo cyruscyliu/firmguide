@@ -20,13 +20,13 @@ struct {{ name }}_to_reg {
     const uint32_t offset;
     const uint32_t value;
     const uint32_t size;
-}
+};
 
 struct {{ name }}_irqn_table_entry {
     const int32_t irqn;
     const int32_t n_to_reg;
     struct {{ name }}_to_reg *to_regs;
-}
+};
 
 typedef struct {{ name|upper }}State {
     /*< private >*/

@@ -9,7 +9,7 @@ arm,general:
     get_irqn: qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ)
 #### MIPS(EL) GENERAL ####
 mips(el),general:
-    get_header: [target/mips/cpu-qom.h]
+    get_header: [target/mips/cpu.h]
     get_field: 
         - MIPSCPU *cpu;
     get_body:

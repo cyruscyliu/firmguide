@@ -61,7 +61,7 @@ static void {{ machine_name }}_machine_init(MachineClass *mc)
     mc->desc = "{{ machine_description }}";
     mc->init = {{ machine_name }}_init;
     mc->default_ram_size = {{ ram_get_size }};
-    mc->default_cpu_type = {{ cpu_get_type}};
+    mc->default_cpu_type = "{{ cpu_get_type}}";
     mc->ignore_memory_transaction_failures = false;
 }
 

@@ -188,7 +188,7 @@ static uint64_t {0}_read(void *opaque, hwaddr offset, unsigned size)
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\\n", __func__, offset);
         return 0;
     case {1}:
-        res = s->{2}
+        res = s->{2};
         break;
     }}
     return res;
@@ -230,7 +230,7 @@ static const MemoryRegionOps {0}_ops = {{
             else:
                 mmio_priority = 0
             m_context['bamboo_get_body'].extend([
-                'memory_region_init_io(&s->{}, NULL, &{}, s, TYEP_{{{{ machine_name|upper }}}}, {});'.format(to_mmio(name), to_ops(name), mmio_size),
+                'memory_region_init_io(&s->{}, NULL, &{}, s, TYPE_{{{{ machine_name|upper }}}}, {});'.format(to_mmio(name), to_ops(name), mmio_size),
                 'memory_region_add_subregion_overlap(get_system_memory(), {}, &s->{}, {});'.format(bamboo['mmio_base'], to_mmio(name), mmio_priority)
             ])
             m_context['bamboo_get_field'] = ['\n    '.join(m_context['bamboo_get_field'])]
@@ -279,6 +279,7 @@ static const MemoryRegionOps {0}_ops = {{
                         self.warning('cannot support {} {}, {}'.format(k, m.effic_compatible, 'intcp is missing'), 'parse')
                         continue
                     context['intcp'] = intcp[phandle].model
+                    context['intcp']['name'] = intcp[phandle].effic_compatible.replace(',', '_').replace('-', '_')
 
                 context['upper'] = lambda x: x.upper()
                 context['endian'] = self.__get_endian()
@@ -328,7 +329,7 @@ static const MemoryRegionOps {0}_ops = {{
             fname = k + '.h'
             self.__save(v['header'], base, location, fname)
             self.info('save at {}/{}/{}'.format(base, location, fname), 'link')
-        return False
+        return True
 
     def __save(self, s, base, location, fname):
         os.makedirs(base, exist_ok=True)
@@ -401,26 +402,33 @@ def run_dt_renderer(firmware):
                 reg['base'], reg['size'], value=0)
     firmware.update_bamboo_devices()
 
-    # 3. render
+    # 3. assign ram_size and ram priority
+    firmware.set_ram_size('32 * MiB')
+    firmware.set_ram_priority('0')
+
+    # 4. assign board_id
+    firmware.set_board_id('0xFFFFFFFF')
+
+    # 5. render
     dt_renderer = DTRenderer(firmware)
     dt_renderer.load_template()
     status = dt_renderer.render()
     if not status:
         return False
 
-    # 4. compiler
-    # 4.1 copy files to qemu/
+    # 6. compiler
+    # 6.1 copy files to qemu/
     prefix = os.path.join(firmware.get_target_dir(), 'qemu-4.0.0')
     firmware.qemuc.install(prefix)
-    # 4.2 update compilation targets
+    # 6.2 update compilation targets
     firmware.qemuc.add_target(
         to_upper(firmware.get_machine_name()), firmware.get_machine_name(),
         type_='hw',arch=firmware.get_arch(), endian=firmware.get_endian())
     for k, v in dt_renderer.external.items():
         firmware.qemuc.add_target(to_upper(k), k, type_=v['type'])
-    # 4.3 compile
+    # 6.3 compile
     firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
-    # 4.3 keep qemu clean
+    # 6.4 keep qemu clean
     firmware.qemuc.recover()
     return True
 

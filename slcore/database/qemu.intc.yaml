@@ -1,6 +1,6 @@
 intc,generic:
     parameters: [name, reg, intcp]
-    get_irqn: qdev_get_gpio_in_named(DEVICE(&s->{{ name }}), {{ name|upper }}_IRQ, {{ irqn }})
+    get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}), {{ irqn }})
     get_header:
         - hw/intc/{{ name }}.h
     get_field: 
