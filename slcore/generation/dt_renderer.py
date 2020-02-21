@@ -146,7 +146,7 @@ class DTRenderer(object):
         self.context['board_id'] = firmware.get_board_id()
         self.context['ram_get_priority'] = firmware.get_ram_priority()
         self.context['ram_get_size'] = firmware.get_ram_size()
-        self.context['license'] = '/* \n * automatically generated, don\'t change\n */\n'
+        self.context['license'] = '/* \n * automatically generated, don\'t change\n */'
         self.context['upper'] = lambda x: x.upper()
 
         self.rendering_handlers = {
@@ -213,8 +213,7 @@ static const MemoryRegionOps {0}_ops = {{
     .read = {0}_read,
     .write = {0}_write,
     .endianness = {3},
-}};
-"""
+}};"""
         for name, bamboo in bamboos.items():
             m_context = {'bamboo_get_field': [], 'bamboo_get_body': [], 'bamboo_get_suite': []}
             mmio_size = bamboo['mmio_size']

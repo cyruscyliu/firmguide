@@ -1,4 +1,5 @@
 {{ license }}
+
 #ifndef {{ name|upper }}_H
 #define {{ name|upper }}_H
 
