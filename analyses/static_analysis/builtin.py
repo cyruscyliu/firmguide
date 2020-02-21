@@ -88,7 +88,7 @@ def ___irq_set_handler(analysis, firmware, **kwargs):
             analysis.info(firmware, 'irqn = 8 + __ffs(readl(base+0x10)&readl(base+0x14))', 1)
         else:
             analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)', 0)
-    elif firmware.uuid == 'rampis_rt3883':
+    elif firmware.uuid == 'ramips_rt3883':
         if caller == 'intc_of_init':
             # irq_set_chained_handler(irq, ralink_intc_irq_handler);
             analysis.debug(firmware, 'to reach generic_handler_irq, readl(rt_intc_membase+0x00) != 0', 1)

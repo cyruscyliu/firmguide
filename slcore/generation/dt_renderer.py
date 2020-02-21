@@ -13,11 +13,22 @@ from settings import *
 
 class Model(object):
     def __init__(self, t, compatible):
+        """
+        self.t               :type of the mode, e.g. cpu, intc, serial
+        self.compatible      :compatible of the dt node
+        self.effic_compatible:compatible of the model
+        self.buddy_compatible:compatible of the dt node but not the compatible of the model
+        self.supported       :whether or not this model is supported
+        self.model           :metadata from the database which is used to
+                              generate machine.c/peripheral.c etc.
+        self.context         :metadata from the dt node like reg.base/reg.size
+        self.external        :whether or not this model is not built-in qdev
+        """
         self.t = t
         self.compatible = compatible
         self.supported = False
         self.model = None
-        self.effictive_compatible = None
+        self.effic_compatible = None
         self.buddy_compatbile = []
 
         for cmptb in self.compatible:
@@ -25,26 +36,32 @@ class Model(object):
             if model is None:
                 self.buddy_compatbile.append(cmptb)
                 continue
-            self.effictive_compatible = cmptb
+            self.effic_compatible = cmptb
             self.model = self.__expand_model(model)
             self.supported = True
+            if 'externel' in model:
+                self.external = model['externel']
+            else:
+                self.external = False
+            break
+        self.context = None
 
     def render(self, context):
-        # 2nd check, parameters check
+        self.context = context
+
+        # the 2nd check, parameters check
+        # self.model['parameters'] tells us what should be in the context
         if 'parameters' in self.model:
             for param in self.model['parameters']:
                 if param not in context:
-                    return '{} is missing'.format(param)
+                    return param
 
-        # change address from int to hex
+        # update int to hex, especially in reg
+        # for a supported model, only base address is needed
+        # intc/serial etc. should let context['reg'] = mmio['reg'][0]
         if 'reg' in context:
-            if isinstance(context['reg'], dict):
-                context['reg']['base'] = hex(context['reg']['base'])
-                context['reg']['size'] = hex(context['reg']['size'])
-            else:
-                for i, (base, size) in enumerate(context['reg']):
-                    context['reg'][i]['base'] = hex(base)
-                    context['reg'][i]['size'] = hex(size)
+            context['reg']['base'] = hex(context['reg']['base'])
+            context['reg']['size'] = hex(context['reg']['size'])
 
         self.__render('get_header', context)
         self.__render('get_field', context)
@@ -55,6 +72,7 @@ class Model(object):
         # get_filed  LIST -> [str]
         # get_body   LIST -> [str]
         # others      str ->  str
+        # at the same time, we add a prefix to all keys
         context = {}
         for k, v in self.model.items():
             if k == 'get_body' or k == 'get_header':
@@ -94,7 +112,6 @@ class DTRenderer(object):
         self.firmware = firmware
 
         self.context = {}
-
         self.context['machine_name'] = firmware.get_machine_name()
         self.context['machine_description'] = self.context['machine_name']
         self.context['arch'] = firmware.get_arch()
@@ -111,9 +128,9 @@ class DTRenderer(object):
             'serial': find_flatten_serial_in_fdt,
         }
 
-        self.location = {
-            'machine': {'arm': 'hw/arm', 'mips': 'hw/mips', 'interrupt_controller': 'hw/intc'},
-        }
+        self.machine = None
+        self.location = {'arm': 'hw/arm', 'mips': 'hw/mips', 'intc': 'hw/intc'}
+        self.external = {}
 
     def info(self, message, action):
         logger_info(self.firmware.get_uuid(), 'dt_renderer', action, message, 0)
@@ -197,7 +214,7 @@ static const MemoryRegionOps {0}_ops = {{
 
     def render(self):
         path_to_dtb = self.firmware.get_dtb()
-        with open(os.path.join(BASE_DIR, 'slcore/generation/machine.c')) as f:
+        with open(os.path.join(GENERATION_DIR, 'machine.c')) as f:
             self.machine = ''.join(f.readlines())
         dts = load_dtb(path_to_dtb)
 
@@ -215,31 +232,47 @@ static const MemoryRegionOps {0}_ops = {{
             if flatten_ks is None:
                 self.warning('no {} found'.format(k), 'parse')
                 continue
-            for flatten_k in flatten_ks:
-                # 1st check, compatible check
-                m = Model(k, flatten_k['compatible'])
+            for context in flatten_ks:
+                # the 1st check, compatible check
+                m = Model(k, context['compatible'])
                 if not m.supported:
-                    self.warning('cannot support {} {}'.format(k, flatten_k['compatible']), 'parse')
+                    self.warning('cannot support {} {}'.format(k, context['compatible']), 'parse')
                     continue
 
-                # 2nd check, parameters check
-                flatten_k['name'] = m.effictive_compatible.replace(',', '_').replace('-', '_')
-                if 'intcp' in flatten_k:
-                    phandle = flatten_k['intcp']
+                # the 2nd check, parameters check
+                context['name'] = m.effic_compatible.replace(',', '_').replace('-', '_')
+                if 'intcp' in context:
+                    phandle = context['intcp']
                     if phandle not in intcp:
                         if phandle != -1:
-                            self.warning('cannot support {} {}, {}'.format(k, m.effictive_compatible, 'intcp is missing'), 'parse')
+                            self.warning('cannot support {} {}, {}'.format(k, m.effic_compatible, 'intcp is missing'), 'parse')
                         continue
-                    flatten_k['intcp'] = intcp[phandle].model
-                    flatten_k['name'] = intcp[phandle].effictive_compatible.replace(',', '_').replace('-', '_')
+                    context['intcp'] = intcp[phandle].model
+                    context['name'] = intcp[phandle].effic_compatible.replace(',', '_').replace('-', '_')
 
-                flatten_k['upper'] = lambda x: x.upper()
-                flatten_k['endian'] = self.__get_endian()
-                m_context = m.render(flatten_k)
+                context['upper'] = lambda x: x.upper()
+                context['endian'] = self.__get_endian()
+                m_context = m.render(context)
                 if isinstance(m_context, str):
-                    self.warning('cannot suport {} {}, {}'.format(k, m.effictive_compatible, m_context), 'parse')
+                    self.warning('cannot suport {} {}, {} is missing'.format(k, m.effic_compatible, m_context), 'parse')
                     continue
                 self.__add_context(m_context)
+
+                # the 3rd check, external check
+                if m.external and k == 'intc':
+                    with open(os.path.join(GENERATION_DIR, 'sintc2.c')) as f:
+                        external = ''.join(f.readlines())
+                    for x, y in context.items():
+                        m_context[x] = y
+                    m_context['license'] = self.context['license']
+                    print(m_context)
+                    try:
+                        a = Template(external).render(m_context)
+                        source = Template(a).render(self.context)
+                    except KeyError as e:
+                        self.warning('error in parsing, missing {}'.format(e), 'render')
+                        return
+                    self.external[context['name']] = {'type': k, 'source': source}
 
         # bamboo devices have to be processed in a special way
         self.__render_bamboo_devices()
@@ -252,13 +285,24 @@ static const MemoryRegionOps {0}_ops = {{
 
         os.makedirs(os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0'), exist_ok=True)
         source_target = os.path.join(
-            self.firmware.get_target_dir(), 'qemu-4.0.0', self.location['machine'][self.context['arch']],
+            self.firmware.get_target_dir(), 'qemu-4.0.0', self.location[self.context['arch']],
             self.context['machine_name'] + '.c')
         os.makedirs(os.path.dirname(source_target), exist_ok=True)
         with open(source_target, 'w') as f:
             f.write(source)
             f.flush()
         self.info('save at {}'.format(source_target.split('qemu-4.0.0')[1][1:]), 'link')
+
+        for k, v in self.external.items():
+            source_target = os.path.join(
+                self.firmware.get_target_dir(), 'qemu-4.0.0', self.location[v['type']],
+                k + '.c'
+            )
+            os.makedirs(os.path.dirname(source_target), exist_ok=True)
+            with open(source_target, 'w') as f:
+                f.write(v['source'])
+                f.flush()
+            self.info('link {} source at {}'.format(k, source_target.split('qemu-4.0.0')[1][1:]), 'link')
 
     def __get_endian(self):
         if self.context['endian'] == 'l':
