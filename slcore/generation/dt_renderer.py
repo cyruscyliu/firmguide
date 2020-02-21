@@ -412,7 +412,7 @@ def run_dt_renderer(firmware):
     # 5. render
     dt_renderer = DTRenderer(firmware)
     dt_renderer.load_template()
-    status = dt_renderer.render()
+    tatus = dt_renderer.render()
     if not status:
         return False
 
@@ -430,5 +430,6 @@ def run_dt_renderer(firmware):
     firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
     # 6.4 keep qemu clean
     firmware.qemuc.recover()
+
     return True
 
