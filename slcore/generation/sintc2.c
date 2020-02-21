@@ -171,7 +171,7 @@ static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned
         case {{ register.offset }}:
             s->{{ register.rname }}= val;
             for (i = 0; i < 32; i++) {
-                if({{ register.action }})
+                if({{ register.action }} == val)
                     break
             }
             switch (s->state[i]) {

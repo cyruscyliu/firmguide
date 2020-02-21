@@ -265,7 +265,6 @@ static const MemoryRegionOps {0}_ops = {{
                     for x, y in context.items():
                         m_context[x] = y
                     m_context['license'] = self.context['license']
-                    print(m_context)
                     try:
                         a = Template(external).render(m_context)
                         source = Template(a).render(self.context)
@@ -302,7 +301,7 @@ static const MemoryRegionOps {0}_ops = {{
             with open(source_target, 'w') as f:
                 f.write(v['source'])
                 f.flush()
-            self.info('link {} source at {}'.format(k, source_target.split('qemu-4.0.0')[1][1:]), 'link')
+            self.info('save at {}'.format(source_target.split('qemu-4.0.0')[1][1:]), 'link')
 
     def __get_endian(self):
         if self.context['endian'] == 'l':
