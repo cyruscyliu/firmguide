@@ -70,14 +70,14 @@ class Model(object):
         self.__render('get_body', context)
 
         # rendering was done so we could concat them all
-        # get_header LIST -> [str]
-        # get_filed  LIST -> [str]
+        # get_header LIST -> LIST
+        # get_field  LIST -> [str]
         # get_body   LIST -> [str]
         # others      str ->  str
         # at the same time, we add a prefix to all keys
         context = {}
         for k, v in self.model.items():
-            if k == 'get_body' or k == 'get_header':
+            if k == 'get_body' or k == 'get_field':
                 if len(v) > 1:
                     context['{}_{}'.format(self.t, k)] = ['\n    '.join(v)]
                 else:
@@ -380,6 +380,10 @@ def run_dt_renderer(firmware):
 
     # 1. load the dtb
     dts = load_dtb(path_to_dtb)
+    with open(os.path.join(
+            firmware.get_target_dir(),
+            '{}.dts'.format(os.path.basename(path_to_dtb))), 'w') as f:
+        f.write(dts.to_dts())
 
     # 2. create bdevices
     # 2.1 get the intc/serail/mmio list

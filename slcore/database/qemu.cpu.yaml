@@ -1,6 +1,6 @@
 #### ARM GENERAL ####
 arm,general:
-    get_header: [target/arm/cpu-qom.h]
+    get_header: [target/arm/cpu-qom.h, target/arm/cpu.h]
     get_field: 
         - ARMCPU *cpu;
     get_body:

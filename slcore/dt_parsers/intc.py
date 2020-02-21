@@ -109,10 +109,16 @@ def find_flatten_intc_in_fdt(dts):
                 # only you need is the base address
                 flatten_intc_tree[pa]['reg'] = mmio['reg'][0]
 
+    master = None
     flatten_intcs = []
     for k, v in flatten_intc_tree.items():
         v['path'] = k
-        flatten_intcs.append(v)
+        if 'intcp' in v and v['intcp'] == -1:
+            master = v
+        else:
+            flatten_intcs.append(v)
+    if master is not None:
+        flatten_intcs.insert(0, master)
 
     return flatten_intcs
 

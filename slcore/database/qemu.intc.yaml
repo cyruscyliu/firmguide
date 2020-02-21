@@ -1,10 +1,8 @@
 intc,generic:
     parameters: [name, reg, intcp]
     get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}), {{ irqn }})
-    get_header:
-        - hw/intc/{{ name }}.h
-    get_field: 
-        - '{{ name|upper }}State {{ name }};'
+    get_header: ['hw/intc/{{ name }}.h']
+    get_field: ['{{ name|upper }}State {{ name }};']
     get_body:
         - object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_{{ name|upper }});
         - qdev_set_parent_bus(DEVICE(&s->{{ name }}), sysbus_get_default());
@@ -12,47 +10,33 @@ intc,generic:
         - sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ reg.base }});
         - qdev_connect_gpio_out(DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});
 ralink,rt2880-intc:
-    irqn_to_regs: 
+    irqn_to_regs:
         - irqn: 5
-          to_regs:
-            - offset: '0x00'
-              value: '0x00000020'
-              size: '4'
+          to_regs: [{offset: '0x00', value: '0x00000020', size: '4'}]
         - irqn: 12
-          to_regs:
-            - offset: '0x00'
-              value: '0x00001000'
-              size: '4'
+          to_regs: [{offset: '0x00', value: '0x00001000', size: '4'}]
     extend: intc,generic
     get_registers:
-        - rname: r0
-          offset: '0x00'
-          action: '0xFFFFFFFF'
-          mask_ack: False
-          mask: False
-          unmask: False
-          clean: False
-        - rname: r1
-          offset: '0x34'
-          action: 1 << irqn
-          mask_ack: False
-          mask: False
-          unmask: True
-          clean: False
-        - rname: r2
-          offset: '0x38'
-          action: 1 << irqn
-          mask_ack: True
-          mask: False
-          unmask: False
-          clean: False
+        - {rname: r0, offset: '0x00', action: '0xFFFFFFFF', mask_ack: False, mask: False, unmask: False, clean: False}
+        - {rname: r1, offset: '0x34', action: 1 << irqn, mask_ack: False, mask: False, unmask: True, clean: False}
+        - {rname: r2, offset: '0x38', action: 1 << irqn, mask_ack: True, mask: False, unmask: False, clean: False}
     externel: True
+arm,arm11mp-gic:
+    paramters: [name, reg, intcp]
+    get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}), {{ irqn }})
+    get_header: [hw/cpu/arm11mpcore.h]
+    get_field: ['ARM11MPCorePriveState {{ name }};']
+    get_body:
+        - object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_ARM11MPCORE_PRIV);
+        - object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized", &err);
+        - sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ reg.base }} & 0xffff0000);
+        - qdev_connect_gpio_out(DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});
 mti,cpu-interrupt-controller:
-    get_header:
-        - hw/mips/cpudevs.h
-    get_field: 
-        - ''
+    paramters: []
+    get_irqn: s->cpu->env.irq[{{ irqn }}]
+    get_header: [hw/mips/cpudevs.h]
+    get_field: []
     get_body:
         - cpu_mips_irq_init_cpu(s->cpu);
-    get_irqn: s->cpu->env.irq[{{ irqn }}]
+        - cpu_mips_clock_init(s->cpu);
 
