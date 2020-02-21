@@ -360,3 +360,21 @@ def run_dt_renderer(firmware):
     dt_renderer = DTRenderer(firmware)
     dt_renderer.render()
 
+    # 4. compiler
+    prefix = os.path.join(firmware.get_target_dir(), 'qemu-4.0.0')
+    for root, dirs, files in os.walk(prefix):
+        if len(dirs):
+            continue
+        for f in files:
+            full = os.path.join(root, f)
+            target = firmware.qemuc.patch(full, full[len(prefix)+1:])
+            self.debug(firmware, 'install {} at {}'.format(f, target), 'install')
+    firmware.qemuc.add_target(
+        to_upper(firmware.get_machine_name()), type_='hw', arch=firmware.get_arch(), endian=firmware.get_endian())
+    if machine_compiler.has_sintc():
+        firmware.qemuc.add_target(
+            to_upper(firmware.get_machine_name()), type_='sintc')
+    firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
+    # guarentee qemu is clean
+    firmware.qemuc.recover()
+

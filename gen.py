@@ -6,7 +6,6 @@ import logging.config
 from logger import setup_logging
 from slcore.environment import snapshot, migrate
 from slcore.generation.dt_renderer import run_dt_renderer
-from slcore.qemuc import QEMUController
 
 logger = logging.getLogger()
 
@@ -22,13 +21,10 @@ def run(args):
 
     # 2. let's begin
     firmware = migrate(args.uuid)
-    firmware.set_dtb(args.dtb)
     firmware.set_arch(args.arch)
     firmware.set_endian(args.endian)
-    firmware.set_machine_name(args.uuid)
-    # low level qemu controller
-    qemuc = QEMUController()
-    firmware.qemuc = qemuc
+
+    firmware.set_dtb(args.dtb)
 
     # 3. generate the machine.c etc.
     status = run_dt_renderer(firmware)
@@ -47,7 +43,7 @@ if __name__ == '__main__':
     group = parser.add_argument_group('generation')
     group.add_argument('-a', '--arch', choices=['arm', 'arm64', 'mips'], required=True)
     group.add_argument('-e', '--endian', choices=['b', 'l'], required=True)
-    group.add_argument('-u', '--uuid', metavar='board', required=True)
+    group.add_argument('-u', '--uuid', metavar='machine', required=True)
     group.add_argument('-dtb', '--dtb', metavar='path/to/dtb', required=True)
 
     args = parser.parse_args()

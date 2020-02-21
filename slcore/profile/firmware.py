@@ -4,6 +4,7 @@ import yaml
 
 from slcore.profile.kernel import KernelForFirmware
 from slcore.profile.openwrt import OpenWRTForFirmware
+from slcore.qemuc import QEMUController
 
 
 class Firmware(KernelForFirmware, OpenWRTForFirmware):
@@ -36,7 +37,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.components = None
         self.dtb = None
         self.srcodec = None
-        self.qemuc = None
+        self.qemuc = QEMUController()
 
         self.running_command = None
         self.trace_format = None
