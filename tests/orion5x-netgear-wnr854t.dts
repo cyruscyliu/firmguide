@@ -1,0 +1,486 @@
+/dts-v1/;
+
+/ {
+	#address-cells = <0x1>;
+	#size-cells = <0x1>;
+	model = "Netgear WNR854-t";
+	compatible = "netgear,wnr854t", "marvell,orion5x-88f5181", "marvell,orion5x";
+	interrupt-parent = <0x1>;
+
+	cpus {
+		cpu@0 {
+			compatible = "arm,arm926";
+		};
+	};
+
+	aliases {
+		gpio0 = "/soc/internal-regs/gpio@10100";
+		serial0 = "/soc/internal-regs/serial@12000";
+	};
+
+	soc {
+		#address-cells = <0x2>;
+		#size-cells = <0x1>;
+		controller = <0x2>;
+		compatible = "marvell,orion5x-88f5181-mbus", "simple-bus";
+		ranges = <0xf0010000 0x0 0xf1000000 0x100000 0x9000000 0x0 0xf2200000 0x800 0x10f0000 0x0 0xf4000000 0x800000>;
+
+		devbus-bootcs {
+			compatible = "marvell,orion-devbus";
+			reg = <0xf0010000 0x1046c 0x4>;
+			ranges = <0x0 0x10f0000 0x0 0xffffffff>;
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+			clocks = <0x3 0x0>;
+			status = "okay";
+			devbus,keep-config;
+
+			flash@0 {
+				compatible = "cfi-flash";
+				reg = <0x0 0x800000>;
+				bank-width = <0x2>;
+
+				partitions {
+					compatible = "fixed-partitions";
+					#address-cells = <0x1>;
+					#size-cells = <0x1>;
+
+					partition@0 {
+						label = "kernel";
+						reg = <0x0 0x100000>;
+					};
+
+					partition@100000 {
+						label = "rootfs";
+						reg = <0x100000 0x660000>;
+					};
+
+					partition@760000 {
+						label = "uboot_env";
+						reg = <0x760000 0x20000>;
+					};
+
+					partition@780000 {
+						label = "uboot";
+						reg = <0x780000 0x80000>;
+						read-only;
+					};
+				};
+			};
+		};
+
+		devbus-cs0 {
+			compatible = "marvell,orion-devbus";
+			reg = <0xf0010000 0x1045c 0x4>;
+			ranges = <0x0 0x11e0000 0x0 0xffffffff>;
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+			clocks = <0x3 0x0>;
+			status = "disabled";
+		};
+
+		devbus-cs1 {
+			compatible = "marvell,orion-devbus";
+			reg = <0xf0010000 0x10460 0x4>;
+			ranges = <0x0 0x11d0000 0x0 0xffffffff>;
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+			clocks = <0x3 0x0>;
+			status = "disabled";
+		};
+
+		devbus-cs2 {
+			compatible = "marvell,orion-devbus";
+			reg = <0xf0010000 0x10464 0x4>;
+			ranges = <0x0 0x11b0000 0x0 0xffffffff>;
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+			clocks = <0x3 0x0>;
+			status = "disabled";
+		};
+
+		internal-regs {
+			compatible = "simple-bus";
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+			ranges = <0x0 0xf0010000 0x0 0x100000>;
+
+			gpio@10100 {
+				compatible = "marvell,orion-gpio";
+				#gpio-cells = <0x2>;
+				gpio-controller;
+				reg = <0x10100 0x40>;
+				ngpios = <0x20>;
+				interrupt-controller;
+				#interrupt-cells = <0x2>;
+				interrupts = <0x6 0x7 0x8 0x9>;
+				linux,phandle = <0xf>;
+				phandle = <0xf>;
+			};
+
+			spi@10600 {
+				compatible = "marvell,orion-spi";
+				#address-cells = <0x1>;
+				#size-cells = <0x0>;
+				cell-index = <0x0>;
+				reg = <0x10600 0x28>;
+				status = "disabled";
+			};
+
+			i2c@11000 {
+				compatible = "marvell,mv64xxx-i2c";
+				reg = <0x11000 0x20>;
+				#address-cells = <0x1>;
+				#size-cells = <0x0>;
+				interrupts = <0x5>;
+				clocks = <0x3 0x0>;
+				status = "disabled";
+			};
+
+			serial@12000 {
+				compatible = "ns16550a";
+				reg = <0x12000 0x100>;
+				reg-shift = <0x2>;
+				interrupts = <0x3>;
+				clocks = <0x3 0x0>;
+				status = "okay";
+			};
+
+			serial@12100 {
+				compatible = "ns16550a";
+				reg = <0x12100 0x100>;
+				reg-shift = <0x2>;
+				interrupts = <0x4>;
+				clocks = <0x3 0x0>;
+				status = "disabled";
+			};
+
+			bridge-interrupt-ctrl@20110 {
+				compatible = "marvell,orion-bridge-intc";
+				interrupt-controller;
+				#interrupt-cells = <0x1>;
+				reg = <0x20110 0x8>;
+				interrupts = <0x0>;
+				marvell,#interrupts = <0x4>;
+				linux,phandle = <0x4>;
+				phandle = <0x4>;
+			};
+
+			interrupt-controller@20200 {
+				compatible = "marvell,orion-intc";
+				interrupt-controller;
+				#interrupt-cells = <0x1>;
+				reg = <0x20200 0x8>;
+				linux,phandle = <0x1>;
+				phandle = <0x1>;
+			};
+
+			timer@20300 {
+				compatible = "marvell,orion-timer";
+				reg = <0x20300 0x20>;
+				interrupt-parent = <0x4>;
+				interrupts = <0x1 0x2>;
+				clocks = <0x3 0x0>;
+			};
+
+			wdt@20300 {
+				compatible = "marvell,orion-wdt";
+				reg = <0x20300 0x28 0x20108 0x4>;
+				interrupt-parent = <0x4>;
+				interrupts = <0x3>;
+				clocks = <0x3 0x0>;
+				status = "okay";
+			};
+
+			ehci@50000 {
+				compatible = "marvell,orion-ehci";
+				reg = <0x50000 0x1000>;
+				interrupts = <0x11>;
+				status = "disabled";
+			};
+
+			dma-controller@60900 {
+				compatible = "marvell,orion-xor";
+				reg = <0x60900 0x100 0x60b00 0x100>;
+				status = "okay";
+
+				xor00 {
+					interrupts = <0x1e>;
+					dmacap,memcpy;
+					dmacap,xor;
+				};
+
+				xor01 {
+					interrupts = <0x1f>;
+					dmacap,memcpy;
+					dmacap,xor;
+					dmacap,memset;
+				};
+			};
+
+			ethernet-controller@72000 {
+				compatible = "marvell,orion-eth";
+				#address-cells = <0x1>;
+				#size-cells = <0x0>;
+				reg = <0x72000 0x4000>;
+				marvell,tx-checksum-limit = <0x640>;
+				status = "okay";
+				pinctrl-0 = <0x5>;
+				pinctrl-names = "default";
+
+				ethernet-port@0 {
+					compatible = "marvell,orion-eth-port";
+					reg = <0x0>;
+					interrupts = <0x15>;
+					local-mac-address = [00 00 00 00 00 00];
+					speed = <0x3e8>;
+					duplex = <0x1>;
+					linux,phandle = <0x9>;
+					phandle = <0x9>;
+				};
+			};
+
+			mdio-bus@72004 {
+				compatible = "marvell,orion-mdio";
+				#address-cells = <0x1>;
+				#size-cells = <0x0>;
+				reg = <0x72004 0x84>;
+				interrupts = <0x16>;
+				status = "okay";
+
+				switch@0 {
+					compatible = "marvell,mv88e6085";
+					#address-cells = <0x1>;
+					#size-cells = <0x0>;
+					reg = <0x0>;
+					dsa,member = <0x0 0x0>;
+
+					ports {
+						#address-cells = <0x1>;
+						#size-cells = <0x0>;
+
+						port@0 {
+							reg = <0x0>;
+							label = "lan3";
+							phy-handle = <0x6>;
+						};
+
+						port@1 {
+							reg = <0x1>;
+							label = "lan4";
+							phy-handle = <0x7>;
+						};
+
+						port@2 {
+							reg = <0x2>;
+							label = "wan";
+							phy-handle = <0x8>;
+						};
+
+						port@3 {
+							reg = <0x3>;
+							label = "cpu";
+							ethernet = <0x9>;
+						};
+
+						port@5 {
+							reg = <0x5>;
+							label = "lan1";
+							phy-handle = <0xa>;
+						};
+
+						port@7 {
+							reg = <0x7>;
+							label = "lan2";
+							phy-handle = <0xb>;
+						};
+					};
+
+					mdio {
+						#address-cells = <0x1>;
+						#size-cells = <0x0>;
+
+						ethernet-phy@0 {
+							compatible = "ethernet-phy-id0141.0cb0", "ethernet-phy-ieee802.3-c22";
+							reg = <0x0>;
+							marvell,reg-init = <0x3 0x10 0x0 0x1777 0x3 0x11 0x0 0x15>;
+							linux,phandle = <0x6>;
+							phandle = <0x6>;
+						};
+
+						ethernet-phy@1 {
+							compatible = "ethernet-phy-id0141.0cb0", "ethernet-phy-ieee802.3-c22";
+							reg = <0x1>;
+							marvell,reg-init = <0x3 0x10 0x0 0x1777 0x3 0x11 0x0 0x15>;
+							linux,phandle = <0x7>;
+							phandle = <0x7>;
+						};
+
+						ethernet-phy@2 {
+							compatible = "ethernet-phy-id0141.0cb0", "ethernet-phy-ieee802.3-c22";
+							reg = <0x2>;
+							marvell,reg-init = <0x3 0x10 0x0 0x1777 0x3 0x11 0x0 0x15>;
+							linux,phandle = <0x8>;
+							phandle = <0x8>;
+						};
+
+						ethernet-phy@5 {
+							compatible = "ethernet-phy-id0141.0cb0", "ethernet-phy-ieee802.3-c22";
+							reg = <0x5>;
+							marvell,reg-init = <0x3 0x10 0x0 0x1777 0x3 0x11 0x0 0x15>;
+							linux,phandle = <0xa>;
+							phandle = <0xa>;
+						};
+
+						ethernet-phy@7 {
+							compatible = "ethernet-phy-id0141.0cb0", "ethernet-phy-ieee802.3-c22";
+							reg = <0x7>;
+							marvell,reg-init = <0x3 0x10 0x0 0x1777 0x3 0x11 0x0 0x15>;
+							linux,phandle = <0xb>;
+							phandle = <0xb>;
+						};
+					};
+				};
+			};
+
+			sata@80000 {
+				compatible = "marvell,orion-sata";
+				reg = <0x80000 0x5000>;
+				interrupts = <0x1d>;
+				status = "disabled";
+			};
+
+			crypto@90000 {
+				compatible = "marvell,orion-crypto";
+				reg = <0x90000 0x10000>;
+				reg-names = "regs";
+				interrupts = <0x1c>;
+				marvell,crypto-srams = <0xc>;
+				marvell,crypto-sram-size = <0x800>;
+				status = "okay";
+			};
+
+			ehci@a0000 {
+				compatible = "marvell,orion-ehci";
+				reg = <0xa0000 0x1000>;
+				interrupts = <0xc>;
+				status = "disabled";
+			};
+
+			pinctrl@10000 {
+				compatible = "marvell,88f5181-pinctrl";
+				reg = <0x10000 0x8 0x10050 0x4>;
+				pinctrl-0 = <0xd>;
+				pinctrl-names = "default";
+
+				pmx-ge {
+					marvell,pins = "mpp8", "mpp9", "mpp10", "mpp11", "mpp12", "mpp13", "mpp14", "mpp15", "mpp16", "mpp17", "mpp18", "mpp19";
+					marvell,function = "ge";
+					linux,phandle = <0x5>;
+					phandle = <0x5>;
+				};
+
+				pmx-power-led {
+					marvell,pins = "mpp0";
+					marvell,function = "gpio";
+					linux,phandle = <0x10>;
+					phandle = <0x10>;
+				};
+
+				pmx-reset-button {
+					marvell,pins = "mpp1";
+					marvell,function = "gpio";
+					linux,phandle = <0xe>;
+					phandle = <0xe>;
+				};
+
+				pmx-power-led-blink {
+					marvell,pins = "mpp2";
+					marvell,function = "gpio";
+					linux,phandle = <0x11>;
+					phandle = <0x11>;
+				};
+
+				pmx-wan-led {
+					marvell,pins = "mpp3";
+					marvell,function = "gpio";
+					linux,phandle = <0x12>;
+					phandle = <0x12>;
+				};
+
+				pmx-pci-gpios {
+					marvell,pins = "mpp4";
+					marvell,function = "gpio";
+					linux,phandle = <0xd>;
+					phandle = <0xd>;
+				};
+			};
+
+			core-clocks@10030 {
+				compatible = "marvell,mv88f5181-core-clock";
+				reg = <0x10010 0x4>;
+				#clock-cells = <0x1>;
+				linux,phandle = <0x3>;
+				phandle = <0x3>;
+			};
+
+			mbus-controller@20000 {
+				compatible = "marvell,mbus-controller";
+				reg = <0x20000 0x100 0x1500 0x20>;
+				linux,phandle = <0x2>;
+				phandle = <0x2>;
+			};
+		};
+
+		sa-sram {
+			compatible = "mmio-sram";
+			reg = <0x9000000 0x0 0x800>;
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+			linux,phandle = <0xc>;
+			phandle = <0xc>;
+		};
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x2000000>;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-0 = <0xe>;
+		pinctrl-names = "default";
+
+		reset {
+			label = "Reset Button";
+			linux,code = <0x198>;
+			gpios = <0xf 0x1 0x1>;
+		};
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+		pinctrl-0 = <0x10 0x11 0x12>;
+		pinctrl-names = "default";
+
+		led@0 {
+			label = "wnr854t:green:power";
+			gpios = <0xf 0x0 0x1>;
+		};
+
+		led@1 {
+			label = "wnr854t:blink:power";
+			gpios = <0xf 0x2 0x1>;
+		};
+
+		led@2 {
+			label = "wnr854t:green:wan";
+			gpios = <0xf 0x3 0x1>;
+		};
+	};
+};

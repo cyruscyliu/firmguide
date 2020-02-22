@@ -1,5 +1,4 @@
 import os
-import fdt
 
 from slcore.dt_parsers.mmio import *
 from slcore.dt_parsers.compatible import *
@@ -29,6 +28,8 @@ def __find_interrupts_index(dts, phandle):
             for cmptb in compatible:
                 if cmptb in COMPATIBLE_INTERRUPTS_INDEX:
                     return COMPATIBLE_INTERRUPTS_INDEX[cmptb]
+            raise NotImplementedError(
+                'update COMPATIBLE_INTERRUPTS_INDEX for {}'.format(compatible))
     return None
 
 
@@ -47,14 +48,44 @@ def find_intc_by_phandle(dts, phandle):
         if intc['phandle'] == phandle:
             return intc
 
+
 def find_pphandle_by_path(dts, path):
     pphandle = dts.get_property('interrupt-parent', path)
     if pphandle is None:
         pnode = dts.get_node(path).parent
+        if pnode is None:
+            return None
         ppath = os.path.join(pnode.path, pnode.name)
         return find_pphandle_by_path(dts, ppath)
     else:
         return pphandle.data[0]
+
+
+def find_interrupt_parent_by_path(dts, path):
+    """
+    Find interrupt-parent with a value, say
+        interrupt-parent = <0x1>;
+    . Sometimes, interrupt-parent with a value
+    and interrupt-parent w/o a value together
+    makes us confused. In order to distinguish them,
+    we scan all properties in the given node.
+    """
+    ip = None
+
+    cnode = dts.get_node(path)
+    for prop in cnode.props:
+        if prop.name == 'interrupt-parent' and \
+                hasattr(prop,'data'):
+            ip = prop.data[0]
+
+    if ip is None:
+        pnode = cnode.parent
+        if pnode is None:
+            return None
+        ppath = os.path.join(pnode.path, pnode.name)
+        return find_interrupt_parent_by_path(dts, ppath)
+    else:
+        return ip
 
 
 def find_flatten_intc_in_fdt(dts):
@@ -77,9 +108,14 @@ def find_flatten_intc_in_fdt(dts):
             compatible = find_compatible_by_path(dts, pa)
             if dts.exist_property('phandle', pa):
                 phandle = dts.get_property('phandle', pa).data[0]
-                if dts.exist_property('interrupt-parent', pa) and \
-                        hasattr(dts.get_property('interrupt-parent', pa),'data'):
-                    interrupt_parent = find_pphandle_by_path(dts, pa)
+                interrupt_parent = find_interrupt_parent_by_path(dts, pa)
+                if interrupt_parent is None or \
+                        (interrupt_parent is not None and interrupt_parent == phandle):
+                    # here is the intc connecting to the cpu
+                    flatten_intc_tree[pa] = {
+                        'phandle': phandle, 'intc': True, 'master': True, 'slave': True,
+                        'compatible': compatible, 'intcp': -1, 'irqn': -1}
+                elif interrupt_parent is not None and interrupt_parent != phandle:
                     if not dts.exist_property('interrupts', pa):
                         continue
                     interrupts = dts.get_property('interrupts', pa).data
@@ -88,11 +124,6 @@ def find_flatten_intc_in_fdt(dts):
                         'phandle': phandle, 'intc': True, 'master': True, 'slave': True,
                         'intcp': interrupt_parent, 'irqn': interrupts,
                         'compatible': compatible}
-                else:
-                    # here is the intc connecting to the cpu
-                    flatten_intc_tree[pa] = {
-                        'phandle': phandle, 'intc': True, 'master': True, 'slave': True,
-                        'compatible': compatible, 'intcp': -1, 'irqn': -1}
                 if dts.exist_property('#address-cells', pa):
                     flatten_intc_tree[pa]['address-cells'] = \
                         dts.get_property('#address-cells', pa).data[0]
