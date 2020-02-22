@@ -30,8 +30,12 @@ class ExecutionFlow(Analysis):
             self.warning(firmware, '{} -> {}(no address)'.format(caller, ep), 1)
             return None, None, [], {}
 
-        if path_to_entry_point.startswith('fs'):
+        if path_to_entry_point.startswith('fs') or path_to_entry_point.startswith('mm'):
             self.debug(firmware, '{} -> {}(built-in function in {})'.format(caller, ep, path_to_entry_point), 1)
+            return None, path_to_entry_point, [], {}
+
+        if path_to_entry_point.endswith('.S'):
+            self.warning(firmware, '{} -> {}(assembly file)'.format(caller, ep, path_to_entry_point), 1)
             return None, path_to_entry_point, [], {}
 
         if path_to_entry_point.endswith('.h'):
@@ -210,7 +214,7 @@ class ExecutionFlow(Analysis):
         # ===== intc subsystem =====
         # 1 intc initilization
         ep = 'init_IRQ'
-        # self.traverse_funccalls(firmware, [ep], caller='start_kernel')
+        self.traverse_funccalls(firmware, [ep], caller='start_kernel')
         if firmware.uuid == 'ar71xx_generic':
             # arch_init_irq -> ath79_misc_irq_init(no address)
             self.traverse_no_address_funccall(firmware, 'ath79_misc_irq_init', 'arch/mips/ath79/irq.c')
@@ -233,7 +237,7 @@ class ExecutionFlow(Analysis):
         # this machine can use the r4k compatile counter as interrupt source
         # and clock source. At the same time, mips_hpt_frequency must be defined
         # to not zero in plat_time_init. Other cases can be discussed seperately.
-        # self.traverse_funccalls(firmware, [ep], caller='start_kernel')
+        self.traverse_funccalls(firmware, [ep], caller='start_kernel')
 
         if firmware.uuid == 'ar71xx_generic':
             entry_point = ['ath79_clocks_init', 'ath79_get_sys_clk_rate']
@@ -314,8 +318,8 @@ class ExecutionFlow(Analysis):
                 funccalls.append(ep)
 
         funccalls = self.parse_funcalls(firmware, 'do_initcall', funccalls)
-        self.traverse_funccalls(firmware, funccalls, caller='do_initcall')
-        exit(1)
+        print(funccalls)
+        # self.traverse_funccalls(firmware, funccalls, caller='do_initcall')
 
         # because symbols/addr2line sometimes don't work well, so we manullay set the value
         if firmware.uuid == 'ar71xx_generic':
@@ -436,7 +440,7 @@ class ExecutionFlow(Analysis):
         super().__init__(analysis_manager)
         self.name = 'excflow'
         self.description = 'source code info analysis (sparse)'
-        self.required = ['mfilter', 'device_tree']
+        self.required = ['mfilter', 'preprocdt']
         self.context['hint'] = ''
         self.critical = False
         #

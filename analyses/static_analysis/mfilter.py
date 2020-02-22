@@ -42,7 +42,7 @@ class Filter(Analysis):
             self.context['input'] = 'no available target found, please check the source code'
             return False
         support = get_database('support')
-        status = support.select('support', target=target, arch='arm')
+        status = support.select('board', board=target, arch='arm')
         if status:
             return True
         else:

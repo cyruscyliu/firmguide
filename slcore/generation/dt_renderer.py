@@ -257,6 +257,7 @@ static const MemoryRegionOps {0}_ops = {{
         flatten_intc = find_flatten_intc_in_fdt(dts)
         if flatten_intc is not None:
             for intc in flatten_intc:
+                print(intc)
                 m = Model('intc', intc['compatible'])
                 if not m.supported:
                     continue
@@ -387,6 +388,7 @@ def contain(aa, b):
             return True
     return False
 
+
 def run_dt_renderer(firmware):
     path_to_dtb = firmware.get_dtb()
     if path_to_dtb is None:
@@ -408,7 +410,10 @@ def run_dt_renderer(firmware):
     firmware.update_bamboo_devices()
 
     # 3. assign ram_size and ram priority
-    firmware.set_ram_size('32 * MiB')
+    if firmware.get_arch() == 'arm':
+        firmware.set_ram_size('32 * MiB')
+    elif firmware.get_arch() == 'mips':
+        firmware.set_ram_size('128 * MiB')
     firmware.set_ram_priority('0')
 
     # 4. assign board_id
