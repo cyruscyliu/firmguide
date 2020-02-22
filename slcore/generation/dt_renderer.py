@@ -257,7 +257,6 @@ static const MemoryRegionOps {0}_ops = {{
         flatten_intc = find_flatten_intc_in_fdt(dts)
         if flatten_intc is not None:
             for intc in flatten_intc:
-                print(intc)
                 m = Model('intc', intc['compatible'])
                 if not m.supported:
                     continue
@@ -295,7 +294,6 @@ static const MemoryRegionOps {0}_ops = {{
                 context['upper'] = lambda x: x.upper()
                 context['endian'] = self.__get_endian()
 
-                m.load_template()
                 m_context = m.render(context)
                 if isinstance(m_context, str):
                     self.warning('cannot suport {} {}, {} is missing'.format(k, m.effic_compatible, m_context), 'parse')
@@ -306,9 +304,10 @@ static const MemoryRegionOps {0}_ops = {{
                 for x, y in m_context.items():
                     context[x] = y
                 context['license'] = self.context['license']
+                m.load_template()
                 source, header = m.render_qdev(context)
                 if isinstance(source, KeyError):
-                    self.warning('cannot suport {} {}, {} is missing'.format(k, m.effic_compatible, m_context), 'parse')
+                    self.warning('cannot suport {} {}, {} is missing'.format(k, m.effic_compatible, source), 'parse')
                     return False
                 if m.external:
                     self.external[context['name']] = {'type': k, 'source': source, 'header': header}

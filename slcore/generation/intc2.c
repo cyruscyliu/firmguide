@@ -78,40 +78,40 @@ static uint64_t {{ name }}_read(void *opaque, hwaddr offset, unsigned size)
     }
     return res;
 }
-{% for register in intc_get_registers %}
-static uint64_t {{ name }}_{{ register.rname }}(int irqn, uint64_t old)
-{
-    return {{ register.action }};
-}{% endfor %}
 
 static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
 {
     {{ name|upper }}State *s = opaque;
-    int i;
+    int irqn;
+    uint64_t old;
 
     switch (offset) {
         default:
             return;{% for register in intc_get_registers %}
         case {{ register.offset }}:
+            old = s-> {{ register.rname }};
+            for (irqn = 0; irqn < 32; irqn++)
+                switch (s->state[irqn]) {
+                    case STATE_SET_ALARM:{% if register.mask_ack %}
+                        if ({{ register.mask_ack_action }} == val)
+                            s->state[irqn] = STATE_MASK_ACK;
+                            break;{% endif %}{% if register.mask %}
+                        if ({{ register.mask_action }} == val)
+                            s->state[irqn] = STATE_MASK;
+                            break;{% endif %}
+                        break;
+                    case STATE_MASK:
+                    case STATE_MASK_ACK:{% if register.ack %}
+                        if ({{ register.ack_action }} == val)
+                            s->state[irqn] = STATE_CLEAR;
+                            break;{% endif %}
+                        break;
+                    case STATE_UNMASK:
+                    case STATE_CLEAR:
+                    case STATE_IDLE:
+                        break;
+                }
             s->{{ register.rname }}= val;
-            for (i = 0; i < 32; i++)
-                if ({{ name }}_{{ register.rname }}(i, s->{{ register.rname }}) == val)
-                    break;
-            if (i == 32) break;
-            switch (s->state[i]) {
-                case STATE_SET_ALARM:{% if register.mask_ack %}
-                    s->state[i] = STATE_MASK_ACK;{% endif %}{% if register.mask %}
-                    s->state[i] = STATE_MASK;{% endif %}
-                    break;
-                case STATE_MASK:
-                case STATE_MASK_ACK:{% if register.clean %}
-                    s->state[i] = STATE_CLEAR;{% endif %}
-                    break;
-                case STATE_UNMASK:
-                case STATE_CLEAR:
-                case STATE_IDLE:
-                    break;
-            }
             break;{% endfor %}
     }
     {{ name }}_update(s);

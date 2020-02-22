@@ -105,8 +105,9 @@ class QEMUController(object):
         src, dst = args
         dst = self.__get_file_path(dst)
         if os.path.exists(dst):
-            os.system('cp {0} {0}.bak'.format(dst))
-            self.modified.append(dst)
+            if dst not in self.modified:
+                os.system('cp {0} {0}.bak'.format(dst))
+                self.modified.append(dst)
         else:
             self.new.append(dst)
         os.system('cp {} {}'.format(src, dst))

@@ -11,15 +11,13 @@ intc,generic:
         - qdev_connect_gpio_out(DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});
 ralink,rt2880-intc:
     irqn_to_regs:
-        - irqn: 5
-          to_regs: [{offset: '0x00', value: '0x00000020', size: '4'}]
-        - irqn: 12
-          to_regs: [{offset: '0x00', value: '0x00001000', size: '4'}]
+        - {irqn: 5, to_regs: [{offset: '0x00', value: '0x00000020', size: '0x4'}]}
+        - {irqn: 12, to_regs: [{offset: '0x00', value: '0x00001000', size: '0x4'}]}
     extend: intc,generic
     get_registers:
-        - {rname: r0, offset: '0x00', action: '0xFFFFFFFF', mask_ack: False, mask: False, unmask: False, clean: False}
-        - {rname: r1, offset: '0x34', action: 1 << irqn, mask_ack: False, mask: False, unmask: True, clean: False}
-        - {rname: r2, offset: '0x38', action: 1 << irqn, mask_ack: True, mask: False, unmask: False, clean: False}
+        - {rname: r0, offset: '0x00', mask_ack: False, mask: False, unmask: False, ack: False}
+        - {rname: r1, offset: '0x34', unmask_action: 1 << irqn, mask_ack: False, mask: False, unmask: True, ack: False}
+        - {rname: r2, offset: '0x38', mask_ack_action: 1 << irqn, mask_ack: True, mask: False, unmask: False, ack: False}
     externel: True
 arm,arm11mp-gic:
     paramters: [name, reg, intcp]
@@ -32,6 +30,26 @@ arm,arm11mp-gic:
         - sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ reg.base }} & 0xffff0000);
         - qdev_connect_gpio_out(DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});
     buddy_compatible: ['arm,arm11mp-twd-timer', 'mpcore_wdt']
+marvell,orion-intc:
+    irqn_to_regs:
+        - {irqn: 0, to_regs: [{offset: '0x00', value: '0x00000001', size: '0x4'}, {offset: '0x04', value: '0x00000001', size: '0x4'}]}
+        - {irqn: 3, to_regs: [{offset: '0x00', value: '0x00000008', size: '0x4'}, {offset: '0x04', value: '0x00000008', size: '0x4'}]}
+        - {irqn: 4, to_regs: [{offset: '0x00', value: '0x00000010', size: '0x4'}, {offset: '0x04', value: '0x00000010', size: '0x4'}]}
+    extend: intc,generic
+    get_registers:
+        - {rname: r0, offset: '0x00', mask_ack: False, mask: False, unmask: False, ack: False}
+        - {rname: r1, offset: '0x04', mask_action: '(old & (~(1 << (irqn % 32))))', unmask_action: '(old | (~(1 << (irqn % 32))))', mask_ack: False, mask: True, unmask: True, ack: False}
+    externel: True
+marvell,orion-bridge-intc:
+    irqn_to_regs:
+        - {irqn: 1, to_regs: [{offset: '0x00', value: '0x00000002', size: '0x4'}, {offset: '0x04', value: '0x00000002', size: '0x4'}]}
+        - {irqn: 2, to_regs: [{offset: '0x00', value: '0x00000004', size: '0x4'}, {offset: '0x04', value: '0x00000004', size: '0x4'}]}
+        - {irqn: 3, to_regs: [{offset: '0x00', value: '0x00000008', size: '0x4'}, {offset: '0x04', value: '0x00000008', size: '0x4'}]}
+    extend: intc,generic
+    get_registers:
+        - {rname: r0, offset: '0x00', ack_action: '(~(1 << irqn % 32))', mask_ack: False, mask: False, unmask: False, ack: True}
+        - {rname: r1, offset: '0x04', mask_action: '(old & (~(1 << (irqn % 32))))', unmask_action: '(old | (~(1 << (irqn % 32))))', mask_ack: False, mask: True, unmask: True, ack: False}
+    externel: True
 mti,cpu-interrupt-controller:
     paramters: []
     get_irqn: s->cpu->env.irq[{{ irqn }}]
