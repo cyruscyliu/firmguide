@@ -51,6 +51,8 @@ class QEMUController(object):
                 'makefile':  'hw/mips/Makefile.objs',
             }, 'intc': {
                 'makefile': 'hw/intc/Makefile.objs'
+            }, 'timer': {
+                'makefile': 'hw/timer/Makefile.objs'
             }
         }
 
@@ -210,8 +212,9 @@ class QEMUController(object):
             path = os.path.join(build_system['makefile'])
             content = [makefile]
             target = self.__resolve_makefile(path, makefile, content)
-        elif t == 'intc':
-            build_system = self.build_system['intc']
+        # elif t in ['intc', 'timer']:
+        else:
+            build_system = self.build_system[t]
             makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(hwname.upper(), fname)
             path = os.path.join(build_system['makefile'])
             content = [makefile]

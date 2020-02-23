@@ -4,6 +4,7 @@ from slcore.dt_parsers.cpu import *
 from slcore.dt_parsers.serial import *
 from slcore.dt_parsers.intc import *
 from slcore.dt_parsers.common import *
+from slcore.dt_parsers.timer import *
 from slcore.database.dbf import get_database
 from slcore.generation.render import Template
 from slcore.generation.common import *
@@ -41,8 +42,8 @@ class Model(object):
             self.effic_compatible = cmptb
             self.model = self.__expand_model(model)
             self.supported = True
-            if 'externel' in model:
-                self.external = model['externel']
+            if 'external' in model:
+                self.external = model['external']
             else:
                 self.external = False
             if 'buddy_compatible' in model:
@@ -139,7 +140,9 @@ class DTRenderer(object):
         self.firmware = firmware
 
         self.context = {}
-        firmware.set_machine_name(firmware.get_uuid())
+        machine_name = os.path.basename(firmware.get_dtb()) \
+            .split('.')[0].replace('-', '_')
+        firmware.set_machine_name(machine_name)
         self.context['machine_name'] = firmware.get_machine_name()
         self.context['machine_description'] = self.context['machine_name']
         self.context['arch'] = firmware.get_arch()
@@ -149,15 +152,19 @@ class DTRenderer(object):
         self.context['ram_get_size'] = firmware.get_ram_size()
         self.context['license'] = '/*\n * automatically generated, don\'t change\n */'
         self.context['upper'] = lambda x: x.upper()
+        self.context['range'] = lambda x: range(0, x)
 
         self.rendering_handlers = {
             'cpu': find_flatten_cpu_in_fdt,
             'intc': find_flatten_intc_in_fdt,
             'serial': find_flatten_serial_in_fdt,
+            'timer': find_flatten_timer_in_fdt,
         }
 
         self.machine = None
-        self.location = {'arm': 'hw/arm', 'mips': 'hw/mips', 'intc': 'hw/intc'}
+        self.location = {
+            'arm': 'hw/arm', 'mips': 'hw/mips',
+            'intc': 'hw/intc', 'timer': 'hw/timer'}
         self.external = {}
         self.skipped_bdevices = []
 
@@ -291,7 +298,8 @@ static const MemoryRegionOps {0}_ops = {{
                     context['intcp'] = intcp[phandle].model
                     context['intcp']['name'] = intcp[phandle].effic_compatible.replace(',', '_').replace('-', '_')
 
-                context['upper'] = lambda x: x.upper()
+                context['upper'] = self.context['upper']
+                context['range'] = self.context['range']
                 context['endian'] = self.__get_endian()
 
                 m_context = m.render(context)

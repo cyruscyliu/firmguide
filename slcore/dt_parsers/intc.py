@@ -13,6 +13,18 @@ COMPATIBLE_INTERRUPTS_INDEX = {
     'brcm,brahma-b15-gic': 1,
 }
 
+def __find_interrupt_cells(dts, phandle):
+    for pa, no, pros in dts.walk():
+        if len(no):
+            continue
+        if dts.exist_property('interrupt-controller', pa) and \
+                dts.exist_property('phandle', pa) and \
+                phandle == dts.get_property('phandle', pa).data[0]:
+            interrupt_cells = dts.get_property('#interrupt-cells', pa).data[0]
+            return interrupt_cells
+    return None
+
+
 def __find_interrupts_index(dts, phandle):
     for pa, no, pros in dts.walk():
         if len(no):
@@ -40,6 +52,26 @@ def find_irqn_by_pphandle(dts, pphandle, cell):
     else:
         irqn = cell[interrupts_index]
         return irqn
+
+
+def find_irqnc_by_pphandle(dts, pphandle, cell):
+    """
+    Precisely, we want to know how many entities we have
+    beneath the same path. Say, we have <interrupt-parent> = <0x1>;
+    <interrupts> = <0x3, 0x4>; <#interrtup-cells> = <0x1>;(of <0x1>),
+    then we get two entities with irqn 0x3, 0x4 respectively.
+    They may have the same reg, or they they may not,
+    which really doesn't matter.
+    """
+    interrupts_index = __find_interrupts_index(dts, pphandle)
+    interrupt_cells = __find_interrupt_cells(dts, pphandle)
+    if interrupts_index is None or interrupt_cells is None:
+        return cell
+
+    irqn = []
+    for i in range(len(cell) // interrupt_cells):
+        irqn.append(cell[interrupts_index + i])
+    return irqn
 
 
 def find_intc_by_phandle(dts, phandle):
@@ -136,6 +168,7 @@ def find_flatten_intc_in_fdt(dts):
                     'intc': True, 'master': False, 'slave': False,
                     'compatible': compatible}
             mmio = find_mmio_by_path(dts, pa)
+            print(mmio)
             if mmio is not None:
                 # only you need is the base address
                 flatten_intc_tree[pa]['reg'] = mmio['reg'][0]
