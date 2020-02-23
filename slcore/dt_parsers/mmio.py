@@ -3,6 +3,7 @@ import fdt
 
 
 def __find_parent_address(dts, path):
+    print('{}.{} is deprecated'.format(__name__, __find_parent_address.__name__))
     # at most 2 levels
     node = dts.get_node(path)
     parent = node.parent
@@ -16,6 +17,43 @@ def __find_parent_address(dts, path):
         return dts.get_property('reg', path).data[0]
     else:
         return 0
+
+
+def __find_parent_offset(dts, path, x, fx):
+    node = dts.get_node(path)
+    parent = node.parent
+
+    if parent is None:
+        for k, v in fx.items():
+            if k <= x < k + v[1]:
+                return (v[0] - k)
+
+    path = os.path.join(parent.path, parent.name)
+    if dts.exist_property('ranges', path):
+        local_address_cells = dts.get_property('#address-cells', path).data[0]
+        parent_address_cells = __find_parent_address_sells(dts, path)
+        local_size_cells = dts.get_property('#size-cells', path).data[0]
+        ranges = dts.get_property('ranges', path).data
+        bank_size = (local_address_cells + parent_address_cells + local_size_cells )
+        fx_parent = {}
+        for i in range(0, len(ranges) // bank_size):
+            local_address = 0
+            for j in range(0, local_address_cells):
+                local_address += ranges[i * bank_size + j]
+            parent_address = 0
+            for j in range(0, parent_address_cells):
+                parent_address += ranges[i * bank_size + local_address_cells + j]
+            local_size = 0
+            for j in range(0, local_size_cells):
+                local_size += ranges[i * bank_size + local_address_cells + parent_address_cells + j]
+            fx_parent[local_address] = [parent_address, local_size]
+        if fx is not None:
+            for k, v in fx.items():
+                if v[0] in fx_parent:
+                    fx[k] = fx_parent[v[0]]
+        else:
+            fx = fx_parent
+    return __find_parent_offset(dts, path, x, fx)
 
 
 def __find_parent_address_sells(dts, path):
@@ -82,10 +120,7 @@ def find_flatten_mmio_in_fdt(dts):
             address_cells = top_address_cells
         mmios = dts.get_property('reg', pa).data
 
-        # if it has offsets
-        offset = __find_parent_address(dts, pa)
         mmio[pa] =  {'reg': [], 'compatible': dts.get_property('compatible', pa).data}
-        print(path, mmios)
         for i in range(len(mmios) // (size_cells + address_cells)):
             base = 0
             for j in range(address_cells):
@@ -93,6 +128,7 @@ def find_flatten_mmio_in_fdt(dts):
             size = 0
             for j in range(size_cells):
                 size += mmios[i * (size_cells + address_cells) + address_cells + j]
+            offset = __find_parent_offset(dts, pa, base, None)
             mmio[pa]['reg'].append({'base': base + offset, 'size': size})
 
     flatten_mmio = []

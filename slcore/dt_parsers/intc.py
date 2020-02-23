@@ -168,7 +168,6 @@ def find_flatten_intc_in_fdt(dts):
                     'intc': True, 'master': False, 'slave': False,
                     'compatible': compatible}
             mmio = find_mmio_by_path(dts, pa)
-            print(mmio)
             if mmio is not None:
                 # only you need is the base address
                 flatten_intc_tree[pa]['reg'] = mmio['reg'][0]
