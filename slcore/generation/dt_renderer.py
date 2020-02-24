@@ -12,6 +12,18 @@ from logger import logger_info, logger_debug, logger_warning
 from settings import *
 
 
+def restore_irqn(context, irqn):
+    if irqn is None:
+        # we have 'irqns'/'irqc' instead
+        if '__irqn' not in context:
+            context['__irqn'] = 0
+        else:
+            context['__irqn'] += 1
+        return context['irqns'][context['__irqn']]
+    else:
+        return irqn
+
+
 class Model(object):
     def __init__(self, t, compatible):
         """
@@ -301,6 +313,7 @@ static const MemoryRegionOps {0}_ops = {{
                 context['upper'] = self.context['upper']
                 context['range'] = self.context['range']
                 context['endian'] = self.__get_endian()
+                context['__restore_irqn'] = lambda x: restore_irqn(context, x)
 
                 m_context = m.render(context)
                 if isinstance(m_context, str):
@@ -424,7 +437,7 @@ def run_dt_renderer(firmware):
     firmware.set_ram_priority('0')
 
     # 4. assign board_id
-    firmware.set_board_id('0xFFFFFFFF')
+    firmware.set_board_id('0x709')
 
     # 5. render
     dt_renderer = DTRenderer(firmware)

@@ -17,21 +17,65 @@ static void {{ name }}_tick_callback{{ i }}(void *opaque)
 }
 {% endfor %}
 
+static void {{ name }}_update(void *opaque)
+{
+    /* {{ name|upper }}State *s = opaque; */
+}
+
+static uint64_t {{ name }}_read(void *opaque, hwaddr offset, unsigned size)
+{
+    {{ name|upper }}State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+        default:
+            return 0;
+        case 0x0 ... {{ reg.size }} - 0x4:
+            res = s->reserved;
+            break;
+    }
+    return res;
+}
+
+static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
+{
+    {{ name|upper }}State *s = opaque;
+
+    switch (offset) {
+        default:
+            return;
+        case 0x0 ... {{ reg.size }} - 0x4:
+            s->reserved = val;
+            break;
+    }
+    {{ name }}_update(s);
+}
+
+static const MemoryRegionOps {{ name }}_ops = {
+    .read = {{ name }}_read,
+    .write = {{ name }}_write,
+    .endianness = {{ endian }},
+};
+
 static void {{ name }}_init(Object *obj)
 {
     {{ name|upper}}State *s = {{ name|upper }}(obj);
+
+    /* initialize the mmio */
+    memory_region_init_io(&s->mmio, obj, &{{ name }}_ops, s, TYPE_{{ name|upper }}, {{ reg.size }});
+    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize an irq to the intc */
     qdev_init_gpio_out(DEVICE(s), s->irq, {{ irqc }});
 
     /* initialize the timer */{% for i in irqc|range %}
-    s->timer[{{ i }}] = timer_new_ns(QEMU_CLOCK_VIRTUAL, {{ name }}_tick_callback{{ i }}, s);
-    {% endfor %}
+    s->timer[{{ i }}] = timer_new_ns(QEMU_CLOCK_VIRTUAL, {{ name }}_tick_callback{{ i }}, s);{% endfor %}
 }
 
 static void {{ name }}_reset(DeviceState *dev)
 {
-    /* {{ name|upper}}State *s = {{ name|upper }}(dev); */
+    {{ name|upper}}State *s = {{ name|upper }}(dev);
+    s->reserved = 0;
 }
 
 static void {{ name }}_class_init(ObjectClass *klass, void *data)

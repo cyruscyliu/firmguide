@@ -8,6 +8,7 @@
 #include "hw/{{ arch }}/{{ arch }}.h"
 #include "exec/address-spaces.h"{% for header in cpu_get_header %}
 #include "{{ header }}"{% endfor %}{% for header in intc_get_header %}
+#include "{{ header }}"{% endfor %}{% for header in timer_get_header %}
 #include "{{ header }}"{% endfor %}{% for header in serial_get_header %}
 #include "{{ header }}"{% endfor %}
 
@@ -17,7 +18,8 @@
 
 typedef struct {{ machine_name|upper }}State {
     {% for cpu_field in cpu_get_field %}{{ cpu_field }}{% endfor %}{% for intc_field in intc_get_field %}
-    {{ intc_field }}{% endfor %}{% for bamboo_field in bamboo_get_field %}
+    {{ intc_field }}{% endfor %}{% for timer_field in timer_get_field %}
+    {{ timer_field }}{% endfor %}{% for bamboo_field in bamboo_get_field %}
     {{ bamboo_field }}{% endfor %}
     MemoryRegion ram;
 } {{ machine_name|upper }}State;{% for suite in bamboo_get_suite %}
@@ -42,7 +44,8 @@ static void {{ machine_name }}_init(MachineState *machine)
     memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, {{ ram_get_priority }});
     {% for line in intc_get_body %}
     {{ line }}{% endfor %}
-    {% for line in serial_get_body %}
+    {% for line in timer_get_body %}
+    {{ line }}{% endfor %}{% for line in serial_get_body %}
     {{ line }}{% endfor %}
     {% for line in bamboo_get_body %}
     {{ line }}{% endfor %}

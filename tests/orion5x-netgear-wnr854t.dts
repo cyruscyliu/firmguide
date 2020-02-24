@@ -192,6 +192,11 @@
 				status = "okay";
 			};
 
+			pcie@40000 {
+				compatible = "marvell,orion-pci";
+				reg = <0x40000 0x1000>;
+			};
+
 			ehci@50000 {
 				compatible = "marvell,orion-ehci";
 				reg = <0x50000 0x1000>;

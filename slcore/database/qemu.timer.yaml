@@ -1,14 +1,14 @@
 timer,generic:
-    parameters: [intcp, irqn, irqc]
-    get_header: []
+    parameters: [intcp, irqns, irqc]
+    get_header: ['hw/timer/{{ name }}.h']
     get_field: 
-        - '{{ name|upper }} *timer;'
+        - '{{ name|upper }}State timer;'
     get_body:
         - object_initialize(&s->timer, sizeof(s->timer), TYPE_{{ name|upper }});
         - qdev_set_parent_bus(DEVICE(&s->timer), sysbus_get_default());
         - object_property_set_bool(OBJECT(&s->timer), true, "realized", &err);
-        - '{% for irq in irqn %}qdev_connect_gpio_out(DEVICE(&s->{{ name }}), {{ irq }}, {{ intcp.get_irqn }});|
-          {% endfor %}'
+        - sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{ reg.base }});
+        - "{% for i in irqc|range %}qdev_connect_gpio_out(DEVICE(&s->timer), {{ i }}, {{ intcp.get_irqn }});\n    {% endfor %}"
     external: True
 actions,s500-timer: {extend: 'timer,generic'}
 actions,s700-timer: {extend: 'timer,generic'}

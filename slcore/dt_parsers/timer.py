@@ -58,6 +58,7 @@ def find_flatten_timer_in_fdt(dts):
     reg: always, see find_mmio_by_path for details
     intcp: condit, the phandle of the parent interrupt controller, if the slave is true
     irqn: condit, the irq number to which the slave device connect, if the slave is true
+    irqns: condit, the irq numbers to which the slave device connect, if the slave is true
     """
     flatten_timers = {}
     for pa, no, pros in dts.walk():
@@ -78,7 +79,8 @@ def find_flatten_timer_in_fdt(dts):
             interrupts = dts.get_property('interrupts', pa).data
             irqns = find_irqnc_by_pphandle(dts, interrupt_parent, interrupts)
             flatten_timers[pa]['intcp'] = interrupt_parent
-            flatten_timers[pa]['irqn'] = irqns
+            flatten_timers[pa]['irqns'] = irqns
+            flatten_timers[pa]['irqn'] = None
             flatten_timers[pa]['irqc'] = len(irqns)
 
     ft = []

@@ -15,9 +15,12 @@ typedef struct {{ name|upper }}State {
     SysBusDevice sys_bus;
     /*< public >*/
 
+    MemoryRegion mmio;
     /* output to the intc */
     qemu_irq irq[{{ irqc }}];
     QEMUTimer *timer[{{ irqc }}];
+
+    uint32_t reserved;
 } {{ name|upper }}State;
 
 #endif /* {{ name|upper }}_H */
