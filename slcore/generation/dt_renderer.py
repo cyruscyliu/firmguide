@@ -459,7 +459,7 @@ def run_dt_renderer(firmware):
     # 6.3 compile
     firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
     # 6.4 keep qemu clean
-    firmware.qemuc.recover()
+    # firmware.qemuc.recover()
 
     return True
 

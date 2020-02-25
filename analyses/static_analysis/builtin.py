@@ -289,6 +289,5 @@ MODELED_SKIP_TABLE = {
     '__builtin_unreachable': {'handle': ___builtin_unreachable},
     'clockevents_register_device': {'handle': _clockevents_register_device},
     'setup_irq': {'handle': _setup_irq},
-}
 
 

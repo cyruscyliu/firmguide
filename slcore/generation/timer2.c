@@ -75,6 +75,10 @@ static void {{ name }}_init(Object *obj)
 static void {{ name }}_reset(DeviceState *dev)
 {
     {{ name|upper}}State *s = {{ name|upper }}(dev);
+    int64_t now;
+    {% for i in irqc|range %}
+    now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    timer_mod(s->timer[{{i}}], 0x10000000 + now); /* 100HZ */{% endfor %}
     s->reserved = 0;
 }
 

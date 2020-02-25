@@ -4,61 +4,85 @@
 #include "qemu/log.h"
 #include "qapi/error.h"
 #include "hw/intc/{{ name }}.h"
-{% for irqn_to_reg in intc_irqn_to_regs %}
-static struct {{ name }}_to_reg {{ name }}_irq{{ irqn_to_reg.irqn }}_to_regs[] = {
-    {% for to_reg in irqn_to_reg.to_regs %}{
-        .offset = {{ to_reg.offset }},
-        .value  = {{ to_reg.value }},
-        .size   = {{ to_reg.size }},
-    },{% endfor %}{
-        .offset = -1,
+
+static bool set_{{ name }}_irqn_to_regs(void *opaque, int irqn)
+{
+    {{ name|upper }}State *s = opaque;
+    switch(irqn) { {% for irqn_to_reg in intc_irqn_to_regs %}
+        case {{ irqn_to_reg.irqn }}:{% for line in irqn_to_reg.set_body %}
+            {{ line }}{% endfor %}
+            break;{% endfor %}
     }
-};
-{% endfor %}
-static struct {{ name }}_irqn_table_entry {{ name }}_irqn_table[] = {
-    {% for irqn_to_reg in intc_irqn_to_regs %}{
-         .irqn = {{ irqn_to_reg.irqn }},
-         .to_regs = {{ name }}_irq{{ irqn_to_reg.irqn }}_to_regs,
-    },{% endfor %}{
-        .irqn = -1,
+    return true;
+}
+
+static bool clear_{{ name }}_irqn_to_regs(void *opaque, int irqn)
+{
+    {{ name|upper }}State *s = opaque;
+    switch(irqn) { {% for irqn_to_reg in intc_irqn_to_regs %}
+        case {{ irqn_to_reg.irqn }}:{% for line in irqn_to_reg.clear_body %}
+            {{ line }}{% endfor %}
+            break;{% endfor %}
     }
-};
+    return true;
+}
 
 static void {{ name }}_update(void *opaque)
 {
     {{ name|upper }}State *s = opaque;
     int i;
 
-    /* This is the meeting place for all interrupt source.
-     * STATE_IDLE means this interrupt source is sound.
-     * STATE_SET_ALARM is set when the interrupt source is
-     * in STATE_IDLE and the source pull up the signal. At
-     * this time, we should update MMIOs according to SET_
-     * ALARM_TABLE. See {{ name }}_set_irq for details.
-     * STATE_MASK_ACK/STATE_ACK is set when the r/w pattern
-     * is captured. The pattern is from the source code.
-     * STATE_CLEAR is set when the interrupt source is in
-     * STATE_MASK_ACK/STATE_ACK and the source pull down the
-     * signal. We will pull down the signal as well.
-     * STATE_UNMASK is set when the r/w pattern is captured.
-     * The pattern is from the srouce code. A interrupt
-     * going into STATE_UNMAKS will go to STATE_IDLE immediately.
-     */
+    // state transition table
+    // state_from pending masked state_to
+    //    REST       0      0     REST
+    //    REST       0      1     REST
+    //    REST       1      0     NOISE
+    //    REST       1      1     NOISE
+    //    NOISE      0      0     REST
+    //    NOISE      0      1     REST
+    //    NOISE      1      0     ALARM(*)
+    //    NOISE      1      1     NOISE
+    //    ALARM      0      0     REST(*)
+    //    ALARM      0      1     REST(*)
+    //    ALARM      1      0     ALARM(*)
+    //    ALARM      1      1     NOISE(*)
     for (i = 0; i < 32; i++) {
         switch(s->state[i]) {
-            case STATE_IDLE:
+            case STATE_REST:
+                if (s->pending[i]) {
+                    s->state[i] = STATE_NOISE;
+                    if (!s->masked[i]) {
+                        s->state[i] = STATE_ALARM;
+                        set_{{ name }}_irqn_to_regs(s, i);
+                        qemu_set_irq(s->irq, 1);
+                    }
+                }
                 break;
-            case STATE_MASK_ACK:
-            case STATE_MASK:
+            case STATE_NOISE:
+                if (s->pending[i]) {
+                    if (!s->masked[i]) {
+                        s->state[i] = STATE_ALARM;
+                        set_{{ name }}_irqn_to_regs(s, i);
+                        qemu_set_irq(s->irq, 1);
+                    }
+                } else {
+                    s->state[i] = STATE_REST;
+                    clear_{{ name }}_irqn_to_regs(s, i);
+                    qemu_set_irq(s->irq, 0);
+                }
                 break;
-            case STATE_CLEAR:
-                qemu_set_irq(s->irq, 0);
-                break;
-            case STATE_SET_ALARM:
-                qemu_set_irq(s->irq, 1);
-                break;
-            case STATE_UNMASK:
-                s->state[i] = STATE_IDLE;
+            case STATE_ALARM:
+                if (s->pending[i]) {
+                    if (s->masked[i]) {
+                        clear_{{ name }}_irqn_to_regs(s, i);
+                        qemu_set_irq(s->irq, 0);
+                        s->state[i] = STATE_NOISE;
+                    }
+                } else {
+                    s->state[i] = STATE_REST;
+                    clear_{{ name }}_irqn_to_regs(s, i);
+                    qemu_set_irq(s->irq, 0);
+                }
                 break;
         }
     }
@@ -82,35 +106,31 @@ static uint64_t {{ name }}_read(void *opaque, hwaddr offset, unsigned size)
 static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
 {
     {{ name|upper }}State *s = opaque;
-    int irqn;
-    uint64_t old;
+    uint64_t irqn;
+    uint32_t old;
 
     switch (offset) {
         default:
             return;{% for register in intc_get_registers %}
         case {{ register.offset }}:
-            old = s-> {{ register.rname }};
+            old = (uint32_t)s-> {{ register.rname }};{% if register.mask_ack %}
             for (irqn = 0; irqn < 32; irqn++)
-                switch (s->state[irqn]) {
-                    case STATE_SET_ALARM:{% if register.mask_ack %}
-                        if ({{ register.mask_ack_action }} == val)
-                            s->state[irqn] = STATE_MASK_ACK;
-                            break;{% endif %}{% if register.mask %}
-                        if ({{ register.mask_action }} == val)
-                            s->state[irqn] = STATE_MASK;
-                            break;{% endif %}
-                        break;
-                    case STATE_MASK:
-                    case STATE_MASK_ACK:{% if register.ack %}
-                        if ({{ register.ack_action }} == val)
-                            s->state[irqn] = STATE_CLEAR;
-                            break;{% endif %}
-                        break;
-                    case STATE_UNMASK:
-                    case STATE_CLEAR:
-                    case STATE_IDLE:
-                        break;
-                }
+                if ({{ register.mask_ack_action }} == (uint32_t)val) {
+                    s->masked[irqn] = true;
+                    s->pending[irqn] = false;
+                }{% endif %}{% if register.mask %}
+            for (irqn = 0; irqn < 32; irqn++)
+                if ({{ register.mask_action }} == (uint32_t)val) {
+                    s->masked[irqn] = true;
+                }{% endif %}{% if register.ack %}
+            for (irqn = 0; irqn < 32; irqn++)
+                if ({{ register.ack_action }} == (uint32_t)val) {
+                    s->pending[irqn] = false;
+                }{% endif %}{% if register.unmask %}
+            for (irqn = 0; irqn < 32; irqn++)
+                if ({{ register.unmask_action }} == (uint32_t)val) {
+                    s->masked[irqn] = false;
+                }{% endif %}
             s->{{ register.rname }}= val;
             break;{% endfor %}
     }
@@ -126,42 +146,12 @@ static const MemoryRegionOps {{ name }}_ops = {
 static void {{ name }}_set_irq(void *opaque, int irq, int level)
 {
     {{ name|upper }}State *s = opaque;
-    struct {{ name }}_irqn_table_entry *entry;
-    struct {{ name }}_to_reg *to_regs;
-    int i, j;
 
-    /* One and only one interrupt source will call me when
-     * it pull up or pull down the level of the signal.
-     * This behavior will make STATE_IDLE -> STATE_SET_ALARM,
-     * of STATE_MASK_ACK/STATE_MASK -> STATE_CLEAR.
-     * State is guaranteed for every interrupt source.
-     */
-    switch(s->state[irq]) {
-        case STATE_IDLE:
-            if (level) {
-                for (i = 0, entry = &{{ name }}_irqn_table[i]; entry->irqn != -1; i++) {
-                    if (entry->irqn != irq) continue;
-                    to_regs = entry->to_regs;
-                    for (j = 0; to_regs[j].offset != -1; i++) {
-                        {{ name }}_write(s, to_regs[j].offset, to_regs[j].value, to_regs[j].size);
-                    }
-                }
-                s->state[irq] = STATE_SET_ALARM;
-            }
-            break;
-        case STATE_MASK_ACK:
-            if (!level) s->state[irq] = STATE_CLEAR;
-            break;
-        case STATE_UNMASK:
-            if (!level) {
-                s->state[irq] = STATE_CLEAR;
-            }
-            break;
-        case STATE_CLEAR:
-        case STATE_SET_ALARM:
-        case STATE_MASK:
-            break;
-    }
+    if (level)
+        s->pending[irq] = true;
+    else
+        s->pending[irq] = false;
+
     {{ name }}_update(s);
 }
 
