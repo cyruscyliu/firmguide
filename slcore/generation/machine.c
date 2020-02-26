@@ -10,6 +10,7 @@
 #include "{{ header }}"{% endfor %}{% for header in intc_get_header %}
 #include "{{ header }}"{% endfor %}{% for header in timer_get_header %}
 #include "{{ header }}"{% endfor %}{% for header in serial_get_header %}
+#include "{{ header }}"{% endfor %}{% for header in flash_get_header %}
 #include "{{ header }}"{% endfor %}
 
 #define TYPE_{{ machine_name|upper }} "{{  machine_name }}"
@@ -20,7 +21,8 @@ typedef struct {{ machine_name|upper }}State {
     {% for cpu_field in cpu_get_field %}{{ cpu_field }}{% endfor %}{% for intc_field in intc_get_field %}
     {{ intc_field }}{% endfor %}{% for timer_field in timer_get_field %}
     {{ timer_field }}{% endfor %}{% for bamboo_field in bamboo_get_field %}
-    {{ bamboo_field }}{% endfor %}
+    {{ bamboo_field }}{% endfor %}{% for flash_field in flash_get_field %}
+    {{ flash_field }}{% endfor %}
     MemoryRegion ram;
 } {{ machine_name|upper }}State;{% for suite in bamboo_get_suite %}
 {{ suite }}{% endfor %}
@@ -48,6 +50,8 @@ static void {{ machine_name }}_init(MachineState *machine)
     {{ line }}{% endfor %}{% for line in serial_get_body %}
     {{ line }}{% endfor %}
     {% for line in bamboo_get_body %}
+    {{ line }}{% endfor %}
+    {% for line in flash_get_body %}
     {{ line }}{% endfor %}
     {{ machine_name }}_reset(s);
 

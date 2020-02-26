@@ -5,6 +5,7 @@ from slcore.dt_parsers.serial import *
 from slcore.dt_parsers.intc import *
 from slcore.dt_parsers.common import *
 from slcore.dt_parsers.timer import *
+from slcore.dt_parsers.flash import *
 from slcore.database.dbf import get_database
 from slcore.generation.render import Template
 from slcore.generation.common import *
@@ -168,6 +169,7 @@ class DTRenderer(object):
             'intc': find_flatten_intc_in_fdt,
             'serial': find_flatten_serial_in_fdt,
             'timer': find_flatten_timer_in_fdt,
+            'flash': find_flatten_flash_in_fdt,
         }
 
         self.machine = None

@@ -20,6 +20,8 @@ def get_database(dbtype, **kwargs):
         return DatabaseQEMUModels('intc')
     elif dbtype == 'qemu.timer':
         return DatabaseQEMUModels('timer')
+    elif dbtype == 'qemu.flash':
+        return DatabaseQEMUModels('flash')
     elif dbtype == 'qemu.apis':
         return DatabaseQEMUAPIS()
     elif dbtype == 'support':

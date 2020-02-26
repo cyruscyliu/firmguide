@@ -184,8 +184,8 @@ def _panic(analysis, firmware, **kwargs):
             # n0 = __raw_readl(sysc + 0x00); n1 = __raw_readl(sysc + 0x04); id = __raw_readl(sysc + 0x0c);
             # if (n0 == 0x38335452 && n1 == 0x20203338) { ... } else { panic("..."); }
             mmio_base = eval('0x10000000 & 0x1fffffff | 0xa0000000')
-            firmware.insert_bamboo_devices(mmio_base + 0x00, 0x4, value=0x38335452)
-            firmware.insert_bamboo_devices(mmio_base + 0x04, 0x4, value=0x20203338)
+            firmware.insert_bamboo_devices(mmio_base + 0x00, 0x4, value=0x38335452, compatible=['prom_soc_init1'])
+            firmware.insert_bamboo_devices(mmio_base + 0x04, 0x4, value=0x20203338, compatible=['prom_soc_init2'])
         elif caller == 'intc_of_init':
             # irq = irq_of_parse_and_map(node, 0); if (!irq) panic("Failed to get INTC IRQ");
             # from builtin function will never be panic
@@ -328,7 +328,7 @@ UNMODELED_SKIP_LIST = [
     'paging_init', 'device_tree_init', 'strlcat', 'set_isa', 'decode_configs', 'spram_config',
     'setup_early_printk', 'cpu_probe', 'cp0_compare_irq', 'c0_compare_int_usable',
     'clockevent_delta2ns', 'clocks_calc_mult_shift', 'get_c0_compare_int', 'irq_modify_status',
-    'cpu_has_mfc0_count_bug', 'debugfs_create_file', 'of_find_compatible_node',
+    'cpu_has_mfc0_count_bug', 'debugfs_create_file', 'of_find_compatible_node', 'of_platform_populate',
     'reset_controller_register'
 ]
 
