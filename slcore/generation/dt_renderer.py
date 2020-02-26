@@ -292,6 +292,10 @@ static const MemoryRegionOps {0}_ops = {{
             if flatten_ks is None:
                 self.warning('no {} found'.format(k), 'parse')
                 continue
+            if self.firmware.get_arch() == 'mips' and k == 'flash' and \
+                    not len(flatten_ks):
+                # mips will have a default flash if no flash is detected
+                flatten_ks = [{'compatible': ['flash,generic'], 'reg': {'base': 0x1fc00000, 'size': 0x400000}}]
             for context in flatten_ks:
                 # the 1st check, compatible check
                 m = Model(k, context['compatible'])

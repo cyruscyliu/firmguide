@@ -36,6 +36,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
         self.components = None
         self.dtb = None
+        self.dtc = None
         self.srcodec = None
         self.qemuc = QEMUController()
 

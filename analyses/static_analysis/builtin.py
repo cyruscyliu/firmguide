@@ -183,7 +183,7 @@ def _panic(analysis, firmware, **kwargs):
             # void *sysc = (void *) ((((int)(int)(0x10000000)) & 0x1fffffff) | 0xa0000000);
             # n0 = __raw_readl(sysc + 0x00); n1 = __raw_readl(sysc + 0x04); id = __raw_readl(sysc + 0x0c);
             # if (n0 == 0x38335452 && n1 == 0x20203338) { ... } else { panic("..."); }
-            mmio_base = eval('0x10000000 & 0x1fffffff | 0xa0000000')
+            mmio_base = 0x10000000
             firmware.insert_bamboo_devices(mmio_base + 0x00, 0x4, value=0x38335452, compatible=['prom_soc_init1'])
             firmware.insert_bamboo_devices(mmio_base + 0x04, 0x4, value=0x20203338, compatible=['prom_soc_init2'])
         elif caller == 'intc_of_init':
