@@ -17,6 +17,7 @@ class DTPreprocessing(Analysis):
                 firmware.get_target_dir(),
                 '{}.dts'.format(os.path.basename(path_to_dtb))), 'w') as f:
             f.write(dts.to_dts())
+        firmware.set_machine_name(firmware.get_uuid())
 
         # 2. create bdevices
         for mmio in find_flatten_mmio_in_fdt(dts):
@@ -30,6 +31,12 @@ class DTPreprocessing(Analysis):
 
         # 3. assign board_id
         firmware.set_board_id('0xFFFFFFFF')
+
+        # 4. assign a flash for booting(NOW ONLY FOR MIPS)
+        if firmware.get_arch() == 'mips':
+            firmware.insert_bamboo_devices(0x1FC00000, 0x400000, value=0, compatible=['flash,general'])
+            firmware.update_bamboo_devices()
+
         return True
 
     def __init__(self, analysis_manager):

@@ -10,14 +10,14 @@ intc,generic:
         - sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ reg.base }});
         - qdev_connect_gpio_out(DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});
 ralink,rt2880-intc:
-    irqn_to_regs:
-        - {irqn: 5, to_regs: [{offset: '0x00', value: '0x00000020', size: '0x4'}]}
-        - {irqn: 12, to_regs: [{offset: '0x00', value: '0x00001000', size: '0x4'}]}
-    extend: intc,generic
     get_registers:
         - {rname: r0, offset: '0x00', mask_ack: False, mask: False, unmask: False, ack: False}
-        - {rname: r1, offset: '0x34', unmask_action: 1 << irqn, mask_ack: False, mask: False, unmask: True, ack: False}
-        - {rname: r2, offset: '0x38', mask_ack_action: 1 << irqn, mask_ack: True, mask: False, unmask: False, ack: False}
+        - {rname: r1, offset: '0x34', unmask_action: (1 << irqn), mask_ack: False, mask: False, unmask: True, ack: False}
+        - {rname: r2, offset: '0x38', mask_ack_action: (1 << irqn), mask_ack: True, mask_action: (1 << irqn), mask: True, unmask: False, ack: False}
+    irqn_to_regs:
+        - {irqn: 5, set_body: ['s->r0 |= 0x00000020;'], clear_body: ['s->r0 &= ~0x00000020;']}
+        - {irqn: 12, set_body: ['s->r0 |= 0x00001000;'], clear_body: ['s->r0 &= ~0x00001000;']}
+    extend: intc,generic
     external: True
 arm,arm11mp-gic:
     paramters: [name, reg, intcp]

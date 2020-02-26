@@ -152,9 +152,6 @@ class DTRenderer(object):
         self.firmware = firmware
 
         self.context = {}
-        machine_name = os.path.basename(firmware.get_dtb()) \
-            .split('.')[0].replace('-', '_')
-        firmware.set_machine_name(machine_name)
         self.context['machine_name'] = firmware.get_machine_name()
         self.context['machine_description'] = self.context['machine_name']
         self.context['arch'] = firmware.get_arch()
@@ -420,6 +417,9 @@ def run_dt_renderer(firmware):
             firmware.get_target_dir(),
             '{}.dts'.format(os.path.basename(path_to_dtb))), 'w') as f:
         f.write(dts.to_dts())
+    machine_name = os.path.basename(firmware.get_dtb()) \
+        .split('.')[0].replace('-', '_')
+    firmware.set_machine_name(machine_name)
 
     # 2. create bdevices
     for mmio in find_flatten_mmio_in_fdt(dts):

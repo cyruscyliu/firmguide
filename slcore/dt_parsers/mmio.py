@@ -24,6 +24,8 @@ def __find_parent_offset(dts, path, x, fx):
     parent = node.parent
 
     if parent is None:
+        if fx is None:
+            return 0
         for k, v in fx.items():
             if k <= x < k + v[1]:
                 return (v[0] - k)

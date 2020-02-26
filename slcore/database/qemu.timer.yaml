@@ -91,6 +91,7 @@ oxsemi,ox820-rps-timer: {extend: 'timer,generic'}
 picochip,pc3x2-timer: {extend: 'timer,generic'}
 qcom,kpss-timer: {extend: 'timer,generic'}
 qcom,scss-timer: {extend: 'timer,generic'}
+ralink,rt2880-timer: {extend: 'timer,generic'}
 rda,8810pl-timer: {extend: 'timer,generic'}
 renesas,16bit-timer: {extend: 'timer,generic'}
 renesas,8bit-timer: {extend: 'timer,generic'}

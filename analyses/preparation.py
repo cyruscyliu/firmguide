@@ -59,7 +59,7 @@ class Preparation(Analysis):
                 # 6.3 compile
                 firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
                 # 6.4 keep qemu clean
-                firmware.qemuc.recover()
+                # firmware.qemuc.recover()
 
         # 3. prepare -k path/to/kernel
         # 3.1 If a mips firmware has CMDLINE: filled, it will not use our customed cmdline.

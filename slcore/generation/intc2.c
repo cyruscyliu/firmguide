@@ -113,7 +113,7 @@ static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned
         default:
             return;{% for register in intc_get_registers %}
         case {{ register.offset }}:
-            old = (uint32_t)s-> {{ register.rname }};{% if register.mask_ack %}
+            old = (uint32_t)s->{{ register.rname }};{% if register.mask_ack %}
             for (irqn = 0; irqn < 32; irqn++)
                 if ({{ register.mask_ack_action }} == (uint32_t)val) {
                     s->masked[irqn] = true;
