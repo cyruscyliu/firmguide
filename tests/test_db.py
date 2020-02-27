@@ -19,3 +19,14 @@ class TestCompositor(TestCase):
         d = support.select('board', arch='arm', brand='openwrt', target='orion')
         self.assertIsNotNone(d)
 
+    def test_qemu_devices_db(self):
+        qemu_devices = get_database('qemu.devices')
+
+        compatible = 'marvell,xscale'
+        cpu_model = qemu_devices.select('cpu', compatible=compatible)
+        self.assertEqual('pxa250', cpu_model)
+
+        compatible = 'mips,mips24Kc'
+        cpu_model = qemu_devices.select('cpu', compatible=compatible)
+        self.assertEqual('24Kc', cpu_model)
+

@@ -1,0 +1,61 @@
+intc,generic:
+    parameters: [name, reg, intcp]
+    get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}), {{ irqn|__restore_irqn }})
+    get_header: ['hw/intc/{{ name }}.h']
+    get_field: ['{{ name|upper }}State {{ name }};']
+    get_body:
+        - object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_{{ name|upper }});
+        - qdev_set_parent_bus(DEVICE(&s->{{ name }}), sysbus_get_default());
+        - object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized", &err);
+        - sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ reg.base }});
+        - qdev_connect_gpio_out(DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});
+ralink,rt2880-intc:
+    get_registers:
+        - {rname: r0, offset: '0x00', mask_ack: False, mask: False, unmask: False, ack: False}
+        - {rname: r1, offset: '0x34', unmask_action: (1 << irqn), mask_ack: False, mask: False, unmask: True, ack: False}
+        - {rname: r2, offset: '0x38', mask_ack_action: (1 << irqn), mask_ack: True, mask_action: (1 << irqn), mask: True, unmask: False, ack: False}
+    irqn_to_regs:
+        - {irqn: 5, set_body: ['s->r0 |= 0x00000020;'], clear_body: ['s->r0 &= ~0x00000020;']}
+        - {irqn: 12, set_body: ['s->r0 |= 0x00001000;'], clear_body: ['s->r0 &= ~0x00001000;']}
+    extend: intc,generic
+    external: True
+arm,arm11mp-gic:
+    paramters: [name, reg, intcp]
+    get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}), {{ irqn }})
+    get_header: [hw/cpu/arm11mpcore.h]
+    get_field: ['ARM11MPCorePriveState {{ name }};']
+    get_body:
+        - object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_ARM11MPCORE_PRIV);
+        - object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized", &err);
+        - sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ reg.base }} & 0xffff0000);
+        - sysbus_connect_irq(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});
+    buddy_compatible: ['arm,arm11mp-twd-timer', 'mpcore_wdt']
+marvell,orion-intc:
+    get_registers:
+        - {rname: r0, offset: '0x00', mask_ack: False, mask: False, unmask: False, ack: False}
+        - {rname: r1, offset: '0x04', mask_action: '(old & (~(1 << (irqn % 32))))', unmask_action: '(old | ((1 << (irqn % 32))))', mask_ack: False, mask: True, unmask: True, ack: False}
+    irqn_to_regs:
+        - {irqn: 0, set_body: ['s->r0 |= 0x00000001;'], clear_body: ['s->r0 &= ~0x00000001;']}
+        - {irqn: 3, set_body: ['s->r0 |= 0x00000008;'], clear_body: ['s->r0 &= ~0x00000008;']}
+        - {irqn: 4, set_body: ['s->r0 |= 0x00000010;'], clear_body: ['s->r0 &= ~0x00000010;']}
+    extend: intc,generic
+    external: True
+marvell,orion-bridge-intc:
+    get_registers:
+        - {rname: r0, offset: '0x00', ack_action: '(~(1 << (irqn % 32)))', mask_ack: False, mask: False, unmask: False, ack: True}
+        - {rname: r1, offset: '0x04', mask_action: '(old & (~(1 << (irqn % 32))))', unmask_action: '(old | (1 << (irqn % 32)))', mask_ack: False, mask: True, unmask: True, ack: False}
+    irqn_to_regs:
+        - {irqn: 1, set_body: ['s->r0 |= 0x00000002;'], clear_body: ['s->r0 &= ~0x00000002;']}
+        - {irqn: 2, set_body: ['s->r0 |= 0x00000004;'], clear_body: ['s->r0 &= ~0x00000004;']}
+        - {irqn: 3, set_body: ['s->r0 |= 0x00000008;'], clear_body: ['s->r0 &= ~0x00000008;']}
+    extend: intc,generic
+    external: True
+mti,cpu-interrupt-controller:
+    paramters: []
+    get_irqn: s->cpu->env.irq[{{ irqn }}]
+    get_header: [hw/mips/cpudevs.h]
+    get_field: []
+    get_body:
+        - cpu_mips_irq_init_cpu(s->cpu);
+        - cpu_mips_clock_init(s->cpu);
+

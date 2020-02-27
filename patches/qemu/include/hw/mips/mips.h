@@ -24,6 +24,7 @@ void rc4030_dma_write(void *dma, uint8_t *buf, int len);
 DeviceState *rc4030_init(rc4030_dma **dmas, IOMMUMemoryRegion **dma_mr);
 
 struct mips_boot_info {
+    int board_id;
     uint64_t ram_size;
     const char *kernel_filename;
     const char *kernel_cmdline;

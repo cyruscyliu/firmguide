@@ -13,15 +13,6 @@ class TestCompositor(TestCase):
 
         self.assertEqual(None, components.get_path_to_kernel())
 
-    def test_unpack1(self):
-        components = unpack(
-            os.path.join(TESTS_DIR, '9874f62ffd1d5d1ccdfa919cc29794f03d1f08db.bin'),
-            target_dir=tempfile.gettempdir(), extract=False)
-
-        self.assertIsNotNone(components.get_path_to_uimage())
-        self.assertIsNotNone(components.get_path_to_kernel())
-        self.assertIsNotNone(components.get_path_to_rootfs())
-        self.assertTrue(components.supported)
 
     def test_unpack2(self):
         components = unpack(

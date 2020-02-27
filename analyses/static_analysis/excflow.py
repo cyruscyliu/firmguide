@@ -30,8 +30,14 @@ class ExecutionFlow(Analysis):
             self.warning(firmware, '{} -> {}(no address)'.format(caller, ep), 1)
             return None, None, [], {}
 
-        if path_to_entry_point.startswith('fs'):
+        if path_to_entry_point.startswith('fs') or \
+                path_to_entry_point.startswith('lib') or \
+                path_to_entry_point.startswith('mm'):
             self.debug(firmware, '{} -> {}(built-in function in {})'.format(caller, ep, path_to_entry_point), 1)
+            return None, path_to_entry_point, [], {}
+
+        if path_to_entry_point.endswith('.S'):
+            self.warning(firmware, '{} -> {}(assembly file)'.format(caller, ep, path_to_entry_point), 1)
             return None, path_to_entry_point, [], {}
 
         if path_to_entry_point.endswith('.h'):
@@ -127,35 +133,89 @@ class ExecutionFlow(Analysis):
                     # funccalls.append(machine_setup)
             funccalls.append('bhu_bxu2000n2_a1_setup')
 
+        if firmware.get_arch() == 'mips' and 'plat_time_init' in funccalls:
+            if firmware.uuid == 'ar71xx_generic':
+                entry_point = ['ath79_clocks_init', 'ath79_get_sys_clk_rate']
+                # by manually analysis, to guarentee mips_hpt_frequency not zero
+                # ath79_clocks_init has BUG_ON() and is related to ath79_soc set to ar9130,
+                # so ar913x_clocks_init will be called and we have
+                # ref_rate = 5000000;
+                # pll = ath79_pll_rr(0x00);             pll      = *(ath79_pll_rr+0x00)
+                # div = ((pll >> 0) & 0x3ff);           div      = (pll >> 0) & 0x3ff
+                # freq = div * ref_rate;                freq     = ((pll >> 0) & 0x3ff) * 5000000
+                # cpu_rate = freq;                      cpu_rate = ((pll >> 0) & 0x3ff) * 5000000
+                # div = ((pll >> 22) & 0x3) + 1;        div      = (pll >> 22) & 0x3) + 1
+                # ddr_rate = freq / div;                ddr_rate = (((pll >> 0) & 0x3ff) * 5000000) / ((pll >> 22) & 0x3) + 1)
+                # div = (((pll >> 19) & 0x1) + 1) * 2;  div      = (((pll >> 19) & 0x1) + 1) * 2
+                # ahb_rate = cpu_rate / div;            ahb_rate = ((pll >> 0) & 0x3ff) * 5000000 / (((pll >> 19) & 0x1) + 1) * 2
+                # [FUNCTION] clk_register_clkdev(clk, id, ((void *)0));
+                # this function is used to register a clock device with a rate
+                # [FUNCTION] clk_get, clk_get_rate
+                # these two functions can be used together get the rate of a clkdev by its id
+                # ath79_add_sys_clkdev("ref", ref_rate); # an id is a string, a rate is a int
+                # ath79_add_sys_clkdev("cpu", cpu_rate);
+                # ath79_add_sys_clkdev("ddr", ddr_rate);
+                # ath79_add_sys_clkdev("ahb", ahb_rate);
+                # [FUNCTION] clk_add_alias is obviously to add a new clock alias
+                # clk_add_alias("wdt", ((void *)0), "ahb", ((void *)0));
+                # clk_add_alias("uart", ((void *)0), "ahb", ((void *)0));
+                # at last, we have 6 clocks with differate rates, they are ref, cpu, ddr, ahb, wdt(=ahb), uart(=ahb)
+                # in plat_time_init, we know mips_hpt_frequency = cpu_clk_rate / 2 = cpu_rate = ((pll >> 0) & 0x3ff) * 5000000
+                # so the constraint is ((pll >> 0) & 0x3ff) * 5000000 / 2 != 0
+                # such that ((pll >> 0) & 0x3ff) * 5000000 > 2
+                # such that ((pll >> 0) & 0x3ff) > 1
+                # such that the low 10 bits of pll should be large than 0, the first reasonable value is 1 -> 2.5M
+                mmio_name = 'ath79_pll_rr'
+                mmio_base = eval('(0x18050000 + 0x00)')
+                mmio_size = 0x4
+                mmio_value = 0x10
+                # will be updated in platform_devices.py
+                # firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
+                self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+            elif firmware.uuid == 'ramips_rt3883':
+                #
+                # mips_hpt_frequency = clk_get_rate(clk_get_sys("cpu", NULL));
+                pass
+            else:
+                self.warning(firmware, '{} -> plat_time_init(w/o handler)'.format(caller), 0)
 
         # [FUNCTION]  struct irq_domain *irq_domain_add_legacy(struct device_node *of_node, unsigned int size,
         # unsigned int first_irq, irq_hw_number_t first_hwirq, const struct irq_domain_ops *ops, void *host_data);
         if 'irq_domain_add_legacy' in funccalls:
             funccalls.remove('irq_domain_add_legacy')
-            if firmware.uuid == 'rampis_rt3883':
+            if firmware.uuid == 'ramips_rt3883':
                 if caller == 'mips_cpu_intc_init':
                     # domain = irq_domain_add_legacy(of_node, 8, 0, 0, &mips_cpu_intc_irq_domain_ops, ((void *)0));
                     # for i in range(0, 8):
                     #     analysis.debug(firmware, '{0} {0} direct mips_cpu_intc_irq_domain_ops None'.format(i), 1)
-                    # it not only tells us hw0-7 -> irqn0-7, but also shows irqchip in xxx_ops
+                    # it not only tells us hw0-7 -> irqn0-7, but also shows irqmap in xxx_ops
                     self.debug(firmware, '{} -> {}(FP -> [mips_cpu_intc_map])'.format(caller, 'irq_domain_add_legacy'), 1)
                     funccalls.extend(['mips_cpu_intc_map'])
                 elif caller == 'intc_of_init':
                     # domain = irq_domain_add_legacy(node, 32, 8, 0, &irq_domain_ops, ((void *)0));
                     # for i in range(0, 32):
                     #     analysis.debug(firmware, '{0} {1} direct mips_cpu_intc_irq_domain_ops None'.format(i, i+8), 1)
-                    # it not only tells us hw0-31 -> irqn8-39, but also shows irqchip in xxx_ops
+                    # it not only tells us hw0-31 -> irqn8-39, but also shows irqmap in xxx_ops
                     self.debug(firmware, '{} -> {}(FP -> [intc_map])'.format(caller, 'irq_domain_add_legacy'), 1)
                     funccalls.extend(['intc_map'])
                 else:
-                    analysis.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
+                    self.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
+            elif firmware.uuid == 'oxnas_generic':
+                if caller == 'gic_init_bases':
+                    self.debug(firmware, '{} -> {}(FP -> [gic_irq_domain_map])'.format(caller, 'irq_domain_add_legacy'), 1)
+                    funccalls.extend(['gic_irq_domain_map'])
+                elif caller == 'rps_of_init':
+                    self.debug(firmware, '{} -> {}(FP -> [rps_irq_domain_map])'.format(caller, 'irq_domain_add_legacy'), 1)
+                    funccalls.extend(['rps_irq_domain_map'])
+                else:
+                    self.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
             else:
-                analysis.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
+                self.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
 
         # [FUNCTION] void __init of_irq_init(const struct of_device_id *matches)
         if 'of_irq_init' in funccalls:
             funccalls.remove('of_irq_init')
-            if firmware.uuid == 'rampis_rt3883':
+            if firmware.uuid == 'ramips_rt3883':
                 if caller == 'arch_init_irq':
                     # you have to analyze its parameter
                     # static struct of_device_id __attribute__ ((__section__(".init.data"))) of_irq_ids[] = {
@@ -168,8 +228,51 @@ class ExecutionFlow(Analysis):
                     self.debug(firmware, '{} -> {}(FP -> [mips_cpu_intc_init, intc_of_init])'.format(caller, 'of_irq_init'), 1)
                 else:
                     self.warning(firmware, 'of_irq_init found w/o handler', 0)
+            elif firmware.uuid == 'oxnas_generic':
+                if caller == 'irqchip_init':
+                    # in this case, oxnas doesn't have .init_irq callback, so will call irqchip_init
+                    # compatible = "arm,arm11mp-gic";
+                    # compatible = "plxtech,nas782x-rps";
+                    # compatible = "plxtech,nas782x-gpio";(platform_device/pinctrl, not here)
+                    funccalls.extend(['gic_of_init', 'rps_of_init'])
+                    self.debug(firmware, '{} -> {}(FP -> [gic_of_init, rps_of_init])'.format(caller, 'of_irq_init'), 1)
+                else:
+                    self.warning(firmware, 'of_irq_init found w/o handler', 0)
             else:
                 self.warning(firmware, 'of_irq_init found w/o handler', 0)
+
+        # [FUNCTION] void __init of_clk_init(const struct of_devcie_id *matches)
+        if 'of_clk_init' in funccalls:
+            funccalls.remove('of_clk_init')
+            if firmware.uuid == 'oxnas_generic':
+                if caller == 'time_init':
+                    # in this case, oxnas will call .init_time ox820_timer_init
+                    funccalls.extend(['ox820_timer_init'])
+                    funccalls.remove('clocksource_of_init')
+                    self.debug(firmware, '{} -> {}(FP -> [ox820_timer_init])'.format(caller, 'of_clk_init'), 1)
+                elif caller == 'ox820_timer_init':
+                    # now, we are going to call dt callbacks
+                    # compatible 'plxtech,nas782x-rps-timer', rps_timer_init
+                    # compatible 'arm,arm11mp-twd-timer', twd_local_timer_of_register
+                    funccalls.extend(['rps_timer_init', 'twd_local_timer_of_register'])
+                    funccalls.remove('clocksource_of_init')
+                    self.debug(firmware, '{} -> {}(FP -> [rps_timer_init, twd_local_timer_of_register])'.format(caller, 'of_clk_init'), 1)
+                else:
+                    self.warning(firmware, 'of_clk_init found w/o handler', 0)
+            else:
+                self.warning(firmware, 'of_clk_init found w/o handler', 0)
+
+        # [FUNCTION]
+        if firmware.get_arch() == 'arm' and 'init_machine_late' in funccalls:
+            funccalls.remove('init_machine_late')
+            if firmware.uuid == 'oxnax_generic':
+                if caller == 'do_initcall':
+                    # in this case init_machine_late will do nothing
+                    pass
+                else:
+                    self.warning(firmware, 'init_machine_late found w/o handler', 0)
+            else:
+                self.warning(firmware, 'of_clk_init found w/o handler', 0)
 
         return funccalls
 
@@ -199,40 +302,43 @@ class ExecutionFlow(Analysis):
         srcodec = firmware.get_srcodec()
 
         if firmware.uuid == 'ar71xx_generic':
-            # __ioremap_mode will be ignored
-            # ath79_reset_base = __ioremap_mode(((0x18000000 + 0x00060000)), (0x100), ...);
-            mmio_name = 'ath79_reset'; mmio_base = eval('((0x18000000 + 0x00060000))'); mmio_size = 0x100
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
             ## =========== from stinc.py =============
             firmware.insert_bamboo_devices(0x18060010, 0x4, value=0x10000000)
             firmware.insert_bamboo_devices(0x18060014, 0x4, value=0x10000000)
             ## =======================================
-            # ath79_pll_base = __ioremap_mode(((0x18000000 + 0x00050000)), (0x100), ...);
-            mmio_name = 'ath79_pll'; mmio_base = eval('((0x18000000 + 0x00050000))'); mmio_size = 0x100
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
             ## =========== from stimer.py ==============
             firmware.insert_bamboo_devices(0x18050000, 0x4, value=0x10)
             ## =========================================
-            # ath79_ddr_base = __ioremap_mode(((0x18000000 + 0x00000000)), (0x100), ...);
-            mmio_name = 'ath79_ddr'; mmio_base = eval('((0x18000000 + 0x00000000))'); mmio_size = 0x100
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
+
+        # ===== setup =====
+        ep = 'setup_arch'
+        self.traverse_funccalls(firmware, [ep], caller='start_kernel')
 
         # ===== intc subsystem =====
-        # 1 intc initilization
+        # 1. get_irqnr_and_base/plat_irq_dispatch(not neccesory)
+        if firmware.get_arch() == 'arm':
+            # FOR ARM, we have get_irqnr_preamble, get irqnr_and_base
+            # which together are also named arch_irq_handler_default after ?(at least >2.16)
+            # and handler_arch_irq which is a global function pointer which is
+            # defined by set_handle_irq separately.
+            if firmware.uuid == 'oxnas_generic':
+                # in of_gic_init, we have set_handle_irq(gic_handle_irq)
+                ep = 'gic_handle_irq'
+                # irqnr = readl(base+0xc) & 0x3ff
+                irqn_to_reg = "[irqn: i, set_body: ['s->r0 = i;'], clear_body: ['s->r0 = 0xffffffff;']"
+                get_register0 = "{rname: r0, offset: '0x0c', mask_ack: False, mask: False, unmask: False, ack: False}"
+                get_register1 = "{rname: r1, offset: '0x10', mask_ack: False, mask: False, unmask: False, ack_action: (i), ack: True}"
+                self.info(firmware, 'irqn_to_reg: {}'.format(irqn_to_reg), 1)
+                self.info(firmware, 'get_register: {}'.format(get_register0), 1)
+                self.info(firmware, 'get_register: {}'.format(get_register1), 1)
+        elif firmware.get_arch() == 'mips':
+            self.info(firmware, 'interrupt -> plat_irq_dispatch(found, level1 intc mmio->irqn mapping)', 1)
+        # 2 intc initilization
         ep = 'init_IRQ'
         self.traverse_funccalls(firmware, [ep], caller='start_kernel')
         if firmware.uuid == 'ar71xx_generic':
             # arch_init_irq -> ath79_misc_irq_init(no address)
             self.traverse_no_address_funccall(firmware, 'ath79_misc_irq_init', 'arch/mips/ath79/irq.c')
-        # 2. do_asm_IRQ/plat_irq_dispatch(not neccesory)
-        if firmware.get_arch() == 'arm':
-            ep = 'do_asm_IRQ'
-            self.traverse_funccalls(firmware, [ep], caller='start_kernel')
-        elif firmware.get_arch() == 'mips':
-            self.info(firmware, 'plat_irq_dispatch(found, level1 intc mmio->irqn mapping)', 1)
 
         # for mips, you could skip plat_irq_dispatch because it is very general
         # mostly, timer interrupt is IRQ7 and you won't worry about it
@@ -248,49 +354,9 @@ class ExecutionFlow(Analysis):
         # to not zero in plat_time_init. Other cases can be discussed seperately.
         self.traverse_funccalls(firmware, [ep], caller='start_kernel')
 
-        if firmware.uuid == 'ar71xx_generic':
-            entry_point = ['ath79_clocks_init', 'ath79_get_sys_clk_rate']
-            # by manually analysis, to guarentee mips_hpt_frequency not zero
-            # ath79_clocks_init has BUG_ON() and is related to ath79_soc set to ar9130,
-            # so ar913x_clocks_init will be called and we have
-            # ref_rate = 5000000;
-            # pll = ath79_pll_rr(0x00);             pll      = *(ath79_pll_rr+0x00)
-            # div = ((pll >> 0) & 0x3ff);           div      = (pll >> 0) & 0x3ff
-            # freq = div * ref_rate;                freq     = ((pll >> 0) & 0x3ff) * 5000000
-            # cpu_rate = freq;                      cpu_rate = ((pll >> 0) & 0x3ff) * 5000000
-            # div = ((pll >> 22) & 0x3) + 1;        div      = (pll >> 22) & 0x3) + 1
-            # ddr_rate = freq / div;                ddr_rate = (((pll >> 0) & 0x3ff) * 5000000) / ((pll >> 22) & 0x3) + 1)
-            # div = (((pll >> 19) & 0x1) + 1) * 2;  div      = (((pll >> 19) & 0x1) + 1) * 2
-            # ahb_rate = cpu_rate / div;            ahb_rate = ((pll >> 0) & 0x3ff) * 5000000 / (((pll >> 19) & 0x1) + 1) * 2
-            # [FUNCTION] clk_register_clkdev(clk, id, ((void *)0));
-            # this function is used to register a clock device with a rate
-            # [FUNCTION] clk_get, clk_get_rate
-            # these two functions can be used together get the rate of a clkdev by its id
-            # ath79_add_sys_clkdev("ref", ref_rate); # an id is a string, a rate is a int
-            # ath79_add_sys_clkdev("cpu", cpu_rate);
-            # ath79_add_sys_clkdev("ddr", ddr_rate);
-            # ath79_add_sys_clkdev("ahb", ahb_rate);
-            # [FUNCTION] clk_add_alias is obviously to add a new clock alias
-            # clk_add_alias("wdt", ((void *)0), "ahb", ((void *)0));
-            # clk_add_alias("uart", ((void *)0), "ahb", ((void *)0));
-            # at last, we have 6 clocks with differate rates, they are ref, cpu, ddr, ahb, wdt(=ahb), uart(=ahb)
-            # in plat_time_init, we know mips_hpt_frequency = cpu_clk_rate / 2 = cpu_rate = ((pll >> 0) & 0x3ff) * 5000000
-            # so the constraint is ((pll >> 0) & 0x3ff) * 5000000 / 2 != 0
-            # such that ((pll >> 0) & 0x3ff) * 5000000 > 2
-            # such that ((pll >> 0) & 0x3ff) > 1
-            # such that the low 10 bits of pll should be large than 0, the first reasonable value is 1 -> 2.5M
-            mmio_name = 'ath79_pll_rr'
-            mmio_base = eval('(0x18050000 + 0x00)')
-            mmio_size = 0x4
-            mmio_value = 0x10
-            # will be updated in platform_devices.py
-            # firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
-            self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-        else:
-            self.warning(firmware, 'you need analyze plat_time_init to guarentee mips_hpt_frequency not 0', 0)
-
         # do_initcall analysis
         # "early", "core", "postcore", "arch", "subsys", "fs", "device", "late",
+        path_to_entry_point = firmware.srcodec.symbol2file('remove_me_later')
         system_map = firmware.srcodec.system_map
         funccalls = []
         for symbol, v in system_map.items():
@@ -302,6 +368,11 @@ class ExecutionFlow(Analysis):
                 ep = symbol[11:]
                 if ep[-1] in ['0', '1', '2', '3', '4', '5', '6', '7']:
                     ep = ep[:-1]
+                if ep[-2:] in ['1s', '2s', '3s', '4s', '5s', '6s', '7s']:
+                    ep = ep[:-2]
+                # populate_rootfsrootfs
+                if ep.endswith('rootfs'):
+                    ep = ep[:-6]
                 # spawn_ksoftirqdearly
                 if ep.endswith('early'):
                     ep = ep[:-5]
@@ -322,7 +393,6 @@ class ExecutionFlow(Analysis):
 
         funccalls = self.parse_funcalls(firmware, 'do_initcall', funccalls)
         self.traverse_funccalls(firmware, funccalls, caller='do_initcall')
-        exit(1)
 
         # because symbols/addr2line sometimes don't work well, so we manullay set the value
         if firmware.uuid == 'ar71xx_generic':
@@ -412,27 +482,10 @@ class ExecutionFlow(Analysis):
             # [][done]
             # [done]
 
-        if firmware.uuid == 'bcm47xx':
-            # [skip] arch/mips/bcm47xx/buttons.c
-            # bcm47xx_buttons_gpio_keys.dev is dependent on the value
-            # of bcm47xx_board_get with no mem/irq resouces
-            path_to_entry_point = 'arch/mips/bcm47xx/buttons.c'
-            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
-            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-            # [skip] arch/mips/bcm47xx/serial.c
-            # this board is using ssb rather than bcma
-            # whichever bus the bcm47xx use, its uart is configured by nvram
-            # we have to seek a symbolic excution engine for a help
-            # or a tool which can resolve the values of the nvram by code snippets
-            path_to_entry_point = 'arch/mips/bcm47xx/serial.c'
-            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
-            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-            # [skip] arch/mips/bcm47xx/setup.c
-            path_to_entry_point = 'arch/mips/bcm47xx/setup.c'
-            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
-            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-            # gpio_wdt_device.dev is dependent on the value
-            # of bcm47xx_board_get with no mem/irq resouces
+        # hardcoded
+        if firmware.uuid == 'oxnas_generic':
+            firmware.insert_bamboo_devices(0x44e001f0, 0x4, value=0x8000, compatible=['oxnas_generic_h1'])
+            firmware.insert_bamboo_devices(0x44e001f4, 0x4, value=0x8000, compatible=['oxnas_generic_h2'])
         elif firmware.uuid == 'ar71xx_generic':
             pass
 
@@ -443,7 +496,7 @@ class ExecutionFlow(Analysis):
         super().__init__(analysis_manager)
         self.name = 'excflow'
         self.description = 'source code info analysis (sparse)'
-        self.required = ['mfilter', 'device_tree']
+        self.required = ['mfilter', 'preprocdt']
         self.context['hint'] = ''
         self.critical = False
         #

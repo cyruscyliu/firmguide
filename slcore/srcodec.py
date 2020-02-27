@@ -1,5 +1,8 @@
 """
 source code controller
++ symbol2file, symbol2fileg
++ cmdline/preprocess/compile/link one file
++ cfg/cg/gloabls
 """
 from settings import *
 from logger import logger_info
@@ -41,6 +44,9 @@ class SRCodeController(Common):
                 if c.strip().startswith('*'):
                     continue
                 if c.strip().endswith(';'):
+                    continue
+                fs_o = fs[:-1] + 'o'
+                if not os.path.exists(fs_o):
                     continue
                 f = os.path.realpath(fs)
 

@@ -58,30 +58,30 @@ class Components(Common):
         return self.path_to_dtb is not None
 
 
-def replace_extension(path, src, dst):
+def __replace_extension(path, src, dst):
     filename, file_extension = os.path.splitext(path)
     file_extension = file_extension.replace(src, dst)
     return filename + file_extension
 
 
 def __handle_trx_kernel(image_path):
-    kernel = replace_extension(image_path, 'trx', 'kernel')
+    kernel = __replace_extension(image_path, 'trx', 'kernel')
     os.system('lzma -d < {} > {} 2>/dev/null'.format(image_path, kernel))
-    uimage = replace_extension(image_path, 'trx', 'uimage')
+    uimage = __replace_extension(image_path, 'trx', 'uimage')
     return kernel, None, uimage
 
 
 def __handle_fit_uimage(image_path):
-    kernel = replace_extension(image_path, 'fit', 'kernel')
+    kernel = __replace_extension(image_path, 'fit', 'kernel')
     dtb = image_path.replace('uimage.fit', 'dtb')
     os.system('dumpimage -T flat_dt -i {} -p 0 {} >/dev/null 2>&1'.format(image_path, kernel))
-    uimage = replace_extension(image_path, 'fit', 'uimage')
+    uimage = __replace_extension(image_path, 'fit', 'uimage')
     os.system('dumpimage -T flat_dt -i {} -p 1 {} >/dev/null 2>&1'.format(image_path, dtb))
     return kernel, dtb, uimage
 
 
 def __handle_legacy_uimage(image_path, uimage3=False, uimage3_offset=None):
-    kernel = replace_extension(image_path, 'uimage', 'kernel')
+    kernel = __replace_extension(image_path, 'uimage', 'kernel')
     os.system('dd if={} of={} bs=1 skip=64 >/dev/null 2>&1'.format(image_path, kernel))
     uimage = image_path
 
@@ -119,7 +119,7 @@ def __binwalk_scan_all(path, target_dir, extract=True):
             path, signature=True, extract=extract, quiet=True, block=size, directory=target_dir):
         return module
 
-def enlarge_image(path, target_size):
+def __enlarge_image(path, target_size):
     size_of_image = os.path.getsize(path)
     if size_of_image == target_size:
         return
@@ -138,7 +138,7 @@ def pack_image(components, flash_size=None):
     rootfs = components.get_path_to_rootfs()
     if rootfs is None:
         rootfs = DEFAULT_ROOTFS
-    enlarge_image(rootfs, flash_size)
+    __enlarge_image(rootfs, flash_size)
     return rootfs
 
 

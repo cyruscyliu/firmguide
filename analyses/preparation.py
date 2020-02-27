@@ -1,5 +1,6 @@
 from slcore.generation.compilerf import get_compiler
 from slcore.compositor import pack_kernel, pack_image, pack_initramfs, fix_cmdline
+from slcore.generation.dt_renderer import DTRenderer
 from slcore.generation.common import to_upper
 from analyses.analysis import Analysis
 from settings import *
@@ -7,29 +8,58 @@ from settings import *
 
 class Preparation(Analysis):
     def run(self, firmware):
-        machine_compiler = get_compiler(firmware)
-        # TODO detouch qemuc from compiler
-        # compiler only link files locally
 
         # 1. generate code(render in multi-levels)
-        machine_compiler.compile()
-        machine_compiler.link()
+        # compiler only link files locally
+        # 1.1 the old fashion
+        if firmware.get_dtb() is None:
+            machine_compiler = get_compiler(firmware)
+            machine_compiler.compile()
+            machine_compiler.link()
+        # 1.2 the latest dt_renderer
+        else:
+            dt_renderer = DTRenderer(firmware)
+            dt_renderer.load_template()
+            status = dt_renderer.render()
+            if not status:
+                raise SystemExit('error in dt rendering')
 
         # 2. install and make(compile qemu)
-        prefix = os.path.join(firmware.get_target_dir(), 'qemu-4.0.0')
-        for root, dirs, files in os.walk(prefix):
-            if len(dirs):
-                continue
-            for f in files:
-                full = os.path.join(root, f)
-                target = firmware.qemuc.patch(full, full[len(prefix)+1:])
-                self.debug(firmware, 'install {} at {}'.format(f, target), 'install')
-        firmware.qemuc.add_target(
-            to_upper(firmware.get_machine_name()), type_='hw', arch=firmware.get_arch(), endian=firmware.get_endian())
-        if machine_compiler.has_sintc():
-            firmware.qemuc.add_target(
-                to_upper(firmware.get_machine_name()), type_='sintc')
-        firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
+        if not firmware.cancle_compilation:
+            # 2.1 the old fashion
+            if firmware.get_dtb() is None:
+                prefix = os.path.join(firmware.get_target_dir(), 'qemu-4.0.0')
+                for root, dirs, files in os.walk(prefix):
+                    if len(dirs):
+                        continue
+                    for f in files:
+                        full = os.path.join(root, f)
+                        target = firmware.qemuc.patch(full, full[len(prefix)+1:])
+                        self.debug(firmware, 'install {} at {}'.format(f, target), 'install')
+                firmware.qemuc.add_target(
+                    to_upper(firmware.get_machine_name()), (firmware.get_machine_name()),
+                    t='hw', arch=firmware.get_arch(), endian=firmware.get_endian())
+                if machine_compiler.has_sintc():
+                    firmware.qemuc.add_target(
+                        to_upper(firmware.get_machine_name()), 'sintc', t='intc')
+                firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
+                # guarentee qemu is clean
+                firmware.qemuc.recover()
+            # 2.2 the latest dt_renderer
+            else:
+                # 6.1 copy files to qemu/
+                prefix = os.path.join(firmware.get_target_dir(), 'qemu-4.0.0')
+                firmware.qemuc.install(prefix)
+                # 6.2 update compilation targets
+                firmware.qemuc.add_target(
+                    (firmware.get_machine_name()), firmware.get_machine_name(),
+                    t='hw',arch=firmware.get_arch(), endian=firmware.get_endian())
+                for k, v in dt_renderer.external.items():
+                    firmware.qemuc.add_target((firmware.get_machine_name()), k, t=v['type'])
+                # 6.3 compile
+                firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
+                # 6.4 keep qemu clean
+                # firmware.qemuc.recover()
 
         # 3. prepare -k path/to/kernel
         # 3.1 If a mips firmware has CMDLINE: filled, it will not use our customed cmdline.
@@ -63,9 +93,6 @@ class Preparation(Analysis):
         )
         self.debug(firmware, 'get command: {}'.format(running_command), 1)
         firmware.running_command = running_command
-
-        # guarentee qemu is clean
-        firmware.qemuc.recover()
 
         return True
 

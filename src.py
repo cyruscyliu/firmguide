@@ -35,9 +35,15 @@ def run(args):
     firmware.set_arch(args.arch)
     firmware.set_endian(args.endian)
     firmware.set_machine_name(args.uuid)
-    if args.dtc:
-        firmware.set_dt_collection(args.dtc)
     firmware.rerun = args.rerun
+
+    if args.dtb:
+        firmware.set_dtb(args.dtb)
+    elif firmware.get_components().get_path_to_dtb():
+        firmware.set_dtb(firmware.get_components().get_path_to_dtb())
+    else:
+        print('neither dtb was found in tested firmware nor -dtb was assigned')
+        return
 
     # 2.1 low level source code controller
     srcodec = SRCodeController()
@@ -87,7 +93,7 @@ if __name__ == '__main__':
     group.add_argument('-a', '--arch', choices=['arm', 'arm64', 'mips'], required=True)
     group.add_argument('-e', '--endian', choices=['b', 'l'], required=True)
     group.add_argument('-b', '--brand', choices=['openwrt'], required=False)
-    group.add_argument('-dt', '--dtc', metavar='dir/to/dts', required=False)
+    group.add_argument('-dtb', '--dtb', metavar='path/to/dtb', required=False)
     group.add_argument('-f', '--firmware', required=True)
     group.add_argument('-s', '--source_code', metavar='path/to/source_code', required=True)
     group.add_argument('-gcc', '--gcc', metavar='path/to/prefix', required=True)

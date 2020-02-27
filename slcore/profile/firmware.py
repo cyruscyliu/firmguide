@@ -4,6 +4,7 @@ import yaml
 
 from slcore.profile.kernel import KernelForFirmware
 from slcore.profile.openwrt import OpenWRTForFirmware
+from slcore.qemuc import QEMUController
 
 
 class Firmware(KernelForFirmware, OpenWRTForFirmware):
@@ -26,7 +27,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.analysis_progress = None  # /tmp/uuid/analyses
         self.profile = None  # /tmp/uuid/profile.ext, dickt
         self.profile_ext = 'yaml'
-        self.machines = []
+        self.machine = None
 
         self.stat_reference = \
             yaml.safe_load(open(os.path.join(os.getcwd(), 'slcore/profile', 'stats.yaml')))
@@ -34,13 +35,15 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.path_to_summary = None  # /tmp/uuid/stats.yaml
 
         self.components = None
-        self.dt_collection = None
+        self.dtb = None
+        self.dtc = None
         self.srcodec = None
-        self.qemuc = None
+        self.qemuc = QEMUController()
 
         self.running_command = None
         self.trace_format = None
         self.path_to_trace = None
+        self.cancle_compilation = False
 
         # flags
         self.do_not_diagnosis = False  # will stop early
@@ -114,11 +117,11 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def set_qemuc(self, srcodec):
         self.srcodec = srcodec
 
-    def get_dt_collection(self):
-        return self.dt_collection
+    def get_dtb(self):
+        return self.dtb
 
-    def set_dt_collection(self, dtc):
-        self.dt_collection = dtc
+    def set_dtb(self, dtb):
+        self.dtb = dtb
 
     @abc.abstractmethod
     def set_arch(self, *args, **kwargs):

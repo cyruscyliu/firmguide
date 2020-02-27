@@ -11,6 +11,11 @@ after several experiments, I conclude
     the idealest ways to solve this problem. BTW, running in different directories looks quick and dirty but is
     really helpful. Another solution is to have a qemu controller which can lock/unlock qemu source code
     read/write and compilation.
+
+interfaces:
+    + get_command()
+    + patch()/install()/recover()
+    + compile()/debug()/trace()/add_target()
 """
 import os
 import qmp
@@ -44,8 +49,10 @@ class QEMUController(object):
             }, 'mipsb': {
                 'defconfig': 'default-configs/mips-softmmu.mak', 'kconfig': 'hw/mips/Kconfig',
                 'makefile':  'hw/mips/Makefile.objs',
-            }, 'sintc': {
+            }, 'intc': {
                 'makefile': 'hw/intc/Makefile.objs'
+            }, 'timer': {
+                'makefile': 'hw/timer/Makefile.objs'
             }
         }
 
@@ -54,7 +61,10 @@ class QEMUController(object):
 
     def __get_binary(self, arch, endian):
         if arch == 'arm':
-            return '{}/arm-softmmu/qemu-system-arm'.format(self.qemu_root)
+            if endian == 'l':
+                return '{}/arm-softmmu/qemu-system-arm'.format(self.qemu_root)
+            else:
+                raise NotImplementedError('QEMU won\'t support ARMEB machines.')
         elif arch == 'mips':
             if endian == 'l':
                 return '{}/mipsel-softmmu/qemu-system-mipsel'.format(self.qemu_root)
@@ -89,20 +99,29 @@ class QEMUController(object):
     def patch(self, *args, **kwargs):
         """
         this function is not thread safety, combining with
-        recover, it can only guarentee the patch is valid
+        recover, it can only guarantee the patch is valid
 
-        patch(abs/p/t/src, abs/p/t/dst, bak=True) or
-        patch(abs/p/t/new, abs/p/t/old, bak=True)
+        patch(abs/p/t/src, rel/p/t/dst, bak=True) or
+        patch(abs/p/t/old, rel/p/t/new, bak=True)
         """
         src, dst = args
         dst = self.__get_file_path(dst)
         if os.path.exists(dst):
-            os.system('cp {0} {0}.bak'.format(dst))
-            self.modified.append(dst)
+            if dst not in self.modified:
+                os.system('cp {0} {0}.bak'.format(dst))
+                self.modified.append(dst)
         else:
             self.new.append(dst)
         os.system('cp {} {}'.format(src, dst))
         return dst
+
+    def install(self, prefix):
+        for root, dirs, files in os.walk(prefix):
+            if len(dirs):
+                continue
+            for f in files:
+                full = os.path.join(root, f)
+                target = self.patch(full, full[len(prefix)+1:])
 
     def recover(self, *args, **kwargs):
         """
@@ -110,8 +129,10 @@ class QEMUController(object):
         """
         for dst in self.modified:
             os.system('mv {0}.bak {0}'.format(dst))
+        self.modified = []
         for dst in self.new:
             os.system('rm {}'.format(dst))
+        self.new = []
 
     def compile(self, cflags=None, cpu=4):
         if cflags:
@@ -166,34 +187,35 @@ class QEMUController(object):
         with open(target, 'w') as f:
             f.writelines(lines)
             f.flush()
-        self.patch(target, original, bak=True)
+        self.patch(target, path, bak=True)
 
-    def add_target(self, name, type_, arch=None, endian=None):
+    def add_target(self, hwname, fname, t, arch=None, endian=None):
         """
-        add_target('hw_name', type_='hw', arch='arm', endian='l')
-        add_target('hw_name', type='sintc')
+        add_target('hwname', 'hwname', t='hw', arch='arm', endian='l')
+        add_target('hwname', 'fname', t='intc')
 
         """
-        if type_ == 'hw':
+        if t == 'hw':
             build_system = self.build_system['{}{}'.format(arch, endian)]
             # update defconfig
-            config = 'CONFIG_{}=y\n'.format((name))
+            config = 'CONFIG_{}=y\n'.format(hwname.upper())
             path = os.path.join(build_system['defconfig'])
             content = [config]
             target = self.__resolve_makefile(path, config, content)
             # update kconfig
-            kconfig = 'config {}\n'.format((name))
+            kconfig = 'config {}\n'.format(hwname.upper())
             path = os.path.join(build_system['kconfig'])
             content = ['\n', kconfig, '    bool\n']
             target = self.__resolve_makefile(path, kconfig, content)
             # update makefile
-            makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format((name), name.lower())
+            makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(hwname.upper(), fname)
             path = os.path.join(build_system['makefile'])
             content = [makefile]
             target = self.__resolve_makefile(path, makefile, content)
-        elif type_ == 'sintc':
-            build_system = self.build_system['sintc']
-            makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format((name), 'sintc')
+        # elif t in ['intc', 'timer']:
+        else:
+            build_system = self.build_system[t]
+            makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(hwname.upper(), fname)
             path = os.path.join(build_system['makefile'])
             content = [makefile]
             target = self.__resolve_makefile(path, makefile, content)

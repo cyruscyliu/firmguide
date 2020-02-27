@@ -7,14 +7,57 @@ def _default(analysis, firmware, **kwargs):
     pass
 
 
+def _clkdev_add(analysis, firmware, **kwargs):
+    # [FUNCTION] void clkdev_add(struct clk_loopup *cl);
+    caller = kwargs.pop('caller')
+    if firmware.uuid == 'ramips_rt3883':
+        if caller == 'ralink_clk_add':
+            # from ralink_clk_init we known
+            # syscfg0 = rt_sysc_r32(0x10);
+            # clksel = ((syscfg0 >> 8) & 0x3);
+            # ddr2 = syscfg0 & (1UL << (17));
+            # switch (clksel) {
+                # case 0x0: cpu_rate = 250000000; sys_rate = (ddr2) ? 125000000 : 83000000; break;
+                # case 0x1: cpu_rate = 384000000; sys_rate = (ddr2) ? 128000000 : 96000000; break;
+                # case 0x2: cpu_rate = 480000000; sys_rate = (ddr2) ? 160000000 : 120000000; break;
+                # case 0x3: cpu_rate = 500000000; sys_rate = (ddr2) ? 166000000 : 125000000; break;
+            # }
+            # ralink_clk_add("cpu", cpu_rate); # cpu_rate has no relationship to mmio init value
+            # ralink_clk_add("10000100.timer", sys_rate);
+            # ralink_clk_add("10000120.watchdog", sys_rate);
+            # ralink_clk_add("10000500.uart", 40000000);
+            # ralink_clk_add("10000b00.spi", sys_rate);
+            # ralink_clk_add("10000c00.uartlite", 40000000);
+            # ralink_clk_add("10100000.ethernet", sys_rate);
+            # ralink_clk_add("10180000.wmac", 40000000);
+            analysis.info(firmware, 'set clk cpu with rate {}'.format(250000000), 1)
+        else:
+            analysis.warning(firmware, '{} -> clkdev_add(w/o handler)'.format(caller), 0)
+    else:
+        analysis.warning(firmware, '{} -> clkdev_add(w/o handler)'.format(caller), 0)
+
+
+def _clk_get_sys(analysis, firmware, **kwargs):
+    # [FUNCTION] struct clk *clk_get_sys(const char *dev_id, const char *con_id);
+    caller = kwargs.pop('caller')
+    if firmware.uuid == 'ramips_rt3883':
+        if caller == 'plat_time_init':
+            # ralink_clk_add("cpu", cpu_rate); # cpu_rate has no relationship to mmio init value
+            analysis.info(firmware, 'get clk cpu with rate {}'.format(250000000), 1)
+        else:
+            analysis.warning(firmware, '{} -> clk_get_sys(w/o handler)'.format(caller), 0)
+    else:
+        analysis.warning(firmware, '{} -> clk_get_sys(w/o handler)'.format(caller), 0)
+
+
 def _clockevents_register_device(analysis, firmware, **kwargs):
     # [FUNCTION] extern void clockevents_register_device(struct clock_event_device *dev);
     caller = kwargs.pop('caller')
-    if firmware.uuid == 'rampis_rt3883':
+    if firmware.uuid == 'ramips_rt3883':
         if caller == 'r4k_clockevent_init':
             # cd->event_handler = mips_event_handler;
             # clockevents_register_device(cd);
-            analysis.info(firmware, 'found clockevent device, irq=7, event_handler=mips_event_handler', 1)
+            analysis.info(firmware, 'irqn07 -> hw07, clockevent device, event_handler=mips_event_handler', 1)
         else:
             analysis.warning(firmware, '{} -> clockevents_register_device(w/o handler)'.format(caller), 0)
     else:
@@ -24,10 +67,11 @@ def _clockevents_register_device(analysis, firmware, **kwargs):
 def _setup_irq(analysis, firmware, **kwargs):
     # [FUNCTION] extern int setup_irq(unsigned int irq, struct irqaction *new);
     caller = kwargs.pop('caller')
-    if firmware.uuid == 'rampis_rt3883':
+    if firmware.uuid == 'ramips_rt3883':
         if caller == 'r4k_clockevent_init':
             # setup_irq(irq, &c0_compare_irqaction);
-            analysis.info(firmware, 'found timer interrupt, irq=7, handler=c0_compare_interrupt', 1)
+            # -> write_c0_compare(read_c0_compare()); cd->event_handler(cd);
+            analysis.info(firmware, 'irqn07 -> hw07, timer interrupt, handler=c0_compare_interrupt', 1)
         else:
             analysis.warning(firmware, '{} -> setup_irq(w/o handler)'.format(caller), 0)
     else:
@@ -48,15 +92,28 @@ def _irq_set_chip_and_handler_name(analysis, firmware, **kwargs):
                 analysis.debug(firmware, '{0} {0} direct handle_percpu_irq  mips_cpu_irq_controller'.format(i), 1)
         else:
             analysis.warning(firmware, '{} -> irq_set_chip_and_handler_name(w/o handler)'.format(caller), 0)
-    elif firmware.uuid == 'rampis_rt3883':
+    elif firmware.uuid == 'ramips_rt3883':
         if caller == 'mips_cpu_intc_map':
             # irq_set_chip_and_handler(irq, chip, handle_percpu_irq);
-            analysis.info(firmware, 'hw0-7 -> irqn0->7, handle_percpu_irq, mips_cpu_irq_controller', 1)
+            analysis.info(firmware, 'irqn00-07 -> hw00->07, handle_percpu_irq, mips_cpu_irq_controller', 1)
+            get_registers = "[{rname: c0, offset: -1, unmask_action: (set_c0_status(0x100 << (d->irq - 0))), unmask: True, mask_action: (clear_c0_status(0x100 << (d->irq - 0))), mask: True, ack_action: (clear_c0_status(0x100 << (d->irq - 0))), ack: True}]"
+            analysis.info(firmware, 'get_register: {}'.format(get_registers), 1)
         elif caller == 'intc_map':
             # irq_set_chip_and_handler(irq, &ralink_intc_irq_chip, handle_level_irq);
-            analysis.info(firmware, 'hw0-31 -> irqn8->39, handle_level_irq, ralink_intc_irq_chip', 1)
+            analysis.info(firmware, 'irqn08->39 -> hw00-31, handle_level_irq, ralink_intc_irq_chip', 1)
+            get_registers = "[{rname: r1, offset: '0x34', unmask_action: (1 << irqn), mask_ack: False, mask: False, unmask: True, ack: False}, {rname: r2, offset: '0x38', mask_ack_action: (1 << irqn), mask_ack: True, mask_action: (1 << irqn), mask: False, unmask: False, ack: False}]"
+            analysis.info(firmware, 'get_register: {}'.format(get_registers), 1)
         else:
             analysis.warning(firmware, '{} -> irq_set_chip_and_handler_name(w/o handler)'.format(caller), 0)
+    elif firmware.uuid == 'oxnas_generic':
+        if caller == 'rps_irq_domain_map':
+            # irq_set_chip_and_handler(irq, &rps_chip, handle_level_irq);
+            analysis.info(firmware, 'irqn??->?? -> hw00-31, handle_level_irq, rps_chip', 1)
+            # RPS_UNMASK = 8, RPS_MASK = 0xc,
+            # u32 mask = (1UL << (d->hwirq));
+            # __raw_writel(( __u32)(( __le32)(__u32)(mask)), chip_data->base + RPS_MASK); });
+            get_registers = "[{rname: r1, offset: '0x8', unmask_action: (1 << irqn), mask_ack: False, mask: False, unmask: True, ack: False}, {rname: r2, offset: '0xc', mask_ack: False, mask_action: (1 << irqn), mask: False, unmask: False, ack: False}]"
+            analysis.info(firmware, 'get_register: {}'.format(get_registers), 1)
     else:
         analysis.warning(firmware, '{} -> irq_set_chip_and_handler_name(w/o handler)'.format(caller), 0)
 
@@ -81,39 +138,34 @@ def ___irq_set_handler(analysis, firmware, **kwargs):
             analysis.info(firmware, 'irqn = 8 + __ffs(readl(base+0x10)&readl(base+0x14))', 1)
         else:
             analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)', 0)
-    elif firmware.uuid == 'rampis_rt3883':
+    elif firmware.uuid == 'ramips_rt3883':
         if caller == 'intc_of_init':
             # irq_set_chained_handler(irq, ralink_intc_irq_handler);
             analysis.debug(firmware, 'to reach generic_handler_irq, readl(rt_intc_membase+0x00) != 0', 1)
-            analysis.info(firmware, 'irqn = remap(__ffs(readl(rt_intc_membase+0x00))', 1)
+            # irqn = remap(__ffs(readl(rt_intc_membase+0x00))
+            # __ffs find the first set bit in the word
+            # 0b00000001 -> 0; 0b00100000 -> 5;
+            irqn_to_reg = "{irqn: i, set_body: ['s->r0 |= (1 << i);'], clear_body: ['s->r0 &= ~(1 << i);']}"
+            analysis.info(firmware, 'irqn_to_reg: {}'.format(irqn_to_reg), 1)
         else:
-            analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)', 0)
+            analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)'.format(caller), 0)
+    elif firmware.uuid == 'oxnas_generic':
+        if caller == 'gic_cascade_irq':
+            # irq_set_chained_handler(irq, gic_handle_cascade_irq)
+            analysis.debug(firmware, 'to reach generic_handler_irq, 32 <= readl(cpu_base.common_base+0x00) <= 1020', 1)
+            # irqn = readl(cpu_base.common_base+0x0c) & 0x3ff
+            irqn_to_reg = "{irqn: i, set_body: ['s->r0 = (i);'], clear_body: ['s->r0 = 1023);']}"
+            analysis.info(firmware, 'irqn_to_reg: {}'.format(irqn_to_reg), 1)
+        elif caller == 'rps_of_init':
+            # irq_set_chip_and_handler(irq, rps_handle_cascade_irq)
+            analysis.debug(firmware, 'to reach generic_handler_irq, __ffs(readl(base+0x00)) < 32', 1)
+            # status = __raw_readl(chip_data->base + RPS_STATUS)
+            # rps_irq = __ffs(status)
+            irqn_to_reg = "{irqn: i, set_body: ['s->r0 |= (1 << i);'], clear_body: ['s->r0 &= ~(1 << i);']}"
+        else:
+            analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)'.format(caller), 0)
     else:
-        analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)', 0)
-
-
-# TODO remove in the future
-def ___ioremap(analysis, firmware, **kwargs):
-    # [FUNCTION] void __iomem * __ioremap(phys_t offset, phys_t size, unsigned long flags);
-    caller = kwargs.pop('caller')
-    if firmware.uuid == 'ar71xx_generic':
-        if caller == 'ath79_gpio_init':
-            # ath79_gpio_base = __ioremap_mode(((0x18000000 + 0x00040000)), (0x100), ...)
-            mmio_name = 'ath79_gpio'
-            mmio_base = eval('((0x18000000 + 0x00040000))')
-            mmio_size = eval('(0x100)')
-            firmware.insert_bamboo_devices(mmio_base, mmio_size, value=0)
-            analysis.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
-        else:
-            analysis.warning(firmware, '{} -> __ioremap(w/o handler)'.format(caller), 0)
-    elif firmware.uuid == 'rampis_rt3883':
-        if caller == 'intc_of_init':
-            # rt_intc_membase = __ioremap_mode((res.start), (resource_size(&res)), ...)
-            pass
-        else:
-            analysis.warning(firmware, '{} -> __ioremap(w/o handler)'.format(caller), 0)
-    else:
-        analysis.warning(firmware, '{} -> __ioremap(w/o handler)'.format(caller), 0)
+        analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)'.format(caller), 0)
 
 
 def _panic(analysis, firmware, **kwargs):
@@ -146,16 +198,60 @@ def _panic(analysis, firmware, **kwargs):
             # firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
         else:
             analysis.warning(firmware, '{} -> panic(w/o handler)'.format(caller), 0)
+    elif firmware.uuid == 'ramips_rt3883':
+        if caller == 'mips_cpu_intc_init':
+            # domain = irq_domain_add_legacy(of_node, 8, 0, 0, &mips_cpu_intc_irq_domain_ops, ((void *)0))
+            # from builtin function will never be panic
+            pass
+        elif caller == 'prom_soc_init':
+            # void *sysc = (void *) ((((int)(int)(0x10000000)) & 0x1fffffff) | 0xa0000000);
+            # n0 = __raw_readl(sysc + 0x00); n1 = __raw_readl(sysc + 0x04); id = __raw_readl(sysc + 0x0c);
+            # if (n0 == 0x38335452 && n1 == 0x20203338) { ... } else { panic("..."); }
+            mmio_base = 0x10000000
+            firmware.insert_bamboo_devices(mmio_base + 0x00, 0x4, value=0x38335452, compatible=['prom_soc_init1'])
+            firmware.insert_bamboo_devices(mmio_base + 0x04, 0x4, value=0x20203338, compatible=['prom_soc_init2'])
+        elif caller == 'intc_of_init':
+            # irq = irq_of_parse_and_map(node, 0); if (!irq) panic("Failed to get INTC IRQ");
+            # from builtin function will never be panic
+            # if (of_address_to_resource(node, 0, &res)) panic("Failed to get intc memory range");
+            # from builtin function will never be panic
+            pass
+        elif caller == 'plat_time_init':
+            # clk = clk_get_sys("cpu", ((void *)0)); if (IS_ERR(clk)) panic("unable to get CPU clock, err=%ld", PTR_ERR(clk));
+            # from builtin function will never be panic
+            pass
+        elif caller == 'ralink_of_remap':
+            # rt_sysc_membase = plat_of_remap_node("ralink,rt3883-sysc");
+            # rt_memc_membase = plat_of_remap_node("ralink,rt3883-memc");
+            # if (!rt_sysc_membase || !rt_memc_membase) panic("Failed to remap core resources");
+            # go into plat_of_remap_node, we found return __ioremap_mode((res.start), (resource_size(&res)), ...)
+            # from builtin function will never be panic
+            pass
+        elif caller == 'plat_of_remap_node':
+            # np = of_find_compatible_node(((void *)0), ((void *)0), node); if (!np) panic("Failed to find %s node", node);
+            # if (of_address_to_resource(np, 0, &res)) panic("Failed to get resource for %s", node);'
+            # from builtin function will never be panic
+            pass
+        elif caller == 'ralink_clk_add':
+            # struct clk *clk = kzalloc(sizeof(struct clk), ((( gfp_t )0x10u) | (( gfp_t )0x40u) | (( gfp_t )0x80u)));
+            # if (!clk) panic("failed to add clock");
+            # from builtin function will never be panic
+            pass
+        elif caller == 'plat_of_setup':
+            # if (!of_have_populated_dt()) panic("device tree not present");
+            # from builtin function will never be panic
+            # if (of_platform_populate(((void *)0), of_ids, ((void *)0), ((void *)0))) panic("failed to populate DT");
+            # from builtin function will never be panic
+            pass
+        else:
+            analysis.warning(firmware, '{} -> panic(w/o handler)'.format(caller), 0)
     else:
         analysis.warning(firmware, '{} -> panic(w/o handler)'.format(caller), 0)
 
 
-def _r4k_clockevent_init(analysis, firmware, **kwargs):
-    analysis.info(firmware, 'get mips internel timer as interrupt source', 1)
-
-
 def _init_r4k_clocksource(analysis, firmware, **kwargs):
-     analysis.info(firmware, 'get mips internel timer as clock source', 1)
+    caller = kwargs.pop('caller')
+    analysis.info(firmware, '{} -> init_r4k_clocksource(mips internal timer as clock source)'.format(caller), 1)
 
 
 def ___builtin_unreachable(analysis, firmware, **kwargs):
@@ -203,6 +299,21 @@ def ___builtin_unreachable(analysis, firmware, **kwargs):
             mmio_value = 0x00b0
             firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
         analysis.warning(firmware, '{} -> BUG()/BUG_ON() found but no handlers'.format(caller), 0)
+    elif firmware.uuid == 'oxnas_generic':
+        if caller == 'cpu_architecture':
+            # do {} while(0);
+            pass
+        elif caller == 'cpu_init':
+            # do {} while(0);
+            pass
+        elif caller == 'gic_cascade_irq':
+            # do {} while(0);
+            pass
+        elif caller == 'rps_of_init':
+            # do {} while(0);
+            pass
+        else:
+            analysis.warning(firmware, '{} -> BUG()/BUG_ON() found but no handlers'.format(caller), 0)
     else:
          analysis.warning(firmware, '{} -> BUG()/BUG_ON() found but no handlers'.format(caller), 0)
 
@@ -210,7 +321,7 @@ def ___builtin_unreachable(analysis, firmware, **kwargs):
 UNMODELED_SKIP_LIST = [
     'early_init_dt_scan', 'of_flat_dt_get_machine_name', 'of_scan_flat_dt',
     'kmemdup', 'kfree', 'msleep', '__builtin_memcmp', 'add_memory_region', 'detect_memory_region',
-    'clk_get', 'clk_get_rate', 'clk_put', 'sprintf',  '__udelay',
+    'clk_get_rate', 'clk_put', 'sprintf',  '__udelay',
     '__builtin_memset', 'pcibios_init', 'ipc_ns_init', 'init_mmap_min_addr', 'net_ns_init',
     'wq_sysfs_init', 'ksysfs_init', 'init_jiffies_clocksource', 'init_zero_pfn', 'fsnotify_init',
     'filelock_init', 'init_script_binfmt', 'init_elf_binfmt', 'debugfs_init', 'prandom_init',
@@ -254,20 +365,24 @@ UNMODELED_SKIP_LIST = [
     'irq_set_handler_data', 'arch_mem_addpart', 'print_memory_map', 'mips_parse_crashkernel', 'bootmem_init',
     'cpu_report', 'check_bugs_early', 'resource_init', 'plat_smp_setup', 'prefill_possible_map', 'cpu_cache_init',
     'paging_init', 'device_tree_init', 'strlcat', 'set_isa', 'decode_configs', 'spram_config',
-    'prom_init', 'setup_early_printk', 'cpu_probe', 'cp0_compare_irq', 'c0_compare_int_usable',
+    'setup_early_printk', 'cpu_probe', 'cp0_compare_irq', 'c0_compare_int_usable',
     'clockevent_delta2ns', 'clocks_calc_mult_shift', 'get_c0_compare_int', 'irq_modify_status',
+    'cpu_has_mfc0_count_bug', 'debugfs_create_file', 'of_find_compatible_node', 'of_platform_populate',
+    'reset_controller_register', 'early_init_dt_verify', 'of_flat_dt_match_machine', 'sanity_check_meminfo',
+    'setup_processor', 'request_standard_resources', 'smp_build_mpidr_hash', 'setup_machine_fdt', 'parse_early_param',
+    'sanity_check_meminfo', 'arm_memblock_init', 'unflatten_device_tree', 'arm_dt_init_cpu_maps',
+    'init_static_idmap', 'ptrace_break_init', 'twd_clk_init', 'atomic_pool_init', 'exceptions_init', 'proc_cpu_init', 'alignment_init'
 ]
 
 
 MODELED_SKIP_TABLE = {
     'irq_set_chip_and_handler_name': {'handle': _irq_set_chip_and_handler_name},
     '__irq_set_handler': {'handle': ___irq_set_handler},
-    '__ioremap': {'handle': ___ioremap},
     'panic': {'handle': _panic},
     'init_r4k_clocksource': {'handle': _init_r4k_clocksource},
     '__builtin_unreachable': {'handle': ___builtin_unreachable},
     'clockevents_register_device': {'handle': _clockevents_register_device},
     'setup_irq': {'handle': _setup_irq},
+    'clk_get_sys': {'handle': _clk_get_sys},
+    'clkdev_add': {'handle': _clkdev_add},
 }
-
-

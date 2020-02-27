@@ -25,8 +25,8 @@ def restore_analysis(firmware):
 
 def save_analysis(firmware):
     analysis = os.path.join(firmware.target_dir, 'analysis')
-    # with open(analysis, 'w') as f:
-    #     yaml.safe_dump(firmware.analysis_progress, f)
+    with open(analysis, 'w') as f:
+        yaml.safe_dump(firmware.analysis_progress, f)
 
 
 def finished(firmware, analysis):

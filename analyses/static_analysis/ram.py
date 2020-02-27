@@ -21,6 +21,7 @@ class RAM(Analysis):
 
         firmware.set_ram_size('{} * MiB'.format(rs))
         firmware.set_ram_base('0x0')
+        firmware.set_ram_priority('0')
         self.info(firmware, 'get memory info, base: {}, size: {}MB'.format(0, rs), 1)
         return True
 
