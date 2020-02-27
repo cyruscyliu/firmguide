@@ -133,7 +133,6 @@ class ExecutionFlow(Analysis):
                     # funccalls.append(machine_setup)
             funccalls.append('bhu_bxu2000n2_a1_setup')
 
-        # guarantee mips_hpt_frequency not zero
         if firmware.get_arch() == 'mips' and 'plat_time_init' in funccalls:
             if firmware.uuid == 'ar71xx_generic':
                 entry_point = ['ath79_clocks_init', 'ath79_get_sys_clk_rate']
@@ -189,16 +188,25 @@ class ExecutionFlow(Analysis):
                     # domain = irq_domain_add_legacy(of_node, 8, 0, 0, &mips_cpu_intc_irq_domain_ops, ((void *)0));
                     # for i in range(0, 8):
                     #     analysis.debug(firmware, '{0} {0} direct mips_cpu_intc_irq_domain_ops None'.format(i), 1)
-                    # it not only tells us hw0-7 -> irqn0-7, but also shows irqchip in xxx_ops
+                    # it not only tells us hw0-7 -> irqn0-7, but also shows irqmap in xxx_ops
                     self.debug(firmware, '{} -> {}(FP -> [mips_cpu_intc_map])'.format(caller, 'irq_domain_add_legacy'), 1)
                     funccalls.extend(['mips_cpu_intc_map'])
                 elif caller == 'intc_of_init':
                     # domain = irq_domain_add_legacy(node, 32, 8, 0, &irq_domain_ops, ((void *)0));
                     # for i in range(0, 32):
                     #     analysis.debug(firmware, '{0} {1} direct mips_cpu_intc_irq_domain_ops None'.format(i, i+8), 1)
-                    # it not only tells us hw0-31 -> irqn8-39, but also shows irqchip in xxx_ops
+                    # it not only tells us hw0-31 -> irqn8-39, but also shows irqmap in xxx_ops
                     self.debug(firmware, '{} -> {}(FP -> [intc_map])'.format(caller, 'irq_domain_add_legacy'), 1)
                     funccalls.extend(['intc_map'])
+                else:
+                    self.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
+            elif firmware.uuid == 'oxnas_generic':
+                if caller == 'gic_init_bases':
+                    self.debug(firmware, '{} -> {}(FP -> [gic_irq_domain_map])'.format(caller, 'irq_domain_add_legacy'), 1)
+                    funccalls.extend(['gic_irq_domain_map'])
+                elif caller == 'rps_of_init':
+                    self.debug(firmware, '{} -> {}(FP -> [rps_irq_domain_map])'.format(caller, 'irq_domain_add_legacy'), 1)
+                    funccalls.extend(['rps_irq_domain_map'])
                 else:
                     self.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
             else:
@@ -220,8 +228,51 @@ class ExecutionFlow(Analysis):
                     self.debug(firmware, '{} -> {}(FP -> [mips_cpu_intc_init, intc_of_init])'.format(caller, 'of_irq_init'), 1)
                 else:
                     self.warning(firmware, 'of_irq_init found w/o handler', 0)
+            elif firmware.uuid == 'oxnas_generic':
+                if caller == 'irqchip_init':
+                    # in this case, oxnas doesn't have .init_irq callback, so will call irqchip_init
+                    # compatible = "arm,arm11mp-gic";
+                    # compatible = "plxtech,nas782x-rps";
+                    # compatible = "plxtech,nas782x-gpio";(platform_device/pinctrl, not here)
+                    funccalls.extend(['gic_of_init', 'rps_of_init'])
+                    self.debug(firmware, '{} -> {}(FP -> [gic_of_init, rps_of_init])'.format(caller, 'of_irq_init'), 1)
+                else:
+                    self.warning(firmware, 'of_irq_init found w/o handler', 0)
             else:
                 self.warning(firmware, 'of_irq_init found w/o handler', 0)
+
+        # [FUNCTION] void __init of_clk_init(const struct of_devcie_id *matches)
+        if 'of_clk_init' in funccalls:
+            funccalls.remove('of_clk_init')
+            if firmware.uuid == 'oxnas_generic':
+                if caller == 'time_init':
+                    # in this case, oxnas will call .init_time ox820_timer_init
+                    funccalls.extend(['ox820_timer_init'])
+                    funccalls.remove('clocksource_of_init')
+                    self.debug(firmware, '{} -> {}(FP -> [ox820_timer_init])'.format(caller, 'of_clk_init'), 1)
+                elif caller == 'ox820_timer_init':
+                    # now, we are going to call dt callbacks
+                    # compatible 'plxtech,nas782x-rps-timer', rps_timer_init
+                    # compatible 'arm,arm11mp-twd-timer', twd_local_timer_of_register
+                    funccalls.extend(['rps_timer_init', 'twd_local_timer_of_register'])
+                    funccalls.remove('clocksource_of_init')
+                    self.debug(firmware, '{} -> {}(FP -> [rps_timer_init, twd_local_timer_of_register])'.format(caller, 'of_clk_init'), 1)
+                else:
+                    self.warning(firmware, 'of_clk_init found w/o handler', 0)
+            else:
+                self.warning(firmware, 'of_clk_init found w/o handler', 0)
+
+        # [FUNCTION]
+        if firmware.get_arch() == 'arm' and 'init_machine_late' in funccalls:
+            funccalls.remove('init_machine_late')
+            if firmware.uuid == 'oxnax_generic':
+                if caller == 'do_initcall':
+                    # in this case init_machine_late will do nothing
+                    pass
+                else:
+                    self.warning(firmware, 'init_machine_late found w/o handler', 0)
+            else:
+                self.warning(firmware, 'of_clk_init found w/o handler', 0)
 
         return funccalls
 
@@ -264,10 +315,22 @@ class ExecutionFlow(Analysis):
         self.traverse_funccalls(firmware, [ep], caller='start_kernel')
 
         # ===== intc subsystem =====
-        # 1. do_asm_IRQ/plat_irq_dispatch(not neccesory)
+        # 1. get_irqnr_and_base/plat_irq_dispatch(not neccesory)
         if firmware.get_arch() == 'arm':
-            ep = 'do_asm_IRQ'
-            self.traverse_funccalls(firmware, [ep], caller='start_kernel')
+            # FOR ARM, we have get_irqnr_preamble, get irqnr_and_base
+            # which together are also named arch_irq_handler_default after ?(at least >2.16)
+            # and handler_arch_irq which is a global function pointer which is
+            # defined by set_handle_irq separately.
+            if firmware.uuid == 'oxnas_generic':
+                # in of_gic_init, we have set_handle_irq(gic_handle_irq)
+                ep = 'gic_handle_irq'
+                # irqnr = readl(base+0xc) & 0x3ff
+                irqn_to_reg = "[irqn: i, set_body: ['s->r0 = i;'], clear_body: ['s->r0 = 0xffffffff;']"
+                get_register0 = "{rname: r0, offset: '0x0c', mask_ack: False, mask: False, unmask: False, ack: False}"
+                get_register1 = "{rname: r1, offset: '0x10', mask_ack: False, mask: False, unmask: False, ack_action: (i), ack: True}"
+                self.info(firmware, 'irqn_to_reg: {}'.format(irqn_to_reg), 1)
+                self.info(firmware, 'get_register: {}'.format(get_register0), 1)
+                self.info(firmware, 'get_register: {}'.format(get_register1), 1)
         elif firmware.get_arch() == 'mips':
             self.info(firmware, 'interrupt -> plat_irq_dispatch(found, level1 intc mmio->irqn mapping)', 1)
         # 2 intc initilization

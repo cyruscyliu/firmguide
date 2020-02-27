@@ -139,9 +139,24 @@ def ___irq_set_handler(analysis, firmware, **kwargs):
             irqn_to_reg = "{irqn: i, set_body: ['s->r0 |= (1 << i);'], clear_body: ['s->r0 &= ~(1 << i);']}"
             analysis.info(firmware, 'irqn_to_reg: {}'.format(irqn_to_reg), 1)
         else:
-            analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)', 0)
+            analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)'.format(caller), 0)
+    elif firmware.uuid == 'oxnas_generic':
+        if caller == 'gic_cascade_irq':
+            # irq_set_chained_handler(irq, gic_handle_cascade_irq)
+            analysis.debug(firmware, 'to reach generic_handler_irq, 32 <= readl(cpu_base.common_base+0x00) <= 1020', 1)
+            # irqn = readl(cpu_base.common_base+0x0c) & 0x3ff
+            irqn_to_reg = "{irqn: i, set_body: ['s->r0 = (i);'], clear_body: ['s->r0 = 1023);']}"
+            analysis.info(firmware, 'irqn_to_reg: {}'.format(irqn_to_reg), 1)
+        elif caller == 'rps_of_init':
+            # irq_set_chip_and_handler(irq, rps_handle_cascade_irq)
+            analysis.debug(firmware, 'to reach generic_handler_irq, __ffs(readl(base+0x00)) < 32', 1)
+            # status = __raw_readl(chip_data->base + RPS_STATUS)
+            # rps_irq = __ffs(status)
+            irqn_to_reg = "{irqn: i, set_body: ['s->r0 |= (1 << i);'], clear_body: ['s->r0 &= ~(1 << i);']}"
+        else:
+            analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)'.format(caller), 0)
     else:
-        analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)', 0)
+        analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)'.format(caller), 0)
 
 
 def _panic(analysis, firmware, **kwargs):
@@ -275,6 +290,21 @@ def ___builtin_unreachable(analysis, firmware, **kwargs):
             mmio_value = 0x00b0
             firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
         analysis.warning(firmware, '{} -> BUG()/BUG_ON() found but no handlers'.format(caller), 0)
+    elif firmware.uuid == 'oxnas_generic':
+        if caller == 'cpu_architecture':
+            # do {} while(0);
+            pass
+        elif caller == 'cpu_init':
+            # do {} while(0);
+            pass
+        elif caller == 'gic_cascade_irq':
+            # do {} while(0);
+            pass
+        elif caller == 'rps_of_init':
+            # do {} while(0);
+            pass
+        else:
+            analysis.warning(firmware, '{} -> BUG()/BUG_ON() found but no handlers'.format(caller), 0)
     else:
          analysis.warning(firmware, '{} -> BUG()/BUG_ON() found but no handlers'.format(caller), 0)
 
@@ -329,7 +359,10 @@ UNMODELED_SKIP_LIST = [
     'setup_early_printk', 'cpu_probe', 'cp0_compare_irq', 'c0_compare_int_usable',
     'clockevent_delta2ns', 'clocks_calc_mult_shift', 'get_c0_compare_int', 'irq_modify_status',
     'cpu_has_mfc0_count_bug', 'debugfs_create_file', 'of_find_compatible_node', 'of_platform_populate',
-    'reset_controller_register'
+    'reset_controller_register', 'early_init_dt_verify', 'of_flat_dt_match_machine', 'sanity_check_meminfo',
+    'setup_processor', 'request_standard_resources', 'smp_build_mpidr_hash', 'setup_machine_fdt', 'parse_early_param',
+    'sanity_check_meminfo', 'arm_memblock_init', 'unflatten_device_tree', 'arm_dt_init_cpu_maps',
+    'init_static_idmap', 'ptrace_break_init', 'twd_clk_init', 'atomic_pool_init', 'exceptions_init', 'proc_cpu_init', 'alignment_init'
 ]
 
 

@@ -35,7 +35,10 @@ def __find_parent_offset(dts, path, x, fx):
         local_address_cells = dts.get_property('#address-cells', path).data[0]
         parent_address_cells = __find_parent_address_sells(dts, path)
         local_size_cells = dts.get_property('#size-cells', path).data[0]
-        ranges = dts.get_property('ranges', path).data
+        ranges = dts.get_property('ranges', path)
+        if not hasattr(ranges, 'data'):
+            return __find_parent_offset(dts, path, x, fx)
+        ranges = ranges.data
         bank_size = (local_address_cells + parent_address_cells + local_size_cells )
         fx_parent = {}
         for i in range(0, len(ranges) // bank_size):
