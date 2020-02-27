@@ -289,6 +289,8 @@ static const MemoryRegionOps {0}_ops = {{
                 intcp[-1] = m
 
         for k, v in self.rendering_handlers.items():
+            if k == 'flash' and self.firmware.get_arch() == 'arm':
+                continue
             flatten_ks = v(dts)
             if flatten_ks is None:
                 self.warning('no {} found'.format(k), 'parse')
@@ -349,6 +351,10 @@ static const MemoryRegionOps {0}_ops = {{
             self.context['timer_get_header'] = []
             self.context['timer_get_body'] = []
             self.context['timer_get_field'] = []
+        if 'flash_get_header' not in self.context:
+            self.context['flash_get_header'] = []
+            self.context['flash_get_body'] = []
+            self.context['flash_get_field'] = []
         try:
             a = Template(self.machine).render(self.context)
             source = Template(a).render(self.context)

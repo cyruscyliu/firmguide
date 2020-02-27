@@ -484,7 +484,7 @@ class ExecutionFlow(Analysis):
 
         # hardcoded
         if firmware.uuid == 'oxnas_generic':
-            firmware.insert_bamboo_devices(0x44e001f0, 0x4, value=0x330, compatible=['oxnas_generic_h1'])
+            firmware.insert_bamboo_devices(0x44e001f0, 0x4, value=0x8000, compatible=['oxnas_generic_h1'])
             firmware.insert_bamboo_devices(0x44e001f4, 0x4, value=0x8000, compatible=['oxnas_generic_h2'])
         elif firmware.uuid == 'ar71xx_generic':
             pass

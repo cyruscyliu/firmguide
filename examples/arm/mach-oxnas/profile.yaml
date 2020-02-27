@@ -131,7 +131,7 @@ bamboo:
     registers:
       stub_reserved25:
         offset: '0x0'
-        value: '0x330'
+        value: '0x8000'
   stub26:
     mmio_base: '0x44e001f4'
     mmio_size: '0x4'

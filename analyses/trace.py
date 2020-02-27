@@ -56,10 +56,7 @@ class DoTracing(Analysis):
 
     def run(self, firmware):
         # nochain is too too slow
-        if firmware.uuid in ['9692', '9703', '9707', '9715', '7998', '13882', '13890', '13893', '13901']:
-            trace_flags = '-d in_asm,int -D {}'.format(firmware.path_to_trace)
-        else:
-            trace_flags = '-d in_asm,int,cpu -D {}'.format(firmware.path_to_trace)
+        trace_flags = '-d in_asm,int,cpu -D {}'.format(firmware.path_to_trace)
         socket = tempfile.NamedTemporaryFile()
         qmp_flags = '-qmp unix:{},server,nowait'.format(socket.name)
         full_command = ' '.join([firmware.running_command, trace_flags, qmp_flags])
