@@ -213,6 +213,11 @@ def unpack(path, target_dir=None, extract=True):
                 module.extractor.output[result.file.path].carved[result.offset].replace('7z', 'trx'))
             components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_trx_kernel(
                 components.path_to_image)
+        elif str(result.description).find('Flattened device tree') != -1:
+            # we sometimes get the dtb directly
+            print((module.extractor.output[result.file.path]).directory)
+            dtb = module.extractor.output[result.file.path].carved[result.offset]
+            components.path_to_dtb = dtb
         elif str(result.description).find('Squashfs filesystem') != -1:
             components.set_path_to_rootfs(
                 module.extractor.output[result.file.path].carved[result.offset])

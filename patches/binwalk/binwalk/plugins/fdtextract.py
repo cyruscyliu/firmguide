@@ -2,16 +2,16 @@ import os
 import binwalk.core.plugin
 
 
-class MIPSFDTExtractPlugin(binwalk.core.plugin.Plugin):
+class FDTExtractPlugin(binwalk.core.plugin.Plugin):
     """
-    mips fdt extractor plugin.
+    fdt extractor plugin.
     """
     MODULES = ['Signature']
 
     def init(self):
         if self.module.extractor.enabled:
             self.module.extractor.add_rule(txtrule=None,
-                                           regex='^mips built-in fdt',
+                                           regex='^flattened device tree',
                                            extension='dtb',
                                            cmd=self.extractor)
 
