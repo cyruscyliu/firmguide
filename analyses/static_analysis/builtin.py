@@ -105,6 +105,15 @@ def _irq_set_chip_and_handler_name(analysis, firmware, **kwargs):
             analysis.info(firmware, 'get_register: {}'.format(get_registers), 1)
         else:
             analysis.warning(firmware, '{} -> irq_set_chip_and_handler_name(w/o handler)'.format(caller), 0)
+    elif firmware.uuid == 'oxnas_generic':
+        if caller == 'rps_irq_domain_map':
+            # irq_set_chip_and_handler(irq, &rps_chip, handle_level_irq);
+            analysis.info(firmware, 'irqn??->?? -> hw00-31, handle_level_irq, rps_chip', 1)
+            # RPS_UNMASK = 8, RPS_MASK = 0xc,
+            # u32 mask = (1UL << (d->hwirq));
+            # __raw_writel(( __u32)(( __le32)(__u32)(mask)), chip_data->base + RPS_MASK); });
+            get_registers = "[{rname: r1, offset: '0x8', unmask_action: (1 << irqn), mask_ack: False, mask: False, unmask: True, ack: False}, {rname: r2, offset: '0xc', mask_ack: False, mask_action: (1 << irqn), mask: False, unmask: False, ack: False}]"
+            analysis.info(firmware, 'get_register: {}'.format(get_registers), 1)
     else:
         analysis.warning(firmware, '{} -> irq_set_chip_and_handler_name(w/o handler)'.format(caller), 0)
 

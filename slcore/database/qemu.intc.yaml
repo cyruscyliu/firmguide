@@ -28,7 +28,7 @@ arm,arm11mp-gic:
         - object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_ARM11MPCORE_PRIV);
         - object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized", &err);
         - sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ reg.base }} & 0xffff0000);
-        - qdev_connect_gpio_out(DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});
+        - sysbus_connect_irq(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});
     buddy_compatible: ['arm,arm11mp-twd-timer', 'mpcore_wdt']
 marvell,orion-intc:
     get_registers:

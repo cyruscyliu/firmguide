@@ -26,7 +26,7 @@ class DTPreprocessing(Analysis):
                 firmware.insert_bamboo_devices(
                     reg['base'], reg['size'],
                     value=0, compatible=mmio['compatible'])
-                self.info(firmware, 'update base 0x{:08x} size 0x{:04x} of {}'.format(
+                self.debug(firmware, 'update base 0x{:08x} size 0x{:04x} of {}'.format(
                     reg['base'], reg['size'], mmio['compatible']), 1)
         firmware.update_bamboo_devices()
 

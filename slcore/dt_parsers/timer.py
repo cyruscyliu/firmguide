@@ -51,7 +51,7 @@ def __is_timer(dts, path):
     return False
 
 
-def find_flatten_timer_in_fdt(dts):
+def find_flatten_timer_in_fdt(dts, intc=False):
     """
     compatible always, the compatible of the node
     path: always, the path of the node
@@ -82,6 +82,10 @@ def find_flatten_timer_in_fdt(dts):
             flatten_timers[pa]['irqns'] = irqns
             flatten_timers[pa]['irqn'] = None
             flatten_timers[pa]['irqc'] = len(irqns)
+        else:
+            if not intc:
+                # by default we don't return the timers which are free running
+                flatten_timers.pop(pa)
 
     ft = []
     for k, v in flatten_timers.items():

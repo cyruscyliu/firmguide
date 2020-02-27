@@ -236,11 +236,7 @@ static const MemoryRegionOps {0}_ops = {{
 }};"""
         for name, bamboo in bamboos.items():
             # 4th check, skip bdevices in skipped_bdevices
-            skip = False
-            for compatible in bamboo['compatible']:
-                if compatible in self.skipped_bdevices:
-                    skip = True
-            if skip:
+            if self.__skip(bamboo['compatible']):
                 continue
 
             m_context = {'bamboo_get_field': [], 'bamboo_get_body': [], 'bamboo_get_suite': []}
@@ -265,6 +261,11 @@ static const MemoryRegionOps {0}_ops = {{
             m_context['bamboo_get_body'] = ['\n    '.join(m_context['bamboo_get_body'])]
             m_context['bamboo_get_suite'].append(bamboo_suite.format(name, register['offset'], rname, self.__get_endian()))
             self.__add_context(m_context)
+
+    def __skip(self, compatible):
+        for cmptb in compatible:
+            if cmptb in self.skipped_bdevices:
+                return True
 
     def render(self):
         path_to_dtb = self.firmware.get_dtb()
@@ -297,6 +298,8 @@ static const MemoryRegionOps {0}_ops = {{
                 # mips will have a default flash if no flash is detected
                 flatten_ks = [{'compatible': ['flash,generic'], 'reg': {'base': 0x1fc00000, 'size': 0x400000}}]
             for context in flatten_ks:
+                if self.__skip(context['compatible']):
+                    continue
                 # the 1st check, compatible check
                 m = Model(k, context['compatible'])
                 if not m.supported:
@@ -342,6 +345,10 @@ static const MemoryRegionOps {0}_ops = {{
 
         # bamboo devices have to be processed in a special way
         self.__render_bamboo_devices()
+        if 'timer_get_header' not in self.context:
+            self.context['timer_get_header'] = []
+            self.context['timer_get_body'] = []
+            self.context['timer_get_field'] = []
         try:
             a = Template(self.machine).render(self.context)
             source = Template(a).render(self.context)
