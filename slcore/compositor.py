@@ -146,10 +146,28 @@ def pack_initramfs(components, mounted_to=None):
     return mounted_to
 
 
+def fix_choosen_bootargs(components):
+    # this function must be called when the path_to_kernel is correct
+    kernel = components.get_path_to_kernel()
+    os.system('cp {0} {0}.fix_choosen_bootargs'.format(kernel))
+
+    output = os.popen('strings -t d {} | grep console=ttyS0,115200'.format(kernel)).readlines()
+    # 2323 ,console=ttyS0,115200
+    if not len(output):
+        return
+    start, label, console = output[0].strip().partition(' ')
+    # start=2323, label=' ', console=,console=ttyS0,115200
+    pre, console, param = console.partition('console')
+    real_start = int(start) + len(pre)
+    # 2323 ,
+    # 2324 console
+    os.system('dd if=/dev/zero of={0} bs=1 seek={1} count=1 conv=notrunc >/dev/null 2>&1'.format(kernel, real_start-1))
+
+
 def fix_cmdline(components):
     # this api should be called before pack_kernel
     kernel = components.get_path_to_kernel()
-    os.system('cp {0} {0}.bak'.format(kernel))
+    os.system('cp {0} {0}.cmdline'.format(kernel))
 
     output = os.popen('strings -t d {} | grep CMDLINE'.format(kernel)).readlines()
     if not len(output):
@@ -215,7 +233,6 @@ def unpack(path, target_dir=None, extract=True):
                 components.path_to_image)
         elif str(result.description).find('Flattened device tree') != -1:
             # we sometimes get the dtb directly
-            print((module.extractor.output[result.file.path]).directory)
             dtb = module.extractor.output[result.file.path].carved[result.offset]
             components.path_to_dtb = dtb
         elif str(result.description).find('Squashfs filesystem') != -1:

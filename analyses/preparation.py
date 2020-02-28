@@ -1,5 +1,6 @@
 from slcore.generation.compilerf import get_compiler
-from slcore.compositor import pack_kernel, pack_image, pack_initramfs, fix_cmdline
+from slcore.compositor import pack_kernel, pack_image, \
+    pack_initramfs, fix_cmdline, fix_choosen_bootargs
 from slcore.generation.dt_renderer import DTRenderer
 from slcore.generation.common import to_upper
 from analyses.analysis import Analysis
@@ -62,24 +63,21 @@ class Preparation(Analysis):
                 # firmware.qemuc.recover()
 
         # 3. prepare -k path/to/kernel
-        # 3.1 If a mips firmware has CMDLINE: filled, it will not use our customed cmdline.
+        # 3.1 If a mips firmware has CMDLINE: filled, it will use our customed cmdline.
         fix_cmdline(firmware.get_components())
+        # 3.1 If a firmware has console=ttyS0,115200, then remove it
+        fix_choosen_bootargs(firmware.get_components())
         # 3.2 add a uimage header on the kernel image
         load_address = firmware.get_kernel_load_address()
-        if firmware.get_srcodec():
-            # we use vmlinux if any
-            if firmware.get_arch() == 'arm':
-                # ARM32 has two head.S, the one is in side of the vmlinux
-                # the other is outside of the vmlinux. Due to historical
-                # reasons, some critical code related to page tables is
-                # put in the outside head.s, so we cannot use vmlinux directly
-                kernel = pack_kernel(
-                    firmware.get_components(), load_address=load_address, arch='arm')
-            else:
-                kernel = firmware.get_srcodec().get_path_to_vmlinux()
-        else:
-            kernel = pack_kernel(
-                firmware.get_components(), load_address=load_address, arch=firmware.get_arch())
+        # Why we don't use vmlinux if any?
+        # ARM32 has two head.S, the one is in side of the vmlinux
+        # the other is outside of the vmlinux. Due to historical
+        # reasons, some critical code related to page tables is
+        # put in the outside head.s, so we cannot use vmlinux directly
+        # MIPS has built-in device tree patched in a later stage. That
+        # is to say, the vmlinux has a empty built-in device tree. If
+        # we use the vmlinux, we will get it crashed.
+        kernel = pack_kernel(firmware.get_components(), load_address=load_address, arch=firmware.get_arch())
 
         # 4. prepare -initrd path/to/cpio
         path_to_initramfs = \
