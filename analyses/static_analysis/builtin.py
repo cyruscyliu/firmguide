@@ -172,30 +172,25 @@ def _panic(analysis, firmware, **kwargs):
     # [FUNCTION] panic()
     # panic() is a very strong mark of exceptional path
     caller = kwargs.pop('caller')
-    if firmware.uuid == 'ar71xx_generic':
+    if firmware.uuid == 'ath79_generic':
         if caller == 'ath79_detect_sys_type':
             # by manually analysis, we know
             # ath79_reset_rr(0x90)
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00a0 or
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00c0 or
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0100 or
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1100 or
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00b0 or
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0110 or
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0120 or
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1120 or
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x2120 or
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0160 or
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0140 or
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0130 or
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1130 or
-            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0150 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00a0 or (*(0x18060000 + 0x90)) & 0xfff0 == 0x00c0 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0100 or (*(0x18060000 + 0x90)) & 0xfff0 == 0x1100 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x00b0 or (*(0x18060000 + 0x90)) & 0xfff0 == 0x0110 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0120 or (*(0x18060000 + 0x90)) & 0xfff0 == 0x1120 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x2120 or (*(0x18060000 + 0x90)) & 0xfff0 == 0x0160 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x0140 or (*(0x18060000 + 0x90)) & 0xfff0 == 0x0130 or
+            # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1130 or (*(0x18060000 + 0x90)) & 0xfff0 == 0x0150 or
             # (*(0x18060000 + 0x90)) & 0xfff0 == 0x1150
             mmio_name = 'ath79_reset_rr'
             mmio_base = eval('(0x18060000 + 0x90)')
-            mmio_size = 0x4
-            mmio_value = 0x00b0
-            # firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
+            firmware.insert_bamboo_devices(mmio_base, 0x4, value=0x00b0) # ar9130
+        elif caller == '__mips_cpu_irq_init':
+            # domain = irq_domain_add_legacy(of_node, 8, 0, 0, &mips_cpu_intc_irq_domain_ops, ((void *)0))
+            # from builtin function will never be panic
+            pass
         else:
             analysis.warning(firmware, '{} -> panic(w/o handler)'.format(caller), 0)
     elif firmware.uuid == 'ramips_rt3883':
@@ -371,7 +366,11 @@ UNMODELED_SKIP_LIST = [
     'reset_controller_register', 'early_init_dt_verify', 'of_flat_dt_match_machine', 'sanity_check_meminfo',
     'setup_processor', 'request_standard_resources', 'smp_build_mpidr_hash', 'setup_machine_fdt', 'parse_early_param',
     'sanity_check_meminfo', 'arm_memblock_init', 'unflatten_device_tree', 'arm_dt_init_cpu_maps',
-    'init_static_idmap', 'ptrace_break_init', 'twd_clk_init', 'atomic_pool_init', 'exceptions_init', 'proc_cpu_init', 'alignment_init'
+    'init_static_idmap', 'ptrace_break_init', 'twd_clk_init', 'atomic_pool_init', 'exceptions_init', 'proc_cpu_init', 'alignment_init',
+    'early_init_fdt_scan_reserved_mem', 'early_init_fdt_scan_reserved_mem', 'of_count_phandle_with_args',
+    'of_property_read_u32_index', 'of_parse_phandle_with_args', 'mips_set_machine_name'
+    'early_init_fdt_reserve_self', 'of_property_count_elems_of_size', 'of_find_property', 'of_property_read_variable_u32_array',
+    'warn_slowpath_null', 'vprintk', 'mutex_lock', 'of_get_cpu_node', 'mips_sysrq_init', 'pcibios_set_cache_line_size'
 ]
 
 

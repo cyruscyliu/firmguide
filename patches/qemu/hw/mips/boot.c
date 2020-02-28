@@ -130,7 +130,7 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
     prom_size = ENVP_NB_ENTRIES * (sizeof(int32_t) + ENVP_ENTRY_SIZE);
     prom_buf = g_malloc(prom_size);
 
-    prom_set(prom_buf, prom_index++, "%s", info->kernel_filename);
+    // prom_set(prom_buf, prom_index++, "%s", info->kernel_filename);
     if (initrd_size > 0) {
         prom_set(prom_buf, prom_index++, "rd_start=0x%" PRIx64 " rd_size=%" PRId64 " %s",
                  cpu_mips_phys_to_kseg0(NULL, initrd_offset), initrd_size,

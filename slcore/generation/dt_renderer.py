@@ -61,6 +61,7 @@ class Model(object):
                 self.external = False
             if 'buddy_compatible' in model:
                 self.buddy_compatible.extend(model['buddy_compatible'])
+            break
         self.context = None
 
     def render(self, context):

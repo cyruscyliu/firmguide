@@ -30,10 +30,11 @@ class ExecutionFlow(Analysis):
             self.warning(firmware, '{} -> {}(no address)'.format(caller, ep), 1)
             return None, None, [], {}
 
+        d = path_to_entry_point.split('/')
         if path_to_entry_point.startswith('fs') or \
                 path_to_entry_point.startswith('lib') or \
-                path_to_entry_point.startswith('mm'):
-            self.debug(firmware, '{} -> {}(built-in function in {})'.format(caller, ep, path_to_entry_point), 1)
+                path_to_entry_point.startswith('mm') or (len(d) > 2 and d[2] in ['fw']):
+            # self.debug(firmware, '{} -> {}(built-in function in {})'.format(caller, ep, path_to_entry_point), 1)
             return None, path_to_entry_point, [], {}
 
         if path_to_entry_point.endswith('.S'):
@@ -173,8 +174,10 @@ class ExecutionFlow(Analysis):
                 # firmware.insert_bamboo_devices(mmio_base, mmio_size, value=mmio_value)
                 self.info(firmware, 'get mmio base {} size {}'.format(hex(mmio_base), hex(mmio_size)), 1)
             elif firmware.uuid == 'ramips_rt3883':
-                #
                 # mips_hpt_frequency = clk_get_rate(clk_get_sys("cpu", NULL));
+                pass
+            elif firmware.uuid == 'ath79_generic':
+                # mips_hpt_frequency = clk_get_rate(clk) / 2;
                 pass
             else:
                 self.warning(firmware, '{} -> plat_time_init(w/o handler)'.format(caller), 0)
@@ -186,8 +189,6 @@ class ExecutionFlow(Analysis):
             if firmware.uuid == 'ramips_rt3883':
                 if caller == 'mips_cpu_intc_init':
                     # domain = irq_domain_add_legacy(of_node, 8, 0, 0, &mips_cpu_intc_irq_domain_ops, ((void *)0));
-                    # for i in range(0, 8):
-                    #     analysis.debug(firmware, '{0} {0} direct mips_cpu_intc_irq_domain_ops None'.format(i), 1)
                     # it not only tells us hw0-7 -> irqn0-7, but also shows irqmap in xxx_ops
                     self.debug(firmware, '{} -> {}(FP -> [mips_cpu_intc_map])'.format(caller, 'irq_domain_add_legacy'), 1)
                     funccalls.extend(['mips_cpu_intc_map'])
@@ -209,6 +210,19 @@ class ExecutionFlow(Analysis):
                     funccalls.extend(['rps_irq_domain_map'])
                 else:
                     self.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
+            elif firmware.uuid == 'ath79_generic':
+                if caller == '__mips_cpu_irq_init':
+                    # clear_c0_status(0x0000ff00);                                                                                                                                                     clear_c0_cause(((unsigned long)(255) << 8));
+                    # irq_domain = irq_domain_add_legacy(of_node, 8, 0, 0, &mips_cpu_intc_irq_domain_ops, ((void *)0));
+                    # qca,ar7100-cpu-intc is mips internal intc
+                    try:
+                        firmware.config['qca,ar7100-cpu-intc']['extend'] = 'mti,cpu-interrupt-controller'
+                    except KeyError:
+                        firmware.config['qca,ar7100-cpu-intc'] = {'extend': 'mti,cpu-interrupt-controller'}
+                    self.debug(firmware, '{} -> {}(FP -> [mips_cpu_intc_map])'.format(caller, 'irq_domain_add_legacy'), 1)
+                    funccalls.extend(['mips_cpu_intc_map'])
+                else:
+                    self.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
             else:
                 self.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
 
@@ -221,7 +235,6 @@ class ExecutionFlow(Analysis):
                     # static struct of_device_id __attribute__ ((__section__(".init.data"))) of_irq_ids[] = {
                     #   { .compatible = "mti,cpu-interrupt-controller", .data = mips_cpu_intc_init  },
                     #   { .compatible = "ralink,rt2880-intc", .data = intc_of_init  },
-                    #   {},
                     # };
                     # of_irq_init(of_irq_ids);
                     funccalls.extend(['mips_cpu_intc_init', 'intc_of_init'])
@@ -230,12 +243,20 @@ class ExecutionFlow(Analysis):
                     self.warning(firmware, 'of_irq_init found w/o handler', 0)
             elif firmware.uuid == 'oxnas_generic':
                 if caller == 'irqchip_init':
-                    # in this case, oxnas doesn't have .init_irq callback, so will call irqchip_init
+                    # in this case, oxnas doesn't have .init_irq, so will call irqchip_init
                     # compatible = "arm,arm11mp-gic";
                     # compatible = "plxtech,nas782x-rps";
                     # compatible = "plxtech,nas782x-gpio";(platform_device/pinctrl, not here)
                     funccalls.extend(['gic_of_init', 'rps_of_init'])
                     self.debug(firmware, '{} -> {}(FP -> [gic_of_init, rps_of_init])'.format(caller, 'of_irq_init'), 1)
+                else:
+                    self.warning(firmware, 'of_irq_init found w/o handler', 0)
+            elif firmware.uuid == 'ath79_generic':
+                if caller == 'irqchip_init':
+                    # compatible = "qca,ar7100-cpu-intc"
+                    # compatible = "qca,ar9340-intc"
+                    # compatible = "qca,ar7240-misc-intc"
+                    funccalls.extend(['ar79_cpu_intc_of_init', 'ath79_intc_of_init', 'ar7240_misc_intc_of_init'])
                 else:
                     self.warning(firmware, 'of_irq_init found w/o handler', 0)
             else:
@@ -277,8 +298,6 @@ class ExecutionFlow(Analysis):
         return funccalls
 
     def traverse_funccalls(self, firmware, entry_point, caller=None, depth=0):
-        if depth == 4:
-            return
         for ep in entry_point:
             address, path_to_ep, funccalls, gs = self.get_funccalls(firmware, ep, caller=caller)
             funccalls = self.parse_funcalls(firmware, ep, funccalls)
@@ -486,8 +505,6 @@ class ExecutionFlow(Analysis):
         if firmware.uuid == 'oxnas_generic':
             firmware.insert_bamboo_devices(0x44e001f0, 0x4, value=0x8000, compatible=['oxnas_generic_h1'])
             firmware.insert_bamboo_devices(0x44e001f4, 0x4, value=0x8000, compatible=['oxnas_generic_h2'])
-        elif firmware.uuid == 'ar71xx_generic':
-            pass
 
         firmware.update_bamboo_devices()
         return True
