@@ -151,7 +151,7 @@ def fix_choosen_bootargs(components):
     kernel = components.get_path_to_kernel()
     os.system('cp {0} {0}.fix_choosen_bootargs'.format(kernel))
 
-    output = os.popen('strings -t d {} | grep console=ttyS0,115200'.format(kernel)).readlines()
+    output = os.popen('strings -t d {} | grep console=ttyS0,'.format(kernel)).readlines()
     # 2323 ,console=ttyS0,115200
     if not len(output):
         return
@@ -193,8 +193,11 @@ def unpack(path, target_dir=None, extract=True):
     :param extract: whether to save binwalk extractions or not
     :return: components
     """
+    components = Components()
     if not os.path.exists(path):
-        return None
+        print('{} not exist'.format(path))
+        components.supported = False
+        return components
 
     if target_dir is None:
         target_dir = os.path.dirname(path)
@@ -202,7 +205,6 @@ def unpack(path, target_dir=None, extract=True):
     os.system('rm -rf {}/_{}*extracted'.format(target_dir, os.path.basename(path)))
 
     # binwalk output is useful when returns None
-    components = Components()
     components.set_path_to_raw(path)
 
     module = __binwalk_scan_all(path, target_dir, extract=extract)

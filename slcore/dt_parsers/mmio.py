@@ -29,6 +29,7 @@ def __find_parent_offset(dts, path, x, fx):
         for k, v in fx.items():
             if k <= x < k + v[1]:
                 return (v[0] - k)
+        return 0
 
     path = os.path.join(parent.path, parent.name)
     if dts.exist_property('ranges', path):

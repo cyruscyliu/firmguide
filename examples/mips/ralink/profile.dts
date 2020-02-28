@@ -1,0 +1,382 @@
+/dts-v1/;
+// version: 17
+// last_comp_version: 16
+// boot_cpuid_phys: 0x0
+
+/ {
+    #address-cells = <0x1>;
+    #size-cells = <0x1>;
+    compatible = "OMNI-EMB-HPM", "ralink,rt3883-soc";
+    model = "Omnima EMB HPM";
+    cpus {
+        cpu@0 {
+            compatible = "mips,mips74Kc";
+        };
+    };
+    chosen {
+        bootargs = "console=ttyS0,115200";
+    };
+    aliases {
+        spi0 = "/palmbus@10000000/spi@b00";
+    };
+    cpuintc@0 {
+        #address-cells = <0x0>;
+        #interrupt-cells = <0x1>;
+        interrupt-controller;
+        compatible = "mti,cpu-interrupt-controller";
+        linux,phandle = <0x3>;
+        phandle = <0x3>;
+    };
+    palmbus@10000000 {
+        compatible = "palmbus";
+        reg = <0x10000000 0x200000>;
+        ranges = <0x0 0x10000000 0x1FFFFF>;
+        #address-cells = <0x1>;
+        #size-cells = <0x1>;
+        sysc@0 {
+            compatible = "ralink,rt3883-sysc", "ralink,rt3050-sysc";
+            reg = <0x0 0x100>;
+        };
+        timer@100 {
+            compatible = "ralink,rt3883-timer", "ralink,rt2880-timer";
+            reg = <0x100 0x20>;
+            interrupt-parent = <0x1>;
+            interrupts = <0x1>;
+        };
+        watchdog@120 {
+            compatible = "ralink,rt3883-wdt", "ralink,rt2880-wdt";
+            reg = <0x120 0x10>;
+            resets = <0x2 0x8>;
+            reset-names = "wdt";
+            interrupt-parent = <0x1>;
+            interrupts = <0x1>;
+        };
+        intc@200 {
+            compatible = "ralink,rt3883-intc", "ralink,rt2880-intc";
+            reg = <0x200 0x100>;
+            resets = <0x2 0x13>;
+            reset-names = "intc";
+            interrupt-controller;
+            #interrupt-cells = <0x1>;
+            interrupt-parent = <0x3>;
+            interrupts = <0x2>;
+            linux,phandle = <0x1>;
+            phandle = <0x1>;
+        };
+        memc@300 {
+            compatible = "ralink,rt3883-memc", "ralink,rt3050-memc";
+            reg = <0x300 0x100>;
+            resets = <0x2 0x14>;
+            reset-names = "mc";
+            interrupt-parent = <0x1>;
+            interrupts = <0x3>;
+        };
+        uart@500 {
+            compatible = "ralink,rt3883-uart", "ralink,rt2880-uart", "ns16550a";
+            reg = <0x500 0x100>;
+            resets = <0x2 0xC>;
+            reset-names = "uart";
+            interrupt-parent = <0x1>;
+            interrupts = <0x5>;
+            reg-shift = <0x2>;
+            status = "disabled";
+        };
+        gpio@600 {
+            compatible = "ralink,rt3883-gpio", "ralink,rt2880-gpio";
+            reg = <0x600 0x34>;
+            resets = <0x2 0xD>;
+            reset-names = "pio";
+            interrupt-parent = <0x1>;
+            interrupts = <0x6>;
+            gpio-controller;
+            #gpio-cells = <0x2>;
+            ralink,gpio-base = <0x0>;
+            ralink,num-gpios = <0x18>;
+            ralink,register-map = [00 04 08 0C 20 24 28 2C 30 34];
+            linux,phandle = <0xB>;
+            phandle = <0xB>;
+        };
+        gpio@638 {
+            compatible = "ralink,rt3883-gpio", "ralink,rt2880-gpio";
+            reg = <0x638 0x24>;
+            gpio-controller;
+            #gpio-cells = <0x2>;
+            ralink,gpio-base = <0x18>;
+            ralink,num-gpios = <0x10>;
+            ralink,register-map = [00 04 08 0C 10 14 18 1C 20 24];
+            status = "disabled";
+        };
+        gpio@660 {
+            compatible = "ralink,rt3883-gpio", "ralink,rt2880-gpio";
+            reg = <0x660 0x24>;
+            gpio-controller;
+            #gpio-cells = <0x2>;
+            ralink,gpio-base = <0x28>;
+            ralink,num-gpios = <0x20>;
+            ralink,register-map = [00 04 08 0C 10 14 18 1C 20 24];
+            status = "disabled";
+        };
+        gpio@688 {
+            compatible = "ralink,rt3883-gpio", "ralink,rt2880-gpio";
+            reg = <0x688 0x24>;
+            gpio-controller;
+            #gpio-cells = <0x2>;
+            ralink,gpio-base = <0x48>;
+            ralink,num-gpios = <0x18>;
+            ralink,register-map = [00 04 08 0C 10 14 18 1C 20 24];
+            status = "disabled";
+        };
+        spi@b00 {
+            compatible = "ralink,rt3883-spi", "ralink,rt2880-spi";
+            reg = <0xB00 0x100>;
+            #address-cells = <0x1>;
+            #size-cells = <0x0>;
+            resets = <0x2 0x12>;
+            reset-names = "spi";
+            pinctrl-names = "default";
+            pinctrl-0 = <0x4>;
+            status = "okay";
+            m25p80@0 {
+                compatible = "macronix,mx25l12805d";
+                spi-max-frequency = <0x17D7840>;
+                reg = <0x0>;
+                #address-cells = <0x1>;
+                #size-cells = <0x1>;
+                partition@0 {
+                    reg = <0x0 0x30000>;
+                    label = "u-boot";
+                    read-only;
+                };
+                partition@30000 {
+                    reg = <0x30000 0x10000>;
+                    label = "config";
+                    read-only;
+                };
+                partition@40000 {
+                    reg = <0x40000 0x10000>;
+                    label = "factory";
+                    read-only;
+                    linux,phandle = <0x8>;
+                    phandle = <0x8>;
+                };
+                partition@50000 {
+                    reg = <0x50000 0xFB0000>;
+                    label = "firmware";
+                };
+            };
+        };
+        uartlite@c00 {
+            compatible = "ralink,rt3883-uart", "ralink,rt2880-uart", "ns16550a";
+            reg = <0xC00 0x100>;
+            resets = <0x2 0x13>;
+            reset-names = "uartl";
+            interrupt-parent = <0x1>;
+            interrupts = <0xC>;
+            reg-shift = <0x2>;
+            pinctrl-names = "default";
+            pinctrl-0 = <0x5>;
+        };
+    };
+    pinctrl {
+        compatible = "ralink,rt2880-pinmux";
+        pinctrl-names = "default";
+        pinctrl-0 = <0x6>;
+        pinctrl0 {
+            linux,phandle = <0x6>;
+            phandle = <0x6>;
+            gpio {
+                ralink,group = "i2c", "jtag", "uartf";
+                ralink,function = "gpio";
+            };
+        };
+        spi {
+            linux,phandle = <0x4>;
+            phandle = <0x4>;
+            spi {
+                ralink,group = "spi";
+                ralink,function = "spi";
+            };
+        };
+        uartlite {
+            linux,phandle = <0x5>;
+            phandle = <0x5>;
+            uart {
+                ralink,group = "uartlite";
+                ralink,function = "uartlite";
+            };
+        };
+    };
+    ethernet@10100000 {
+        compatible = "ralink,rt3883-eth";
+        reg = <0x10100000 0x2710>;
+        resets = <0x2 0x15>;
+        reset-names = "fe";
+        interrupt-parent = <0x3>;
+        interrupts = <0x5>;
+        phy-handle = <0x7>;
+        phy-mode = "rgmii";
+        mtd-mac-address = <0x8 0x28>;
+        port@0 {
+            compatible = "ralink,rt3883-port", "ralink,eth-port";
+            reg = <0x0>;
+        };
+        mdio-bus {
+            #address-cells = <0x1>;
+            #size-cells = <0x0>;
+            status = "okay";
+            ethernet-phy@4 {
+                reg = <0x4>;
+                linux,phandle = <0x7>;
+                phandle = <0x7>;
+            };
+        };
+    };
+    rstctrl {
+        compatible = "ralink,rt3883-reset", "ralink,rt2880-reset";
+        #reset-cells = <0x1>;
+        linux,phandle = <0x2>;
+        phandle = <0x2>;
+    };
+    pci@10140000 {
+        compatible = "ralink,rt3883-pci";
+        reg = <0x10140000 0x20000>;
+        #address-cells = <0x1>;
+        #size-cells = <0x1>;
+        ranges;
+        status = "disabled";
+        interrupt-controller {
+            interrupt-controller;
+            #address-cells = <0x0>;
+            #interrupt-cells = <0x1>;
+            interrupt-parent = <0x3>;
+            interrupts = <0x4>;
+            linux,phandle = <0x9>;
+            phandle = <0x9>;
+        };
+        host-bridge {
+            #address-cells = <0x3>;
+            #size-cells = <0x2>;
+            #interrupt-cells = <0x1>;
+            device_type = "pci";
+            bus-range = <0x0 0xFF>;
+            ranges = <0x2000000 0x0 0x0 0x20000000 0x0 0x10000000 0x1000000 0x0 0x0 0x10160000 0x0 0x10000>;
+            interrupt-map-mask = <0xF800 0x0 0x0 0x7>;
+            interrupt-map = <0x8800 0x0 0x0 0x1 0x9 0x12 0x8800 0x0 0x0 0x2 0x9 0x12 0x8800 0x0 0x0 0x3 0x9 0x12 0x8800 0x0 0x0 0x4 0x9 0x12 0x9000 0x0 0x0 0x1 0x9 0x13 0x9000 0x0 0x0 0x2 0x9 0x13 0x9000 0x0 0x0 0x3 0x9 0x13 0x9000 0x0 0x0 0x4 0x9 0x13>;
+            pci-bridge@1 {
+                reg = <0x800 0x0 0x0 0x0 0x0>;
+                device_type = "pci";
+                #interrupt-cells = <0x1>;
+                #address-cells = <0x3>;
+                #size-cells = <0x2>;
+                status = "disabled";
+                ralink,pci-slot = <0x1>;
+                interrupt-map-mask = <0x0 0x0 0x0 0x0>;
+                interrupt-map = <0x0 0x0 0x0 0x0 0x9 0x14>;
+            };
+            pci-slot@17 {
+                reg = <0x8800 0x0 0x0 0x0 0x0>;
+                device_type = "pci";
+                #interrupt-cells = <0x1>;
+                #address-cells = <0x3>;
+                #size-cells = <0x2>;
+                ralink,pci-slot = <0x11>;
+                status = "disabled";
+            };
+            pci-slot@18 {
+                reg = <0x9000 0x0 0x0 0x0 0x0>;
+                device_type = "pci";
+                #interrupt-cells = <0x1>;
+                #address-cells = <0x3>;
+                #size-cells = <0x2>;
+                ralink,pci-slot = <0x12>;
+                status = "disabled";
+            };
+        };
+    };
+    usbphy {
+        compatible = "ralink,rt3xxx-usbphy";
+        #phy-cells = <0x1>;
+        resets = <0x2 0x16 0x2 0x19>;
+        reset-names = "host", "device";
+        linux,phandle = <0xA>;
+        phandle = <0xA>;
+    };
+    wmac@10180000 {
+        compatible = "ralink,rt3883-wmac", "ralink,rt2880-wmac";
+        reg = <0x10180000 0x9C40>;
+        interrupt-parent = <0x3>;
+        interrupts = <0x6>;
+        ralink,eeprom = "soc_wmac.eeprom";
+        ralink,mtd-eeprom = <0x8 0x0>;
+    };
+    ehci@101c0000 {
+        compatible = "ralink,rt3xxx-ehci", "ehci-platform";
+        reg = <0x101C0000 0x1000>;
+        phys = <0xA 0x1>;
+        phy-names = "usb";
+        interrupt-parent = <0x1>;
+        interrupts = <0x12>;
+        status = "okay";
+    };
+    ohci@101c1000 {
+        compatible = "ralink,rt3xxx-ohci", "ohci-platform";
+        reg = <0x101C1000 0x1000>;
+        phys = <0xA 0x1>;
+        phy-names = "usb";
+        interrupt-parent = <0x1>;
+        interrupts = <0x12>;
+        status = "okay";
+    };
+    gpio-keys-polled {
+        compatible = "gpio-keys-polled";
+        #address-cells = <0x1>;
+        #size-cells = <0x0>;
+        poll-interval = <0x64>;
+        reset {
+            label = "reset";
+            gpios = <0xB 0xE 0x0>;
+            linux,code = <0x198>;
+        };
+    };
+    gpio-leds {
+        compatible = "gpio-leds";
+        power {
+            label = "emb:orange:power";
+            gpios = <0xB 0x7 0x1>;
+        };
+        status {
+            label = "emb:green:status";
+            gpios = <0xB 0x15 0x1>;
+        };
+        eth {
+            label = "emb:green:eth";
+            gpios = <0xB 0x14 0x1>;
+        };
+        eth2 {
+            label = "emb:red:eth";
+            gpios = <0xB 0x12 0x1>;
+        };
+        wifi {
+            label = "emb:green:wifi";
+            gpios = <0xB 0x11 0x1>;
+        };
+        wifi2 {
+            label = "emb:red:wifi";
+            gpios = <0xB 0x13 0x1>;
+        };
+    };
+    gpio_export {
+        compatible = "gpio-export";
+        #size-cells = <0x0>;
+        usb0 {
+            gpio-export,name = "usb0";
+            gpio-export,output = <0x1>;
+            gpios = <0xB 0x2 0x0>;
+        };
+        usb1 {
+            gpio-export,name = "usb1";
+            gpio-export,output = <0x1>;
+            gpios = <0xB 0x1 0x0>;
+        };
+    };
+};

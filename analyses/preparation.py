@@ -19,6 +19,8 @@ class Preparation(Analysis):
             machine_compiler.link()
         # 1.2 the latest dt_renderer
         else:
+            if firmware.get_components().get_path_to_dtb() is not None:
+                firmware.set_dtb(firmware.get_components().get_path_to_dtb())
             dt_renderer = DTRenderer(firmware)
             dt_renderer.load_template()
             status = dt_renderer.render()

@@ -14,9 +14,8 @@ class MD(Common):
 
     def __str__(self):
         a = 'DEVICE TREE: {}, TARGETS: {}'.format(self.device_tree, self.targets)
-        a += '\n   PROFILES {}'.format(len(self.profiles))
-
-        if len(self.profiles):
+        if self.profiles is not None and len(self.profiles):
+            a += '\n   PROFILES {}'.format(len(self.profiles))
             for k, v in self.profiles.items():
                 a += '\n   {} {}'.format(k, v)
         return a
@@ -25,11 +24,15 @@ class MD(Common):
         return self.device_tree
 
     def find_profile_by_compatible(self, compatible):
+        if self.compatible is None:
+            return None
         for cmptb in compatible:
             if cmptb in self.compatible:
                 return self.compatible[cmptb]
 
     def find_profile_by_id(self, machine_ids):
+        if self.machine_ids is None:
+            return None
         for machine_id in machine_ids:
             if machine_id in self.machine_ids:
                 return self.machine_ids[machine_id]
@@ -61,7 +64,7 @@ def find_profile(components, arch, brand=None, url=None):
     md = find_latest_board(components.get_path_to_kernel(), arch, url=url, brand=brand)
     if md is None:
         # modeling 001
-        print('cannot support this firmware(001)')
+        print('cannot support this firmware(001 cannot find the board)')
         print('1) prepare the source code which can generate your firmware')
         print('2）see src.py -h for more details')
         return None
@@ -75,7 +78,7 @@ def find_profile(components, arch, brand=None, url=None):
             profile = md.find_profile_by_compatible(compatible)
             if profile is None:
                 # modeling 002
-                print('cannot support this firmware(002)')
+                print('cannot support this firmware(002 cannot find the compatible {})'.format(compatible))
                 print('1) prepare the source code which can generate your firmware')
                 print('2）see src.py -h for more details')
                 print('3) here is some reference: {}'.format(md))
@@ -95,7 +98,7 @@ def find_profile(components, arch, brand=None, url=None):
     # T5 WHETHER OR NOT WE ARE PREPARED
     if profile is None:
         # modeling 003
-        print('cannot support this firmware(003)')
+        print('cannot support this firmware(003 cannot find the machine id {})'.format(machine_ids))
         print('1) prepare the source code which can generate your firmware')
         print('2）see src.py -h for more details')
         print('3) here is some reference: {}'.format(md))

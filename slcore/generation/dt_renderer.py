@@ -292,6 +292,8 @@ static const MemoryRegionOps {0}_ops = {{
         for k, v in self.rendering_handlers.items():
             if k == 'flash' and self.firmware.get_arch() == 'arm':
                 continue
+            if k == 'flash' and self.firmware.get_components().has_device_tree():
+                dts = load_dtb(self.firmware.get_components().get_path_to_dtb())
             flatten_ks = v(dts)
             if flatten_ks is None:
                 self.warning('no {} found'.format(k), 'parse')
@@ -324,6 +326,8 @@ static const MemoryRegionOps {0}_ops = {{
                 context['endian'] = self.__get_endian()
                 context['__restore_irqn'] = lambda x: restore_irqn(context, x)
 
+                if k == 'flash' and self.firmware.get_arch() == 'mips':
+                    context['reg']['size'] = 0x20000000 - context['reg']['base']
                 m_context = m.render(context)
                 if isinstance(m_context, str):
                     self.warning('cannot suport {} {}, {} is missing'.format(k, m.effic_compatible, m_context), 'parse')

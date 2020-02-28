@@ -7,6 +7,7 @@ import shutil
 
 from slcore.profile.firmware import Firmware
 from slcore.compositor import Components
+from settings import *
 
 
 class Bamboo(object):
@@ -591,6 +592,8 @@ class SimpleFirmware(Firmware):
         if 'components' in profile:
             self.components = Components()
             self.components.set_attributes(profile['components'])
+        if 'path_to_dtb' in profile:
+            self.dtb = os.path.join(BASE_DIR, profile['path_to_dtb'])
         self.profile = profile
 
     def get_profile(self, *args, **kwargs):
