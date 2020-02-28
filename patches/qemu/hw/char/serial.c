@@ -351,6 +351,15 @@ static void serial_ioport_write(void *opaque, hwaddr addr, uint64_t val,
                                 unsigned size)
 {
     SerialState *s = opaque;
+
+    /* In a standard 16550 implementation, the DL is accessible as two 8-bit halves only.
+     * In the au1x00/rt288x implementation, the DL register is accessible as a single 16-bit entity only.
+     */
+    if (s->au && addr == 0xa) {
+        s->divider = val;
+        return;
+    }
+
     addr &= 7;
 
     /* Au1x00/RT288x UART hardware has a weird register layout */
@@ -1076,7 +1085,7 @@ SerialState *serial_mm_init(MemoryRegion *address_space,
     vmstate_register(NULL, base, &vmstate_serial, s);
 
     memory_region_init_io(&s->io, NULL, &serial_mm_ops[end], s,
-                          "serial", 8 << it_shift);
+                          "serial", 0x40 << it_shift);
     memory_region_add_subregion(address_space, base, &s->io);
     return s;
 }

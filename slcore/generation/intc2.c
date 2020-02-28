@@ -170,8 +170,12 @@ static void {{ name }}_init(Object *obj)
 
 static void {{ name }}_reset(DeviceState *dev)
 {
+    int irqn;
     {{ name|upper }}State *s = {{ name|upper }}(dev);{% for register in intc_get_registers %}
     s->{{ register.rname }} = 0;{% endfor %}
+
+    for (irqn = 0; irqn < 32; irqn++)
+        s->masked[irqn] = true;
 }
 
 static void {{ name }}_class_init(ObjectClass *klass, void *data)
