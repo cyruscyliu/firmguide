@@ -10,10 +10,10 @@
 #include "hw/loader.h"
 #include "elf.h"
 
-#define ENVP_ADDR           0x80000100 // 2(256)
+#define ENVP_ADDR           0xBFC00000 // 2(256)
 #define ENVP_NB_ENTRIES     2
 #define ENVP_ENTRY_SIZE     252
-#define BOOT_LOADER_ADDR    0x80000000 // 48 bytes
+#define BOOT_LOADER_ADDR    0xBFD00000 // 48 bytes
 
 static void do_cpu_reset(void *opaque)
 {
@@ -29,7 +29,7 @@ static void GCC_FMT_ATTR(3, 4) prom_set(uint32_t* prom_buf, int index,
 {
     va_list ap;
     int32_t table_addr;
-    
+
     if (index >= ENVP_NB_ENTRIES)
         return;
 
@@ -88,11 +88,11 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
      *
      * ram and flash are allocated in machine_init not here
      */
-    
+
     /* load kernel */
     kernel_size = load_elf(info->kernel_filename, NULL, cpu_mips_kseg0_to_phys, NULL,
                            &kernel_entry, NULL, &kernel_high, big_endian, EM_MIPS, 1, 0);
-    if (kernel_size < 0) {  
+    if (kernel_size < 0) {
         hwaddr ep, loadaddr;
         int is_linux;
         kernel_size = load_uimage(info->kernel_filename, &ep, &loadaddr, &is_linux,

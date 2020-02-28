@@ -1,7 +1,13 @@
 ns16550a:
     parameters: [reg, reg_shift, intcp, irqn, baud_rate, id, endian]
     get_header: [hw/char/serial.h]
-    get_field: 
-        - ''
+    get_field:  []
     get_body:
         - serial_mm_init(get_system_memory(), {{ reg.base }}, {{ reg_shift }}, {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ id }}), {{ endian }});
+ralink,rt2880-uart:
+    parameters: [reg, reg_shift, intcp, irqn, baud_rate, id, endian]
+    get_header: [hw/char/serial.h]
+    get_field:  []
+    get_body:
+        - serial_mm_init_au(get_system_memory(), {{ reg.base }}, {{ reg_shift }}, {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ id }}), {{ endian }});
+
