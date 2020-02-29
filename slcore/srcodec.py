@@ -33,22 +33,33 @@ class SRCodeController(Common):
 
     def symbol2fileg(self, symbol, relative=True):
         search_in = os.path.join(self.path_to_source_code, 'arch/{}'.format(self.arch))
+        search_in2 = os.path.join(self.path_to_source_code, 'drivers')
 
         f = None
+
+        lines = []
         with os.popen('find {} -name "*.c" | xargs grep " {}"'.format(search_in, symbol)) as o:
-            for line in o:
-                # arch/mips/kernel/setup.c: * arch_mem_init -
-                # arch/mips/kernel/setup.c:static void __init arch_mem_init(char **cmdline_p)
-                # arch/mips/kernel/setup.c:       arch_mem_init(cmdline_p);
-                fs, c = line.strip().split(':')[0:2]
-                if c.strip().startswith('*'):
-                    continue
-                if c.strip().endswith(';'):
-                    continue
-                fs_o = fs[:-1] + 'o'
-                if not os.path.exists(fs_o):
-                    continue
-                f = os.path.realpath(fs)
+            lines = o.readlines()
+        if not len(lines):
+            with os.popen('find {} -name "*.c" | xargs grep " {}"'.format(search_in2, symbol)) as o:
+                lines = o.readlines()
+
+        if not len(lines):
+            return f;
+
+        for line in lines:
+            # arch/mips/kernel/setup.c: * arch_mem_init -
+            # arch/mips/kernel/setup.c:static void __init arch_mem_init(char **cmdline_p)
+            # arch/mips/kernel/setup.c:       arch_mem_init(cmdline_p);
+            fs, c = line.strip().split(':')[0:2]
+            if c.strip().startswith('*'):
+                continue
+            if c.strip().endswith(';'):
+                continue
+            fs_o = fs[:-1] + 'o'
+            if not os.path.exists(fs_o):
+                continue
+            f = os.path.realpath(fs)
 
         if f is None:
             return f
