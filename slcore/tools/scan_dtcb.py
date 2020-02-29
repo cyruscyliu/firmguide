@@ -40,7 +40,7 @@ def __re_scan(path, declare='.*?', compatible='(.*?)', depress=False):
 def __scan_dtcb(declare, path_to_source):
     cbs = []
     # path:XXX_DECLARE(id, "compatible", cb);
-    with os.popen('grep -r {} {}/drivers/'.format(declare, path_to_source)) as f:
+    with os.popen('grep -r {} {}//'.format(declare, path_to_source)) as f:
         for line in f:
             path = line.split(':')[0]
             cb = __re_scan(path, declare=declare)
@@ -121,8 +121,8 @@ def scan_declare(path_to_source):
     print('[+] expected: {}'.format(' '.join(candidates)))
 
     unexpected = []
-    # grep "_DECLARE(" -nir drivers/")"
-    search_in = os.path.join('{}/drivers'.format(path_to_source))
+    # grep "_DECLARE(" -nir ./")"
+    search_in = os.path.join('{}'.format(path_to_source))
     with os.popen('grep "_DECLARE(" -nir {}'.format(search_in)) as f:
         # rivers/clk/mvebu/clk-corediv.c:337:CLK_OF_DECLARE(mv98dx3
         for line in f:
@@ -161,7 +161,7 @@ def scan_dtcb(path_to_dtb, path_to_source):
         compatible = dts.get_property('compatible', path)
         print('[+] searching {}'.format(compatible))
         for cmptb in compatible:
-            with os.popen('grep -r \\"{}\\" {}/drivers/'.format(cmptb, path_to_source)) as f:
+            with os.popen('grep -r \\"{}\\" {}/'.format(cmptb, path_to_source)) as f:
                 for line in f:
                     path = line.split(':')[0]
                     if not os.path.exists(path):

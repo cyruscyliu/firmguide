@@ -23,6 +23,7 @@ arm,cortex-a7-gic: {extend: 'intc,generic'}
 arm,cortex-a9-gic: {extend: 'intc,generic'}
 arm,eb11mp-gic: {extend: 'intc,generic'}
 arm,gic-400: {extend: 'intc,generic'}
+arm,gic-400",IRQCHIP_DECLARE(cortex_a15_gic, "arm,cortex-a15-gic: {extend: 'intc,generic'}
 arm,gic-v3: {extend: 'intc,generic'}
 arm,pl190-vic: {extend: 'intc,generic'}
 arm,pl192-vic: {extend: 'intc,generic'}
@@ -49,13 +50,16 @@ brcm,bcm7120-l2-intc: {extend: 'intc,generic'}
 brcm,l2-intc: {extend: 'intc,generic'}
 cdns,xtensa-mx: {extend: 'intc,generic'}
 cdns,xtensa-pic: {extend: 'intc,generic'}
+cirrus,clps711x-intc: {extend: 'intc,generic'}
 cirrus,ep7209-intc: {extend: 'intc,generic'}
 cnxt,cx92755-ic: {extend: 'intc,generic'}
 cortina,gemini-interrupt-controller: {extend: 'intc,generic'}
 ezchip,nps400-ic: {extend: 'intc,generic'}
 faraday,ftintc010: {extend: 'intc,generic'}
 fsl,icoll: {extend: 'intc,generic'}
+fsl,imx6q-gpc: {extend: 'intc,generic'}
 fsl,imx7d-gpc: {extend: 'intc,generic'}
+fsl,tzic: {extend: 'intc,generic'}
 fsl,vf610-mscm-ir: {extend: 'intc,generic'}
 hisilicon,hip04-intc: {extend: 'intc,generic'}
 ingenic,jz4740-intc: {extend: 'intc,generic'}
@@ -116,6 +120,7 @@ marvell,orion-intc:
   - clear_body: [s->r0 &= ~0x00000010;]
     irqn: 4
     set_body: [s->r0 |= 0x00000010;]
+marvell,pxa-intc: {extend: 'intc,generic'}
 mediatek,mt6577-sysirq: {extend: 'intc,generic'}
 mediatek,mtk-cirq: {extend: 'intc,generic'}
 microchip,pic32mzda-evic: {extend: 'intc,generic'}
@@ -140,6 +145,7 @@ opencores,or1k-pic: {extend: 'intc,generic'}
 opencores,or1k-pic-edge: {extend: 'intc,generic'}
 opencores,or1k-pic-level: {extend: 'intc,generic'}
 oxsemi,ox810se-rps-irq: {extend: 'intc,generic'}
+plxtech,nas782x-rps: {extend: 'intc,generic'}
 qca,ar7100-cpu-intc: {extend: 'intc,generic'}
 qca,ar7100-misc-intc: {extend: 'intc,generic'}
 qca,ar7240-misc-intc: {extend: 'intc,generic'}
@@ -169,17 +175,22 @@ samsung,s3c2410-irq: {extend: 'intc,generic'}
 samsung,s3c2416-irq: {extend: 'intc,generic'}
 sigma,smp8642-intc: {extend: 'intc,generic'}
 sirf,prima2-intc: {extend: 'intc,generic'}
+snps,arc700-intc: {extend: 'intc,generic'}
+snps,archs-idu-intc: {extend: 'intc,generic'}
+snps,archs-intc: {extend: 'intc,generic'}
 snps,dw-apb-ictl: {extend: 'intc,generic'}
 st,spear300-shirq: {extend: 'intc,generic'}
 st,spear310-shirq: {extend: 'intc,generic'}
 st,spear320-shirq: {extend: 'intc,generic'}
 st,stm32-exti: {extend: 'intc,generic'}
 ti,am33xx-intc: {extend: 'intc,generic'}
+ti,cp-intc: {extend: 'intc,generic'}
 ti,dm814-intc: {extend: 'intc,generic'}
 ti,dm816-intc: {extend: 'intc,generic'}
 ti,irq-crossbar: {extend: 'intc,generic'}
 ti,omap2-intc: {extend: 'intc,generic'}
 ti,omap3-intc: {extend: 'intc,generic'}
+ti,omap4-wugen-mpu: {extend: 'intc,generic'}
 via,vt8500-intc: {extend: 'intc,generic'}
 xlnx,opb-intc-1.00.c: {extend: 'intc,generic'}
 xlnx,xps-intc-1.00.a: {extend: 'intc,generic'}
