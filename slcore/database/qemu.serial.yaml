@@ -1,13 +1,61 @@
+actions,owl-uart: {extend: 'serial,generic'}
+altr,juart-1.0: {extend: 'serial,generic'}
+altr,uart-1.0: {extend: 'serial,generic'}
+amlogic,meson-ao-uart: {extend: 'serial,generic'}
+amlogic,meson-uart: {extend: 'serial,generic'}
+arm,mps2-uart: {extend: 'serial,generic'}
+arm,pl011: {extend: 'serial,generic'}
+arm,sbsa-uart: {extend: 'serial,generic'}
+brcm,bcm6345-uart: {extend: 'serial,generic'}
+cdns,uart-r1p12: {extend: 'serial,generic'}
+cdns,uart-r1p8: {extend: 'serial,generic'}
+fsl,imx21-uart: {extend: 'serial,generic'}
+fsl,imx6q-uart: {extend: 'serial,generic'}
+fsl,imx7ulp-lpuart: {extend: 'serial,generic'}
+fsl,ls1021a-lpuart: {extend: 'serial,generic'}
+fsl,vf610-lpuart: {extend: 'serial,generic'}
+google,goldfish-tty: {extend: 'serial,generic'}
+ingenic,jz4740-uart: {extend: 'serial,generic'}
+ingenic,jz4775-uart: {extend: 'serial,generic'}
+ingenic,jz4780-uart: {extend: 'serial,generic'}
+marvell,armada-3700-uart: {extend: 'serial,generic'}
+mediatek,mt6577-uart: {extend: 'serial,generic'}
+mrvl,pxa-uart: {extend: 'serial,generic'}
+ns16550: {extend: 'serial,generic'}
 ns16550a:
-    parameters: [reg, reg_shift, intcp, irqn, baud_rate, id, endian]
-    get_header: [hw/char/serial.h]
-    get_field:  []
-    get_body:
-        - serial_mm_init(get_system_memory(), {{ reg.base }}, {{ reg_shift }}, {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ id }}), {{ endian }});
+  get_body: ['serial_mm_init(get_system_memory(), {{ reg.base }}, {{ reg_shift }},
+      {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ id }}), {{ endian }});']
+  get_field: []
+  get_header: [hw/char/serial.h]
+  parameters: [reg, reg_shift, intcp, irqn, baud_rate, id, endian]
+nvidia,tegra20-uart: {extend: 'serial,generic'}
+qcom,msm-uart: {extend: 'serial,generic'}
+qcom,msm-uartdm: {extend: 'serial,generic'}
 ralink,rt2880-uart:
-    parameters: [reg, reg_shift, intcp, irqn, baud_rate, id, endian]
-    get_header: [hw/char/serial.h]
-    get_field:  []
-    get_body:
-        - serial_mm_init_au(get_system_memory(), {{ reg.base }}, {{ reg_shift }}, {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ id }}), {{ endian }});
-
+  get_body: ['serial_mm_init_au(get_system_memory(), {{ reg.base }}, {{ reg_shift
+      }}, {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ id }}), {{ endian }});']
+  get_field: []
+  get_header: [hw/char/serial.h]
+  parameters: [reg, reg_shift, intcp, irqn, baud_rate, id, endian]
+renesas,hscif: {extend: 'serial,generic'}
+renesas,sci: {extend: 'serial,generic'}
+renesas,scif: {extend: 'serial,generic'}
+renesas,scifa: {extend: 'serial,generic'}
+renesas,scifb: {extend: 'serial,generic'}
+samsung,exynos4210-uart: {extend: 'serial,generic'}
+samsung,s3c2410-uart: {extend: 'serial,generic'}
+samsung,s3c2412-uart: {extend: 'serial,generic'}
+samsung,s3c2440-uart: {extend: 'serial,generic'}
+samsung,s3c6400-uart: {extend: 'serial,generic'}
+samsung,s5pv210-uart: {extend: 'serial,generic'}
+snps,arc-uart: {extend: 'serial,generic'}
+snps,dw-apb-uart: {extend: 'serial,generic'}
+socionext,uniphier-uart: {extend: 'serial,generic'}
+sprd,sc9836-uart: {extend: 'serial,generic'}
+ti,omap2-uart: {extend: 'serial,generic'}
+ti,omap3-uart: {extend: 'serial,generic'}
+ti,omap4-uart: {extend: 'serial,generic'}
+xlnx,opb-uartlite-1.00.b: {extend: 'serial,generic'}
+xlnx,xps-uartlite-1.00.a: {extend: 'serial,generic'}
+xlnx,xuartps: {extend: 'serial,generic'}
+xlnx,zynqmp-uart: {extend: 'serial,generic'}

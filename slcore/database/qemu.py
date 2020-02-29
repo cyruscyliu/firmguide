@@ -43,6 +43,7 @@ class DatabaseQEMUModels(Database):
     def select(self, *args, **kwargs):
         """
         select model where compatible=ns16550a
+        select *
         """
         # parse arguments
         action = args[0]
@@ -56,9 +57,26 @@ class DatabaseQEMUModels(Database):
         if action == 'model' and compatible is not None:
             if compatible in database_qemu_models:
                 return database_qemu_models[compatible]
+        elif action == '*':
+            return database_qemu_models
+
 
     def add(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
+        """
+        add compatible where pa=va, pb=vb
+        """
+        compatible = args[0]
+
+        qdevices = self.select('*')
+        if qdevices is None:
+            qdevices = {compatible: kwargs}
+        else:
+            if compatible not in qdevices:
+                qdevices[compatible] = kwargs
+
+        f = open(os.path.join(DATABASE_DIR, 'qemu.{}.yaml'.format(self.t)), 'w')
+        yaml.safe_dump(qdevices, f)
+        f.close()
 
     def delete(self, *args, **kwargs):
         raise NotImplementedError('you are not expected to modify this table')
