@@ -128,14 +128,17 @@ def scan_declare(path_to_source):
         for line in f:
             if line.find('"') == -1:
                 continue
+            if line.find('#define') != -1:
+                continue
             path = line.split(':')[0]
             declare = line.split(':')[2].split('(')[0]
             if declare not in candidates:
                 if len(path) > 120:
-                    line = '...' + line[100:]
+                    line = '...' + line[110:].strip()
+                print('[-] unexpected: {}'.format(line))
                 unexpected.append(declare)
     if len(unexpected):
-        print('[+] unexpected: {}'.format(' '.join(unexpected)))
+        print('[+] unexpected: {}'.format(' '.join(list(set(unexpected)))))
     else:
         print('[+] nothing unexpected')
 
@@ -155,6 +158,7 @@ def update_dtdb(path_to_source):
 def scan_dtcb(path_to_dtb, path_to_source):
     # let's traverse the device tree
     dts = load_dtb(path_to_dtb)
+    c_cb = {}
     for path, nodes, pros in dts.walk():
         if not dts.exist_property('compatible', path):
             continue
@@ -174,6 +178,8 @@ def scan_dtcb(path_to_dtb, path_to_source):
                             if i[0] != cmptb:
                                 continue
                             print('[+] [bingo] {} -> {} in {}'.format(i[0], i[1], path))
+                            c_cb[i[0]] = i[1]
+    return c_cb
 
 
 if __name__ == '__main__':
@@ -185,5 +191,5 @@ if __name__ == '__main__':
         exit(-1)
     scan_declare(path_to_source)
     update_dtdb(path_to_source)
-    scan_dtcb(path_to_dtb, path_to_source)
+    print('[+] c_cb: {}'.format(scan_dtcb(path_to_dtb, path_to_source)))
 
