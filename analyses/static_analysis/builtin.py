@@ -82,17 +82,7 @@ def _irq_set_chip_and_handler_name(analysis, firmware, **kwargs):
     # [FUNCTION] extern void irq_set_chip_and_handler_name(
     # unsigned int irq, struct irq_chip *chip, irq_flow_handler_t handle, const char *name);
     caller = kwargs.pop('caller')
-    if firmware.uuid == 'ar71xx_generic':
-        if caller == 'ath79_misc_irq_init':
-            # for (i = 8; i < 8 + 32; i++) { irq_set_chip_and_handler(i, &ath79_misc_irq_chip, handle_level_irq); }
-            for i in range(8, 40):
-                analysis.info(firmware, '? {} direct handle_level_irq ath79_misc_irq_chip'.format(i), 1)
-        elif caller == 'mips_cpu_irq_init':
-            for i in range(0, 8):
-                analysis.debug(firmware, '{0} {0} direct handle_percpu_irq  mips_cpu_irq_controller'.format(i), 1)
-        else:
-            analysis.warning(firmware, '{} -> irq_set_chip_and_handler_name(w/o handler)'.format(caller), 0)
-    elif firmware.uuid == 'ramips_rt3883':
+    if firmware.uuid == 'ramips_rt3883':
         if caller == 'mips_cpu_intc_map':
             # irq_set_chip_and_handler(irq, chip, handle_percpu_irq);
             analysis.info(firmware, 'irqn00-07 -> hw00->07, handle_percpu_irq, mips_cpu_irq_controller', 1)
@@ -122,23 +112,7 @@ def ___irq_set_handler(analysis, firmware, **kwargs):
     # [FUNCTION] extern void __irq_set_handler(
     # unsigned int irq, irq_flow_handler_t handle, int is_chained, const char *name);
     caller = kwargs.pop('caller')
-    analysis.info(firmware, '{} -> __irq_set_handler(found, level2 intc mmio->irqn mapping)'.format(caller), 0)
-    if firmware.uuid == 'ar71xx_generic':
-        # When we meet chained handler, we must go deeply. What's the
-        # mapping between hwirqn and irqn? Usually, hwirqn comes from
-        # mmio or mmios, say hwirqn = F(m1, m2). Perform the reachability
-        # analysis to the function 'generic_handler_irq(irqn)' and we
-        # get the formula: irqn = f(hwirqn) = f(F(m1, m2)) (f-1).
-        # Now, we may get several irqns no hwirqns, according to f-1,
-        # Let irqn = 8, then we can get its hwirqns, and mmios with proper
-        # init values.
-        if caller == 'ath79_misc_irq_init':
-            # irq_set_chained_handler((0 + (6)), ath79_misc_irq_handler);
-            analysis.debug(firmware, 'to reach generic_handler_irq, (readl(base + 0x10) & readl(base + 0x14)) != 0', 1)
-            analysis.info(firmware, 'irqn = 8 + __ffs(readl(base+0x10)&readl(base+0x14))', 1)
-        else:
-            analysis.warning(firmware, '{} -> __irq_set_handler(w/o handler)', 0)
-    elif firmware.uuid == 'ramips_rt3883':
+    if firmware.uuid == 'ramips_rt3883':
         if caller == 'intc_of_init':
             # irq_set_chained_handler(irq, ralink_intc_irq_handler);
             analysis.debug(firmware, 'to reach generic_handler_irq, readl(rt_intc_membase+0x00) != 0', 1)
@@ -172,7 +146,7 @@ def _panic(analysis, firmware, **kwargs):
     # [FUNCTION] panic()
     # panic() is a very strong mark of exceptional path
     caller = kwargs.pop('caller')
-    if firmware.uuid == 'ath79_generic':
+    if firmware.uuid == 'ath79':
         if caller == 'ath79_detect_sys_type':
             # by manually analysis, we know
             # ath79_reset_rr(0x90)
@@ -189,6 +163,10 @@ def _panic(analysis, firmware, **kwargs):
             firmware.insert_bamboo_devices(mmio_base, 0x4, value=0x00b0) # ar9130
         elif caller == '__mips_cpu_irq_init':
             # domain = irq_domain_add_legacy(of_node, 8, 0, 0, &mips_cpu_intc_irq_domain_ops, ((void *)0))
+            # from builtin function will never be panic
+            pass
+        elif caller == 'ath79_intc_of_init':
+            # of_property_count_u32_elems/of_property_read_u32/irq_of_parse_and_map
             # from builtin function will never be panic
             pass
         else:
@@ -268,7 +246,7 @@ def ___builtin_unreachable(analysis, firmware, **kwargs):
         # to give it up.
         pass
 
-    if firmware.uuid == 'ar71xx_generic':
+    if firmware.uuid == 'ath79':
         if caller == 'ath79_register_wmac':
             # if (soc_is_ar913x()) ar913x_wmac_setup();
             # else if (soc_is_ar933x()) ar933x_wmac_setup();
@@ -370,13 +348,15 @@ UNMODELED_SKIP_LIST = [
     'early_init_fdt_scan_reserved_mem', 'early_init_fdt_scan_reserved_mem', 'of_count_phandle_with_args',
     'of_property_read_u32_index', 'of_parse_phandle_with_args', 'mips_set_machine_name'
     'early_init_fdt_reserve_self', 'of_property_count_elems_of_size', 'of_find_property', 'of_property_read_variable_u32_array',
-    'warn_slowpath_null', 'vprintk', 'mutex_lock', 'of_get_cpu_node', 'mips_sysrq_init', 'pcibios_set_cache_line_size'
+    'warn_slowpath_null', 'vprintk', 'mutex_lock', 'of_get_cpu_node', 'mips_sysrq_init', 'pcibios_set_cache_line_size',
+    'of_iomap', 'irq_set_chip_data', 'of_clk_get'
 ]
 
 
 MODELED_SKIP_TABLE = {
     'irq_set_chip_and_handler_name': {'handle': _irq_set_chip_and_handler_name},
     '__irq_set_handler': {'handle': ___irq_set_handler},
+    'irq_set_chained_handler_and_data': {'handle': ___irq_set_handler},
     'panic': {'handle': _panic},
     'init_r4k_clocksource': {'handle': _init_r4k_clocksource},
     '__builtin_unreachable': {'handle': ___builtin_unreachable},

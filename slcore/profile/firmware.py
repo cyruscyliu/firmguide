@@ -6,6 +6,7 @@ from slcore.profile.kernel import KernelForFirmware
 from slcore.profile.openwrt import OpenWRTForFirmware
 from slcore.qemuc import QEMUController
 
+PROFILE_ATTRIBUTES = ['c_cb']
 
 class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def __init__(self, *args, **kwargs):
@@ -35,8 +36,11 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.path_to_summary = None  # /tmp/uuid/stats.yaml
 
         self.components = None
+
         self.dtb = None
         self.dtc = None
+        self.c_cb = None
+
         self.srcodec = None
         self.qemuc = QEMUController()
         self.config = {}

@@ -1,6 +1,7 @@
 from analyses.analysis import Analysis
 from slcore.dt_parsers.common import load_dtb
 from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
+from slcore.tools.scan_dtcb import scan_dtcb
 
 import os
 

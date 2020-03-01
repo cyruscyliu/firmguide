@@ -135,7 +135,7 @@ class ExecutionFlow(Analysis):
             funccalls.append('bhu_bxu2000n2_a1_setup')
 
         if firmware.get_arch() == 'mips' and 'plat_time_init' in funccalls:
-            if firmware.uuid == 'ar71xx_generic':
+            if firmware.uuid == 'ath79':
                 entry_point = ['ath79_clocks_init', 'ath79_get_sys_clk_rate']
                 # by manually analysis, to guarentee mips_hpt_frequency not zero
                 # ath79_clocks_init has BUG_ON() and is related to ath79_soc set to ar9130,
@@ -176,16 +176,19 @@ class ExecutionFlow(Analysis):
             elif firmware.uuid == 'ramips_rt3883':
                 # mips_hpt_frequency = clk_get_rate(clk_get_sys("cpu", NULL));
                 pass
-            elif firmware.uuid == 'ath79_generic':
-                # mips_hpt_frequency = clk_get_rate(clk) / 2;
-                pass
             else:
                 self.warning(firmware, '{} -> plat_time_init(w/o handler)'.format(caller), 0)
 
-        # [FUNCTION]  struct irq_domain *irq_domain_add_legacy(struct device_node *of_node, unsigned int size,
+        # [FUNCTION] struct irq_domain *irq_domain_add_legacy(struct device_node *of_node, unsigned int size,
         # unsigned int first_irq, irq_hw_number_t first_hwirq, const struct irq_domain_ops *ops, void *host_data);
-        if 'irq_domain_add_legacy' in funccalls:
-            funccalls.remove('irq_domain_add_legacy')
+        # [FUNCTION] struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, int size,                                                                                                15495         irq_hw_number_t hwirq_max, int direct_max,
+        # irq_hw_number_t hwirq_max, int direct_max, const struct irq_domain_ops *ops, void *host_data);
+        if 'irq_domain_add_legacy' in funccalls or \
+                '__irq_domain_add' in funccalls:
+            if 'irq_domain_add_legacy' in funccalls:
+                funccalls.remove('irq_domain_add_legacy')
+            if '__irq_domain_add' in funccalls:
+                funccalls.remove('__irq_domain_add')
             if firmware.uuid == 'ramips_rt3883':
                 if caller == 'mips_cpu_intc_init':
                     # domain = irq_domain_add_legacy(of_node, 8, 0, 0, &mips_cpu_intc_irq_domain_ops, ((void *)0));
@@ -208,19 +211,6 @@ class ExecutionFlow(Analysis):
                 elif caller == 'rps_of_init':
                     self.debug(firmware, '{} -> {}(FP -> [rps_irq_domain_map])'.format(caller, 'irq_domain_add_legacy'), 1)
                     funccalls.extend(['rps_irq_domain_map'])
-                else:
-                    self.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
-            elif firmware.uuid == 'ath79_generic':
-                if caller == '__mips_cpu_irq_init':
-                    # clear_c0_status(0x0000ff00);                                                                                                                                                     clear_c0_cause(((unsigned long)(255) << 8));
-                    # irq_domain = irq_domain_add_legacy(of_node, 8, 0, 0, &mips_cpu_intc_irq_domain_ops, ((void *)0));
-                    # qca,ar7100-cpu-intc is mips internal intc
-                    try:
-                        firmware.config['qca,ar7100-cpu-intc']['extend'] = 'mti,cpu-interrupt-controller'
-                    except KeyError:
-                        firmware.config['qca,ar7100-cpu-intc'] = {'extend': 'mti,cpu-interrupt-controller'}
-                    self.debug(firmware, '{} -> {}(FP -> [mips_cpu_intc_map])'.format(caller, 'irq_domain_add_legacy'), 1)
-                    funccalls.extend(['mips_cpu_intc_map'])
                 else:
                     self.warning(firmware, '{} -> irq_domain_add_legacy(w/o handler)'.format(caller), 0)
             else:
@@ -249,14 +239,6 @@ class ExecutionFlow(Analysis):
                     # compatible = "plxtech,nas782x-gpio";(platform_device/pinctrl, not here)
                     funccalls.extend(['gic_of_init', 'rps_of_init'])
                     self.debug(firmware, '{} -> {}(FP -> [gic_of_init, rps_of_init])'.format(caller, 'of_irq_init'), 1)
-                else:
-                    self.warning(firmware, 'of_irq_init found w/o handler', 0)
-            elif firmware.uuid == 'ath79_generic':
-                if caller == 'irqchip_init':
-                    # compatible = "qca,ar7100-cpu-intc"
-                    # compatible = "qca,ar9340-intc"
-                    # compatible = "qca,ar7240-misc-intc"
-                    funccalls.extend(['ar79_cpu_intc_of_init', 'ath79_intc_of_init', 'ar7240_misc_intc_of_init'])
                 else:
                     self.warning(firmware, 'of_irq_init found w/o handler', 0)
             else:
@@ -355,10 +337,6 @@ class ExecutionFlow(Analysis):
         # 2 intc initilization
         ep = 'init_IRQ'
         self.traverse_funccalls(firmware, [ep], caller='start_kernel')
-        if firmware.uuid == 'ar71xx_generic':
-            # arch_init_irq -> ath79_misc_irq_init(no address)
-            self.traverse_no_address_funccall(firmware, 'ath79_misc_irq_init', 'arch/mips/ath79/irq.c')
-
         # for mips, you could skip plat_irq_dispatch because it is very general
         # mostly, timer interrupt is IRQ7 and you won't worry about it
 
@@ -412,94 +390,6 @@ class ExecutionFlow(Analysis):
 
         funccalls = self.parse_funcalls(firmware, 'do_initcall', funccalls)
         self.traverse_funccalls(firmware, funccalls, caller='do_initcall')
-
-        # because symbols/addr2line sometimes don't work well, so we manullay set the value
-        if firmware.uuid == 'ar71xx_generic':
-            # [checked] ath79_setup(arch/mips/ath79/setup.c)
-            # [][checked] ath79_gpio_init(arch/mips/include/asm/mach-ath79/ath79.h)
-            path_to_entry_point = 'arch/mips/ath79/gpio.c'
-            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
-            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-            funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, 'ath79_gpio_init', mode='sparse')
-            self.info(firmware, '{} -> {}'.format('ath79_gpio_init', funccalls), 1)
-            funccalls.append('__ioremap') # __ioremap is missing
-            funccalls = self.parse_funcalls(firmware, 'ath79_gpio_init', funccalls)
-            self.traverse_funccalls(firmware, funccalls, caller='ath79_gpio_init')
-            # [][checked] ath79_register_uart(arch/mips/ath79/dev-common.c)
-            # [][checked] ath79_register_wdt(arch/mips/ath79/dev-common.c)
-            # [][checked] mips_machine_setup(arch/mips/kernel/mips_machine.c)
-            # [][][checked] bhu_bxu2000n2_a1_setup(arch/mips/ath79/mach-bhu-bxu2000n2-a.c)
-            # [][][][checked] bhu_ap123_setup
-            # vmlinux has no symbol of bhu_ap123_setup, unbelievable!
-            path_to_entry_point = 'arch/mips/ath79/mach-bhu-bxu2000n2-a.c'
-            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
-            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-            entry_point = [
-                'ath79_register_m25p80', 'ath79_register_mdio', 'ath79_init_mac',
-                'ath79_register_eth', 'ath79_register_wmac']
-            funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, 'bhu_ap123_setup', mode='sparse')
-            self.info(firmware, '{} -> {}'.format('bhu_ap123_setup', funccalls), 1)
-            funccalls = self.parse_funcalls(firmware, 'bhu_ap123_setup', entry_point)
-            self.traverse_funccalls(firmware, funccalls, caller='bhu_ap123_setup')
-            # [][][][][checked] ath79_register_m25p80(arch/mips/ath79/dev-m25p80.c)
-            # [][][][][][checked] ath79_register_spi(arch/mips/ath79/dev-spi.c)
-            # [][][][][][][DIRECT] spi_register_board_info(info, n);
-            # [][][][][][][DIRECT] platform_device_register(&ath79_spi_device);
-            # [][][][][][done]
-            # [][][][]done]
-            # [][][][][checked] ath79_register_mdio(arch/mips/ath79/dev-eth.c)
-            # [][][][][][checked] ath79_set_pll(no address)
-            path_to_entry_point = 'arch/mips/ath79/dev-eth.c'
-            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
-            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-            funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, 'ath79_set_pll', mode='sparse')
-            self.info(firmware, '{} -> {}'.format('ath79_set_pll', funccalls), 1)
-            funccalls = self.parse_funcalls(firmware, 'ath79_set_pll', funccalls)
-            self.traverse_funccalls(firmware, funccalls, caller='ath79_set_pll')
-            # [][][][][][unchecked] ar934x_get_mdio_ref_clock(no address)
-            # [][][][][][DIRECT] platform_device_register(mdio_dev);
-            # [][][][][done]
-            # [][][][][checked] ath79_init_mac(arch/mips/ath79/dev-eth.c)
-            # [][][][][checked] ath79_register_eth(arch/mips/ath79/dev-eth.c)
-            # [][][][][][unchecked] ath79_init_eth_pll_data(no address)
-            # [][][][][][checked] ath79_setup_phy_if_mode(no address)
-            path_to_entry_point = 'arch/mips/ath79/dev-eth.c'
-            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
-            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-            funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, 'ath79_setup_phy_if_mode', mode='sparse')
-            self.info(firmware, '{} -> {}'.format('ath79_setup_phy_if_mode', funccalls), 1)
-            funccalls = self.parse_funcalls(firmware, 'ath79_setup_phy_if_mode', funccalls)
-            self.traverse_funccalls(firmware, funccalls, caller='ath79_setup_phy_if_mode')
-            # [][][][][][][checked] ath79_mii_ctrl_set_if(no address)
-            path_to_entry_point = 'arch/mips/ath79/dev-eth.c'
-            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
-            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-            funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, 'ath79_mii_ctrl_set_if', mode='sparse')
-            self.info(firmware, '{} -> {}'.format('ath79_mii_ctrl_set_if', funccalls), 1)
-            funccalls = self.parse_funcalls(firmware, 'ath79_mii_ctrl_set_if', funccalls)
-            self.traverse_funccalls(firmware, funccalls, caller='ath79_mii_ctrl_set_if')
-            # [][][][][][checked] get_random_bytes(drivers/char/random.c)
-            # [][][][][][unchecked] ath79_device_reset_set(inline in header)
-            # [][][][][][unchecked] ath79_device_reset_clear(inline in header)
-            # [][][][][][DIRECT] platform_device_register(pdev)
-            # [][][][][done]
-            # [][][][][checked] ath79_register_wmac(arch/mips/include/asm/mach-ath79/ath79.h)
-            # inline function in header but addr2line is wrong
-            path_to_entry_point = 'arch/mips/ath79/dev-wmac.c'
-            cmdline = firmware.srcodec.get_cmdline(path_to_entry_point)
-            path_to_pentry_point = firmware.srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-            funccalls = firmware.srcodec.get_funccalls(path_to_pentry_point, 'ath79_register_wmac', mode='sparse')
-            self.info(firmware, '{} -> {}'.format('ath79_register_wmac', funccalls), 1)
-            funccalls = self.parse_funcalls(firmware, 'ath79_register_wmac', funccalls)
-            self.traverse_funccalls(firmware, funccalls, caller='ath79_register_wmac')
-            # [][][][][][DIRECT] platform_device_register(&ath79_wmac_device);
-            # [][][][][done]
-            # [][][][done]
-            # [][][][checked] ath79_register_leds_gpio(arch/mips/ath79/dev-leds-gpio.c)
-            # [][][][checked] ath79_register_gpio_keys_polled(arch/mips/ath79/dev-gpio-buttons.c)
-            # [][][done]
-            # [][done]
-            # [done]
 
         # hardcoded
         if firmware.uuid == 'oxnas_generic':

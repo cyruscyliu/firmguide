@@ -5,10 +5,11 @@ source code controller
 + cfg/cg/gloabls
 """
 from settings import *
-from logger import logger_info
+from logger import logger_info2, logger_debug2, logger_warning2
 from pycparser import c_parser, c_ast, parse_file
 from slcore.compositor import Common
 from slcore.naive_parsers.symbols import parse_system_map, addr2file
+from analyses.static_analysis.builtin import UNMODELED_SKIP_LIST, MODELED_SKIP_TABLE
 
 import os
 import qmp
@@ -30,6 +31,17 @@ class SRCodeController(Common):
         self.sparse = not os.system('which graph >/dev/null')
 
         self.set_attributes(SOURCE_CODE_ATTRIBUTES)
+        self.config = {}
+
+
+    def info(self, action, message, status):
+        logger_info2('srcodec', action, message, status)
+
+    def debug(self, action, message, status):
+        logger_debug2('srcodec', action, message, status)
+
+    def warning(self, action, message, status):
+        logger_warning2('srcodec', action, message, status)
 
     def symbol2fileg(self, symbol, relative=True):
         search_in = os.path.join(self.path_to_source_code, 'arch/{}'.format(self.arch))
@@ -240,6 +252,104 @@ class SRCodeController(Common):
                 eval(attrs['ls'].strip('"').replace('(', '(\'').replace(')', '\')'))
 
         return gs
+
+    def parse_funcalls2(self, caller, funccalls, fcbs={}, depth=0):
+        def remove_duplicated(seq):
+                seen = set()
+                seen_add = seen.add
+                return [x for x in seq if not (x in seen or seen_add(x))]
+        funccalls = remove_duplicated(funccalls)
+
+        # remove functions we donot want to analyze
+        for da in UNMODELED_SKIP_LIST:
+            if da in funccalls:
+                funccalls.remove(da)
+
+        unhandled = []
+        for f, cbs in fcbs.items():
+            if f in funccalls:
+                funccalls.remove(f)
+                if cbs['ignored']:
+                    self.debug('ana_funccalls2', '{}{}->{}({})({})'.format(' ' * (depth+2), caller, f, 'ignored', None), 0)
+                    continue
+                if caller in cbs:
+                    ext = cbs[caller](self.config)
+                    unhandled.extend(ext)
+                    self.debug('ana_funccalls2', '{}{}->{}({})({})'.format(' ' * (depth+2), caller, f, 'handled', None), 0)
+                else:
+                    self.debug('ana_funccalls2', '{}{}->{}({})({})'.format(' ' * depth, caller, f, 'unhandled', None), 0)
+        funccalls.extend(unhandled)
+
+        return funccalls
+
+    def parse_globals2(self, caller, gs, depth=0):
+        """
+        Globals will not trigger analysis but serve for debugging.
+        Global data/function pointer both will influence execution flow.
+        Global data is interesting when
+        1) it is defined by the value from nvram
+        2) it is defined by the value from ioremap().
+        Global data is interesting when
+        1) it is defined conditionally
+        2) it is defined according to CMDLINE
+        """
+        for g, ops in gs.items():
+            pass
+            # if 'store' in ops:
+                # self.globals.append(g)
+                # self.debug(firmware, '{} -> {}(global defined)'.format(caller, g), 1)
+                # pass
+            # if 'load' in ops and g not in self.globals:
+                # self.warning(firmware, '{} -> {}(global used before defined)'.format(caller, g), 1)
+                # pass
+
+    def traverse_funccalls2(self, entry_point, caller=None, depth=0, fcbs={}):
+        for ep in entry_point:
+            path_to_ep, funccalls, gs, error_info = self.get_funccalls2(ep, caller=caller, depth=depth)
+
+            if error_info is not None:
+                self.debug('get_funccalls2', '{}{}->{}({})({})'.format(' ' * depth, caller, ep, error_info, path_to_ep), 0)
+                continue
+
+            if gs is not None:
+                self.parse_globals2(ep, gs)
+            if funccalls is not None:
+                funccalls = self.parse_funcalls2(ep, funccalls, fcbs=fcbs, depth=depth)
+                self.traverse_funccalls2(funccalls, caller=ep, depth=depth+1, fcbs=fcbs)
+
+    def get_funccalls2(self, ep, caller='do_initcall', depth=0):
+        # return path_to_entry_point, funccalls, gs, error_info
+        path_to_entry_point = self.symbol2file(ep)
+        if path_to_entry_point is None:
+            path_to_entry_point = self.symbol2fileg(ep)
+        if path_to_entry_point is None:
+            return None, None, None, 'no address'
+
+        d = path_to_entry_point.split('/')
+        if path_to_entry_point.startswith('fs') or \
+                path_to_entry_point.startswith('lib') or \
+                path_to_entry_point.startswith('mm') or (len(d) > 2 and d[2] in ['fw']):
+            return path_to_entry_point, None, None, 'built-in function'
+
+        if path_to_entry_point.endswith('.S'):
+            return path_to_entry_point, None, None, 'assembly file'
+
+        if path_to_entry_point.endswith('.h'):
+            path_to_entry_point = self.symbol2fileg(ep)
+            if path_to_entry_point is None:
+                return path_to_entry_point, None, None, 'inline in header'
+
+        cmdline = self.get_cmdline(path_to_entry_point)
+        path_to_pentry_point = self.preprocess(path_to_entry_point, cmdline=cmdline)
+        if path_to_pentry_point is None:
+            return None, None, None, 'error in preprocessing'
+
+        funccalls = self.get_funccalls(path_to_pentry_point, ep, mode='sparse')
+        gs = self.get_globals(path_to_pentry_point, ep, mode='sparse')
+        self.debug('get_funccalls2', '{} {}->{}({})({})'.format(' ' * depth, caller, ep, None, path_to_entry_point), 0)
+
+        return path_to_entry_point, funccalls, gs, None
+
 
     def get_funccalls(self, path, funcname, mode='sparse'):
         """

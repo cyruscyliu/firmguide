@@ -31,3 +31,16 @@ def logger_warning(uuid, group, object_, msg, status):
 def logger_debug(uuid, group, object_, msg, status):
     logger.debug(' - '.join([uuid, group, object_, msg]))
 
+
+# remove uuid because we log uuid by uuid
+def logger_info2(group, object_, msg, status):
+    logger.info(' - '.join([group, object_, msg]))
+
+
+def logger_warning2(group, object_, msg, status):
+    logger.warning(' - '.join([group, object_, msg]))
+
+
+def logger_debug2(group, object_, msg, status):
+    logger.debug(' - '.join([group, object_, msg]))
+

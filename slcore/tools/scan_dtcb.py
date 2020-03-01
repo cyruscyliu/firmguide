@@ -8,14 +8,15 @@ from slcore.database.dbf import get_database
 from slcore.dt_parsers.common import load_dtb
 
 
-def __re_scan(path, declare='.*?', compatible='(.*?)', depress=False):
+def __re_scan(path, declare='.*?', compatible='.*?', depress=False):
     # XXX_DECLARE(arc_gfrc, "snps,archs-timer-gfrc", arc_cs_setup_gfrc);
     string = ''
     with open(path) as f:
         for line in f:
             string += line.strip()
     # DECLARE\(\s*[_a-zA-Z0-9]+\s*,\s*(.*?)\s*,\s*([_a-zA-Z0-9]+)\s*\)
-    match = re.findall(r'{}\(\s*[_a-zA-Z0-9]+\s*,\s*({})\s*,\s*([_a-zA-Z0-9]+)\s*\)'.format(declare, compatible), string)
+    match = re.findall(r'({})\(\s*[_a-zA-Z0-9]+\s*,\s*({})\s*,\s*([_a-zA-Z0-9]+)\s*\)'.format(declare, compatible), string)
+    # one match is (xxx_declare, compatible, cb)
 
     # for print
     if len(path) > 120:
@@ -31,9 +32,9 @@ def __re_scan(path, declare='.*?', compatible='(.*?)', depress=False):
     for m in match:
         if m[-2].startswith('"'):
             a = m[-2].strip('"')
-            match_fix.append((a, m[-1]))
+            match_fix.append((m[0], a, m[-1]))
         else:
-            print('[-] cannot recognize {}/{} in {}'.format(m[-2], compatible, path))
+            print('[-] cannot recognize {} in {}'.format(m[-2], path))
     return match_fix
 
 
@@ -93,9 +94,9 @@ def __do_job(t, job, path_to_source):
     we_have = qdevices.select('*')
 
     for cb in cbs:
-        if we_have is not None and cb[0] in we_have:
+        if we_have is not None and cb[1] in we_have:
             continue
-        qdevices.add(cb[0], extend='{},generic'.format(t))
+        qdevices.add(cb[1], extend='{},generic'.format(t))
         print('[+] new {} {} updated'.format(t, cb))
 
 
@@ -135,10 +136,10 @@ def scan_declare(path_to_source):
             if declare not in candidates:
                 if len(path) > 120:
                     line = '...' + line[110:].strip()
-                print('[-] unexpected: {}'.format(line))
+                print('[-] unexpected line: {}'.format(line))
                 unexpected.append(declare)
     if len(unexpected):
-        print('[+] unexpected: {}'.format(' '.join(list(set(unexpected)))))
+        print('[+] unexpected macro: {}'.format(' '.join(list(set(unexpected)))))
     else:
         print('[+] nothing unexpected')
 
@@ -158,7 +159,7 @@ def update_dtdb(path_to_source):
 def scan_dtcb(path_to_dtb, path_to_source):
     # let's traverse the device tree
     dts = load_dtb(path_to_dtb)
-    c_cb = {}
+    c_cb = []
     for path, nodes, pros in dts.walk():
         if not dts.exist_property('compatible', path):
             continue
@@ -170,26 +171,28 @@ def scan_dtcb(path_to_dtb, path_to_source):
                     path = line.split(':')[0]
                     if not os.path.exists(path):
                         continue
-                    cb = __re_scan(path, declare='DECLARE', depress=True)
+                    cb = __re_scan(path, declare='[_A-Z]+_DECLARE', depress=True)
                     if len(path) > 120:
                         path = '...' + path[100:]
                     if (cb) is not None:
                         for i in cb:
-                            if i[0] != cmptb:
+                            if i[1] != cmptb:
                                 continue
-                            print('[+] [bingo] {} -> {} in {}'.format(i[0], i[1], path))
-                            c_cb[i[0]] = i[1]
+                            print('[+] [bingo] {} in {}'.format(i, path))
+                            c_cb.append(i)
     return c_cb
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
-        path_to_dtb = sys.argv[1]
-        path_to_source = sys.argv[2]
+    if len(sys.argv) == 2:
+        path_to_source = sys.argv[1]
+        scan_declare(path_to_source)
+        update_dtdb(path_to_source)
+    elif len(sys.argv) == 4:
+        path_to_source = sys.argv[1]
+        path_to_dtb = sys.argv[3]
+        scan_dtcb(path_to_dtb, path_to_source)
     else:
-        print('usage: ./scan_dtcb.py path/to/dtb dir/to/linux_kernel_source')
-        exit(-1)
-    scan_declare(path_to_source)
-    update_dtdb(path_to_source)
-    print('[+] c_cb: {}'.format(scan_dtcb(path_to_dtb, path_to_source)))
+        print('usage1: ./scan_dtcb.py dir/to/linux_kernel_source')
+        print('usage2: ./scan_dtcb.py dir/to/linux_kernel_source -d path/to/dtb')
 
