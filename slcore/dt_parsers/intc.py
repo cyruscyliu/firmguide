@@ -120,7 +120,63 @@ def find_interrupt_parent_by_path(dts, path):
         return ip
 
 
-def find_flatten_intc_in_fdt(dts):
+def __construct_nointc_slave(dts, pa):
+    nointc_slave = {}
+
+    compatible = find_compatible_by_path(dts, pa)
+    if dts.exist_property('interrupts', pa):
+        interrupts = dts.get_property('interrupts', pa).data
+        interrupt_parent = find_interrupt_parent_by_path(dts, pa)
+        interrupts = find_irqn_by_pphandle(dts, interrupt_parent, interrupts)
+        nointc_slave = {
+            'compatible': compatible, 'irqn': interrupts, 'intcp': interrupt_parent,
+            'intc': False, 'master': False, 'slave': True
+        }
+        return nointc_slave
+    return None
+
+
+def __construct_intc(dts, pa):
+    intc = {}
+
+    compatible = find_compatible_by_path(dts, pa)
+    if dts.exist_property('phandle', pa):
+        phandle = dts.get_property('phandle', pa).data[0]
+        interrupt_parent = find_interrupt_parent_by_path(dts, pa)
+        if interrupt_parent is None or \
+                (interrupt_parent is not None and interrupt_parent == phandle):
+            # here is the intc connecting to the cpu
+            intc = {
+                'phandle': phandle, 'intc': True, 'master': True, 'slave': True,
+                'compatible': compatible, 'intcp': -1, 'irqn': -1}
+        elif interrupt_parent is not None and interrupt_parent != phandle:
+            if not dts.exist_property('interrupts', pa):
+                return None
+            interrupts = dts.get_property('interrupts', pa).data
+            interrupts = find_irqn_by_pphandle(dts, interrupt_parent, interrupts)
+            intc = {
+                'phandle': phandle, 'intc': True, 'master': True, 'slave': True,
+                'intcp': interrupt_parent, 'irqn': interrupts,
+                'compatible': compatible}
+        if dts.exist_property('#address-cells', pa):
+            intc['address-cells'] = \
+                dts.get_property('#address-cells', pa).data[0]
+        if dts.exist_property('#interrupt-cells', pa):
+            intc['interrupt-cells'] = \
+                dts.get_property('#interrupt-cells', pa).data[0]
+    else:
+        # here is the intc which will probably not being used
+        intc = {
+            'intc': True, 'master': False, 'slave': False,
+            'compatible': compatible}
+    mmio = find_mmio_by_path(dts, pa)
+    if mmio is not None:
+        # only you need is the base address
+        intc['reg'] = mmio['reg'][0]
+    return intc
+
+
+def find_flatten_intc_in_fdt(dts, nonintc_slave=False):
     """
     intc:      always, whether is an interrupt controller or not
     phandle:   always, a number identifies an interrupt controller
@@ -137,40 +193,15 @@ def find_flatten_intc_in_fdt(dts):
         if len(no):
             continue
         if dts.exist_property('interrupt-controller', pa):
-            compatible = find_compatible_by_path(dts, pa)
-            if dts.exist_property('phandle', pa):
-                phandle = dts.get_property('phandle', pa).data[0]
-                interrupt_parent = find_interrupt_parent_by_path(dts, pa)
-                if interrupt_parent is None or \
-                        (interrupt_parent is not None and interrupt_parent == phandle):
-                    # here is the intc connecting to the cpu
-                    flatten_intc_tree[pa] = {
-                        'phandle': phandle, 'intc': True, 'master': True, 'slave': True,
-                        'compatible': compatible, 'intcp': -1, 'irqn': -1}
-                elif interrupt_parent is not None and interrupt_parent != phandle:
-                    if not dts.exist_property('interrupts', pa):
-                        continue
-                    interrupts = dts.get_property('interrupts', pa).data
-                    interrupts = find_irqn_by_pphandle(dts, interrupt_parent, interrupts)
-                    flatten_intc_tree[pa] = {
-                        'phandle': phandle, 'intc': True, 'master': True, 'slave': True,
-                        'intcp': interrupt_parent, 'irqn': interrupts,
-                        'compatible': compatible}
-                if dts.exist_property('#address-cells', pa):
-                    flatten_intc_tree[pa]['address-cells'] = \
-                        dts.get_property('#address-cells', pa).data[0]
-                if dts.exist_property('#interrupt-cells', pa):
-                    flatten_intc_tree[pa]['interrupt-cells'] = \
-                        dts.get_property('#interrupt-cells', pa).data[0]
-            else:
-                # here is the intc which will probably not being used
-                flatten_intc_tree[pa] = {
-                    'intc': True, 'master': False, 'slave': False,
-                    'compatible': compatible}
-            mmio = find_mmio_by_path(dts, pa)
-            if mmio is not None:
-                # only you need is the base address
-                flatten_intc_tree[pa]['reg'] = mmio['reg'][0]
+            intc = __construct_intc(dts, pa)
+            if intc is None:
+                continue
+            flatten_intc_tree[pa] = intc
+        elif nonintc_slave:
+            nointc_slave = __construct_nointc_slave(dts, pa)
+            if nointc_slave is None:
+                continue
+            flatten_intc_tree[pa] = nointc_slave
 
     master = None
     flatten_intcs = []
