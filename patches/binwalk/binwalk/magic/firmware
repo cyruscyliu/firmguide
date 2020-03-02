@@ -368,17 +368,31 @@
 >0x90      ubelong         x                       bootloader length: %d
 
 # Header format from: http://skaya.enix.org/wiki/FirmwareFormat
+# FIX ACCRODING TO SOURCE chaos_calmer-15.05/package/system/mtd/src/imagetag.c
 0       string        \x36\x00\x00\x00          Broadcom 96345 firmware header, header size: 256,
 >4      string        !Broadcom
 >>4     string        !\x20\x20\x20\x20         {invalid}
 >41     beshort       !0x2020
 >>41    beshort       !0x0000
 >>>41   string        x                         firmware version: "%.4s",
->45     beshort       !0x0202
->>45    beshort       !0x0000
->>>45   string        x                         board id: "%s",
+>44     beshort       !0x0202
+>>44    beshort       !0x0000
+>>>44   string        x                         board id: "%s",
+>60     beshort       0x3100                    big endian,
+>60     beshort       0x3000                    little endian,
+>62     string        x                         image size: "%s",
+>72     string        x                         cfe loader address: "%s",
+>84     string        x                         cfe loader size: "%s",
+>94     string        x                         image address: "%s",
+>106    string        x                         rootfs size: "%s",
+>116    string        x                         kernel address: "%s",
+>128    string        x                         kernel size: "%s",
+>216    ubelong       x                         ~CRC32 image checksum: 0x%X,
+>220    ubelong       x                         ~CRC32 rootfs checksum: 0x%X,
+>224    ubelong       x                         ~CRC32 kernel checksum: 0x%X,
+>228    string        x                         image sequence number: "%s",
 >236    ubelong       x                         ~CRC32 header checksum: 0x%X,
->216    ubelong       x                         ~CRC32 data checksum: 0x%X
+
 
 # Xerox MFP DLM signatures
 0       string        %%XRXbegin                Xerox DLM firmware start of header
