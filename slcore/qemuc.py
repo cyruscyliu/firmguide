@@ -13,9 +13,9 @@ after several experiments, I conclude
     read/write and compilation.
 
 interfaces:
-    + get_command()
-    + patch()/install()/recover()
-    + compile()/debug()/trace()/add_target()
+    + get_command()/trace()/debug()
+    + install()/patch()/recover()
+    + add_target()/compile()
 """
 import os
 import qmp
@@ -161,11 +161,33 @@ class QEMUController(object):
                 qemu.cmd('quit')
                 qemu.close()
 
-    def debug(self, *args, **kwargs):
+    def debug(self, running_cmdline, path_to_vmlinux, **kwargs):
         """
         provide a GDB interface
+        running_cmdline comes from get_cmdline()
         """
-        pass
+        d = os.path.dirname(path_to_vmlinux)
+        gdb_cmdline = 'gdb-multiarch --cd={} {} -ex "target remote:1234"'.format(d, path_to_vmlinux)
+        print('\nOPEN *ANOTHER* SHELL and RUN\n    {}'.format(gdb_cmdline))
+        print('SEVERAL BPS YOU MAY INTERESTED IN:')
+        print('    b start_kernel')
+        print('    b init_IRQ')
+        print('    b time_init')
+        print('    b calibrate_delay')
+        print('    b pid_idr_init')
+        print('    b rest_init')
+        print('    b kernel_init')
+        print('    b populate_rootfs')
+        print('    b run_init_process')
+        print('SOMETHING YOU NEED TO KNOW:')
+        print('    calibrate_delay in start_kernel should never be stuck')
+        print('    do_initcalls in do_basic_setup should never be stuck')
+        print('    prepare_namespace in kernel_init_freeable should never be called')
+
+        debug_cmdline = running_cmdline + ' -s -S'
+        print('RUNNING\n    {}'.format(debug_cmdline))
+        print('PRESS ctrl-a x to exit; PRESS ctrl-a c to QEMU console')
+        os.system(debug_cmdline)
 
     def __resolve_makefile(self, path, label, content):
         """
