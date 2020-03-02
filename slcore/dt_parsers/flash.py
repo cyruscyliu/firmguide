@@ -5,7 +5,8 @@ from slcore.dt_parsers.compatible import *
 # from linux-5.3
 builtin_flashes = [
     'm-systems,diskonchip-g3',
-    'jedec,spi-nor', 'microchip,mchp23k256', 'microchip,mchp23lcv1024', 'atmel,at45', 'atmel,dataflash',
+    # 'jedec,spi-nor',
+    'microchip,mchp23k256', 'microchip,mchp23lcv1024', 'atmel,at45', 'atmel,dataflash',
     'ibm,opal-flash', 'st,spear600-smi', 'st,spi-fsm', 'ti,am654-hbmc', 'lantiq,nor', 'cfi-flash', 'jedec-flash',
     'mtd-ram', 'mtd-rom', 'direct-mapped', 'cortina,gemini-syscon', 'arm,integrator-ap-syscon',
     'arm,integrator-cp-syscon', 'arm,core-module-versatile', 'arm,realview-eb-syscon',

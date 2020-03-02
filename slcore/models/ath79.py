@@ -40,7 +40,7 @@ def irq_set_chip_and_handler_name__ath79_intc_map(config):
 def irq_set_chip_and_handler_name__misc_map(config):
     # drivers/irqchip/irq-ath79-misc.c
     # irq_set_chip_and_handler(irq, &ath79_misc_irq_chip, handle_level_irq);
-    if 'qca,ar7240-misc-intc' in config:
+    if 'qca,ar7240-misc-intc' not in config:
         config['qca,ar7240-misc-intc'] = {}
     config['qca,ar7240-misc-intc']['actions'] = {
         'mask': {'action': '(1 << irqn)', 'rname': 'r1'}, # r1=0x04
@@ -83,11 +83,11 @@ def irq_set_handler__ath79_misc_intc_domain_init(config):
     if 'qca,ar7240-misc-intc' not in config:
         config['qca,ar7240-misc-intc'] = {}
     # panding __ffs(*(base+0x0)&*(base+0x4))
-    config['qca,ar7240-misc-intc'] = {
+    config['qca,ar7240-misc-intc']['irqn_to_regs'] = {
         'irqn': 'i', 'set_body': ['s->r0 |= (1 << i);'], 'clear_body': ['s->r0 &= ~(1 << i);']}
-    config['get_registers'] = []
-    config['get_registers'].append({'rname': 'r0', 'offset': '0x00'})
-    config['get_registers'].append({'rname': 'r1', 'offset': '0x04'})
+    config['qca,ar7240-misc-intc']['get_registers'] = []
+    config['qca,ar7240-misc-intc']['get_registers'].append({'rname': 'r0', 'offset': '0x00'})
+    config['qca,ar7240-misc-intc']['get_registers'].append({'rname': 'r1', 'offset': '0x04'})
     return []
 
 
