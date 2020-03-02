@@ -20,6 +20,7 @@ from analyses.static_analysis.mfilter import Filter
 from analyses.static_analysis.ram import RAM
 from analyses.static_analysis.excflow import ExecutionFlow
 from analyses.static_analysis.loaddr import LoadAddr
+from analyses.static_analysis.entrypoint import EntryPoint
 from analyses.static_analysis.preprocdt import DTPreprocessing
 
 
@@ -199,8 +200,9 @@ class AnalysesManager(object):
         self.register_analysis(Filter(self), analyses_tree=static_analysis)
         self.register_analysis(DTPreprocessing(self), analyses_tree=static_analysis)
         self.register_analysis(RAM(self), analyses_tree=static_analysis)
-        self.register_analysis(ExecutionFlow(self), analyses_tree=static_analysis)
+        # self.register_analysis(ExecutionFlow(self), analyses_tree=static_analysis)
         self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
+        self.register_analysis(EntryPoint(self), analyses_tree=static_analysis)
 
         return static_analysis
 

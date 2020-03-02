@@ -71,6 +71,7 @@ class Preparation(Analysis):
         fix_choosen_bootargs(firmware.get_components())
         # 3.2 add a uimage header on the kernel image
         load_address = firmware.get_kernel_load_address()
+        entry_point = firmware.get_kernel_entry_point()
         # Why we don't use vmlinux if any?
         # ARM32 has two head.S, the one is in side of the vmlinux
         # the other is outside of the vmlinux. Due to historical
@@ -79,7 +80,9 @@ class Preparation(Analysis):
         # MIPS has built-in device tree patched in a later stage. That
         # is to say, the vmlinux has a empty built-in device tree. If
         # we use the vmlinux, we will get it crashed.
-        kernel = pack_kernel(firmware.get_components(), load_address=load_address, arch=firmware.get_arch())
+        kernel = pack_kernel(
+            firmware.get_components(), load_address=load_address,
+            entry_point=entry_point, arch=firmware.get_arch())
 
         # 4. prepare -initrd path/to/cpio
         path_to_initramfs = \
