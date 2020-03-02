@@ -73,6 +73,7 @@ def run(args):
     firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
         firmware.get_uuid(), firmware.get_arch(), firmware.get_endian()
     )
+    firmware.debug = args.debug
     status = run_diagnosis(firmware)
 
     # 6. take snapshots to save results

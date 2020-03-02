@@ -29,6 +29,7 @@ class Checking(Analysis):
                 self.info(firmware, 'have entered the user level', 1)
                 firmware.set_stage(True, 'user_mode')
                 raise SystemExit()
+            firmware.set_stage(False, 'user_mode')
             return result
         else:
             return self.scan_user_level_ktracer(firmware, pql)

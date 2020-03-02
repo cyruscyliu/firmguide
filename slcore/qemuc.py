@@ -14,8 +14,7 @@ after several experiments, I conclude
 
 interfaces:
     + get_command()/trace()/debug()
-    + install()/patch()/recover()
-    + add_target()/compile()
+    + install()/patch()/add_target()/compile()/recover()
 """
 import os
 import qmp
@@ -27,12 +26,6 @@ from settings import *
 
 class QEMUController(object):
     def __init__(self):
-        """
-        interface:
-            get_command
-            patch/recovery
-            compile/trace/debug
-        """
         self.modified = []
         self.new = []
         self.qemu_root = os.path.join(WORKING_DIR, QEMU_DIR_NAME)
@@ -166,6 +159,9 @@ class QEMUController(object):
         provide a GDB interface
         running_cmdline comes from get_cmdline()
         """
+        if running_cmdline is None:
+            return
+
         d = os.path.dirname(path_to_vmlinux)
         gdb_cmdline = 'gdb-multiarch --cd={} {} -ex "target remote:1234"'.format(d, path_to_vmlinux)
         print('\nOPEN *ANOTHER* SHELL and RUN\n    {}'.format(gdb_cmdline))

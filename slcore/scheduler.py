@@ -37,6 +37,8 @@ def run_diagnosis(firmware):
             break
 
     firmware.set_iteration(firmware.max_iteration - max_iteration)
+    if not firmware.get_stage('user_mode') and firmware.debug:
+        firmware.qemuc.debug(firmware.running_command, firmware.srcodec.get_path_to_vmlinux())
 
     return status
 
