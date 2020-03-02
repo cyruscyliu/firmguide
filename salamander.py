@@ -11,6 +11,7 @@ from slcore.tools.scan_dtcb import project_scan_declare, project_scan_dtcb
 from slcore.tools.scan_topology import project_scan_topology
 from slcore.environment import migrate, snapshot, archive
 from slcore.scheduler import run_static_analysis, run_diagnosis, run_model
+from slcore.compositor import unpack
 
 logger = logging.getLogger()
 
@@ -54,7 +55,7 @@ def __scan_topology(args):
     project_scan_topology(args.dtb)
 
 
-def __standard_warmup(args):
+def __standard_warmup(args, components=None):
     project = get_current_project()
     if project is None:
         exit()
@@ -70,7 +71,7 @@ def __standard_warmup(args):
     if not os.path.exists(path_to_profile):
         path_to_profile = None
 
-    firmware = migrate(uuid, path_to_profile=path_to_profile)
+    firmware = migrate(uuid, path_to_profile=path_to_profile, components=components)
     firmware.set_arch(project.attrs['arch'])
     firmware.set_endian(project.attrs['endian'])
     firmware.set_machine_name(uuid)
@@ -78,6 +79,14 @@ def __standard_warmup(args):
 
     firmware.srcodec = project_get_srcodec()
     firmware.qemuc = project_get_qemuc()
+
+    firmware.max_iteration = 1
+    firmware.trace_format = 'qemudebug'
+    firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
+        firmware.get_uuid(), firmware.get_arch(), firmware.get_endian()
+    )
+    firmware.debug = args.debug
+
     return firmware
 
 
@@ -99,6 +108,27 @@ def __analyze(args):
     firmware = __standard_warmup(args)
     # 2. analyze the source code
     status = run_static_analysis(firmware)
+    # 3. take snapshots to save results
+    return __standard_wrapup(firmware)
+
+
+def __diagnose(args):
+    # 1 standard_setup
+    firmware = __standard_warmup(args)
+
+    # 2. test the machine
+    if not firmware.get_components():
+        firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
+
+    if args.dtb:
+        firmware.set_dtb(args.dtb)
+    elif firmware.get_components().get_path_to_dtb():
+        firmware.set_dtb(firmware.get_components().get_path_to_dtb())
+    else:
+        print('neither dtb was found in tested firmware nor -dtb was assigned')
+        return
+
+    status = run_diagnosis(firmware)
     # 3. take snapshots to save results
     return __standard_wrapup(firmware)
 
@@ -159,6 +189,9 @@ if __name__ == '__main__':
     # 3.1 analyze
     panalyze = commands.add_parser('analyze', help='model machine in current project')
     panalyze.set_defaults(func=__analyze)
+    # 3.2 diagnose
+    pdiagnose = commands.add_parser('diagnose', help='test machine in current project')
+    pdiagnose.set_defaults(func=__diagnose)
 
 
     args = parser.parse_args()
