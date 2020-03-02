@@ -5,6 +5,7 @@ from slcore.project import project_create, project_open, \
 from slcore.tools.scan_dtcb import project_scan_declare, \
     project_scan_dtcb
 from slcore.tools.scan_topology import project_scan_topology
+from slcore.model import project_model_ict
 import argparse
 import logging.config
 
@@ -48,6 +49,10 @@ def __scan_dtcb(args):
 
 def __scan_topology(args):
     project_scan_topology(args.dtb)
+
+
+def __model_ict(args):
+    project_model_ict()
 
 
 if __name__ == '__main__':
@@ -97,6 +102,7 @@ if __name__ == '__main__':
     pscan_dtcb.set_defaults(func=__scan_dtcb)
     # 2.3 model_ict
     pmodel_ict = commands.add_parser('ictm', help='model intc/clk/timer in current project')
+    pmodel_ict.set_defaults(func=__model_ict)
     # 2.4 scan_topology
     pscan_topology = commands.add_parser('topology', help='find interrupts topology in a device tree')
     pscan_topology.add_argument('-dtb', '--dtb', required=True)
