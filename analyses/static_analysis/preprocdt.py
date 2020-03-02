@@ -22,14 +22,17 @@ class DTPreprocessing(Analysis):
         firmware.set_machine_name(firmware.get_uuid())
 
         # 2. create bdevices
+        mmio_c = 0
         for mmio in find_flatten_mmio_in_fdt(dts):
             for reg in mmio['reg']:
+                mmio_c += 1
                 firmware.insert_bamboo_devices(
                     reg['base'], reg['size'],
                     value=0, compatible=mmio['compatible'])
-                self.debug(firmware, 'update base 0x{:08x} size 0x{:04x} of {}'.format(
-                    reg['base'], reg['size'], mmio['compatible']), 1)
+                # self.debug(firmware, 'update base 0x{:08x} size 0x{:04x} of {}'.format(
+                    # reg['base'], reg['size'], mmio['compatible']), 1)
         firmware.update_bamboo_devices()
+        self.debug(firmware, 'recognize {} mmio regions'.format(mmio_c), 1)
 
         # 3. assign board_id
         firmware.set_board_id('0xFFFFFFFF')
