@@ -7,7 +7,7 @@ from slcore.dt_parsers.common import load_dtb
 from graphviz import Digraph
 
 
-def scan_declare(path_to_dtb):
+def scan_topology(path_to_dtb):
     dts = load_dtb(path_to_dtb)
 
     flatten_intc_all = find_flatten_intc_in_fdt(dts, nonintc_slave=True)
@@ -33,12 +33,16 @@ def scan_declare(path_to_dtb):
                 g.edge(f, t, str(d['irqn']))
     g.graph_attr['rankdir'] = 'LR'
     print(g.source)
+    print('FYI: ONLINE GRAPHIVZ VIEWER: https://edotor.net')
 
+
+def project_scan_topology(path_to_dtb):
+    scan_topology(path_to_dtb)
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         path_to_dtb = sys.argv[1]
-        scan_declare(path_to_dtb)
+        scan_topology(path_to_dtb)
     else:
         print('usage: ./scan_topology.py path/to/dtb')
 

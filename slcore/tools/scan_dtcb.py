@@ -6,6 +6,7 @@ sys.path.extend(['.', '..', '../..'])
 
 from slcore.database.dbf import get_database
 from slcore.dt_parsers.common import load_dtb
+from slcore.project import get_current_project
 
 
 def __re_scan(path, declare='.*?', compatible='.*?', depress=False):
@@ -181,6 +182,26 @@ def scan_dtcb(path_to_dtb, path_to_source):
                             print('[+] [bingo] {} in {}'.format(i, path))
                             c_cb.append(i)
     return c_cb
+
+
+def project_scan_declare():
+    """
+    This function depends on PROJECT subsystems.
+    """
+    project = get_current_project()
+    if project is None:
+        return
+    path_to_source = project.attrs['source']
+    scan_declare(path_to_source)
+    update_dtdb(path_to_source)
+
+
+def project_scan_dtcb(path_to_dtb):
+    project = get_current_project()
+    if project is None:
+        return
+    path_to_source = project.attrs['source']
+    scan_dtcb(path_to_dtb, path_to_source)
 
 
 if __name__ == '__main__':

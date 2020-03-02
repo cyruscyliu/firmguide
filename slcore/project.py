@@ -148,6 +148,14 @@ def project_show():
     return True
 
 
+def get_current_project():
+    project = __project_get_current()
+    if project is None:
+        print('please open/create a new project')
+        return None
+    return project
+
+
 def project_delete(uuid):
     target_dir = get_target_dir(uuid)
     project = __project_get_current()
