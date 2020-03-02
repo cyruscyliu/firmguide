@@ -3,6 +3,8 @@ import yaml
 from settings import BASE_DIR
 from logger import logger_info2, logger_debug2, logger_warning2
 from slcore.environment import setup_target_dir, get_target_dir
+from slcore.srcodec import SRCodeController
+from slcore.qemuc import QEMUController
 
 
 class Project(object):
@@ -166,3 +168,24 @@ def project_delete(uuid):
     logger_info2('project', 'delete', uuid, 1)
     return True
 
+
+def project_get_srcodec():
+    project = __project_get_current()
+    if project is None:
+        print('please open/create a new project')
+        return None
+
+    srcodec = SRCodeController()
+    path_to_source_code = project.attrs['source']
+    srcodec.set_path_to_source_code(path_to_source_code)
+    srcodec.set_path_to_vmlinux(os.path.join(path_to_source_code, 'vmlinux'))
+    srcodec.set_path_to_dot_config(os.path.join(path_to_source_code, '.config'))
+    srcodec.set_path_to_cross_compile(project.attrs['cross_compile'])
+    srcodec.set_endian(project.attrs['endian'])
+    srcodec.set_arch(project.attrs['arch'])
+    srcodec.set_path_to_makeout(project.attrs['makeout'])
+    return srcodec
+
+
+def project_get_qemuc():
+    return QEMUController()

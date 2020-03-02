@@ -1,18 +1,16 @@
 #!/usr/bin/python
-from logger import setup_logging
-from slcore.project import project_create, project_open, \
-    project_rename, project_close, project_delete, project_show, \
-    get_current_project
-from slcore.tools.scan_dtcb import project_scan_declare, \
-    project_scan_dtcb
-from slcore.tools.scan_topology import project_scan_topology
-from slcore.model import run_model
-from slcore.environment import migrate, snapshot, archive
-from slcore.srcodec import SRCodeController
 import os
 import argparse
 import logging
 import logging.config
+from logger import setup_logging
+from slcore.project import project_create, project_open, \
+    project_rename, project_close, project_delete, project_show, \
+    get_current_project, project_get_srcodec, project_get_qemuc
+from slcore.tools.scan_dtcb import project_scan_declare, project_scan_dtcb
+from slcore.tools.scan_topology import project_scan_topology
+from slcore.environment import migrate, snapshot, archive
+from slcore.scheduler import run_static_analysis, run_diagnosis, run_model
 
 logger = logging.getLogger()
 
@@ -56,10 +54,10 @@ def __scan_topology(args):
     project_scan_topology(args.dtb)
 
 
-def __model_ict(args):
+def __standard_warmup(args):
     project = get_current_project()
     if project is None:
-        return
+        exit()
 
     uuid = project.attrs['uuid']
     if args.debug:
@@ -75,25 +73,34 @@ def __model_ict(args):
     firmware = migrate(uuid, path_to_profile=path_to_profile)
     firmware.set_arch(project.attrs['arch'])
     firmware.set_endian(project.attrs['endian'])
+    firmware.set_machine_name(uuid)
+    firmware.rerun = args.rerun
 
-    # 2.1 low level source code controller
-    srcodec = SRCodeController()
-    path_to_source_code = project.attrs['source']
-    srcodec.set_path_to_source_code(path_to_source_code)
-    srcodec.set_path_to_vmlinux(os.path.join(path_to_source_code, 'vmlinux'))
-    srcodec.set_path_to_dot_config(os.path.join(path_to_source_code, '.config'))
-    srcodec.set_path_to_cross_compile(project.attrs['cross_compile'])
-    srcodec.set_endian(project.attrs['endian'])
-    srcodec.set_arch(project.attrs['arch'])
-    srcodec.set_path_to_makeout(project.attrs['makeout'])
-    firmware.srcodec = srcodec
+    firmware.srcodec = project_get_srcodec()
+    firmware.qemuc = project_get_qemuc()
+    return firmware
 
-    # 3. analyze the source code
-    status = run_model(firmware)
 
-    # 4. take snapshots to save results
+def __standard_wrapup(firmware):
     status = snapshot(firmware)
     return archive(firmware)
+
+def __model_ict(args):
+    # 1 standard_setup
+    firmware = __standard_warmup(args)
+    # 2. analyze the source code
+    status = run_model(firmware)
+    # 3. take snapshots to save results
+    return __standard_wrapup(firmware)
+
+
+def __analyze(args):
+    # 1 standard_setup
+    firmware = __standard_warmup(args)
+    # 2. analyze the source code
+    status = run_static_analysis(firmware)
+    # 3. take snapshots to save results
+    return __standard_wrapup(firmware)
 
 
 if __name__ == '__main__':
@@ -148,6 +155,10 @@ if __name__ == '__main__':
     pscan_topology = commands.add_parser('topology', help='find interrupts topology in a device tree')
     pscan_topology.add_argument('-dtb', '--dtb', required=True)
     pscan_topology.set_defaults(func=__scan_topology)
+    # 3 cores
+    # 3.1 analyze
+    panalyze = commands.add_parser('analyze', help='model machine in current project')
+    panalyze.set_defaults(func=__analyze)
 
 
     args = parser.parse_args()
