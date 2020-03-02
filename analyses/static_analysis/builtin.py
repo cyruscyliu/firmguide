@@ -349,7 +349,10 @@ UNMODELED_SKIP_LIST = [
     'of_property_read_u32_index', 'of_parse_phandle_with_args', 'mips_set_machine_name'
     'early_init_fdt_reserve_self', 'of_property_count_elems_of_size', 'of_find_property', 'of_property_read_variable_u32_array',
     'warn_slowpath_null', 'vprintk', 'mutex_lock', 'of_get_cpu_node', 'mips_sysrq_init', 'pcibios_set_cache_line_size',
-    'of_iomap', 'irq_set_chip_data', 'of_clk_get'
+    'of_iomap', 'irq_set_chip_data', 'of_clk_get', 'of_irq_count', 'of_get_property', 'of_get_parent', '_raw_spin_lock_irqsave',
+    'of_find_node_by_phandle', 'arch_local_irq_save', 'arch_local_irq_restore', 'of_irq_parse_raw', 'of_irq_parse_one',
+    'of_irq_find_parent', '_raw_spin_unlock_irqrestore', '__iounmap', 'irq_get_irq_data', 'warn_slowpath_fmt', 'irq_domain_disassociate',
+    'irq_free_descs',
 ]
 
 

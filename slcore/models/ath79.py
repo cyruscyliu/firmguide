@@ -122,17 +122,6 @@ def of_clk_init__irqchip_init(config):
     return ['of_fixed_clk_setup', 'ath79_clocks_init_dt']
 
 
-##### clockevents_register_device #####
-def r4k_clockevent_init__time_init(config):
-    # setup_irq is here
-    return []
-
-
-#### init_r4k_clocksource #####
-def init_r4k_clocksource__time_init(config):
-    return []
-
-
 ath79_fcbs = {
     'plat_irq_dispatch':{
         'ignored': True
@@ -161,10 +150,8 @@ ath79_fcbs = {
         'plat_time_init': of_clk_init__irqchip_init,
         'ignored': True
     }, 'r4k_clockevent_init': {
-        'time_init': r4k_clockevent_init__time_init,
-        'ignored': False
+        'ignored': True
     }, 'init_r4k_clocksource': {
-        'time_init': init_r4k_clocksource__time_init,
-        'ignored': False
+        'ignored': True
     }
 }

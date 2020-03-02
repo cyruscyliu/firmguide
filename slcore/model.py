@@ -1,10 +1,8 @@
 import os
 import yaml
 
+from slcore.models.bcm63xx import bcm63xx_fcbs
 from slcore.models.ath79 import ath79_fcbs
-from slcore.project import get_current_project
-from slcore.environment import migrate, snapshot, archive
-from slcore.srcodec import SRCodeController
 
 
 def run_model(firmware):
@@ -12,8 +10,10 @@ def run_model(firmware):
 
     if firmware.uuid == 'ath79':
         fcbs = ath79_fcbs
+    elif firmware.uuid == 'bcm63xx':
+        fcbs = bcm63xx_fcbs
     else:
-        print('cannot support {0}, please add ./slcore/models/{0}.py'.format(firmware.uuid))
+        print('cannot support {0}, please add ./slcore/models/{0}.py and from slcore.models.{0} import {0}_fcbs'.format(firmware.uuid))
         return
 
     if firmware.uuid == 'ar71xx_generic':
@@ -67,38 +67,4 @@ def run_model(firmware):
     with open(path_to_config, 'w') as f:
         yaml.safe_dump(srcodec.config, f)
     print('config save at {}'.format(path_to_config))
-
-
-def project_model_ict():
-    project = get_current_project()
-    if project is None:
-        return
-
-    target_dir = project.attrs['target_dir']
-    path_to_profile = os.path.join(target_dir, 'profile.yaml')
-    if not os.path.exists(path_to_profile):
-        path_to_profile = None
-
-    firmware = migrate(project.attrs['uuid'], path_to_profile=path_to_profile)
-    firmware.set_arch(project.attrs['arch'])
-    firmware.set_endian(project.attrs['endian'])
-
-    # 2.1 low level source code controller
-    srcodec = SRCodeController()
-    path_to_source_code = project.attrs['source']
-    srcodec.set_path_to_source_code(path_to_source_code)
-    srcodec.set_path_to_vmlinux(os.path.join(path_to_source_code, 'vmlinux'))
-    srcodec.set_path_to_dot_config(os.path.join(path_to_source_code, '.config'))
-    srcodec.set_path_to_cross_compile(project.attrs['cross_compile'])
-    srcodec.set_endian(project.attrs['endian'])
-    srcodec.set_arch(project.attrs['arch'])
-    srcodec.set_path_to_makeout(project.attrs['makeout'])
-    firmware.srcodec = srcodec
-
-    # 3. analyze the source code
-    status = run_model(firmware)
-
-    # 4. take snapshots to save results
-    status = snapshot(firmware)
-    return archive(firmware)
 
