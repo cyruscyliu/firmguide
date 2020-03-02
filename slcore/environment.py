@@ -55,6 +55,10 @@ def setup_target_dir(uuid):
     os.makedirs(target_dir, exist_ok=True)
     return target_dir
 
+def get_target_dir(uuid):
+    target_dir = os.path.join(WORKING_DIR, uuid)
+    return target_dir
+
 
 def migrate(uuid, path_to_profile=None, components=None):
     firmware = get_firmware('simple')
