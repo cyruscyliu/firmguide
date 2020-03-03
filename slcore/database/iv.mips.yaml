@@ -1,0 +1,2 @@
+ath79:
+    - {base: 0x18060090, size: 0x4, value: 0x00b0, path: arch/mips/ath79/early_printk.c, compatible: ['ath79-iv-001'], function: prom_putchar_init}

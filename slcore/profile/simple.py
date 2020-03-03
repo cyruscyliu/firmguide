@@ -170,6 +170,12 @@ class SimpleFirmware(Firmware):
         path_to_profile = os.path.join(self.target_dir, 'profile.yaml')
         os.system('cat {}'.format(path_to_profile))
 
+    def get_board(self, *args, **kwargs):
+        return self.get_general('basics', 'board')
+
+    def set_board(self, *args, **kwargs):
+        self.set_general('basics', 'board', value=args[0])
+
     def get_uuid(self, *args, **kwargs):
         return self.get_general('basics', 'uuid')
 
