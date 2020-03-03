@@ -6,6 +6,7 @@ from slcore.environment import restore_analysis, save_analysis, \
     migrate, snapshot, archive
 from slcore.project import get_current_project, project_get_srcodec, \
     project_get_qemuc
+from slcore.compositor import unpack
 from slcore.models.bcm63xx import bcm63xx_fcbs
 from slcore.models.ath79 import ath79_fcbs
 
@@ -143,7 +144,13 @@ def project_standard_warmup(args, components=None):
     firmware.debug = args.debug
 
     if not firmware.get_components() and hasattr(args, 'firmware'):
-        firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
+        images = project.attrs['images']
+        if images is not None and len(images):
+            firmware.components = unpack(images[0], target_dir=firmware.target_dir)
+        elif args.firmware:
+            firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
+        else:
+            print('-f/--firmware missing')
 
     return firmware
 
