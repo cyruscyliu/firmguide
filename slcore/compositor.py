@@ -68,7 +68,9 @@ def __handle_trx_kernel(image_path):
     kernel = __replace_extension(image_path, 'trx', 'kernel')
     os.system('lzma -d < {} > {} 2>/dev/null'.format(image_path, kernel))
     uimage = __replace_extension(image_path, 'trx', 'uimage')
-    return kernel, None, uimage
+
+    dtb = __scan_dtb(kernel, extract=False)
+    return kernel, dtb, uimage
 
 
 def __handle_fit_uimage(image_path):
@@ -98,26 +100,24 @@ def __handle_legacy_uimage(image_path, uimage3=False, uimage3_offset=None):
     os.system('dd if={} of={} bs=1 skip=64 >/dev/null 2>&1'.format(image_path, kernel))
     uimage = image_path
 
-    if not uimage3:
-        return kernel, None, uimage
-
-    # reconstruct the uimage if uimage3
-    uncompressed_kernel = os.path.join(
-        os.path.dirname(image_path), '{:x}'.format(uimage3_offset + 0x40).upper())
-    os.system('mv {0} {0}.bak'.format(image_path))
-    os.system('dd if={0}.bak of={0} bs=1 count=64 >/dev/null 2>&1'.format(image_path))
-    os.system('dd if=/dev/zero of={} bs=1 seek=31 count=1 conv=notrunc >/dev/null 2>&1'.format(image_path))
-    # append 1M zeros as bss
-    os.system('dd if=/dev/zero of={} bs=1 seek={} count={} conv=notrunc >/dev/null 2>&1'.format(
-        uncompressed_kernel, os.path.getsize(uncompressed_kernel), 1048576))
-    os.system('dd if={} of={} bs=1 seek=64 >/dev/null 2>&1'.format(uncompressed_kernel, image_path))
-    # don't forget this
-    kernel = uncompressed_kernel
+    if uimage3:
+        # reconstruct the uimage if uimage3
+        uncompressed_kernel = os.path.join(
+            os.path.dirname(image_path), '{:x}'.format(uimage3_offset + 0x40).upper())
+        os.system('mv {0} {0}.bak'.format(image_path))
+        os.system('dd if={0}.bak of={0} bs=1 count=64 >/dev/null 2>&1'.format(image_path))
+        os.system('dd if=/dev/zero of={} bs=1 seek=31 count=1 conv=notrunc >/dev/null 2>&1'.format(image_path))
+        # append 1M zeros as bss
+        os.system('dd if=/dev/zero of={} bs=1 seek={} count={} conv=notrunc >/dev/null 2>&1'.format(
+            uncompressed_kernel, os.path.getsize(uncompressed_kernel), 1048576))
+        os.system('dd if={} of={} bs=1 seek=64 >/dev/null 2>&1'.format(uncompressed_kernel, image_path))
+        # don't forget this
+        kernel = uncompressed_kernel
 
     # find dtb in mips legacy uimage
-    dtb = __scan_dtb(image_path, extract=False)
+    dtb = __scan_dtb(kernel, extract=False)
 
-    return kernel, None, uimage
+    return kernel, dtb, uimage
 
 
 def __handle_imagetag_kernel(image_path):
