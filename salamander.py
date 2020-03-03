@@ -11,6 +11,7 @@ from slcore.tools.scan_dtcb import project_scan_declare, project_scan_dtcb
 from slcore.tools.scan_topology import project_scan_topology
 from slcore.environment import migrate, snapshot, archive
 from slcore.scheduler import run_static_analysis, run_diagnosis, run_model
+from slcore.generation.dt_renderer import run_dt_renderer
 from slcore.compositor import unpack
 
 logger = logging.getLogger()
@@ -126,9 +127,21 @@ def __diagnose(args):
         firmware.set_dtb(firmware.get_components().get_path_to_dtb())
     else:
         print('neither dtb was found in tested firmware nor -dtb was assigned')
-        return
+        return __standard_wrapup(firmware)
 
     status = run_diagnosis(firmware)
+
+    # 3. take snapshots to save results
+    return __standard_wrapup(firmware)
+
+def __generate(args):
+    # 1 standard_setup
+    firmware = __standard_warmup(args)
+
+    # 2 generate code from dtb
+    firmware.set_dtb(args.dtb)
+    status = run_dt_renderer(firmware)
+
     # 3. take snapshots to save results
     return __standard_wrapup(firmware)
 
@@ -189,8 +202,14 @@ if __name__ == '__main__':
     # 3.1 analyze
     panalyze = commands.add_parser('analyze', help='model machine in current project')
     panalyze.set_defaults(func=__analyze)
-    # 3.2 diagnose
+    # 3.2 generate
+    pgenerate = commands.add_parser('generate', help='test machine in current project')
+    pgenerate.add_argument('-dtb', '--dtb', required=True)
+    pgenerate.set_defaults(func=__generate)
+    # 3.3 diagnose
     pdiagnose = commands.add_parser('diagnose', help='test machine in current project')
+    pdiagnose.add_argument('-dtb', '--dtb', required=False)
+    pdiagnose.add_argument('-f', '--firmware', required=True)
     pdiagnose.set_defaults(func=__diagnose)
 
 

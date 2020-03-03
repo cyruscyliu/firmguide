@@ -198,9 +198,8 @@ class AnalysesManager(object):
         static_analysis = self.new_analyses_tree()
 
         self.register_analysis(Filter(self), analyses_tree=static_analysis)
-        self.register_analysis(DTPreprocessing(self), analyses_tree=static_analysis)
         self.register_analysis(RAM(self), analyses_tree=static_analysis)
-        # self.register_analysis(ExecutionFlow(self), analyses_tree=static_analysis)
+        self.register_analysis(ExecutionFlow(self), analyses_tree=static_analysis)
         self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
         self.register_analysis(EntryPoint(self), analyses_tree=static_analysis)
 
@@ -209,6 +208,7 @@ class AnalysesManager(object):
     def register_diagnosis(self):
         dynamic_analysis = self.new_analyses_tree()
 
+        self.register_analysis(DTPreprocessing(self), analyses_tree=dynamic_analysis)
         self.register_analysis(Preparation(self), analyses_tree=dynamic_analysis)
         self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
         self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
