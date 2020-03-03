@@ -9,6 +9,7 @@ from slcore.project import project_create, project_open, \
     get_current_project, project_get_srcodec, project_get_qemuc
 from slcore.tools.scan_dtcb import project_scan_declare, project_scan_dtcb
 from slcore.tools.scan_topology import project_scan_topology
+from slcore.tools.scan_dt import project_unpack
 from slcore.environment import migrate, snapshot, archive
 from slcore.scheduler import run_static_analysis, run_diagnosis, run_model
 from slcore.generation.dt_renderer import run_dt_renderer
@@ -146,6 +147,10 @@ def __generate(args):
     return __standard_wrapup(firmware)
 
 
+def __unpack(args):
+    project_unpack(args.firmware)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-r', '--rerun', action='store_true', default=False,
@@ -198,6 +203,10 @@ if __name__ == '__main__':
     pscan_topology = commands.add_parser('topology', help='find interrupts topology in a device tree')
     pscan_topology.add_argument('-dtb', '--dtb', required=True)
     pscan_topology.set_defaults(func=__scan_topology)
+    # 2.5 unpack
+    punpack = commands.add_parser('unpack', help='find interrupts topology in a device tree')
+    punpack.add_argument('-f', '--firmware', required=True)
+    punpack.set_defaults(func=__unpack)
     # 3 cores
     # 3.1 analyze
     panalyze = commands.add_parser('analyze', help='model machine in current project')
