@@ -105,6 +105,6 @@ class Preparation(Analysis):
         self.description = 'generate qemu code from profile'
         self.context['hint'] = 'some properties are not satisfied'
         self.critical = True
-        self.required = []
+        self.required = ['preprocdt']
         self.type = 'diag'
 

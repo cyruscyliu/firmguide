@@ -11,7 +11,7 @@ from slcore.tools.scan_dtcb import project_scan_declare, project_scan_dtcb
 from slcore.tools.scan_topology import project_scan_topology
 from slcore.tools.scan_dt import project_unpack
 from slcore.tools.dtinfo import project_show_dtinfo
-from slcore.tools.batch import project_add_firmware
+from slcore.tools.batch import project_add_firmware, project_scan_firmware
 from slcore.environment import migrate, snapshot, archive
 from slcore.scheduler import run_static_analysis, run_diagnosis, run_model
 from slcore.generation.dt_renderer import run_dt_renderer
@@ -156,12 +156,12 @@ def __unpack(args):
 def __batch(args):
     if args.add:
         project_add_firmware(args.add)
-    else:
-        args.print_help
+    elif args.scan:
+        project_scan_firmware(args.scan)
 
 
 def __dtinfo(args):
-    project_show_dtinfo(args.dtb, mmio=args.mmio)
+    project_show_dtinfo(args.dtb, mmio=args.mmio, flash=args.flash)
 
 
 if __name__ == '__main__':
@@ -224,11 +224,13 @@ if __name__ == '__main__':
     # 2.6 batch processing
     pbatch = commands.add_parser('batch', help='batch processing')
     pbatch.add_argument('-a', '--add', required=False, nargs='+')
+    pbatch.add_argument('-s', '--scan', required=False)
     pbatch.set_defaults(func=__batch)
     # 2.7 device tree info
     pdtinfo = commands.add_parser('dtinfo', help='batch processing')
     pdtinfo.add_argument('-dtb', '--dtb', required=True)
     pdtinfo.add_argument('-m', '--mmio', required=False, action='store_true', default=True)
+    pdtinfo.add_argument('-f', '--flash', required=False, action='store_true', default=True)
     pdtinfo.set_defaults(func=__dtinfo)
     # 3 cores
     # 3.1 analyze
@@ -241,7 +243,7 @@ if __name__ == '__main__':
     # 3.3 diagnose
     pdiagnose = commands.add_parser('diagnose', help='test machine in current project')
     pdiagnose.add_argument('-dtb', '--dtb', required=False)
-    pdiagnose.add_argument('-f', '--firmware', required=True)
+    pdiagnose.add_argument('-f', '--firmware', required=False)
     pdiagnose.set_defaults(func=__diagnose)
 
     args = parser.parse_args()

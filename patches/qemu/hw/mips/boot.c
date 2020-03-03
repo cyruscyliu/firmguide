@@ -11,7 +11,7 @@
 #include "elf.h"
 
 #define ENVP_ADDR           0xBFC00000 // 2(256)
-#define ENVP_NB_ENTRIES     2
+#define ENVP_NB_ENTRIES     16
 #define ENVP_ENTRY_SIZE     252
 #define BOOT_LOADER_ADDR    0xBFD00000 // 48 bytes
 
@@ -130,14 +130,15 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
     prom_size = ENVP_NB_ENTRIES * (sizeof(int32_t) + ENVP_ENTRY_SIZE);
     prom_buf = g_malloc(prom_size);
 
-    // prom_set(prom_buf, prom_index++, "%s", info->kernel_filename);
+    prom_set(prom_buf, prom_index++, "%s", info->kernel_filename);
     if (initrd_size > 0) {
-        prom_set(prom_buf, prom_index++, "rd_start=0x%" PRIx64 " rd_size=%" PRId64 " %s",
+        prom_set(prom_buf, prom_index++, " rd_start=0x%" PRIx64 " rd_size=%" PRId64 " %s",
                  cpu_mips_phys_to_kseg0(NULL, initrd_offset), initrd_size,
                  info->kernel_cmdline);
     } else {
         prom_set(prom_buf, prom_index++, "%s", info->kernel_cmdline);
     }
+    prom_set(prom_buf, prom_index, NULL);
 
     rom_add_blob_fixed("prom", prom_buf, prom_size, cpu_mips_kseg0_to_phys(NULL, ENVP_ADDR));
     g_free(prom_buf);

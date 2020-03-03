@@ -295,7 +295,7 @@ static const MemoryRegionOps {0}_ops = {{
             if k == 'flash' and self.firmware.get_arch() == 'arm':
                 continue
             if k == 'flash' and self.firmware.get_components() \
-                    and self.firwmare.get_components().has_device_tree():
+                    and self.firmware.get_components().has_device_tree():
                 dts = load_dtb(self.firmware.get_components().get_path_to_dtb())
             flatten_ks = v(dts)
             if flatten_ks is None:

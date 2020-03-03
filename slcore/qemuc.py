@@ -167,6 +167,7 @@ class QEMUController(object):
         print('\nOPEN *ANOTHER* SHELL and RUN\n    {}'.format(gdb_cmdline))
         print('SEVERAL BPS YOU MAY INTERESTED IN:')
         print('    b start_kernel')
+        print('    b setup_arch')
         print('    b init_IRQ')
         print('    b time_init')
         print('    b calibrate_delay')
