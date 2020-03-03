@@ -11,6 +11,7 @@ from slcore.tools.scan_topology import project_scan_topology
 from slcore.tools.scan_dt import project_unpack
 from slcore.tools.dtinfo import project_show_dtinfo
 from slcore.tools.batch import project_add_firmware, project_scan_firmware
+from slcore.tools.source import project_source_analysis
 from slcore.scheduler import project_standard_warmup, project_standard_wrapup, \
     run_static_analysis, run_diagnosis, run_model
 from slcore.generation.dt_renderer import run_dt_renderer
@@ -121,6 +122,10 @@ def __dtinfo(args):
     project_show_dtinfo(args.dtb, mmio=args.mmio, flash=args.flash)
 
 
+def __source(args):
+    project_source_analysis(args.entry_point)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-r', '--rerun', action='store_true', default=False,
@@ -184,11 +189,15 @@ if __name__ == '__main__':
     pbatch.add_argument('-s', '--scan', required=False)
     pbatch.set_defaults(func=__batch)
     # 2.7 device tree info
-    pdtinfo = commands.add_parser('dtinfo', help='batch processing')
+    pdtinfo = commands.add_parser('dtinfo', help='show device tree info')
     pdtinfo.add_argument('-dtb', '--dtb', required=True)
     pdtinfo.add_argument('-m', '--mmio', required=False, action='store_true', default=True)
     pdtinfo.add_argument('-f', '--flash', required=False, action='store_true', default=True)
     pdtinfo.set_defaults(func=__dtinfo)
+    # 2.8 source code analysis
+    psource = commands.add_parser('source', help='source code analysis')
+    psource.add_argument('-e', '--entry_point', required=True)
+    psource.set_defaults(func=__source)
     # 3 cores
     # 3.1 analyze
     panalyze = commands.add_parser('analyze', help='model machine in current project')
