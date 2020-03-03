@@ -7,7 +7,7 @@ import binwalk
 
 from settings import *
 
-TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE = 1, 2, 3
+TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE, IMAGETAG_KERNEL = 1, 2, 3, 4
 
 COMPONENT_ATTRIBUTES = [
     'path_to_raw', 'type', 'path_to_image', 'path_to_kernel',
@@ -80,6 +80,19 @@ def __handle_fit_uimage(image_path):
     return kernel, dtb, uimage
 
 
+def __scan_dtb(image_path, extract=True):
+    dtb = None
+
+    module = __binwalk_scan_all(image_path, os.path.dirname(image_path), extract=extract)
+    for result in module.results:
+        if str(result.description.lower()).find('mips built-in fdt') != -1:
+            dtb = module.extractor.output[result.file.path].carved[result.offset]
+        elif str(result.description).find('Flattened device tree') != -1:
+            # we sometimes get the dtb directly
+            dtb = module.extractor.output[result.file.path].carved[result.offset]
+    return dtb
+
+
 def __handle_legacy_uimage(image_path, uimage3=False, uimage3_offset=None):
     kernel = __replace_extension(image_path, 'uimage', 'kernel')
     os.system('dd if={} of={} bs=1 skip=64 >/dev/null 2>&1'.format(image_path, kernel))
@@ -102,13 +115,26 @@ def __handle_legacy_uimage(image_path, uimage3=False, uimage3_offset=None):
     kernel = uncompressed_kernel
 
     # find dtb in mips legacy uimage
-    module = __binwalk_scan_all(image_path, os.path.dirname(image_path), extract=False)
-    for result in module.results:
-        if str(result.description.lower()).find('mips built-in fdt') != -1:
-            dtb = module.extractor.output[result.file.path].carved[result.offset]
-            return kernel, dtb, uimage
+    dtb = __scan_dtb(image_path, extract=False)
 
     return kernel, None, uimage
+
+
+def __handle_imagetag_kernel(image_path):
+    kernel = __replace_extension(image_path, 'imagetag', 'kernel')
+    uimage = __replace_extension(image_path, 'imagetag', 'uimage')
+    dtb = None
+
+    # find the real kernel
+    module = __binwalk_scan_all(image_path, os.path.dirname(image_path), extract=True)
+    for result in module.results:
+        if str(result.description.lower()).find('lzma compressed data') != -1:
+            # we will get kernel.7z, so kernel=kernel.7z[:-3]
+            kernel = module.extractor.output[result.file.path].carved[result.offset][:-3]
+            uimage = kernel + '.uimage'
+            # find the dtb in the kernel
+            dtb = __scan_dtb(kernel, extract=False)
+    return kernel, dtb, uimage
 
 
 def __binwalk_scan_all(path, target_dir, extract=True):
@@ -226,7 +252,7 @@ def unpack(path, target_dir=None, extract=True):
             if result.description.lower().startswith('uimage') and result.stub0 == 3:
                 uimage3 = True
                 uimage3_offset = result.offset
-            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage= __handle_legacy_uimage(
+            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_legacy_uimage(
                 components.path_to_image, uimage3=uimage3, uimage3_offset=uimage3_offset)
         elif str(result.description).find('TRX') != -1:
             components.set_type(TRX_KERNEL)
@@ -234,6 +260,12 @@ def unpack(path, target_dir=None, extract=True):
             components.set_path_to_image(
                 module.extractor.output[result.file.path].carved[result.offset].replace('7z', 'trx'))
             components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_trx_kernel(
+                components.path_to_image)
+        elif str(result.description).find('Broadcom 96345 firmware header') != -1:
+            components.set_type(IMAGETAG_KERNEL)
+            components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
+            # this kernel is not recognized yet
+            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_imagetag_kernel(
                 components.path_to_image)
         elif str(result.description).find('Flattened device tree') != -1:
             # we sometimes get the dtb directly

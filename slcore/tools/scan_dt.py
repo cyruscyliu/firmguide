@@ -27,6 +27,7 @@ def scan_dt(argv):
     total, dt = 0, 0
     for i, f in enumerate(fs):
         components = unpack(f, target_dir=tempfile.gettempdir())
+        print(components.__dict__)
         if components.has_device_tree():
             print('{:05}:Y:{}'.format(i, f))
             dt += 1
