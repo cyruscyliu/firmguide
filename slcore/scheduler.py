@@ -1,8 +1,11 @@
 import os
 import yaml
 
-from analyses.manager import AnalysesManager
-from slcore.environment import restore_analysis, save_analysis
+from slcore.analyses.manager import AnalysesManager
+from slcore.environment import restore_analysis, save_analysis, \
+    migrate, snapshot, archive
+from slcore.project import get_current_project, project_get_srcodec, \
+    project_get_qemuc
 from slcore.models.bcm63xx import bcm63xx_fcbs
 from slcore.models.ath79 import ath79_fcbs
 
@@ -110,4 +113,42 @@ def run_model(firmware):
     with open(path_to_config, 'w') as f:
         yaml.safe_dump(srcodec.config, f)
     print('config save at {}'.format(path_to_config))
+
+
+def project_standard_warmup(args, components=None):
+    project = get_current_project()
+    if project is None:
+        exit()
+
+    uuid = project.attrs['uuid']
+    target_dir = project.attrs['target_dir']
+    path_to_profile = os.path.join(target_dir, 'profile.yaml')
+    if not os.path.exists(path_to_profile):
+        path_to_profile = None
+
+    firmware = migrate(uuid, path_to_profile=path_to_profile, components=components)
+    firmware.set_arch(project.attrs['arch'])
+    firmware.set_endian(project.attrs['endian'])
+    firmware.set_machine_name(uuid)
+    firmware.rerun = args.rerun
+
+    firmware.srcodec = project_get_srcodec()
+    firmware.qemuc = project_get_qemuc()
+
+    firmware.max_iteration = 1
+    firmware.trace_format = 'qemudebug'
+    firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
+        firmware.get_uuid(), firmware.get_arch(), firmware.get_endian()
+    )
+    firmware.debug = args.debug
+
+    if not firmware.get_components() and hasattr(args, 'firmware'):
+        firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
+
+    return firmware
+
+
+def project_standard_wrapup(firmware):
+    status = snapshot(firmware)
+    return archive(firmware)
 

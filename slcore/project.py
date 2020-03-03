@@ -147,7 +147,11 @@ def project_show():
         return False
 
     for k, v in project.attrs.items():
-        logger_info2('project', 'show', '{}: {}'.format(k, v), 1)
+        if isinstance(v, list):
+            for vv in v:
+                logger_info2('project', 'show', '{}: {}'.format(k, vv), 1)
+        else:
+            logger_info2('project', 'show', '{}: {}'.format(k, v), 1)
     return True
 
 

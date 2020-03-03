@@ -29,6 +29,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.profile = None  # /tmp/uuid/profile.ext, dickt
         self.profile_ext = 'yaml'
         self.machine = None
+        self.board = None
 
         self.stat_reference = \
             yaml.safe_load(open(os.path.join(os.getcwd(), 'slcore/profile', 'stats.yaml')))

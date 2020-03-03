@@ -1,21 +1,18 @@
 #!/usr/bin/python
-import os
 import argparse
 import logging
 import logging.config
 
 from logger import setup_logging
 from slcore.project import project_create, project_open, \
-    project_rename, project_close, project_delete, project_show, \
-    get_current_project, project_get_srcodec, project_get_qemuc
+    project_rename, project_close, project_delete, project_show
 from slcore.tools.scan_dtcb import project_scan_declare, project_scan_dtcb
 from slcore.tools.scan_topology import project_scan_topology
 from slcore.tools.scan_dt import project_unpack
 from slcore.tools.dtinfo import project_show_dtinfo
 from slcore.tools.batch import project_add_firmware, project_scan_firmware
-from slcore.environment import project_standard_warmup, project_standard_wrapup
-
-from slcore.scheduler import run_static_analysis, run_diagnosis, run_model
+from slcore.scheduler import project_standard_warmup, project_standard_wrapup, \
+    run_static_analysis, run_diagnosis, run_model
 from slcore.generation.dt_renderer import run_dt_renderer
 
 logger = logging.getLogger()

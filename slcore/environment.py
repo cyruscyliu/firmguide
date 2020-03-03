@@ -1,7 +1,6 @@
 import os
 import yaml
 import shutil
-import tempfile
 
 from settings import *
 from logger import logger_info, logger_debug
@@ -104,48 +103,3 @@ def snapshot(firmware):
 
 def archive(firmware):
     pass
-
-
-def project_standard_warmup(args, components=None):
-    project = get_current_project()
-    if project is None:
-        exit()
-
-    uuid = project.attrs['uuid']
-    if args.debug:
-        setup_logging(default_level=logging.DEBUG, uuid=uuid)
-    else:
-        setup_logging(default_level=logging.INFO, uuid=uuid)
-
-    target_dir = project.attrs['target_dir']
-    path_to_profile = os.path.join(target_dir, 'profile.yaml')
-    if not os.path.exists(path_to_profile):
-        path_to_profile = None
-
-    firmware = migrate(uuid, path_to_profile=path_to_profile, components=components)
-    firmware.set_arch(project.attrs['arch'])
-    firmware.set_endian(project.attrs['endian'])
-    firmware.set_machine_name(uuid)
-    firmware.rerun = args.rerun
-
-    firmware.srcodec = project_get_srcodec()
-    firmware.qemuc = project_get_qemuc()
-
-    firmware.max_iteration = 1
-    firmware.trace_format = 'qemudebug'
-    firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
-        firmware.get_uuid(), firmware.get_arch(), firmware.get_endian()
-    )
-    firmware.debug = args.debug
-
-    if not firmware.get_components() and hasattr(args, 'firmware'):
-        firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
-
-    return firmware
-
-
-def project_standard_wrapup(firmware):
-    status = snapshot(firmware)
-    return archive(firmware)
-
-
