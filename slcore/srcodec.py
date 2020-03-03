@@ -149,6 +149,9 @@ class SRCodeController(Common):
         """
         preprocess('arch/arm/mm/proc-xxx.c')
         """
+        pathi = os.path.join(self.path_to_source_code, path).replace('.c', '-i')
+        if os.path.exists(pathi):
+            return path.replace('.c', '.i')
         if self.path_to_makeout is None:
             return
 
@@ -174,8 +177,6 @@ class SRCodeController(Common):
             return path.replace('.c', '.i')
         else:
             return None
-
-        return funccalls
 
     def __get_graph(self, path):
         with os.popen('graph {} 2>/dev/null'.format(path)) as o:

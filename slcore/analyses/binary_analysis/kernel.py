@@ -3,7 +3,7 @@ import re
 
 from slcore.compositor import TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE
 from slcore.naive_parsers.kernel_version import *
-from analyses.analysis import Analysis
+from slcore.analyses.analysis import Analysis
 
 
 class Kernel(Analysis):

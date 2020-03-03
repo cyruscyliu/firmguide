@@ -1,5 +1,5 @@
-from analyses.analysis import Analysis
-from analyses.trace import LoadTrace
+from slcore.analyses.analysis import Analysis
+from slcore.analyses.trace import LoadTrace
 from capstone import *
 import struct
 

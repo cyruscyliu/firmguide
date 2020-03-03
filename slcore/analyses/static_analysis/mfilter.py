@@ -1,6 +1,6 @@
 import os
 
-from analyses.analysis import Analysis
+from slcore.analyses.analysis import Analysis
 from slcore.database.dbf import get_database
 
 
@@ -44,6 +44,7 @@ class Filter(Analysis):
         support = get_database('support')
         status = support.select('board', board=target, arch='arm')
         if status:
+            firmware.board = target
             return True
         else:
             self.context['input'] = 'arm/{} is not supported yet'.format(target)
@@ -63,6 +64,7 @@ class Filter(Analysis):
         support = get_database('support')
         status = support.select('board', board=target, arch='mips')
         if status:
+            firmware.board = target
             self.info(firmware, 'mips/{} is supported'.format(target), 1)
             return True
         else:

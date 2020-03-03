@@ -3,25 +3,25 @@ import os
 from logger import logger_info, logger_warning
 from slcore.environment import finished, finish
 
-from analyses.analysis import Analysis, AnalysisGroup
+from slcore.analyses.analysis import Analysis, AnalysisGroup
 
-from analyses.preparation import Preparation
-from analyses.preprocdt import DTPreprocessing
-from analyses.trace import DoTracing, LoadTrace
-from analyses.c_user_level import Checking
-from analyses.c_data_abort import DataAbort
-from analyses.c_panic import Panic
-from analyses.bamboos import Bamboos
+from slcore.analyses.preparation import Preparation
+from slcore.analyses.initvalue import InitValue
+from slcore.analyses.preprocdt import DTPreprocessing
+from slcore.analyses.trace import DoTracing, LoadTrace
+from slcore.analyses.c_user_level import Checking
+from slcore.analyses.c_data_abort import DataAbort
+from slcore.analyses.c_panic import Panic
+from slcore.analyses.bamboos import Bamboos
 
-from analyses.binary_analysis.kernel import Kernel
-from analyses.binary_analysis.strings import Strings
-from analyses.binary_analysis.openwrt import OpenWRT
+from slcore.analyses.binary_analysis.kernel import Kernel
+from slcore.analyses.binary_analysis.strings import Strings
+from slcore.analyses.binary_analysis.openwrt import OpenWRT
 
-from analyses.static_analysis.mfilter import Filter
-from analyses.static_analysis.ram import RAM
-from analyses.static_analysis.excflow import ExecutionFlow
-from analyses.static_analysis.loaddr import LoadAddr
-from analyses.static_analysis.entrypoint import EntryPoint
+from slcore.analyses.static_analysis.mfilter import Filter
+from slcore.analyses.static_analysis.ram import RAM
+from slcore.analyses.static_analysis.loaddr import LoadAddr
+from slcore.analyses.static_analysis.entrypoint import EntryPoint
 
 
 class AnalysesManager(object):
@@ -199,7 +199,6 @@ class AnalysesManager(object):
 
         self.register_analysis(Filter(self), analyses_tree=static_analysis)
         self.register_analysis(RAM(self), analyses_tree=static_analysis)
-        # self.register_analysis(ExecutionFlow(self), analyses_tree=static_analysis)
         self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
         self.register_analysis(EntryPoint(self), analyses_tree=static_analysis)
 
@@ -208,8 +207,9 @@ class AnalysesManager(object):
     def register_diagnosis(self):
         dynamic_analysis = self.new_analyses_tree()
 
-        self.register_analysis(DTPreprocessing(self), analyses_tree=dynamic_analysis)
         self.register_analysis(Preparation(self), analyses_tree=dynamic_analysis)
+        self.register_analysis(DTPreprocessing(self), analyses_tree=dynamic_analysis)
+        self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
         self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
         self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
         self.register_analysis(Checking(self), analyses_tree=dynamic_analysis)

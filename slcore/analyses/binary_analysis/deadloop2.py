@@ -1,8 +1,8 @@
 from pyqemulog import PQLI
 
-from analyses.analysis import Analysis
-from analyses.callstack import CallStack, CallRecord
-from analyses.trace import LoadTrace
+from slcore.analyses.analysis import Analysis
+from slcore.analyses.callstack import CallStack, CallRecord
+from slcore.analyses.trace import LoadTrace
 
 
 class DeadLoop2(Analysis):

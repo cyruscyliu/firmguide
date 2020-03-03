@@ -1,6 +1,6 @@
 import os
 
-from analyses.analysis import Analysis
+from slcore.analyses.analysis import Analysis
 from slcore.database.dbf import get_database
 from slcore.naive_parsers.openwrt import *
 from slcore.parser import get_candidates, get_all_strings

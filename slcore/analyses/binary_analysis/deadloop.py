@@ -1,7 +1,7 @@
 import math
 import networkx as nx
 
-from analyses.analysis import Analysis
+from slcore.analyses.analysis import Analysis
 
 
 class DeadLoop(Analysis):

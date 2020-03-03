@@ -1,8 +1,8 @@
 """
 Add bamboo devices after DataAbort and InitValue.
 """
-from analyses.analysis import Analysis
-from analyses.c_data_abort import DataAbort
+from slcore.analyses.analysis import Analysis
+from slcore.analyses.c_data_abort import DataAbort
 
 class Bamboos(Analysis):
     def convert_address(self, address):
@@ -54,3 +54,4 @@ class Bamboos(Analysis):
         self.type = 'diag'
         #
         self.mapping = {}
+

@@ -13,8 +13,6 @@ def of_irq_init__irqchip_init(config):
     return ['ar79_cpu_intc_of_init', 'ath79_intc_of_init', 'ar7240_misc_intc_of_init']
 
 
-#####
-
 ##### irq_set_chip_and_handler_name #####
 def irq_set_chip_and_handler_name__mips_cpu_intc_map(config):
     # drivers/irqchip/irq-mips-cpu.c
@@ -155,3 +153,4 @@ ath79_fcbs = {
         'ignored': True
     }
 }
+

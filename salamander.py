@@ -3,6 +3,7 @@ import os
 import argparse
 import logging
 import logging.config
+
 from logger import setup_logging
 from slcore.project import project_create, project_open, \
     project_rename, project_close, project_delete, project_show, \
@@ -12,10 +13,10 @@ from slcore.tools.scan_topology import project_scan_topology
 from slcore.tools.scan_dt import project_unpack
 from slcore.tools.dtinfo import project_show_dtinfo
 from slcore.tools.batch import project_add_firmware, project_scan_firmware
-from slcore.environment import migrate, snapshot, archive
+from slcore.environment import project_standard_warmup, project_standard_wrapup
+
 from slcore.scheduler import run_static_analysis, run_diagnosis, run_model
 from slcore.generation.dt_renderer import run_dt_renderer
-from slcore.compositor import unpack
 
 logger = logging.getLogger()
 
@@ -59,94 +60,53 @@ def __scan_topology(args):
     project_scan_topology(args.dtb)
 
 
-def __standard_warmup(args, components=None):
-    project = get_current_project()
-    if project is None:
-        exit()
-
-    uuid = project.attrs['uuid']
-    if args.debug:
-        setup_logging(default_level=logging.DEBUG, uuid=uuid)
-    else:
-        setup_logging(default_level=logging.INFO, uuid=uuid)
-
-    target_dir = project.attrs['target_dir']
-    path_to_profile = os.path.join(target_dir, 'profile.yaml')
-    if not os.path.exists(path_to_profile):
-        path_to_profile = None
-
-    firmware = migrate(uuid, path_to_profile=path_to_profile, components=components)
-    firmware.set_arch(project.attrs['arch'])
-    firmware.set_endian(project.attrs['endian'])
-    firmware.set_machine_name(uuid)
-    firmware.rerun = args.rerun
-
-    firmware.srcodec = project_get_srcodec()
-    firmware.qemuc = project_get_qemuc()
-
-    firmware.max_iteration = 1
-    firmware.trace_format = 'qemudebug'
-    firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
-        firmware.get_uuid(), firmware.get_arch(), firmware.get_endian()
-    )
-    firmware.debug = args.debug
-
-    return firmware
-
-
-def __standard_wrapup(firmware):
-    status = snapshot(firmware)
-    return archive(firmware)
-
 def __model_ict(args):
     # 1 standard_setup
-    firmware = __standard_warmup(args)
+    firmware = project_standard_warmup(args)
     # 2. analyze the source code
     status = run_model(firmware)
     # 3. take snapshots to save results
-    return __standard_wrapup(firmware)
+    return project_standard_wrapup(firmware)
 
 
 def __analyze(args):
     # 1 standard_setup
-    firmware = __standard_warmup(args)
+    firmware = project_standard_warmup(args)
     # 2. analyze the source code
     status = run_static_analysis(firmware)
     # 3. take snapshots to save results
-    return __standard_wrapup(firmware)
+    return project_standard_wrapup(firmware)
 
 
 def __diagnose(args):
     # 1 standard_setup
-    firmware = __standard_warmup(args)
+    firmware = project_standard_warmup(args)
 
     # 2. test the machine
-    if not firmware.get_components():
-        firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
-
     if args.dtb:
         firmware.set_dtb(args.dtb)
     elif firmware.get_components().get_path_to_dtb():
         firmware.set_dtb(firmware.get_components().get_path_to_dtb())
     else:
         print('neither dtb was found in tested firmware nor -dtb was assigned')
-        return __standard_wrapup(firmware)
+        return project_standard_wrapup(firmware)
 
     status = run_diagnosis(firmware)
 
     # 3. take snapshots to save results
-    return __standard_wrapup(firmware)
+    return project_standard_wrapup(firmware)
+
 
 def __generate(args):
     # 1 standard_setup
-    firmware = __standard_warmup(args)
+    firmware = project_standard_warmup(args)
 
     # 2 generate code from dtb
     firmware.set_dtb(args.dtb)
     status = run_dt_renderer(firmware)
 
     # 3. take snapshots to save results
-    return __standard_wrapup(firmware)
+    return project_standard_wrapup(firmware)
 
 
 def __unpack(args):

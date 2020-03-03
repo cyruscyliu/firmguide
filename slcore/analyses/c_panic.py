@@ -2,8 +2,8 @@ import os
 
 from pyqemulog import PQLI
 
-from analyses.analysis import Analysis
-from analyses.trace import LoadTrace
+from slcore.analyses.analysis import Analysis
+from slcore.analyses.trace import LoadTrace
 
 
 class Panic(Analysis):

@@ -1,4 +1,4 @@
-from analyses.analysis import Analysis
+from slcore.analyses.analysis import Analysis
 from slcore.parser import get_candidates, get_all_strings
 from slcore.naive_parsers.cpu import find_cpu_in_strings, find_cpu_private_peripheral
 from slcore.naive_parsers.cmdline import find_cmdline_in_strings

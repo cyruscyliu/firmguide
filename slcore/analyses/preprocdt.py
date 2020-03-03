@@ -1,7 +1,6 @@
-from analyses.analysis import Analysis
+from slcore.analyses.analysis import Analysis
 from slcore.dt_parsers.common import load_dtb
 from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
-from slcore.tools.scan_dtcb import scan_dtcb
 
 import os
 
@@ -43,6 +42,6 @@ class DTPreprocessing(Analysis):
         super().__init__(analysis_manager)
         self.name = 'preprocdt'
         self.description = 'preprocess the device tree file'
-        self.required = []
+        self.required = ['mfilter']
         self.critical = False
 

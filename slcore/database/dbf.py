@@ -3,6 +3,7 @@ import os
 from slcore.database.qemu import *
 from slcore.database.openwrt import DatabaseOpenWRTMapping, DatabaseOpenWRTToH
 from slcore.database.support import SupportMachines
+from slcore.database.iv import InitValue
 
 
 def get_database(dbtype, **kwargs):
@@ -28,5 +29,7 @@ def get_database(dbtype, **kwargs):
         return DatabaseQEMUAPIS()
     elif dbtype == 'support':
         return SupportMachines()
+    elif dbtype == 'iv':
+        return InitValue()
     else:
         raise NotImplementedError('the dbtype {} is not support yet'.format(dbtype))
