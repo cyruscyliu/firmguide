@@ -280,6 +280,8 @@ static const MemoryRegionOps {0}_ops = {{
                 m = Model('intc', intc['compatible'])
                 if not m.supported:
                     continue
+                if 'phandle' not in intc:
+                    continue
                 intcp[intc['phandle']] = m
         flatten_cpu = find_flatten_cpu_in_fdt(dts)
         if flatten_cpu is not None:
@@ -292,7 +294,8 @@ static const MemoryRegionOps {0}_ops = {{
         for k, v in self.rendering_handlers.items():
             if k == 'flash' and self.firmware.get_arch() == 'arm':
                 continue
-            if k == 'flash' and self.firmware.get_components().has_device_tree():
+            if k == 'flash' and self.firmware.get_components() \
+                    and self.firwmare.get_components().has_device_tree():
                 dts = load_dtb(self.firmware.get_components().get_path_to_dtb())
             flatten_ks = v(dts)
             if flatten_ks is None:
@@ -437,10 +440,11 @@ def run_dt_renderer(firmware):
 
     # 1. load the dtb
     dts = load_dtb(path_to_dtb)
-    with open(os.path.join(
-            firmware.get_target_dir(),
-            '{}.dts'.format(os.path.basename(path_to_dtb))), 'w') as f:
+    path_to_dts = os.path.join(
+            firmware.get_target_dir(), '{}.dts'.format(os.path.basename(path_to_dtb)))
+    with open(path_to_dts, 'w') as f:
         f.write(dts.to_dts())
+    logger_info(firmware.uuid, 'run_dt_render', 'dtc', 'save dts at {}'.format(path_to_dts), 1)
     machine_name = os.path.basename(firmware.get_dtb()) \
         .split('.')[0].replace('-', '_')
     firmware.set_machine_name(machine_name)
