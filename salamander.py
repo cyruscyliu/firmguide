@@ -10,6 +10,7 @@ from slcore.project import project_create, project_open, \
 from slcore.tools.scan_dtcb import project_scan_declare, project_scan_dtcb
 from slcore.tools.scan_topology import project_scan_topology
 from slcore.tools.scan_dt import project_unpack
+from slcore.tools.batch import project_add_firmware
 from slcore.environment import migrate, snapshot, archive
 from slcore.scheduler import run_static_analysis, run_diagnosis, run_model
 from slcore.generation.dt_renderer import run_dt_renderer
@@ -151,6 +152,12 @@ def __unpack(args):
     project_unpack(args.firmware)
 
 
+def __batch(args):
+    if args.add:
+        project_add_firmware(args.add)
+    else:
+        args.print_help
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-r', '--rerun', action='store_true', default=False,
@@ -207,12 +214,16 @@ if __name__ == '__main__':
     punpack = commands.add_parser('unpack', help='find interrupts topology in a device tree')
     punpack.add_argument('-f', '--firmware', required=True)
     punpack.set_defaults(func=__unpack)
+    # 2.6 batch processing
+    pbatch = commands.add_parser('batch', help='batch processing')
+    pbatch.add_argument('-a', '--add', required=False, nargs='+')
+    pbatch.set_defaults(func=__batch)
     # 3 cores
     # 3.1 analyze
     panalyze = commands.add_parser('analyze', help='model machine in current project')
     panalyze.set_defaults(func=__analyze)
     # 3.2 generate
-    pgenerate = commands.add_parser('generate', help='test machine in current project')
+    pgenerate = commands.add_parser('generate', help='test device tree in current project')
     pgenerate.add_argument('-dtb', '--dtb', required=True)
     pgenerate.set_defaults(func=__generate)
     # 3.3 diagnose

@@ -9,7 +9,7 @@ from slcore.qemuc import QEMUController
 
 class Project(object):
     def __init__(self, uuid=None, arch=None, endian=None, target_dir=None,
-                 brand=None, target=None, subtarget=None,
+                 brand=None, target=None, subtarget=None, images=None,
                  source=None, cross_compile=None, makeout=None):
         self.target_dir = target_dir
         self.attrs = {
@@ -22,7 +22,8 @@ class Project(object):
             'subtarget': subtarget,
             'source': source,
             'cross_compile': cross_compile,
-            'makeout': makeout
+            'makeout': makeout,
+            'images': images,
         }
 
     def exists(self):
@@ -148,6 +149,10 @@ def project_show():
     for k, v in project.attrs.items():
         logger_info2('project', 'show', '{}: {}'.format(k, v), 1)
     return True
+
+
+def update_current_project(project):
+    __project_set_current(project)
 
 
 def get_current_project():
