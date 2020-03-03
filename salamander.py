@@ -10,6 +10,7 @@ from slcore.project import project_create, project_open, \
 from slcore.tools.scan_dtcb import project_scan_declare, project_scan_dtcb
 from slcore.tools.scan_topology import project_scan_topology
 from slcore.tools.scan_dt import project_unpack
+from slcore.tools.dtinfo import project_show_dtinfo
 from slcore.tools.batch import project_add_firmware
 from slcore.environment import migrate, snapshot, archive
 from slcore.scheduler import run_static_analysis, run_diagnosis, run_model
@@ -158,11 +159,17 @@ def __batch(args):
     else:
         args.print_help
 
+
+def __dtinfo(args):
+    project_show_dtinfo(args.dtb, mmio=args.mmio)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-r', '--rerun', action='store_true', default=False,
                         help='ingore save and restore and rerun all analysis')
     parser.add_argument('-d', '--debug', action='store_true', help='show verbose logs')
+    parser.set_defaults(func=__analyze)
     commands = parser.add_subparsers(title='salamander commands')
     # 1 project
     # 1.1 ./salamander create --help
@@ -218,6 +225,11 @@ if __name__ == '__main__':
     pbatch = commands.add_parser('batch', help='batch processing')
     pbatch.add_argument('-a', '--add', required=False, nargs='+')
     pbatch.set_defaults(func=__batch)
+    # 2.7 device tree info
+    pdtinfo = commands.add_parser('dtinfo', help='batch processing')
+    pdtinfo.add_argument('-dtb', '--dtb', required=True)
+    pdtinfo.add_argument('-m', '--mmio', required=False, action='store_true', default=True)
+    pdtinfo.set_defaults(func=__dtinfo)
     # 3 cores
     # 3.1 analyze
     panalyze = commands.add_parser('analyze', help='model machine in current project')
@@ -232,16 +244,11 @@ if __name__ == '__main__':
     pdiagnose.add_argument('-f', '--firmware', required=True)
     pdiagnose.set_defaults(func=__diagnose)
 
-
     args = parser.parse_args()
     if args.debug:
         setup_logging(default_level=logging.DEBUG)
     else:
         setup_logging(default_level=logging.INFO)
 
-    try:
-        args.func(args)
-    except AttributeError as e:
-        parser.print_help()
-
+    args.func(args)
 

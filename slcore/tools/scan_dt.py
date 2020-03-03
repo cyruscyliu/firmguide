@@ -7,6 +7,7 @@ sys.path.extend(['.', '..', '../..'])
 from slcore.compositor import unpack
 from slcore.project import get_current_project
 
+
 def project_unpack(path_to_firmware):
     project = get_current_project()
     if project is None:

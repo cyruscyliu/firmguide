@@ -111,6 +111,8 @@ def find_flatten_mmio_in_fdt(dts):
     for pa, no, pros in dts.walk():
         if not dts.exist_property('compatible', pa):
             continue
+        if pa.find('partitions') != -1:
+            continue
 
         size_cells = __find_parent_size_cells(dts, pa)
         if size_cells is None:
@@ -143,4 +145,3 @@ def find_flatten_mmio_in_fdt(dts):
         flatten_mmio.append(v)
 
     return flatten_mmio
-
