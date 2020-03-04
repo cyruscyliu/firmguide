@@ -5,6 +5,22 @@ import tempfile
 sys.path.extend(['.', '..', '../..'])
 
 from slcore.compositor import unpack
+from slcore.project import get_current_project
+
+
+def project_unpack(path_to_firmware):
+    project = get_current_project()
+    if project is None:
+        return
+
+    components = unpack(path_to_firmware, target_dir=project.target_dir)
+    for k, v in components.get_attributes().items():
+        if isinstance(v, str):
+            for line in v.strip().split('\n'):
+                print('[+] {}: {}'.format(k, line))
+        else:
+            print('[+] {}: {}'.format(k, v))
+
 
 def scan_dt(argv):
     fs = []

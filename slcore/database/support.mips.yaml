@@ -39,9 +39,10 @@ ath25:
 ath79:
   device_tree: true
   profiles:
-    examples/mips/ath79/profile.yaml: {brand: openwrt, revision: '15.05', version: 3.18.20}
+      # examples/mips/ath79/profile.yaml: {brand: openwrt, revision: '15.05', version: 3.18.20}
+    examples/mips/ath79/profile.yaml: {brand: openwrt, revision: '19.07.1', version: 4.14.167}
   targets:
-    openwrt: [ar71xx]
+    openwrt: [ar71xx, ath79]
 bcm47xx:
   device_tree: false
   profiles:
@@ -108,9 +109,12 @@ pistachio:
 pmcs-msp71xx: {device_tree: false}
 pnx833x: {device_tree: false}
 ralink:
+  compatible: {'ralink,rt3352-soc': examples/mips/ralink/profile.yaml, 'ralink,rt3883-soc': examples/mips/ralink/profile.yaml}
   device_tree: true
   targets:
     openwrt: [ramips]
+  profiles:
+    examples/mips/ralink/profile.yaml: {brand: openwrt, revision: '15.05', version: 3.18.20}
 rb532:
   device_tree: false
   targets:

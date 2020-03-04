@@ -2,9 +2,9 @@ import os
 import binwalk.core.plugin
 
 
-class uImageExtractPlugin(binwalk.core.plugin.Plugin):
+class MIPSFDTExtractPlugin(binwalk.core.plugin.Plugin):
     """
-    uImage extractor plugin.
+    mips fdt extractor plugin.
     """
     MODULES = ['Signature']
 

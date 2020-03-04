@@ -2,38 +2,16 @@
 These interfaces unpack, pack given firmware blob to uImages.
 """
 import os
-import types
 import binwalk
 
-from settings import *
+from slcore.common import Common
 
-TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE = 1, 2, 3
+TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE, IMAGETAG_KERNEL, COMBINEDIMAGE_KERNEL = 1, 2, 3, 4, 5
 
 COMPONENT_ATTRIBUTES = [
     'path_to_raw', 'type', 'path_to_image', 'path_to_kernel',
     'path_to_dtb', 'path_to_rootfs', 'path_to_uimage',
 ]
-
-class Common(object):
-    def set_attributes(self, attrs):
-        if isinstance(attrs, list):
-            for attr in attrs:
-                self.__dict__[attr] = None
-                self.__setattr__('set_'+attr, lambda x, a=attr: self.__dict__.__setitem__(a, x))
-                self.__setattr__('get_'+attr, lambda a=attr: self.__dict__.__getitem__(a))
-        elif isinstance(attrs, dict):
-            for k, v in attrs.items():
-                self.__dict__[k] = v
-
-    def get_attributes(self):
-        attrs = {}
-
-        for k, v in self.__dict__.items():
-            if isinstance(v, types.FunctionType):
-                continue
-            attrs[k] = v
-
-        return attrs
 
 
 class Components(Common):
@@ -68,7 +46,9 @@ def __handle_trx_kernel(image_path):
     kernel = __replace_extension(image_path, 'trx', 'kernel')
     os.system('lzma -d < {} > {} 2>/dev/null'.format(image_path, kernel))
     uimage = __replace_extension(image_path, 'trx', 'uimage')
-    return kernel, None, uimage
+
+    dtb = __scan_dtb(kernel, extract=False)
+    return kernel, dtb, uimage
 
 
 def __handle_fit_uimage(image_path):
@@ -80,35 +60,59 @@ def __handle_fit_uimage(image_path):
     return kernel, dtb, uimage
 
 
+def __scan_dtb(image_path, extract=True):
+    dtb = None
+
+    module = __binwalk_scan_all(image_path, os.path.dirname(image_path), extract=extract)
+    for result in module.results:
+        if str(result.description.lower()).find('mips built-in fdt') != -1:
+            dtb = module.extractor.output[result.file.path].carved[result.offset]
+        elif str(result.description).find('Flattened device tree') != -1:
+            # we sometimes get the dtb directly
+            dtb = module.extractor.output[result.file.path].carved[result.offset]
+    return dtb
+
+
 def __handle_legacy_uimage(image_path, uimage3=False, uimage3_offset=None):
     kernel = __replace_extension(image_path, 'uimage', 'kernel')
     os.system('dd if={} of={} bs=1 skip=64 >/dev/null 2>&1'.format(image_path, kernel))
     uimage = image_path
 
-    if not uimage3:
-        return kernel, None, uimage
-
-    # reconstruct the uimage if uimage3
-    uncompressed_kernel = os.path.join(
-        os.path.dirname(image_path), '{:x}'.format(uimage3_offset + 0x40).upper())
-    os.system('mv {0} {0}.bak'.format(image_path))
-    os.system('dd if={0}.bak of={0} bs=1 count=64 >/dev/null 2>&1'.format(image_path))
-    os.system('dd if=/dev/zero of={} bs=1 seek=31 count=1 conv=notrunc >/dev/null 2>&1'.format(image_path))
-    # append 1M zeros as bss
-    os.system('dd if=/dev/zero of={} bs=1 seek={} count={} conv=notrunc >/dev/null 2>&1'.format(
-        uncompressed_kernel, os.path.getsize(uncompressed_kernel), 1048576))
-    os.system('dd if={} of={} bs=1 seek=64 >/dev/null 2>&1'.format(uncompressed_kernel, image_path))
-    # don't forget this
-    kernel = uncompressed_kernel
+    if uimage3:
+        # reconstruct the uimage if uimage3
+        uncompressed_kernel = os.path.join(
+            os.path.dirname(image_path), '{:x}'.format(uimage3_offset + 0x40).upper())
+        os.system('mv {0} {0}.bak'.format(image_path))
+        os.system('dd if={0}.bak of={0} bs=1 count=64 >/dev/null 2>&1'.format(image_path))
+        os.system('dd if=/dev/zero of={} bs=1 seek=31 count=1 conv=notrunc >/dev/null 2>&1'.format(image_path))
+        # append 1M zeros as bss
+        os.system('dd if=/dev/zero of={} bs=1 seek={} count={} conv=notrunc >/dev/null 2>&1'.format(
+            uncompressed_kernel, os.path.getsize(uncompressed_kernel), 1048576))
+        os.system('dd if={} of={} bs=1 seek=64 >/dev/null 2>&1'.format(uncompressed_kernel, image_path))
+        # don't forget this
+        kernel = uncompressed_kernel
 
     # find dtb in mips legacy uimage
-    module = __binwalk_scan_all(image_path, os.path.dirname(image_path), extract=False)
-    for result in module.results:
-        if str(result.description.lower()).find('mips built-in fdt') != -1:
-            dtb = module.extractor.output[result.file.path].carved[result.offset]
-            return kernel, dtb, uimage
+    dtb = __scan_dtb(kernel, extract=False)
 
-    return kernel, None, uimage
+    return kernel, dtb, uimage
+
+
+def __handle_lzma_kernel(image_path):
+    kernel = __replace_extension(image_path, 'imagetag', 'kernel')
+    uimage = __replace_extension(image_path, 'imagetag', 'uimage')
+    dtb = None
+
+    # find the real kernel
+    module = __binwalk_scan_all(image_path, os.path.dirname(image_path), extract=True)
+    for result in module.results:
+        if str(result.description.lower()).find('lzma compressed data') != -1:
+            # we will get kernel.7z, so kernel=kernel.7z[:-3]
+            kernel = module.extractor.output[result.file.path].carved[result.offset][:-3]
+            uimage = kernel + '.uimage'
+            # find the dtb in the kernel
+            dtb = __scan_dtb(kernel, extract=False)
+    return kernel, dtb, uimage
 
 
 def __binwalk_scan_all(path, target_dir, extract=True):
@@ -127,29 +131,45 @@ def __enlarge_image(path, target_size):
         path, size_of_image, target_size - size_of_image))
 
 
-def pack_kernel(components, arch='arm', load_address="0x00008000", fix_cmdline=None):
+def pack_kernel(components, arch='arm', load_address="0x00008000", entry_point="0x00008000"):
     kernel = components.get_path_to_kernel()
     uimage = components.get_path_to_uimage()
-    os.system('mkimage -A {0} -C none -O linux -T kernel -d {1} -a {2} -e {2} {3} >/dev/null 2>&1'.format(arch, kernel, load_address, uimage))
+    os.system(
+        'mkimage -A {0} -C none -O linux -T kernel -d {1} -a {2} -e {3} {4} >/dev/null 2>&1'.format(
+            arch, kernel, load_address, entry_point, uimage))
     return uimage
 
 
 def pack_image(components, flash_size=None):
-    rootfs = components.get_path_to_rootfs()
-    if rootfs is None:
-        rootfs = DEFAULT_ROOTFS
-    __enlarge_image(rootfs, flash_size)
-    return rootfs
+    raise NotImplementedError()
 
 
 def pack_initramfs(components, mounted_to=None):
     return mounted_to
 
 
+def fix_choosen_bootargs(components):
+    # this function must be called when the path_to_kernel is correct
+    kernel = components.get_path_to_kernel()
+    os.system('cp {0} {0}.fix_choosen_bootargs'.format(kernel))
+
+    output = os.popen('strings -t d {} | grep console=ttyS0,'.format(kernel)).readlines()
+    # 2323 ,console=ttyS0,115200
+    if not len(output):
+        return
+    start, label, console = output[0].strip().partition(' ')
+    # start=2323, label=' ', console=,console=ttyS0,115200
+    pre, console, param = console.partition('console')
+    real_start = int(start) + len(pre)
+    # 2323 ,
+    # 2324 console
+    os.system('dd if=/dev/zero of={0} bs=1 seek={1} count=1 conv=notrunc >/dev/null 2>&1'.format(kernel, real_start-1))
+
+
 def fix_cmdline(components):
     # this api should be called before pack_kernel
     kernel = components.get_path_to_kernel()
-    os.system('cp {0} {0}.bak'.format(kernel))
+    os.system('cp {0} {0}.cmdline'.format(kernel))
 
     output = os.popen('strings -t d {} | grep CMDLINE'.format(kernel)).readlines()
     if not len(output):
@@ -175,8 +195,11 @@ def unpack(path, target_dir=None, extract=True):
     :param extract: whether to save binwalk extractions or not
     :return: components
     """
+    components = Components()
     if not os.path.exists(path):
-        return None
+        print('[-] {} not exist'.format(path))
+        components.supported = False
+        return components
 
     if target_dir is None:
         target_dir = os.path.dirname(path)
@@ -184,7 +207,6 @@ def unpack(path, target_dir=None, extract=True):
     os.system('rm -rf {}/_{}*extracted'.format(target_dir, os.path.basename(path)))
 
     # binwalk output is useful when returns None
-    components = Components()
     components.set_path_to_raw(path)
 
     module = __binwalk_scan_all(path, target_dir, extract=extract)
@@ -204,7 +226,7 @@ def unpack(path, target_dir=None, extract=True):
             if result.description.lower().startswith('uimage') and result.stub0 == 3:
                 uimage3 = True
                 uimage3_offset = result.offset
-            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage= __handle_legacy_uimage(
+            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_legacy_uimage(
                 components.path_to_image, uimage3=uimage3, uimage3_offset=uimage3_offset)
         elif str(result.description).find('TRX') != -1:
             components.set_type(TRX_KERNEL)
@@ -213,6 +235,22 @@ def unpack(path, target_dir=None, extract=True):
                 module.extractor.output[result.file.path].carved[result.offset].replace('7z', 'trx'))
             components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_trx_kernel(
                 components.path_to_image)
+        elif str(result.description).find('Broadcom 96345 firmware header') != -1:
+            components.set_type(IMAGETAG_KERNEL)
+            components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
+            # this kernel is not recognized yet
+            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
+                components.path_to_image)
+        elif str(result.description).find('Combined image header') != -1:
+            components.set_type(COMBINEDIMAGE_KERNEL)
+            components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
+            # this kernel is not recognized yet
+            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
+                components.path_to_image)
+        elif str(result.description).find('Flattened device tree') != -1:
+            # we sometimes get the dtb directly
+            dtb = module.extractor.output[result.file.path].carved[result.offset]
+            components.path_to_dtb = dtb
         elif str(result.description).find('Squashfs filesystem') != -1:
             components.set_path_to_rootfs(
                 module.extractor.output[result.file.path].carved[result.offset])

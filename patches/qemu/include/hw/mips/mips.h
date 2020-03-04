@@ -3,7 +3,8 @@
 /* Definitions for mips board emulation.  */
 
 /* Kernels can be configured with 64KB pages */
-#define INITRD_PAGE_MASK (~((1 << 16) - 1))
+/* Considering BSS we enlarge the page align to 8MB */
+#define INITRD_PAGE_MASK (~((1 << 23) - 1))
 
 #include "exec/memory.h"
 #include "target/mips/cpu-qom.h"

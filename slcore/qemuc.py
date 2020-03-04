@@ -13,29 +13,19 @@ after several experiments, I conclude
     read/write and compilation.
 
 interfaces:
-    + get_command()
-    + patch()/install()/recover()
-    + compile()/debug()/trace()/add_target()
+    + get_command()/trace()/debug()
+    + install()/patch()/add_target()/compile()/recover()
 """
 import os
 import qmp
 import tempfile
-import subprocess
-
-from settings import *
 
 
 class QEMUController(object):
-    def __init__(self):
-        """
-        interface:
-            get_command
-            patch/recovery
-            compile/trace/debug
-        """
+    def __init__(self, qemu_root):
         self.modified = []
         self.new = []
-        self.qemu_root = os.path.join(WORKING_DIR, QEMU_DIR_NAME)
+        self.qemu_root = qemu_root
         self.build_system = {
             'arml': {
                 'defconfig': 'default-configs/arm-softmmu.mak', 'kconfig': 'hw/arm/Kconfig',
@@ -136,36 +126,45 @@ class QEMUController(object):
 
     def compile(self, cflags=None, cpu=4):
         if cflags:
-            os.system('cd {}/{} && make -j{} CFLAGS={} && cd $OLDPWD'.format(WORKING_DIR, QEMU_DIR_NAME, cpu, cflags))
+            os.system('cd {} && make -j{} CFLAGS={} && cd $OLDPWD'.format(self.qemu_root, cpu, cflags))
         else:
-            os.system('cd {}/{} && make -j{} && cd $OLDPWD'.format(WORKING_DIR, QEMU_DIR_NAME, cpu))
+            os.system('cd {} && make -j{} && cd $OLDPWD'.format(self.qemu_root, cpu))
 
     def trace(self, *args, **kwargs):
-        """
-        trace(command, uuid=0, arch='arm', endian='l')
-        """
-        uuid = kwargs.pop('uuid', 'unknown')
-        arch = kwargs.pop('arch', 'arm')
-        endian = kwargs.pop('endian', 'l')
-        trace_to = '{}-{}-{}.trace'.format(uuid, arch, endian)
-        # trace_flags = '-d in_asm,int,cpu -D {}'.format(trace_to)
-        trace_flags = '-d in_asm,int -D {}'.format(trace_to)
-        qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
+        raise NotImplementedError()
 
-        for command in args:
-            try:
-                subprocess.run(full_command, timeout=20, shell=True)
-            except subprocess.TimeoutExpired:
-                qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
-                qemu.connect()
-                qemu.cmd('quit')
-                qemu.close()
-
-    def debug(self, *args, **kwargs):
+    def debug(self, running_cmdline, path_to_vmlinux, **kwargs):
         """
         provide a GDB interface
+        running_cmdline comes from get_cmdline()
         """
-        pass
+        if running_cmdline is None:
+            return
+
+        d = os.path.dirname(path_to_vmlinux)
+        gdb_cmdline = 'gdb-multiarch --cd={} {} -ex "target remote:1234"'.format(d, path_to_vmlinux)
+        print('\nOPEN *ANOTHER* SHELL and RUN\n    {}'.format(gdb_cmdline))
+        print('SEVERAL BPS YOU MAY INTERESTED IN:')
+        print('    b start_kernel')
+        print('    b setup_arch')
+        print('    b prom_putchar # MIPS')
+        print('    b init_IRQ')
+        print('    b time_init')
+        print('    b calibrate_delay')
+        print('    b rest_init')
+        print('    b kernel_init')
+        print('    b populate_rootfs')
+        print('    b run_init_process')
+        print('    b panic')
+        print('SOMETHING YOU NEED TO KNOW:')
+        print('    calibrate_delay in start_kernel should never be stuck')
+        print('    do_initcalls in do_basic_setup should never be stuck')
+        print('    prepare_namespace in kernel_init_freeable should never be called')
+
+        debug_cmdline = running_cmdline + ' -s -S'
+        print('RUNNING\n    {}'.format(debug_cmdline))
+        print('PRESS ctrl-a x to exit; PRESS ctrl-a c to QEMU console')
+        os.system(debug_cmdline)
 
     def __resolve_makefile(self, path, label, content):
         """

@@ -29,6 +29,7 @@ def __find_parent_offset(dts, path, x, fx):
         for k, v in fx.items():
             if k <= x < k + v[1]:
                 return (v[0] - k)
+        return 0
 
     path = os.path.join(parent.path, parent.name)
     if dts.exist_property('ranges', path):
@@ -110,6 +111,8 @@ def find_flatten_mmio_in_fdt(dts):
     for pa, no, pros in dts.walk():
         if not dts.exist_property('compatible', pa):
             continue
+        if pa.find('partitions') != -1:
+            continue
 
         size_cells = __find_parent_size_cells(dts, pa)
         if size_cells is None:
@@ -134,6 +137,8 @@ def find_flatten_mmio_in_fdt(dts):
             for j in range(size_cells):
                 size += mmios[i * (size_cells + address_cells) + address_cells + j]
             offset = __find_parent_offset(dts, pa, base, None)
+            if size == 0:
+                continue
             mmio[pa]['reg'].append({'base': base + offset, 'size': size})
 
     flatten_mmio = []
@@ -142,4 +147,3 @@ def find_flatten_mmio_in_fdt(dts):
         flatten_mmio.append(v)
 
     return flatten_mmio
-

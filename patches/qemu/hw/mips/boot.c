@@ -10,10 +10,10 @@
 #include "hw/loader.h"
 #include "elf.h"
 
-#define ENVP_ADDR           0x80000100 // 2(256)
-#define ENVP_NB_ENTRIES     2
+#define ENVP_ADDR           0xBFC00000 // 2(256)
+#define ENVP_NB_ENTRIES     16
 #define ENVP_ENTRY_SIZE     252
-#define BOOT_LOADER_ADDR    0x80000000 // 48 bytes
+#define BOOT_LOADER_ADDR    0xBFD00000 // 48 bytes
 
 static void do_cpu_reset(void *opaque)
 {
@@ -29,7 +29,7 @@ static void GCC_FMT_ATTR(3, 4) prom_set(uint32_t* prom_buf, int index,
 {
     va_list ap;
     int32_t table_addr;
-    
+
     if (index >= ENVP_NB_ENTRIES)
         return;
 
@@ -75,6 +75,7 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
     long kernel_size, prom_size, initrd_size;
     uint32_t *prom_buf, *boot_loader_buf;
     int big_endian, prom_index = 0;
+    int argc = 0;
 
 #ifdef TARGET_WORDS_BIGENDIAN
     big_endian = 1;
@@ -88,11 +89,11 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
      *
      * ram and flash are allocated in machine_init not here
      */
-    
+
     /* load kernel */
     kernel_size = load_elf(info->kernel_filename, NULL, cpu_mips_kseg0_to_phys, NULL,
                            &kernel_entry, NULL, &kernel_high, big_endian, EM_MIPS, 1, 0);
-    if (kernel_size < 0) {  
+    if (kernel_size < 0) {
         hwaddr ep, loadaddr;
         int is_linux;
         kernel_size = load_uimage(info->kernel_filename, &ep, &loadaddr, &is_linux,
@@ -111,6 +112,7 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
     if (info->initrd_filename) {
         initrd_size = get_image_size(info->initrd_filename);
         if (initrd_size > 0) {
+            // suppose the kernel size (including bss )is less than 0x01000000(16M)
             initrd_offset = (kernel_high + ~INITRD_PAGE_MASK) & INITRD_PAGE_MASK;
             if (initrd_offset + initrd_size > ram_size) {
                 error_report("memory too small for initial ram disk '%s'",
@@ -130,14 +132,18 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
     prom_size = ENVP_NB_ENTRIES * (sizeof(int32_t) + ENVP_ENTRY_SIZE);
     prom_buf = g_malloc(prom_size);
 
-    prom_set(prom_buf, prom_index++, "%s", info->kernel_filename);
     if (initrd_size > 0) {
         prom_set(prom_buf, prom_index++, "rd_start=0x%" PRIx64 " rd_size=%" PRId64 " %s",
                  cpu_mips_phys_to_kseg0(NULL, initrd_offset), initrd_size,
                  info->kernel_cmdline);
+        prom_set(prom_buf, prom_index++, "initrd_start=0x%" PRIx32, (unsigned int)cpu_mips_phys_to_kseg0(NULL, initrd_offset));
+        prom_set(prom_buf, prom_index++, "initrd_size=%" PRId32, (int)initrd_size);
+        argc += 3;
     } else {
         prom_set(prom_buf, prom_index++, "%s", info->kernel_cmdline);
+        argc += 1;
     }
+    prom_set(prom_buf, prom_index, NULL);
 
     rom_add_blob_fixed("prom", prom_buf, prom_size, cpu_mips_kseg0_to_phys(NULL, ENVP_ADDR));
     g_free(prom_buf);
@@ -145,7 +151,7 @@ static int64_t mips_setup_direct_kernel_boot(MIPSCPU *cpu, struct mips_boot_info
     /* small bootloader */
     boot_loader_buf = g_malloc(0x30);
     boot_loader_buf[0x0] = tswap32(0x3c040000);                                      /* lui a0, 0 */
-    boot_loader_buf[0x1] = tswap32(0x34840002);                                      /* ori a0, a0, 2 */
+    boot_loader_buf[0x1] = tswap32(0x34840000 | argc);                               /* ori a0, a0, ARGC */
     boot_loader_buf[0x2] = tswap32(0x3c050000 | ((ENVP_ADDR >> 16) & 0xffff));       /* lui a1, high(ENVP_ADDR) */
     boot_loader_buf[0x3] = tswap32(0x34a50000 | (ENVP_ADDR & 0xffff));               /* ori a1, a0, low(ENVP_ADDR) */
     boot_loader_buf[0x4] = tswap32(0x3c060000 | ((ENVP_ADDR >> 16) & 0xffff));       /* lui a2, high(ENVP_ADDR) */

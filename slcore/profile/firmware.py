@@ -4,8 +4,8 @@ import yaml
 
 from slcore.profile.kernel import KernelForFirmware
 from slcore.profile.openwrt import OpenWRTForFirmware
-from slcore.qemuc import QEMUController
 
+PROFILE_ATTRIBUTES = ['c_cb']
 
 class Firmware(KernelForFirmware, OpenWRTForFirmware):
     def __init__(self, *args, **kwargs):
@@ -28,6 +28,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.profile = None  # /tmp/uuid/profile.ext, dickt
         self.profile_ext = 'yaml'
         self.machine = None
+        self.board = None
 
         self.stat_reference = \
             yaml.safe_load(open(os.path.join(os.getcwd(), 'slcore/profile', 'stats.yaml')))
@@ -35,15 +36,20 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.path_to_summary = None  # /tmp/uuid/stats.yaml
 
         self.components = None
+
         self.dtb = None
         self.dtc = None
+        self.c_cb = None
+
         self.srcodec = None
-        self.qemuc = QEMUController()
+        self.qemuc = None
+        self.config = {}
 
         self.running_command = None
         self.trace_format = None
         self.path_to_trace = None
         self.cancle_compilation = False
+        self.debug = False
 
         # flags
         self.do_not_diagnosis = False  # will stop early

@@ -7,7 +7,13 @@ import os
 
 class TestQEMUController(TestCase):
     def test_get_command(self):
-        pass
+        qemuc = QEMUController()
+        path_to_vmlinux = os.path.join(TESTS_DIR, 'vmlinux')
+        running_command = qemuc.get_command('arm', 'l', 'wrt350n_v2', path_to_vmlinux)
+        # qemu-system-arm -M wrt350n_v2 -kernel /root/esv/tests/vmlinux -nographic -append "console=ttyS0"
+        self.assertEqual(
+            running_command.split('-M')[1].strip(),
+            'wrt350n_v2 -kernel /root/esv/tests/vmlinux -nographic -append "console=ttyS0"')
 
     def test_patch_recover(self):
         qemuc = QEMUController()
@@ -34,7 +40,7 @@ class TestQEMUController(TestCase):
         qemuc = QEMUController()
 
         # install(prefix)
-        prefix = os.path.join(BASE_DIR, 'examples/machines')
+        prefix = os.path.join(TESTS_DIR, 'qemu_install')
         qemuc.install(prefix)
         abs_new = os.path.join(WORKING_DIR, QEMU_DIR_NAME, 'wrt350n_v2.c')
         self.assertTrue(os.path.exists(abs_new))
@@ -42,10 +48,14 @@ class TestQEMUController(TestCase):
         self.assertFalse(os.path.exists(abs_new))
 
     def test_compile(self):
-        pass
+        qemuc = QEMUController()
+        qemuc.compile()
 
     def test_debug(self):
-        pass
+        qemuc = QEMUController()
+        path_to_vmlinux = os.path.join(TESTS_DIR, 'vmlinux')
+        running_command = qemuc.get_command('arm', 'l', 'versatilepb', path_to_vmlinux)
+        qemuc.debug(running_command, path_to_vmlinux)
 
     def test_trace(self):
         pass

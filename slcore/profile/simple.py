@@ -7,6 +7,7 @@ import shutil
 
 from slcore.profile.firmware import Firmware
 from slcore.compositor import Components
+from settings import *
 
 
 class Bamboo(object):
@@ -168,6 +169,12 @@ class SimpleFirmware(Firmware):
     def print_profile(self):
         path_to_profile = os.path.join(self.target_dir, 'profile.yaml')
         os.system('cat {}'.format(path_to_profile))
+
+    def get_board(self, *args, **kwargs):
+        return self.get_general('basics', 'board')
+
+    def set_board(self, *args, **kwargs):
+        self.set_general('basics', 'board', value=args[0])
 
     def get_uuid(self, *args, **kwargs):
         return self.get_general('basics', 'uuid')
@@ -559,6 +566,8 @@ class SimpleFirmware(Firmware):
     def save_profile(self, *args, **kwargs):
         if self.components:
             self.profile['components'] = self.components.get_attributes()
+        if self.c_cb:
+            self.profile['c_cb'] = self.c_cb
 
         with open(self.path_to_profile, 'w') as f:
             yaml.safe_dump(self.profile, f)
@@ -591,6 +600,10 @@ class SimpleFirmware(Firmware):
         if 'components' in profile:
             self.components = Components()
             self.components.set_attributes(profile['components'])
+        if 'path_to_dtb' in profile:
+            self.dtb = os.path.join(BASE_DIR, profile['path_to_dtb'])
+        if 'c_cb' in profile:
+            self.c_cb = profile['c_cb']
         self.profile = profile
 
     def get_profile(self, *args, **kwargs):
