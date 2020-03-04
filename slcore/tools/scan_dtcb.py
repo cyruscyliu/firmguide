@@ -191,7 +191,11 @@ def project_scan_declare():
     project = get_current_project()
     if project is None:
         return
-    path_to_source = project.attrs['source']
+    path_to_source = project.attrs['source'] # checked
+    if path_to_source is None:
+        print('please set the source code first')
+        return
+
     scan_declare(path_to_source)
     update_dtdb(path_to_source)
 
@@ -200,7 +204,10 @@ def project_scan_dtcb(path_to_dtb):
     project = get_current_project()
     if project is None:
         return
-    path_to_source = project.attrs['source']
+    path_to_source = project.attrs['source'] # checked
+    if path_to_source is None:
+        print('please set the source code first')
+        return
     scan_dtcb(path_to_dtb, path_to_source)
 
 

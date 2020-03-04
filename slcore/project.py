@@ -11,6 +11,12 @@ class Project(object):
     def __init__(self, uuid=None, arch=None, endian=None, target_dir=None,
                  brand=None, target=None, subtarget=None, images=None,
                  source=None, cross_compile=None, makeout=None):
+        """
+        Those arguments can be divided into 3 groups.
+        1. basics: uuid/arch/endian/target_dir [required]
+        2. brand related: brand, target, subtarget [optional]
+        3. source related: source/cross_compile/makeout [optional]
+        """
         self.target_dir = target_dir
         self.attrs = {
             'uuid': uuid,
@@ -88,6 +94,35 @@ def project_open(uuid):
 
     __project_set_current(project)
     logger_info2('project', 'open', uuid, 1)
+    return True
+
+
+def project_config(brand=None, target=None, subtarget=None,
+                   source=None, cross_compile=None, makeout=None):
+    project = __project_get_current()
+    if project is None:
+        print('please create/open a project {}'.format(project.attrs['uuid']))
+        return False
+
+    if brand is not None:
+        project.attrs['brand'] = brand
+        logger_info2('project', 'config', 'brand={}'.format(brand), 1)
+    if target is not None:
+        project.attrs['target'] = target
+        logger_info2('project', 'config', 'target={}'.format(target), 1)
+    if subtarget is not None:
+        project.attrs['subtarget'] = subtarget
+        logger_info2('project', 'config', 'subtarget={}'.format(subtarget), 1)
+    if source is not None:
+        project.attrs['source'] = source
+        logger_info2('project', 'config', 'source={}'.format(source), 1)
+    if cross_compile is not None:
+        project.attrs['cross_compile'] = cross_compile
+        logger_info2('project', 'config', 'cross_compile={}'.format(cross_compile), 1)
+    if makeout is not None:
+        project.attrs['makeout'] = makeout
+        logger_info2('project', 'config', 'makeout={}'.format(makeout), 1)
+    __project_set_current(project)
     return True
 
 
@@ -186,11 +221,18 @@ def project_get_srcodec():
         return None
 
     srcodec = SRCodeController()
-    path_to_source_code = project.attrs['source']
+    path_to_source_code = project.attrs['source'] # checked
+    if path_to_source_code is None:
+        print('please set the source code first')
+        return None
     srcodec.set_path_to_source_code(path_to_source_code)
     srcodec.set_path_to_vmlinux(os.path.join(path_to_source_code, 'vmlinux'))
     srcodec.set_path_to_dot_config(os.path.join(path_to_source_code, '.config'))
-    srcodec.set_path_to_cross_compile(project.attrs['cross_compile'])
+
+    cross_compile = project.attrs['cross_compile'] # checked
+    if cross_compile is None:
+        return None
+    srcodec.set_path_to_cross_compile(cross_compile)
     srcodec.set_endian(project.attrs['endian'])
     srcodec.set_arch(project.attrs['arch'])
     srcodec.set_path_to_makeout(project.attrs['makeout'])
