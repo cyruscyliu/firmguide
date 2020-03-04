@@ -3,43 +3,7 @@
 [![CircleCI](https://circleci.com/gh/cyruscyliu/esv/tree/master.svg?style=svg&circle-token=7f12caaa351d02731d57d8165e634dc3e3537d33)](https://circleci.com/gh/cyruscyliu/esv/tree/master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a7aacb11a3b14a7d8e069d8a440a43c0)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cyruscyliu/esv&amp;utm_campaign=Badge_Grade)
 
-Salamander is a project aiming to boot any Linux-based firmware blob in a pure software way.
-
-#### who will need the Salamander
-+ who want to run a Linux based firmware not supported officially
-+ who would like to dynamically analyze a Linux based firmware
-
-#### support list
-+ arm/mach-orion5x
-+ arm/mach-oxnas
-+ mips/bcm47xx
-+ mips/ath79
-
-## Usage
-
-##### if you have a firmware blob
-+ the path to the firmware [required]
-+ the uuid of the firmware [required]
-+ the architecture and the endianness [required]
-+ the brand of the firmware [optional]
-+ the download url [optional]
-
-```
-cd ~/salamander
-./bin.py -f /root/images/ec5859077831e078987ebb05461d4ec834896f3e.bin -u 15007 -a arm -e l -b openwrt -l http://archive.openwrt.org/backfire/10.03/orion/openwrt-wrt350nv2-squashfs-recovery.bin
-```
-
-##### if you have compilable Linux kernel source code
-+ the uuid of the board
-+ the path to source code [required]
-+ the prefix of the toolchain used to compile the source code [required]
-+ the architecture and the endianness [optional]
-+ the make details when you compiled the source code [optional]
-+ the brand of the firmware [optional]
-
-```
-./src.py -u oxnas_generic -a arm -e l -b openwrt -s /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/linux-oxnas/linux-3.18.20 -mkout /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/OpenWrt-ImageBuilder-15.05-oxnas.Linux-x86_64/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/linux-oxnas/makeout.txt -gcc /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/OpenWrt-SDK-15.05-oxnas_gcc-4.8-linaro_uClibc-0.9.33.2_eabi.Linux-x86_64/staging_dir/toolchain-arm_mpcore_gcc-4.8-linaro_uClibc-0.9.33.2_eabi/bin/arm-openwrt-linux- -f /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/bin/oxnas/openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin
-```
+Salamander is such a project that builds the virtual execution environment in a pure software way, showing us a feasible way to boot up any firmware in limited steps, which is of scale and reliable.
 
 ## Install
 
