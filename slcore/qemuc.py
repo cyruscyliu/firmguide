@@ -19,16 +19,13 @@ interfaces:
 import os
 import qmp
 import tempfile
-import subprocess
-
-from settings import *
 
 
 class QEMUController(object):
-    def __init__(self):
+    def __init__(self, qemu_root):
         self.modified = []
         self.new = []
-        self.qemu_root = os.path.join(WORKING_DIR, QEMU_DIR_NAME)
+        self.qemu_root = qemu_root
         self.build_system = {
             'arml': {
                 'defconfig': 'default-configs/arm-softmmu.mak', 'kconfig': 'hw/arm/Kconfig',
@@ -129,30 +126,12 @@ class QEMUController(object):
 
     def compile(self, cflags=None, cpu=4):
         if cflags:
-            os.system('cd {}/{} && make -j{} CFLAGS={} && cd $OLDPWD'.format(WORKING_DIR, QEMU_DIR_NAME, cpu, cflags))
+            os.system('cd {} && make -j{} CFLAGS={} && cd $OLDPWD'.format(self.qemu_root, cpu, cflags))
         else:
-            os.system('cd {}/{} && make -j{} && cd $OLDPWD'.format(WORKING_DIR, QEMU_DIR_NAME, cpu))
+            os.system('cd {} && make -j{} && cd $OLDPWD'.format(self.qemu_root, cpu))
 
     def trace(self, *args, **kwargs):
-        """
-        trace(command, uuid=0, arch='arm', endian='l')
-        """
-        uuid = kwargs.pop('uuid', 'unknown')
-        arch = kwargs.pop('arch', 'arm')
-        endian = kwargs.pop('endian', 'l')
-        trace_to = '{}-{}-{}.trace'.format(uuid, arch, endian)
-        # trace_flags = '-d in_asm,int,cpu -D {}'.format(trace_to)
-        trace_flags = '-d in_asm,int -D {}'.format(trace_to)
-        qmp_flags = '-qmp tcp:localhost:4444,server,nowait'
-
-        for command in args:
-            try:
-                subprocess.run(full_command, timeout=20, shell=True)
-            except subprocess.TimeoutExpired:
-                qemu = qmp.QEMUMonitorProtocol(('localhost', 4444))
-                qemu.connect()
-                qemu.cmd('quit')
-                qemu.close()
+        raise NotImplementedError()
 
     def debug(self, running_cmdline, path_to_vmlinux, **kwargs):
         """

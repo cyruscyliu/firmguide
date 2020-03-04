@@ -197,4 +197,6 @@ def project_get_srcodec():
 
 
 def project_get_qemuc():
-    return QEMUController()
+    from settings import WORKING_DIR, QEMU_DIR_NAME
+    return QEMUController(os.path.join(WORKING_DIR, QEMU_DIR_NAME))
+

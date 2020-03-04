@@ -2,10 +2,9 @@
 These interfaces unpack, pack given firmware blob to uImages.
 """
 import os
-import types
 import binwalk
 
-from settings import *
+from slcore.common import Common
 
 TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE, IMAGETAG_KERNEL = 1, 2, 3, 4
 
@@ -13,27 +12,6 @@ COMPONENT_ATTRIBUTES = [
     'path_to_raw', 'type', 'path_to_image', 'path_to_kernel',
     'path_to_dtb', 'path_to_rootfs', 'path_to_uimage',
 ]
-
-class Common(object):
-    def set_attributes(self, attrs):
-        if isinstance(attrs, list):
-            for attr in attrs:
-                self.__dict__[attr] = None
-                self.__setattr__('set_'+attr, lambda x, a=attr: self.__dict__.__setitem__(a, x))
-                self.__setattr__('get_'+attr, lambda a=attr: self.__dict__.__getitem__(a))
-        elif isinstance(attrs, dict):
-            for k, v in attrs.items():
-                self.__dict__[k] = v
-
-    def get_attributes(self):
-        attrs = {}
-
-        for k, v in self.__dict__.items():
-            if isinstance(v, types.FunctionType):
-                continue
-            attrs[k] = v
-
-        return attrs
 
 
 class Components(Common):
@@ -163,11 +141,7 @@ def pack_kernel(components, arch='arm', load_address="0x00008000", entry_point="
 
 
 def pack_image(components, flash_size=None):
-    rootfs = components.get_path_to_rootfs()
-    if rootfs is None:
-        rootfs = DEFAULT_ROOTFS
-    __enlarge_image(rootfs, flash_size)
-    return rootfs
+    raise NotImplementedError()
 
 
 def pack_initramfs(components, mounted_to=None):

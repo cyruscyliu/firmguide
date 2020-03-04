@@ -4,17 +4,13 @@ source code controller
 + cmdline/preprocess/compile/link one file
 + cfg/cg/gloabls
 """
-from settings import *
 from logger import logger_info2, logger_debug2, logger_warning2
-from pycparser import c_parser, c_ast, parse_file
-from slcore.compositor import Common
+from slcore.common import Common
 from slcore.naive_parsers.symbols import parse_system_map, addr2file
 from slcore.srcodeb import UNMODELED_SKIP_LIST, MODELED_SKIP_TABLE
 
 import os
-import qmp
 import pydot
-import subprocess
 
 BACKUP, PATCH, COMPILE, LINK = 0, 1, 2, 3
 

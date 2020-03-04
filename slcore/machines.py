@@ -1,7 +1,7 @@
 from slcore.database.dbf import get_database
 from slcore.naive_parsers.machine_id import find_machine_id
 from slcore.dt_parsers.compatible import find_compatible
-from slcore.compositor import Common
+from slcore.common import Common
 
 
 MD_ATRRIBUTES = ['machine_ids', 'compatible', 'profiles', 'device_tree', 'targets']
