@@ -6,7 +6,7 @@ import binwalk
 
 from slcore.common import Common
 
-TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE, IMAGETAG_KERNEL = 1, 2, 3, 4
+TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE, IMAGETAG_KERNEL, COMBINEDIMAGE_KERNEL = 1, 2, 3, 4, 5
 
 COMPONENT_ATTRIBUTES = [
     'path_to_raw', 'type', 'path_to_image', 'path_to_kernel',
@@ -98,7 +98,7 @@ def __handle_legacy_uimage(image_path, uimage3=False, uimage3_offset=None):
     return kernel, dtb, uimage
 
 
-def __handle_imagetag_kernel(image_path):
+def __handle_lzma_kernel(image_path):
     kernel = __replace_extension(image_path, 'imagetag', 'kernel')
     uimage = __replace_extension(image_path, 'imagetag', 'uimage')
     dtb = None
@@ -239,7 +239,13 @@ def unpack(path, target_dir=None, extract=True):
             components.set_type(IMAGETAG_KERNEL)
             components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
             # this kernel is not recognized yet
-            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_imagetag_kernel(
+            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
+                components.path_to_image)
+        elif str(result.description).find('Combined image header') != -1:
+            components.set_type(COMBINEDIMAGE_KERNEL)
+            components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
+            # this kernel is not recognized yet
+            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
                 components.path_to_image)
         elif str(result.description).find('Flattened device tree') != -1:
             # we sometimes get the dtb directly

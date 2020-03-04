@@ -213,8 +213,8 @@ if __name__ == '__main__':
     pscan_topology.add_argument('-dtb', '--dtb', required=True)
     pscan_topology.set_defaults(func=__scan_topology)
     # 2.5 unpack
-    punpack = commands.add_parser('unpack', help='find interrupts topology in a device tree')
-    punpack.add_argument('-f', '--firmware', required=True)
+    punpack = commands.add_parser('unpack', help='unpack the given image')
+    punpack.add_argument('-f', '--firmware', required=True, metavar='IMAGE')
     punpack.set_defaults(func=__unpack)
     # 2.6 batch processing
     pbatch = commands.add_parser('batch', help='batch processing')

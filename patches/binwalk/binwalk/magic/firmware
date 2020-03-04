@@ -89,6 +89,18 @@
 >6      string        x         name: "%s",
 >48     string        x         root device: "%s"
 
+# chaos_calmer-15.05/scripts/combined-image.sh
+# Combined Image
+0       string        CI      Combined image header, 64KB,
+>2       string        x       {kernel_size:"%s"}
+>2       string        x       {strlen:8}
+>2       string        x       kernel size: 0x{string}%s,
+>10      string        x       {strlen:8}
+>10      string        x       rootfs size: 0x{string}%s,
+>10      string        x       {rootfs_size:%s}
+>18      string        x       md5: %s
+>50      string      !\x00     {invalid}
+
 # trx image file
 0       string        HDR0    TRX firmware header, little endian,
 >4      lelong        <1      {invalid}

@@ -14,8 +14,12 @@ def project_unpack(path_to_firmware):
         return
 
     components = unpack(path_to_firmware, target_dir=project.target_dir)
-    for k, v in components.__dict__.items():
-        print(k, v)
+    for k, v in components.get_attributes().items():
+        if isinstance(v, str):
+            for line in v.strip().split('\n'):
+                print('[+] {}: {}'.format(k, line))
+        else:
+            print('[+] {}: {}'.format(k, v))
 
 
 def scan_dt(argv):

@@ -1,113 +1,222 @@
 bamboo:
   stub0:
-    mmio_base: '0x18060000'
-    mmio_size: '0x8'
+    compatible: &id001 ['qcom,ar7240-pci']
+    mmio_base: '0x14000000'
+    mmio_size: '0x1000'
     registers:
-      stub_reserved0: {offset: 0x0 ... 0x4, value: '0x0'}
+      stub_reserved0: {offset: 0x0 ... 0xffc, value: '0x0'}
   stub1:
-    mmio_base: '0x18060010'
-    mmio_size: '0x4'
+    compatible: &id002 ['qcom,ar7240-pci']
+    mmio_base: '0x16000000'
+    mmio_size: '0x1000'
     registers:
-      stub_reserved1: {offset: '0x0', value: '0x10000000'}
+      stub_reserved1: {offset: 0x0 ... 0xffc, value: '0x0'}
   stub10:
-    mmio_base: '0x19000000'
-    mmio_size: '0x200'
-    registers:
-      stub_reserved10: {offset: 0x0 ... 0x1fc, value: '0x0'}
-  stub11:
-    mmio_base: '0x1f000000'
-    mmio_size: '0x1000000'
-    registers:
-      stub_reserved11: {offset: 0x0 ... 0xfffffc, value: '0x0'}
-  stub12:
-    mmio_base: '0x18070000'
-    mmio_size: '0x100'
-    registers:
-      stub_reserved12: {offset: 0x0 ... 0xfc, value: '0x0'}
-  stub13:
-    mmio_base: '0x180c0000'
-    mmio_size: '0x30000'
-    registers:
-      stub_reserved13: {offset: 0x0 ... 0x2fffc, value: '0x0'}
-  stub14:
-    mmio_base: '0x18100000'
-    mmio_size: '0x20000'
-    registers:
-      stub_reserved14: {offset: 0x0 ... 0x1fffc, value: '0x0'}
-  stub15:
-    mmio_base: '0x18060090'
-    mmio_size: '0x4'
-    registers:
-      stub_reserved15: {offset: '0x0', value: '0xb0'}
-  stub16:
-    mmio_base: '0x18060094'
-    mmio_size: '0x6c'
-    registers:
-      stub_reserved16: {offset: 0x0 ... 0x68, value: '0x0'}
-  stub2:
-    mmio_base: '0x18060018'
-    mmio_size: '0x78'
-    registers:
-      stub_reserved2: {offset: 0x0 ... 0x74, value: '0x0'}
-  stub3:
-    mmio_base: '0x18060014'
-    mmio_size: '0x4'
-    registers:
-      stub_reserved3: {offset: '0x0', value: '0x10000000'}
-  stub4:
+    compatible: &id003 ['qca,ar9557-pll', 'qca,qca9550-pll', syscon]
     mmio_base: '0x18050004'
-    mmio_size: '0xfc'
+    mmio_size: '0x4c'
     registers:
-      stub_reserved4: {offset: 0x0 ... 0xf8, value: '0x0'}
-  stub5:
-    mmio_base: '0x18050000'
-    mmio_size: '0x4'
-    registers:
-      stub_reserved5: {offset: '0x0', value: '0x10'}
-  stub6:
-    mmio_base: '0x18000000'
-    mmio_size: '0x100'
-    registers:
-      stub_reserved6: {offset: 0x0 ... 0xfc, value: '0x0'}
-  stub7:
+      stub_reserved10: {offset: 0x0 ... 0x48, value: '0x0'}
+  stub11:
+    compatible: ['qca,ar7130-wdt']
     mmio_base: '0x18060008'
     mmio_size: '0x8'
     registers:
-      stub_reserved7: {offset: 0x0 ... 0x4, value: '0x0'}
-  stub8:
-    mmio_base: '0x18040000'
+      stub_reserved11: {offset: 0x0 ... 0x4, value: '0x0'}
+  stub12:
+    compatible: ['qca,ar7240-misc-intc']
+    mmio_base: '0x18060010'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved12: {offset: '0x0', value: '0x0'}
+  stub13:
+    compatible: ['qca,qca9550-reset', 'qca,ar7100-reset']
+    mmio_base: '0x1806001c'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved13: {offset: '0x0', value: '0x0'}
+  stub14:
+    compatible: ['qca,qca9550-reset', 'qca,ar7100-reset', simple-bus]
+    mmio_base: '0x180600c0'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved14: {offset: '0x0', value: '0x0'}
+  stub15:
+    compatible: ['qca,qca9550-gmac']
+    mmio_base: '0x18070000'
+    mmio_size: '0x58'
+    registers:
+      stub_reserved15: {offset: 0x0 ... 0x54, value: '0x0'}
+  stub16:
+    compatible: *id001
+    mmio_base: '0x180c0000'
+    mmio_size: '0x1000'
+    registers:
+      stub_reserved16: {offset: 0x0 ... 0xffc, value: '0x0'}
+  stub17:
+    compatible: *id001
+    mmio_base: '0x180f0000'
     mmio_size: '0x100'
     registers:
-      stub_reserved8: {offset: 0x0 ... 0xfc, value: '0x0'}
-  stub9:
+      stub_reserved17: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub18:
+    compatible: ['qca,qca9550-wmac']
+    mmio_base: '0x18100000'
+    mmio_size: '0x10000'
+    registers:
+      stub_reserved18: {offset: 0x0 ... 0xfffc, value: '0x0'}
+  stub19:
+    compatible: *id002
+    mmio_base: '0x18250000'
+    mmio_size: '0x1000'
+    registers:
+      stub_reserved19: {offset: 0x0 ... 0xffc, value: '0x0'}
+  stub2:
+    compatible: ['qca,ar9557-ddr-controller', 'qca,ar7240-ddr-controller']
+    mmio_base: '0x18000000'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved2: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub20:
+    compatible: *id002
+    mmio_base: '0x18280000'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved20: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub21:
+    compatible: &id004 ['qca,qca9550-eth', syscon]
+    mmio_base: '0x19000000'
+    mmio_size: '0x34'
+    registers:
+      stub_reserved21: {offset: 0x0 ... 0x30, value: '0x0'}
+  stub22:
+    compatible: ['qca,qca9550-eth', syscon]
     mmio_base: '0x1a000000'
     mmio_size: '0x200'
     registers:
-      stub_reserved9: {offset: 0x0 ... 0x1fc, value: '0x0'}
-basics: {architecture: mips, endian: b, machine_description: ar71xx_generic, machine_name: ar71xx_generic,
-  uuid: ar71xx_generic}
+      stub_reserved22: {offset: 0x0 ... 0x1fc, value: '0x0'}
+  stub23:
+    compatible: [generic-ehci]
+    mmio_base: '0x1b000000'
+    mmio_size: '0x1fc'
+    registers:
+      stub_reserved23: {offset: 0x0 ... 0x1f8, value: '0x0'}
+  stub24:
+    compatible: [generic-ehci]
+    mmio_base: '0x1b400000'
+    mmio_size: '0x1fc'
+    registers:
+      stub_reserved24: {offset: 0x0 ... 0x1f8, value: '0x0'}
+  stub25:
+    compatible: ['qca,ar9557-spi', 'qca,ar7100-spi']
+    mmio_base: '0x1f000000'
+    mmio_size: '0x10'
+    registers:
+      stub_reserved25: {offset: 0x0 ... 0xc, value: '0x0'}
+  stub26:
+    compatible: [ath79-iv-001]
+    mmio_base: '0x18060090'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved26: {offset: '0x0', value: '0xb0'}
+  stub27:
+    compatible: [ath79-iv-002]
+    mmio_base: '0x18060014'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved27: {offset: '0x0', value: '0x0'}
+  stub28:
+    compatible: *id003
+    mmio_base: '0x18050000'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved28: {offset: '0x0', value: '0x810'}
+  stub29:
+    compatible: *id004
+    mmio_base: '0x19000034'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved29: {offset: '0x0', value: '0x0'}
+  stub3:
+    compatible: [ns16550a]
+    mmio_base: '0x18020000'
+    mmio_size: '0x20'
+    registers:
+      stub_reserved3: {offset: 0x0 ... 0x1c, value: '0x0'}
+  stub30:
+    compatible: *id004
+    mmio_base: '0x19000038'
+    mmio_size: '0x1c8'
+    registers:
+      stub_reserved30: {offset: 0x0 ... 0x1c4, value: '0x0'}
+  stub31:
+    compatible: [ath79-iv-005]
+    mmio_base: '0x180600b0'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved31: {offset: '0x0', value: '0x10'}
+  stub32:
+    compatible: [ath79-iv-006]
+    mmio_base: '0x18040028'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved32: {offset: '0x0', value: '0x0'}
+  stub4:
+    compatible: &id005 ['qca,qca9550-usb-phy', 'qca,ar7200-usb-phy']
+    mmio_base: '0x18030000'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved4: {offset: '0x0', value: '0x0'}
+  stub5:
+    compatible: *id005
+    mmio_base: '0x18030004'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved5: {offset: '0x0', value: '0x0'}
+  stub6:
+    compatible: &id006 ['qca,qca9550-usb-phy', 'qca,ar7200-usb-phy']
+    mmio_base: '0x18030010'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved6: {offset: '0x0', value: '0x0'}
+  stub7:
+    compatible: *id006
+    mmio_base: '0x18030014'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved7: {offset: '0x0', value: '0x0'}
+  stub8:
+    compatible: ['qca,ar9557-gpio', 'qca,ar9340-gpio']
+    mmio_base: '0x18040000'
+    mmio_size: '0x28'
+    registers:
+      stub_reserved8: {offset: 0x0 ... 0x24, value: '0x0'}
+  stub9:
+    compatible: [pinctrl-single]
+    mmio_base: '0x1804002c'
+    mmio_size: '0x44'
+    registers:
+      stub_reserved9: {offset: 0x0 ... 0x40, value: '0x0'}
+basics: {architecture: mips, board: ath79, board_id: '0xFFFFFFFF', endian: b, machine_name: ath79,
+  uuid: ath79}
 components: {output: '0x00000000    uImage header, header size: 64 bytes, created:
-    2020-01-03 10:04:13, image size: 1261910 bytes, Data Address: 0x80060000, Entry
+    2020-01-29 16:05:35, image size: 3571355 bytes, Data Address: 0x80060000, Entry
     Point: 0x80060000, OS: Linux, CPU: MIPS, compression type: lzma, image name: "MIPS
-    OpenWrt Linux-3.18.20"
+    OpenWrt Linux-4.14.167"
 
     0x00000040    LZMA compressed data, properties: 0x6D, dictionary size: 8388608
-    bytes, uncompressed size: 3846796 bytes
+    bytes, uncompressed size: 10957909 bytes
 
-    ', path_to_dtb: null, path_to_image: /root/esv/../build/ar71xx_generic/_openwrt-15.05-ar71xx-generic-bxu2000n-2-a1-kernel.bin.extracted/0.uimage,
-  path_to_kernel: /root/esv/../build/ar71xx_generic/_openwrt-15.05-ar71xx-generic-bxu2000n-2-a1-kernel.bin.extracted/40,
-  path_to_raw: /root/openwrt-build-docker/share/15.05-cc3a47a374475253f93a08eea6eaadce/./chaos_calmer-15.05/bin/ar71xx/openwrt-15.05-ar71xx-generic-bxu2000n-2-a1-kernel.bin,
-  path_to_rootfs: null, path_to_uimage: /root/esv/../build/ar71xx_generic/_openwrt-15.05-ar71xx-generic-bxu2000n-2-a1-kernel.bin.extracted/0.uimage,
+    ', path_to_dtb: /root/esv/../build/ath79/_openwrt-19.07.1-ath79-generic-librerouter_librerouter-v1-initramfs-kernel.bin.extracted/_40.extracted/A71264.dtb,
+  path_to_image: /root/esv/../build/ath79/_openwrt-19.07.1-ath79-generic-librerouter_librerouter-v1-initramfs-kernel.bin.extracted/0.uimage,
+  path_to_kernel: /root/esv/../build/ath79/_openwrt-19.07.1-ath79-generic-librerouter_librerouter-v1-initramfs-kernel.bin.extracted/40,
+  path_to_raw: /root/openwrt-build-docker/share/19.07.1-ath79-generic/openwrt-19.07.1/bin/targets/ath79/generic/openwrt-19.07.1-ath79-generic-librerouter_librerouter-v1-initramfs-kernel.bin,
+  path_to_rootfs: null, path_to_uimage: /root/esv/../build/ath79/_openwrt-19.07.1-ath79-generic-librerouter_librerouter-v1-initramfs-kernel.bin.extracted/0.uimage,
   supported: true, type: 2}
-cpu: {model: 74Kf}
-cpu_pp: {name: mips-default}
-kernel: {kernel_load_address: '0x80060000'}
+kernel: {kernel_entry_point: '0x80448320', kernel_load_address: '0x80060000'}
 mapping:
   '0x80000000': {pa: '0x00000000', size: '0x20000000', va: '0x80000000'}
   '0xa0000000': {pa: '0x00000000', size: '0x20000000', va: '0xa0000000'}
-ram: {base: '0x0', priority: '0', size: 128 * MiB}
+ram: {base: '0x0', priority: '0', size: 256 * MiB}
 runtime: {iteration: 1, user_mode: true}
-uart:
-  num: 1
-  uart@0: {baud_rate: '115200', irq: '0x6', mmio_base: '0x18020000', mmio_size: '0x100',
-    name: serial8250, reg_shift: '0x2'}
+path_to_dtb: examples/mips/ath79/profile.dtb

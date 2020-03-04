@@ -39,9 +39,10 @@ ath25:
 ath79:
   device_tree: true
   profiles:
-    examples/mips/ath79/profile.yaml: {brand: openwrt, revision: '15.05', version: 3.18.20}
+      # examples/mips/ath79/profile.yaml: {brand: openwrt, revision: '15.05', version: 3.18.20}
+    examples/mips/ath79/profile.yaml: {brand: openwrt, revision: '19.07.1', version: 4.14.167}
   targets:
-    openwrt: [ar71xx]
+    openwrt: [ar71xx, ath79]
 bcm47xx:
   device_tree: false
   profiles:
