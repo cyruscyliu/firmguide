@@ -54,6 +54,10 @@ def run_diagnosis(firmware):
 
 def run_model(firmware):
     srcodec = firmware.get_srcodec()
+    if srcodec is None:
+        self.context['input'] = 'please set the source code'
+        return False
+
 
     if firmware.uuid == 'ath79':
         fcbs = ath79_fcbs

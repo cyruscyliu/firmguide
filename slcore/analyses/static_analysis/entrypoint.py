@@ -5,6 +5,11 @@ from slcore.analyses.analysis import Analysis
 
 class EntryPoint(Analysis):
     def run(self, firmware):
+        srcodec = firmware.get_srcodec()
+        if srcodec is None:
+            self.context['input'] = 'please set the source code'
+            return False
+
         path_to_vmlinux = firmware.get_srcodec().get_path_to_vmlinux()
 
         with os.popen('readelf -h {}'.format(path_to_vmlinux)) as f:

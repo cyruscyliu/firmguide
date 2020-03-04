@@ -223,7 +223,6 @@ def project_get_srcodec():
     srcodec = SRCodeController()
     path_to_source_code = project.attrs['source'] # checked
     if path_to_source_code is None:
-        print('please set the source code first')
         return None
     srcodec.set_path_to_source_code(path_to_source_code)
     srcodec.set_path_to_vmlinux(os.path.join(path_to_source_code, 'vmlinux'))

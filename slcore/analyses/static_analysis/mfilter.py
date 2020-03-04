@@ -72,6 +72,11 @@ class Filter(Analysis):
             return False
 
     def run(self, firmware):
+        srcodec = firmware.get_srcodec()
+        if srcodec is None:
+            self.context['input'] = 'please set the source code'
+            return False
+
         arch = firmware.get_arch()
         if arch == 'arm':
             return self.is_unsupport_arm_machine(firmware)

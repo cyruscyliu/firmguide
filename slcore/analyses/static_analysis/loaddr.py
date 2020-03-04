@@ -10,6 +10,11 @@ class LoadAddr(Analysis):
             self.info(firmware, 'get arm loading address 0x{:x} by default'.format(0x8000), 1)
             return True
 
+        srcodec = firmware.get_srcodec()
+        if srcodec is None:
+            self.context['input'] = 'please set the source code'
+            return False
+
         path_to_srcode = firmware.get_srcodec().get_path_to_source_code()
         lds_names = ['kernel/vmlinux.lds', 'vmlinux.lds', 'ld.script', 'kernel/ld.script']
 
