@@ -120,7 +120,7 @@ def run_model(firmware):
     print('config save at {}'.format(path_to_config))
 
 
-def project_standard_warmup(args, components=None):
+def project_standard_warmup(args, components=None, profile=None):
     project = get_current_project()
     if project is None:
         exit()
@@ -130,6 +130,8 @@ def project_standard_warmup(args, components=None):
     path_to_profile = os.path.join(target_dir, 'profile.yaml')
     if not os.path.exists(path_to_profile):
         path_to_profile = None
+    if profile is not None:
+        path_to_profile = profile
 
     firmware = migrate(uuid, path_to_profile=path_to_profile, components=components)
     firmware.set_arch(project.attrs['arch'])
@@ -139,6 +141,8 @@ def project_standard_warmup(args, components=None):
 
     firmware.srcodec = project_get_srcodec()
     firmware.qemuc = project_get_qemuc()
+    if hasattr(args, 'nocompilation'):
+        firmware.cancle_compilation = args.nocompilation
 
     firmware.max_iteration = 1
     firmware.trace_format = 'qemudebug'
@@ -149,12 +153,14 @@ def project_standard_warmup(args, components=None):
 
     if hasattr(args, 'firmware'):
         images = project.attrs['images']
-        if args.firmware:
-            firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
-        elif firmware.get_components() is not None:
-            pass
+        components = firmware.get_components()
+        if components is not None:
+            if args.firmware != components.get_path_to_raw():
+                firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
         elif images is not None and len(images):
             firmware.components = unpack(images[0], target_dir=firmware.target_dir)
+        elif args.firmware:
+            firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
         else:
             print('-f/--firmware missing')
 

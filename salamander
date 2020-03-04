@@ -11,6 +11,7 @@ from slcore.tools.scan_dt import project_unpack
 from slcore.tools.dtinfo import project_show_dtinfo
 from slcore.tools.batch import project_plugin_batch
 from slcore.tools.source import project_source_analysis
+from slcore.tools.machines import project_find_profile
 from slcore.scheduler import project_standard_warmup, project_standard_wrapup, \
     run_static_analysis, run_diagnosis, run_model
 from slcore.generation.dt_renderer import run_dt_renderer
@@ -24,8 +25,10 @@ def __project_create(args):
         brand=args.brand, target=args.target, subtarget=args.subtarget,
         source=args.source, cross_compile=args.cross_compile, makeout=args.makeout)
 
+
 def __project_config(args):
     project_config(
+        uuid=args.uuid, arch=args.arch, endian=args.endian,
         brand=args.brand, target=args.target, subtarget=args.subtarget,
         source=args.source, cross_compile=args.cross_compile, makeout=args.makeout)
 
@@ -99,6 +102,23 @@ def __diagnose(args):
     return project_standard_wrapup(firmware)
 
 
+def __bootup(args):
+    # 1 standard_setup
+    firmware = project_standard_warmup(args)
+
+    profile = project_find_profile(
+        firmware.get_components(), url=args.url)
+    if profile is None:
+        return
+    firmware = project_standard_warmup(args, profile=profile)
+
+    # 2 diagnosis
+    status = run_diagnosis(firmware)
+
+    # 3. take snapshots to save results
+    return project_standard_wrapup(firmware)
+
+
 def __generate(args):
     # 1 standard_setup
     firmware = project_standard_warmup(args)
@@ -149,6 +169,9 @@ if __name__ == '__main__':
     pproject_create.set_defaults(func=__project_create)
     # 1.1.1 config, sometimes we'd like to configure arguments which are not passed through create
     pproject_config = commands.add_parser('config', help='config the project', conflict_handler='resolve')
+    pproject_config.add_argument('-u', '--uuid', type=str, required=False)
+    pproject_config.add_argument('-a', '--arch', choices=['arm', 'arm64', 'mips'], required=False)
+    pproject_config.add_argument('-e', '--endian', choices=['b', 'l'], required=False)
     pproject_config.add_argument('-b', '--brand', choices=['openwrt'], required=False)
     pproject_config.add_argument('-t', '--target', required=False)
     pproject_config.add_argument('-st', '--subtarget', required=False)
@@ -224,6 +247,12 @@ if __name__ == '__main__':
     pdiagnose.add_argument('-dtb', '--dtb', required=False)
     pdiagnose.add_argument('-f', '--firmware', required=False, metavar='IMAGE')
     pdiagnose.set_defaults(func=__diagnose)
+    # 3.4 bootup
+    pbootup = commands.add_parser('bootup', help='boot up your image in current project')
+    pbootup.add_argument('-f', '--firmware', required=False, metavar='IMAGE')
+    pbootup.add_argument('-l', '--url', required=False, help='will be removed in the future')
+    pbootup.add_argument('-nc', '--nocompilation', action='store_true', default=False, help='set this for multi-tasks')
+    pbootup.set_defaults(func=__bootup)
 
     args = parser.parse_args()
     if args.debug:

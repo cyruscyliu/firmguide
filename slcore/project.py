@@ -97,13 +97,23 @@ def project_open(uuid):
     return True
 
 
-def project_config(brand=None, target=None, subtarget=None,
+def project_config(uuid=None, arch=None, endian=None,
+                   brand=None, target=None, subtarget=None,
                    source=None, cross_compile=None, makeout=None):
     project = __project_get_current()
     if project is None:
         print('please create/open a project {}'.format(project.attrs['uuid']))
         return False
 
+    if uuid is not None:
+        project.attrs['uuid'] = uuid
+        logger_info2('project', 'config', 'uuid={}'.format(uuid), 1)
+    if arch is not None:
+        project.attrs['arch'] = arch
+        logger_info2('project', 'config', 'arch={}'.format(arch), 1)
+    if endian is not None:
+        project.attrs['endian'] = endian
+        logger_info2('project', 'config', 'endian={}'.format(endian), 1)
     if brand is not None:
         project.attrs['brand'] = brand
         logger_info2('project', 'config', 'brand={}'.format(brand), 1)
