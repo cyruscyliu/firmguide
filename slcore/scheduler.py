@@ -143,12 +143,14 @@ def project_standard_warmup(args, components=None):
     )
     firmware.debug = args.debug
 
-    if not firmware.get_components() and hasattr(args, 'firmware'):
+    if hasattr(args, 'firmware'):
         images = project.attrs['images']
-        if images is not None and len(images):
-            firmware.components = unpack(images[0], target_dir=firmware.target_dir)
-        elif args.firmware:
+        if args.firmware:
             firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
+        elif firmware.get_components() is not None:
+            pass
+        elif images is not None and len(images):
+            firmware.components = unpack(images[0], target_dir=firmware.target_dir)
         else:
             print('-f/--firmware missing')
 

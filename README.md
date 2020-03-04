@@ -40,6 +40,7 @@ cd ~/salamander
 ```
 ./src.py -u oxnas_generic -a arm -e l -b openwrt -s /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/linux-oxnas/linux-3.18.20 -mkout /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/OpenWrt-ImageBuilder-15.05-oxnas.Linux-x86_64/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/linux-oxnas/makeout.txt -gcc /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/OpenWrt-SDK-15.05-oxnas_gcc-4.8-linaro_uClibc-0.9.33.2_eabi.Linux-x86_64/staging_dir/toolchain-arm_mpcore_gcc-4.8-linaro_uClibc-0.9.33.2_eabi/bin/arm-openwrt-linux- -f /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/bin/oxnas/openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin
 ```
+
 ## Install
 
 ```shell script

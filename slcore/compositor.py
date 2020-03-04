@@ -197,7 +197,7 @@ def unpack(path, target_dir=None, extract=True):
     """
     components = Components()
     if not os.path.exists(path):
-        print('{} not exist'.format(path))
+        print('[-] {} not exist'.format(path))
         components.supported = False
         return components
 

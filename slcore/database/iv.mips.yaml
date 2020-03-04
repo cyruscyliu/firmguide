@@ -1,4 +1,5 @@
 ath79:
+      # /root/openwrt-build-docker/share/19.07.1-ath79-generic/openwrt-19.07.1/bin/targets/ath79/generic/openwrt-19.07.1-ath79-generic-buffalo_bhr-4grv-squashfs-sysupgrade.bin
       # id = __raw_readl(base + 0x90); id &= 0xfff0;
       # _prom_putchar=prom_putchar_ar71xx:0x00a0,0x00c0,0x0100,0x1100,0x00b0,0x0120,0x1120,0x2120,0x0140,0x0160,0x0130,0x1130,0x0150,0x1150
       # _prom_putchar=prom_putchar_ar933x:0x0110,0x1110
@@ -23,3 +24,12 @@ ath79:
       # [#7] 0xffffffff802d8544 → ag71xx_mdio_probe(pdev=0x8fd92c00)
       # am->mii_bus = mii_bus; <- BEFORE ASSIGNMENT
     - {base: 0x19000034, size: 0x4, value: 0x0000, path: drivers/net/ethernet/atheros/ag71xx/ag71xx_mdio.c, compatible: ['ath79-iv-004'], function: ag71xx_mdio_wait_busy}
+      # /root/openwrt-build-docker/share/19.07.1-ath79-generic/openwrt-19.07.1/bin/targets/ath79/generic/openwrt-19.07.1-ath79-generic-librerouter_librerouter-v1-initramfs-kernel.bin
+      # bootstrap = ath79_reset_rr(0xb0);
+      # if (bootstrap & (1UL << (4))) ref_rate = 40 * 1000 * 1000; else ref_rate = 25 * 1000 * 1000;
+    - {base: 0x180600B0, size: 0x4, value: 0x0010, path: arch/mips/ath79/clock.i, compatible: ['ath79-iv-005'], function: qca955x_clocks_init}
+      # gpio_base = (void *)(((((int)(int)((0x18000000 + 0x00040000))) & 0x1fffffff) | 0xa0000000));
+      # t = __raw_readl(gpio_base + 0x28);
+      # t |= uart_en;
+      # __raw_writel(t, gpio_base + 0x28);
+    - {base: 0x18040028, size: 0x4, value: 0x0000, path: arch/mips/ath79/early_printk, compatible: ['ath79-iv-006'], function: prom_enable_uart}

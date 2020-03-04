@@ -135,6 +135,7 @@ def project_close():
         return False
 
     uuid = project.attrs['uuid']
+    project.save()
     __project_clear_current()
     logger_info2('project', 'close', uuid, 1)
     return True

@@ -137,6 +137,8 @@ def find_flatten_mmio_in_fdt(dts):
             for j in range(size_cells):
                 size += mmios[i * (size_cells + address_cells) + address_cells + j]
             offset = __find_parent_offset(dts, pa, base, None)
+            if size == 0:
+                continue
             mmio[pa]['reg'].append({'base': base + offset, 'size': size})
 
     flatten_mmio = []
