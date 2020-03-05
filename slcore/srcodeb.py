@@ -171,53 +171,6 @@ def _panic(analysis, firmware, **kwargs):
             pass
         else:
             analysis.warning(firmware, '{} -> panic(w/o handler)'.format(caller), 0)
-    elif firmware.uuid == 'ramips_rt3883':
-        if caller == 'mips_cpu_intc_init':
-            # domain = irq_domain_add_legacy(of_node, 8, 0, 0, &mips_cpu_intc_irq_domain_ops, ((void *)0))
-            # from builtin function will never be panic
-            pass
-        elif caller == 'prom_soc_init':
-            # void *sysc = (void *) ((((int)(int)(0x10000000)) & 0x1fffffff) | 0xa0000000);
-            # n0 = __raw_readl(sysc + 0x00); n1 = __raw_readl(sysc + 0x04); id = __raw_readl(sysc + 0x0c);
-            # if (n0 == 0x38335452 && n1 == 0x20203338) { ... } else { panic("..."); }
-            mmio_base = 0x10000000
-            firmware.insert_bamboo_devices(mmio_base + 0x00, 0x4, value=0x38335452, compatible=['prom_soc_init1'])
-            firmware.insert_bamboo_devices(mmio_base + 0x04, 0x4, value=0x20203338, compatible=['prom_soc_init2'])
-        elif caller == 'intc_of_init':
-            # irq = irq_of_parse_and_map(node, 0); if (!irq) panic("Failed to get INTC IRQ");
-            # from builtin function will never be panic
-            # if (of_address_to_resource(node, 0, &res)) panic("Failed to get intc memory range");
-            # from builtin function will never be panic
-            pass
-        elif caller == 'plat_time_init':
-            # clk = clk_get_sys("cpu", ((void *)0)); if (IS_ERR(clk)) panic("unable to get CPU clock, err=%ld", PTR_ERR(clk));
-            # from builtin function will never be panic
-            pass
-        elif caller == 'ralink_of_remap':
-            # rt_sysc_membase = plat_of_remap_node("ralink,rt3883-sysc");
-            # rt_memc_membase = plat_of_remap_node("ralink,rt3883-memc");
-            # if (!rt_sysc_membase || !rt_memc_membase) panic("Failed to remap core resources");
-            # go into plat_of_remap_node, we found return __ioremap_mode((res.start), (resource_size(&res)), ...)
-            # from builtin function will never be panic
-            pass
-        elif caller == 'plat_of_remap_node':
-            # np = of_find_compatible_node(((void *)0), ((void *)0), node); if (!np) panic("Failed to find %s node", node);
-            # if (of_address_to_resource(np, 0, &res)) panic("Failed to get resource for %s", node);'
-            # from builtin function will never be panic
-            pass
-        elif caller == 'ralink_clk_add':
-            # struct clk *clk = kzalloc(sizeof(struct clk), ((( gfp_t )0x10u) | (( gfp_t )0x40u) | (( gfp_t )0x80u)));
-            # if (!clk) panic("failed to add clock");
-            # from builtin function will never be panic
-            pass
-        elif caller == 'plat_of_setup':
-            # if (!of_have_populated_dt()) panic("device tree not present");
-            # from builtin function will never be panic
-            # if (of_platform_populate(((void *)0), of_ids, ((void *)0), ((void *)0))) panic("failed to populate DT");
-            # from builtin function will never be panic
-            pass
-        else:
-            analysis.warning(firmware, '{} -> panic(w/o handler)'.format(caller), 0)
     else:
         analysis.warning(firmware, '{} -> panic(w/o handler)'.format(caller), 0)
 

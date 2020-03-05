@@ -113,6 +113,9 @@ def find_flatten_mmio_in_fdt(dts):
             continue
         if pa.find('partitions') != -1:
             continue
+        compatible = dts.get_property('compatible', pa).data
+        if 'palmbus' in compatible:
+            continue
 
         size_cells = __find_parent_size_cells(dts, pa)
         if size_cells is None:
@@ -128,7 +131,7 @@ def find_flatten_mmio_in_fdt(dts):
             address_cells = top_address_cells
         mmios = dts.get_property('reg', pa).data
 
-        mmio[pa] =  {'reg': [], 'compatible': dts.get_property('compatible', pa).data}
+        mmio[pa] =  {'reg': [], 'compatible': compatible}
         for i in range(len(mmios) // (size_cells + address_cells)):
             base = 0
             for j in range(address_cells):

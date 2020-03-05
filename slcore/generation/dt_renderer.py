@@ -330,6 +330,8 @@ static const MemoryRegionOps {0}_ops = {{
                 context['__restore_irqn'] = lambda x: restore_irqn(context, x)
 
                 if k == 'flash' and self.firmware.get_arch() == 'mips':
+                    if context['reg']['base'] > 0x20000000:
+                        context['reg']['base'] &= 0x1FFFFFF
                     context['reg']['size'] = 0x20000000 - context['reg']['base']
                 m_context = m.render(context)
                 if isinstance(m_context, str):

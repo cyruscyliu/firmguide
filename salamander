@@ -156,19 +156,36 @@ if __name__ == '__main__':
     commands = parser.add_subparsers(title='salamander commands')
     # 1 project
     # 1.1 create
-    pproject_create = commands.add_parser('create', help='create a project', conflict_handler='resolve')
-    pproject_create.add_argument('-u', '--uuid', type=str, required=True)
-    pproject_create.add_argument('-a', '--arch', choices=['arm', 'arm64', 'mips'], required=True)
-    pproject_create.add_argument('-e', '--endian', choices=['b', 'l'], required=True)
-    pproject_create.add_argument('-b', '--brand', choices=['openwrt'], required=False)
-    pproject_create.add_argument('-t', '--target', required=False)
-    pproject_create.add_argument('-st', '--subtarget', required=False)
-    pproject_create.add_argument('-s', '--source', metavar='path/to/source', required=False)
-    pproject_create.add_argument('-cc', '--cross_compile', metavar='path/to/cc_prefix', required=False)
-    pproject_create.add_argument('-m', '--makeout', metavar='path/to/makeout', required=False)
+    pproject_create = commands.add_parser('create', conflict_handler='resolve',
+                                          help='Config - Create a project',
+                                          description='Salamander is a project-style tool. '
+                                          'A project is a global information center and will be used '
+                                          'in every future step implicitly. The project is quite useful '
+                                          'saving you from long and forgettable command lines. ')
+    pproject_create.add_argument('-u', '--uuid', type=str, required=True,
+                                 help='A uuid for this project. It can be any string you like. But don\'t use \'-\', use \'_\' instead.')
+    pproject_create.add_argument('-a', '--arch', choices=['arm', 'arm64', 'mips'], required=True,
+                                 help='The architecture. We only support arm, arm64, and mips.')
+    pproject_create.add_argument('-e', '--endian', choices=['b', 'l'], required=True,
+                                 help='The endianness. ARMEB is not supported, other combinations are OK.')
+    pproject_create.add_argument('-b', '--brand', choices=['openwrt'], required=False,
+                                 help='Optional. Say openwrt(lower case of OpenWRT).')
+    pproject_create.add_argument('-t', '--target', required=False,
+                                 help='Brand related. Say ath79 in OpenWRT.')
+    pproject_create.add_argument('-st', '--subtarget', required=False,
+                                 help='Brand related. Say generic is a subtarget of the target ath79 in OpenWRT.')
+    pproject_create.add_argument('-s', '--source', metavar='path/to/source', required=False,
+                                 help='Optional. The source code you\'d like to analyze. BTW, you have to '
+                                      'compile your source first. See --makeout for more infomation.')
+    pproject_create.add_argument('-cc', '--cross_compile', metavar='path/to/cc_prefix', required=False,
+                                 help='Source related. The cross compiler prefix.')
+    pproject_create.add_argument('-m', '--makeout', metavar='path/to/makeout', required=False,
+                                 help='Source related. When you compile your source, remember to save the output. '
+                                      'For Linux, the command can be make ARCH=xxx, CROSS_COMPILE=xxx V=1 >makeout.txt 2>&1.')
     pproject_create.set_defaults(func=__project_create)
     # 1.1.1 config, sometimes we'd like to configure arguments which are not passed through create
-    pproject_config = commands.add_parser('config', help='config the project', conflict_handler='resolve')
+    pproject_config = commands.add_parser('config', help='Config - Config the project', conflict_handler='resolve',
+                                          description='Config the project you created/opened. The arguments are the same as create.')
     pproject_config.add_argument('-u', '--uuid', type=str, required=False)
     pproject_config.add_argument('-a', '--arch', choices=['arm', 'arm64', 'mips'], required=False)
     pproject_config.add_argument('-e', '--endian', choices=['b', 'l'], required=False)
@@ -180,72 +197,86 @@ if __name__ == '__main__':
     pproject_config.add_argument('-m', '--makeout', metavar='path/to/makeout', required=False)
     pproject_config.set_defaults(func=__project_config)
     # 1.2 project open
-    pproject_open = commands.add_parser('open', help='open a project', conflict_handler='resolve')
+    pproject_open = commands.add_parser('open', help='Config - Open a project', conflict_handler='resolve')
     pproject_open.add_argument('-u', '--uuid', type=str, required=True)
     pproject_open.set_defaults(func=__project_open)
     # 1.3 project rename
-    pproject_rename = commands.add_parser('rename', help='rename the project', conflict_handler='resolve')
+    pproject_rename = commands.add_parser('rename', help='Config - Rename the project', conflict_handler='resolve')
     pproject_rename.add_argument('-u', '--uuid', type=str, required=True)
     pproject_rename.set_defaults(func=__project_rename)
     # 1.4 project close
-    pproject_close = commands.add_parser('close', help='close the project', conflict_handler='resolve')
+    pproject_close = commands.add_parser('close', help='Config - Close the project', conflict_handler='resolve')
     pproject_close.set_defaults(func=__project_close)
     # 1.4 project delete
-    pproject_delete = commands.add_parser('delete', help='delete a project', conflict_handler='resolve')
+    pproject_delete = commands.add_parser('delete', help='Config - Delete a project', conflict_handler='resolve')
     pproject_delete.add_argument('-u', '--uuid', type=str, required=True)
     pproject_delete.set_defaults(func=__project_delete)
     # 1.5 project show
-    pproject_close = commands.add_parser('show', help='show the project', conflict_handler='resolve')
+    pproject_close = commands.add_parser('show', help='Config - Show the project', conflict_handler='resolve')
     pproject_close.set_defaults(func=__project_show)
     # 2 plugins
     # 2.1 scan_declare
-    pscan_declare = commands.add_parser('declare', help='find new peripherals defined by XXX_DECLARE')
+    pscan_declare = commands.add_parser('declare', help='Plugin - Find new peripherals in the source')
     pscan_declare.set_defaults(func=__scan_declare)
     # 2.2 scan_dtcb
-    pscan_dtcb = commands.add_parser('dtcb', help='find callbacks w.s.t compatibles in a device tree')
-    pscan_dtcb.add_argument('-dtb', '--dtb', required=True)
+    pscan_dtcb = commands.add_parser('dtcb', help='Plugin - Find callbacks w.s.t compatibles in a device tree')
+    pscan_dtcb.add_argument('dtb')
     pscan_dtcb.set_defaults(func=__scan_dtcb)
+    # 2.4 scan_topology
+    pscan_topology = commands.add_parser('topology', help='Plugin - Find interrupt topology in a device tree')
+    pscan_topology.add_argument('dtb')
+    pscan_topology.set_defaults(func=__scan_topology)
     # 2.3 model_ict
     pmodel_ict = commands.add_parser('ictm', help='model intc/clk/timer in current project')
     pmodel_ict.set_defaults(func=__model_ict)
-    # 2.4 scan_topology
-    pscan_topology = commands.add_parser('topology', help='find interrupts topology in a device tree')
-    pscan_topology.add_argument('-dtb', '--dtb', required=True)
-    pscan_topology.set_defaults(func=__scan_topology)
     # 2.5 unpack
-    punpack = commands.add_parser('unpack', help='unpack the given image')
-    punpack.add_argument('-f', '--firmware', required=True, metavar='IMAGE')
+    punpack = commands.add_parser('unpack', help='Plugin - Unpack an image')
+    punpack.add_argument('firmware', metavar='IMAGE',
+                         help='We extend Binwalk to identify more image headers '
+                              'and can extract the Linux kernel in the image.')
     punpack.set_defaults(func=__unpack)
     # 2.6 batch processing
-    pbatch = commands.add_parser('batch', help='batch processing')
-    pbatch.add_argument('-a', '--add', required=False, metavar='PATH_TO_IMAGE', nargs='+', help='add an image to current project')
-    pbatch.add_argument('-e', '--extend', required=False, metavar='DIR_TO_IMAGES', help='add images to current project')
-    pbatch.add_argument('-dt', '--dt', required=False, action='store_true', default=True, help='add images with device tree')
-    pbatch.add_argument('-c', '--count', required=False, type=int, default=10, help='add how many images to current project')
-    pbatch.add_argument('-s', '--show', required=False, action='store_true', default=False, help='show images of current project')
+    pbatch = commands.add_parser('batch', help='Plugin - Batch processing')
+    pbatch.add_argument('-a', '--add', required=False, metavar='PATH_TO_IMAGE', nargs='+',
+                        help='Add(skip if exists) an image or images to current project by image paths.')
+    pbatch.add_argument('-e', '--extend', required=False, metavar='DIR_TO_IMAGES',
+                        help='Add(skip if exists) an image or images to current project by images directory.')
+    pbatch.add_argument('-dt', '--dt', required=False, action='store_true', default=True,
+                        help='Add images with device tree, only effecting -e, True by default.')
+    pbatch.add_argument('-c', '--count', required=False, type=int, default=10,
+                        help='Limit how many images to be added to current project, only effecting -e, 10 by default.')
+    pbatch.add_argument('-s', '--show', required=False, action='store_true', default=False,
+                        help='Show images of current project. Similar to ./salamander show.')
     pbatch.set_defaults(func=__batch)
     # 2.7 device tree info
-    pdtinfo = commands.add_parser('dtinfo', help='show device tree info')
-    pdtinfo.add_argument('dtb')
-    pdtinfo.add_argument('-m', '--mmio', required=False, action='store_true', default=True, help='show MMIO regions')
-    pdtinfo.add_argument('-f', '--flash', required=False, action='store_true', default=True, help='show FLASH chips')
+    pdtinfo = commands.add_parser('dtinfo', help='Plugin - Disclose device tree blob')
+    pdtinfo.add_argument('dtb', help='Show details in this device tree blob.')
+    pdtinfo.add_argument('-m', '--mmio', required=False, action='store_true', default=True,
+                         help='Show MMIO regions in the device tree blob.')
+    pdtinfo.add_argument('-f', '--flash', required=False, action='store_true', default=True,
+                         help='Show FLASH chips in the device tree blob.')
     pdtinfo.set_defaults(func=__dtinfo)
     # 2.8 source code analysis
-    psource = commands.add_parser('source', help='source code analysis')
-    psource.add_argument('-e', '--entry_point', required=True)
+    psource = commands.add_parser('source', help='Plugin - Analyze source code')
+    psource.add_argument('-e', '--entry_point', required=True,
+                         help='Find the file contains the entry point of data or function and preprocess the file.')
     psource.set_defaults(func=__source)
     # 3 cores
     # 3.1 analyze
-    panalyze = commands.add_parser('analyze', help='model machine in current project')
+    panalyze = commands.add_parser('analyze', help='RUN - model machine in current project')
     panalyze.set_defaults(func=__analyze)
     # 3.2 generate
     pgenerate = commands.add_parser('generate', help='test device tree in current project')
     pgenerate.add_argument('-dtb', '--dtb', required=True)
     pgenerate.set_defaults(func=__generate)
     # 3.3 diagnose
-    pdiagnose = commands.add_parser('diagnose', help='test machine in current project')
-    pdiagnose.add_argument('-dtb', '--dtb', required=False)
-    pdiagnose.add_argument('-f', '--firmware', required=False, metavar='IMAGE')
+    pdiagnose = commands.add_parser('diagnose', help='Run - Test the machine')
+    pdiagnose.add_argument('-f', '--firmware', required=False, metavar='IMAGE',
+                           help='Use the IMAGE to diagnose your models. If not set, use the last valid image, '
+                           'otherwise, use the first image in your current project(./samander batch -s). '
+                           'If there is no valid image and there is no image in your project, you must provide a image.')
+    pdiagnose.add_argument('-dtb', '--dtb', required=False,
+                           help='If the image you provide has no device tree blob, you can provide a device tree blob, otherwise, ignored.')
     pdiagnose.set_defaults(func=__diagnose)
     # 3.4 bootup
     pbootup = commands.add_parser('bootup', help='boot up your image in current project')

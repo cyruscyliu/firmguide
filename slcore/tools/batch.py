@@ -68,18 +68,23 @@ def project_scan_images(path, **kwargs):
     candidates = []
     for f in os.listdir(path):
         firmware = os.path.join(path, f)
+        if not os.path.isfile(firmware):
+            continue
+        if firmware.endswith('.tar.gz') or firmware.endswith('.tar.xz') or \
+                firmware.endswith('.tar') or firmware.endswith('.tar.bz2'):
+            print('[+] skip {}'.format(firmware))
+            continue
         if firmware in project.attrs['images']:
             print('[+] {} existed'.format(firmware))
             continue
-        if not os.path.isfile(firmware):
-            continue
+        print('[+] unpacking {}'.format(firmware))
         components = unpack(firmware, target_dir=tempfile.gettempdir())
         if not components.supported:
             print('[+] {} unsupported'.format(firmware))
             continue
         if has_device_tree and not components.has_device_tree():
             continue
-        print('[+] {} added'.format(firmware))
+        print('[+] add {}'.format(firmware))
         candidates.append(firmware)
         if len(candidates) >= count:
             break
