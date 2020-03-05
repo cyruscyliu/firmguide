@@ -80,6 +80,7 @@ nxp,lpc3220-timer: {extend: 'timer,generic'}
 nxp,sysctr-timer: {extend: 'timer,generic'}
 oxsemi,ox810se-rps-timer: {extend: 'timer,generic'}
 oxsemi,ox820-rps-timer: {extend: 'timer,generic'}
+oxsemi,ox820se-rps-timer: {extend: 'timer,generic'}
 picochip,pc3x2-timer: {extend: 'timer,generic'}
 plxtech,nas782x-rps-timer: {extend: 'timer,generic'}
 qcom,kpss-timer: {extend: 'timer,generic'}

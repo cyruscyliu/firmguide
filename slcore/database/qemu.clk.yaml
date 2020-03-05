@@ -225,6 +225,7 @@ fsl,qoriq-platform-pll-2.0: {extend: 'clk,generic'}
 fsl,qoriq-sysclk-1.0: {extend: 'clk,generic'}
 fsl,qoriq-sysclk-2.0: {extend: 'clk,generic'}
 fsl,vf610-ccm: {extend: 'clk,generic'}
+fujitsu,mb86s70-crg11: {extend: 'clk,generic'}
 gpio-gate-clock: {extend: 'clk,generic'}
 hisilicon,hi3620-clock: {extend: 'clk,generic'}
 hisilicon,hi3620-mmc-clock: {extend: 'clk,generic'}
@@ -359,6 +360,8 @@ samsung,exynos4210-pmu: {extend: 'clk,generic'}
 samsung,exynos4212-pmu: {extend: 'clk,generic'}
 samsung,exynos4412-clock: {extend: 'clk,generic'}
 samsung,exynos4412-pmu: {extend: 'clk,generic'}
+samsung,exynos4415-cmu: {extend: 'clk,generic'}
+samsung,exynos4415-cmu-dmc: {extend: 'clk,generic'}
 samsung,exynos5250-clock: {extend: 'clk,generic'}
 samsung,exynos5250-pmu: {extend: 'clk,generic'}
 samsung,exynos5260-clock-aud: {extend: 'clk,generic'}

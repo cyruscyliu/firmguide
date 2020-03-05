@@ -44,6 +44,7 @@ brcm,bcm2835-armctrl-ic: {extend: 'intc,generic'}
 brcm,bcm2836-armctrl-ic: {extend: 'intc,generic'}
 brcm,bcm2836-l1-intc: {extend: 'intc,generic'}
 brcm,bcm3380-l2-intc: {extend: 'intc,generic'}
+brcm,bcm6318-ext-intc: {extend: 'intc,generic'}
 brcm,bcm6345-ext-intc: {extend: 'intc,generic'}
 brcm,bcm6345-l1-intc: {extend: 'intc,generic'}
 brcm,bcm6345-periph-intc: {extend: 'intc,generic'}

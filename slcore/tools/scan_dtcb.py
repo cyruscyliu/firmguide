@@ -135,8 +135,8 @@ def scan_declare(path_to_source):
             path = line.split(':')[0]
             declare = line.split(':')[2].split('(')[0]
             if declare not in candidates:
-                if len(path) > 120:
-                    line = '...' + line[110:].strip()
+                if len(path) > 160:
+                    line = '...' + line[150:].strip()
                 print('[-] unexpected line: {}'.format(line))
                 unexpected.append(declare)
     if len(unexpected):
@@ -173,8 +173,8 @@ def scan_dtcb(path_to_dtb, path_to_source):
                     if not os.path.exists(path):
                         continue
                     cb = __re_scan(path, declare='[_A-Z]+_DECLARE', depress=True)
-                    if len(path) > 120:
-                        path = '...' + path[100:]
+                    if len(path) > 160:
+                        path = '...' + path[150:]
                     if (cb) is not None:
                         for i in cb:
                             if i[1] != cmptb:
