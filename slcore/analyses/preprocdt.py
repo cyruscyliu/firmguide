@@ -16,6 +16,7 @@ class DTPreprocessing(Analysis):
         path_to_dts = os.path.join(firmware.get_target_dir(), '{}.dts'.format(os.path.basename(path_to_dtb)))
         with open(path_to_dts, 'w') as f:
             f.write(dts.to_dts())
+        self.info(firmware, 'dtb at {}'.format(path_to_dtb), 1)
         self.info(firmware, 'dts at {}'.format(path_to_dts), 1)
 
         firmware.set_machine_name(firmware.get_uuid())
