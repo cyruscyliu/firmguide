@@ -1,8 +1,8 @@
-from slcore.parser import get_candidates, get_all_strings
-from settings import *
-
 import os
 import yaml
+
+from slcore.parser import get_candidates, get_all_strings
+
 
 # fetch from linux-5.3
 cpu_list = {
@@ -174,6 +174,13 @@ cpu_list = {
 
 
 def find_cpu_in_strings(strings):
+    """Find which CPU model the image runs on.
+
+    :param strings: Strings from the image.
+    :type  strings: str
+    :returns      : A list of CPU modes the image may runs on.
+    :rtype        : list
+    """
     # construct
     target_strings = {}
     votes = {}
@@ -202,7 +209,8 @@ def find_cpu_in_strings(strings):
     if model is None:
         return []
 
-    arm_cpus = yaml.safe_load(open(os.path.join(BASE_DIR, 'slcore/database/cpu.arm.yaml')))
+    arm_cpus = yaml.safe_load(
+        open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'cpu.arm.yaml')))
     target_cpus = []
     for candidate in cpu_list[model]:
         for arm_cpu, properties in arm_cpus.items():
@@ -220,10 +228,14 @@ def find_cpu_in_strings(strings):
 
 
 def find_cpu(path_to_kernel):
+    """"Find which CPU model the image runs on.
+
+    :param path_to_kernel: Path to the kernel. We will get strings from it.
+    :type  path_to_kernel: str
+    :returns             : A list of CPU modes the image may runs on.
+    :rtype               : list
+    """
     candidates = get_candidates(path_to_kernel)
     strings = get_all_strings(candidates)
     return find_cpu_in_strings(strings)
 
-
-def find_cpu_private_peripheral(cpu):
-    pass

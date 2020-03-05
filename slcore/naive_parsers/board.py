@@ -1,16 +1,22 @@
-from slcore.parser import get_candidates, get_all_strings
-from settings import *
-
 import os
 import yaml
 
-def find_machine_dir(path_to_kernel, arch):
-    candidates = get_candidates(path_to_kernel)
-    strings = get_all_strings(candidates)
+from slcore.parser import get_candidates, get_all_strings
 
+
+def find_machine_dir_s(strings, arch):
+    """"Find which Linux kernel board the image belongs to.
+
+    :param strings: Strings from the image.
+    :type  strings: list
+    :param arch   : The architecture. It's required because of the db interface.
+    :type  arch   : str
+    :returns      : A list of Linux kernel boards the image may belongs to.
+    :rtype        : list
+    """
     # TODO the signature should be refined because of too much FP
-    signature = yaml.safe_load(open(os.path.join(
-        BASE_DIR, 'slcore/naive_parsers/signature.{}.yaml'.format(arch))))
+    signature = yaml.safe_load(
+        open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'signature.{}.yaml'.format(arch))))
 
     # construct
     target_strings = {}
@@ -34,6 +40,22 @@ def find_machine_dir(path_to_kernel, arch):
             target_machine_dir.append(vote)
 
     return target_machine_dir
+
+
+def find_machine_dir(path_to_kernel, arch):
+    """"Find which Linux kernel board the image belongs to.
+
+    :param path_to_kernel: Path to the kernel. We will get strings from it.
+    :type  path_to_kernel: str
+    :param arch          : The architecture. It's required because of the db interface.
+    :type  arch          : str
+    :returns             : A list of Linux kernel boards the image may belongs to.
+    :rtype               : list
+    """
+    candidates = get_candidates(path_to_kernel)
+    strings = get_all_strings(candidates)
+    find_machine_dir_s(strings, arch)
+
 
 sig = {
     # mips 5.3

@@ -1,10 +1,17 @@
-from slcore.parser import get_candidates, get_all_strings
+from slcore.parser import fit_parser
 
 import os
 import re
 
 
 def find_kernel_version_in_string(string):
+    """Find which Linux kernel version the image belongs to.
+
+    :param string: String from the image.
+    :type  string: str
+    :returns     : The Linux kernel version the image may belongs to.
+    :rtype       : str
+    """
     patterns = [r'Linux-(\d+\.\d+\.\d+)', r'.*\((\d+\.\d+\.\d+)\)', r'[lL]inux version ([1-5]+\.\d+\.\d+).*']
 
     kernel_version = None
@@ -18,6 +25,13 @@ def find_kernel_version_in_string(string):
 
 
 def find_kernel_version_in_strings(strings):
+    """Find which Linux kernel version the image belongs to.
+
+    :param strings: Strings from the image.
+    :type  strings: list
+    :returns      : The Linux kernel version the image may belongs to.
+    :rtype        : str
+    """
     for string in strings:
         kernel_version = find_kernel_version_in_string(string)
         if kernel_version is not None:
@@ -25,7 +39,7 @@ def find_kernel_version_in_strings(strings):
 
 
 def find_kernel_version_in_legacy_uimage(path_to_image):
-    """
+    """Find which Linux kernel version the image belongs to.
     file uImage: delimiter=', '
         [0] u-boot legacy uImage,
         [1] Linux-3.3.8,
@@ -37,6 +51,11 @@ def find_kernel_version_in_legacy_uimage(path_to_image):
         [7] Entry Point: 0x00008000,
         [8] Header CRC: 0xCC8FC8A7,
         [9] Data CRC: 0x90F6B42F
+
+    :param path_to_kernel: Path to the image. We will get strings from it.
+    :type  path_to_kernel: str
+    :returns             : The Linux kernel version the image may belongs to.
+    :rtype               : str
     """
     info = os.popen('file -b {}'.format(path_to_image))
     metadata = info.readline().strip()
@@ -51,7 +70,8 @@ def find_kernel_version_in_legacy_uimage(path_to_image):
 
 
 def find_kernel_version_in_fit_uiamge(path_to_image):
-    """
+    """Find which Linux kernel version the image belongs to.
+
     FIT description: ARM OpenWrt FIT (Flattened Image Tree)
     Created:         Sat Sep 12 01:13:52 2015
      Image 0 (kernel@1)
@@ -84,6 +104,11 @@ def find_kernel_version_in_fit_uiamge(path_to_image):
       Description:  OpenWrt
       Kernel:       kernel@1
       FDT:          fdt@1
+
+    :param path_to_kernel: Path to the image. We will get strings from it.
+    :type  path_to_kernel: str
+    :returns             : The Linux kernel version the image may belongs to.
+    :rtype               : str
     """
     info = os.popen('dumpimage -l {}'.format(path_to_image))
     fit = fit_parser(info.readlines())
