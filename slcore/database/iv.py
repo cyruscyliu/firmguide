@@ -22,7 +22,7 @@ class InitValue(Database):
         action = args[0]
 
         if action == 'iv' and board is not None:
-            if board in info:
+            if info is not None and board in info:
                 return info[board]
         return None
 

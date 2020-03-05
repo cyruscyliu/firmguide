@@ -4,6 +4,7 @@ from slcore.database.dbf import get_database
 
 class InitValue(Analysis):
     def run(self, firmware):
+        print(firmware.get_board())
         iv = get_database('iv').select('iv', arch=firmware.get_arch(), board=firmware.get_board())
         if iv is None:
             return True

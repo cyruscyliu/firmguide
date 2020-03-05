@@ -71,7 +71,10 @@ class Preparation(Analysis):
         fix_choosen_bootargs(firmware.get_components())
         # 3.2 add a uimage header on the kernel image
         load_address = firmware.get_kernel_load_address()
-        entry_point = firmware.get_kernel_entry_point()
+        if firmware.get_arch() == 'arm':
+            entry_point = load_address
+        else:
+            entry_point = firmware.get_kernel_entry_point()
         # Why we don't use vmlinux if any?
         # ARM32 has two head.S, the one is in side of the vmlinux
         # the other is outside of the vmlinux. Due to historical

@@ -1,0 +1,3 @@
+mach-oxnas:
+    - {base: 0x44e001f0, size: 0x4, value: 0x8000, compatible: ['mach-oxnas-iv-001']}
+    - {base: 0x44e001f4, size: 0x4, value: 0x8000, compatible: ['mach-oxnas-iv-002']}
