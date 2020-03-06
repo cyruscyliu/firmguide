@@ -1,8 +1,17 @@
 import os
 
+
 def parse_system_map(path, bits=32):
-    """
-    ffffffff803687e8 T arch_init_irq
+    """Parse system map, get the address, the type, and the symbol in the lines.
+
+    Example: ffffffff803687e8 T arch_init_irq
+
+    :param path: The path to the System.map.
+    :type  path: str
+    :param bit : How many bits of an address, default is 32.
+    :type  bit : int
+    :returns   : The dict with symbols as keys, like {__start: {'addr': 0x00000000, 'type': T}}
+    :rtype     : dict
     """
     system_map = {}
 
@@ -17,12 +26,19 @@ def parse_system_map(path, bits=32):
             system_map[sym] = {'addr': int(addr, 16) & mask, 'type': type_}
     return system_map
 
-def addr2file(path, address):
-    """
-    addr2file -e path/to/binary address
-    """
-    dir_of_binary = os.path.realpath(os.path.dirname(path))
 
+def addr2file(path, address):
+    """Find the file according to the address.
+
+    A wrapper of addr2line.
+
+    :param path   : The path to the binary.
+    :type  path   : str
+    :param address: The address you want to watch.
+    :type  address: str
+    :returns      : The path w.s.t the address.
+    :rtype        : str
+    """
     # /abs/path/to/x.c:69
     with os.popen('addr2line -e {} {}'.format(path, hex(address))) as o:
         output = o.readlines()

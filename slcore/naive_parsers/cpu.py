@@ -228,7 +228,7 @@ def find_cpu_in_strings(strings):
 
 
 def find_cpu(path_to_kernel):
-    """"Find which CPU model the image runs on.
+    """Find which CPU model the image runs on.
 
     :param path_to_kernel: Path to the kernel. We will get strings from it.
     :type  path_to_kernel: str

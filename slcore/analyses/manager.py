@@ -16,7 +16,6 @@ from slcore.analyses.bamboos import Bamboos
 
 from slcore.analyses.binary_analysis.kernel import Kernel
 from slcore.analyses.binary_analysis.strings import Strings
-from slcore.analyses.binary_analysis.openwrt import OpenWRT
 
 from slcore.analyses.static_analysis.mfilter import Filter
 from slcore.analyses.static_analysis.ram import RAM
@@ -189,7 +188,6 @@ class AnalysesManager(object):
 
         self.register_analysis(Kernel(self), analyses_tree=binary_analysis)
         self.register_analysis(Strings(self), analyses_tree=binary_analysis)
-        self.register_analysis(OpenWRT(self), analyses_tree=binary_analysis)
         self.binary_analysis = binary_analysis
 
         return binary_analysis

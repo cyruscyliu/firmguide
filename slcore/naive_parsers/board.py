@@ -5,7 +5,7 @@ from slcore.parser import get_candidates, get_all_strings
 
 
 def find_machine_dir_s(strings, arch):
-    """"Find which Linux kernel board the image belongs to.
+    """Find which Linux kernel board the image belongs to.
 
     :param strings: Strings from the image.
     :type  strings: list
@@ -43,7 +43,7 @@ def find_machine_dir_s(strings, arch):
 
 
 def find_machine_dir(path_to_kernel, arch):
-    """"Find which Linux kernel board the image belongs to.
+    """Find which Linux kernel board the image belongs to.
 
     :param path_to_kernel: Path to the kernel. We will get strings from it.
     :type  path_to_kernel: str
@@ -54,7 +54,7 @@ def find_machine_dir(path_to_kernel, arch):
     """
     candidates = get_candidates(path_to_kernel)
     strings = get_all_strings(candidates)
-    find_machine_dir_s(strings, arch)
+    return find_machine_dir_s(strings, arch)
 
 
 sig = {
