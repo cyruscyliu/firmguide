@@ -16,6 +16,8 @@
 #define STATE_NOISE     1
 #define STATE_ALARM     2
 
+#define N_IRQ           64
+
 typedef struct {{ name|upper }}State {
     /*< private >*/
     SysBusDevice sys_bus;
@@ -27,9 +29,9 @@ typedef struct {{ name|upper }}State {
     /* registers known by the outside */{% for register in intc_get_registers %}
     uint32_t {{ register.rname }};{% endfor %}
     /* internal state for every interrupt source */
-    uint32_t state[32];
-    bool pending[32];
-    bool masked[32];
+    uint32_t state[N_IRQ];
+    bool pending[N_IRQ];
+    bool masked[N_IRQ];
 } {{ name|upper }}State;
 
 #endif /* {{ name|upper }}_H */

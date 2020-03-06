@@ -30,6 +30,9 @@ arm,arm1176:
 arm,arm11mpcore:
     extend: arm,general
     get_type: arm11mpcore
+marvell,feroceon:
+    extend: arm,general
+    get_type: arm926
 arm,arm926:
     extend: arm,general
     get_type: arm926

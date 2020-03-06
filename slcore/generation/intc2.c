@@ -46,7 +46,7 @@ static void {{ name }}_update(void *opaque)
     //    ALARM      0      1     REST(*)
     //    ALARM      1      0     ALARM(*)
     //    ALARM      1      1     NOISE(*)
-    for (i = 0; i < 32; i++) {
+    for (i = 0; i < N_IRQ; i++) {
         switch(s->state[i]) {
             case STATE_REST:
                 if (s->pending[i]) {
@@ -114,20 +114,20 @@ static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned
             return;{% for register in intc_get_registers %}
         case {{ register.offset }}:
             old = (uint32_t)s->{{ register.rname }};{% if register.mask_ack %}
-            for (irqn = 0; irqn < 32; irqn++)
+            for (irqn = 0; irqn < N_IRQ; irqn++)
                 if ({{ register.mask_ack_action }} == (uint32_t)val) {
                     s->masked[irqn] = true;
                     s->pending[irqn] = false;
                 }{% endif %}{% if register.mask %}
-            for (irqn = 0; irqn < 32; irqn++)
+            for (irqn = 0; irqn < N_IRQ; irqn++)
                 if ({{ register.mask_action }} == (uint32_t)val) {
                     s->masked[irqn] = true;
                 }{% endif %}{% if register.ack %}
-            for (irqn = 0; irqn < 32; irqn++)
+            for (irqn = 0; irqn < N_IRQ; irqn++)
                 if ({{ register.ack_action }} == (uint32_t)val) {
                     s->pending[irqn] = false;
                 }{% endif %}{% if register.unmask %}
-            for (irqn = 0; irqn < 32; irqn++)
+            for (irqn = 0; irqn < N_IRQ; irqn++)
                 if ({{ register.unmask_action }} == (uint32_t)val) {
                     s->masked[irqn] = false;
                 }{% endif %}
@@ -165,7 +165,7 @@ static void {{ name }}_init(Object *obj)
 
     /* initialize the irq/fip to cpu */
     qdev_init_gpio_out(DEVICE(s), &s->irq, 1);
-    qdev_init_gpio_in(DEVICE(s), {{ name }}_set_irq, 32);
+    qdev_init_gpio_in(DEVICE(s), {{ name }}_set_irq, N_IRQ);
 }
 
 static void {{ name }}_reset(DeviceState *dev)
@@ -174,7 +174,7 @@ static void {{ name }}_reset(DeviceState *dev)
     {{ name|upper }}State *s = {{ name|upper }}(dev);{% for register in intc_get_registers %}
     s->{{ register.rname }} = 0;{% endfor %}
 
-    for (irqn = 0; irqn < 32; irqn++)
+    for (irqn = 0; irqn < N_IRQ; irqn++)
         s->masked[irqn] = true;
 }
 

@@ -145,8 +145,10 @@ class QEMUController(object):
         gdb_cmdline = 'gdb-multiarch --cd={} {} -ex "target remote:1234"'.format(d, path_to_vmlinux)
         print('\nOPEN *ANOTHER* SHELL and RUN\n    {}'.format(gdb_cmdline))
         print('SEVERAL BPS YOU MAY INTERESTED IN:')
+        print('    b kernel_entry # MIPS')
         print('    b start_kernel')
         print('    b setup_arch')
+        print('    b prom_init # MIPS')
         print('    b prom_putchar # MIPS')
         print('    b init_IRQ')
         print('    b time_init')
@@ -164,6 +166,9 @@ class QEMUController(object):
         debug_cmdline = running_cmdline + ' -s -S'
         print('RUNNING\n    {}'.format(debug_cmdline))
         print('PRESS ctrl-a x to exit; PRESS ctrl-a c to QEMU console')
+        print('In QEMU console: enter system_reset to reset')
+        print('In QEMU console: enter info mtree to show memory layout')
+        print('In QEMU console: enter info qtree to show device layout')
         os.system(debug_cmdline)
 
     def __resolve_makefile(self, path, label, content):
