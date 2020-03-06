@@ -32,7 +32,7 @@ arm,arm11mpcore:
     get_type: arm11mpcore
 marvell,feroceon:
     extend: arm,general
-    get_type: arm926
+    get_type: feroceon
 arm,arm926:
     extend: arm,general
     get_type: arm926

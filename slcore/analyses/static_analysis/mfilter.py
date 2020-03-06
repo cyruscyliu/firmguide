@@ -44,6 +44,7 @@ class Filter(Analysis):
         support = get_database('support')
         status = support.select('board', board=target, arch='arm')
         if status:
+            self.info(firmware, 'arm/{} is supported'.format(target), 1)
             firmware.set_board(target)
             return True
         else:
