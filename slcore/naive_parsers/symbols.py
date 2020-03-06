@@ -6,12 +6,12 @@ def parse_system_map(path, bits=32):
 
     Example: ffffffff803687e8 T arch_init_irq
 
-    :param path: The path to the System.map.
-    :type  path: str
-    :param bit : How many bits of an address, default is 32.
-    :type  bit : int
-    :returns   : The dict with symbols as keys, like {__start: {'addr': 0x00000000, 'type': T}}
-    :rtype     : dict
+    Args:
+        path(str): path: The path to the System.map.
+        bit(int) : How many bits of an address, default is 32.
+
+    Returns:
+        dict: The dict with symbols as keys, like {__start: {'addr': 0x00000000, 'type': T}}
     """
     system_map = {}
 
@@ -32,12 +32,12 @@ def addr2file(path, address):
 
     A wrapper of addr2line.
 
-    :param path   : The path to the binary.
-    :type  path   : str
-    :param address: The address you want to watch.
-    :type  address: str
-    :returns      : The path w.s.t the address.
-    :rtype        : str
+    Args:
+        path(str)   : The path to the binary.
+        address(str): The address you want to watch.
+
+    Returns:
+        str: The path w.s.t the address.
     """
     # /abs/path/to/x.c:69
     with os.popen('addr2line -e {} {}'.format(path, hex(address))) as o:

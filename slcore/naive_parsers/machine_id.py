@@ -4,12 +4,12 @@ from slcore.parser import get_candidates, get_all_strings
 def find_machine_id_s(strings):
     """Find the machine id in the image.
 
-    :param strings: The strings from the image.
-    :type  strings: list
-    :returns      : The list of machine ids the image supports.
-    :rtype        : list or None
-    """
+    Args:
+        strings(list): The strings from the image.
 
+    Returns:
+        list: The list of machine ids the image supports.
+    """
     machine_ids = {
         "1944": {
             "machine_description": "Palm Centro 685",
@@ -2953,10 +2953,11 @@ def find_machine_id_s(strings):
 def find_machine_id(path_to_kernel):
     """Find the machine id in the image.
 
-    :param path_to_kernel: The path to the image.
-    :type  path_to_kernel: str
-    :returns             : The list of machine ids the image supports.
-    :rtype               : list or None
+    Args:
+        path_to_kernel(str): The path to the image.
+
+    Returns:
+        list: The list of machine ids the image supports.
     """
     candidates = get_candidates(path_to_kernel)
     strings = get_all_strings(candidates)

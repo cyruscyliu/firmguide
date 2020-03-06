@@ -2,14 +2,17 @@ from slcore.parser import get_candidates, get_all_strings
 
 
 def parse_cmdfile(path):
-    """Linux kernel will write compilation command w.s.t to the object
+    """Get the cmdline in cmdfile.
+
+    Linux kernel will write compilation command w.s.t to the object
     to .xxx.o.cmd in the same directory. The format is xxx.o := command
     in the first line.
 
-    :param strings: Path to .xxx.o.cmd.
-    :type  strings: str
-    :returns      : The real command.
-    :rtype        : str
+    Args:
+        path(str): Path to .xxx.o.cmd.
+
+    Returns:
+        str: The real command.
     """
     with open(path) as f:
         cmdline = f.readline().strip().split(':=')[1]
@@ -32,12 +35,12 @@ def __split_cmdline(valid_cmdline):
 def find_cmdline_in_string(string, split=False):
     """Find the default kernel command line in the image.
 
-    :param string: The string from the image.
-    :type  string: str
-    :param split : Whether or not we split the command line by =
-    :type  split : bool
-    :returns     : Return the command line if split is False, otherwise, return the key pairs.
-    :rtype       : str or dict
+    Args:
+        string(str): The string from the image.
+        split(bool): Whether or not we split the command line by =
+
+    Returns:
+        str|dict: Return the command line if split is False, otherwise, return the key pairs.
     """
     cmdline = None
     kv_pairs = None
@@ -63,12 +66,12 @@ def find_cmdline_in_string(string, split=False):
 def find_cmdline_in_strings(strings, split=False):
     """Find the default kernel command line in the image.
 
-    :param strings: The strings from the image.
-    :type  strings: list
-    :param split  : Whether or not we split the command line by =
-    :type  split  : bool
-    :returns      : Return the command line if split is False, otherwise, return the key pairs.
-    :rtype        : str or dict
+    Args:
+        strings(list): The strings from the image
+        split(bool)  : Whether or not we split the command line by =
+
+    Returns:
+        str|dict: Return the command line if split is False, otherwise, return the key pairs.
     """
     cmdline_or_kv_pairs = None
 
@@ -83,12 +86,12 @@ def find_cmdline_in_strings(strings, split=False):
 def find_cmdline(path_to_kernel, split=False):
     """Find the default kernel command line in the image.
 
-    :param path_to_kernel: The path to the image.
-    :type  path_to_kernel: list
-    :param split         : Whether or not we split the command line by =
-    :type  split         : bool
-    :returns             : Return the command line if split is False, otherwise, return the key pairs.
-    :rtype               : str or dict
+    Args:
+        path_to_kernel(list): The path to the image.
+        split(bool)         : Whether or not we split the command line by =
+
+    Returns:
+        str|dict: Return the command line if split is False, otherwise, return the key pairs.
     """
     candidates = get_candidates(path_to_kernel)
     strings = get_all_strings(candidates)

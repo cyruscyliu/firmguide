@@ -176,10 +176,11 @@ cpu_list = {
 def find_cpu_in_strings(strings):
     """Find which CPU model the image runs on.
 
-    :param strings: Strings from the image.
-    :type  strings: str
-    :returns      : A list of CPU modes the image may runs on.
-    :rtype        : list
+    Args:
+        strings(str): Strings from the image.
+
+    Returns:
+        list: A list of CPU modes the image may runs on.
     """
     # construct
     target_strings = {}
@@ -230,10 +231,11 @@ def find_cpu_in_strings(strings):
 def find_cpu(path_to_kernel):
     """Find which CPU model the image runs on.
 
-    :param path_to_kernel: Path to the kernel. We will get strings from it.
-    :type  path_to_kernel: str
-    :returns             : A list of CPU modes the image may runs on.
-    :rtype               : list
+    Args:
+        path_to_kernel(str): Path to the kernel. We will get strings from it.
+
+    Returns:
+        list: A list of CPU modes the image may runs on.
     """
     candidates = get_candidates(path_to_kernel)
     strings = get_all_strings(candidates)
