@@ -15,6 +15,14 @@ def find_compatible(path_to_dtb):
 
 
 def find_compatible_by_path(dts, path):
+    """Find compatible by a path.
+
+    Args:
+        dts(dts): The dts from load_dtb.
+
+    Returns:
+        list: The compatible of the path.
+    """
     compatible = dts.get_property('compatible', path)
     if compatible is None:
         pnode = dts.get_node(path).parent

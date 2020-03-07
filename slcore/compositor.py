@@ -47,7 +47,7 @@ def __handle_trx_kernel(image_path):
     os.system('lzma -d < {} > {} 2>/dev/null'.format(image_path, kernel))
     uimage = __replace_extension(image_path, 'trx', 'uimage')
 
-    dtb = __scan_dtb(kernel, extract=False)
+    dtb = __scan_dtb(kernel, extract=True)
     return kernel, dtb, uimage
 
 
@@ -93,7 +93,7 @@ def __handle_legacy_uimage(image_path, uimage3=False, uimage3_offset=None):
         kernel = uncompressed_kernel
 
     # find dtb in mips legacy uimage
-    dtb = __scan_dtb(kernel, extract=False)
+    dtb = __scan_dtb(kernel, extract=True)
 
     return kernel, dtb, uimage
 
@@ -111,7 +111,7 @@ def __handle_lzma_kernel(image_path):
             kernel = module.extractor.output[result.file.path].carved[result.offset][:-3]
             uimage = kernel + '.uimage'
             # find the dtb in the kernel
-            dtb = __scan_dtb(kernel, extract=False)
+            dtb = __scan_dtb(kernel, extract=True)
     return kernel, dtb, uimage
 
 
@@ -233,6 +233,7 @@ def unpack(path, target_dir=None, extract=True):
             # because *.trx will be overwrote by *.7z, we replace 7z with trx here
             components.set_path_to_image(
                 module.extractor.output[result.file.path].carved[result.offset].replace('7z', 'trx'))
+            print(components.get_path_to_image())
             components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_trx_kernel(
                 components.path_to_image)
         elif str(result.description).find('Broadcom 96345 firmware header') != -1:
