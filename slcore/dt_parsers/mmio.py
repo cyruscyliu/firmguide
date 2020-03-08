@@ -1,5 +1,5 @@
 import os
-import fdt
+from slcore.dt_parsers.common import load_dtb
 
 
 def __find_parent_address(dts, path):
@@ -98,11 +98,21 @@ def find_mmio_by_path(dts, path):
 
 
 def find_flatten_mmio_in_fdt(dts):
-    """
-    path:       the pathe of the node
-    compatible: the compatible of the node
-    reg:        the absolute address, size paris,
-                e.g. reg: [{base: 0, size: 1}, {base: 1, size: 1}]
+    """Find mmio regions in a machine.
+
+    Args:
+        dts(dts): The dts from the load_dtb.
+
+    Returns:
+        list: A list of mmio regions in the machine. For example:
+
+        [
+            {
+                'compatible': ['example,mmio'],
+                'path': /example/mmio,
+                'regs': [{'base': 0xFFFF0000, 'size': 0x10000}]
+            }
+        ]
     """
     top_address_cells = dts.get_property('#address-cells', '/').data[0]
     top_size_cells = dts.get_property('#size-cells', '/').data[0]
@@ -131,7 +141,7 @@ def find_flatten_mmio_in_fdt(dts):
             address_cells = top_address_cells
         mmios = dts.get_property('reg', pa).data
 
-        mmio[pa] =  {'reg': [], 'compatible': compatible}
+        mmio[pa] =  {'regs': [], 'compatible': compatible}
         for i in range(len(mmios) // (size_cells + address_cells)):
             base = 0
             for j in range(address_cells):
@@ -142,7 +152,7 @@ def find_flatten_mmio_in_fdt(dts):
             offset = __find_parent_offset(dts, pa, base, None)
             if size == 0:
                 continue
-            mmio[pa]['reg'].append({'base': base + offset, 'size': size})
+            mmio[pa]['regs'].append({'base': base + offset, 'size': size})
 
     flatten_mmio = []
     for k, v in mmio.items():
@@ -150,3 +160,17 @@ def find_flatten_mmio_in_fdt(dts):
         flatten_mmio.append(v)
 
     return flatten_mmio
+
+
+def find_flatten_mmio(path_to_dtb):
+    """Find the mmio regions in a machine.
+
+    Args:
+        path_to_dtb(str): The path to the device tree blob.
+
+    Returns:
+        list: A list of mmio regions..
+    """
+    dts = load_dtb(path_to_dtb)
+    return find_flatten_mmio_in_fdt(dts)
+
