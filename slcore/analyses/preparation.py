@@ -25,7 +25,7 @@ class Preparation(Analysis):
             dt_renderer.load_template()
             status = dt_renderer.render()
             if not status:
-                raise SystemExit('error in dt rendering')
+                raise NotImplementedError('error in dt rendering')
 
         # 2. install and make(compile qemu)
         if not firmware.cancle_compilation:

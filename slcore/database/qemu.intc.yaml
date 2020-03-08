@@ -23,7 +23,7 @@ arm,cortex-a7-gic: {extend: 'intc,generic'}
 arm,cortex-a9-gic: {extend: 'intc,generic'}
 arm,eb11mp-gic: {extend: 'intc,generic'}
 arm,gic-400: {extend: 'intc,generic'}
-arm,gic-400",IRQCHIP_DECLARE(cortex_a15_gic, "arm,cortex-a15-gic: {extend: 'intc,generic'}
+arm,cortex-a15-gic: {extend: 'intc,generic'}
 arm,gic-v3: {extend: 'intc,generic'}
 arm,pl190-vic: {extend: 'intc,generic'}
 arm,pl192-vic: {extend: 'intc,generic'}
@@ -62,6 +62,7 @@ faraday,ftintc010: {extend: 'intc,generic'}
 fsl,icoll: {extend: 'intc,generic'}
 fsl,imx6q-gpc: {extend: 'intc,generic'}
 fsl,imx7d-gpc: {extend: 'intc,generic'}
+fsl,qe-ic: {extend: 'intc,generic'}
 fsl,tzic: {extend: 'intc,generic'}
 fsl,vf610-mscm-ir: {extend: 'intc,generic'}
 hisilicon,hip04-intc: {extend: 'intc,generic'}

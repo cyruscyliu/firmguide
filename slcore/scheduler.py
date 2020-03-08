@@ -9,6 +9,9 @@ from slcore.project import get_current_project, project_get_srcodec, \
 from slcore.compositor import unpack
 from slcore.models.bcm63xx import bcm63xx_fcbs
 from slcore.models.ath79 import ath79_fcbs
+from slcore.analyses.preparation import Preparation
+from slcore.analyses.initvalue import InitValue
+from slcore.analyses.preprocdt import DTPreprocessing
 
 
 def run_binary_analysis(firmware):
@@ -52,10 +55,19 @@ def run_diagnosis(firmware):
     return status
 
 
+def run_dt_renderer(firmware):
+    analyses_manager = AnalysesManager(firmware)
+    at = analyses_manager.new_analyses_tree()
+    analyses_manager.register_analysis(Preparation(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(DTPreprocessing(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(InitValue(analyses_manager), analyses_tree=at)
+    analyses_manager.run(target_analyses_tree=at)
+
+
 def run_model(firmware):
     srcodec = firmware.get_srcodec()
     if srcodec is None:
-        self.context['input'] = 'please set the source code'
+        # self.context['input'] = 'please set the source code'
         return False
 
 
@@ -164,6 +176,20 @@ def project_standard_warmup(args, components=None, profile=None):
         else:
             print('-f/--firmware missing')
 
+    if hasattr(args, 'dtb'):
+        dtbs = project.attrs['dtbs']
+        components = firmware.get_components()
+        if components is not None:
+            if args.dtb is not None:
+                firmware.set_dtb(args.dtb)
+            elif components.has_device_tree():
+                firmware.set_dtb(components.get_path_to_dtb())
+        elif args.dtb:
+            firmware.set_dtb(args.dtb)
+        elif dtbs is not None and len(dtbs):
+            firmware.set_dtb(dtbs[0])
+        else:
+            print('neither dtb was found in tested firmware nor -dtb was assigned')
     return firmware
 
 

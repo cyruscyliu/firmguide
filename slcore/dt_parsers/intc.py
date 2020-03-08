@@ -169,7 +169,7 @@ def __construct_intc(dts, pa):
             'compatible': compatible}
     mmio = find_mmio_by_path(dts, pa)
     if mmio is not None:
-        intc['regs'] = mmio['reg']
+        intc['regs'] = mmio['regs']
     return intc
 
 

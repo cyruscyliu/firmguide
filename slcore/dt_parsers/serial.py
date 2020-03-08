@@ -52,7 +52,7 @@ def find_flatten_serial_in_fdt(dts):
 
         mmio = find_mmio_by_path(dts, path_to_serial)
         # we only need the base address
-        reg = mmio['reg'][0]
+        reg = mmio['regs'][0]
 
         try:
             baud_rate = dts.get_property('current-speed', path_to_serial).data[0]

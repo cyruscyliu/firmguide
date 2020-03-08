@@ -14,18 +14,21 @@ class DTPreprocessing(Analysis):
         # 1. load the dtb
         dts = load_dtb(path_to_dtb)
         path_to_dts = os.path.join(firmware.get_target_dir(), '{}.dts'.format(os.path.basename(path_to_dtb)))
+        self.info(firmware, 'save dts at {}'.format(path_to_dts), 1)
         with open(path_to_dts, 'w') as f:
             f.write(dts.to_dts())
         self.info(firmware, 'dtb at {}'.format(path_to_dtb), 1)
         self.info(firmware, 'dts at {}'.format(path_to_dts), 1)
 
-        firmware.set_machine_name(firmware.get_uuid())
+        machine_name = os.path.basename(firmware.get_dtb()) \
+            .split('.')[0].replace('-', '_')
+        firmware.set_machine_name(machine_name)
 
         # 2. create bdevices
         mmios = []
         mmio_c = 0
         for mmio in find_flatten_mmio_in_fdt(dts):
-            for reg in mmio['reg']:
+            for reg in mmio['regs']:
                 mmio_c += 1
                 mmios.append({'base': reg['base'], 'size': reg['size'], 'value': 0, 'compatible': mmio['compatible']})
 

@@ -13,8 +13,7 @@ from slcore.tools.batch import project_plugin_batch
 from slcore.tools.source import project_source_analysis
 from slcore.tools.machines import project_find_profile
 from slcore.scheduler import project_standard_warmup, project_standard_wrapup, \
-    run_static_analysis, run_diagnosis, run_model
-from slcore.generation.dt_renderer import run_dt_renderer
+    run_static_analysis, run_diagnosis, run_model, run_dt_renderer
 
 logger = logging.getLogger()
 
@@ -124,7 +123,6 @@ def __generate(args):
     firmware = project_standard_warmup(args)
 
     # 2 generate code from dtb
-    firmware.set_dtb(args.dtb)
     status = run_dt_renderer(firmware)
 
     # 3. take snapshots to save results
