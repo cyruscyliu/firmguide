@@ -9,7 +9,7 @@ from slcore.qemuc import QEMUController
 
 class Project(object):
     def __init__(self, uuid=None, arch=None, endian=None, target_dir=None,
-                 brand=None, target=None, subtarget=None, images=None,
+                 brand=None, target=None, subtarget=None, images=None, dtbs=None,
                  source=None, cross_compile=None, makeout=None):
         """
         Those arguments can be divided into 3 groups.
@@ -30,6 +30,7 @@ class Project(object):
             'cross_compile': cross_compile,
             'makeout': makeout,
             'images': images,
+            'dtbs': dtbs,
         }
 
     def exists(self):
