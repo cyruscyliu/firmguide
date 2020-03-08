@@ -193,7 +193,6 @@ static const MemoryRegionOps {0}_ops = {{
                 context['upper'] = self.context['upper']
                 context['range'] = self.context['range']
                 context['endian'] = self.__get_endian()
-                context['__restore_irqn'] = lambda x: restore_irqn(context, x)
 
                 if k == 'flash' and self.firmware.get_arch() == 'mips':
                     if context['reg']['base'] > 0x20000000:

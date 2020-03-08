@@ -1,21 +1,25 @@
 #### ARM GENERAL ####
 arm,general:
     get_header: [target/arm/cpu-qom.h, target/arm/cpu.h]
-    get_field: 
+    get_field:
         - ARMCPU *cpu;
     get_body:
         - s->cpu = ARM_CPU(object_new(machine->cpu_type)); 
         - object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
+    get_connection: []
     get_irqn: qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ)
+    n_irq: 32
 #### MIPS(EL) GENERAL ####
 mips(el),general:
     get_header: [target/mips/cpu.h]
-    get_field: 
+    get_field:
         - MIPSCPU *cpu;
     get_body:
         - s->cpu = MIPS_CPU(object_new(machine->cpu_type));
         - object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
+    get_connection: []
     get_irqn: qdev_get_gpio_in(DEVICE(s->cpu), MIPS_CPU_IRQ)
+    n_irq: 32
 #### OTHERS HERE ####
 #### ARM BEGIN ####
 arm,arm1026:

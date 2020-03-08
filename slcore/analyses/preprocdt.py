@@ -14,15 +14,12 @@ class DTPreprocessing(Analysis):
         # 1. load the dtb
         dts = load_dtb(path_to_dtb)
         path_to_dts = os.path.join(firmware.get_target_dir(), '{}.dts'.format(os.path.basename(path_to_dtb)))
-        self.info(firmware, 'save dts at {}'.format(path_to_dts), 1)
         with open(path_to_dts, 'w') as f:
             f.write(dts.to_dts())
         self.info(firmware, 'dtb at {}'.format(path_to_dtb), 1)
         self.info(firmware, 'dts at {}'.format(path_to_dts), 1)
 
-        machine_name = os.path.basename(firmware.get_dtb()) \
-            .split('.')[0].replace('-', '_')
-        firmware.set_machine_name(machine_name)
+        firmware.set_machine_name(firmware.get_uuid())
 
         # 2. create bdevices
         mmios = []

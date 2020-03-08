@@ -1,5 +1,3 @@
-? ''
-: {extend: 'serial,generic'}
 actions,owl-uart: {extend: 'serial,generic'}
 altr,juart-1.0: {extend: 'serial,generic'}
 altr,uart-1.0: {extend: 'serial,generic'}
@@ -27,18 +25,20 @@ ns16550: {extend: 'serial,generic'}
 ns16550a:
   get_body: ['serial_mm_init(get_system_memory(), {{ reg.base }}, {{ reg_shift }},
       {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ id }}), {{ endian }});']
+  get_connection: []
   get_field: []
   get_header: [hw/char/serial.h]
-  parameters: [reg, reg_shift, intcp, irqn, baud_rate, id, endian]
+  parameters: [regs, reg_shift, intcp, irqn, baud_rate, id, endian]
 nvidia,tegra20-uart: {extend: 'serial,generic'}
 qcom,msm-uart: {extend: 'serial,generic'}
 qcom,msm-uartdm: {extend: 'serial,generic'}
 ralink,rt2880-uart:
   get_body: ['serial_mm_init_au(get_system_memory(), {{ reg.base }}, {{ reg_shift
       }}, {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ id }}), {{ endian }});']
+  get_connection: []
   get_field: []
   get_header: [hw/char/serial.h]
-  parameters: [reg, reg_shift, intcp, irqn, baud_rate, id, endian]
+  parameters: [regs, reg_shift, intcp, irqn, baud_rate, id, endian]
 renesas,hscif: {extend: 'serial,generic'}
 renesas,sci: {extend: 'serial,generic'}
 renesas,scif: {extend: 'serial,generic'}

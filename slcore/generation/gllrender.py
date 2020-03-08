@@ -32,6 +32,7 @@ then you put `name` in the parameters, in order to pre-check the context.
 7. Put all irq input templates into get_irqn.
 """
 import os
+import copy
 
 from slcore.generation.render import Template
 from slcore.database.dbf import get_database
@@ -43,15 +44,17 @@ EXTERNAL_TEMPLATE_VERSION = 2
 class Model(object):
     def __init__(self, t, compatible):
         """
-        self.t               :type of the mode, e.g. cpu, intc, serial
-        self.compatible      :compatible of the dt node
-        self.effic_compatible:compatible of the model
-        self.buddy_compatible:compatible of the dt node but not the compatible of the model
-        self.supported       :whether or not this model is supported
-        self.model           :metadata from the database which is used to
-                              generate machine.c/peripheral.c etc.
-        self.context         :metadata from the dt node like reg.base/reg.size
-        self.external        :whether or not this model is not built-in qdev
+        Args:
+            t(str)          : Type of the mode, e.g. cpu, intc, serial.
+            compatible(list): Compatible of the dt node.
+
+        Attributes:
+            effic_compatible(str): The compatible of the model.
+            buddy_compatible(str): The compatible of the dt node but not the compatible of the model.
+            supported(bool)      : Whether or not this model is supported.
+            model(dict)          : The metadata from the database is used to generate machine.c/peripheral.c etc.
+            context(dict)        : The metadata from the dt node like reg.base/reg.size.
+            external             : Whether or not this model is not built-in qdev.
         """
         self.t = t
         self.compatible = compatible
@@ -97,12 +100,13 @@ class Model(object):
                 reg['base'] = hex(reg['base'])
                 reg['size'] = hex(reg['size'])
 
+        self.actual = copy.deepcopy(self.model)
         self.__render_get_header(context)
-        self.__render_get_field(context)
         if 'regs' in context:
+            self.__render_get_field(context, n=len(context['regs']))
             self.__render_get_body(context, n=len(context['regs']))
         if 'irqns' in context:
-            self.__render_get_connection(context, n=len(context['irqns']))
+            self.__render_get_connection(context, n=len(context['irqns']), p=len(context['regs']))
 
         # rendering was done so we could concat them all
         # get_field/body/connection  LIST -> [str]
@@ -118,17 +122,25 @@ class Model(object):
                 context['{}_{}'.format(self.t, k)] = v
         return context
 
-    def __render_get_connection(self, context, n=1):
+    def __render_get_connection(self, context, n=1, p=1):
         self.actual['get_connection'] = []
         for i in range(0, n):
             context['irqn'] = context['irqns'][i]
-            actual = self.__render('get_connection', context)
-            self.actual['get_connection'].extend(actual)
+            for j in range(0, p):
+                context['id'] = j
+                context['iid'] = context['irqn'] // context['intcp']['n_irq']
+                context['irqn'] = context['irqn'] % context['intcp']['n_irq']
+                actual = self.__render('get_connection', context)
+                self.actual['get_connection'].extend(actual)
 
     def __render_get_body(self, context, n=1):
         self.actual['get_body'] = []
         for i in range(0, n):
             context['reg'] = context['regs'][i]
+            context['id'] = i
+            if 'irqn' in context:
+                context['iid'] = context['irqn'] // context['intcp']['n_irq']
+                context['irqn'] = context['irqn'] % context['intcp']['n_irq']
             actual = self.__render('get_body', context)
             self.actual['get_body'].extend(actual)
 
@@ -136,9 +148,12 @@ class Model(object):
         actual = self.__render('get_header', context)
         self.actual['get_header'] = actual
 
-    def __render_get_field(self, context):
-        actual = self.__render('get_field', context)
-        self.actual['get_field'] = actual
+    def __render_get_field(self, context, n=1):
+        self.actual['get_field'] = []
+        for i in range(0, n):
+            context['id'] = i
+            actual = self.__render('get_field', context)
+            self.actual['get_field'].extend(actual)
 
     def __render(self, key, context):
         actual = []
@@ -183,13 +198,13 @@ class Model(object):
             return
         psource = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
-            '.{}{}.c'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
+            '{}{}.c'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
         if os.path.exists(psource):
             with open(psource) as f:
                 self.source = ''.join(f.readlines())
         pheader = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
-            '.{}{}.h'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
+            '{}{}.h'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
         if os.path.exists(pheader):
             with open(pheader) as f:
                 self.header = ''.join(f.readlines())

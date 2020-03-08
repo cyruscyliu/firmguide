@@ -46,8 +46,11 @@ static void {{ machine_name }}_init(MachineState *machine)
     memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, {{ ram_get_priority }});
     {% for line in intc_get_body %}
     {{ line }}{% endfor %}
+    {% for line in intc_get_connection %}
+    {{ line }}{% endfor %}
     {% for line in timer_get_body %}
-    {{ line }}{% endfor %}{% for line in serial_get_body %}
+    {{ line }}{% endfor %}
+    {% for line in serial_get_body %}
     {{ line }}{% endfor %}
     {% for line in bamboo_get_body %}
     {{ line }}{% endfor %}
