@@ -233,7 +233,6 @@ def unpack(path, target_dir=None, extract=True):
             # because *.trx will be overwrote by *.7z, we replace 7z with trx here
             components.set_path_to_image(
                 module.extractor.output[result.file.path].carved[result.offset].replace('7z', 'trx'))
-            print(components.get_path_to_image())
             components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_trx_kernel(
                 components.path_to_image)
         elif str(result.description).find('Broadcom 96345 firmware header') != -1:
