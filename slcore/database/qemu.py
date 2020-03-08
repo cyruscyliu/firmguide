@@ -12,7 +12,8 @@ from slcore.database.db import Database
 class DatabaseQEMUAPIS(Database):
     def select(self, *args, **kwargs):
         """
-        select cpu where name like arm,arm11mpcore
+        Examples:
+            select cpu where name like arm,arm11mpcore
         """
         # parse arguments
         device, wanted_property = args[0], args[1]
@@ -42,8 +43,9 @@ class DatabaseQEMUAPIS(Database):
 class DatabaseQEMUModels(Database):
     def select(self, *args, **kwargs):
         """
-        select model where compatible=ns16550a
-        select *
+        Examples:
+            select model where compatible=ns16550a
+            select *
         """
         # parse arguments
         action = args[0]
@@ -63,7 +65,8 @@ class DatabaseQEMUModels(Database):
 
     def add(self, *args, **kwargs):
         """
-        add compatible where pa=va, pb=vb
+        Examples:
+            add compatible where pa=va, pb=vb
         """
         compatible = args[0]
 
@@ -92,7 +95,8 @@ class DatabaseQEMUModels(Database):
 class DatabaseQEMUDevices(Database):
     def select(self, *args, **kwargs):
         """
-        select cpu where compatible=arm,arm11mpcore
+        Examples:
+            select cpu where compatible=arm,arm11mpcore
         """
         # parse arguments
         device = args[0]

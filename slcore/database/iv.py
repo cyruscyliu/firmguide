@@ -2,20 +2,22 @@ import os
 import yaml
 
 from slcore.database.db import Database
-from settings import *
 
 
 class InitValue(Database):
     def select(self, *args, **kwargs):
         """
-        select 'iv' where arch='arm' and board='ath79'
+        Examples:
+            select 'iv' where arch='arm' and board='ath79'
         """
         arch = kwargs.pop('arch')
         assert arch in ['arm', 'arm64', 'mips']
 
         board = kwargs.pop('board', None)
 
-        table = open(os.path.join(BASE_DIR, 'slcore/database', 'iv.{}.yaml'.format(arch)))
+        table = open(
+            os.path.join(os.path.dirname(os.path.realpath(__file__))),
+            'iv.{}.yaml'.format(arch))
         info = yaml.safe_load(table)
         table.close()
 

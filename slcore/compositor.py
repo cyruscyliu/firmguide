@@ -6,7 +6,9 @@ import binwalk
 
 from slcore.common import Common
 
+
 TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE, IMAGETAG_KERNEL, COMBINEDIMAGE_KERNEL = 1, 2, 3, 4, 5
+
 
 COMPONENT_ATTRIBUTES = [
     'path_to_raw', 'type', 'path_to_image', 'path_to_kernel',
@@ -132,6 +134,7 @@ def __enlarge_image(path, target_size):
 
 
 def pack_kernel(components, arch='arm', load_address="0x00008000", entry_point="0x00008000"):
+    """Add a uimage header to  a kernel."""
     kernel = components.get_path_to_kernel()
     uimage = components.get_path_to_uimage()
     os.system(
@@ -141,14 +144,17 @@ def pack_kernel(components, arch='arm', load_address="0x00008000", entry_point="
 
 
 def pack_image(components, flash_size=None):
+    """Pack a image."""
     raise NotImplementedError()
 
 
 def pack_initramfs(components, mounted_to=None):
+    """Make a initramfs."""
     return mounted_to
 
 
 def fix_choosen_bootargs(components):
+    """Remove choosen node in the dtb in a kernel image."""
     # this function must be called when the path_to_kernel is correct
     kernel = components.get_path_to_kernel()
     os.system('cp {0} {0}.fix_choosen_bootargs'.format(kernel))
@@ -167,6 +173,7 @@ def fix_choosen_bootargs(components):
 
 
 def fix_cmdline(components):
+    """Remove the default cmdline in a kernel image."""
     # this api should be called before pack_kernel
     kernel = components.get_path_to_kernel()
     os.system('cp {0} {0}.cmdline'.format(kernel))
@@ -189,11 +196,15 @@ def fix_cmdline(components):
 
 
 def unpack(path, target_dir=None, extract=True):
-    """
-    :param path: absolute path-like string
-    :param target_dir: working directory, parent directory of the path by default
-    :param extract: whether to save binwalk extractions or not
-    :return: components
+    """Unpack a image.
+
+    Args:
+        path(str)      : The path to the image.
+        target_dir(str): Working directory, parent directory of the path by default.
+        extract(bool)  : Whether or not to inactive binwalk extractions.
+
+    Returns:
+        Components: A Component object.
     """
     components = Components()
     if not os.path.exists(path):

@@ -8,10 +8,11 @@ from settings import *
 class SupportMachines(Database):
     def select(self, *args, **kwargs):
         """
-        select 'profile' where arch='arm' and machine_id='0x661'
-        select 'profile' where arch='arm' and compatible='plxtech,nas7820'
-        select 'board'   where arch='arm' and board='mach-orion5x'
-        select 'board'   where arch='arm' and brand='openwrt' and target='orion'
+        Examples:
+            select 'profile' where arch='arm' and machine_id='0x661'
+            select 'profile' where arch='arm' and compatible='plxtech,nas7820'
+            select 'board'   where arch='arm' and board='mach-orion5x'
+            select 'board'   where arch='arm' and brand='openwrt' and target='orion'
         """
         arch = kwargs.pop('arch')
         assert arch in ['arm', 'arm64', 'mips']

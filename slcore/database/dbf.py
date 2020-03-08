@@ -1,17 +1,14 @@
 import os
 
-from slcore.database.qemu import *
-from slcore.database.openwrt import DatabaseOpenWRTMapping, DatabaseOpenWRTToH
+from slcore.database.qemu import DatabaseQEMUDevices,\
+    DatabaseQEMUModels, DatabaseQEMUAPIS
 from slcore.database.support import SupportMachines
 from slcore.database.iv import InitValue
 
 
 def get_database(dbtype, **kwargs):
-    if dbtype == 'openwrt':
-        return DatabaseOpenWRTToH()
-    elif dbtype == 'openwrt.yaml':
-        return DatabaseOpenWRTMapping()
-    elif dbtype == 'qemu.devices':
+    """Database factory."""
+    if dbtype == 'qemu.devices':
         return DatabaseQEMUDevices()
     elif dbtype == 'qemu.cpu':
         return DatabaseQEMUModels('cpu')
