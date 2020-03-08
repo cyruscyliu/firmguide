@@ -30,16 +30,9 @@ def find_flatten_timer_in_fdt(dts, intc=False):
 
     Returns:
         list: A list of timers in the machine. For example:
-
-        [
-            {
-                'compatible': ['example,timer'],
-                'path': /example/timer,
-                'regs': [{'base': 0xFFFF0000, 'size': 0x10000}],
-                'intcp': -1, # optional
-                'irqns': [0] # optional
-            }
-        ]
+        [{'compatible': ['example,timer'], 'path': /example/timer,
+        'regs': [{'base': 0xFFFF0000, 'size': 0x10000}],
+        'intcp': -1, 'irqns': [0] # optional}]
     """
     flatten_timers = {}
     for pa, no, pros in dts.walk():

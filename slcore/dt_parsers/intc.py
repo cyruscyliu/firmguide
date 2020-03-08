@@ -94,8 +94,8 @@ def find_interrupt_parent_by_path(dts, path):
     """Find the interrupt parent phandle by path.
 
     Find interrupt-parent with a value, say
-        interrupt-parent = <0x1>;
-    . Sometimes, interrupt-parent with a value
+    interrupt-parent = <0x1>;. Sometimes,
+    interrupt-parent with a value
     and interrupt-parent w/o a value together
     makes us confused. In order to distinguish them,
     we scan all properties in the given node.
@@ -182,20 +182,10 @@ def find_flatten_intc_in_fdt(dts, nonintc_slave=False):
 
     Return:
         list: A list of interrupt controllers. For example:
-
-        [
-            {
-                'compatible': ['example,intc'],
-                'path': /example/intc,
-                'regs': [{'base': 0xFFFF0000, 'size': 0x10000}],
-                'intc': True,
-                'phandle': 1,
-                'master': True,
-                'slave': True,
-                'intcp': -1,
-                'irqns': [0],
-            }
-        ]
+        [{'compatible': ['example,intc'], 'path': /example/intc,
+        'regs': [{'base': 0xFFFF0000, 'size': 0x10000}],
+        'intc': True, 'phandle': 1, 'master': True, 'slave': True,
+        'intcp': -1, 'irqns': [0],}]
     """
     flatten_intc_tree = {}
     for pa, no, pros in dts.walk():

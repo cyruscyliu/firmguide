@@ -11,13 +11,7 @@ def find_flatten_cpu_in_fdt(dts):
 
     Returns:
         list: A list of cpus in the machine. For example:
-
-        [
-            {
-                'compatible': ['example,cpu'],
-                'path': /cpus/cpu@0,
-            }
-        ]
+        [{compatible': ['example,cpu'], 'path': /cpus/cpu@0,}]
     """
     path_to_cpu = None
     for p, ns, pros in dts.walk():

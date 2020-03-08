@@ -28,14 +28,8 @@ def find_flatten_flash_in_fdt(dts):
 
     Returns:
         list: A list of flash chips. For example:
-
-        [
-            {
-                'compatible': ['example,compatible'],
-                path: /example/flash,
-                regs: [{'base': 0xFFFF0000, 'size': 0x10000}]
-            },
-        ]
+        [{'compatible': ['example,compatible'], path: /example/flash,
+        regs: [{'base': 0xFFFF0000, 'size': 0x10000}]},]
     """
     flatten_flashs = {}
     for pa, no, pros in dts.walk():

@@ -91,6 +91,7 @@ def __find_parent_size_cells(dts, path):
 
 
 def find_mmio_by_path(dts, path):
+    """Find mmio regions by path."""
     flatten_mmio = find_flatten_mmio_in_fdt(dts)
     for mmio in flatten_mmio:
         if mmio['path'] == path:
@@ -105,14 +106,8 @@ def find_flatten_mmio_in_fdt(dts):
 
     Returns:
         list: A list of mmio regions in the machine. For example:
-
-        [
-            {
-                'compatible': ['example,mmio'],
-                'path': /example/mmio,
-                'regs': [{'base': 0xFFFF0000, 'size': 0x10000}]
-            }
-        ]
+        [{'compatible': ['example,mmio'], 'path': /example/mmio,
+        'regs': [{'base': 0xFFFF0000, 'size': 0x10000}]}]
     """
     top_address_cells = dts.get_property('#address-cells', '/').data[0]
     top_size_cells = dts.get_property('#size-cells', '/').data[0]

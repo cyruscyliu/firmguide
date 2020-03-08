@@ -29,18 +29,9 @@ def find_flatten_serial_in_fdt(dts):
 
     Returns:
         list: A list of serials in a machine. For example:
-
-        [
-            {
-                'compatible': ['example,serial'],
-                'path': /example/serial,
-                'regs': [{'base': 0xFFFF0000, 'size': 0x10000}],
-                'baud_rate': 115200,
-                'reg_shift': 0, # or 2
-                'intcp': -1, # optional
-                'irqns': [0] # optional
-            }
-        ]
+        [{'compatible': ['example,serial'],'path': /example/serial,
+        'regs': [{'base': 0xFFFF0000, 'size': 0x10000}], 'baud_rate': 115200,
+        'reg_shift': 0, 'intcp': -1, 'irqns': [0] # optional}]
     """
     path_to_serials = __find_path_to_serial(dts)
     if path_to_serials is None:
