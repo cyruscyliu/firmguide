@@ -15,9 +15,9 @@ class InitValue(Database):
 
         board = kwargs.pop('board', None)
 
-        table = open(
-            os.path.join(os.path.dirname(os.path.realpath(__file__))),
-            'iv.{}.yaml'.format(arch))
+        table = open(os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            'iv.{}.yaml'.format(arch)))
         info = yaml.safe_load(table)
         table.close()
 

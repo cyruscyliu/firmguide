@@ -40,7 +40,7 @@ def find_flatten_flash_in_fdt(dts):
 
         mmio = find_mmio_by_path(dts, pa)
         if mmio is not None:
-            flatten_flashs['regs'] = mmio['regs']
+            flatten_flashs[pa]['regs'] = mmio['regs']
         else:
             continue
 

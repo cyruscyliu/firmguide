@@ -1,5 +1,6 @@
 import os
 from slcore.dt_parsers.common import load_dtb
+from slcore.dt_parsers.compatible import find_compatible_by_path
 
 
 def __find_parent_address(dts, path):
@@ -54,9 +55,10 @@ def __find_parent_offset(dts, path, x, fx):
                 local_size += ranges[i * bank_size + local_address_cells + parent_address_cells + j]
             fx_parent[local_address] = [parent_address, local_size]
         if fx is not None:
-            for k, v in fx.items():
-                if v[0] in fx_parent:
-                    fx[k] = fx_parent[v[0]]
+            for ok, ov in fx.items():
+                for nk, nv in fx_parent.items():
+                    if nk <= ov[0] < nk + nv[1]:
+                        ov[0] = ov[0] - nk + nv[0]
         else:
             fx = fx_parent
     return __find_parent_offset(dts, path, x, fx)
@@ -114,11 +116,9 @@ def find_flatten_mmio_in_fdt(dts):
 
     mmio = {}
     for pa, no, pros in dts.walk():
-        if not dts.exist_property('compatible', pa):
+        if pa.find('partition') != -1:
             continue
-        if pa.find('partitions') != -1:
-            continue
-        compatible = dts.get_property('compatible', pa).data
+        compatible = find_compatible_by_path(dts, pa)
         if 'palmbus' in compatible:
             continue
 
@@ -135,6 +135,8 @@ def find_flatten_mmio_in_fdt(dts):
         if address_cells is None:
             address_cells = top_address_cells
         mmios = dts.get_property('reg', pa).data
+        if dts.exist_property('assigned-addresses', pa):
+            mmios = dts.get_property('assigned-addresses', pa).data
 
         mmio[pa] =  {'regs': [], 'compatible': compatible}
         for i in range(len(mmios) // (size_cells + address_cells)):
