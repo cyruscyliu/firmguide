@@ -67,6 +67,7 @@ class Model(object):
         self.buddy_compatible = []
         self.source = None
         self.header = None
+        self.unique = False
 
         for cmptb in self.compatible:
             model = self.__load_model(cmptb)
@@ -82,6 +83,8 @@ class Model(object):
                 self.external = False
             if 'buddy_compatible' in model:
                 self.buddy_compatible.extend(model['buddy_compatible'])
+            if 'unique' in model:
+                self.unique = True
             break
         self.context = None
 
@@ -126,6 +129,8 @@ class Model(object):
 
     def __render_get_connection(self, context, n=1, p=1):
         self.actual['get_connection'] = []
+        if self.unique:
+            p = 1
         for i in range(0, n):
             context['irqn'] = context['irqns'][i]
             for j in range(0, p):
@@ -137,6 +142,8 @@ class Model(object):
 
     def __render_get_body(self, context, n=1):
         self.actual['get_body'] = []
+        if self.unique:
+            n = 1
         for i in range(0, n):
             context['reg'] = context['regs'][i]
             context['id'] = i
@@ -152,6 +159,8 @@ class Model(object):
 
     def __render_get_field(self, context, n=1):
         self.actual['get_field'] = []
+        if self.unique:
+            n = 1
         for i in range(0, n):
             context['id'] = i
             actual = self.__render('get_field', context)

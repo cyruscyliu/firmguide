@@ -43,7 +43,8 @@ class DTPreprocessing(Analysis):
         firmware.set_board_id('0xFFFFFFFF')
 
         # 4. check the memory size
-        _, ram_size = dts.get_property('reg', '/memory').data
+        ram = dts.get_property('reg', '/memory').data
+        _, ram_size = ram[0:2]
         if ram_size > 0:
             firmware.set_ram_size(hex(ram_size))
             self.info(firmware, 'update ram size to {} MiB'.format(ram_size // 0x100000), 1)

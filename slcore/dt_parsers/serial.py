@@ -6,7 +6,7 @@ from slcore.dt_parsers.common import load_dtb
 
 
 def __find_path_to_serial(dts):
-    supported_serials = ['ns16550a', 'ns8250']
+    supported_serials = ['ns16550a', 'ns8250', 'ns16550']
     path_to_serials = []
     for pa, no, pros in dts.walk():
         compatible = dts.get_property('compatible', pa)
@@ -53,12 +53,14 @@ def find_flatten_serial_in_fdt(dts):
         if reg_shift is not None:
             reg_shift = reg_shift.data[0]
         else:
-            continue
-
+            reg_shift = 2
 
         interrupt_parent = find_interrupt_parent_by_path(dts, path_to_serial)
         interrupts = dts.get_property('interrupts', path_to_serial).data
         irqns = find_irqnc_by_pphandle(dts, interrupt_parent, interrupts)
+        # TODO only for arm-gic
+        if irqns[0] > 32:
+            irqns[0] -= 32
 
         flatten_serial.append({
             'path': path_to_serial, 'compatible': compatible,

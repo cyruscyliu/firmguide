@@ -21,7 +21,7 @@ ingenic,jz4780-uart: {extend: 'serial,generic'}
 marvell,armada-3700-uart: {extend: 'serial,generic'}
 mediatek,mt6577-uart: {extend: 'serial,generic'}
 mrvl,pxa-uart: {extend: 'serial,generic'}
-ns16550: {extend: 'serial,generic'}
+ns16550: {extend: 'ns16550a'}
 ns16550a:
   get_body: ['serial_mm_init(get_system_memory(), {{ reg.base }}, {{ reg_shift }},
       {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ id }}), {{ endian }});']
