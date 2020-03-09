@@ -5,31 +5,33 @@ The GLLR(General Low Level Render) is a abstract layer of rendering
 low level templates. We define the syntax of low level templates
 as below. Let's take intc,generic as an example.
 
-intc,generic:
-    paramters: [name, reg, intcp]
-    get_header: ['hw/intc/{{ name }}.h']
-    get_field: ['{{ name|upper }}State {{name}}']
-    get_body:
-        - 'object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_{{ name|upper }});'
-        - 'qdev_set_parent_bus(DEVICE(&s->{{ name }}), sysbus_get_default());'
-        - 'object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized", &err);'
-        - 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ reg.base }});',
-    get_connection: ['qdev_connect_gpio_out(DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});']
-    get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}), {{ irqn|__restore_irqn }})
-    buddy_compatible: []
+Example:
+    intc,generic:
+        paramters: [name, reg, intcp]
+        get_header: ['hw/intc/{{ name }}.h']
+        get_field: ['{{ name|upper }}State {{name}}']
+        get_body:
+            - 'object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_{{ name|upper }});'
+            - 'qdev_set_parent_bus(DEVICE(&s->{{ name }}), sysbus_get_default());'
+            - 'object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized", &err);'
+            - 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ reg.base }});',
+        get_connection: ['qdev_connect_gpio_out(DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});']
+        get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}), {{ irqn|__restore_irqn }})
+        buddy_compatible: []
 
-1. You have to assign a key to a peripheral. Mostly, the key is the one of
-the compatibles of the peripheral and you can put the others into the
-buddy_compatible. To together with buddy_compatible, only the key compatible
-will be recognized, the others will be ignored, which is useful when we use
-integrated devices in QEMU, such as arm1mpcore-priv..
-2. Put all context keys used in parameters, say we will use `name` in get_header,
-then you put `name` in the parameters, in order to pre-check the context.
-3. Put all header templates into get_header.
-4. Put all soc field templates into get_field.
-5. Put all initialization templates into get_body.
-6. Put all connection templates into get_connection.
-7. Put all irq input templates into get_irqn.
+Note:
+    1. You have to assign a key to a peripheral. Mostly, the key is the one of
+    the compatibles of the peripheral and you can put the others into the
+    buddy_compatible. To together with buddy_compatible, only the key compatible
+    will be recognized, the others will be ignored, which is useful when we use
+    integrated devices in QEMU, such as arm1mpcore-priv..
+    2. Put all context keys used in parameters, say we will use `name` in get_header,
+    then you put `name` in the parameters, in order to pre-check the context.
+    3. Put all header templates into get_header.
+    4. Put all soc field templates into get_field.
+    5. Put all initialization templates into get_body.
+    6. Put all connection templates into get_connection.
+    7. Put all irq input templates into get_irqn.
 """
 import os
 import copy
