@@ -87,14 +87,6 @@ def __diagnose(args):
     firmware = project_standard_warmup(args)
 
     # 2. test the machine
-    if args.dtb:
-        firmware.set_dtb(args.dtb)
-    elif firmware.get_components().get_path_to_dtb():
-        firmware.set_dtb(firmware.get_components().get_path_to_dtb())
-    else:
-        print('neither dtb was found in tested firmware nor -dtb was assigned')
-        return project_standard_wrapup(firmware)
-
     status = run_diagnosis(firmware)
 
     # 3. take snapshots to save results

@@ -33,7 +33,7 @@ class Filter(Analysis):
     def is_unsupport_arm_machine(self, firmware):
         exclude = [
             'boot', 'common', 'configs', 'crypto', 'firmware', 'include', 'kernel',
-            'kvm', 'lib', 'mm', 'net', 'nvfpe', 'oprofile', 'tools', 'xen'
+            'kvm', 'lib', 'mm', 'net', 'nvfpe', 'oprofile', 'tools', 'xen', 'vfp'
         ]
         self.path_to_srcode = firmware.get_srcodec().get_path_to_source_code()
         self.arch = 'arm'

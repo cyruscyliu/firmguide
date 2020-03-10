@@ -75,7 +75,7 @@ static uint64_t {0}_read(void *opaque, hwaddr offset, unsigned size)
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\\n", __func__, offset);
         return 0;
     case {1}:
-        res = s->{2};
+        res = s->{2}[offset >> 2];
         break;
     }}
     return res;
@@ -90,7 +90,7 @@ static void {0}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\\n", __func__, offset);
         return;
     case {1}:
-        s->{2} = val;
+        s->{2}[offset >> 2] = val;
         break;
     }}
     {0}_update(s);
@@ -114,14 +114,14 @@ static const MemoryRegionOps {0}_ops = {{
             m_context['bamboo_get_field'].append('MemoryRegion {};'.format(to_mmio(name)))
             #
             for rname, register in registers.items():
-                m_context['bamboo_get_field'].append('uint32_t {};'.format(rname))
-                self.context['reset_get_field'].append('s->{} = {};'.format(rname, register['value']))
+                m_context['bamboo_get_field'].append('uint32_t {}[{} >> 2];'.format(rname, mmio_size))
+                # self.context['reset_get_field'].append('s->{} = {};'.format(rname, register['value']))
             if 'mmio_priority' in bamboo:
                 mmio_priority = bamboo['mmio_priority']
             else:
                 mmio_priority = 0
             m_context['bamboo_get_body'].extend([
-                'memory_region_init_io(&s->{}, NULL, &{}, s, TYPE_{{{{ machine_name|upper }}}}, {});'.format(to_mmio(name), to_ops(name), mmio_size),
+                'memory_region_init_io(&s->{}, OBJECT(machine), &{}, s, TYPE_{{{{ machine_name|upper }}}}, {});'.format(to_mmio(name), to_ops(name), mmio_size),
                 'memory_region_add_subregion_overlap(get_system_memory(), {}, &s->{}, {});'.format(bamboo['mmio_base'], to_mmio(name), mmio_priority)
             ])
             m_context['bamboo_get_field'] = ['\n    '.join(m_context['bamboo_get_field'])]
