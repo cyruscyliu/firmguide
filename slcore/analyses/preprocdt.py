@@ -31,6 +31,9 @@ class DTPreprocessing(Analysis):
 
         mmios = sorted(mmios, key=lambda k: k['base'])
         for reg in mmios:
+            # TODO
+            if reg['compatible'] == ['marvell,orion-mdio']:
+                continue
             status = firmware.insert_bamboo_devices(
                 reg['base'], reg['size'],
                 value=0, compatible=reg['compatible'])

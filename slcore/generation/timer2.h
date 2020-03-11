@@ -17,8 +17,9 @@ typedef struct {{ name|upper }}State {
 
     MemoryRegion mmio;
     /* output to the intc */
-    qemu_irq irq[{{ irqc }}];
-    QEMUTimer *timer[{{ irqc }}];
+    qemu_irq irq[{{ timer_n_irq }}];
+    QEMUTimer *timer[{{ timer_n_irq }}];
+    uint32_t counter[{{ timer_n_irq }}];
 
     uint32_t reserved;
 } {{ name|upper }}State;

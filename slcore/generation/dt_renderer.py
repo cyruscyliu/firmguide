@@ -175,6 +175,7 @@ static const MemoryRegionOps {0}_ops = {{
                 self.firmware.set_uart_num(len(flatten_ks))
             for context in flatten_ks:
                 if k != 'serial' and self.__skip(context['compatible']):
+                    self.debug('skip {}'.format(context['compatible']))
                     continue
                 # the 1st check, compatible check
                 m = Model(k, context['compatible'])

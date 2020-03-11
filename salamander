@@ -262,6 +262,7 @@ if __name__ == '__main__':
     # 3.2 generate
     pgenerate = commands.add_parser('generate', help='RUN - Test the device tree in current project')
     pgenerate.add_argument('-dtb', '--dtb', required=False)
+    pgenerate.add_argument('-nc', '--nocompilation', action='store_true', default=False, help='set this for multi-tasks')
     pgenerate.set_defaults(func=__generate)
     # 3.3 diagnose
     pdiagnose = commands.add_parser('diagnose', help='Run - Test the models in current project')

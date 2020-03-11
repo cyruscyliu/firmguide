@@ -52,7 +52,7 @@ def find_flatten_timer_in_fdt(dts, intc=False):
             flatten_timers[pa]['intcp'] = interrupt_parent
             flatten_timers[pa]['irqns'] = irqns
 
-        if not intc:
+        if not intc and 'intcp' not in flatten_timers[pa]:
             # by default we don't return the timers which are free running
             flatten_timers.pop(pa)
 

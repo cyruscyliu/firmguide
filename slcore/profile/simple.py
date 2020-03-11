@@ -68,10 +68,12 @@ class SimpleFirmware(Firmware):
             return {}
         return bamboo_devices
 
-    def split_bamboo(self, bamboo, a, b, value):
+    def split_bamboo(self, bamboo, a, b, value, compatible=None):
         left = bamboo.mmio_base
         right = bamboo.mmio_base + bamboo.mmio_size
-        compatible = bamboo.compatible
+        old_compatible = bamboo.compatible
+        if compatible is not None:
+            new_compatible = compatible
 
         split_bamboos = [bamboo]
         if left == a:
@@ -79,18 +81,18 @@ class SimpleFirmware(Firmware):
             # ++++-------------
             bamboo.mmio_base = a + b
             bamboo.mmio_size = right - left - b
-            split_bamboos.append(self.get_bamboo(a, b, value, compatible=compatible))
+            split_bamboos.append(self.get_bamboo(a, b, value, compatible=new_compatible))
         elif right == a + b:
             # -----------------
             # -------------++++
             bamboo.mmio_size = a - left
-            split_bamboos.append(self.get_bamboo(a, b, value, compatible=compatible))
+            split_bamboos.append(self.get_bamboo(a, b, value, compatible=new_compatible))
         else:
             # -----------------
             # ------++++xxxxxxx
             bamboo.mmio_size = a - left
-            split_bamboos.append(self.get_bamboo(a, b, value, compatible=compatible))
-            split_bamboos.append(self.get_bamboo(a + b, right - a - b, bamboo.value, compatible=compatible))
+            split_bamboos.append(self.get_bamboo(a, b, value, compatible=new_compatible))
+            split_bamboos.append(self.get_bamboo(a + b, right - a - b, bamboo.value, compatible=old_compatible))
 
         return split_bamboos
 
@@ -123,7 +125,7 @@ class SimpleFirmware(Firmware):
                     mmio_base + mmio_size < exist.mmio_base + exist.mmio_size) or \
                         (exist.mmio_base < mmio_base and
                          mmio_base + mmio_size <= exist.mmio_base + exist.mmio_size):
-                    bamboos = self.split_bamboo(exist, mmio_base, mmio_size, value)
+                    bamboos = self.split_bamboo(exist, mmio_base, mmio_size, value, compatible=compatible)
                 else:
                     return False
 
