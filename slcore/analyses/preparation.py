@@ -95,7 +95,8 @@ class Preparation(Analysis):
             firmware.get_components(), mounted_to=path_to_initramfs)
         running_command = firmware.qemuc.get_command(
             firmware.get_arch(), firmware.get_endian(), firmware.get_machine_name(),
-            kernel, initrd=path_to_initramfs, dtb=firmware.get_components().get_path_to_dtb()
+            kernel, initrd=path_to_initramfs, dtb=firmware.get_components().get_path_to_dtb(),
+            n_serial=firmware.get_uart_num()
         )
         self.debug(firmware, 'get command: {}'.format(running_command), 1)
         firmware.running_command = running_command

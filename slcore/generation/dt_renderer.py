@@ -121,7 +121,7 @@ static const MemoryRegionOps {0}_ops = {{
             else:
                 mmio_priority = 0
             m_context['bamboo_get_body'].extend([
-                'memory_region_init_io(&s->{}, OBJECT(machine), &{}, s, TYPE_{{{{ machine_name|upper }}}}, {});'.format(to_mmio(name), to_ops(name), mmio_size),
+                'memory_region_init_io(&s->{}, NULL, &{}, s, TYPE_{{{{ machine_name|upper }}}}, {});'.format(to_mmio(name), to_ops(name), mmio_size),
                 'memory_region_add_subregion_overlap(get_system_memory(), {}, &s->{}, {});'.format(bamboo['mmio_base'], to_mmio(name), mmio_priority)
             ])
             m_context['bamboo_get_field'] = ['\n    '.join(m_context['bamboo_get_field'])]
@@ -171,8 +171,10 @@ static const MemoryRegionOps {0}_ops = {{
                     not len(flatten_ks):
                 # mips will have a default flash if no flash is detected
                 flatten_ks = [{'compatible': ['flash,generic'], 'reg': {'base': 0x1fc00000, 'size': 0x400000}}]
+            if k == 'serial':
+                self.firmware.set_uart_num(len(flatten_ks))
             for context in flatten_ks:
-                if self.__skip(context['compatible']):
+                if k != 'serial' and self.__skip(context['compatible']):
                     continue
                 # the 1st check, compatible check
                 m = Model(k, context['compatible'])
