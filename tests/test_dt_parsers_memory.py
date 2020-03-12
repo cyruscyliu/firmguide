@@ -46,3 +46,16 @@ class TestNaiveParsers(TestCase):
         a = find_memory_in_fdt(dts)
         self.assertEqual(0, len(a['regs']))
 
+    def test_memory_path_with_act(self):
+        path_to_dtb = self.compile_dts(
+            'dts/memory_path_with_act.dts')
+        dts = load_dtb(path_to_dtb)
+        a = find_memory_in_fdt(dts)
+        self.assertEqual(1, len(a['regs']))
+        self.assertEqual(0x0, a['regs'][0]['base'])
+        self.assertEqual(0x2000, a['regs'][0]['size'])
+        a = find_memory(path_to_dtb)
+        self.assertEqual(1, len(a['regs']))
+        self.assertEqual(0x0, a['regs'][0]['base'])
+        self.assertEqual(0x2000, a['regs'][0]['size'])
+
