@@ -92,15 +92,15 @@ def __find_parent_size_cells(dts, path):
         return __find_parent_size_cells(dts, path)
 
 
-def find_mmio_by_path(dts, path):
+def find_mmio_by_path(dts, path, memory=False):
     """Find mmio regions by path."""
-    flatten_mmio = find_flatten_mmio_in_fdt(dts)
+    flatten_mmio = find_flatten_mmio_in_fdt(dts, memory=memory)
     for mmio in flatten_mmio:
         if mmio['path'] == path:
             return mmio
 
 
-def find_flatten_mmio_in_fdt(dts):
+def find_flatten_mmio_in_fdt(dts, memory=False):
     """Find mmio regions in a machine.
 
     Args:
@@ -129,7 +129,7 @@ def find_flatten_mmio_in_fdt(dts):
             continue
         if not dts.exist_property('reg', pa):
             continue
-        if pa == '/memory':
+        if not memory and pa == '/memory':
             continue
         address_cells = __find_parent_address_sells(dts, pa)
         if address_cells is None:

@@ -18,3 +18,4 @@ extract_tmp
 .python_history
 .analyses.csv
 .project
+*.dtb
