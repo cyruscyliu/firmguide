@@ -1,5 +1,7 @@
 import os
+import sys
 import yaml
+sys.path.extend(['.', '..', '../..'])
 
 from slcore.parser import get_candidates, get_all_strings
 
@@ -240,4 +242,13 @@ def find_cpu(path_to_kernel):
     candidates = get_candidates(path_to_kernel)
     strings = get_all_strings(candidates)
     return find_cpu_in_strings(strings)
+
+
+if __name__ == '__main__':
+    if len(sys.argv) == 2:
+        # cpu.py path/to/kernel
+        path_to_kernel = sys.argv[1]
+        print(find_cpu(path_to_kernel))
+    else:
+        print('usage {} path/to/kernel'.format(sys.argv[0]))
 

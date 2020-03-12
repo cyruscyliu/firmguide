@@ -13,7 +13,7 @@ from slcore.tools.batch import project_plugin_batch
 from slcore.tools.source import project_source_analysis
 from slcore.tools.machines import project_find_profile
 from slcore.scheduler import project_standard_warmup, project_standard_wrapup, \
-    run_static_analysis, run_diagnosis, run_model, run_dt_renderer
+    run_static_analysis, run_diagnosis, run_dt_renderer
 
 logger = logging.getLogger()
 
@@ -62,15 +62,6 @@ def __scan_dtcb(args):
 
 def __scan_topology(args):
     project_scan_topology(args.dtb)
-
-
-def __model_ict(args):
-    # 1 standard_setup
-    firmware = project_standard_warmup(args)
-    # 2. analyze the source code
-    status = run_model(firmware)
-    # 3. take snapshots to save results
-    return project_standard_wrapup(firmware)
 
 
 def __analyze(args):
@@ -134,7 +125,8 @@ def __dtinfo(args):
 
 
 def __source(args):
-    project_source_analysis(args.entry_point)
+    project_source_analysis(
+        args.entry_point, caller=args.caller, cgcfg=args.cgcfg)
 
 
 if __name__ == '__main__':
@@ -216,9 +208,6 @@ if __name__ == '__main__':
     pscan_topology = commands.add_parser('topology', help='Plugin - Find interrupt topology in a device tree')
     pscan_topology.add_argument('dtb')
     pscan_topology.set_defaults(func=__scan_topology)
-    # 2.3 model_ict
-    pmodel_ict = commands.add_parser('ictm', help='model intc/clk/timer in current project')
-    pmodel_ict.set_defaults(func=__model_ict)
     # 2.5 unpack
     punpack = commands.add_parser('unpack', help='Plugin - Unpack an image')
     punpack.add_argument('firmware', metavar='IMAGE',
@@ -254,6 +243,10 @@ if __name__ == '__main__':
     psource = commands.add_parser('source', help='Plugin - Analyze source code')
     psource.add_argument('-e', '--entry_point', required=True,
                          help='Find the file contains the entry point of data or function and preprocess the file.')
+    psource.add_argument('-cgcfg', '--cgcfg', required=False, action='store_true', default=False,
+                         help='Do cg/cfg analysis from the ep and show the interesting places.')
+    psource.add_argument('-caller', '--caller', required=False,
+                         help='Give the caller of the entry point.')
     psource.set_defaults(func=__source)
     # 3 cores
     # 3.1 analyze

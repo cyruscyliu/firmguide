@@ -1,26 +1,29 @@
 import os
 
 from logger import logger_info, logger_warning
-from slcore.environment import finished, finish
-
 from slcore.analyses.analysis import Analysis, AnalysisGroup
 
-from slcore.analyses.preparation import Preparation
-from slcore.analyses.initvalue import InitValue
-from slcore.analyses.preprocdt import DTPreprocessing
-from slcore.analyses.trace import DoTracing, LoadTrace
-from slcore.analyses.c_user_level import Checking
-from slcore.analyses.c_data_abort import DataAbort
-from slcore.analyses.c_panic import Panic
-from slcore.analyses.bamboos import Bamboos
 
-from slcore.analyses.binary_analysis.kernel import Kernel
-from slcore.analyses.binary_analysis.strings import Strings
+def finished(firmware, analysis):
+    if firmware.analysis_progress is None:
+        return False
 
-from slcore.analyses.static_analysis.mfilter import Filter
-from slcore.analyses.static_analysis.ram import RAM
-from slcore.analyses.static_analysis.loaddr import LoadAddr
-from slcore.analyses.static_analysis.entrypoint import EntryPoint
+    try:
+        firmware.analysis_progress[analysis.name]
+        return True
+    except KeyError:
+        return False
+
+
+def finish(firmware, analysis):
+    if firmware.analysis_progress is None:
+        return
+
+    if analysis.type == 'diag':
+        return
+
+    if analysis.name not in firmware.analysis_progress:
+        firmware.analysis_progress[analysis.name] = 1
 
 
 class AnalysesManager(object):
@@ -58,7 +61,7 @@ class AnalysesManager(object):
     def get_analysis(self, name):
         try:
             return self.analyses_flat[name]
-        except KeyError as e:
+        except KeyError:
             return None
 
     @staticmethod
@@ -148,7 +151,7 @@ class AnalysesManager(object):
 
     def run_analysis(self, firmware, name):
         analysis = self.analyses_flat[name]
-        self.last_analysis_status = self.analyses_flat[name].run(firmware)
+        self.last_analysis_status = analysis.run(firmware)
 
     def run_remaining_analyses(self):
         for analysis in self.analyses_remaining:
@@ -182,39 +185,4 @@ class AnalysesManager(object):
 
                 finish(self.firmware, a)
         return True
-
-    def register_binary_analysis(self):
-        binary_analysis = self.new_analyses_tree()
-
-        self.register_analysis(Kernel(self), analyses_tree=binary_analysis)
-        self.register_analysis(Strings(self), analyses_tree=binary_analysis)
-        self.binary_analysis = binary_analysis
-
-        return binary_analysis
-
-    def register_static_analysis(self):
-        static_analysis = self.new_analyses_tree()
-
-        self.register_analysis(Filter(self), analyses_tree=static_analysis)
-        self.register_analysis(RAM(self), analyses_tree=static_analysis)
-        self.register_analysis(LoadAddr(self), analyses_tree=static_analysis)
-        self.register_analysis(EntryPoint(self), analyses_tree=static_analysis)
-
-        return static_analysis
-
-    def register_diagnosis(self):
-        dynamic_analysis = self.new_analyses_tree()
-
-        self.register_analysis(Preparation(self), analyses_tree=dynamic_analysis)
-        self.register_analysis(DTPreprocessing(self), analyses_tree=dynamic_analysis)
-        self.register_analysis(InitValue(self), analyses_tree=dynamic_analysis)
-        self.register_analysis(DoTracing(self), analyses_tree=dynamic_analysis)
-        self.register_analysis(LoadTrace(self), analyses_tree=dynamic_analysis)
-        self.register_analysis(Checking(self), analyses_tree=dynamic_analysis)
-        self.register_analysis(DataAbort(self), analyses_tree=dynamic_analysis)
-        # self.register_analysis(CallStack(self), analyses_tree=dynamic_analysis)
-        # self.register_analysis(Panic(self), analyses_tree=dynamic_analysis)
-        # self.register_analysis(Bamboos(self), analyses_tree=dynamic_analysis)
-
-        return dynamic_analysis
 

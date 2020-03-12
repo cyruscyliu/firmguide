@@ -305,7 +305,8 @@ UNMODELED_SKIP_LIST = [
     'of_iomap', 'irq_set_chip_data', 'of_clk_get', 'of_irq_count', 'of_get_property', 'of_get_parent', '_raw_spin_lock_irqsave',
     'of_find_node_by_phandle', 'arch_local_irq_save', 'arch_local_irq_restore', 'of_irq_parse_raw', 'of_irq_parse_one',
     'of_irq_find_parent', '_raw_spin_unlock_irqrestore', '__iounmap', 'irq_get_irq_data', 'warn_slowpath_fmt', 'irq_domain_disassociate',
-    'irq_free_descs',
+    'irq_free_descs', 'schedule', '__request_region', 'alloc_resource', '__request_resource', 'free_resource',
+    'irq_domain_remove', 'irq_domain_update_bus_token', '__cpuhp_setup_state', 'cpus_read_lock', 'printk_deferred'
 ]
 
 

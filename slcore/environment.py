@@ -28,27 +28,6 @@ def save_analysis(firmware):
         yaml.safe_dump(firmware.analysis_progress, f)
 
 
-def finished(firmware, analysis):
-    if firmware.analysis_progress is None:
-        return False
-
-    try:
-        status = firmware.analysis_progress[analysis.name]
-        return True
-    except KeyError:
-        return False
-
-
-def finish(firmware, analysis):
-    if firmware.analysis_progress is None:
-        return
-
-    if analysis.type == 'diag':
-        return
-
-    if analysis.name not in firmware.analysis_progress:
-        firmware.analysis_progress[analysis.name] = 1
-
 def setup_target_dir(uuid):
     target_dir = os.path.join(WORKING_DIR, uuid)
     os.makedirs(target_dir, exist_ok=True)

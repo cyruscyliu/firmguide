@@ -66,8 +66,7 @@ full of fragmentation such that Salamander must be unchangeable to new models. W
 as configs, which all commands reading/writing  with a set of universal interfaces. We've built in
 several models and once you've got a firmware with device tree, mostly, you will be working on your
 own models, ICT modeling and IV resolving. It takes time to try and try again to finally get precise
-models. Salamander has a QEMU debugging interface and two plugins `./salamander.py autobots` and
-`./salamander source` to help your jobs.
+models. Salamander has a QEMU debugging interface and some plugins to help your jobs.
 
 
 ```
@@ -80,6 +79,30 @@ firmware not only compiled with source but also scratched in the wild. Enjoy you
 
 ```
 ./salamander bootup -f path/to/image
+```
+
+## Q&A
+
+>0x00: A new CPU model is not supported, how do we decide which QEMU CPU model is an alternative?
+```
+# just try and update the qemu.cpu.yaml
+./tools/naive_parsers/cpu.py path/to/vmlinux
+```
+
+>0x01: The dts file is not direct to us for its interrupt topology, can we plot it as a graph?
+```
+# just run and go to https://edotor.net
+./salamander topology path/to/dtb
+```
+
+>0x02: How to add a model(interrupt controller/timer/clk) manually?
+```
+# First, find an entry point.
+./salamander dtcb path/to/dtb
+# Second, find interesting places.
+./salamander source -e ep -cgcfg
+# Third, analyze the function unhandled.
+# Fourth, update qemu.xxx.yaml.
 ```
 
 ## Contributors

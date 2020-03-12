@@ -27,10 +27,11 @@ def scan_topology(path_to_dtb):
         if d['slave']:
             f = label_intc(d)
             t = label_intc(get_intc(flatten_intc_all, d['intcp']))
-            if d['irqn'] == -1:
+            if d['irqns'] == [-1]:
                 g.edge(f, t)
             else:
-                g.edge(f, t, str(d['irqn']))
+                for i in d['irqns']:
+                    g.edge(f, t, str(i))
     g.graph_attr['rankdir'] = 'LR'
     print(g.source)
     print('FYI: ONLINE GRAPHIVZ VIEWER: https://edotor.net')

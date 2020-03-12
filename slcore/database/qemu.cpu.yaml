@@ -61,6 +61,9 @@ marvell,xscale:
 intel,sa1100:
     extend: arm,general
     get_type: sa1100
+marvell,sheeva-v7:
+    extend: arm,general
+    get_type: cortex-a9
 #### MIPS BEGIN ####
 mips,mips24Kc:
     extend: mips(el),general

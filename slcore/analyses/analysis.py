@@ -59,3 +59,4 @@ class AnalysisGroup(object):
     @abc.abstractmethod
     def run(self, firmware):
         pass
+

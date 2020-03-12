@@ -267,14 +267,14 @@ class SRCodeController(Common):
             if f in funccalls:
                 funccalls.remove(f)
                 if cbs['ignored']:
-                    self.info('ana_funccalls2', '{}{}->{}({})({})'.format(' ' * (depth+2), caller, f, 'ignored', None), 0)
+                    self.info('ana_funccalls2', '{}{}->{}({})({})'.format('->' * (depth+1), caller, f, 'ignored', None), 0)
                     continue
                 if caller in cbs:
                     ext = cbs[caller](self.config)
                     unhandled.extend(ext)
-                    self.info('ana_funccalls2', '{}{}->{}({})({})'.format(' ' * (depth+2), caller, f, 'handled', None), 0)
+                    self.info('ana_funccalls2', '{}{}->{}({})({})'.format('->' * (depth+1), caller, f, 'handled', None), 0)
                 else:
-                    self.info('ana_funccalls2', '{}{}->{}({})({})'.format(' ' * (depth+2), caller, f, 'unhandled', None), 0)
+                    self.info('ana_funccalls2', '{}{}->{}({})({})'.format('->' * (depth+1), caller, f, 'unhandled', None), 0)
         funccalls.extend(unhandled)
 
         return funccalls
@@ -305,7 +305,7 @@ class SRCodeController(Common):
             path_to_ep, funccalls, gs, error_info = self.get_funccalls2(ep, caller=caller, depth=depth)
 
             if error_info is not None:
-                self.info('get_funccalls2', '{}{}->{}({})({})'.format(' ' * depth, caller, ep, error_info, path_to_ep), 0)
+                self.info('get_funccalls2', '{}{}->{}({})({})'.format('->' * depth, caller, ep, error_info, path_to_ep), 0)
                 continue
 
             if gs is not None:
@@ -343,7 +343,7 @@ class SRCodeController(Common):
 
         funccalls = self.get_funccalls(path_to_pentry_point, ep, mode='sparse')
         gs = self.get_globals(path_to_pentry_point, ep, mode='sparse')
-        self.info('get_funccalls2', '{} {}->{}({})({})'.format(' ' * depth, caller, ep, None, path_to_entry_point), 0)
+        self.info('get_funccalls2', '{}{}->{}({})({})'.format('->' * depth, caller, ep, None, path_to_entry_point), 0)
 
         return path_to_entry_point, funccalls, gs, None
 
