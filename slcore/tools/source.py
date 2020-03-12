@@ -14,7 +14,8 @@ generic_fcbs = {
     'mips_cpu_irq_init': { 'ignored': True },
     '__irq_set_handler': { 'ignored': False },
     'irq_domain_add_simple': { 'ignored': False },
-    'of_clk_init': { 'ignored': True }
+    'of_clk_init': { 'ignored': True },
+    'set_handle_irq': {'ignored': False},
 }
 
 def project_source_analysis(ep, **kwargs):

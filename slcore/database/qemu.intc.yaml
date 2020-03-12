@@ -98,7 +98,47 @@ intel,i8259: {extend: 'intc,generic'}
 jcore,aic1: {extend: 'intc,generic'}
 jcore,aic2: {extend: 'intc,generic'}
 lsi,zevio-intc: {extend: 'intc,generic'}
-marvell,mpic: {extend: 'intc,generic'}
+marvell,mpic:
+    extend: 'intc,generic'
+    n_irq: 96
+    external: true
+    get_registers:
+        - {ack: false, mask: true, mask_action: '(irqn)', mask_ack: true, mask_ack_action: '(irqn)', unmask: false, offset: '0x34', rname: r13}
+        - {ack: false, mask: true, mask_action: '(irqn)', mask_ack: true, mask_ack_action: '(irqn)', unmask: false, offset: '0x48', rname: r18}
+        - {ack: false, mask: false, mask_ack: false, unmask: true, unmask_action: '(irqn)', offset: '0x30', rname: r12}
+        - {ack: false, mask: false, mask_ack: false, unmask: true, unmask_action: '(irqn)', offset: '0x4C', rname: r19}
+        - {ack: false, mask: false, mask_ack: false, unmask: false, offset: '0x44', rname: r17}
+    irqn_to_regs:
+        - set_body: [s->r17 = 5;]
+          irqn: 5
+          clear_body: [s->r17 = 0xffffffff;]
+        - set_body: [s->r17 = 6;]
+          irqn: 6
+          clear_body: [s->r17 = 0xffffffff;]
+        - set_body: [s->r17 = 37;]
+          irqn: 37
+          clear_body: [s->r17 = 0xffffffff;]
+        - set_body: [s->r17 = 38;]
+          irqn: 38
+          clear_body: [s->r17 = 0xffffffff;]
+        - set_body: [s->r17 = 39;]
+          irqn: 39
+          clear_body: [s->r17 = 0xffffffff;]
+        - set_body: [s->r17 = 40;]
+          irqn: 40
+          clear_body: [s->r17 = 0xffffffff;]
+        - set_body: [s->r17 = 41;]
+          irqn: 41
+          clear_body: [s->r17 = 0xffffffff;]
+        - set_body: [s->r17 = 42;]
+          irqn: 42
+          clear_body: [s->r17 = 0xffffffff;]
+        - set_body: [s->r17 = 43;]
+          irqn: 43
+          clear_body: [s->r17 = 0xffffffff;]
+        - set_body: [s->r17 = 44;]
+          irqn: 44
+          clear_body: [s->r17 = 0xffffffff;]
 marvell,odmi-controller: {extend: 'intc,generic'}
 marvell,orion-bridge-intc:
   extend: intc,generic
