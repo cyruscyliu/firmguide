@@ -3,17 +3,17 @@ import yaml
 import logging
 import logging.config
 
-from settings import *
-
-
 logger = logging.getLogger()
+path_to_config = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logging.yaml')
+log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'log')
 
-def setup_logging(default_path="logging.yaml", default_level=logging.INFO, uuid='salamander'):
+
+def setup_logging(default_path=path_to_config, default_level=logging.INFO, uuid='salamander'):
     path = default_path
     if os.path.exists(path):
         with open(path, "r") as f:
             config = yaml.safe_load(f)
-        config['handlers']['file']['filename'] = os.path.join(BASE_DIR, 'log/{}.log'.format(uuid))
+        config['handlers']['file']['filename'] = os.path.join(log_dir, '{}.log'.format(uuid))
         config['root']['level'] = default_level
         logging.config.dictConfig(config)
     else:

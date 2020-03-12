@@ -5,7 +5,7 @@ from slcore.generation.common import to_state, to_mmio, to_ops, indent, to_type,
     to_upper, concat
 from slcore.generation.preprocessor import PreProcessor
 from slcore.generation.render import Template
-from logger import logger_info, logger_debug
+from slcore.logger import logger_info, logger_debug
 
 
 class CompilerToQEMUMachine(object):

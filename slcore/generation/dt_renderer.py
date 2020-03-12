@@ -11,7 +11,7 @@ from slcore.database.dbf import get_database
 from slcore.generation.render import Template
 from slcore.generation.common import *
 from slcore.generation.gllrender import Model
-from logger import logger_info, logger_debug, logger_warning
+from slcore.logger import logger_info, logger_debug, logger_warning
 from settings import *
 
 

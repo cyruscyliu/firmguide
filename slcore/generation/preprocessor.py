@@ -3,7 +3,7 @@ The whole generator accepts the device profile which must be preprocessed.
 """
 import hashlib
 
-from logger import logger_info, logger_debug
+from slcore.logger import logger_info, logger_debug
 
 
 class PreProcessor(object):

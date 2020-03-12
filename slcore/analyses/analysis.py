@@ -1,6 +1,6 @@
 import abc
 
-from logger import logger_info, logger_debug, logger_warning
+from slcore.logger import logger_info, logger_debug, logger_warning
 
 
 class Analysis(object):

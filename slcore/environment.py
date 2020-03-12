@@ -3,7 +3,7 @@ import yaml
 import shutil
 
 from settings import *
-from logger import logger_info, logger_debug
+from slcore.logger import logger_info, logger_debug
 from slcore.profile.firmwaref import get_firmware
 
 

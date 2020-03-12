@@ -2,7 +2,7 @@
 import argparse
 import logging, logging.config
 
-from logger import setup_logging
+from slcore.logger import setup_logging
 from slcore.project import project_create, project_open, project_config, \
     project_rename, project_close, project_delete, project_show
 from slcore.tools.scan_dtcb import project_scan_declare, project_scan_dtcb

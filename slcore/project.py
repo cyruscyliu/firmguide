@@ -1,7 +1,7 @@
 import os
 import yaml
 from settings import BASE_DIR
-from logger import logger_info2, logger_debug2, logger_warning2
+from slcore.logger import logger_info2, logger_debug2, logger_warning2
 from slcore.environment import setup_target_dir, get_target_dir
 from slcore.srcodec import SRCodeController
 from slcore.qemuc import QEMUController

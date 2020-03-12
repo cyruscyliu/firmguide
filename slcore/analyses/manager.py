@@ -1,6 +1,6 @@
 import os
 
-from logger import logger_info, logger_warning
+from slcore.logger import logger_info, logger_warning
 from slcore.analyses.analysis import Analysis, AnalysisGroup
 
 
