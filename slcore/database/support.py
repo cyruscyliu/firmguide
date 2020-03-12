@@ -2,7 +2,6 @@ import os
 import yaml
 
 from slcore.database.db import Database
-from settings import *
 
 
 class SupportMachines(Database):
@@ -23,7 +22,9 @@ class SupportMachines(Database):
         machine_id = kwargs.pop('machine_id', None)
         target = kwargs.pop('target', None)
 
-        table = open(os.path.join(BASE_DIR, 'slcore/database', 'support.{}.yaml'.format(arch)))
+        database_dir = os.path.dirname(os.path.realpath(__file__))
+        base_dir = os.path.dirname(os.path.dirname(database_dir))
+        table = open(os.path.join(database_dir, 'support.{}.yaml'.format(arch)))
         info = yaml.safe_load(table)
         table.close()
 
@@ -32,11 +33,11 @@ class SupportMachines(Database):
         if action == 'profile' and machine_id is not None:
             for k, v in info.items():
                 if 'machine_ids' in v and machine_id in v['machine_ids']:
-                    return os.path.join(BASE_DIR, v['machine_ids'][machine_id])
+                    return os.path.join(base_dir, v['machine_ids'][machine_id])
         elif action == 'profile' and compatible is not None:
             for k, v in info.items():
                 if 'compatible' in v and compatible in v['compatible']:
-                    return os.path.join(BASE_DIR, v['compatible'][compatible])
+                    return os.path.join(base_dir, v['compatible'][compatible])
         elif action == 'board' and board is not None:
             if board in info:
                 return info[board]

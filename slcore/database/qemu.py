@@ -4,8 +4,6 @@ map kernel world to qemu world
 import os
 import yaml
 
-from fuzzywuzzy import process
-from settings import *
 from slcore.database.db import Database
 
 
@@ -19,7 +17,8 @@ class DatabaseQEMUAPIS(Database):
         device, wanted_property = args[0], args[1]
 
         # get the database
-        qemu_apis = open(os.path.join(BASE_DIR, 'slcore/database', 'qemu.apis.yaml'))
+        database_dir = os.path.dirname(os.path.realpath(__file__))
+        qemu_apis = open(os.path.join(database_dir, 'qemu.apis.yaml'))
         database_qemu_apis = yaml.safe_load(qemu_apis)
         qemu_apis.close()
 
@@ -52,7 +51,8 @@ class DatabaseQEMUModels(Database):
         compatible = kwargs.pop('compatible', None)
 
         # get the database
-        qemu_models = open(os.path.join(DATABASE_DIR, 'qemu.{}.yaml'.format(self.t)))
+        database_dir = os.path.dirname(os.path.realpath(__file__))
+        qemu_models = open(os.path.join(database_dir, 'qemu.{}.yaml'.format(self.t)))
         database_qemu_models = yaml.safe_load(qemu_models)
         qemu_models.close()
 
@@ -77,7 +77,8 @@ class DatabaseQEMUModels(Database):
             if compatible not in qdevices:
                 qdevices[compatible] = kwargs
 
-        f = open(os.path.join(DATABASE_DIR, 'qemu.{}.yaml'.format(self.t)), 'w')
+        database_dir = os.path.dirname(os.path.realpath(__file__))
+        f = open(os.path.join(database_dir, 'qemu.{}.yaml'.format(self.t)), 'w')
         yaml.safe_dump(qdevices, f)
         f.close()
 
@@ -103,7 +104,8 @@ class DatabaseQEMUDevices(Database):
         compatible = kwargs.pop('compatible', None)
 
         # get the database
-        qemu_devices = open(os.path.join(DATABASE_DIR, 'qemu.devices.yaml'))
+        database_dir = os.path.dirname(os.path.realpath(__file__))
+        qemu_devices = open(os.path.join(database_dir, 'qemu.devices.yaml'))
         database_qemu_devices = yaml.safe_load(qemu_devices)
         qemu_devices.close()
 

@@ -4,7 +4,8 @@ from slcore.compositor import pack_kernel, pack_image, \
 from slcore.generation.dt_renderer import DTRenderer
 from slcore.generation.common import to_upper
 from slcore.analyses.analysis import Analysis
-from settings import *
+from slcore.examples.rootfs.rootfs import get_initramfs
+import os
 
 
 class Preparation(Analysis):
@@ -88,9 +89,8 @@ class Preparation(Analysis):
             entry_point=entry_point, arch=firmware.get_arch())
 
         # 4. prepare -initrd path/to/cpio
-        path_to_initramfs = \
-            os.path.join(BASE_DIR, 'examples/rootfs/{}e{}.cpio.rootfs'.format(
-                firmware.get_arch(), firmware.get_endian()))
+        path_to_initramfs = get_initramfs(
+            firmware.get_arch(), firmware.get_endian())
         path_to_initramfs = pack_initramfs(
             firmware.get_components(), mounted_to=path_to_initramfs)
         running_command = firmware.qemuc.get_command(
