@@ -16,6 +16,7 @@ from slcore.analyses.preprocdt import DTPreprocessing
 from slcore.analyses.trace import DoTracing, LoadTrace
 from slcore.analyses.c_user_level import Checking
 from slcore.analyses.c_data_abort import DataAbort
+from slcore.analyses.c_undef_inst import UndefInst
 from slcore.analyses.c_panic import Panic
 from slcore.analyses.bamboos import Bamboos
 
@@ -36,6 +37,19 @@ def run_static_analysis(firmware, binary=True):
     return status
 
 
+def run_trace_analysis(firmware):
+    analyses_manager = AnalysesManager(firmware)
+
+    at = analyses_manager.new_analyses_tree()
+    analyses_manager.register_analysis(LoadTrace(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(Checking(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(DataAbort(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(UndefInst(analyses_manager), analyses_tree=at)
+    status = analyses_manager.run(target_analyses_tree=at)
+
+    return status
+
+
 def run_diagnosis(firmware):
     analyses_manager = AnalysesManager(firmware)
 
@@ -47,6 +61,7 @@ def run_diagnosis(firmware):
     analyses_manager.register_analysis(LoadTrace(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(Checking(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(DataAbort(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(UndefInst(analyses_manager), analyses_tree=at)
     # analyses_manager.register_analysis(CallStack(analyses_manager), analyses_tree=at)
     # analyses_manager.register_analysis(Panic(analyses_manager), analyses_tree=at)
     # analyses_manager.register_analysis(Bamboos(analyses_manager), analyses_tree=at)
@@ -103,9 +118,12 @@ def project_standard_warmup(args, components=None, profile=None):
 
     firmware.max_iteration = 1
     firmware.trace_format = 'qemudebug'
-    firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
-        firmware.get_uuid(), firmware.get_arch(), firmware.get_endian()
-    )
+    if hasattr(args, 'trace'):
+        firmware.path_to_trace = args.trace
+    else:
+        firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
+            firmware.get_uuid(), firmware.get_arch(), firmware.get_endian()
+        )
     firmware.debug = args.debug
 
     if hasattr(args, 'firmware'):

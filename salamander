@@ -13,7 +13,7 @@ from slcore.tools.batch import project_plugin_batch
 from slcore.tools.source import project_source_analysis
 from slcore.tools.machines import project_find_profile
 from slcore.scheduler import project_standard_warmup, project_standard_wrapup, \
-    run_static_analysis, run_diagnosis, run_dt_renderer
+    run_static_analysis, run_diagnosis, run_dt_renderer, run_trace_analysis
 
 logger = logging.getLogger()
 
@@ -68,7 +68,7 @@ def __analyze(args):
     # 1 standard_setup
     firmware = project_standard_warmup(args)
     # 2. analyze the source code
-    status = run_static_analysis(firmware)
+    run_static_analysis(firmware)
     # 3. take snapshots to save results
     return project_standard_wrapup(firmware)
 
@@ -76,10 +76,8 @@ def __analyze(args):
 def __diagnose(args):
     # 1 standard_setup
     firmware = project_standard_warmup(args)
-
     # 2. test the machine
-    status = run_diagnosis(firmware)
-
+    run_diagnosis(firmware)
     # 3. take snapshots to save results
     return project_standard_wrapup(firmware)
 
@@ -95,8 +93,17 @@ def __bootup(args):
     firmware = project_standard_warmup(args, profile=profile)
 
     # 2 diagnosis
-    status = run_diagnosis(firmware)
+    run_diagnosis(firmware)
 
+    # 3. take snapshots to save results
+    return project_standard_wrapup(firmware)
+
+
+def __atrace(args):
+    # 1 standard_setup
+    firmware = project_standard_warmup(args)
+    # 2 generate code from dtb
+    run_trace_analysis(firmware)
     # 3. take snapshots to save results
     return project_standard_wrapup(firmware)
 
@@ -104,10 +111,8 @@ def __bootup(args):
 def __generate(args):
     # 1 standard_setup
     firmware = project_standard_warmup(args)
-
     # 2 generate code from dtb
-    status = run_dt_renderer(firmware)
-
+    run_dt_renderer(firmware)
     # 3. take snapshots to save results
     return project_standard_wrapup(firmware)
 
@@ -250,10 +255,10 @@ if __name__ == '__main__':
     psource.set_defaults(func=__source)
     # 3 cores
     # 3.1 analyze
-    panalyze = commands.add_parser('analyze', help='RUN - Analyze the source code')
+    panalyze = commands.add_parser('analyze', help='Run - Analyze the source code')
     panalyze.set_defaults(func=__analyze)
     # 3.2 generate
-    pgenerate = commands.add_parser('generate', help='RUN - Test the device tree in current project')
+    pgenerate = commands.add_parser('generate', help='Run - Test the device tree in current project')
     pgenerate.add_argument('-dtb', '--dtb', required=False)
     pgenerate.add_argument('-nc', '--nocompilation', action='store_true', default=False, help='set this for multi-tasks')
     pgenerate.set_defaults(func=__generate)
@@ -265,6 +270,7 @@ if __name__ == '__main__':
                            'If there is no valid image and there is no image in your project, you must provide a image.')
     pdiagnose.add_argument('-dtb', '--dtb', required=False,
                            help='If the image you provide has no device tree blob, you can provide a device tree blob, otherwise, ignored.')
+    pdiagnose.add_argument('-nc', '--nocompilation', action='store_true', default=False, help='set this for multi-tasks')
     pdiagnose.set_defaults(func=__diagnose)
     # 3.4 bootup
     pbootup = commands.add_parser('bootup', help='Run - Boot up your image in current project')
@@ -272,6 +278,10 @@ if __name__ == '__main__':
     pbootup.add_argument('-l', '--url', required=False, help='will be removed in the future')
     pbootup.add_argument('-nc', '--nocompilation', action='store_true', default=False, help='set this for multi-tasks')
     pbootup.set_defaults(func=__bootup)
+    # 3.5 scan trace
+    patrace = commands.add_parser('atrace', help='Run - Analyze trace in current project.')
+    patrace.add_argument('-t', '--trace', help='Path to the trace of format uuid-arch-endian.trace')
+    patrace.set_defaults(func=__atrace)
 
     args = parser.parse_args()
     if args.debug:
