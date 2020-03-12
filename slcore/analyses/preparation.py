@@ -4,7 +4,7 @@ from slcore.compositor import pack_kernel, pack_image, \
 from slcore.generation.dt_renderer import DTRenderer
 from slcore.generation.common import to_upper
 from slcore.analyses.analysis import Analysis
-from slcore.examples.rootfs.rootfs import get_initramfs
+from examples.rootfs.rootfs import get_initramfs
 import os
 
 

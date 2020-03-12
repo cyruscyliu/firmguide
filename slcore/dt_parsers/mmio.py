@@ -20,7 +20,18 @@ def __find_parent_address(dts, path):
         return 0
 
 
-def __find_parent_offset(dts, path, x, fx):
+def find_parent_offset(dts, path, x, fx, debug=False):
+    """Find the offset of the parent node.
+
+    Args:
+        dts(dts) : The dts from load_dtb.
+        path(str): The path to current node.
+        x(int)   : The base value to be corrected.
+        fx(dict) : Address mapping. Must be None when called from the external.
+
+    Returns:
+        int: The offset of the parent node.
+    """
     node = dts.get_node(path)
     parent = node.parent
 
@@ -29,8 +40,11 @@ def __find_parent_offset(dts, path, x, fx):
             return 0
         for k, v in fx.items():
             if k <= x < k + v[1]:
-                return (v[0] - k)
-        return 0
+                if debug:
+                    print('[+] {} {} in [{}, {}]'.format(path, x, k, k + v[1]))
+                return (v[0] - k + x - k)
+        # Then the bus has no mapping for x.
+        return None
 
     path = os.path.join(parent.path, parent.name)
     if dts.exist_property('ranges', path):
@@ -39,11 +53,18 @@ def __find_parent_offset(dts, path, x, fx):
         local_size_cells = dts.get_property('#size-cells', path).data[0]
         ranges = dts.get_property('ranges', path)
         if not hasattr(ranges, 'data'):
-            return __find_parent_offset(dts, path, x, fx)
+            return find_parent_offset(dts, path, x, fx, debug=debug)
         ranges = ranges.data
-        bank_size = (local_address_cells + parent_address_cells + local_size_cells )
+        if debug:
+            print('[+] {} range cells: {} {} {}'.format(
+                path, local_address_cells, parent_address_cells, local_size_cells))
+        bank_size = \
+            (local_address_cells + parent_address_cells + local_size_cells )
         fx_parent = {}
         for i in range(0, len(ranges) // bank_size):
+            if debug:
+                print('[+] {} bank {} {}'.format(
+                    path, i, ranges[i * bank_size: (i + 1) * bank_size]))
             local_address = 0
             for j in range(0, local_address_cells):
                 local_address += ranges[i * bank_size + j]
@@ -54,6 +75,9 @@ def __find_parent_offset(dts, path, x, fx):
             for j in range(0, local_size_cells):
                 local_size += ranges[i * bank_size + local_address_cells + parent_address_cells + j]
             fx_parent[local_address] = [parent_address, local_size]
+            if debug:
+                print('[+] {} bank {} => {} {} {}'.format(
+                    path, i, local_address, parent_address, local_size))
         if fx is not None:
             for ok, ov in fx.items():
                 for nk, nv in fx_parent.items():
@@ -61,7 +85,7 @@ def __find_parent_offset(dts, path, x, fx):
                         ov[0] = ov[0] - nk + nv[0]
         else:
             fx = fx_parent
-    return __find_parent_offset(dts, path, x, fx)
+    return find_parent_offset(dts, path, x, fx, debug=debug)
 
 
 def __find_parent_address_sells(dts, path):
@@ -129,7 +153,7 @@ def find_flatten_mmio_in_fdt(dts, memory=False):
             continue
         if not dts.exist_property('reg', pa):
             continue
-        if not memory and pa == '/memory':
+        if not memory and pa.startswith('/memory'):
             continue
         address_cells = __find_parent_address_sells(dts, pa)
         if address_cells is None:
@@ -146,10 +170,16 @@ def find_flatten_mmio_in_fdt(dts, memory=False):
             size = 0
             for j in range(size_cells):
                 size += mmios[i * (size_cells + address_cells) + address_cells + j]
-            offset = __find_parent_offset(dts, pa, base, None)
+            offset = find_parent_offset(dts, pa, base, None)
+            if offset is None:
+                continue
             if size == 0:
                 continue
-            mmio[pa]['regs'].append({'base': base + offset, 'size': size})
+            base = base + offset
+            # sometimes we get a size 0xffffffff...
+            if base + size > (1 << 32):
+                size = (1 << 32) - base
+            mmio[pa]['regs'].append({'base': base, 'size': size})
 
     flatten_mmio = []
     for k, v in mmio.items():

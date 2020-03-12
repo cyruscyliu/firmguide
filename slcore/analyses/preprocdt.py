@@ -1,6 +1,7 @@
 from slcore.analyses.analysis import Analysis
 from slcore.dt_parsers.common import load_dtb
 from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
+from slcore.dt_parsers.memory import find_memory_in_fdt
 
 import os
 
@@ -46,11 +47,12 @@ class DTPreprocessing(Analysis):
         firmware.set_board_id('0xFFFFFFFF')
 
         # 4. check the memory size
-        ram = dts.get_property('reg', '/memory').data
-        _, ram_size = ram[0:2]
-        if ram_size > 0:
-            firmware.set_ram_size(hex(ram_size))
-            self.info(firmware, 'update ram size to {} MiB'.format(ram_size // 0x100000), 1)
+        memory = find_memory_in_fdt(dts)
+        if memory is not None and len(memory['regs']) > 0:
+            ram_size = memory['regs'][0]['size']
+            if ram_size > 0:
+                firmware.set_ram_size(hex(ram_size))
+                self.info(firmware, 'update ram size to {} MiB'.format(ram_size // 0x100000), 1)
 
         return True
 
