@@ -84,6 +84,7 @@ ingenic,jz4770-intc: {extend: 'intc,generic'}
 ingenic,jz4775-intc: {extend: 'intc,generic'}
 ingenic,jz4780-intc: {extend: 'intc,generic'}
 intc,generic:
+  n_irq: 32
   get_body: ['object_initialize(&s->{{ name }}{{ id }}, sizeof(s->{{ name }}{{ id }}), TYPE_{{ name|upper
       }});', 'qdev_set_parent_bus(DEVICE(&s->{{ name }}{{ id }}), sysbus_get_default());',
     'object_property_set_bool(OBJECT(&s->{{ name }}{{ id }}), true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{

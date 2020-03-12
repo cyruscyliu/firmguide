@@ -200,6 +200,8 @@ class Model(object):
             extend = self.__load_model(model['extend'])
             model.pop('extend')
             for k, v in extend.items():
+                if k in model:
+                    continue
                 model[k] = v
         return model
 

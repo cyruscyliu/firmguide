@@ -135,6 +135,8 @@ ti,keystone-timer: {extend: 'timer,generic'}
 ti,omap-counter32k: {extend: 'timer,generic'}
 timer,generic:
   external: true
+  n_irq: 1
+  counters: []
   get_body: ['object_initialize(&s->timer{{ id }}, sizeof(s->timer{{ id }}), TYPE_{{ name|upper }});',
     'qdev_set_parent_bus(DEVICE(&s->timer{{ id }}), sysbus_get_default());', 'object_property_set_bool(OBJECT(&s->timer{{ id }}),
       true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer{{ id }}), 0, {{
