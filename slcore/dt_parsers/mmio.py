@@ -41,8 +41,8 @@ def find_parent_offset(dts, path, x, fx, debug=False):
         for k, v in fx.items():
             if k <= x < k + v[1]:
                 if debug:
-                    print('[+] {} {} in [{}, {}]'.format(path, x, k, k + v[1]))
-                return (v[0] - k + x - k)
+                    print('[+] {} {:x}: {:x} {:x} {:x}'.format(path, x, k, v[0], v[1]))
+                return (v[0] - k)
         # Then the bus has no mapping for x.
         return None
 
@@ -56,7 +56,7 @@ def find_parent_offset(dts, path, x, fx, debug=False):
             return find_parent_offset(dts, path, x, fx, debug=debug)
         ranges = ranges.data
         if debug:
-            print('[+] {} range cells: {} {} {}'.format(
+            print('[+] {} range cells: {:x} {:x} {:x}'.format(
                 path, local_address_cells, parent_address_cells, local_size_cells))
         bank_size = \
             (local_address_cells + parent_address_cells + local_size_cells )
@@ -76,7 +76,7 @@ def find_parent_offset(dts, path, x, fx, debug=False):
                 local_size += ranges[i * bank_size + local_address_cells + parent_address_cells + j]
             fx_parent[local_address] = [parent_address, local_size]
             if debug:
-                print('[+] {} bank {} => {} {} {}'.format(
+                print('[+] {} bank {} => {:x} {:x} {:x}'.format(
                     path, i, local_address, parent_address, local_size))
         if fx is not None:
             for ok, ov in fx.items():
