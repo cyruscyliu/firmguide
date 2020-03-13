@@ -31,7 +31,7 @@ class DataAbort(Analysis):
 
         if not len(dabts):
             self.context['input'] = 'no data abort'
-            return False
+            return True
 
         for cpurf in dabts:
             # dabt
