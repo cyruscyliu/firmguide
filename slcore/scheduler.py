@@ -121,8 +121,8 @@ def project_standard_warmup(args, components=None, profile=None):
     if hasattr(args, 'trace'):
         firmware.path_to_trace = args.trace
     else:
-        firmware.path_to_trace = 'log/{}-{}-{}.trace'.format(
-            firmware.get_uuid(), firmware.get_arch(), firmware.get_endian()
+        firmware.path_to_trace = '{}/{}-{}-{}.trace'.format(
+            firmware.get_target_dir(), firmware.get_uuid(), firmware.get_arch(), firmware.get_endian()
         )
     firmware.debug = args.debug
 

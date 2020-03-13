@@ -221,12 +221,6 @@ def find_cpu_in_strings(strings):
             if cpu_id & int(candidate['cpu_mask'], 16) == int(candidate['cpu_id'], 16):
                 target_cpus.append(arm_cpu)
 
-    wanted_cpus = ['arm11mpcore', 'cortex-a9', 'cortex-a15']
-    if len(target_cpus):
-        for target_cpu in target_cpus:
-            if target_cpu in wanted_cpus:
-                 return target_cpu
-
     return target_cpus
 
 
