@@ -1,4 +1,6 @@
 from slcore.dt_parsers.common import load_dtb
+from slcore.dt_parsers.compatible import find_compatible_by_path
+from slcore.dt_parsers.mmio import find_mmio_by_path
 
 
 def find_flatten_cpu_in_fdt(dts):
@@ -25,8 +27,20 @@ def find_flatten_cpu_in_fdt(dts):
     if compatible is None:
         return None
     else:
-        compatible == compatible.data
-    return [{'path': path_to_cpu, 'compatible': compatible}]
+        compatible = compatible.data
+
+    # TODO this is an ugly implementation
+    gic_reg = None
+    if 'arm,cortex-a9' in compatible:
+        for path, _, _ in dts.walk():
+            c = find_compatible_by_path(dts, path)
+            if 'arm,cortex-a9-scu' in c:
+                gic_regs = find_mmio_by_path(dts, path)['regs']
+                break
+    if gic_regs:
+        return [{'path': path_to_cpu, 'compatible': compatible, 'regs': gic_regs}]
+    else:
+        return [{'path': path_to_cpu, 'compatible': compatible}]
 
 
 def find_flatten_cpu(path_to_dtb):

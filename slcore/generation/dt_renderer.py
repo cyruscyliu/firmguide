@@ -1,18 +1,15 @@
 import os
 
-from slcore.dt_parsers.cpu import *
-from slcore.dt_parsers.serial import *
-from slcore.dt_parsers.intc import *
-from slcore.dt_parsers.common import *
-from slcore.dt_parsers.timer import *
-from slcore.dt_parsers.flash import *
-from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
-from slcore.database.dbf import get_database
+from slcore.dt_parsers.cpu import find_flatten_cpu_in_fdt
+from slcore.dt_parsers.serial import find_flatten_serial_in_fdt
+from slcore.dt_parsers.intc import find_flatten_intc_in_fdt
+from slcore.dt_parsers.common import load_dtb
+from slcore.dt_parsers.timer import find_flatten_timer_in_fdt
+from slcore.dt_parsers.flash import find_flatten_flash_in_fdt
 from slcore.generation.render import Template
-from slcore.generation.common import *
+from slcore.generation.common import to_mmio, to_ops
 from slcore.generation.gllrender import Model
 from slcore.logger import logger_info, logger_debug, logger_warning
-from settings import *
 
 
 class DTRenderer(object):
@@ -56,8 +53,17 @@ class DTRenderer(object):
         logger_warning(self.firmware.get_uuid(), 'dt_renderer', action, message, 0)
 
     def __render_bamboo_devices(self):
-        self.context['reset_get_field'] = []
+        # TODO we add extra ram here which is silly
+        for i, ram in enumerate(self.firmware.get_ram()):
+            m_context = {'ram_get_body': [], 'ram_get_field': []}
+            m_context['ram_get_field'].append('MemoryRegion ram{};'.format(i))
+            m_context['ram_get_body'].extend([
+                'memory_region_allocate_system_memory(&s->ram{}, OBJECT(machine), "ram{}", {});'.format(i, i, ram['size']),
+                'memory_region_add_subregion_overlap(get_system_memory(), {}, &s->ram{}, 0);'.format(ram['base'], i)
+            ])
+            self.__add_context(m_context)
         #
+        self.context['reset_get_field'] = []
         bamboos = self.firmware.get_bamboo_devices()
         bamboo_suite = """
 static void {0}_update(void *opaque)
@@ -104,6 +110,7 @@ static const MemoryRegionOps {0}_ops = {{
         for name, bamboo in bamboos.items():
             # 4th check, skip bdevices in skipped_bdevices
             if self.__skip(bamboo['compatible']):
+                self.debug('skip {}'.format(bamboo['compatible']), 'parse')
                 continue
 
             m_context = {'bamboo_get_field': [], 'bamboo_get_body': [], 'bamboo_get_suite': []}
@@ -225,6 +232,9 @@ static const MemoryRegionOps {0}_ops = {{
 
         # bamboo devices have to be processed in a special way
         self.__render_bamboo_devices()
+        if 'ram_get_body' not in self.context:
+            self.context['ram_get_body'] = []
+            self.context['ram_get_field'] = []
         if 'timer_get_header' not in self.context:
             self.context['timer_get_header'] = []
             self.context['timer_get_body'] = []
@@ -286,6 +296,7 @@ static const MemoryRegionOps {0}_ops = {{
                 self.context[k] = v
 
     def load_template(self):
-        with open(os.path.join(GENERATION_DIR, 'machine.c')) as f:
+        generate_dir = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(generate_dir, 'machine.c')) as f:
             self.machine = ''.join(f.readlines())
 

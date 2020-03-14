@@ -49,10 +49,15 @@ class DTPreprocessing(Analysis):
         # 4. check the memory size
         memory = find_memory_in_fdt(dts)
         if memory is not None and len(memory['regs']) > 0:
-            ram_size = memory['regs'][0]['size']
-            if ram_size > 0:
-                firmware.set_ram_size(hex(ram_size))
-                self.info(firmware, 'update ram size to {} MiB'.format(ram_size // 0x100000), 1)
+            for i, ram in enumerate(memory['regs']):
+                if i == 0:
+                    ram_size = ram['size']
+                    if ram_size > 0:
+                        firmware.set_ram_size(hex(ram_size))
+                        self.info(firmware, 'update ram size to {} MiB'.format(ram_size // 0x100000), 1)
+                else:
+                    self.info(firmware, 'add ram block {} MiB from 0x{:x}'.format(ram['size'] // 0x100000, ram['base']), 1)
+                    firmware.add_ram(ram['size'], base=ram['base'])
 
         return True
 

@@ -24,10 +24,11 @@ arm,cortex-a15-gic: {extend: 'intc,generic'}
 arm,cortex-a7-gic: {extend: 'intc,generic'}
 arm,cortex-a9-gic:
   n_irq: 96
-  buddy_compatible: ['arm,cortex-a9-scu', 'arm,cortex-a9-global-timer', 'arm,cortex-a9-twd-timer']
+  buddy_compatible: ['arm,cortex-a9-scu', 'arm,cortex-a9-global-timer', 'arm,cortex-a9-twd-timer', 'arm,pl310-cache']
   get_body: ['object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_A9MPCORE_PRIV);',
+    'qdev_prop_set_uint32(DEVICE(&s->arm_cortex_a9_gic), "num-cpu", 2);',
     'object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{
-      name }}), 0, {{ reg.base }} & 0xffff0000);']
+      name }}), 0, {{ reg.base }} & 0xffff0000);', 'sysbus_create_varargs("l2x0", ({{ reg.base }} & 0xffff0000) + 0x2000, NULL);']
   get_connection: ['sysbus_connect_irq(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});']
   get_field: ['A9MPPrivState {{ name }};']
   get_header: [hw/cpu/a9mpcore.h]

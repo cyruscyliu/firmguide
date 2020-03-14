@@ -23,7 +23,8 @@ typedef struct {{ machine_name|upper }}State {
     {{ timer_field }}{% endfor %}{% for bamboo_field in bamboo_get_field %}
     {{ bamboo_field }}{% endfor %}{% for flash_field in flash_get_field %}
     {{ flash_field }}{% endfor %}
-    MemoryRegion ram;
+    MemoryRegion ram;{% for ram_field in ram_get_field %}
+    {{ ram_field }}{% endfor %}
 } {{ machine_name|upper }}State;{% for suite in bamboo_get_suite %}
 {{ suite }}{% endfor %}
 
@@ -44,6 +45,8 @@ static void {{ machine_name }}_init(MachineState *machine)
 
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
     memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, {{ ram_get_priority }});
+    {% for line in ram_get_body  %}
+    {{ line }}{% endfor %}
     {% for line in intc_get_body %}
     {{ line }}{% endfor %}
     {% for line in intc_get_connection %}

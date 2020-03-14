@@ -4,7 +4,7 @@ arm,general:
     get_field:
         - ARMCPU *cpu;
     get_body:
-        - s->cpu = ARM_CPU(object_new(machine->cpu_type)); 
+        - s->cpu = ARM_CPU(object_new(machine->cpu_type));
         - object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
     get_connection: []
     get_irqn: qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ)
@@ -55,6 +55,10 @@ arm,cortex-a8:
 arm,cortex-a9:
     extend: arm,general
     get_type: cortex-a9
+    get_body:
+        - s->cpu = ARM_CPU(object_new(machine->cpu_type));
+        - object_property_set_int(OBJECT(s->cpu), {{ reg.base }} & 0xffff0000, "reset-cbar", &err);
+        - object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
 marvell,xscale:
     extend: arm,general
     get_type: pxa250  # pxa255 pxa260 pxa261 pxa262 pxa270 pxa270-a0 pxa270-a1 pxa270-b0 pxa270-b1 pxa270-c0 pxa270-c5

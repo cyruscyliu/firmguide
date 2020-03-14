@@ -693,3 +693,20 @@ class SimpleFirmware(Firmware):
         #
         self.bamboo_mmio_count = 0
         self.bamboos = []
+
+    def add_ram(self, *args, **kwargs):
+        size = args[0]
+        base = kwargs.pop('base', 0)
+        rams = self.get_general('ram', 'blocks')
+        if rams is None:
+            rams = []
+        rams.append({'base': base, 'size': size, 'priority' : '0'})
+        self.set_general('ram', 'blocks', value=rams)
+
+    def get_ram(self, *args, **kwargs):
+        rams = self.get_general('ram', 'blocks')
+        if rams is None:
+            return []
+        else:
+            return rams
+

@@ -54,7 +54,7 @@ def find_flatten_serial_in_fdt(dts):
         if reg_shift is not None:
             reg_shift = reg_shift.data[0]
         else:
-            reg_shift = 2
+            reg_shift = 0
 
         interrupt_parent = find_interrupt_parent_by_path(dts, path_to_serial)
         interrupts = dts.get_property('interrupts', path_to_serial).data
