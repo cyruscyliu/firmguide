@@ -14,8 +14,11 @@ static void ralink_rt2880_timer_tick_callback0(void *opaque)
 
     /* stupid timer */
     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
-    timer_mod(s->timer[0], 0x10000000 + now); /* 100HZ */
-    qemu_set_irq(s->irq[0], 1);
+    timer_mod(s->timer[0], 0x1000 + now); /* 1MHZ */
+    /* 1,000,000HZ -> 100HZ */
+    if (s->counter[0] % 10000 == 0)
+        qemu_set_irq(s->irq[0], 1);
+    s->counter[0]++;
 }
 
 
@@ -32,8 +35,6 @@ static uint64_t ralink_rt2880_timer_read(void *opaque, hwaddr offset, unsigned s
     switch (offset) {
         default:
             return 0;
-        case 0x0 ... 0x20 - 0x4:
-            res = s->reserved;
             break;
     }
     return res;
@@ -81,6 +82,7 @@ static void ralink_rt2880_timer_reset(DeviceState *dev)
     
     now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
     timer_mod(s->timer[0], 0x10000000 + now); /* 100HZ */
+    s->counter[0] = 0;
     s->reserved = 0;
 }
 

@@ -125,6 +125,7 @@ mach-orion5x:
   targets:
     openwrt: [orion]
 mach-oxnas:
+  device_tree: true
   compatible: {'plxtech,nas7820': examples/profiles/plxtech_nas782x/profile.yaml,
     'plxtech,nas782x': examples/profiles/plxtech_nas782x/profile.yaml}
   profiles:

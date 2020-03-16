@@ -462,14 +462,16 @@ def project_archive(firmware):
     ))
 
     # update support list
-    support = get_database('support')
+    if firmware.dtb is None:
+        return False
 
     dts = load_dtb(firmware.dtb)
     compatible = find_compatible_in_fdt(dts)
 
+    support = get_database('support')
     board = support.select('board', arch=firmware.get_arch(), board=firmware.get_board())
     if board is None:
-        board = {}
+        board = {'device_tree': True}
     target_profile = os.path.join('examples/profiles', firmware.get_machine_name(), 'profile.yaml')
     if 'profiles' not in board:
         board['profiles'] = {}
@@ -494,4 +496,5 @@ def project_archive(firmware):
     board['targets'][project.attrs['brand']].append(project.attrs['target'])
 
     support = support.update(firmware.get_board(), board=board, arch=firmware.get_arch())
+    return True
 

@@ -21,6 +21,7 @@ typedef struct RALINK_RT2880_TIMERState {
     /* output to the intc */
     qemu_irq irq[1];
     QEMUTimer *timer[1];
+    uint32_t counter[1];
 
     uint32_t reserved;
 } RALINK_RT2880_TIMERState;

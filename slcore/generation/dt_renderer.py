@@ -180,7 +180,7 @@ static const MemoryRegionOps {0}_ops = {{
             if self.firmware.get_arch() == 'mips' and k == 'flash' and \
                     not len(flatten_ks):
                 # mips will have a default flash if no flash is detected
-                flatten_ks = [{'compatible': ['flash,generic'], 'reg': {'base': 0x1fc00000, 'size': 0x400000}}]
+                flatten_ks = [{'compatible': ['flash,generic'], 'regs': [{'base': 0x1fc00000, 'size': 0x400000}]}]
             if k == 'serial':
                 self.firmware.set_uart_num(len(flatten_ks))
             for context in flatten_ks:
@@ -208,9 +208,9 @@ static const MemoryRegionOps {0}_ops = {{
                 context['endian'] = self.__get_endian()
 
                 if k == 'flash' and self.firmware.get_arch() == 'mips':
-                    if context['reg']['base'] > 0x20000000:
-                        context['reg']['base'] &= 0x1FFFFFF
-                    context['reg']['size'] = 0x20000000 - context['reg']['base']
+                    if context['regs'][0]['base'] > 0x20000000:
+                        context['regs'][0]['base'] &= 0x1FFFFFF
+                    context['regs'][0]['size'] = 0x20000000 - context['regs'][0]['base']
                 m_context = m.render(context)
                 if isinstance(m_context, str):
                     self.warning('cannot suport {} {}, {} is missing'.format(k, m.effic_compatible, m_context), 'parse')

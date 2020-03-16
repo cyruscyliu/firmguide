@@ -54,7 +54,7 @@ static void ralink_rt2880_intc_update(void *opaque)
     //    ALARM      0      1     REST(*)
     //    ALARM      1      0     ALARM(*)
     //    ALARM      1      1     NOISE(*)
-    for (i = 0; i < 32; i++) {
+    for (i = 0; i < N_IRQ; i++) {
         switch(s->state[i]) {
             case STATE_REST:
                 if (s->pending[i]) {
@@ -132,7 +132,7 @@ static void ralink_rt2880_intc_write(void *opaque, hwaddr offset, uint64_t val, 
             break;
         case 0x34:
             old = (uint32_t)s->r1;
-            for (irqn = 0; irqn < 32; irqn++)
+            for (irqn = 0; irqn < N_IRQ; irqn++)
                 if ((1 << irqn) == (uint32_t)val) {
                     s->masked[irqn] = false;
                 }
@@ -140,12 +140,12 @@ static void ralink_rt2880_intc_write(void *opaque, hwaddr offset, uint64_t val, 
             break;
         case 0x38:
             old = (uint32_t)s->r2;
-            for (irqn = 0; irqn < 32; irqn++)
+            for (irqn = 0; irqn < N_IRQ; irqn++)
                 if ((1 << irqn) == (uint32_t)val) {
                     s->masked[irqn] = true;
                     s->pending[irqn] = false;
                 }
-            for (irqn = 0; irqn < 32; irqn++)
+            for (irqn = 0; irqn < N_IRQ; irqn++)
                 if ((1 << irqn) == (uint32_t)val) {
                     s->masked[irqn] = true;
                 }
@@ -183,7 +183,7 @@ static void ralink_rt2880_intc_init(Object *obj)
 
     /* initialize the irq/fip to cpu */
     qdev_init_gpio_out(DEVICE(s), &s->irq, 1);
-    qdev_init_gpio_in(DEVICE(s), ralink_rt2880_intc_set_irq, 32);
+    qdev_init_gpio_in(DEVICE(s), ralink_rt2880_intc_set_irq, N_IRQ);
 }
 
 static void ralink_rt2880_intc_reset(DeviceState *dev)
@@ -194,7 +194,7 @@ static void ralink_rt2880_intc_reset(DeviceState *dev)
     s->r1 = 0;
     s->r2 = 0;
 
-    for (irqn = 0; irqn < 32; irqn++)
+    for (irqn = 0; irqn < N_IRQ; irqn++)
         s->masked[irqn] = true;
 }
 

@@ -196,6 +196,7 @@ mrvl,mmp-intc: {extend: 'intc,generic'}
 mrvl,mmp2-intc: {extend: 'intc,generic'}
 mrvl,mmp2-mux-intc: {extend: 'intc,generic'}
 mti,cpu-interrupt-controller:
+  n_irq: 8
   get_body: [cpu_mips_irq_init_cpu(s->cpu);, cpu_mips_clock_init(s->cpu);]
   get_connection: []
   get_field: []

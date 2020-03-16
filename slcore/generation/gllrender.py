@@ -111,7 +111,10 @@ class Model(object):
             self.__render_get_field(context, n=len(context['regs']))
             self.__render_get_body(context, n=len(context['regs']))
         if 'irqns' in context:
-            self.__render_get_connection(context, n=len(context['irqns']), p=len(context['regs']))
+            if 'regs' in context:
+                self.__render_get_connection(context, n=len(context['irqns']), p=len(context['regs']))
+            else:
+                self.__render_get_connection(context, n=len(context['irqns']))
 
         # rendering was done so we could concat them all
         # get_field/body/connection  LIST -> [str]

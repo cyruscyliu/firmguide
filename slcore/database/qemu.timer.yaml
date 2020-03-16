@@ -100,7 +100,10 @@ ralink,rt2880-timer:
       reg.base }});']
   get_field: ['{{ name|upper }}State timer;']
   get_header: ['hw/timer/{{ name }}.h']
-  parameters: [intcp, irqns, irqc]
+  get_connection: []
+  parameters: [intcp, irqns]
+  counters: []
+  n_irq: 1
 rda,8810pl-timer: {extend: 'timer,generic'}
 renesas,16bit-timer: {extend: 'timer,generic'}
 renesas,8bit-timer: {extend: 'timer,generic'}

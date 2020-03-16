@@ -18,6 +18,8 @@
 #define STATE_NOISE     1
 #define STATE_ALARM     2
 
+#define N_IRQ           32
+
 typedef struct RALINK_RT2880_INTCState {
     /*< private >*/
     SysBusDevice sys_bus;
@@ -31,9 +33,9 @@ typedef struct RALINK_RT2880_INTCState {
     uint32_t r1;
     uint32_t r2;
     /* internal state for every interrupt source */
-    uint32_t state[32];
-    bool pending[32];
-    bool masked[32];
+    uint32_t state[N_IRQ];
+    bool pending[N_IRQ];
+    bool masked[N_IRQ];
 } RALINK_RT2880_INTCState;
 
 #endif /* RALINK_RT2880_INTC_H */

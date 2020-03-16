@@ -60,10 +60,10 @@ ath79:
       # t |= uart_en;
       # __raw_writel(t, gpio_base + 0x28);
     - {base: 0x18040028, size: 0x4, value: 0x0000, path: arch/mips/ath79/early_printk, compatible: ['ath79-iv-006'], function: prom_enable_uart}
-ralink:
+ralink,rt3050-sysc:
       # void *sysc = (void *) ((((int)(int)(0x10000000)) & 0x1fffffff) | 0xa0000000);
       # n0 = __raw_readl(sysc + 0x00); n1 = __raw_readl(sysc + 0x04); id = __raw_readl(sysc + 0x0c);
       # if (n0 == 0x38335452 && n1 == 0x20203338) {  soc_info->compatible = "ralink,rt3883-soc"; name = "RT3883";
       # } else {  panic("rt3883: unknown SoC, n0:%08x n1:%08x", n0, n1);}
-    - {base: 0x10000000, size: 0x4, value: 0x38335452, path: arch/mips/ralink/rt3883.c, compatible: ['ralink-iv-001'], function: prom_soc_init}
-    - {base: 0x10000004, size: 0x4, value: 0x20203338, path: arch/mips/ralink/rt3883.c , compatible: ['ralink-iv-002'], function: prom_soc_init}
+    - {offset: 0x0, size: 0x4, value: 0x38335452, path: arch/mips/ralink/rt3883.c, function: prom_soc_init}
+    - {offset: 0x4, size: 0x4, value: 0x20203338, path: arch/mips/ralink/rt3883.c ,function: prom_soc_init}
