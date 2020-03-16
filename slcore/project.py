@@ -191,9 +191,9 @@ def project_show():
     for k, v in project.attrs.items():
         if isinstance(v, list):
             for vv in v:
-                project_print('[+] {}: {}'.format(k, vv))
+                project_print('{}: {}'.format(k, vv))
         else:
-            project_print('[+] {}: {}'.format(k, v))
+            project_print('{}: {}'.format(k, v))
     return True
 
 
@@ -251,8 +251,7 @@ def project_get_qemuc():
 def project_setup_logging(default_level=logging.INFO):
     project = __project_get_current()
     if project is None:
-        project_print('please open/create a new project')
-        return None
+        return True
 
     uuid = project.attrs['uuid']
     target_dir = project.attrs['target_dir']
@@ -266,10 +265,11 @@ def project_setup_logging(default_level=logging.INFO):
         logging.config.dictConfig(config)
     else:
         logging.basicConfig(level=default_level)
+    return True
 
 
 def project_print(message):
-    print('[-] {}'.format(message))
+    print('[+] {}'.format(message))
 
 
 def project_run_static_analysis(args):

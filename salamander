@@ -166,24 +166,24 @@ if __name__ == '__main__':
     pproject_close.set_defaults(func=__project_show)
     # 2 plugins
     # 2.1 scan_declare
-    pscan_declare = commands.add_parser('declare', help='Plugin - Find new peripherals in the source')
+    pscan_declare = commands.add_parser('declare', help='Plugin - Find new peripherals in the source', conflict_handler='resolve')
     pscan_declare.set_defaults(func=__scan_declare)
     # 2.2 scan_dtcb
-    pscan_dtcb = commands.add_parser('dtcb', help='Plugin - Find callbacks w.s.t compatibles in a device tree')
-    pscan_dtcb.add_argument('dtb')
+    pscan_dtcb = commands.add_parser('dtcb', help='Plugin - Find callbacks w.s.t compatibles in a device tree', conflict_handler='resolve')
+    pscan_dtcb.add_argument('-dtb', '--dtb', required=False)
     pscan_dtcb.set_defaults(func=__scan_dtcb)
     # 2.4 scan_topology
-    pscan_topology = commands.add_parser('topology', help='Plugin - Find interrupt topology in a device tree')
-    pscan_topology.add_argument('dtb')
+    pscan_topology = commands.add_parser('topology', help='Plugin - Find interrupt topology in a device tree', conflict_handler='resolve')
+    pscan_topology.add_argument('-dtb', '--dtb', required=False)
     pscan_topology.set_defaults(func=__scan_topology)
     # 2.5 unpack
-    punpack = commands.add_parser('unpack', help='Plugin - Unpack an image')
+    punpack = commands.add_parser('unpack', help='Plugin - Unpack an image', conflict_handler='resolve')
     punpack.add_argument('firmware', metavar='IMAGE',
                          help='We extend Binwalk to identify more image headers '
                               'and can extract the Linux kernel in the image.')
     punpack.set_defaults(func=__unpack)
     # 2.6 batch processing
-    pbatch = commands.add_parser('batch', help='Plugin - Batch processing')
+    pbatch = commands.add_parser('batch', help='Plugin - Batch processing', conflict_handler='resolve')
     pbatch.add_argument('-a', '--add', required=False, metavar='PATH_TO_IMAGE', nargs='+',
                         help='Add(skip if exists) an image or images to current project by image paths.')
     pbatch.add_argument('-e', '--extend', required=False, metavar='DIR_TO_IMAGES',
@@ -200,16 +200,19 @@ if __name__ == '__main__':
                         help='Show images/dtbs of current project. Similar to ./salamander show.')
     pbatch.set_defaults(func=__batch)
     # 2.7 device tree info
-    pdtinfo = commands.add_parser('dtinfo', help='Plugin - Disclose device tree blob')
-    pdtinfo.add_argument('dtb', help='Show details in this device tree blob.')
+    pdtinfo = commands.add_parser('dtinfo', help='Plugin - Disclose device tree blob', conflict_handler='resolve')
+    pdtinfo.add_argument('-dtb', '--dtb', help='Show details in this device tree blob.', required=False)
     pdtinfo.add_argument('-m', '--mmio', required=False, action='store_true', default=True,
                          help='Show MMIO regions in the device tree blob.')
     pdtinfo.add_argument('-f', '--flash', required=False, action='store_true', default=True,
                          help='Show FLASH chips in the device tree blob.')
     pdtinfo.set_defaults(func=__dtinfo)
     # 2.8 source code analysis
-    psource = commands.add_parser('source', help='Plugin - Analyze source code')
-    psource.add_argument('-e', '--entry_point', required=True,
+    psource = commands.add_parser('source', help='Plugin - Analyze source code', conflict_handler='resolve')
+    g = psource.add_mutually_exclusive_group(required=True)
+    g.add_argument('-f', '--file', required=False,
+                         help='Preprocess the file.')
+    g.add_argument('-e', '--entry_point', required=False,
                          help='Find the file contains the entry point of data or function and preprocess the file.')
     psource.add_argument('-cgcfg', '--cgcfg', required=False, action='store_true', default=False,
                          help='Do cg/cfg analysis from the ep and show the interesting places.')
@@ -218,7 +221,7 @@ if __name__ == '__main__':
     psource.set_defaults(func=__source)
     # 3 cores
     # 3.1 analyze
-    panalyze = commands.add_parser('analyze', help='Run - Analyze the source code')
+    panalyze = commands.add_parser('analyze', help='Run - Analyze the source code', conflict_handler='resolve')
     panalyze.set_defaults(func=__analyze)
     # 3.2 generate
     pgenerate = commands.add_parser('generate', help='Run - Test the device tree in current project')
@@ -226,7 +229,7 @@ if __name__ == '__main__':
     pgenerate.add_argument('-nc', '--nocompilation', action='store_true', default=False, help='set this for multi-tasks')
     pgenerate.set_defaults(func=__generate)
     # 3.3 diagnose
-    pdiagnose = commands.add_parser('diagnose', help='Run - Test the models in current project')
+    pdiagnose = commands.add_parser('diagnose', help='Run - Test the models in current project', conflict_handler='resolve')
     pdiagnose.add_argument('-f', '--firmware', required=False, metavar='IMAGE',
                            help='Use the IMAGE to diagnose your models. If not set, use the last valid image, '
                            'otherwise, use the first image in your current project(./samander batch -s). '
@@ -236,13 +239,13 @@ if __name__ == '__main__':
     pdiagnose.add_argument('-nc', '--nocompilation', action='store_true', default=False, help='set this for multi-tasks')
     pdiagnose.set_defaults(func=__diagnose)
     # 3.4 bootup
-    pbootup = commands.add_parser('bootup', help='Run - Boot up your image in current project')
+    pbootup = commands.add_parser('bootup', help='Run - Boot up your image in current project', conflict_handler='resolve')
     pbootup.add_argument('-f', '--firmware', required=False, metavar='IMAGE')
     pbootup.add_argument('-l', '--url', required=False, help='will be removed in the future')
     pbootup.add_argument('-nc', '--nocompilation', action='store_true', default=False, help='set this for multi-tasks')
     pbootup.set_defaults(func=__bootup)
     # 3.5 scan trace
-    patrace = commands.add_parser('atrace', help='Run - Analyze trace in current project.')
+    patrace = commands.add_parser('atrace', help='Run - Analyze trace in current project.', conflict_handler='resolve')
     patrace.add_argument('-t', '--trace', help='Path to the trace of format uuid-arch-endian.trace')
     patrace.set_defaults(func=__atrace)
 

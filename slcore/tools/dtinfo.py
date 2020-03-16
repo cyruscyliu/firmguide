@@ -3,9 +3,24 @@ import os
 from slcore.dt_parsers.flash import find_flatten_flash_in_fdt
 from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
 from slcore.dt_parsers.common import load_dtb
+from slcore.project import get_current_project
 
 
 def project_show_dtinfo(path_to_dtb, **kwargs):
+    project = get_current_project()
+    if project is None:
+        return
+
+    if path_to_dtb is None:
+        if project.attrs['dtbs'] is None:
+            print('please assign -dtb/--dtb or add a device tree blob to current project')
+            return
+        elif len(project.attrs['dtbs']) == 0:
+            print('please assign -dtb/--dtb or add a device tree blob to current project')
+            return
+        else:
+            path_to_dtb = project.attrs['dtbs'][0]
+
     mmio = kwargs.pop('mmio', False)
     flash = kwargs.pop('flash', False)
 
