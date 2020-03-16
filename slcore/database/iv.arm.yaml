@@ -18,4 +18,6 @@ mach-mvebu:
       #     mvebu_writel(port, 0, (0x0014 + ((i) << 3)));
       # }
     - {base: 0xf1040000, size: 0x0800, value: 0x0000, compatible: ['mach-mvebu-006'], path: drivers/pci/host/pci-mvebu.c, function: mvebu_pcie_setup_wins}
-    - {base: 0xf1044000, size: 0x1000, value: 0x0000, compatible: ['mach-mvebu-006'], path: drivers/pci/host/pci-mvebu.c, function: mvebu_pcie_setup_wins}
+    - {base: 0xf1044000, size: 0x0800, value: 0x0000, compatible: ['mach-mvebu-006'], path: drivers/pci/host/pci-mvebu.c, function: mvebu_pcie_setup_wins}
+      # new
+    - {base: 0xf1048000, size: 0x0800, value: 0x0000, compatible: ['mach-mvebu-007'], path: drivers/pci/host/pci-mvebu.c, function: mvebu_pcie_setup_wins}

@@ -88,7 +88,9 @@ class QEMUController(object):
             # -chardev stdio,mux=on,id=char0 -mon chardev=char0,mode=readline -serial chardev:char0 -serial chardev:char0
             running_command += ' -chardev stdio,mux=on,id=char0'
             running_command += ' -mon chardev=char0,mode=readline'
-            for _ in range(0, n_serial):
+            for i in range(0, n_serial):
+                if i >= 3:
+                    continue
                 running_command += ' -serial chardev:char0'
 
         return running_command

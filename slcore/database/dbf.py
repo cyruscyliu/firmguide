@@ -1,5 +1,3 @@
-import os
-
 from slcore.database.qemu import DatabaseQEMUDevices,\
     DatabaseQEMUModels, DatabaseQEMUAPIS
 from slcore.database.support import SupportMachines
@@ -22,6 +20,8 @@ def get_database(dbtype, **kwargs):
         return DatabaseQEMUModels('clk')
     elif dbtype == 'qemu.flash':
         return DatabaseQEMUModels('flash')
+    elif dbtype == 'qemu.misc':
+        return DatabaseQEMUModels('misc')
     elif dbtype == 'qemu.apis':
         return DatabaseQEMUAPIS()
     elif dbtype == 'support':

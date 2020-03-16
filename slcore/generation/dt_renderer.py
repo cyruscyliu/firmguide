@@ -6,6 +6,7 @@ from slcore.dt_parsers.intc import find_flatten_intc_in_fdt
 from slcore.dt_parsers.common import load_dtb
 from slcore.dt_parsers.timer import find_flatten_timer_in_fdt
 from slcore.dt_parsers.flash import find_flatten_flash_in_fdt
+from slcore.dt_parsers.misc import find_flatten_misc_in_fdt
 from slcore.generation.render import Template
 from slcore.generation.common import to_mmio, to_ops
 from slcore.generation.gllrender import Model
@@ -34,6 +35,7 @@ class DTRenderer(object):
             'serial': find_flatten_serial_in_fdt,
             'timer': find_flatten_timer_in_fdt,
             'flash': find_flatten_flash_in_fdt,
+            'misc': find_flatten_misc_in_fdt,
         }
 
         self.machine = None

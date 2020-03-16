@@ -159,7 +159,9 @@ def find_flatten_mmio_in_fdt(dts, memory=False):
         if address_cells is None:
             address_cells = top_address_cells
         mmios = dts.get_property('reg', pa).data
+        fix = None
         if dts.exist_property('assigned-addresses', pa):
+            fix = mmios[0]
             mmios = dts.get_property('assigned-addresses', pa).data
 
         mmio[pa] =  {'regs': [], 'compatible': compatible}

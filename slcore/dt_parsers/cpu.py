@@ -30,7 +30,7 @@ def find_flatten_cpu_in_fdt(dts):
         compatible = compatible.data
 
     # TODO this is an ugly implementation
-    gic_reg = None
+    gic_regs = None
     if 'arm,cortex-a9' in compatible:
         for path, _, _ in dts.walk():
             c = find_compatible_by_path(dts, path)

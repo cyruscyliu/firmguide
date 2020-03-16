@@ -67,7 +67,7 @@ intel,sa1100:
     get_type: sa1100
 marvell,sheeva-v7:
     extend: arm,general
-    get_type: cortex-a9
+    get_type: cortex-a7
 #### MIPS BEGIN ####
 mips,mips24Kc:
     extend: mips(el),general
