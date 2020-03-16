@@ -81,30 +81,6 @@ firmware not only compiled with source but also scratched in the wild. Enjoy you
 ./salamander bootup -f path/to/image
 ```
 
-## Q&A
-
->0x00: A new CPU model is not supported, how do we decide which QEMU CPU model is an alternative?
-```
-# just try and update the qemu.cpu.yaml
-./tools/naive_parsers/cpu.py path/to/vmlinux
-```
-
->0x01: The dts file is not direct to us for its interrupt topology, can we plot it as a graph?
-```
-# just run and go to https://edotor.net
-./salamander topology path/to/dtb
-```
-
->0x02: How to add a model(interrupt controller/timer/clk) manually?
-```
-# First, find an entry point.
-./salamander dtcb path/to/dtb
-# Second, find interesting places.
-./salamander source -e ep -cgcfg
-# Third, analyze the function unhandled.
-# Fourth, update qemu.xxx.yaml.
-```
-
 ## Contributors
 [cyruscyliu*](https://github.com/cyruscyliu/esv), [occia*](https://github.com/occia)
 
