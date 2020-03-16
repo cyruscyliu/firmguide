@@ -53,5 +53,20 @@ class SupportMachines(Database):
         raise NotImplementedError('you are not expected to modify this table')
 
     def update(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
+        """
+        update mach-oxnas where arch='arm' and board=board
+        """
+        arch = kwargs.pop('arch')
+        assert arch in ['arm', 'arm64', 'mips']
+
+        database_dir = os.path.dirname(os.path.realpath(__file__))
+        table = open(os.path.join(database_dir, 'support.{}.yaml'.format(arch)))
+        info = yaml.safe_load(table)
+        table.close()
+
+        info[args[0]] = kwargs.pop('board', None)
+
+        table = open(os.path.join(database_dir, 'support.{}.yaml'.format(arch)), 'w')
+        yaml.safe_dump(info, table)
+        table.close()
 

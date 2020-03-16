@@ -1,0 +1,123 @@
+bamboo:
+  stub0:
+    compatible: ['ralink,rt3xxx-ohci', ohci-platform]
+    mmio_base: '0x101c1000'
+    mmio_size: '0x1000'
+    registers:
+      stub_reserved0: {offset: 0x0 ... 0xffc, value: '0x0'}
+  stub1:
+    compatible: ['ralink,rt3xxx-ehci', ehci-platform]
+    mmio_base: '0x101c0000'
+    mmio_size: '0x1000'
+    registers:
+      stub_reserved1: {offset: 0x0 ... 0xffc, value: '0x0'}
+  stub10:
+    compatible: ['ralink,rt3883-gpio', 'ralink,rt2880-gpio']
+    mmio_base: '0x10000600'
+    mmio_size: '0x34'
+    registers:
+      stub_reserved10: {offset: 0x0 ... 0x30, value: '0x0'}
+  stub11:
+    compatible: ['ralink,rt3883-uart', 'ralink,rt2880-uart', ns16550a]
+    mmio_base: '0x10000500'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved11: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub12:
+    compatible: ['ralink,rt3883-memc', 'ralink,rt3050-memc']
+    mmio_base: '0x10000300'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved12: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub13:
+    compatible: ['ralink,rt3883-intc', 'ralink,rt2880-intc']
+    mmio_base: '0x10000200'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved13: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub14:
+    compatible: ['ralink,rt3883-wdt', 'ralink,rt2880-wdt']
+    mmio_base: '0x10000120'
+    mmio_size: '0x10'
+    registers:
+      stub_reserved14: {offset: 0x0 ... 0xc, value: '0x0'}
+  stub15:
+    compatible: ['ralink,rt3883-timer', 'ralink,rt2880-timer']
+    mmio_base: '0x10000100'
+    mmio_size: '0x20'
+    registers:
+      stub_reserved15: {offset: 0x0 ... 0x1c, value: '0x0'}
+  stub16:
+    compatible: &id001 ['ralink,rt3883-sysc', 'ralink,rt3050-sysc']
+    mmio_base: '0x10000008'
+    mmio_size: '0xf8'
+    registers:
+      stub_reserved16: {offset: 0x0 ... 0xf4, value: '0x0'}
+  stub17:
+    compatible: *id001
+    mmio_base: '0x10000000'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved17: {offset: '0x0', value: '0x38335452'}
+  stub18:
+    compatible: *id001
+    mmio_base: '0x10000004'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved18: {offset: '0x0', value: '0x20203338'}
+  stub2:
+    compatible: ['ralink,rt3883-wmac', 'ralink,rt2880-wmac']
+    mmio_base: '0x10180000'
+    mmio_size: '0x9c40'
+    registers:
+      stub_reserved2: {offset: 0x0 ... 0x9c3c, value: '0x0'}
+  stub3:
+    compatible: ['ralink,rt3883-pci']
+    mmio_base: '0x10140000'
+    mmio_size: '0x20000'
+    registers:
+      stub_reserved3: {offset: 0x0 ... 0x1fffc, value: '0x0'}
+  stub4:
+    compatible: ['ralink,rt3883-eth']
+    mmio_base: '0x10100000'
+    mmio_size: '0x2710'
+    registers:
+      stub_reserved4: {offset: 0x0 ... 0x270c, value: '0x0'}
+  stub5:
+    compatible: ['ralink,rt3883-uart', 'ralink,rt2880-uart', ns16550a]
+    mmio_base: '0x10000c00'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved5: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub6:
+    compatible: ['ralink,rt3883-spi', 'ralink,rt2880-spi']
+    mmio_base: '0x10000b00'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved6: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub7:
+    compatible: ['ralink,rt3883-gpio', 'ralink,rt2880-gpio']
+    mmio_base: '0x10000688'
+    mmio_size: '0x24'
+    registers:
+      stub_reserved7: {offset: 0x0 ... 0x20, value: '0x0'}
+  stub8:
+    compatible: ['ralink,rt3883-gpio', 'ralink,rt2880-gpio']
+    mmio_base: '0x10000660'
+    mmio_size: '0x24'
+    registers:
+      stub_reserved8: {offset: 0x0 ... 0x20, value: '0x0'}
+  stub9:
+    compatible: ['ralink,rt3883-gpio', 'ralink,rt2880-gpio']
+    mmio_base: '0x10000638'
+    mmio_size: '0x24'
+    registers:
+      stub_reserved9: {offset: 0x0 ... 0x20, value: '0x0'}
+basics: {architecture: mips, board_id: '0xFFFFFFFF', endian: l, machine_name: ramips_rt3883}
+kernel: {kernel_load_address: '0x80000000'}
+mapping:
+  '0x80000000': {pa: '0x00000000', size: '0x20000000', va: '0x80000000'}
+  '0xa0000000': {pa: '0x00000000', size: '0x20000000', va: '0xa0000000'}
+ram: {base: '0x0', priority: '0', size: 256 * MiB}
+runtime: {iteration: 1, user_mode: true}
+path_to_dtb: examples/mips/ralink/profile.dtb

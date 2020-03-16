@@ -125,7 +125,7 @@ static const MemoryRegionOps {0}_ops = {{
             #
             for rname, register in registers.items():
                 m_context['bamboo_get_field'].append('uint32_t {}[{} >> 2];'.format(rname, mmio_size))
-                # self.context['reset_get_field'].append('s->{} = {};'.format(rname, register['value']))
+                self.context['reset_get_field'].append('s->{}[0] = {};'.format(rname, register['value']))
             if 'mmio_priority' in bamboo:
                 mmio_priority = bamboo['mmio_priority']
             else:

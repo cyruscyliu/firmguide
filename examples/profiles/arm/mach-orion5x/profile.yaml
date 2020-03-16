@@ -1,0 +1,250 @@
+bamboo:
+  stub0:
+    mmio_base: '0xf1020300'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved0:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub1:
+    mmio_base: '0xf1010100'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved1:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub10:
+    mmio_base: '0xf1030d00'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved10:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub11:
+    mmio_base: '0xf1030c00'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved11:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub12:
+    mmio_base: '0xf1072000'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved12:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub13:
+    mmio_base: '0xf1072200'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved13:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub14:
+    mmio_base: '0xf1072400'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved14:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub15:
+    mmio_base: '0xf1073000'
+    mmio_size: '0x10'
+    registers:
+      stub_reserved15:
+        offset: 0x0 ... 0xc
+        value: '0x0'
+  stub16:
+    mmio_base: '0xf1073010'
+    mmio_size: '0x10'
+    registers:
+      stub_reserved16:
+        offset: 0x0 ... 0xc
+        value: '0x0'
+  stub17:
+    mmio_base: '0xf1073020'
+    mmio_size: '0x10'
+    registers:
+      stub_reserved17:
+        offset: 0x0 ... 0xc
+        value: '0x0'
+  stub18:
+    mmio_base: '0xf1073030'
+    mmio_size: '0x10'
+    registers:
+      stub_reserved18:
+        offset: 0x0 ... 0xc
+        value: '0x0'
+  stub19:
+    mmio_base: '0xf1073040'
+    mmio_size: '0x10'
+    registers:
+      stub_reserved19:
+        offset: 0x0 ... 0xc
+        value: '0x0'
+  stub2:
+    mmio_base: '0xf1040000'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved2:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub20:
+    mmio_base: '0xf1073050'
+    mmio_size: '0x10'
+    registers:
+      stub_reserved20:
+        offset: 0x0 ... 0xc
+        value: '0x0'
+  stub21:
+    mmio_base: '0xf1073060'
+    mmio_size: '0x10'
+    registers:
+      stub_reserved21:
+        offset: 0x0 ... 0xc
+        value: '0x0'
+  stub22:
+    mmio_base: '0xf1073070'
+    mmio_size: '0x10'
+    registers:
+      stub_reserved22:
+        offset: 0x0 ... 0xc
+        value: '0x0'
+  stub23:
+    mmio_base: '0xf4000000'
+    mmio_size: '0x800000'
+    registers:
+      stub_reserved23:
+        offset: 0x0 ... 0x7FFFFC
+        value: '0x0'
+  stub3:
+    mmio_base: '0xf1020000'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved3:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub4:
+    mmio_base: '0xf1001500'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved4:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub5:
+    mmio_base: '0xf1010000'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved5:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub6:
+    mmio_base: '0xf1041a00'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved6:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub7:
+    mmio_base: '0xf1041800'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved7:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub8:
+    mmio_base: '0xf1041900'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved8:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+  stub9:
+    mmio_base: '0xf1031d00'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved9:
+        offset: 0x0 ... 0xfc
+        value: '0x0'
+basics:
+  architecture: arm
+  board_id: '0x661'
+  brand: openwrt
+  endian: l
+  machine_description: wrt350n_v2
+  machine_name: wrt350n_v2
+brand:
+  revision: '10.03'
+  subtarget: null
+  target: orion
+  toh:
+    bootloader: U-Boot
+    brand: Linksys
+    cpu: Marvell 88F5181L
+    devicetype: WiFi Router
+    flashmb: '8'
+    model: WRT350N v2
+    packagearchitecture: ''
+    pid: '17406'
+    rammb: '32'
+    subtarget: ''
+    supportedcurrentrel: '10.03'
+    supportedsincerel: '10.03'
+    target: orion
+kernel:
+  kernel_load_address: '0x00008000'
+cpu:
+  model: arm926
+interrupt_controller:
+  mmio_base: '0xf1020100'
+  mmio_size: '0x200'
+  name: sintc
+  registers:
+    interrupt_cause_register:
+      offset: '0x100'
+      value: '0x0'
+    interrupt_clear_register:
+      offset: '0x010'
+      value: '0x0'
+    interrupt_mask_register:
+      offset: '0x104'
+      value: '0x0'
+  timer_irq: '0x0'
+mapping:
+  '0xfdd00000':
+    pa: '0xf1000000'
+    size: '0x100000'
+    va: '0xfdd00000'
+  '0xfde00000':
+    pa: '0xf2000000'
+    size: '0x100000'
+    va: '0xfde00000'
+  '0xfdf00000':
+    pa: '0xf2100000'
+    size: '0x100000'
+    va: '0xfdf00000'
+  '0xfe000000':
+    pa: '0xf0000000'
+    size: '0x1000000'
+    va: '0xfe000000'
+ram:
+  base: '0x0'
+  priority: '0'
+  size: 32 * MiB
+uart:
+  num: 2
+  uart@0:
+    baud_rate: '115200'
+    irq: '3'
+    mmio_base: '0xf1012000'
+    mmio_size: '0x100'
+    name: serial8250
+    reg_shift: '2'
+  uart@1:
+    baud_rate: '115200'
+    irq: '4'
+    mmio_base: '0xf1012100'
+    mmio_size: '0x100'
+    name: serial8250
+    reg_shift: '2'

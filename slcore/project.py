@@ -13,6 +13,9 @@ from slcore.compositor import unpack
 from slcore.profile.firmwaref import get_firmware
 from slcore.analyses.scheduler import run_static_analysis, run_diagnosis, \
     run_trace_analysis, run_dt_renderer
+from slcore.database.dbf import get_database
+from slcore.dt_parsers.compatible import find_compatible_in_fdt
+from slcore.dt_parsers.common import load_dtb
 
 
 class Project(object):
@@ -388,7 +391,9 @@ def project_standard_warmup(args, components=None, profile=None):
 
 def project_standard_wrapup(firmware):
     firmware.snapshot()
-    return archive(firmware)
+    if firmware.get_stage('user_mode'):
+        return project_archive(firmware)
+    return True
 
 
 def project_migrate(path_to_profile=None, components=None):
@@ -422,6 +427,71 @@ def project_migrate(path_to_profile=None, components=None):
 
     return firmware
 
-def archive(firmware):
-    pass
+
+def project_archive(firmware):
+    """Should be called after firmware.snapshot()."""
+    project = get_current_project()
+    if project is None:
+        print('please open/create a new project')
+        return None
+
+    target_dir = project.target_dir
+
+    # move profile to examples/profiles/machine_name/profile.yaml
+    target_profiles = os.path.join(BASE_DIR, 'examples/profiles/{}'.format(
+            firmware.get_machine_name()))
+    os.makedirs(target_profiles, exist_ok=True)
+    os.system('cp {} {}'.format(
+        os.path.join(target_dir, 'profile.yaml'),
+        os.path.join(target_profiles, 'profile.yaml')
+    ))
+
+    # move dtb     to examples/profiles/machine_name/profile.dtb
+    os.system('cp {} {}'.format(
+        firmware.dtb,
+        os.path.join(target_profiles, 'profile.dtb')
+    ))
+    # we've updated the path to dtb un firmware.snapshot()
+
+    # move qemu c files to examples/machines/machine_name/profile.yaml
+    target_machines = os.path.join(BASE_DIR, 'examples/machines/{}'.format(firmware.get_machine_name()))
+    os.makedirs(target_machines, exist_ok=True)
+    os.system('cp -r {}/* {}'.format(
+        os.path.join(target_dir, 'qemu-4.0.0'),
+        target_machines,
+    ))
+
+    # update support list
+    support = get_database('support')
+
+    dts = load_dtb(firmware.dtb)
+    compatible = find_compatible_in_fdt(dts)
+
+    board = support.select('board', arch=firmware.get_arch(), board=firmware.get_board())
+    if board is None:
+        board = {}
+    target_profile = os.path.join('examples/profiles', firmware.get_machine_name(), 'profile.yaml')
+    if 'profiles' not in board:
+        board['profiles'] = {}
+    if target_profile not in board['profiles']:
+        board['profiles'][target_profile] = {
+            'brand': project.attrs['brand'],
+             'version': firmware.get_kernel_version(),
+            'target': project.attrs['target'],
+            'subtarget': project.attrs['subtarget']
+        }
+
+    if 'compatible' not in board:
+        board['compatible'] = {}
+    for cmptbl in compatible:
+        if cmptbl not in board['compatible']:
+            board['compatible'][cmptbl] = target_profile
+
+    if 'targets' not in board:
+        board['targets'] = {}
+    if project.attrs['brand'] not in board['targets']:
+        board['targets'][project.attrs['brand']] = []
+    board['targets'][project.attrs['brand']].append(project.attrs['target'])
+
+    support = support.update(firmware.get_board(), board=board, arch=firmware.get_arch())
 

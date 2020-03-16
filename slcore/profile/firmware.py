@@ -54,6 +54,9 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware, Common):
         self.info('snapshot', 'profile at {}'.format(self.path_to_profile), 1)
         self.stats()
         self.info('snapshot', 'statistics at {}'.format(self.path_to_summary), 1)
+        self.info('snapshot', 'dtb at {}'.format(self.dtb), 1)
+        self.info('snapshot', 'project at {}/project.yaml'.format(self.target_dir), 1)
+        self.info('snapshot', 'source at {}/qemu-4.0.0'.format(self.target_dir), 1)
         return True
 
     @abc.abstractmethod

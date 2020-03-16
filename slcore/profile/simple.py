@@ -564,6 +564,9 @@ class SimpleFirmware(Firmware):
             self.profile['components'] = self.components.get_attributes()
         if self.c_cb:
             self.profile['c_cb'] = self.c_cb
+        if self.dtb:
+            self.profile['path_to_dtb'] = \
+                os.path.join('examples/profiles', self.get_machine_name(), 'profile.dtb')
 
         with open(self.path_to_profile, 'w') as f:
             yaml.safe_dump(self.profile, f)
