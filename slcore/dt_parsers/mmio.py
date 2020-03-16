@@ -151,18 +151,25 @@ def find_flatten_mmio_in_fdt(dts, memory=False):
             size_cells = top_size_cells
         if size_cells == 0:
             continue
+        pcie_io = False
         if not dts.exist_property('reg', pa):
-            continue
+            if not dts.exist_property('pcie-io-aperture', pa):
+                continue
+            else:
+                pcie_io = True
         if not memory and pa.startswith('/memory'):
             continue
         address_cells = __find_parent_address_sells(dts, pa)
         if address_cells is None:
             address_cells = top_address_cells
-        mmios = dts.get_property('reg', pa).data
-        fix = None
+        if not pcie_io:
+            mmios = dts.get_property('reg', pa).data
         if dts.exist_property('assigned-addresses', pa):
-            fix = mmios[0]
             mmios = dts.get_property('assigned-addresses', pa).data
+            mmios[0] &= 0xffff0000
+        if dts.exist_property('pcie-io-aperture', pa):
+            # pcie-io-aperture = <0xF2000000 0x100000>;
+            mmios = dts.get_property('pcie-io-aperture', pa).data
 
         mmio[pa] =  {'regs': [], 'compatible': compatible}
         for i in range(len(mmios) // (size_cells + address_cells)):

@@ -10,10 +10,6 @@ mach-mvebu:
       # soc_rev = readl(pci_base + PCIE_DEV_REV_OFF) & SOC_REV_MASK;
       # - {base: 0xf1040000, size: 0x4, value: 0x0000, compatible: ['mach-mvebu-001'], path: arch/arm/mach-mvebu/mvebu-soc-id.c, function: get_soc_id_by_pci}
       # - {base: 0xf1040008, size: 0x4, value: 0x0000, compatible: ['mach-mvebu-002'], path: arch/arm/mach-mvebu/mvebu-soc-id.c, function: get_soc_id_by_pci}
-      # pcie-mem-aperture = <0xE0000000 0x10000000>;
-      # pcie-io-aperture  = <0xF2000000 0x00100000>;
-      #  {base: 0xe0000000, size: 0x10000000, value: 0x0000, compatible: ['mach-mvebu-003'], path: drivers/bus/mvebu-mbus.c, function: mvebu_mbus_dt_init}
-    - {base: 0xf2000000, size: 0x00100000, value: 0x0000, compatible: ['mach-mvebu-003'], path: drivers/bus/mvebu-mbus.c, function: mvebu_mbus_dt_init}
       # bridge->device = mvebu_readl(port, 0x0000) >> 16;
       # bridge->revision = mvebu_readl(port, 0x0008) & 0xff;
       # - {base: 0xf1044000, size: 0x10, value: 0x0, compatible: ['mach-mvebu-004'], path: drivers/pci/host/pci-mvebu.c, function: mvebu_sw_pci_bridge_init}
