@@ -1,5 +1,7 @@
 import os
+import sys
 import yaml
+sys.path.extend(['.', '..', '../..'])
 
 from slcore.parser import get_candidates, get_all_strings
 
@@ -176,10 +178,11 @@ cpu_list = {
 def find_cpu_in_strings(strings):
     """Find which CPU model the image runs on.
 
-    :param strings: Strings from the image.
-    :type  strings: str
-    :returns      : A list of CPU modes the image may runs on.
-    :rtype        : list
+    Args:
+        strings(str): Strings from the image.
+
+    Returns:
+        list: A list of CPU modes the image may runs on.
     """
     # construct
     target_strings = {}
@@ -218,24 +221,28 @@ def find_cpu_in_strings(strings):
             if cpu_id & int(candidate['cpu_mask'], 16) == int(candidate['cpu_id'], 16):
                 target_cpus.append(arm_cpu)
 
-    wanted_cpus = ['arm11mpcore', 'cortex-a9', 'cortex-a15']
-    if len(target_cpus):
-        for target_cpu in target_cpus:
-            if target_cpu in wanted_cpus:
-                 return target_cpu
-
     return target_cpus
 
 
 def find_cpu(path_to_kernel):
-    """"Find which CPU model the image runs on.
+    """Find which CPU model the image runs on.
 
-    :param path_to_kernel: Path to the kernel. We will get strings from it.
-    :type  path_to_kernel: str
-    :returns             : A list of CPU modes the image may runs on.
-    :rtype               : list
+    Args:
+        path_to_kernel(str): Path to the kernel. We will get strings from it.
+
+    Returns:
+        list: A list of CPU modes the image may runs on.
     """
     candidates = get_candidates(path_to_kernel)
     strings = get_all_strings(candidates)
     return find_cpu_in_strings(strings)
+
+
+if __name__ == '__main__':
+    if len(sys.argv) == 2:
+        # cpu.py path/to/kernel
+        path_to_kernel = sys.argv[1]
+        print(find_cpu(path_to_kernel))
+    else:
+        print('usage {} path/to/kernel'.format(sys.argv[0]))
 

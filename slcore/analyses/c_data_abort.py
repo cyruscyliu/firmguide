@@ -31,17 +31,17 @@ class DataAbort(Analysis):
 
         if not len(dabts):
             self.context['input'] = 'no data abort'
-            return False
+            return True
 
         for cpurf in dabts:
             # dabt
             # current bb has where to abort -> next bb has where to return
             if pql.get_exception_return_cpurf(cpurf) is None:
-                self.info(firmware, 'line {} has a data abort at {}, return abnormally'.format(
-                    cpurf['ln'], cpurf['register_files']['DFAR']), 1)
+                self.info(firmware, 'line {}:0x{} has a data abort at {}, return abnormally'.format(
+                    cpurf['ln'], cpurf['register_files']['R15'], cpurf['register_files']['DFAR']), 1)
             else:
-                self.info(firmware, 'line {} has a data abort at {}, return normally'.format(
-                    cpurf['ln'], cpurf['register_files']['DFAR']), 1)
+                self.info(firmware, 'line {}:0x{} has a data abort at {}, return normally'.format(
+                    cpurf['ln'], cpurf['register_files']['R15'], cpurf['register_files']['DFAR']), 1)
                 next_cpurf = pql.get_next_cpurf(cpurf)
                 where_to_return = int(next_cpurf['register_files']['R14'], 16) - 8
                 self.info(firmware, 'the program should re-entry 0x{:x} {}'.format(
@@ -61,14 +61,14 @@ class DataAbort(Analysis):
 
         if not len(dbes):
             self.context['input'] = 'no data abort'
-            return False
+            return True
 
         for cpurf in dbes:
             # dabt
             # current cpurf tells us where to return and current bb tells us where to abort
             where_to_return = cpurf['register_files']['EPC']
-            self.info(firmware, 'line {} has a data abort at PC {}'.format(
-                cpurf['ln'], where_to_return), 1)
+            self.info(firmware, 'line {}:0x{} has a data abort at PC {}'.format(
+                cpurf['ln'], cpurf['register_files']['pc'], where_to_return), 1)
             bb = pql.get_bb(cpurf)
             where_to_return = int(where_to_return, 16)
             instruction = get_raw_code(where_to_return, bb)
@@ -88,8 +88,8 @@ class DataAbort(Analysis):
                         disp = operand.mem.disp
                         bad_addr = int(cpurf['register_files'][base], 16) + disp
                         self.dead_addresses.append(hex(bad_addr))
-                        self.info(firmware, 'line {} has a data abort at 0x{:x}'.format(
-                            cpurf['ln'], bad_addr), 1)
+                        self.info(firmware, 'line {}:0x{} has a data abort at 0x{:x}'.format(
+                            cpurf['ln'], cpurf['register_files']['pc'], bad_addr), 1)
         return True
 
     def run(self, firmware):

@@ -33,7 +33,7 @@ class Filter(Analysis):
     def is_unsupport_arm_machine(self, firmware):
         exclude = [
             'boot', 'common', 'configs', 'crypto', 'firmware', 'include', 'kernel',
-            'kvm', 'lib', 'mm', 'net', 'nvfpe', 'oprofile', 'tools', 'xen'
+            'kvm', 'lib', 'mm', 'net', 'nvfpe', 'oprofile', 'tools', 'xen', 'vfp'
         ]
         self.path_to_srcode = firmware.get_srcodec().get_path_to_source_code()
         self.arch = 'arm'
@@ -44,6 +44,7 @@ class Filter(Analysis):
         support = get_database('support')
         status = support.select('board', board=target, arch='arm')
         if status:
+            self.info(firmware, 'arm/{} is supported'.format(target), 1)
             firmware.set_board(target)
             return True
         else:

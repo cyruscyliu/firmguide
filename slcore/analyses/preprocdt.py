@@ -1,8 +1,10 @@
+import os
+
 from slcore.analyses.analysis import Analysis
 from slcore.dt_parsers.common import load_dtb
 from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
-
-import os
+from slcore.dt_parsers.memory import find_memory_in_fdt
+from slcore.dt_parsers.compatible import find_compatible_in_fdt
 
 
 class DTPreprocessing(Analysis):
@@ -19,18 +21,22 @@ class DTPreprocessing(Analysis):
         self.info(firmware, 'dtb at {}'.format(path_to_dtb), 1)
         self.info(firmware, 'dts at {}'.format(path_to_dts), 1)
 
-        firmware.set_machine_name(firmware.get_uuid())
+        compatible = find_compatible_in_fdt(dts)
+        firmware.set_machine_name(compatible[-1].replace(',', '_').replace('-', '_'))
 
         # 2. create bdevices
         mmios = []
         mmio_c = 0
         for mmio in find_flatten_mmio_in_fdt(dts):
-            for reg in mmio['reg']:
+            for reg in mmio['regs']:
                 mmio_c += 1
                 mmios.append({'base': reg['base'], 'size': reg['size'], 'value': 0, 'compatible': mmio['compatible']})
 
         mmios = sorted(mmios, key=lambda k: k['base'])
         for reg in mmios:
+            # TODO
+            if reg['compatible'] == ['marvell,orion-mdio']:
+                continue
             status = firmware.insert_bamboo_devices(
                 reg['base'], reg['size'],
                 value=0, compatible=reg['compatible'])
@@ -41,6 +47,19 @@ class DTPreprocessing(Analysis):
 
         # 3. assign board_id
         firmware.set_board_id('0xFFFFFFFF')
+
+        # 4. check the memory size
+        memory = find_memory_in_fdt(dts)
+        if memory is not None and len(memory['regs']) > 0:
+            for i, ram in enumerate(memory['regs']):
+                if i == 0:
+                    ram_size = ram['size']
+                    if ram_size > 0:
+                        firmware.set_ram_size(hex(ram_size))
+                        self.info(firmware, 'update ram size to {} MiB'.format(ram_size // 0x100000), 1)
+                else:
+                    self.info(firmware, 'add ram block {} MiB from 0x{:x}'.format(ram['size'] // 0x100000, ram['base']), 1)
+                    firmware.add_ram(ram['size'], base=ram['base'])
 
         return True
 

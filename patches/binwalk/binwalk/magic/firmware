@@ -117,11 +117,18 @@
 >>24    ulelong       x       {stub1:%d}
 >>28    ulelong       x       # bin-header offset: 0x%X
 >14     uleshort      1       version: %d, header size: 28 bytes,
->>16    ulelong       x       # loader offset: 0x%X,
->>20    ulelong       x       linux kernel offset: 0x%X,
->>20    ulelong       x       {stub0:%d}
->>24    ulelong       x       rootfs offset: 0x%X
->>24    ulelong       x       {stub1:%d}
+>>24    ulelong       0
+>>>16   ulelong       x       linux kernel offset: 0x%X,
+>>>16   ulelong       x       {stub0:%d}
+>>>20   ulelong       x       rootfs offset: 0x%X
+>>>20   ulelong       x       {stub1:%d}
+>>24    ulelong       !0
+>>>16   ulelong       x       loader offset: 0x%X,
+>>>20   ulelong       x       linux kernel offset: 0x%X,
+>>>20   ulelong       x       {stub0:%d}
+>>>24   ulelong       x       rootfs offset: 0x%X
+>>>24   ulelong       x       {stub1:%d}
+
 
 14      string        U2ND      BIN-Header,
 >4      ulelong       !0        {invalid}
@@ -385,25 +392,33 @@
 >4      string        x                         Company Line "%s",
 # >4      string        !Broadcom
 # >>4     string        !\x20\x20\x20\x20         {invalid}
+>23     string        !\x00                     {invalid}
 >24     string        x                         Company Line "%s",
+>37     string        !\x00                     {invalid}
 >38     string        x                         chip id: "%s",
+>43     string        !\x00                     {invalid}
 # >41     beshort       !0x2020
 # >>41    beshort       !0x0000
 # >>>41   string        x                         firmware version: "%.4s",
 >44     string        x                         board name: "%s",
+>59     string        !\x00                     {invalid}
 # >44     beshort       !0x0202
 # >>44    beshort       !0x0000
 # >>>44   string        x                         board id: "%s",
 >60     beshort       0x3100                    big endian,
 >60     beshort       0x3000                    little endian,
+>62     string        \x00                      {invalid}
 >62     string        x                         image size: "%s",
 # >72     string        x                         cfe loader address: "%d",
+>84     string        >\x3a                     {invalid}
 >84     string        x                         cfe loader size: "%s",
 >84     string        x                         {cfe_loader_size:"%s"}
 # >94     string        x                         image address: "%s",
+>106    string        >\x3a                      {invalid}
 # >106    string        x                         rootfs size: "%s",
 >106    string        x                         {rootfs_size:"%s"}
 # >116    string        x                         kernel address: "%s",
+>128    string        >\x3a                     {invalid}
 >128    string        x                         kernel size: "%s",
 >128    string        x                         {kernel_size:"%s"}
 # >216    ubelong       x                         ~CRC32 image checksum: 0x%X,

@@ -1,11 +1,12 @@
 flash,generic:
-    parameters: [reg]
+    parameters: [regs]
     get_header: []
     get_field:
         - MemoryRegion flash;
     get_body:
       - memory_region_init_rom(&s->flash, NULL, "boot.flash", {{ reg.size }}, &err);
       - memory_region_add_subregion_overlap(get_system_memory(), {{ reg.base }}, &s->flash, 0);
+    get_connection: []
 abb,socrates-nand: {extend: 'flash,generic'}
 allwinner,sun4i-a10-nand: {extend: 'flash,generic'}
 allwinner,sun8i-a23-nand-controller: {extend: 'flash,generic'}

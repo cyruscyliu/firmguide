@@ -4,7 +4,8 @@ from slcore.compositor import pack_kernel, pack_image, \
 from slcore.generation.dt_renderer import DTRenderer
 from slcore.generation.common import to_upper
 from slcore.analyses.analysis import Analysis
-from settings import *
+from examples.rootfs.rootfs import get_initramfs
+import os
 
 
 class Preparation(Analysis):
@@ -25,7 +26,7 @@ class Preparation(Analysis):
             dt_renderer.load_template()
             status = dt_renderer.render()
             if not status:
-                raise SystemExit('error in dt rendering')
+                raise NotImplementedError('error in dt rendering')
 
         # 2. install and make(compile qemu)
         if not firmware.cancle_compilation:
@@ -88,14 +89,14 @@ class Preparation(Analysis):
             entry_point=entry_point, arch=firmware.get_arch())
 
         # 4. prepare -initrd path/to/cpio
-        path_to_initramfs = \
-            os.path.join(BASE_DIR, 'examples/rootfs/{}e{}.cpio.rootfs'.format(
-                firmware.get_arch(), firmware.get_endian()))
+        path_to_initramfs = get_initramfs(
+            firmware.get_arch(), firmware.get_endian())
         path_to_initramfs = pack_initramfs(
             firmware.get_components(), mounted_to=path_to_initramfs)
         running_command = firmware.qemuc.get_command(
             firmware.get_arch(), firmware.get_endian(), firmware.get_machine_name(),
-            kernel, initrd=path_to_initramfs, dtb=firmware.get_components().get_path_to_dtb()
+            kernel, initrd=path_to_initramfs, dtb=firmware.get_components().get_path_to_dtb(),
+            n_serial=firmware.get_uart_num()
         )
         self.debug(firmware, 'get command: {}'.format(running_command), 1)
         firmware.running_command = running_command

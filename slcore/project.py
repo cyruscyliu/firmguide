@@ -1,15 +1,26 @@
 import os
 import yaml
+import shutil
+import logging
+import logging.config
+
 from settings import BASE_DIR
-from logger import logger_info2, logger_debug2, logger_warning2
 from slcore.environment import setup_target_dir, get_target_dir
 from slcore.srcodec import SRCodeController
 from slcore.qemuc import QEMUController
+from slcore.machines import find_profile
+from slcore.compositor import unpack
+from slcore.profile.firmwaref import get_firmware
+from slcore.analyses.scheduler import run_static_analysis, run_diagnosis, \
+    run_trace_analysis, run_dt_renderer
+from slcore.database.dbf import get_database
+from slcore.dt_parsers.compatible import find_compatible_in_fdt
+from slcore.dt_parsers.common import load_dtb
 
 
 class Project(object):
     def __init__(self, uuid=None, arch=None, endian=None, target_dir=None,
-                 brand=None, target=None, subtarget=None, images=None,
+                 brand=None, target=None, subtarget=None, images=None, dtbs=None,
                  source=None, cross_compile=None, makeout=None):
         """
         Those arguments can be divided into 3 groups.
@@ -30,6 +41,7 @@ class Project(object):
             'cross_compile': cross_compile,
             'makeout': makeout,
             'images': images,
+            'dtbs': dtbs,
         }
 
     def exists(self):
@@ -82,18 +94,17 @@ def project_open(uuid):
     target_dir = get_target_dir(uuid)
     project = __project_get_current()
     if project is not None:
-        print('please close current project {}'.format(project.attrs['uuid']))
+        project_print('please close current project {}'.format(project.attrs['uuid']))
         return False
 
     project = Project(target_dir=target_dir)
     if project.exists():
         project.load()
     else:
-        print('please create a project first')
+        project_print('please create a project first')
         return False
 
     __project_set_current(project)
-    logger_info2('project', 'open', uuid, 1)
     return True
 
 
@@ -102,36 +113,27 @@ def project_config(uuid=None, arch=None, endian=None,
                    source=None, cross_compile=None, makeout=None):
     project = __project_get_current()
     if project is None:
-        print('please create/open a project {}'.format(project.attrs['uuid']))
+        project_print('please create/open a project {}'.format(project.attrs['uuid']))
         return False
 
     if uuid is not None:
         project.attrs['uuid'] = uuid
-        logger_info2('project', 'config', 'uuid={}'.format(uuid), 1)
     if arch is not None:
         project.attrs['arch'] = arch
-        logger_info2('project', 'config', 'arch={}'.format(arch), 1)
     if endian is not None:
         project.attrs['endian'] = endian
-        logger_info2('project', 'config', 'endian={}'.format(endian), 1)
     if brand is not None:
         project.attrs['brand'] = brand
-        logger_info2('project', 'config', 'brand={}'.format(brand), 1)
     if target is not None:
         project.attrs['target'] = target
-        logger_info2('project', 'config', 'target={}'.format(target), 1)
     if subtarget is not None:
         project.attrs['subtarget'] = subtarget
-        logger_info2('project', 'config', 'subtarget={}'.format(subtarget), 1)
     if source is not None:
         project.attrs['source'] = source
-        logger_info2('project', 'config', 'source={}'.format(source), 1)
     if cross_compile is not None:
         project.attrs['cross_compile'] = cross_compile
-        logger_info2('project', 'config', 'cross_compile={}'.format(cross_compile), 1)
     if makeout is not None:
         project.attrs['makeout'] = makeout
-        logger_info2('project', 'config', 'makeout={}'.format(makeout), 1)
     __project_set_current(project)
     return True
 
@@ -142,7 +144,7 @@ def project_create(uuid, arch, endian,
                    mode='cmdline'):
     project = __project_get_current()
     if project is not None:
-        print('please close current project {}'.format(project.attrs['uuid']))
+        project_print('please close current project {}'.format(project.attrs['uuid']))
         return False
 
     target_dir = setup_target_dir(uuid)
@@ -156,7 +158,6 @@ def project_create(uuid, arch, endian,
 
     project.save()
     __project_set_current(project)
-    logger_info2('project', 'create', uuid, 1)
     return True
 
 
@@ -164,40 +165,38 @@ def project_rename(uuid):
     new_target_dir = get_target_dir(uuid)
     project = __project_get_current()
     if project is None:
-        print('please open/create a new project')
+        project_print('please open/create a new project')
         return False
 
-    old_target_dir = project.attrs['uuid']
     project.rename(new_target_dir)
+    project.attrs['uuid'] = uuid
     __project_set_current(project)
-    logger_info2('project', 'rename', '{}->{}'.format(old_target_dir, new_target_dir), 1)
     return True
+
 
 def project_close():
     project = __project_get_current()
     if project is None:
-        print('please open/create a new project')
+        project_print('please open/create a new project')
         return False
 
-    uuid = project.attrs['uuid']
     project.save()
     __project_clear_current()
-    logger_info2('project', 'close', uuid, 1)
     return True
 
 
 def project_show():
     project = __project_get_current()
     if project is None:
-        print('please open/create a new project')
+        project_print('please open/create a new project')
         return False
 
     for k, v in project.attrs.items():
         if isinstance(v, list):
             for vv in v:
-                logger_info2('project', 'show', '{}: {}'.format(k, vv), 1)
+                project_print('{}: {}'.format(k, vv))
         else:
-            logger_info2('project', 'show', '{}: {}'.format(k, v), 1)
+            project_print('{}: {}'.format(k, v))
     return True
 
 
@@ -208,7 +207,7 @@ def update_current_project(project):
 def get_current_project():
     project = __project_get_current()
     if project is None:
-        print('please open/create a new project')
+        project_print('please open/create a new project')
         return None
     return project
 
@@ -220,14 +219,13 @@ def project_delete(uuid):
         if os.path.realpath(project.target_dir) == os.path.realpath(target_dir):
             __project_clear_current()
     os.system('rm -r {}'.format(target_dir))
-    logger_info2('project', 'delete', uuid, 1)
     return True
 
 
 def project_get_srcodec():
     project = __project_get_current()
     if project is None:
-        print('please open/create a new project')
+        project_print('please open/create a new project')
         return None
 
     srcodec = SRCodeController()
@@ -251,4 +249,252 @@ def project_get_srcodec():
 def project_get_qemuc():
     from settings import WORKING_DIR, QEMU_DIR_NAME
     return QEMUController(os.path.join(WORKING_DIR, QEMU_DIR_NAME))
+
+
+def project_setup_logging(default_level=logging.INFO):
+    project = __project_get_current()
+    if project is None:
+        return True
+
+    uuid = project.attrs['uuid']
+    target_dir = project.attrs['target_dir']
+
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logging.yaml')
+    if os.path.exists(path):
+        with open(path, "r") as f:
+            config = yaml.safe_load(f)
+        config['handlers']['file']['filename'] = os.path.join(target_dir, '{}.log'.format(uuid))
+        config['root']['level'] = default_level
+        logging.config.dictConfig(config)
+    else:
+        logging.basicConfig(level=default_level)
+    return True
+
+
+def project_print(message):
+    print('[+] {}'.format(message))
+
+
+def project_run_static_analysis(args):
+    # 1 standard_setup
+    firmware = project_standard_warmup(args)
+    # 2. analyze the source code
+    run_static_analysis(firmware)
+    # 3. take snapshots to save results
+    return project_standard_wrapup(firmware)
+
+
+def project_run_diagnosis(args):
+    # 1 standard_setup
+    firmware = project_standard_warmup(args)
+    # 2. test the machine
+    run_diagnosis(firmware)
+    # 3. take snapshots to save results
+    return project_standard_wrapup(firmware)
+
+
+def project_run_bootup(args):
+    # 1 standard_setup
+    firmware = project_standard_warmup(args)
+
+    profile = find_profile(firmware.get_components(), firmware.get_arch(), brand=firmware.get_brand(), url=args.url)
+    if profile is None:
+        return
+    firmware = project_standard_warmup(args, profile=profile)
+
+    # 2 diagnosis
+    run_diagnosis(firmware)
+
+    # 3. take snapshots to save results
+    return project_standard_wrapup(firmware)
+
+
+def project_run_atrace(args):
+    # 1 standard_setup
+    firmware = project_standard_warmup(args)
+    # 2 generate code from dtb
+    run_trace_analysis(firmware)
+    # 3. take snapshots to save results
+    return project_standard_wrapup(firmware)
+
+
+def project_run_generate(args):
+    # 1 standard_setup
+    firmware = project_standard_warmup(args)
+    # 2 generate code from dtb
+    run_dt_renderer(firmware)
+    # 3. take snapshots to save results
+
+
+def project_standard_warmup(args, components=None, profile=None):
+    project = get_current_project()
+    if project is None:
+        print('please open/create a new project')
+        exit()
+
+    target_dir = project.attrs['target_dir']
+    path_to_profile = os.path.join(target_dir, 'profile.yaml')
+    if not os.path.exists(path_to_profile):
+        path_to_profile = None
+    if profile is not None:
+        path_to_profile = profile
+
+    firmware = project_migrate(path_to_profile=path_to_profile, components=components)
+    firmware.set_arch(project.attrs['arch'])
+    firmware.set_endian(project.attrs['endian'])
+    firmware.rerun = args.rerun
+
+    firmware.srcodec = project_get_srcodec()
+    firmware.qemuc = project_get_qemuc()
+    if hasattr(args, 'nocompilation'):
+        firmware.cancle_compilation = args.nocompilation
+
+    firmware.max_iteration = 1
+    firmware.trace_format = 'qemudebug'
+    if hasattr(args, 'trace'):
+        firmware.path_to_trace = args.trace
+    else:
+        firmware.path_to_trace = '{}/{}-{}-{}.trace'.format(
+            firmware.get_target_dir(), '0', firmware.get_arch(), firmware.get_endian()
+        )
+    firmware.debug = args.debug
+
+    if hasattr(args, 'firmware'):
+        images = project.attrs['images']
+        components = firmware.get_components()
+        if components is not None:
+            if args.firmware is not None and args.firmware != components.get_path_to_raw():
+                firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
+        elif images is not None and len(images):
+            firmware.components = unpack(images[0], target_dir=firmware.target_dir)
+        elif args.firmware:
+            firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
+        else:
+            print('-f/--firmware missing')
+
+    if hasattr(args, 'dtb'):
+        dtbs = project.attrs['dtbs']
+        components = firmware.get_components()
+        if components is not None:
+            if args.dtb is not None:
+                firmware.set_dtb(args.dtb)
+            elif components.has_device_tree():
+                firmware.set_dtb(components.get_path_to_dtb())
+        elif args.dtb:
+            firmware.set_dtb(args.dtb)
+        elif dtbs is not None and len(dtbs):
+            firmware.set_dtb(dtbs[0])
+        else:
+            print('neither dtb was found in tested firmware nor -dtb was assigned')
+    return firmware
+
+
+def project_standard_wrapup(firmware):
+    firmware.snapshot()
+    if firmware.get_stage('user_mode'):
+        return project_archive(firmware)
+    return True
+
+
+def project_migrate(path_to_profile=None, components=None):
+    project = get_current_project()
+    if project is None:
+        print('please open/create a new project')
+        return None
+
+    firmware = get_firmware('simple')
+    firmware.target_dir =  project.attrs['target_dir']
+
+    # load profile from path_to_profile
+    if path_to_profile:
+        firmware.set_profile(path_to_profile=path_to_profile)
+        # change save-to-path to avoid modifing our well-defined profile
+        firmware.path_to_profile = os.path.join(firmware.get_target_dir(), 'profile.yaml')
+    else:
+        firmware.set_profile(target_dir=firmware.get_target_dir(), first=True)
+
+    # handle components
+    if components is not None:
+        # copy the firmware to working path
+        firmware.set_working_path(
+            os.path.join(firmware.get_target_dir(), components.get_raw_name()))
+        if not os.path.exists(firmware.working_path):
+            shutil.copy(
+                os.path.join(os.getcwd(), components.get_path_to_raw()),
+                os.path.join(firmware.working_path)
+        )
+        firmware.set_components(components)
+
+    return firmware
+
+
+def project_archive(firmware):
+    """Should be called after firmware.snapshot()."""
+    project = get_current_project()
+    if project is None:
+        print('please open/create a new project')
+        return None
+
+    target_dir = project.target_dir
+
+    # move profile to examples/profiles/machine_name/profile.yaml
+    target_profiles = os.path.join(BASE_DIR, 'examples/profiles/{}'.format(
+            firmware.get_machine_name()))
+    os.makedirs(target_profiles, exist_ok=True)
+    os.system('cp {} {}'.format(
+        os.path.join(target_dir, 'profile.yaml'),
+        os.path.join(target_profiles, 'profile.yaml')
+    ))
+
+    # move dtb     to examples/profiles/machine_name/profile.dtb
+    os.system('cp {} {}'.format(
+        firmware.dtb,
+        os.path.join(target_profiles, 'profile.dtb')
+    ))
+    # we've updated the path to dtb un firmware.snapshot()
+
+    # move qemu c files to examples/machines/machine_name/profile.yaml
+    target_machines = os.path.join(BASE_DIR, 'examples/machines/{}'.format(firmware.get_machine_name()))
+    os.makedirs(target_machines, exist_ok=True)
+    os.system('cp -r {}/* {}'.format(
+        os.path.join(target_dir, 'qemu-4.0.0'),
+        target_machines,
+    ))
+
+    # update support list
+    if firmware.dtb is None:
+        return False
+
+    dts = load_dtb(firmware.dtb)
+    compatible = find_compatible_in_fdt(dts)
+
+    support = get_database('support')
+    board = support.select('board', arch=firmware.get_arch(), board=firmware.get_board())
+    if board is None:
+        board = {'device_tree': True}
+    target_profile = os.path.join('examples/profiles', firmware.get_machine_name(), 'profile.yaml')
+    if 'profiles' not in board:
+        board['profiles'] = {}
+    if target_profile not in board['profiles']:
+        board['profiles'][target_profile] = {
+            'brand': project.attrs['brand'],
+             'version': firmware.get_kernel_version(),
+            'target': project.attrs['target'],
+            'subtarget': project.attrs['subtarget']
+        }
+
+    if 'compatible' not in board:
+        board['compatible'] = {}
+    for cmptbl in compatible:
+        if cmptbl not in board['compatible']:
+            board['compatible'][cmptbl] = target_profile
+
+    if 'targets' not in board:
+        board['targets'] = {}
+    if project.attrs['brand'] not in board['targets']:
+        board['targets'][project.attrs['brand']] = []
+    board['targets'][project.attrs['brand']].append(project.attrs['target'])
+
+    support = support.update(firmware.get_board(), board=board, arch=firmware.get_arch())
+    return True
 

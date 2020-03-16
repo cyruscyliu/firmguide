@@ -2,21 +2,14 @@ import os
 import abc
 import yaml
 
+from slcore.common import Common
 from slcore.profile.kernel import KernelForFirmware
 from slcore.profile.openwrt import OpenWRTForFirmware
 
 PROFILE_ATTRIBUTES = ['c_cb']
 
-class Firmware(KernelForFirmware, OpenWRTForFirmware):
+class Firmware(KernelForFirmware, OpenWRTForFirmware, Common):
     def __init__(self, *args, **kwargs):
-        # at beginning, you must uuid because your profile
-        # is not ready, after your profile is ready, you
-        # are suppose to use get_uuid()/set_uuid()
-        # firmware is created/loaded/clean before an analysis
-        # firmware is held in an analysis
-        # firmware should be serialized after an analysis
-        self.uuid = None
-
         # the following arguments will not go to your profile
         # because they are dynamically resolved
         self.size = None
@@ -56,6 +49,16 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.max_iteration = 20  # stop at 20 iteration
         self.rerun = False  # rerun inference analysis
 
+    def snapshot(self):
+        self.save_profile(working_dir=self.get_target_dir())
+        self.info('snapshot', 'profile at {}'.format(self.path_to_profile), 1)
+        self.stats()
+        self.info('snapshot', 'statistics at {}'.format(self.path_to_summary), 1)
+        self.info('snapshot', 'dtb at {}'.format(self.dtb), 1)
+        self.info('snapshot', 'project at {}/project.yaml'.format(self.target_dir), 1)
+        self.info('snapshot', 'source at {}/qemu-4.0.0'.format(self.target_dir), 1)
+        return True
+
     @abc.abstractmethod
     def stats(self):
         pass
@@ -65,14 +68,6 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
 
     @abc.abstractmethod
     def print_profile(self):
-        pass
-
-    @abc.abstractmethod
-    def get_uuid(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_uuid(self, *args, **kwargs):
         pass
 
     def get_target_dir(self):

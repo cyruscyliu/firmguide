@@ -65,8 +65,14 @@ jcore,pit: {extend: 'timer,generic'}
 lsi,zevio-timer: {extend: 'timer,generic'}
 marvell,armada-370-timer: {extend: 'timer,generic'}
 marvell,armada-375-timer: {extend: 'timer,generic'}
-marvell,armada-xp-timer: {extend: 'timer,generic'}
-marvell,orion-timer: {extend: 'timer,generic'}
+marvell,armada-xp-timer:
+    extend: 'timer,generic'
+    n_irq: 2
+    counters: [{'addr': '0x14', 'id': 1}]
+marvell,orion-timer:
+    extend: 'timer,generic'
+    n_irq: 2
+    counters: [{'addr': '0x14', 'id': 1}]
 marvell,pxa-timer: {extend: 'timer,generic'}
 mediatek,mt6577-timer: {extend: 'timer,generic'}
 mediatek,mt6765-timer: {extend: 'timer,generic'}
@@ -94,7 +100,10 @@ ralink,rt2880-timer:
       reg.base }});']
   get_field: ['{{ name|upper }}State timer;']
   get_header: ['hw/timer/{{ name }}.h']
-  parameters: [intcp, irqns, irqc]
+  get_connection: []
+  parameters: [intcp, irqns]
+  counters: []
+  n_irq: 1
 rda,8810pl-timer: {extend: 'timer,generic'}
 renesas,16bit-timer: {extend: 'timer,generic'}
 renesas,8bit-timer: {extend: 'timer,generic'}
@@ -132,13 +141,15 @@ ti,keystone-timer: {extend: 'timer,generic'}
 ti,omap-counter32k: {extend: 'timer,generic'}
 timer,generic:
   external: true
-  get_body: ['object_initialize(&s->timer, sizeof(s->timer), TYPE_{{ name|upper }});',
-    'qdev_set_parent_bus(DEVICE(&s->timer), sysbus_get_default());', 'object_property_set_bool(OBJECT(&s->timer),
-      true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{
-      reg.base }});', "{% for i in irqc|range %}qdev_connect_gpio_out(DEVICE(&s->timer),\
-      \ {{ i }}, {{ intcp.get_irqn }});\n    {% endfor %}"]
-  get_field: ['{{ name|upper }}State timer;']
+  n_irq: 1
+  counters: []
+  get_body: ['object_initialize(&s->timer{{ id }}, sizeof(s->timer{{ id }}), TYPE_{{ name|upper }});',
+    'qdev_set_parent_bus(DEVICE(&s->timer{{ id }}), sysbus_get_default());', 'object_property_set_bool(OBJECT(&s->timer{{ id }}),
+      true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer{{ id }}), 0, {{
+      reg.base }});']
+  get_connection: ['qdev_connect_gpio_out(DEVICE(&s->timer{{ id }}), 0, {{ intcp.get_irqn }});']
+  get_field: ['{{ name|upper }}State timer{{ id }};']
   get_header: ['hw/timer/{{ name }}.h']
-  parameters: [intcp, irqns, irqc]
+  parameters: [intcp, irqns]
 via,vt8500-timer: {extend: 'timer,generic'}
 xlnx,xps-timer-1.00.a: {extend: 'timer,generic'}

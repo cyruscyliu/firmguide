@@ -7,7 +7,7 @@ import os
 
 class TestQEMUController(TestCase):
     def test_get_command(self):
-        qemuc = QEMUController()
+        qemuc = QEMUController(os.path.join(WORKING_DIR, QEMU_DIR_NAME))
         path_to_vmlinux = os.path.join(TESTS_DIR, 'vmlinux')
         running_command = qemuc.get_command('arm', 'l', 'wrt350n_v2', path_to_vmlinux)
         # qemu-system-arm -M wrt350n_v2 -kernel /root/esv/tests/vmlinux -nographic -append "console=ttyS0"
@@ -16,7 +16,7 @@ class TestQEMUController(TestCase):
             'wrt350n_v2 -kernel /root/esv/tests/vmlinux -nographic -append "console=ttyS0"')
 
     def test_patch_recover(self):
-        qemuc = QEMUController()
+        qemuc = QEMUController(os.path.join(WORKING_DIR, QEMU_DIR_NAME))
 
         # patch(abs/p/t/old, rel/p/t/new, bak=True)
         old = os.path.join(BASE_DIR, 'examples/machines/wrt350n_v2.c')
@@ -37,7 +37,7 @@ class TestQEMUController(TestCase):
         os.system('rm {}'.format(abs_new))
 
     def test_install_recover(self):
-        qemuc = QEMUController()
+        qemuc = QEMUController(os.path.join(WORKING_DIR, QEMU_DIR_NAME))
 
         # install(prefix)
         prefix = os.path.join(TESTS_DIR, 'qemu_install')
@@ -48,11 +48,11 @@ class TestQEMUController(TestCase):
         self.assertFalse(os.path.exists(abs_new))
 
     def test_compile(self):
-        qemuc = QEMUController()
+        qemuc = QEMUController(os.path.join(WORKING_DIR, QEMU_DIR_NAME))
         qemuc.compile()
 
     def test_debug(self):
-        qemuc = QEMUController()
+        qemuc = QEMUController(os.path.join(WORKING_DIR, QEMU_DIR_NAME))
         path_to_vmlinux = os.path.join(TESTS_DIR, 'vmlinux')
         running_command = qemuc.get_command('arm', 'l', 'versatilepb', path_to_vmlinux)
         qemuc.debug(running_command, path_to_vmlinux)
@@ -62,7 +62,7 @@ class TestQEMUController(TestCase):
 
     def test_add_target(self):
         # add_target('hwname', 'hwname', type_='hw', arch='arm', endian='l')
-        qemuc = QEMUController()
+        qemuc = QEMUController(os.path.join(WORKING_DIR, QEMU_DIR_NAME))
         qemuc.add_target('hwname', 'hwname', t='hw', arch='arm', endian='l')
         qemuc.recover()
 

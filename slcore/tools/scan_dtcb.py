@@ -16,8 +16,12 @@ def __re_scan(path, declare='.*?', compatible='.*?', depress=False):
         for line in f:
             string += line.strip()
     # DECLARE\(\s*[_a-zA-Z0-9]+\s*,\s*(.*?)\s*,\s*([_a-zA-Z0-9]+)\s*\)
-    match = re.findall(r'({})\(\s*[_a-zA-Z0-9]+\s*,\s*({})\s*,\s*([_a-zA-Z0-9]+)\s*\)'.format(declare, compatible), string)
+    match = re.findall(r'({})\(\s*[_a-zA-Z0-9]+\s*,\s*({})\s*,\s*([_a-zA-Z0-9]+)\s*\);'.format(declare, compatible), string)
     # one match is (xxx_declare, compatible, cb)
+
+    # TODO fix me, how to detect this one?
+    # IRQCHIP_DECLARE(gic_400, "arm,gic-400",IRQCHIP_DECLARE(cortex_a15_gic, "arm,cortex-a15-gic", gic_of_init);
+    # We get the result 'arm,gic-400",IRQCHIP_DECLARE(cortex_a15_gic, "arm,cortex-a15-gic', but it is not the truth.
 
     # for print
     if len(path) > 120:
@@ -31,6 +35,10 @@ def __re_scan(path, declare='.*?', compatible='.*?', depress=False):
     # fix compatible
     match_fix = []
     for m in match:
+        # TODO fix me, how to detect this one?
+        if m[-2].find('DECLARE') != -1:
+            print('[-] cannot recognize {} in {}'.format(m[-2], path))
+            continue
         if m[-2].startswith('"'):
             a = m[-2].strip('"')
             match_fix.append((m[0], a, m[-1]))
@@ -133,7 +141,7 @@ def scan_declare(path_to_source):
             if line.find('#define') != -1:
                 continue
             path = line.split(':')[0]
-            declare = line.split(':')[2].split('(')[0]
+            declare = line.split(':')[2].split('(')[0].strip()
             if declare not in candidates:
                 if len(path) > 160:
                     line = '...' + line[150:].strip()
@@ -208,6 +216,16 @@ def project_scan_dtcb(path_to_dtb):
     if path_to_source is None:
         print('please set the source code first')
         return
+    if path_to_dtb is None:
+        if project.attrs['dtbs'] is None:
+            print('please assign -dtb/--dtb or add a device tree blob to current project')
+            return
+        elif len(project.attrs['dtbs']) == 0:
+            print('please assign -dtb/--dtb or add a device tree blob to current project')
+            return
+        else:
+            path_to_dtb = project.attrs['dtbs'][0]
+
     scan_dtcb(path_to_dtb, path_to_source)
 
 

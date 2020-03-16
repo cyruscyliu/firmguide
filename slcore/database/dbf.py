@@ -1,17 +1,11 @@
-import os
-
-from slcore.database.qemu import *
-from slcore.database.openwrt import DatabaseOpenWRTMapping, DatabaseOpenWRTToH
+from slcore.database.qemu import DatabaseQEMUDevices,\
+    DatabaseQEMUModels, DatabaseQEMUAPIS
 from slcore.database.support import SupportMachines
-from slcore.database.iv import InitValue
 
 
 def get_database(dbtype, **kwargs):
-    if dbtype == 'openwrt':
-        return DatabaseOpenWRTToH()
-    elif dbtype == 'openwrt.yaml':
-        return DatabaseOpenWRTMapping()
-    elif dbtype == 'qemu.devices':
+    """Database factory."""
+    if dbtype == 'qemu.devices':
         return DatabaseQEMUDevices()
     elif dbtype == 'qemu.cpu':
         return DatabaseQEMUModels('cpu')
@@ -25,11 +19,13 @@ def get_database(dbtype, **kwargs):
         return DatabaseQEMUModels('clk')
     elif dbtype == 'qemu.flash':
         return DatabaseQEMUModels('flash')
+    elif dbtype == 'qemu.misc':
+        return DatabaseQEMUModels('misc')
+    elif dbtype == 'qemu.iv':
+        return DatabaseQEMUModels('iv')
     elif dbtype == 'qemu.apis':
         return DatabaseQEMUAPIS()
     elif dbtype == 'support':
         return SupportMachines()
-    elif dbtype == 'iv':
-        return InitValue()
     else:
         raise NotImplementedError('the dbtype {} is not support yet'.format(dbtype))

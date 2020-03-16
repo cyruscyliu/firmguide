@@ -2,21 +2,16 @@
 import argparse
 import logging, logging.config
 
-from logger import setup_logging
 from slcore.project import project_create, project_open, project_config, \
-    project_rename, project_close, project_delete, project_show
+    project_rename, project_close, project_delete, project_show, project_setup_logging, \
+    project_run_static_analysis, project_run_bootup, project_run_atrace, \
+    project_run_diagnosis, project_run_generate
 from slcore.tools.scan_dtcb import project_scan_declare, project_scan_dtcb
 from slcore.tools.scan_topology import project_scan_topology
 from slcore.tools.scan_dt import project_unpack
 from slcore.tools.dtinfo import project_show_dtinfo
 from slcore.tools.batch import project_plugin_batch
 from slcore.tools.source import project_source_analysis
-from slcore.tools.machines import project_find_profile
-from slcore.scheduler import project_standard_warmup, project_standard_wrapup, \
-    run_static_analysis, run_diagnosis, run_model
-from slcore.generation.dt_renderer import run_dt_renderer
-
-logger = logging.getLogger()
 
 
 def __project_create(args):
@@ -65,70 +60,24 @@ def __scan_topology(args):
     project_scan_topology(args.dtb)
 
 
-def __model_ict(args):
-    # 1 standard_setup
-    firmware = project_standard_warmup(args)
-    # 2. analyze the source code
-    status = run_model(firmware)
-    # 3. take snapshots to save results
-    return project_standard_wrapup(firmware)
-
-
 def __analyze(args):
-    # 1 standard_setup
-    firmware = project_standard_warmup(args)
-    # 2. analyze the source code
-    status = run_static_analysis(firmware)
-    # 3. take snapshots to save results
-    return project_standard_wrapup(firmware)
+    project_run_static_analysis(args)
 
 
 def __diagnose(args):
-    # 1 standard_setup
-    firmware = project_standard_warmup(args)
-
-    # 2. test the machine
-    if args.dtb:
-        firmware.set_dtb(args.dtb)
-    elif firmware.get_components().get_path_to_dtb():
-        firmware.set_dtb(firmware.get_components().get_path_to_dtb())
-    else:
-        print('neither dtb was found in tested firmware nor -dtb was assigned')
-        return project_standard_wrapup(firmware)
-
-    status = run_diagnosis(firmware)
-
-    # 3. take snapshots to save results
-    return project_standard_wrapup(firmware)
+    project_run_diagnosis(args)
 
 
 def __bootup(args):
-    # 1 standard_setup
-    firmware = project_standard_warmup(args)
+    project_run_bootup(args)
 
-    profile = project_find_profile(
-        firmware.get_components(), url=args.url)
-    if profile is None:
-        return
-    firmware = project_standard_warmup(args, profile=profile)
 
-    # 2 diagnosis
-    status = run_diagnosis(firmware)
-
-    # 3. take snapshots to save results
-    return project_standard_wrapup(firmware)
+def __atrace(args):
+    project_run_atrace(args)
 
 
 def __generate(args):
-    # 1 standard_setup
-    firmware = project_standard_warmup(args)
-
-    # 2 generate code from dtb
-    firmware.set_dtb(args.dtb)
-    status = run_dt_renderer(firmware)
-
-    # 3. take snapshots to save results
-    return project_standard_wrapup(firmware)
+    project_run_generate(args)
 
 
 def __unpack(args):
@@ -144,7 +93,8 @@ def __dtinfo(args):
 
 
 def __source(args):
-    project_source_analysis(args.entry_point)
+    project_source_analysis(
+        args.entry_point, caller=args.caller, cgcfg=args.cgcfg)
 
 
 if __name__ == '__main__':
@@ -216,80 +166,95 @@ if __name__ == '__main__':
     pproject_close.set_defaults(func=__project_show)
     # 2 plugins
     # 2.1 scan_declare
-    pscan_declare = commands.add_parser('declare', help='Plugin - Find new peripherals in the source')
+    pscan_declare = commands.add_parser('declare', help='Plugin - Find new peripherals in the source', conflict_handler='resolve')
     pscan_declare.set_defaults(func=__scan_declare)
     # 2.2 scan_dtcb
-    pscan_dtcb = commands.add_parser('dtcb', help='Plugin - Find callbacks w.s.t compatibles in a device tree')
-    pscan_dtcb.add_argument('dtb')
+    pscan_dtcb = commands.add_parser('dtcb', help='Plugin - Find callbacks w.s.t compatibles in a device tree', conflict_handler='resolve')
+    pscan_dtcb.add_argument('-dtb', '--dtb', required=False)
     pscan_dtcb.set_defaults(func=__scan_dtcb)
     # 2.4 scan_topology
-    pscan_topology = commands.add_parser('topology', help='Plugin - Find interrupt topology in a device tree')
-    pscan_topology.add_argument('dtb')
+    pscan_topology = commands.add_parser('topology', help='Plugin - Find interrupt topology in a device tree', conflict_handler='resolve')
+    pscan_topology.add_argument('-dtb', '--dtb', required=False)
     pscan_topology.set_defaults(func=__scan_topology)
-    # 2.3 model_ict
-    pmodel_ict = commands.add_parser('ictm', help='model intc/clk/timer in current project')
-    pmodel_ict.set_defaults(func=__model_ict)
     # 2.5 unpack
-    punpack = commands.add_parser('unpack', help='Plugin - Unpack an image')
+    punpack = commands.add_parser('unpack', help='Plugin - Unpack an image', conflict_handler='resolve')
     punpack.add_argument('firmware', metavar='IMAGE',
                          help='We extend Binwalk to identify more image headers '
                               'and can extract the Linux kernel in the image.')
     punpack.set_defaults(func=__unpack)
     # 2.6 batch processing
-    pbatch = commands.add_parser('batch', help='Plugin - Batch processing')
+    pbatch = commands.add_parser('batch', help='Plugin - Batch processing', conflict_handler='resolve')
     pbatch.add_argument('-a', '--add', required=False, metavar='PATH_TO_IMAGE', nargs='+',
                         help='Add(skip if exists) an image or images to current project by image paths.')
     pbatch.add_argument('-e', '--extend', required=False, metavar='DIR_TO_IMAGES',
                         help='Add(skip if exists) an image or images to current project by images directory.')
+    pbatch.add_argument('-ad', '--add_dtb', required=False, metavar='PATH_TO_DTB', nargs='+',
+                        help='Add(skip if exists) a dtb or dtbs to current project by dtb paths.')
+    pbatch.add_argument('-ed', '--extend_dtb', required=False, metavar='DIR_TO_DTBS',
+                        help='Add(skip if exists) a dtb or dtbs to current project by dtbs directory.')
     pbatch.add_argument('-dt', '--dt', required=False, action='store_true', default=True,
                         help='Add images with device tree, only effecting -e, True by default.')
     pbatch.add_argument('-c', '--count', required=False, type=int, default=10,
                         help='Limit how many images to be added to current project, only effecting -e, 10 by default.')
     pbatch.add_argument('-s', '--show', required=False, action='store_true', default=False,
-                        help='Show images of current project. Similar to ./salamander show.')
+                        help='Show images/dtbs of current project. Similar to ./salamander show.')
     pbatch.set_defaults(func=__batch)
     # 2.7 device tree info
-    pdtinfo = commands.add_parser('dtinfo', help='Plugin - Disclose device tree blob')
-    pdtinfo.add_argument('dtb', help='Show details in this device tree blob.')
+    pdtinfo = commands.add_parser('dtinfo', help='Plugin - Disclose device tree blob', conflict_handler='resolve')
+    pdtinfo.add_argument('-dtb', '--dtb', help='Show details in this device tree blob.', required=False)
     pdtinfo.add_argument('-m', '--mmio', required=False, action='store_true', default=True,
                          help='Show MMIO regions in the device tree blob.')
     pdtinfo.add_argument('-f', '--flash', required=False, action='store_true', default=True,
                          help='Show FLASH chips in the device tree blob.')
     pdtinfo.set_defaults(func=__dtinfo)
     # 2.8 source code analysis
-    psource = commands.add_parser('source', help='Plugin - Analyze source code')
-    psource.add_argument('-e', '--entry_point', required=True,
+    psource = commands.add_parser('source', help='Plugin - Analyze source code', conflict_handler='resolve')
+    g = psource.add_mutually_exclusive_group(required=True)
+    g.add_argument('-f', '--file', required=False,
+                         help='Preprocess the file.')
+    g.add_argument('-e', '--entry_point', required=False,
                          help='Find the file contains the entry point of data or function and preprocess the file.')
+    psource.add_argument('-cgcfg', '--cgcfg', required=False, action='store_true', default=False,
+                         help='Do cg/cfg analysis from the ep and show the interesting places.')
+    psource.add_argument('-caller', '--caller', required=False,
+                         help='Give the caller of the entry point.')
     psource.set_defaults(func=__source)
     # 3 cores
     # 3.1 analyze
-    panalyze = commands.add_parser('analyze', help='RUN - model machine in current project')
+    panalyze = commands.add_parser('analyze', help='Run - Analyze the source code', conflict_handler='resolve')
     panalyze.set_defaults(func=__analyze)
     # 3.2 generate
-    pgenerate = commands.add_parser('generate', help='test device tree in current project')
-    pgenerate.add_argument('-dtb', '--dtb', required=True)
+    pgenerate = commands.add_parser('generate', help='Run - Test the device tree in current project')
+    pgenerate.add_argument('-dtb', '--dtb', required=False)
+    pgenerate.add_argument('-nc', '--nocompilation', action='store_true', default=False, help='set this for multi-tasks')
     pgenerate.set_defaults(func=__generate)
     # 3.3 diagnose
-    pdiagnose = commands.add_parser('diagnose', help='Run - Test the machine')
+    pdiagnose = commands.add_parser('diagnose', help='Run - Test the models in current project', conflict_handler='resolve')
     pdiagnose.add_argument('-f', '--firmware', required=False, metavar='IMAGE',
                            help='Use the IMAGE to diagnose your models. If not set, use the last valid image, '
                            'otherwise, use the first image in your current project(./samander batch -s). '
                            'If there is no valid image and there is no image in your project, you must provide a image.')
     pdiagnose.add_argument('-dtb', '--dtb', required=False,
                            help='If the image you provide has no device tree blob, you can provide a device tree blob, otherwise, ignored.')
+    pdiagnose.add_argument('-nc', '--nocompilation', action='store_true', default=False, help='set this for multi-tasks')
     pdiagnose.set_defaults(func=__diagnose)
     # 3.4 bootup
-    pbootup = commands.add_parser('bootup', help='boot up your image in current project')
+    pbootup = commands.add_parser('bootup', help='Run - Boot up your image in current project', conflict_handler='resolve')
     pbootup.add_argument('-f', '--firmware', required=False, metavar='IMAGE')
     pbootup.add_argument('-l', '--url', required=False, help='will be removed in the future')
     pbootup.add_argument('-nc', '--nocompilation', action='store_true', default=False, help='set this for multi-tasks')
     pbootup.set_defaults(func=__bootup)
+    # 3.5 scan trace
+    patrace = commands.add_parser('atrace', help='Run - Analyze trace in current project.', conflict_handler='resolve')
+    patrace.add_argument('-t', '--trace', help='Path to the trace of format uuid-arch-endian.trace')
+    patrace.set_defaults(func=__atrace)
 
     args = parser.parse_args()
     if args.debug:
-        setup_logging(default_level=logging.DEBUG)
+        status = project_setup_logging(default_level=logging.DEBUG)
     else:
-        setup_logging(default_level=logging.INFO)
+        status = project_setup_logging(default_level=logging.INFO)
 
-    args.func(args)
+    if status:
+        args.func(args)
 

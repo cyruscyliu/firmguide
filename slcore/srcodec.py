@@ -4,10 +4,9 @@ source code controller
 + cmdline/preprocess/compile/link one file
 + cfg/cg/gloabls
 """
-from logger import logger_info2, logger_debug2, logger_warning2
 from slcore.common import Common
 from slcore.naive_parsers.symbols import parse_system_map, addr2file
-from slcore.srcodeb import UNMODELED_SKIP_LIST, MODELED_SKIP_TABLE
+from slcore.srcodeb import UNMODELED_SKIP_LIST
 
 import os
 import pydot
@@ -28,16 +27,6 @@ class SRCodeController(Common):
 
         self.set_attributes(SOURCE_CODE_ATTRIBUTES)
         self.config = {}
-
-
-    def info(self, action, message, status):
-        logger_info2('srcodec', action, message, status)
-
-    def debug(self, action, message, status):
-        logger_debug2('srcodec', action, message, status)
-
-    def warning(self, action, message, status):
-        logger_warning2('srcodec', action, message, status)
 
     def symbol2fileg(self, symbol, relative=True):
         search_in = os.path.join(self.path_to_source_code, 'arch/{}'.format(self.arch))
@@ -267,14 +256,14 @@ class SRCodeController(Common):
             if f in funccalls:
                 funccalls.remove(f)
                 if cbs['ignored']:
-                    self.info('ana_funccalls2', '{}{}->{}({})({})'.format(' ' * (depth+2), caller, f, 'ignored', None), 0)
+                    self.info('ana_funccalls2', '{}{}->{}({})({})'.format('->' * (depth+1), caller, f, 'ignored', None), 0)
                     continue
                 if caller in cbs:
                     ext = cbs[caller](self.config)
                     unhandled.extend(ext)
-                    self.info('ana_funccalls2', '{}{}->{}({})({})'.format(' ' * (depth+2), caller, f, 'handled', None), 0)
+                    self.info('ana_funccalls2', '{}{}->{}({})({})'.format('->' * (depth+1), caller, f, 'handled', None), 0)
                 else:
-                    self.info('ana_funccalls2', '{}{}->{}({})({})'.format(' ' * (depth+2), caller, f, 'unhandled', None), 0)
+                    self.info('ana_funccalls2', '{}{}->{}({})({})'.format('->' * (depth+1), caller, f, 'unhandled', None), 0)
         funccalls.extend(unhandled)
 
         return funccalls
@@ -305,7 +294,7 @@ class SRCodeController(Common):
             path_to_ep, funccalls, gs, error_info = self.get_funccalls2(ep, caller=caller, depth=depth)
 
             if error_info is not None:
-                self.info('get_funccalls2', '{}{}->{}({})({})'.format(' ' * depth, caller, ep, error_info, path_to_ep), 0)
+                self.info('get_funccalls2', '{}{}->{}({})({})'.format('->' * depth, caller, ep, error_info, path_to_ep), 0)
                 continue
 
             if gs is not None:
@@ -343,7 +332,7 @@ class SRCodeController(Common):
 
         funccalls = self.get_funccalls(path_to_pentry_point, ep, mode='sparse')
         gs = self.get_globals(path_to_pentry_point, ep, mode='sparse')
-        self.info('get_funccalls2', '{} {}->{}({})({})'.format(' ' * depth, caller, ep, None, path_to_entry_point), 0)
+        self.info('get_funccalls2', '{}{}->{}({})({})'.format('->' * depth, caller, ep, None, path_to_entry_point), 0)
 
         return path_to_entry_point, funccalls, gs, None
 

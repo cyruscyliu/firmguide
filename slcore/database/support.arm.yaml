@@ -125,10 +125,12 @@ mach-orion5x:
   targets:
     openwrt: [orion]
 mach-oxnas:
-  compatible: {'plxtech,nas7820': examples/arm/mach-oxnas/profile.yaml, 'plxtech,nas782x': examples/arm/mach-oxnas/profile.yaml}
   device_tree: true
+  compatible: {'plxtech,nas7820': examples/profiles/plxtech_nas782x/profile.yaml,
+    'plxtech,nas782x': examples/profiles/plxtech_nas782x/profile.yaml}
   profiles:
-    examples/arm/mach-oxnas/profile.yaml: {brand: openwrt, revision: '15.05', version: 3.18.20}
+    examples/profiles/plxtech_nas782x/profile.yaml: {brand: openwrt, subtarget: generic,
+      target: oxnas, version: null}
   targets:
     openwrt: [oxnas]
 mach-picoxcell: {device_tree: true}

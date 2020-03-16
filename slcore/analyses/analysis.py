@@ -1,10 +1,12 @@
 import abc
 
-from logger import logger_info, logger_debug, logger_warning
+from slcore.common import Common
 
 
-class Analysis(object):
+class Analysis(Common):
     def __init__(self, analysis_manager):
+        super().__init__()
+
         self.analysis_manager = analysis_manager
         self.name = None
         self.description = None
@@ -29,24 +31,23 @@ class Analysis(object):
         pass
 
     def info(self, firmware, message, status):
-        logger_info(firmware.get_uuid(), 'analysis', self.name, message, status)
+        super().info(self.name, message, status)
 
     def debug(self, firmware, message, status):
-        logger_debug(firmware.get_uuid(), 'analysis', self.name, message, status)
+        super().debug(self.name, message, status)
 
     def warning(self, firmware, message, status):
-        logger_warning(firmware.get_uuid(), 'analysis', self.name, message, status)
+        super().warning(self.name, message, status)
 
     def error(self, firmware):
         if self.context['input'].find('\n') != -1:
-            logger_warning(firmware.get_uuid(), 'analysis', self.name, self.context['hint'], 0)
+            self.warning(self.name, self.context['hint'], 0)
             lines = self.context['input'].split('\n')
             for line in lines:
                 if len(line):
-                    logger_warning(firmware.get_uuid(), 'analysis', self.name, line, 0)
+                    self.warning(self.name, line, 0)
         else:
-            logger_warning(
-                firmware.get_uuid(), 'analysis', self.name, ', '.join([self.context['hint'], self.context['input']]), 0)
+            self.warning(self.name, ', '.join([self.context['hint'], self.context['input']]), 0)
 
 
 class AnalysisGroup(object):
@@ -59,3 +60,4 @@ class AnalysisGroup(object):
     @abc.abstractmethod
     def run(self, firmware):
         pass
+

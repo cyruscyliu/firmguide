@@ -1,0 +1,29 @@
+/dts-v1/;
+
+/ {
+    compatible = "test,compatible";
+    #address-cells = <0x2>;
+    #size-cells = <0x2>;
+    soc {
+        #address-cells = <0x2>;
+        #size-cells = <0x1>;
+        compatible = "marvell,armadaxp-mbus", "simple-bus";
+        ranges = <0xF0010000 0x0 0x0 0xF1000000 0x100000 0x11D0000 0x0 0x0 0xFFF00000 0x100000 0x9090000 0x0 0x0 0xF1100000 0x10000 0x9050000 0x0 0x0 0xF1110000 0x10000 0xC040000 0x0 0x0 0xF1200000 0x100000>;
+        internal-regs {
+            compatible = "simple-bus";
+            #address-cells = <0x1>;
+            #size-cells = <0x1>;
+            ranges = <0x0 0xF0010000 0x0 0x100000>;
+            interrupt-controller@20a00 {
+                compatible = "marvell,mpic";
+                #interrupt-cells = <0x1>;
+                #size-cells = <0x1>;
+                interrupt-controller;
+                msi-controller;
+                reg = <0x20A00 0x2D0 0x21070 0x58>;
+                linux,phandle = <0x2>;
+                phandle = <0x2>;
+            };
+        };
+    };
+};

@@ -16,7 +16,7 @@
 #define STATE_NOISE     1
 #define STATE_ALARM     2
 
-#define N_IRQ           64
+#define N_IRQ           {{ intc_n_irq }}
 
 typedef struct {{ name|upper }}State {
     /*< private >*/

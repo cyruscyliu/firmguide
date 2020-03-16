@@ -63,7 +63,7 @@ class QEMUController(object):
 
     def get_command(
             self, arch, endian, machine, kernel,
-            initrd=None, flash=None, image=None, flash_size=None, dtb=None):
+            initrd=None, flash=None, image=None, flash_size=None, dtb=None, n_serial=1):
         running_command = self.__get_binary(arch, endian)
         if running_command is None:
             return None
@@ -81,8 +81,17 @@ class QEMUController(object):
 
         running_command += ' -nographic'
         if initrd:
-            running_command += " -initrd {}".format(initrd)
+            running_command += ' -initrd {}'.format(initrd)
         running_command += ' -append "console=ttyS0"'
+
+        if n_serial > 1:
+            # -chardev stdio,mux=on,id=char0 -mon chardev=char0,mode=readline -serial chardev:char0 -serial chardev:char0
+            running_command += ' -chardev stdio,mux=on,id=char0'
+            running_command += ' -mon chardev=char0,mode=readline'
+            for i in range(0, n_serial):
+                if i >= 3:
+                    continue
+                running_command += ' -serial chardev:char0'
 
         return running_command
 

@@ -68,10 +68,12 @@ class SimpleFirmware(Firmware):
             return {}
         return bamboo_devices
 
-    def split_bamboo(self, bamboo, a, b, value):
+    def split_bamboo(self, bamboo, a, b, value, compatible=None):
         left = bamboo.mmio_base
         right = bamboo.mmio_base + bamboo.mmio_size
-        compatible = bamboo.compatible
+        old_compatible = bamboo.compatible
+        if compatible is not None:
+            new_compatible = compatible
 
         split_bamboos = [bamboo]
         if left == a:
@@ -79,18 +81,18 @@ class SimpleFirmware(Firmware):
             # ++++-------------
             bamboo.mmio_base = a + b
             bamboo.mmio_size = right - left - b
-            split_bamboos.append(self.get_bamboo(a, b, value, compatible=compatible))
+            split_bamboos.append(self.get_bamboo(a, b, value, compatible=new_compatible))
         elif right == a + b:
             # -----------------
             # -------------++++
             bamboo.mmio_size = a - left
-            split_bamboos.append(self.get_bamboo(a, b, value, compatible=compatible))
+            split_bamboos.append(self.get_bamboo(a, b, value, compatible=new_compatible))
         else:
             # -----------------
             # ------++++xxxxxxx
             bamboo.mmio_size = a - left
-            split_bamboos.append(self.get_bamboo(a, b, value, compatible=compatible))
-            split_bamboos.append(self.get_bamboo(a + b, right - a - b, bamboo.value, compatible=compatible))
+            split_bamboos.append(self.get_bamboo(a, b, value, compatible=new_compatible))
+            split_bamboos.append(self.get_bamboo(a + b, right - a - b, bamboo.value, compatible=old_compatible))
 
         return split_bamboos
 
@@ -123,7 +125,7 @@ class SimpleFirmware(Firmware):
                     mmio_base + mmio_size < exist.mmio_base + exist.mmio_size) or \
                         (exist.mmio_base < mmio_base and
                          mmio_base + mmio_size <= exist.mmio_base + exist.mmio_size):
-                    bamboos = self.split_bamboo(exist, mmio_base, mmio_size, value)
+                    bamboos = self.split_bamboo(exist, mmio_base, mmio_size, value, compatible=compatible)
                 else:
                     return False
 
@@ -175,12 +177,6 @@ class SimpleFirmware(Firmware):
 
     def set_board(self, *args, **kwargs):
         self.set_general('basics', 'board', value=args[0])
-
-    def get_uuid(self, *args, **kwargs):
-        return self.get_general('basics', 'uuid')
-
-    def set_uuid(self, *args, **kwargs):
-        self.set_general('basics', 'uuid', value=args[0])
 
     def set_arch(self, *args, **kwargs):
         self.set_general('basics', 'architecture', value=args[0])
@@ -568,6 +564,9 @@ class SimpleFirmware(Firmware):
             self.profile['components'] = self.components.get_attributes()
         if self.c_cb:
             self.profile['c_cb'] = self.c_cb
+        if self.dtb:
+            self.profile['path_to_dtb'] = \
+                os.path.join('examples/profiles', self.get_machine_name(), 'profile.dtb')
 
         with open(self.path_to_profile, 'w') as f:
             yaml.safe_dump(self.profile, f)
@@ -691,3 +690,20 @@ class SimpleFirmware(Firmware):
         #
         self.bamboo_mmio_count = 0
         self.bamboos = []
+
+    def add_ram(self, *args, **kwargs):
+        size = args[0]
+        base = kwargs.pop('base', 0)
+        rams = self.get_general('ram', 'blocks')
+        if rams is None:
+            rams = []
+        rams.append({'base': base, 'size': size, 'priority' : '0'})
+        self.set_general('ram', 'blocks', value=rams)
+
+    def get_ram(self, *args, **kwargs):
+        rams = self.get_general('ram', 'blocks')
+        if rams is None:
+            return []
+        else:
+            return rams
+

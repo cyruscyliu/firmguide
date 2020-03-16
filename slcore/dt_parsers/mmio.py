@@ -1,5 +1,6 @@
 import os
-import fdt
+from slcore.dt_parsers.common import load_dtb
+from slcore.dt_parsers.compatible import find_compatible_by_path
 
 
 def __find_parent_address(dts, path):
@@ -19,7 +20,18 @@ def __find_parent_address(dts, path):
         return 0
 
 
-def __find_parent_offset(dts, path, x, fx):
+def find_parent_offset(dts, path, x, fx, debug=False):
+    """Find the offset of the parent node.
+
+    Args:
+        dts(dts) : The dts from load_dtb.
+        path(str): The path to current node.
+        x(int)   : The base value to be corrected.
+        fx(dict) : Address mapping. Must be None when called from the external.
+
+    Returns:
+        int: The offset of the parent node.
+    """
     node = dts.get_node(path)
     parent = node.parent
 
@@ -28,8 +40,11 @@ def __find_parent_offset(dts, path, x, fx):
             return 0
         for k, v in fx.items():
             if k <= x < k + v[1]:
+                if debug:
+                    print('[+] {} {:x}: {:x} {:x} {:x}'.format(path, x, k, v[0], v[1]))
                 return (v[0] - k)
-        return 0
+        # Then the bus has no mapping for x.
+        return None
 
     path = os.path.join(parent.path, parent.name)
     if dts.exist_property('ranges', path):
@@ -38,11 +53,18 @@ def __find_parent_offset(dts, path, x, fx):
         local_size_cells = dts.get_property('#size-cells', path).data[0]
         ranges = dts.get_property('ranges', path)
         if not hasattr(ranges, 'data'):
-            return __find_parent_offset(dts, path, x, fx)
+            return find_parent_offset(dts, path, x, fx, debug=debug)
         ranges = ranges.data
-        bank_size = (local_address_cells + parent_address_cells + local_size_cells )
+        if debug:
+            print('[+] {} range cells: {:x} {:x} {:x}'.format(
+                path, local_address_cells, parent_address_cells, local_size_cells))
+        bank_size = \
+            (local_address_cells + parent_address_cells + local_size_cells )
         fx_parent = {}
         for i in range(0, len(ranges) // bank_size):
+            if debug:
+                print('[+] {} bank {} {}'.format(
+                    path, i, ranges[i * bank_size: (i + 1) * bank_size]))
             local_address = 0
             for j in range(0, local_address_cells):
                 local_address += ranges[i * bank_size + j]
@@ -53,13 +75,17 @@ def __find_parent_offset(dts, path, x, fx):
             for j in range(0, local_size_cells):
                 local_size += ranges[i * bank_size + local_address_cells + parent_address_cells + j]
             fx_parent[local_address] = [parent_address, local_size]
+            if debug:
+                print('[+] {} bank {} => {:x} {:x} {:x}'.format(
+                    path, i, local_address, parent_address, local_size))
         if fx is not None:
-            for k, v in fx.items():
-                if v[0] in fx_parent:
-                    fx[k] = fx_parent[v[0]]
+            for ok, ov in fx.items():
+                for nk, nv in fx_parent.items():
+                    if nk <= ov[0] < nk + nv[1]:
+                        ov[0] = ov[0] - nk + nv[0]
         else:
             fx = fx_parent
-    return __find_parent_offset(dts, path, x, fx)
+    return find_parent_offset(dts, path, x, fx, debug=debug)
 
 
 def __find_parent_address_sells(dts, path):
@@ -90,30 +116,33 @@ def __find_parent_size_cells(dts, path):
         return __find_parent_size_cells(dts, path)
 
 
-def find_mmio_by_path(dts, path):
-    flatten_mmio = find_flatten_mmio_in_fdt(dts)
+def find_mmio_by_path(dts, path, memory=False):
+    """Find mmio regions by path."""
+    flatten_mmio = find_flatten_mmio_in_fdt(dts, memory=memory)
     for mmio in flatten_mmio:
         if mmio['path'] == path:
             return mmio
 
 
-def find_flatten_mmio_in_fdt(dts):
-    """
-    path:       the pathe of the node
-    compatible: the compatible of the node
-    reg:        the absolute address, size paris,
-                e.g. reg: [{base: 0, size: 1}, {base: 1, size: 1}]
+def find_flatten_mmio_in_fdt(dts, memory=False):
+    """Find mmio regions in a machine.
+
+    Args:
+        dts(dts): The dts from the load_dtb.
+
+    Returns:
+        list: A list of mmio regions in the machine. For example:
+        [{'compatible': ['example,mmio'], 'path': /example/mmio,
+        'regs': [{'base': 0xFFFF0000, 'size': 0x10000}]}]
     """
     top_address_cells = dts.get_property('#address-cells', '/').data[0]
     top_size_cells = dts.get_property('#size-cells', '/').data[0]
 
     mmio = {}
     for pa, no, pros in dts.walk():
-        if not dts.exist_property('compatible', pa):
+        if pa.find('partition') != -1:
             continue
-        if pa.find('partitions') != -1:
-            continue
-        compatible = dts.get_property('compatible', pa).data
+        compatible = find_compatible_by_path(dts, pa)
         if 'palmbus' in compatible:
             continue
 
@@ -122,16 +151,27 @@ def find_flatten_mmio_in_fdt(dts):
             size_cells = top_size_cells
         if size_cells == 0:
             continue
+        pcie_io = False
         if not dts.exist_property('reg', pa):
-            continue
-        if pa == '/memory':
+            if not dts.exist_property('pcie-io-aperture', pa):
+                continue
+            else:
+                pcie_io = True
+        if not memory and pa.startswith('/memory'):
             continue
         address_cells = __find_parent_address_sells(dts, pa)
         if address_cells is None:
             address_cells = top_address_cells
-        mmios = dts.get_property('reg', pa).data
+        if not pcie_io:
+            mmios = dts.get_property('reg', pa).data
+        if dts.exist_property('assigned-addresses', pa):
+            mmios = dts.get_property('assigned-addresses', pa).data
+            mmios[0] &= 0xffff0000
+        if dts.exist_property('pcie-io-aperture', pa):
+            # pcie-io-aperture = <0xF2000000 0x100000>;
+            mmios = dts.get_property('pcie-io-aperture', pa).data
 
-        mmio[pa] =  {'reg': [], 'compatible': compatible}
+        mmio[pa] =  {'regs': [], 'compatible': compatible}
         for i in range(len(mmios) // (size_cells + address_cells)):
             base = 0
             for j in range(address_cells):
@@ -139,10 +179,16 @@ def find_flatten_mmio_in_fdt(dts):
             size = 0
             for j in range(size_cells):
                 size += mmios[i * (size_cells + address_cells) + address_cells + j]
-            offset = __find_parent_offset(dts, pa, base, None)
+            offset = find_parent_offset(dts, pa, base, None)
+            if offset is None:
+                continue
             if size == 0:
                 continue
-            mmio[pa]['reg'].append({'base': base + offset, 'size': size})
+            base = base + offset
+            # sometimes we get a size 0xffffffff...
+            if base + size > (1 << 32):
+                size = (1 << 32) - base
+            mmio[pa]['regs'].append({'base': base, 'size': size})
 
     flatten_mmio = []
     for k, v in mmio.items():
@@ -150,3 +196,17 @@ def find_flatten_mmio_in_fdt(dts):
         flatten_mmio.append(v)
 
     return flatten_mmio
+
+
+def find_flatten_mmio(path_to_dtb):
+    """Find the mmio regions in a machine.
+
+    Args:
+        path_to_dtb(str): The path to the device tree blob.
+
+    Returns:
+        list: A list of mmio regions..
+    """
+    dts = load_dtb(path_to_dtb)
+    return find_flatten_mmio_in_fdt(dts)
+

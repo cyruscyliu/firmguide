@@ -23,22 +23,25 @@ ingenic,jz4780-uart: {extend: 'serial,generic'}
 marvell,armada-3700-uart: {extend: 'serial,generic'}
 mediatek,mt6577-uart: {extend: 'serial,generic'}
 mrvl,pxa-uart: {extend: 'serial,generic'}
-ns16550: {extend: 'serial,generic'}
+ns16550: {extend: ns16550a}
 ns16550a:
   get_body: ['serial_mm_init(get_system_memory(), {{ reg.base }}, {{ reg_shift }},
-      {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ id }}), {{ endian }});']
+      {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ sid }}), {{ endian }});']
+  get_connection: []
   get_field: []
   get_header: [hw/char/serial.h]
-  parameters: [reg, reg_shift, intcp, irqn, baud_rate, id, endian]
+  parameters: [regs, reg_shift, intcp, irqn, baud_rate, sid, endian]
 nvidia,tegra20-uart: {extend: 'serial,generic'}
 qcom,msm-uart: {extend: 'serial,generic'}
 qcom,msm-uartdm: {extend: 'serial,generic'}
 ralink,rt2880-uart:
   get_body: ['serial_mm_init_au(get_system_memory(), {{ reg.base }}, {{ reg_shift
-      }}, {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ id }}), {{ endian }});']
+      }}, {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ sid }}), {{ endian
+      }});']
+  get_connection: []
   get_field: []
   get_header: [hw/char/serial.h]
-  parameters: [reg, reg_shift, intcp, irqn, baud_rate, id, endian]
+  parameters: [regs, reg_shift, intcp, irqn, baud_rate, sid, endian]
 renesas,hscif: {extend: 'serial,generic'}
 renesas,sci: {extend: 'serial,generic'}
 renesas,scif: {extend: 'serial,generic'}
@@ -51,7 +54,7 @@ samsung,s3c2440-uart: {extend: 'serial,generic'}
 samsung,s3c6400-uart: {extend: 'serial,generic'}
 samsung,s5pv210-uart: {extend: 'serial,generic'}
 snps,arc-uart: {extend: 'serial,generic'}
-snps,dw-apb-uart: {extend: 'serial,generic'}
+snps,dw-apb-uart: {extend: ns16550a}
 socionext,uniphier-uart: {extend: 'serial,generic'}
 sprd,sc9836-uart: {extend: 'serial,generic'}
 ti,omap2-uart: {extend: 'serial,generic'}

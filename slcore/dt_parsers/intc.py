@@ -1,7 +1,7 @@
 import os
-
-from slcore.dt_parsers.mmio import *
-from slcore.dt_parsers.compatible import *
+from slcore.dt_parsers.mmio import find_mmio_by_path
+from slcore.dt_parsers.compatible import find_compatible_by_path
+from slcore.dt_parsers.common import load_dtb
 
 
 COMPATIBLE_INTERRUPTS_INDEX = {
@@ -11,7 +11,12 @@ COMPATIBLE_INTERRUPTS_INDEX = {
     'arm,cortex-a7-gic': 1,
     'arm,arm11mp-gic': 1,
     'brcm,brahma-b15-gic': 1,
+    'atmel,at91rm9200-aic': 0,
+    'atmel,sama5d2-aic': 0,
+    'atmel,sama5d3-aic': 0,
+    'atmel,sama5d4-aic': 0,
 }
+
 
 def __find_interrupt_cells(dts, phandle):
     for pa, no, pros in dts.walk():
@@ -45,28 +50,18 @@ def __find_interrupts_index(dts, phandle):
     return None
 
 
-def find_irqn_by_pphandle(dts, pphandle, cell):
-    interrupts_index = __find_interrupts_index(dts, pphandle)
-    if interrupts_index is None:
-        return cell
-    else:
-        irqn = cell[interrupts_index]
-        return irqn
-
-
 def find_irqnc_by_pphandle(dts, pphandle, cell):
-    """
+    """Find all irq numbers.
+
     Precisely, we want to know how many entities we have
     beneath the same path. Say, we have <interrupt-parent> = <0x1>;
     <interrupts> = <0x3, 0x4>; <#interrtup-cells> = <0x1>;(of <0x1>),
     then we get two entities with irqn 0x3, 0x4 respectively.
-    They may have the same reg, or they they may not,
-    which really doesn't matter.
     """
     interrupts_index = __find_interrupts_index(dts, pphandle)
     interrupt_cells = __find_interrupt_cells(dts, pphandle)
     if interrupts_index is None or interrupt_cells is None:
-        return cell
+        return []
 
     irqn = []
     for i in range(len(cell) // interrupt_cells):
@@ -75,6 +70,7 @@ def find_irqnc_by_pphandle(dts, pphandle, cell):
 
 
 def find_intc_by_phandle(dts, phandle):
+    """Find the interrupt controller by phandle."""
     flatten_intcs = find_flatten_intc_in_fdt(dts)
     for intc in flatten_intcs:
         if intc['phandle'] == phandle:
@@ -82,6 +78,7 @@ def find_intc_by_phandle(dts, phandle):
 
 
 def find_pphandle_by_path(dts, path):
+    """Find the phandle of a interrupt controller by path."""
     pphandle = dts.get_property('interrupt-parent', path)
     if pphandle is None:
         pnode = dts.get_node(path).parent
@@ -94,10 +91,11 @@ def find_pphandle_by_path(dts, path):
 
 
 def find_interrupt_parent_by_path(dts, path):
-    """
+    """Find the interrupt parent phandle by path.
+
     Find interrupt-parent with a value, say
-        interrupt-parent = <0x1>;
-    . Sometimes, interrupt-parent with a value
+    interrupt-parent = <0x1>;. Sometimes,
+    interrupt-parent with a value
     and interrupt-parent w/o a value together
     makes us confused. In order to distinguish them,
     we scan all properties in the given node.
@@ -127,9 +125,9 @@ def __construct_nointc_slave(dts, pa):
     if dts.exist_property('interrupts', pa):
         interrupts = dts.get_property('interrupts', pa).data
         interrupt_parent = find_interrupt_parent_by_path(dts, pa)
-        interrupts = find_irqn_by_pphandle(dts, interrupt_parent, interrupts)
+        interrupts = find_irqnc_by_pphandle(dts, interrupt_parent, interrupts)
         nointc_slave = {
-            'compatible': compatible, 'irqn': interrupts, 'intcp': interrupt_parent,
+            'compatible': compatible, 'irqns': interrupts, 'intcp': interrupt_parent,
             'intc': False, 'master': False, 'slave': True
         }
         return nointc_slave
@@ -148,15 +146,15 @@ def __construct_intc(dts, pa):
             # here is the intc connecting to the cpu
             intc = {
                 'phandle': phandle, 'intc': True, 'master': True, 'slave': True,
-                'compatible': compatible, 'intcp': -1, 'irqn': -1}
+                'compatible': compatible, 'intcp': -1, 'irqns': [-1]}
         elif interrupt_parent is not None and interrupt_parent != phandle:
             if not dts.exist_property('interrupts', pa):
                 return None
             interrupts = dts.get_property('interrupts', pa).data
-            interrupts = find_irqn_by_pphandle(dts, interrupt_parent, interrupts)
+            interrupts = find_irqnc_by_pphandle(dts, interrupt_parent, interrupts)
             intc = {
                 'phandle': phandle, 'intc': True, 'master': True, 'slave': True,
-                'intcp': interrupt_parent, 'irqn': interrupts,
+                'intcp': interrupt_parent, 'irqns': interrupts,
                 'compatible': compatible}
         if dts.exist_property('#address-cells', pa):
             intc['address-cells'] = \
@@ -171,22 +169,23 @@ def __construct_intc(dts, pa):
             'compatible': compatible}
     mmio = find_mmio_by_path(dts, pa)
     if mmio is not None:
-        # only you need is the base address
-        intc['reg'] = mmio['reg'][0]
+        intc['regs'] = mmio['regs']
     return intc
 
 
 def find_flatten_intc_in_fdt(dts, nonintc_slave=False):
-    """
-    intc:      always, whether is an interrupt controller or not
-    phandle:   always, a number identifies an interrupt controller
-    master:    always, whether is a master interrupt controller or not
-    slave:     always, whether is a slave interrupt controller or not
-    intcp:     condit, the phandle of the parent interrupt controller, if the slave is true
-    irqn:      condit, the irq number to which the slave device connect, if the slave is true
-    compatible always, the compatible of the node
-    path:      always, the path of the node
-    reg:       always, see find_mmio_by_path for details
+    """Find interrupt controller in the machine.
+
+    Args:
+        dts(dts)           : The dts from load_dtb.
+        nonintc_slave(bool): Whether or not return slaves which are not interrupt controllers.
+
+    Return:
+        list: A list of interrupt controllers. For example:
+        [{'compatible': ['example,intc'], 'path': /example/intc,
+        'regs': [{'base': 0xFFFF0000, 'size': 0x10000}],
+        'intc': True, 'phandle': 1, 'master': True, 'slave': True,
+        'intcp': -1, 'irqns': [0],}]
     """
     flatten_intc_tree = {}
     for pa, no, pros in dts.walk():
@@ -215,4 +214,17 @@ def find_flatten_intc_in_fdt(dts, nonintc_slave=False):
         flatten_intcs.insert(0, master)
 
     return flatten_intcs
+
+
+def find_flatten_intc(path_to_dtb):
+    """Find the interrupt controllers in a machine.
+
+    Args:
+        path_to_dtb(str): The path to the device tree blob.
+
+    Returns:
+        list: A list of interrupt controller chips.
+    """
+    dts = load_dtb(path_to_dtb)
+    return find_flatten_intc_in_fdt(dts)
 
