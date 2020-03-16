@@ -1,3 +1,27 @@
+plxtech,nas782x-plla:
+      # [MMIO] base 0x44e001f0 size 0x00000010 of /plla@44e001f0/['plxtech,nas782x-plla']
+    - {offset: 0x0, size: 0x4, value: 0x8000}
+    - {offset: 0x4, size: 0x4, value: 0x8000}
+mach-mvebu:
+      # soc_dev_id = readl(pci_base + PCIE_DEV_ID_OFF) >> 16;
+      # soc_rev = readl(pci_base + PCIE_DEV_REV_OFF) & SOC_REV_MASK;
+      # - {base: 0xf1040000, size: 0x4, value: 0x0000, compatible: ['mach-mvebu-001'], path: arch/arm/mach-mvebu/mvebu-soc-id.c, function: get_soc_id_by_pci}
+      # - {base: 0xf1040008, size: 0x4, value: 0x0000, compatible: ['mach-mvebu-002'], path: arch/arm/mach-mvebu/mvebu-soc-id.c, function: get_soc_id_by_pci}
+      # pcie-mem-aperture = <0xE0000000 0x10000000>;
+      # pcie-io-aperture  = <0xF2000000 0x00100000>;
+      #  {base: 0xe0000000, size: 0x10000000, value: 0x0000, compatible: ['mach-mvebu-003'], path: drivers/bus/mvebu-mbus.c, function: mvebu_mbus_dt_init}
+    - {base: 0xf2000000, size: 0x00100000, value: 0x0000, compatible: ['mach-mvebu-003'], path: drivers/bus/mvebu-mbus.c, function: mvebu_mbus_dt_init}
+      # bridge->device = mvebu_readl(port, 0x0000) >> 16;
+      # bridge->revision = mvebu_readl(port, 0x0008) & 0xff;
+      # - {base: 0xf1044000, size: 0x10, value: 0x0, compatible: ['mach-mvebu-004'], path: drivers/pci/host/pci-mvebu.c, function: mvebu_sw_pci_bridge_init}
+      # for (i = 1; i < 3; i++) {
+      #     mvebu_writel(port, 0, (0x1804 + (((i) - 1) * 4)));                                                                                                                       36809   mvebu_writel(port, 0, (0x0010 + ((i) << 3)));
+      #     mvebu_writel(port, 0, (0x0014 + ((i) << 3)));
+      # }
+    - {base: 0xf1040000, size: 0x0800, value: 0x0000, compatible: ['mach-mvebu-006'], path: drivers/pci/host/pci-mvebu.c, function: mvebu_pcie_setup_wins}
+    - {base: 0xf1044000, size: 0x0800, value: 0x0000, compatible: ['mach-mvebu-006'], path: drivers/pci/host/pci-mvebu.c, function: mvebu_pcie_setup_wins}
+      # new
+    - {base: 0xf1048000, size: 0x0800, value: 0x0000, compatible: ['mach-mvebu-007'], path: drivers/pci/host/pci-mvebu.c, function: mvebu_pcie_setup_wins}
 ath79:
       # /root/openwrt-build-docker/share/19.07.1-ath79-generic/openwrt-19.07.1/bin/targets/ath79/generic/openwrt-19.07.1-ath79-generic-buffalo_bhr-4grv-squashfs-sysupgrade.bin
       # id = __raw_readl(base + 0x90); id &= 0xfff0;

@@ -55,10 +55,10 @@ class CompilerToQEMUMachine(Common):
             return 'add an analysis to set firmware.{}'.format(name)
 
     def info(self, message, action):
-        self.info(action, message, 0)
+        super().info(action, message, 0)
 
     def debug(self, message, action):
-        self.debug(action, message, 0)
+        super().debug(action, message, 0)
 
     @staticmethod
     def render_lines(lines):

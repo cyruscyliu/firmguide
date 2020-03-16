@@ -84,4 +84,3 @@ def run_dt_renderer(firmware):
     analyses_manager.register_analysis(DTPreprocessing(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(InitValue(analyses_manager), analyses_tree=at)
     analyses_manager.run(target_analyses_tree=at)
-

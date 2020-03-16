@@ -31,13 +31,13 @@ class Analysis(Common):
         pass
 
     def info(self, firmware, message, status):
-        self.info(self.name, message, status)
+        super().info(self.name, message, status)
 
     def debug(self, firmware, message, status):
-        self.debug(self.name, message, status)
+        super().debug(self.name, message, status)
 
     def warning(self, firmware, message, status):
-        self.warning(self.name, message, status)
+        super().warning(self.name, message, status)
 
     def error(self, firmware):
         if self.context['input'].find('\n') != -1:

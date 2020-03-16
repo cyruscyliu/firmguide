@@ -27,11 +27,11 @@ class Common(object):
         return attrs
 
     def info(self, action, message, status):
-        logger.info(' - '.join([self.__class__.__name__, action, message, status]))
+        logger.info(' - '.join([self.__class__.__name__, action, message]))
 
     def debug(self, action, message, status):
-        logger.warning(' - '.join([self.__class__.__name__, action, message, status]))
+        logger.debug(' - '.join([self.__class__.__name__, action, message]))
 
     def warning(self, action, message, status):
-        logger.debug(' - '.join([self.__class__.__name__, action, message, status]))
+        logger.debug(' - '.join([self.__class__.__name__, action, message]))
 

@@ -424,3 +424,4 @@ def project_migrate(path_to_profile=None, components=None):
 
 def archive(firmware):
     pass
+

@@ -10,10 +10,10 @@ class PreProcessor(Common):
         self.firmware = firmware
 
     def info(self, message):
-        self.info('preprocessing', message, 0)
+        super().info('preprocessing', message, 0)
 
     def debug(self, message):
-        self.debug('proprocessing', message, 0)
+        super().debug('proprocessing', message, 0)
 
     def preprocess_machine_description(self):
         if self.firmware.get_machine_description() is None:

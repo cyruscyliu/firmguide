@@ -47,13 +47,13 @@ class DTRenderer(Common):
         self.skipped_bdevices = []
 
     def info(self, message, action):
-        self.info(action, message, 0)
+        super().info(action, message, 0)
 
     def debug(self, message, action):
-        self.debug(action, message, 0)
+        super().debug(action, message, 0)
 
     def warning(self, message, action):
-        self.warning(action, message, 0)
+        super().warning(action, message, 0)
 
     def __render_bamboo_devices(self):
         # TODO we add extra ram here which is silly
@@ -246,6 +246,11 @@ static const MemoryRegionOps {0}_ops = {{
             self.context['flash_get_header'] = []
             self.context['flash_get_body'] = []
             self.context['flash_get_field'] = []
+        if 'misc_get_header' not in self.context:
+            self.context['misc_get_header'] = []
+            self.context['misc_get_body'] = []
+            self.context['misc_get_field'] = []
+
         try:
             a = Template(self.machine).render(self.context)
             source = Template(a).render(self.context)

@@ -2,12 +2,13 @@ import os
 import abc
 import yaml
 
+from slcore.common import Common
 from slcore.profile.kernel import KernelForFirmware
 from slcore.profile.openwrt import OpenWRTForFirmware
 
 PROFILE_ATTRIBUTES = ['c_cb']
 
-class Firmware(KernelForFirmware, OpenWRTForFirmware):
+class Firmware(KernelForFirmware, OpenWRTForFirmware, Common):
     def __init__(self, *args, **kwargs):
         # the following arguments will not go to your profile
         # because they are dynamically resolved
@@ -49,10 +50,10 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware):
         self.rerun = False  # rerun inference analysis
 
     def snapshot(self):
-        self.save_profile(working_dir=firmware.get_target_dir())
-        # logger_info(firmware.get_uuid(), 'environment', 'snapshot', 'profile at {}'.format(firmware.path_to_profile), 1)
+        self.save_profile(working_dir=self.get_target_dir())
+        self.info('snapshot', 'profile at {}'.format(self.path_to_profile), 1)
         self.stats()
-        # logger_info(firmware.get_uuid(), 'environment', 'snapshot', 'statistics at {}'.format(firmware.path_to_summary), 1)
+        self.info('snapshot', 'statistics at {}'.format(self.path_to_summary), 1)
         return True
 
     @abc.abstractmethod
