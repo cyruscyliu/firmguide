@@ -1,9 +1,10 @@
+import os
+
 from slcore.analyses.analysis import Analysis
 from slcore.dt_parsers.common import load_dtb
 from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
 from slcore.dt_parsers.memory import find_memory_in_fdt
-
-import os
+from slcore.dt_parsers.compatible import find_compatible_in_fdt
 
 
 class DTPreprocessing(Analysis):
@@ -20,7 +21,8 @@ class DTPreprocessing(Analysis):
         self.info(firmware, 'dtb at {}'.format(path_to_dtb), 1)
         self.info(firmware, 'dts at {}'.format(path_to_dts), 1)
 
-        firmware.set_machine_name(firmware.get_uuid())
+        compatible = find_compatible_in_fdt(dts)
+        firmware.set_machine_name(compatible[-1].replace(',', '_').replace('-', '_'))
 
         # 2. create bdevices
         mmios = []

@@ -108,7 +108,6 @@ def project_standard_warmup(args, components=None, profile=None):
     firmware = migrate(uuid, path_to_profile=path_to_profile, components=components)
     firmware.set_arch(project.attrs['arch'])
     firmware.set_endian(project.attrs['endian'])
-    firmware.set_machine_name(uuid)
     firmware.rerun = args.rerun
 
     firmware.srcodec = project_get_srcodec()

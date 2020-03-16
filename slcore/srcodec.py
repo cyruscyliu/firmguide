@@ -7,7 +7,7 @@ source code controller
 from slcore.logger import logger_info2, logger_debug2, logger_warning2
 from slcore.common import Common
 from slcore.naive_parsers.symbols import parse_system_map, addr2file
-from slcore.srcodeb import UNMODELED_SKIP_LIST, MODELED_SKIP_TABLE
+from slcore.srcodeb import UNMODELED_SKIP_LIST
 
 import os
 import pydot
