@@ -42,6 +42,7 @@ def find_flatten_flash_in_fdt(dts):
         if mmio is not None:
             flatten_flashs[pa]['regs'] = mmio['regs']
         else:
+            flatten_flashs.pop(pa)
             continue
 
     ft = []

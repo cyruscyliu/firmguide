@@ -37,11 +37,14 @@ ath25:
   targets:
     openwrt: [ath25]
 ath79:
+  compatible: {'librerouter,librerouter-v1': examples/profiles/qca_qca9558/profile.yaml,
+    'qca,qca9558': examples/profiles/qca_qca9558/profile.yaml}
   device_tree: true
   profiles:
-    examples/mips/ath79/profile.yaml: {brand: openwrt, revision: 19.07.1, version: 4.14.167}
+    examples/profiles/qca_qca9558/profile.yaml: {brand: openwrt, subtarget: generic,
+      target: ath79, version: null}
   targets:
-    openwrt: [ar71xx, ath79]
+    openwrt: [ar71xx, ath79, ath79]
 bcm47xx:
   device_tree: false
   profiles:
@@ -110,7 +113,7 @@ pnx833x: {device_tree: false}
 ralink:
   compatible: {OMNI-EMB-HPM: examples/profiles/ralink_rt3883_soc/profile.yaml, 'ralink,rt3883-soc': examples/profiles/ralink_rt3883_soc/profile.yaml}
   device_tree: true
- profiles:
+  profiles:
     examples/profiles/ralink_rt3883_soc/profile.yaml: {brand: openwrt, subtarget: rt3883,
       target: ramips, version: null}
   targets:
