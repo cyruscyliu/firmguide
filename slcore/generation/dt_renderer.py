@@ -10,13 +10,14 @@ from slcore.dt_parsers.misc import find_flatten_misc_in_fdt
 from slcore.generation.render import Template
 from slcore.generation.common import to_mmio, to_ops
 from slcore.generation.gllrender import Model
-from slcore.logger import logger_info, logger_debug, logger_warning
+from slcore.common import Common
 
 
-class DTRenderer(object):
+class DTRenderer(Common):
     def __init__(self, firmware):
-        self.firmware = firmware
+        super().__init__()
 
+        self.firmware = firmware
         self.context = {}
         self.context['machine_name'] = firmware.get_machine_name()
         self.context['machine_description'] = self.context['machine_name']
@@ -46,13 +47,13 @@ class DTRenderer(object):
         self.skipped_bdevices = []
 
     def info(self, message, action):
-        logger_info(self.firmware.get_uuid(), 'dt_renderer', action, message, 0)
+        self.info(action, message, 0)
 
     def debug(self, message, action):
-        logger_debug(self.firmware.get_uuid(), 'dt_renderer', action, message, 0)
+        self.debug(action, message, 0)
 
     def warning(self, message, action):
-        logger_warning(self.firmware.get_uuid(), 'dt_renderer', action, message, 0)
+        self.warning(action, message, 0)
 
     def __render_bamboo_devices(self):
         # TODO we add extra ram here which is silly

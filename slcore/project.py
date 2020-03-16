@@ -1,7 +1,9 @@
 import os
 import yaml
+import logging
+import logging.config
+
 from settings import BASE_DIR
-from slcore.logger import logger_info2, logger_debug2, logger_warning2
 from slcore.environment import setup_target_dir, get_target_dir
 from slcore.srcodec import SRCodeController
 from slcore.qemuc import QEMUController
@@ -83,18 +85,17 @@ def project_open(uuid):
     target_dir = get_target_dir(uuid)
     project = __project_get_current()
     if project is not None:
-        print('please close current project {}'.format(project.attrs['uuid']))
+        project_print('please close current project {}'.format(project.attrs['uuid']))
         return False
 
     project = Project(target_dir=target_dir)
     if project.exists():
         project.load()
     else:
-        print('please create a project first')
+        project_print('please create a project first')
         return False
 
     __project_set_current(project)
-    logger_info2('project', 'open', uuid, 1)
     return True
 
 
@@ -103,36 +104,27 @@ def project_config(uuid=None, arch=None, endian=None,
                    source=None, cross_compile=None, makeout=None):
     project = __project_get_current()
     if project is None:
-        print('please create/open a project {}'.format(project.attrs['uuid']))
+        project_print('please create/open a project {}'.format(project.attrs['uuid']))
         return False
 
     if uuid is not None:
         project.attrs['uuid'] = uuid
-        logger_info2('project', 'config', 'uuid={}'.format(uuid), 1)
     if arch is not None:
         project.attrs['arch'] = arch
-        logger_info2('project', 'config', 'arch={}'.format(arch), 1)
     if endian is not None:
         project.attrs['endian'] = endian
-        logger_info2('project', 'config', 'endian={}'.format(endian), 1)
     if brand is not None:
         project.attrs['brand'] = brand
-        logger_info2('project', 'config', 'brand={}'.format(brand), 1)
     if target is not None:
         project.attrs['target'] = target
-        logger_info2('project', 'config', 'target={}'.format(target), 1)
     if subtarget is not None:
         project.attrs['subtarget'] = subtarget
-        logger_info2('project', 'config', 'subtarget={}'.format(subtarget), 1)
     if source is not None:
         project.attrs['source'] = source
-        logger_info2('project', 'config', 'source={}'.format(source), 1)
     if cross_compile is not None:
         project.attrs['cross_compile'] = cross_compile
-        logger_info2('project', 'config', 'cross_compile={}'.format(cross_compile), 1)
     if makeout is not None:
         project.attrs['makeout'] = makeout
-        logger_info2('project', 'config', 'makeout={}'.format(makeout), 1)
     __project_set_current(project)
     return True
 
@@ -143,7 +135,7 @@ def project_create(uuid, arch, endian,
                    mode='cmdline'):
     project = __project_get_current()
     if project is not None:
-        print('please close current project {}'.format(project.attrs['uuid']))
+        project_print('please close current project {}'.format(project.attrs['uuid']))
         return False
 
     target_dir = setup_target_dir(uuid)
@@ -157,7 +149,6 @@ def project_create(uuid, arch, endian,
 
     project.save()
     __project_set_current(project)
-    logger_info2('project', 'create', uuid, 1)
     return True
 
 
@@ -165,40 +156,37 @@ def project_rename(uuid):
     new_target_dir = get_target_dir(uuid)
     project = __project_get_current()
     if project is None:
-        print('please open/create a new project')
+        project_print('please open/create a new project')
         return False
 
-    old_target_dir = project.attrs['uuid']
     project.rename(new_target_dir)
+    project.attrs['uuid'] = uuid
     __project_set_current(project)
-    logger_info2('project', 'rename', '{}->{}'.format(old_target_dir, new_target_dir), 1)
     return True
 
 def project_close():
     project = __project_get_current()
     if project is None:
-        print('please open/create a new project')
+        project_print('please open/create a new project')
         return False
 
-    uuid = project.attrs['uuid']
     project.save()
     __project_clear_current()
-    logger_info2('project', 'close', uuid, 1)
     return True
 
 
 def project_show():
     project = __project_get_current()
     if project is None:
-        print('please open/create a new project')
+        project_print('please open/create a new project')
         return False
 
     for k, v in project.attrs.items():
         if isinstance(v, list):
             for vv in v:
-                logger_info2('project', 'show', '{}: {}'.format(k, vv), 1)
+                project_print('[+] {}: {}'.format(k, vv))
         else:
-            logger_info2('project', 'show', '{}: {}'.format(k, v), 1)
+            project_print('[+] {}: {}'.format(k, v))
     return True
 
 
@@ -209,7 +197,7 @@ def update_current_project(project):
 def get_current_project():
     project = __project_get_current()
     if project is None:
-        print('please open/create a new project')
+        project_print('please open/create a new project')
         return None
     return project
 
@@ -221,14 +209,13 @@ def project_delete(uuid):
         if os.path.realpath(project.target_dir) == os.path.realpath(target_dir):
             __project_clear_current()
     os.system('rm -r {}'.format(target_dir))
-    logger_info2('project', 'delete', uuid, 1)
     return True
 
 
 def project_get_srcodec():
     project = __project_get_current()
     if project is None:
-        print('please open/create a new project')
+        project_print('please open/create a new project')
         return None
 
     srcodec = SRCodeController()
@@ -252,4 +239,28 @@ def project_get_srcodec():
 def project_get_qemuc():
     from settings import WORKING_DIR, QEMU_DIR_NAME
     return QEMUController(os.path.join(WORKING_DIR, QEMU_DIR_NAME))
+
+
+def project_setup_logging(default_level=logging.INFO):
+    project = __project_get_current()
+    if project is None:
+        project_print('please open/create a new project')
+        return None
+
+    uuid = project.attrs['uuid']
+    target_dir = project.attrs['target_dir']
+
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logging.yaml')
+    if os.path.exists(path):
+        with open(path, "r") as f:
+            config = yaml.safe_load(f)
+        config['handlers']['file']['filename'] = os.path.join(target_dir, '{}.log'.format(uuid))
+        config['root']['level'] = default_level
+        logging.config.dictConfig(config)
+    else:
+        logging.basicConfig(level=default_level)
+
+
+def project_print(message):
+    print('[-] {}'.format(message))
 

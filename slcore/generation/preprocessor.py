@@ -3,18 +3,17 @@ The whole generator accepts the device profile which must be preprocessed.
 """
 import hashlib
 
-from slcore.logger import logger_info, logger_debug
+from slcore.common import Common
 
-
-class PreProcessor(object):
+class PreProcessor(Common):
     def __init__(self, firmware):
         self.firmware = firmware
 
     def info(self, message):
-        logger_info(self.firmware.get_uuid(), 'code_generation', 'preprocessing', message, 0)
+        self.info('preprocessing', message, 0)
 
     def debug(self, message):
-        logger_debug(self.firmware.get_uuid(), 'code_generation', 'proprocessing', message, 0)
+        self.debug('proprocessing', message, 0)
 
     def preprocess_machine_description(self):
         if self.firmware.get_machine_description() is None:

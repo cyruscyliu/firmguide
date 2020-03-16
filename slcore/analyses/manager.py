@@ -1,6 +1,6 @@
 import os
 
-from slcore.logger import logger_info, logger_warning
+from slcore.common import Common
 from slcore.analyses.analysis import Analysis, AnalysisGroup
 
 
@@ -26,8 +26,10 @@ def finish(firmware, analysis):
         firmware.analysis_progress[analysis.name] = 1
 
 
-class AnalysesManager(object):
+class AnalysesManager(Common):
     def __init__(self, firmware):
+        super().__init__()
+
         self.firmware = firmware
         self.analyses_flat = {}  # name:analysis
         self.analyses_forest = {}  # analysis blocks
@@ -35,7 +37,7 @@ class AnalysesManager(object):
         self.last_analysis_status = True
 
     def print_analysis_chain(self, chain):
-        logger_info(self.firmware.get_uuid(), 'analysis', 'chain', '->'.join(chain), 1)
+        self.info('chain', '->'.join(chain), 1)
 
     def print_readme(self):
         with open(os.path.join(os.getcwd(), 'analyses', '.analyses.csv'), 'w') as f:
@@ -170,7 +172,7 @@ class AnalysesManager(object):
                     continue
                 # save and restore
                 if not self.firmware.rerun and finished(self.firmware, a):
-                    logger_info(self.firmware.get_uuid(), 'analysis', 'done before', a.name, 0)
+                    self.info('done before', a.name, 0)
                     continue
                 try:
                     res = a.run(self.firmware)
@@ -180,7 +182,7 @@ class AnalysesManager(object):
                     if not res and a.is_critical():
                         return False
                 except NotImplementedError as e:
-                    logger_warning(self.firmware.get_uuid(), 'analysis', 'exception', e.args[0], 0)
+                    self.warning('exception', e.args[0], 0)
                     return False
 
                 finish(self.firmware, a)

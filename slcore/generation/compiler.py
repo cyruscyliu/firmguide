@@ -5,11 +5,13 @@ from slcore.generation.common import to_state, to_mmio, to_ops, indent, to_type,
     to_upper, concat
 from slcore.generation.preprocessor import PreProcessor
 from slcore.generation.render import Template
-from slcore.logger import logger_info, logger_debug
+from slcore.common import Common
 
 
-class CompilerToQEMUMachine(object):
+class CompilerToQEMUMachine(Common):
     def __init__(self, firmware):
+        super().__init__()
+
         # input
         self.firmware = firmware
 
@@ -53,10 +55,10 @@ class CompilerToQEMUMachine(object):
             return 'add an analysis to set firmware.{}'.format(name)
 
     def info(self, message, action):
-        logger_info(self.firmware.get_uuid(), 'code_generation', action, message, 0)
+        self.info(action, message, 0)
 
     def debug(self, message, action):
-        logger_debug(self.firmware.get_uuid(), 'code_generation', action, message, 0)
+        self.debug(action, message, 0)
 
     @staticmethod
     def render_lines(lines):

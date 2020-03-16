@@ -178,12 +178,6 @@ class SimpleFirmware(Firmware):
     def set_board(self, *args, **kwargs):
         self.set_general('basics', 'board', value=args[0])
 
-    def get_uuid(self, *args, **kwargs):
-        return self.get_general('basics', 'uuid')
-
-    def set_uuid(self, *args, **kwargs):
-        self.set_general('basics', 'uuid', value=args[0])
-
     def set_arch(self, *args, **kwargs):
         self.set_general('basics', 'architecture', value=args[0])
 

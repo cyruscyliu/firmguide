@@ -1,8 +1,8 @@
 import os
+import shutil
 
 from slcore.analyses.manager import AnalysesManager
-from slcore.environment import restore_analysis, save_analysis, \
-    migrate, snapshot, archive
+from slcore.environment import restore_analysis, save_analysis
 from slcore.project import get_current_project, project_get_srcodec, \
     project_get_qemuc
 from slcore.compositor import unpack
@@ -19,6 +19,7 @@ from slcore.analyses.c_data_abort import DataAbort
 from slcore.analyses.c_undef_inst import UndefInst
 from slcore.analyses.c_panic import Panic
 from slcore.analyses.bamboos import Bamboos
+from slcore.profile.firmwaref import get_firmware
 
 
 def run_static_analysis(firmware, binary=True):
@@ -95,9 +96,9 @@ def run_dt_renderer(firmware):
 def project_standard_warmup(args, components=None, profile=None):
     project = get_current_project()
     if project is None:
+        print('please open/create a new project')
         exit()
 
-    uuid = project.attrs['uuid']
     target_dir = project.attrs['target_dir']
     path_to_profile = os.path.join(target_dir, 'profile.yaml')
     if not os.path.exists(path_to_profile):
@@ -105,7 +106,7 @@ def project_standard_warmup(args, components=None, profile=None):
     if profile is not None:
         path_to_profile = profile
 
-    firmware = migrate(uuid, path_to_profile=path_to_profile, components=components)
+    firmware = project_migrate(path_to_profile=path_to_profile, components=components)
     firmware.set_arch(project.attrs['arch'])
     firmware.set_endian(project.attrs['endian'])
     firmware.rerun = args.rerun
@@ -121,7 +122,7 @@ def project_standard_warmup(args, components=None, profile=None):
         firmware.path_to_trace = args.trace
     else:
         firmware.path_to_trace = '{}/{}-{}-{}.trace'.format(
-            firmware.get_target_dir(), firmware.get_uuid(), firmware.get_arch(), firmware.get_endian()
+            firmware.get_target_dir(), '0', firmware.get_arch(), firmware.get_endian()
         )
     firmware.debug = args.debug
 
@@ -156,6 +157,40 @@ def project_standard_warmup(args, components=None, profile=None):
 
 
 def project_standard_wrapup(firmware):
-    status = snapshot(firmware)
+    firmware.snapshot()
     return archive(firmware)
 
+
+def project_migrate(path_to_profile=None, components=None):
+    project = get_current_project()
+    if project is None:
+        print('please open/create a new project')
+        return None
+
+    firmware = get_firmware('simple')
+    firmware.target_dir =  project.attrs['target_dir']
+
+    # load profile from path_to_profile
+    if path_to_profile:
+        firmware.set_profile(path_to_profile=path_to_profile)
+        # change save-to-path to avoid modifing our well-defined profile
+        firmware.path_to_profile = os.path.join(firmware.get_target_dir(), 'profile.yaml')
+    else:
+        firmware.set_profile(target_dir=firmware.get_target_dir(), first=True)
+
+    # handle components
+    if components is not None:
+        # copy the firmware to working path
+        firmware.set_working_path(
+            os.path.join(firmware.get_target_dir(), components.get_raw_name()))
+        if not os.path.exists(firmware.working_path):
+            shutil.copy(
+                os.path.join(os.getcwd(), components.get_path_to_raw()),
+                os.path.join(firmware.working_path)
+        )
+        firmware.set_components(components)
+
+    return firmware
+
+def archive(firmware):
+    pass

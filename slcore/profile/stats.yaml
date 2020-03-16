@@ -10,7 +10,6 @@ basics:
     - machine_name
     - name
     - path
-    - uuid
   critical:
     architecture:
       conditions:
@@ -29,9 +28,6 @@ basics:
       conditions:
         alywas: True
     path:
-      conditions:
-        alywas: True
-    uuid:
       conditions:
         alywas: True
 brand:

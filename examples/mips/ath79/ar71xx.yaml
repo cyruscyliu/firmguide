@@ -84,8 +84,7 @@ bamboo:
     mmio_size: '0x200'
     registers:
       stub_reserved9: {offset: 0x0 ... 0x1fc, value: '0x0'}
-basics: {architecture: mips, endian: b, machine_description: ar71xx_generic, machine_name: ar71xx_generic,
-  uuid: ar71xx_generic}
+basics: {architecture: mips, endian: b, machine_description: ar71xx_generic, machine_name: ar71xx_generic}
 components: {output: '0x00000000    uImage header, header size: 64 bytes, created:
     2020-01-03 10:04:13, image size: 1261910 bytes, Data Address: 0x80060000, Entry
     Point: 0x80060000, OS: Linux, CPU: MIPS, compression type: lzma, image name: "MIPS

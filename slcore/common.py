@@ -1,4 +1,9 @@
 import types
+import logging
+
+
+logger = logging.getLogger()
+
 
 class Common(object):
     def set_attributes(self, attrs):
@@ -20,4 +25,13 @@ class Common(object):
             attrs[k] = v
 
         return attrs
+
+    def info(self, action, message, status):
+        logger.info(' - '.join([self.__class__.__name__, action, message, status]))
+
+    def debug(self, action, message, status):
+        logger.warning(' - '.join([self.__class__.__name__, action, message, status]))
+
+    def warning(self, action, message, status):
+        logger.debug(' - '.join([self.__class__.__name__, action, message, status]))
 

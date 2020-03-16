@@ -4,7 +4,6 @@ source code controller
 + cmdline/preprocess/compile/link one file
 + cfg/cg/gloabls
 """
-from slcore.logger import logger_info2, logger_debug2, logger_warning2
 from slcore.common import Common
 from slcore.naive_parsers.symbols import parse_system_map, addr2file
 from slcore.srcodeb import UNMODELED_SKIP_LIST
@@ -28,16 +27,6 @@ class SRCodeController(Common):
 
         self.set_attributes(SOURCE_CODE_ATTRIBUTES)
         self.config = {}
-
-
-    def info(self, action, message, status):
-        logger_info2('srcodec', action, message, status)
-
-    def debug(self, action, message, status):
-        logger_debug2('srcodec', action, message, status)
-
-    def warning(self, action, message, status):
-        logger_warning2('srcodec', action, message, status)
 
     def symbol2fileg(self, symbol, relative=True):
         search_in = os.path.join(self.path_to_source_code, 'arch/{}'.format(self.arch))
