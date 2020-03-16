@@ -2,7 +2,6 @@ from slcore.database.dbf import get_database
 from slcore.naive_parsers.machine_id import find_machine_id
 from slcore.dt_parsers.compatible import find_compatible
 from slcore.common import Common
-from slcore.project import get_current_project
 
 
 MD_ATRRIBUTES = ['machine_ids', 'compatible', 'profiles', 'device_tree', 'targets']
@@ -56,17 +55,6 @@ def find_latest_board(path_to_kenrel, arch, brand=None, url=None):
         return md
     else:
         return None
-
-
-def project_find_profile(components, url=None):
-    project = get_current_project()
-    if project is None:
-        return
-
-    brand = project.attrs['brand']
-    arch = project.attrs['arch']
-
-    return find_profile(components, arch, brand=brand, url=url)
 
 
 def find_profile(components, arch, brand=None, url=None):

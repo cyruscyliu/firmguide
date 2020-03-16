@@ -1,5 +1,6 @@
 import os
 import yaml
+import shutil
 import logging
 import logging.config
 
@@ -7,6 +8,11 @@ from settings import BASE_DIR
 from slcore.environment import setup_target_dir, get_target_dir
 from slcore.srcodec import SRCodeController
 from slcore.qemuc import QEMUController
+from slcore.machines import find_profile
+from slcore.compositor import unpack
+from slcore.profile.firmwaref import get_firmware
+from slcore.analyses.scheduler import run_static_analysis, run_diagnosis, \
+    run_trace_analysis, run_dt_renderer
 
 
 class Project(object):
@@ -164,6 +170,7 @@ def project_rename(uuid):
     __project_set_current(project)
     return True
 
+
 def project_close():
     project = __project_get_current()
     if project is None:
@@ -264,3 +271,156 @@ def project_setup_logging(default_level=logging.INFO):
 def project_print(message):
     print('[-] {}'.format(message))
 
+
+def project_run_static_analysis(args):
+    # 1 standard_setup
+    firmware = project_standard_warmup(args)
+    # 2. analyze the source code
+    run_static_analysis(firmware)
+    # 3. take snapshots to save results
+    return project_standard_wrapup(firmware)
+
+
+def project_run_diagnosis(args):
+    # 1 standard_setup
+    firmware = project_standard_warmup(args)
+    # 2. test the machine
+    run_diagnosis(firmware)
+    # 3. take snapshots to save results
+    return project_standard_wrapup(firmware)
+
+
+def project_run_bootup(args):
+    # 1 standard_setup
+    firmware = project_standard_warmup(args)
+
+    profile = find_profile(firmware.get_components(), firmware.get_arch(), brand=firmware.get_brand(), url=args.url)
+    if profile is None:
+        return
+    firmware = project_standard_warmup(args, profile=profile)
+
+    # 2 diagnosis
+    run_diagnosis(firmware)
+
+    # 3. take snapshots to save results
+    return project_standard_wrapup(firmware)
+
+
+def project_run_atrace(args):
+    # 1 standard_setup
+    firmware = project_standard_warmup(args)
+    # 2 generate code from dtb
+    run_trace_analysis(firmware)
+    # 3. take snapshots to save results
+    return project_standard_wrapup(firmware)
+
+
+def project_run_generate(args):
+    # 1 standard_setup
+    firmware = project_standard_warmup(args)
+    # 2 generate code from dtb
+    run_dt_renderer(firmware)
+    # 3. take snapshots to save results
+
+
+def project_standard_warmup(args, components=None, profile=None):
+    project = get_current_project()
+    if project is None:
+        print('please open/create a new project')
+        exit()
+
+    target_dir = project.attrs['target_dir']
+    path_to_profile = os.path.join(target_dir, 'profile.yaml')
+    if not os.path.exists(path_to_profile):
+        path_to_profile = None
+    if profile is not None:
+        path_to_profile = profile
+
+    firmware = project_migrate(path_to_profile=path_to_profile, components=components)
+    firmware.set_arch(project.attrs['arch'])
+    firmware.set_endian(project.attrs['endian'])
+    firmware.rerun = args.rerun
+
+    firmware.srcodec = project_get_srcodec()
+    firmware.qemuc = project_get_qemuc()
+    if hasattr(args, 'nocompilation'):
+        firmware.cancle_compilation = args.nocompilation
+
+    firmware.max_iteration = 1
+    firmware.trace_format = 'qemudebug'
+    if hasattr(args, 'trace'):
+        firmware.path_to_trace = args.trace
+    else:
+        firmware.path_to_trace = '{}/{}-{}-{}.trace'.format(
+            firmware.get_target_dir(), '0', firmware.get_arch(), firmware.get_endian()
+        )
+    firmware.debug = args.debug
+
+    if hasattr(args, 'firmware'):
+        images = project.attrs['images']
+        components = firmware.get_components()
+        if components is not None:
+            if args.firmware is not None and args.firmware != components.get_path_to_raw():
+                firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
+        elif images is not None and len(images):
+            firmware.components = unpack(images[0], target_dir=firmware.target_dir)
+        elif args.firmware:
+            firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
+        else:
+            print('-f/--firmware missing')
+
+    if hasattr(args, 'dtb'):
+        dtbs = project.attrs['dtbs']
+        components = firmware.get_components()
+        if components is not None:
+            if args.dtb is not None:
+                firmware.set_dtb(args.dtb)
+            elif components.has_device_tree():
+                firmware.set_dtb(components.get_path_to_dtb())
+        elif args.dtb:
+            firmware.set_dtb(args.dtb)
+        elif dtbs is not None and len(dtbs):
+            firmware.set_dtb(dtbs[0])
+        else:
+            print('neither dtb was found in tested firmware nor -dtb was assigned')
+    return firmware
+
+
+def project_standard_wrapup(firmware):
+    firmware.snapshot()
+    return archive(firmware)
+
+
+def project_migrate(path_to_profile=None, components=None):
+    project = get_current_project()
+    if project is None:
+        print('please open/create a new project')
+        return None
+
+    firmware = get_firmware('simple')
+    firmware.target_dir =  project.attrs['target_dir']
+
+    # load profile from path_to_profile
+    if path_to_profile:
+        firmware.set_profile(path_to_profile=path_to_profile)
+        # change save-to-path to avoid modifing our well-defined profile
+        firmware.path_to_profile = os.path.join(firmware.get_target_dir(), 'profile.yaml')
+    else:
+        firmware.set_profile(target_dir=firmware.get_target_dir(), first=True)
+
+    # handle components
+    if components is not None:
+        # copy the firmware to working path
+        firmware.set_working_path(
+            os.path.join(firmware.get_target_dir(), components.get_raw_name()))
+        if not os.path.exists(firmware.working_path):
+            shutil.copy(
+                os.path.join(os.getcwd(), components.get_path_to_raw()),
+                os.path.join(firmware.working_path)
+        )
+        firmware.set_components(components)
+
+    return firmware
+
+def archive(firmware):
+    pass

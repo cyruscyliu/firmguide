@@ -3,18 +3,15 @@ import argparse
 import logging, logging.config
 
 from slcore.project import project_create, project_open, project_config, \
-    project_rename, project_close, project_delete, project_show, project_setup_logging
+    project_rename, project_close, project_delete, project_show, project_setup_logging, \
+    project_run_static_analysis, project_run_bootup, project_run_atrace, \
+    project_run_diagnosis, project_run_generate
 from slcore.tools.scan_dtcb import project_scan_declare, project_scan_dtcb
 from slcore.tools.scan_topology import project_scan_topology
 from slcore.tools.scan_dt import project_unpack
 from slcore.tools.dtinfo import project_show_dtinfo
 from slcore.tools.batch import project_plugin_batch
 from slcore.tools.source import project_source_analysis
-from slcore.tools.machines import project_find_profile
-from slcore.scheduler import project_standard_warmup, project_standard_wrapup, \
-    run_static_analysis, run_diagnosis, run_dt_renderer, run_trace_analysis
-
-logger = logging.getLogger()
 
 
 def __project_create(args):
@@ -64,56 +61,23 @@ def __scan_topology(args):
 
 
 def __analyze(args):
-    # 1 standard_setup
-    firmware = project_standard_warmup(args)
-    # 2. analyze the source code
-    run_static_analysis(firmware)
-    # 3. take snapshots to save results
-    return project_standard_wrapup(firmware)
+    project_run_static_analysis(args)
 
 
 def __diagnose(args):
-    # 1 standard_setup
-    firmware = project_standard_warmup(args)
-    # 2. test the machine
-    run_diagnosis(firmware)
-    # 3. take snapshots to save results
-    return project_standard_wrapup(firmware)
+    project_run_diagnosis(args)
 
 
 def __bootup(args):
-    # 1 standard_setup
-    firmware = project_standard_warmup(args)
-
-    profile = project_find_profile(
-        firmware.get_components(), url=args.url)
-    if profile is None:
-        return
-    firmware = project_standard_warmup(args, profile=profile)
-
-    # 2 diagnosis
-    run_diagnosis(firmware)
-
-    # 3. take snapshots to save results
-    return project_standard_wrapup(firmware)
+    project_run_bootup(args)
 
 
 def __atrace(args):
-    # 1 standard_setup
-    firmware = project_standard_warmup(args)
-    # 2 generate code from dtb
-    run_trace_analysis(firmware)
-    # 3. take snapshots to save results
-    return project_standard_wrapup(firmware)
+    project_run_atrace(args)
 
 
 def __generate(args):
-    # 1 standard_setup
-    firmware = project_standard_warmup(args)
-    # 2 generate code from dtb
-    run_dt_renderer(firmware)
-    # 3. take snapshots to save results
-    return project_standard_wrapup(firmware)
+    project_run_generate(args)
 
 
 def __unpack(args):
