@@ -68,6 +68,9 @@ class Machines(Analysis):
         if components is None:
             self.context['input'] = 'components is missing'
             return False
+        if not components.supported:
+            self.context['input'] = 'cannot unpack this image'
+            return False
 
         # T1: LATEST_BOARD_SIGNATURE
         # BOARD=TARGET>SUBTARGET>MACHINE=compatible=machine_id>PROFILE
@@ -90,7 +93,16 @@ class Machines(Analysis):
                     # modeling 002
                     self.context['input'] = '002 cannot find the compatible {}'.format(compatible)
                     return False
-                return profile
+                # update profile and change save-to-path to avoid modifing our well-defined profile
+                firmware.set_profile(path_to_profile=profile)
+                raw_name = components.get_raw_name()
+                firmware.path_to_profile = os.path.join(
+                    firmware.get_target_dir(), '{}.profile.yaml'.format(raw_name))
+                firmware.path_to_summary = os.path.join(
+                    firmware.get_target_dir(), '{}.stats.yaml'.format(raw_name))
+                components.set_path_to_dtb(firmware.dtb)
+                firmware.set_components(components)
+                return True
         self.info(firmware, 'this board doesn\'t have device tree, we will be looking for its machine ids', 1)
 
         # T4 MACHINE_ID_SIGNATURE
@@ -120,7 +132,7 @@ class Machines(Analysis):
         super().__init__(analysis_manager)
         self.name = 'machines'
         self.description = 'find a valid profile'
+        self.context['hint'] = 'oops'
         self.required = []
         self.critical = True
-
 

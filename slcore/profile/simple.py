@@ -164,7 +164,6 @@ class SimpleFirmware(Firmware):
                         results[key][expect] = False
 
         self.stat_summary = results
-        self.path_to_summary = os.path.join(self.target_dir, 'stats.yaml')
         with open(self.path_to_summary, 'w') as f:
             yaml.dump(self.stat_summary, f)
 

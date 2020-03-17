@@ -49,7 +49,7 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware, Common):
         self.max_iteration = 20  # stop at 20 iteration
         self.rerun = False  # rerun inference analysis
 
-    def snapshot(self):
+    def snapshot(self, override=True):
         self.save_profile(working_dir=self.get_target_dir())
         self.info('snapshot', 'profile at {}'.format(self.path_to_profile), 1)
         self.stats()

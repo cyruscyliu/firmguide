@@ -33,5 +33,5 @@ class Common(object):
         logger.debug(' - '.join([self.__class__.__name__, action, message]))
 
     def warning(self, action, message, status):
-        logger.debug(' - '.join([self.__class__.__name__, action, message]))
+        logger.warning(' - '.join([self.__class__.__name__, action, message]))
 

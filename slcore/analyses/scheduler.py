@@ -55,7 +55,11 @@ def run_bootup(firmware):
     analyses_manager.register_analysis(Checking(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(DataAbort(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(UndefInst(analyses_manager), analyses_tree=at)
-    status = analyses_manager.run(target_analyses_tree=at)
+    try:
+        status = analyses_manager.run(target_analyses_tree=at)
+    except SystemExit:
+        status = True
+        pass
 
     return status
 

@@ -296,7 +296,7 @@ def project_run_bootup(args):
     # 1 standard_setup
     firmware = project_standard_warmup(args)
 
-    # 2 diagnosis
+    # 2 test the machine
     firmware.set_url(args.url)
     run_bootup(firmware)
 
@@ -307,7 +307,7 @@ def project_run_bootup(args):
 def project_run_atrace(args):
     # 1 standard_setup
     firmware = project_standard_warmup(args)
-    # 2 generate code from dtb
+    # 2 run trace analysis
     run_trace_analysis(firmware)
     # 3. take snapshots to save results
     return project_standard_wrapup(firmware)
@@ -340,6 +340,7 @@ def project_standard_warmup(args, components=None, profile=None):
     firmware.set_endian(project.attrs['endian'])
     firmware.set_brand(project.attrs['brand'])
     firmware.rerun = args.rerun
+    firmware.path_to_summary = os.path.join(firmware.get_target_dir(), 'stats.yaml')
 
     firmware.srcodec = project_get_srcodec()
     firmware.qemuc = project_get_qemuc()
@@ -348,7 +349,7 @@ def project_standard_warmup(args, components=None, profile=None):
 
     firmware.max_iteration = 1
     firmware.trace_format = 'qemudebug'
-    if hasattr(args, 'trace'):
+    if hasattr(args, 'trace') and args.trace is not None:
         firmware.path_to_trace = args.trace
     else:
         firmware.path_to_trace = '{}/{}-{}-{}.trace'.format(
