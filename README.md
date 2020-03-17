@@ -78,7 +78,7 @@ Step 4, boot up firmware. Salamander is a full solution from modeling to booting
 firmware not only compiled with source but also scratched in the wild. Enjoy your time!
 
 ```
-./salamander bootup -f path/to/image
+./salamander boot -f path/to/image
 ```
 
 ## Contributors

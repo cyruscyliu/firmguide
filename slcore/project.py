@@ -8,11 +8,10 @@ from settings import BASE_DIR
 from slcore.environment import setup_target_dir, get_target_dir
 from slcore.srcodec import SRCodeController
 from slcore.qemuc import QEMUController
-from slcore.machines import find_profile
 from slcore.compositor import unpack
 from slcore.profile.firmwaref import get_firmware
 from slcore.analyses.scheduler import run_static_analysis, run_diagnosis, \
-    run_trace_analysis, run_dt_renderer
+    run_trace_analysis, run_dt_renderer, run_bootup
 from slcore.database.dbf import get_database
 from slcore.dt_parsers.compatible import find_compatible_in_fdt
 from slcore.dt_parsers.common import load_dtb
@@ -290,20 +289,16 @@ def project_run_diagnosis(args):
     # 2. test the machine
     run_diagnosis(firmware)
     # 3. take snapshots to save results
-    return project_standard_wrapup(firmware)
+    return project_standard_wrapup(firmware, archive=True)
 
 
 def project_run_bootup(args):
     # 1 standard_setup
     firmware = project_standard_warmup(args)
 
-    profile = find_profile(firmware.get_components(), firmware.get_arch(), brand=firmware.get_brand(), url=args.url)
-    if profile is None:
-        return
-    firmware = project_standard_warmup(args, profile=profile)
-
     # 2 diagnosis
-    run_diagnosis(firmware)
+    firmware.set_url(args.url)
+    run_bootup(firmware)
 
     # 3. take snapshots to save results
     return project_standard_wrapup(firmware)
@@ -324,6 +319,7 @@ def project_run_generate(args):
     # 2 generate code from dtb
     run_dt_renderer(firmware)
     # 3. take snapshots to save results
+    return project_standard_wrapup(firmware)
 
 
 def project_standard_warmup(args, components=None, profile=None):
@@ -342,6 +338,7 @@ def project_standard_warmup(args, components=None, profile=None):
     firmware = project_migrate(path_to_profile=path_to_profile, components=components)
     firmware.set_arch(project.attrs['arch'])
     firmware.set_endian(project.attrs['endian'])
+    firmware.set_brand(project.attrs['brand'])
     firmware.rerun = args.rerun
 
     firmware.srcodec = project_get_srcodec()
@@ -389,9 +386,9 @@ def project_standard_warmup(args, components=None, profile=None):
     return firmware
 
 
-def project_standard_wrapup(firmware):
+def project_standard_wrapup(firmware, archive=False):
     firmware.snapshot()
-    if firmware.get_stage('user_mode'):
+    if archive and firmware.get_stage('user_mode'):
         return project_archive(firmware)
     return True
 

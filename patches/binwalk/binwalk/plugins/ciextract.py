@@ -31,4 +31,6 @@ class CIExtractPlugin(binwalk.core.plugin.Plugin):
                 result.size = kernel_size
             except ValueError:
                 pass
+            except TypeError:
+                pass
 

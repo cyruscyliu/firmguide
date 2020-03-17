@@ -1,3 +1,5 @@
+import os
+
 from slcore.generation.compilerf import get_compiler
 from slcore.compositor import pack_kernel, pack_image, \
     pack_initramfs, fix_cmdline, fix_choosen_bootargs
@@ -5,7 +7,6 @@ from slcore.generation.dt_renderer import DTRenderer
 from slcore.generation.common import to_upper
 from slcore.analyses.analysis import Analysis
 from examples.rootfs.rootfs import get_initramfs
-import os
 
 
 class Preparation(Analysis):

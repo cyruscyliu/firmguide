@@ -67,6 +67,6 @@ class DTPreprocessing(Analysis):
         super().__init__(analysis_manager)
         self.name = 'preprocdt'
         self.description = 'preprocess the device tree file'
-        self.required = ['mfilter']
+        self.required = ['mfilter', 'machines']
         self.critical = False
 
