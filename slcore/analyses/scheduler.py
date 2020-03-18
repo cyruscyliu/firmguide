@@ -9,6 +9,7 @@ from slcore.analyses.initvalue import InitValue
 from slcore.analyses.preprocdt import DTPreprocessing
 from slcore.analyses.trace import DoTracing, LoadTrace
 from slcore.analyses.c_user_level import Checking
+from slcore.analyses.c_user_level import FastChecking
 from slcore.analyses.c_data_abort import DataAbort
 from slcore.analyses.c_undef_inst import UndefInst
 from slcore.analyses.machines import Machines
@@ -51,10 +52,7 @@ def run_bootup(firmware):
     analyses_manager.register_analysis(DTPreprocessing(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(InitValue(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(DoTracing(analyses_manager), analyses_tree=at)
-    analyses_manager.register_analysis(LoadTrace(analyses_manager), analyses_tree=at)
-    analyses_manager.register_analysis(Checking(analyses_manager), analyses_tree=at)
-    analyses_manager.register_analysis(DataAbort(analyses_manager), analyses_tree=at)
-    analyses_manager.register_analysis(UndefInst(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(FastChecking(analyses_manager), analyses_tree=at)
     try:
         status = analyses_manager.run(target_analyses_tree=at)
     except SystemExit:
@@ -76,9 +74,6 @@ def run_diagnosis(firmware):
     analyses_manager.register_analysis(Checking(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(DataAbort(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(UndefInst(analyses_manager), analyses_tree=at)
-    # analyses_manager.register_analysis(CallStack(analyses_manager), analyses_tree=at)
-    # analyses_manager.register_analysis(Panic(analyses_manager), analyses_tree=at)
-    # analyses_manager.register_analysis(Bamboos(analyses_manager), analyses_tree=at)
 
     max_iteration = firmware.max_iteration
 
