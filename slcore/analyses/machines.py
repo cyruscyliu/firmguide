@@ -65,6 +65,9 @@ class Machines(Analysis):
 
     def run(self, firmware):
         components = firmware.get_components()
+        raw_name = components.get_raw_name()
+        firmware.path_to_profile = os.path.join(
+            firmware.get_target_dir(), '{}.profile.yaml'.format(raw_name))
         if components is None:
             self.context['input'] = 'components is missing'
             return False
@@ -95,11 +98,13 @@ class Machines(Analysis):
                     return False
                 # update profile and change save-to-path to avoid modifing our well-defined profile
                 firmware.set_profile(path_to_profile=profile)
-                raw_name = components.get_raw_name()
                 firmware.path_to_profile = os.path.join(
                     firmware.get_target_dir(), '{}.profile.yaml'.format(raw_name))
                 firmware.path_to_summary = os.path.join(
                     firmware.get_target_dir(), '{}.stats.yaml'.format(raw_name))
+                firmware.path_to_trace = os.path.join(
+                    firmware.get_target_dir(), '{}.trace'.format(raw_name)
+                )
                 components.set_path_to_dtb(firmware.dtb)
                 firmware.set_components(components)
                 return True

@@ -363,10 +363,10 @@ def project_standard_warmup(args, components=None, profile=None):
         if components is not None:
             if args.firmware is not None and args.firmware != components.get_path_to_raw():
                 firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
-        elif images is not None and len(images):
-            firmware.components = unpack(images[0], target_dir=firmware.target_dir)
         elif args.firmware:
             firmware.components = unpack(args.firmware, target_dir=firmware.target_dir)
+        elif images is not None and len(images):
+            firmware.components = unpack(images[0], target_dir=firmware.target_dir)
         else:
             print('-f/--firmware missing')
 
