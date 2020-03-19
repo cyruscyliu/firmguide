@@ -42,6 +42,21 @@ class MD(Common):
 
 
 class Machines(Analysis):
+    def update_profile(self, firmware):
+        raw_name = firmware.get_components().get_raw_name()
+        firmware.path_to_profile = os.path.join(
+            firmware.get_target_dir(), '{}.profile.yaml'.format(raw_name))
+
+    def update_stats(self, firmware):
+        raw_name = firmware.get_components().get_raw_name()
+        firmware.path_to_summary = os.path.join(
+            firmware.get_target_dir(), '{}.stats.yaml'.format(raw_name))
+
+    def update_trace(self, firmware):
+        raw_name = firmware.get_components().get_raw_name()
+        firmware.path_to_trace = os.path.join(
+            firmware.get_target_dir(), '{}.trace'.format(raw_name))
+
     def find_latest_board(self, firmware, url=None):
         support = get_database('support')
         revision, target, subtarget = [None] * 3
@@ -65,14 +80,21 @@ class Machines(Analysis):
 
     def run(self, firmware):
         components = firmware.get_components()
-        raw_name = components.get_raw_name()
-        firmware.path_to_profile = os.path.join(
-            firmware.get_target_dir(), '{}.profile.yaml'.format(raw_name))
+
         if components is None:
+            self.update_profile(firmware)
             self.context['input'] = 'components is missing'
             return False
+
         if not components.supported:
+            self.update_profile(firmware)
             self.context['input'] = 'cannot unpack this image'
+            return False
+
+        if not components.has_kernel():
+            self.update_profile(firmware)
+            self.update_stats(firmware)
+            self.context['input'] = 'have no kernel, maybe a rootfs image'
             return False
 
         # T1: LATEST_BOARD_SIGNATURE
@@ -98,13 +120,9 @@ class Machines(Analysis):
                     return False
                 # update profile and change save-to-path to avoid modifing our well-defined profile
                 firmware.set_profile(path_to_profile=profile)
-                firmware.path_to_profile = os.path.join(
-                    firmware.get_target_dir(), '{}.profile.yaml'.format(raw_name))
-                firmware.path_to_summary = os.path.join(
-                    firmware.get_target_dir(), '{}.stats.yaml'.format(raw_name))
-                firmware.path_to_trace = os.path.join(
-                    firmware.get_target_dir(), '{}.trace'.format(raw_name)
-                )
+                self.update_profile(firmware)
+                self.update_stats(firmware)
+                self.update_trace(firmware)
                 components.set_path_to_dtb(firmware.dtb)
                 firmware.set_components(components)
                 return True
@@ -129,7 +147,10 @@ class Machines(Analysis):
 
         # update profile and change save-to-path to avoid modifing our well-defined profile
         firmware.set_profile(path_to_profile=profile)
-        firmware.path_to_profile = os.path.join(firmware.get_target_dir(), 'profile.yaml')
+        self.update_profile(firmware)
+        self.update_stats(firmware)
+        self.update_trace(firmware)
+        firmware.set_components(components)
 
         return True
 

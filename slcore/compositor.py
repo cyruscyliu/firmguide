@@ -38,6 +38,9 @@ class Components(Common):
     def has_device_tree(self):
         return self.path_to_dtb is not None
 
+    def has_kernel(self):
+        return self.path_to_kernel is not None
+
 
 def ubidump(path, peb_size, min_io_size, output=None):
     size = os.path.getsize(path)
@@ -293,10 +296,13 @@ def unpack(path, target_dir=None, extract=True):
             v1 = min(result.offset, v1)
             if result.jump != 0:
                 # we have a correct peb size
-                components.set_path_to_image(module.extractor.output[result.file.path].carved[v1])
-                output = ubidump(components.get_path_to_image(), result.peb_size, result.data_offset)
-                components = unpack(output, target_dir=target_dir)
+                path_to_raw = components.get_path_to_raw()
+                path_to_image = module.extractor.output[result.file.path].carved[v1]
+                output = ubidump(path_to_image, result.peb_size, result.data_offset)
+                components = unpack(output, target_dir=os.path.dirname(output))
                 components.set_type(UBI_KERNEL)
+                components.set_path_to_raw(path_to_raw)
+                components.set_path_to_image(path_to_image)
                 break
         components.output += '0x%.8X    %s\n' % (result.offset, result.description)
 
