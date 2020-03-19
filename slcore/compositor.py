@@ -7,7 +7,8 @@ import binwalk
 from slcore.common import Common
 
 
-TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE, IMAGETAG_KERNEL, COMBINEDIMAGE_KERNEL = 1, 2, 3, 4, 5
+TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE, IMAGETAG_KERNEL, \
+    COMBINEDIMAGE_KERNEL, UBI_KERNEL = 1, 2, 3, 4, 5, 6
 
 
 COMPONENT_ATTRIBUTES = [
@@ -37,6 +38,27 @@ class Components(Common):
     def has_device_tree(self):
         return self.path_to_dtb is not None
 
+
+def ubidump(path, peb_size, min_io_size, output=None):
+    size = os.path.getsize(path)
+
+    n_blocks = size // peb_size
+    if n_blocks * peb_size < size:
+        n_blocks += 1
+
+    if output is None:
+        output = path + '.ubidump'
+
+    offset = 0
+    os.system('touch {}'.format(output))
+    while n_blocks:
+        # print('copy 0x{:x}+0x{:x}'.format(offset + min_io_size, peb_size - min_io_size))
+        os.system('dd if={} of={} bs=1 count={} seek={} skip={} >/dev/null 2>&1'.format(
+            path, output, peb_size - min_io_size, os.path.getsize(output), offset + min_io_size
+        ))
+        offset += peb_size
+        n_blocks -= 1
+    return output
 
 def __replace_extension(path, src, dst):
     filename, file_extension = os.path.splitext(path)
@@ -224,6 +246,8 @@ def unpack(path, target_dir=None, extract=True):
 
     # to avoid ref-ed before def-ed
     for result in module.results:
+        # some helpers
+        v1 = 0
         if str(result.description).find('flattened image tree') != -1:
             components.set_type(FIT_UIMAGE)
             components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
@@ -265,6 +289,15 @@ def unpack(path, target_dir=None, extract=True):
         elif str(result.description).find('Squashfs filesystem') != -1:
             components.set_path_to_rootfs(
                 module.extractor.output[result.file.path].carved[result.offset])
+        elif str(result.description).find('UBI erase count header') != -1:
+            v1 = min(result.offset, v1)
+            if result.jump != 0:
+                # we have a correct peb size
+                components.set_path_to_image(module.extractor.output[result.file.path].carved[v1])
+                output = ubidump(components.get_path_to_image(), result.peb_size, result.data_offset)
+                components = unpack(output, target_dir=target_dir)
+                components.set_type(UBI_KERNEL)
+                break
         components.output += '0x%.8X    %s\n' % (result.offset, result.description)
 
     if not extract:
