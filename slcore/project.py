@@ -491,7 +491,8 @@ def project_archive(firmware):
         board['targets'] = {}
     if project.attrs['brand'] not in board['targets']:
         board['targets'][project.attrs['brand']] = []
-    board['targets'][project.attrs['brand']].append(project.attrs['target'])
+    if project.attrs['target'] not in board['targets'][project.attrs['brand']]:
+        board['targets'][project.attrs['brand']].append(project.attrs['target'])
 
     support = support.update(firmware.get_board(), board=board, arch=firmware.get_arch())
     return True

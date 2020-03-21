@@ -120,11 +120,11 @@ class Machines(Analysis):
                     return False
                 # update profile and change save-to-path to avoid modifing our well-defined profile
                 firmware.set_profile(path_to_profile=profile)
+                firmware.set_components(components)
                 self.update_profile(firmware)
                 self.update_stats(firmware)
                 self.update_trace(firmware)
                 components.set_path_to_dtb(firmware.dtb)
-                firmware.set_components(components)
                 return True
         self.info(firmware, 'this board doesn\'t have device tree, we will be looking for its machine ids', 1)
 

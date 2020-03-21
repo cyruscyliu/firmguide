@@ -5,6 +5,7 @@ import os
 import binwalk
 
 from slcore.common import Common
+from slcore.parser import fit_parser
 
 
 TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE, IMAGETAG_KERNEL, \
@@ -81,8 +82,35 @@ def __handle_trx_kernel(image_path):
 def __handle_fit_uimage(image_path):
     kernel = __replace_extension(image_path, 'fit', 'kernel')
     dtb = image_path.replace('uimage.fit', 'dtb')
-    os.system('dumpimage -T flat_dt -i {} -p 0 {} >/dev/null 2>&1'.format(image_path, kernel))
     uimage = __replace_extension(image_path, 'fit', 'uimage')
+
+    # handle kernel
+    os.system('dumpimage -T flat_dt -i {} -p 0 {} >/dev/null 2>&1'.format(image_path, kernel))
+    lzma_kernel = False
+    fit = fit_parser(os.popen('dumpimage -l {}'.format(image_path)).readlines())
+    # {
+    #   'images': {
+    #       'kernel@1': {
+    #           'properties': {'type': 'Kernel Image', 'compression': 'lzma compressed'}
+    #       }
+    #   }
+    # }
+    for _, k in fit['images'].items():
+        if 'properties' not in k:
+            continue
+        v = k['properties']
+        if 'type' in v and v['type'] == 'Kernel Image' \
+                and v['compression'] == 'lzma compressed':
+            lzma_kernel = True
+    if lzma_kernel:
+        module = __binwalk_scan_all(kernel, os.path.dirname(kernel), extract=True)
+        for result in module.results:
+            if str(result.description.lower()).find('lzma compressed data') != -1:
+                # we will get kernel.7z, so kernel=kernel.7z[:-3]
+                kernel = module.extractor.output[result.file.path].carved[result.offset][:-3]
+                uimage = kernel + '.uimage'
+
+    # handle dtb
     os.system('dumpimage -T flat_dt -i {} -p 1 {} >/dev/null 2>&1'.format(image_path, dtb))
     return kernel, dtb, uimage
 

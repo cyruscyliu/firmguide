@@ -203,37 +203,26 @@ bamboo:
     mmio_size: '0xc'
     registers:
       stub_reserved9: {offset: 0x0 ... 0x8, value: '0x0'}
-basics: {architecture: arm, board: mach-oxnas, board_id: '0xFFFFFFFF', endian: l,
-  machine_name: plxtech_nas782x, uuid: mach-oxnas}
-components: {output: '0x000234C1    Certificate in DER format (x509 v3), header length:
-    4, sequence length: 3
+basics: {architecture: arm, board: mach-oxnas, board_id: '0xFFFFFFFF', brand: openwrt,
+  endian: l, machine_name: plxtech_nas782x}
+components: {output: '0x00000000    flattened image tree, total size: 2991124 bytes,
+    timestamp: 2020-01-03 09:06:19, description: ARM OpenWrt FIT (Flattened Image
+    Tree)
 
-    0x0005B77D    Certificate in DER format (x509 v3), header length: 4, sequence
-    length: 1284
-
-    0x00065424    CRC32 polynomial table, little endian
-
-    0x00065824    CRC32 polynomial table, little endian
-
-    0x00067D41    LZO compressed data
-
-    0x000A0000    flattened image tree, total size: 2991124 bytes, timestamp: 2020-01-03
-    09:06:19, description: ARM OpenWrt FIT (Flattened Image Tree)
-
-    0x000A0108    Linux kernel ARM boot executable zImage (little-endian), load address:
+    0x00000108    Linux kernel ARM boot executable zImage (little-endian), load address:
     "0x00000000", end address: "0x002D7F40"
 
-    0x000A3A44    xz compressed data
+    0x00003A44    xz compressed data
 
-    0x000A3B2C    xz compressed data
+    0x00003B2C    xz compressed data
 
-    0x00378154    Flattened device tree, size: 8091 bytes, version: 17
+    0x002D8154    Flattened device tree, size: 8091 bytes, version: 17
 
-    ', path_to_dtb: /root/esv/../build/mach-oxnas/_openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin.extracted/A0000.dtb,
-  path_to_image: /root/esv/../build/mach-oxnas/_openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin.extracted/A0000.uimage.fit,
-  path_to_kernel: /root/esv/../build/mach-oxnas/_openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin.extracted/A0000.uimage.kernel,
-  path_to_raw: /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/bin/oxnas/openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin,
-  path_to_rootfs: null, path_to_uimage: /root/esv/../build/mach-oxnas/_openwrt-15.05-oxnas-kd20-u-boot-initramfs.bin.extracted/A0000.uimage.uimage,
+    ', path_to_dtb: /root/esv/../build/mach-oxnas/_openwrt-15.05-oxnas-kd20-fit-uImage-initramfs.itb.extracted/2D8154.dtb,
+  path_to_image: /root/esv/../build/mach-oxnas/_openwrt-15.05-oxnas-kd20-fit-uImage-initramfs.itb.extracted/0.uimage.fit,
+  path_to_kernel: /root/esv/../build/mach-oxnas/_openwrt-15.05-oxnas-kd20-fit-uImage-initramfs.itb.extracted/0.uimage.kernel,
+  path_to_raw: /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/bin/oxnas/openwrt-15.05-oxnas-kd20-fit-uImage-initramfs.itb,
+  path_to_rootfs: null, path_to_uimage: /root/esv/../build/mach-oxnas/_openwrt-15.05-oxnas-kd20-fit-uImage-initramfs.itb.extracted/0.uimage.uimage,
   supported: true, type: 3}
 kernel: {kernel_entry_point: '0xc0008000', kernel_load_address: '0x00008000'}
 path_to_dtb: examples/profiles/plxtech_nas782x/profile.dtb
