@@ -113,7 +113,8 @@ bamboo:
     mmio_size: '0x24'
     registers:
       stub_reserved9: {offset: 0x0 ... 0x20, value: '0x0'}
-basics: {architecture: mips, board: ralink, board_id: '0xFFFFFFFF', endian: l, machine_name: ralink_rt3883_soc}
+basics: {architecture: mips, board: ralink, board_id: '0xFFFFFFFF', brand: openwrt,
+  endian: l, machine_name: ralink_rt3883_soc}
 components: {output: '0x00000000    uImage header, header size: 64 bytes, created:
     2020-01-13 10:56:49, image size: 1266228 bytes, Data Address: 0x80000000, Entry
     Point: 0x80000000, OS: Linux, CPU: MIPS, compression type: lzma, image name: "MIPS
