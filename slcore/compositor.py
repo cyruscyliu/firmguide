@@ -9,7 +9,7 @@ from slcore.parser import fit_parser
 
 
 TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE, IMAGETAG_KERNEL, \
-    COMBINEDIMAGE_KERNEL, UBI_KERNEL = 1, 2, 3, 4, 5, 6
+    COMBINEDIMAGE_KERNEL, UBI_KERNEL, SEAMA_KERNEL = 1, 2, 3, 4, 5, 6, 7
 
 
 COMPONENT_ATTRIBUTES = [
@@ -332,6 +332,12 @@ def unpack(path, target_dir=None, extract=True):
                 components.set_path_to_raw(path_to_raw)
                 components.set_path_to_image(path_to_image)
                 break
+        elif str(result.description).find('SEAMA firmware header') != -1:
+            components.set_type(SEAMA_KERNEL)
+            components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
+            # this kernel is not recognized yet
+            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
+                components.path_to_image)
         components.output += '0x%.8X    %s\n' % (result.offset, result.description)
 
     if not extract:

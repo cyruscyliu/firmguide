@@ -62,7 +62,7 @@ class DoTracing(Analysis):
         full_command = ' '.join([firmware.running_command, trace_flags, qmp_flags])
         try:
             self.info(firmware, full_command, 1)
-            status = subprocess.run(full_command, timeout=60, shell=True).returncode
+            status = subprocess.run(full_command, timeout=40, shell=True).returncode
         except subprocess.TimeoutExpired:
             status = 0
             qemu = qmp.QEMUMonitorProtocol(socket.name)
