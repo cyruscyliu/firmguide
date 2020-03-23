@@ -11,26 +11,24 @@ from examples.rootfs.rootfs import get_initramfs
 
 class Preparation(Analysis):
     def run(self, firmware):
-
-        # 1. generate code(render in multi-levels)
-        # compiler only link files locally
-        # 1.1 the old fashion
-        if firmware.get_dtb() is None:
-            machine_compiler = get_compiler(firmware)
-            machine_compiler.compile()
-            machine_compiler.link()
-        # 1.2 the latest dt_renderer
-        else:
-            if firmware.get_components().get_path_to_dtb() is not None:
-                firmware.set_dtb(firmware.get_components().get_path_to_dtb())
-            dt_renderer = DTRenderer(firmware)
-            dt_renderer.load_template()
-            status = dt_renderer.render()
-            if not status:
-                raise NotImplementedError('error in dt rendering')
-
-        # 2. install and make(compile qemu)
         if not firmware.cancle_compilation:
+            # 1. generate code(render in multi-levels)
+            # compiler only link files locally
+            # 1.1 the old fashion
+            if firmware.get_dtb() is None:
+                machine_compiler = get_compiler(firmware)
+                machine_compiler.compile()
+                machine_compiler.link()
+            # 1.2 the latest dt_renderer
+            else:
+                if firmware.get_components().get_path_to_dtb() is not None:
+                    firmware.set_dtb(firmware.get_components().get_path_to_dtb())
+                dt_renderer = DTRenderer(firmware)
+                dt_renderer.load_template()
+                status = dt_renderer.render()
+                if not status:
+                    raise NotImplementedError('error in dt rendering')
+            # 2. install and make(compile qemu)
             # 2.1 the old fashion
             if firmware.get_dtb() is None:
                 prefix = os.path.join(firmware.get_target_dir(), 'qemu-4.0.0')
