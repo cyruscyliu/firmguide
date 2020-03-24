@@ -352,7 +352,6 @@ def unpack(path, target_dir=None, extract=True):
                 # we have a correct peb size
                 path_to_raw = components.get_path_to_raw()
                 path_to_image = module.extractor.output[result.file.path].carved[v1]
-                print(dir(result), result.jump)
                 output = ubidump(path_to_image, result.jump, result.data_offset)
                 components = unpack(output, target_dir=os.path.dirname(output))
                 components.set_type(UBI_KERNEL)
