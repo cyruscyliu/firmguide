@@ -215,14 +215,39 @@ def fix_choosen_bootargs(components):
     output = os.popen('strings -t d {} | grep console=ttyS0,'.format(kernel)).readlines()
     # 2323 ,console=ttyS0,115200
     if not len(output):
-        return
+        return False
     start, label, console = output[0].strip().partition(' ')
     # start=2323, label=' ', console=,console=ttyS0,115200
     pre, console, param = console.partition('console')
     real_start = int(start) + len(pre)
     # 2323 ,
     # 2324 console
-    os.system('dd if=/dev/zero of={0} bs=1 seek={1} count=1 conv=notrunc >/dev/null 2>&1'.format(kernel, real_start-1))
+    os.system('dd if=/dev/zero of={0} bs=1 seek={1} count=1 conv=notrunc >/dev/null 2>&1'.format(kernel, real_start - 1))
+    return True
+
+def fix_owrtdtb(components, new_path_to_dtb):
+    """Replace built-in dtb with new dtb."""
+    # .fill 4000
+    size = os.path.getsize(new_path_to_dtb)
+    if size > 16 * 1024:
+        return False
+
+    kernel = components.get_path_to_kernel()
+    os.system('cp {0} {0}.fix_owrtdtb'.format(kernel))
+
+    output = os.popen('strings -t d {} | grep OWRTDTB:'.format(kernel)).readlines()
+    # ['   1032 OWRTDTB:\n']
+    if not len(output):
+        return False
+    start, label, _ = output[0].strip().partition('OWRTDTB')
+
+    a = 'dd if=/dev/zero of={} bs=1 seek={} count={} conv=notrunc > /dev/null 2>&1'.format(
+        kernel, int(start) + 8, size + 1)
+    os.system(a)
+    b = 'dd if={} of={} bs=1 seek={} count={} conv=notrunc > /dev/null 2>&1'.format(
+        new_path_to_dtb, kernel, int(start) + 8, size)
+    os.system(b)
+    return True
 
 
 def fix_cmdline(components):
@@ -233,7 +258,7 @@ def fix_cmdline(components):
 
     output = os.popen('strings -t d {} | grep CMDLINE'.format(kernel)).readlines()
     if not len(output):
-        return
+        return False
 
     # 408 CMDLINE:board=BXU2000n-2-A1 console=ttyS0,115200 \
     #     mtdparts=spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,1408k(kernel), \
@@ -243,9 +268,10 @@ def fix_cmdline(components):
     # 0x410: \0   0x410 = start + 0x8
     start, label, cmdline = output[0].strip().partition('CMDLINE')
     if len(cmdline) == 1:
-        return
+        return False
     length = len(cmdline) - 1
     os.system('dd if=/dev/zero of={0} bs=1 seek={1} count={2} conv=notrunc >/dev/null 2>&1'.format(kernel, int(start) + 8, length))
+    return True
 
 
 def unpack(path, target_dir=None, extract=True):

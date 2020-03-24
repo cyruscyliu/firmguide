@@ -118,6 +118,7 @@ class Machines(Analysis):
                     # modeling 002
                     self.context['input'] = '002 cannot find the compatible {}'.format(compatible)
                     return False
+                self.info(firmware, 'we support {}'.format(compatible), 1)
                 # update profile and change save-to-path to avoid modifing our well-defined profile
                 firmware.set_profile(path_to_profile=profile)
                 firmware.set_components(components)

@@ -2,7 +2,7 @@ import os
 
 from slcore.generation.compilerf import get_compiler
 from slcore.compositor import pack_kernel, pack_image, \
-    pack_initramfs, fix_cmdline, fix_choosen_bootargs
+    pack_initramfs, fix_cmdline, fix_owrtdtb
 from slcore.generation.dt_renderer import DTRenderer
 from slcore.generation.common import to_upper
 from slcore.analyses.analysis import Analysis
@@ -67,8 +67,8 @@ class Preparation(Analysis):
         # 3. prepare -k path/to/kernel
         # 3.1 If a mips firmware has CMDLINE: filled, it will use our customed cmdline.
         fix_cmdline(firmware.get_components())
-        # 3.1 If a firmware has console=ttyS0,115200, then remove it
-        fix_choosen_bootargs(firmware.get_components())
+        # 3.1 replace the built-in kernel
+        fix_owrtdtb(firmware.get_components(), firmware.get_dtb())
         # 3.2 add a uimage header on the kernel image
         load_address = firmware.get_kernel_load_address()
         if firmware.get_arch() == 'arm':
