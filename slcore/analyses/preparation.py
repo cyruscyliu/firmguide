@@ -65,11 +65,12 @@ class Preparation(Analysis):
                 # firmware.qemuc.recover()
 
         # 3. prepare -k path/to/kernel
-        # 3.1 If a mips firmware has CMDLINE: filled, it will use our customed cmdline.
-        fix_cmdline(firmware.get_components())
-        # 3.1 replace the built-in kernel
-        fix_owrtdtb(firmware.get_components(), firmware.get_dtb())
-        fix_choosen_bootargs(firmware.get_components())
+        if firmware.get_arch() == 'mips':
+            # 3.1 If a mips firmware has CMDLINE: filled, it will use our customed cmdline.
+            fix_cmdline(firmware.get_components())
+            # 3.1 replace the built-in kernel
+            fix_owrtdtb(firmware.get_components(), firmware.get_dtb())
+            fix_choosen_bootargs(firmware.get_components())
         # 3.2 add a uimage header on the kernel image
         load_address = firmware.get_kernel_load_address()
         if firmware.get_arch() == 'arm':
