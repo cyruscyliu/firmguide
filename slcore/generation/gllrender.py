@@ -68,6 +68,7 @@ class Model(object):
         self.source = None
         self.header = None
         self.unique = False
+        self.fix_size = None
 
         for cmptb in self.compatible:
             model = self.__load_model(cmptb)
@@ -85,6 +86,8 @@ class Model(object):
                 self.buddy_compatible.extend(model['buddy_compatible'])
             if 'unique' in model:
                 self.unique = True
+            if 'fix_size' in model:
+                self.fix_size = model['fix_size']
             break
         self.context = None
 
@@ -178,6 +181,8 @@ class Model(object):
 
     def render_qdev(self, context):
         """External template render."""
+        if self.fix_size:
+            context['reg']['size'] = self.fix_size
         try:
             if self.source:
                 a = Template(self.source).render(context)
