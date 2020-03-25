@@ -1,5 +1,19 @@
-"""
-These interfaces unpack, pack given firmware blob to uImages.
+"""ImageLIB.
+
+This lib processes images by unpacking, packing and fixing them. This lib
+is the basic of the project and designed in a modular and layered way.
+    * This lib is a very basis which should be used only by a upper module.
+    * This lib defines several interface processing images which a replaceable
+    module should implement.
+
+.. Interfaces:
+    * unpack
+    * pack_kernel
+    * pack_image
+    * pack_initramfs
+    * fix_choosen_bootargs
+    * fix_cmdline
+    * fix_owrtdtb
 """
 import os
 import binwalk
@@ -43,7 +57,7 @@ class Components(Common):
         return self.path_to_kernel is not None
 
 
-def ubidump(path, peb_size, min_io_size, output=None):
+def __ubidump(path, peb_size, min_io_size, output=None):
     size = os.path.getsize(path)
 
     n_blocks = size // peb_size
@@ -187,7 +201,7 @@ def __enlarge_image(path, target_size):
 
 
 def pack_kernel(components, arch='arm', load_address="0x00008000", entry_point="0x00008000"):
-    """Add a uimage header to  a kernel."""
+    """Add a uimage header to a kernel."""
     kernel = components.get_path_to_kernel()
     uimage = components.get_path_to_uimage()
     os.system(
@@ -352,7 +366,7 @@ def unpack(path, target_dir=None, extract=True):
                 # we have a correct peb size
                 path_to_raw = components.get_path_to_raw()
                 path_to_image = module.extractor.output[result.file.path].carved[v1]
-                output = ubidump(path_to_image, result.jump, result.data_offset)
+                output = __ubidump(path_to_image, result.jump, result.data_offset)
                 components = unpack(output, target_dir=os.path.dirname(output))
                 components.set_type(UBI_KERNEL)
                 components.set_path_to_raw(path_to_raw)
