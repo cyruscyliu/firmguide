@@ -22,8 +22,14 @@ from slcore.common import Common
 from slcore.parser import fit_parser
 
 
-TRX_KERNEL, LEGACY_UIMAGE, FIT_UIMAGE, IMAGETAG_KERNEL, \
-    COMBINEDIMAGE_KERNEL, UBI_KERNEL, SEAMA_KERNEL = 1, 2, 3, 4, 5, 6, 7
+TRX_KERNEL = 1
+LEGACY_UIMAGE = 2
+FIT_UIMAGE = 3
+IMAGETAG_KERNEL = 4
+COMBINEDIMAGE_KERNEL = 5
+UBI_KERNEL = 6
+SEAMA_KERNEL = 7
+UBIQUITI_KERNEL = 8
 
 
 COMPONENT_ATTRIBUTES = [
@@ -374,6 +380,15 @@ def unpack(path, target_dir=None, extract=True):
                 break
         elif str(result.description).find('SEAMA firmware header') != -1:
             components.set_type(SEAMA_KERNEL)
+            components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
+            # this kernel is not recognized yet
+            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
+                components.path_to_image)
+        # Ubiquiti partition header, header size: 56 bytes, name: "kernel"
+        elif str(result.description).find('Ubiquiti partition header') != -1:
+            if str(result.description).find('kernel') == -1:
+                continue
+            components.set_type(UBIQUITI_KERNEL)
             components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
             # this kernel is not recognized yet
             components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(

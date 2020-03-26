@@ -488,12 +488,18 @@
 >4      byte        0           {invalid},
 >4      string      x           version: "%s"
 
-4   string      \x00\x00\x00\x00PART    Ubiquiti partition header,
+-4  string      \x00\x00\x00\x00PART    Ubiquiti partition header,
 >0  byte        x                       header size: 56 bytes,
->8  byte        0                       {invalid}
->8  string      x                       name: "%s",
->44 ubelong     x                       base address: 0x%.8X,
->52 belong      x                       data size: %d bytes{size:%d}
+>0  byte        x                       {header_size: 56}
+>4  byte        0                       {invalid}
+>4  string      x                       name: "%s",
+>32 ubelong     x                       mem address: 0x%X,
+>36 ubelong     x                       index: 0x%X,
+>40 ubelong     x                       base address: 0x%X,
+>44 ubelong     x                       entry address: 0x%X,
+>48 ubelong     x                       data size: 0x%X,
+>52 ubelong     x                       part size: 0x%X
+>52 ubelong     x                       {part_size: %d}
 
 4   string      \x00\x00\x00\x00END\x2e Ubiquiti end header, header size: 12 bytes,
 >12 belong      !0                      {invalid},
