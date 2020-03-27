@@ -505,7 +505,6 @@
 >12 belong      !0                      {invalid},
 >8  ubelong     x                       cumulative ~CRC32: 0x%.8X
 
-
 0    ubelong     0x01000000              TPLink firmware header, v1, 512 bytes,
 >0   ubelong     0x02000000              TPLink firmware header, v2, 512 bytes,
 >4   string      \x00                    {invalid}
@@ -523,7 +522,9 @@
 >120 ubelong     x                       entry point: 0x%0X,
 # >124 ubelong     x                       firmware size: %d,
 >128 ubelong     x                       kernel offset: 0x%X,
+>128 ubelong     x                       {kernel_offset: %d}
 >132 ubelong     x                       kernel size: 0x%X,
+>132 ubelong     x                       {kernel_size: %d}
 >136 ubelong     x                       rootfs offset: 0x%X,
 >140 ubelong     x                       rootfs size: 0x%X,
 >144 ubelong     x                       bootloader offset: 0x%X,
@@ -536,6 +537,40 @@
 # >320 string      x                       region: "%s",
 >352 string     !\x00                    {invalid}
 
+0       ulelong     0xfeed1281      AVM EVA header, 24 bytes,
+>4      ulelong     x               reclength: %d,
+>8      ulelong     x               load address: 0x%X,
+>12     ulelong     0x075a0201      type: 7Zip,
+>16     ulelong     x               compress size: %d bytes,
+>20     ulelong     x               data size: %d bytes,
+>24     ulelong     x               data crc: 0x%.8X,
+>28     ubyte       x               properties: %d,
+>29     ulelong     x               dictionary size: %d
+>33     string     !\x00\x00\x00    {invalid} # zero
+
+# this is an encrypted firmware
+92      ubelong     0x12345678      SENAO firmware header, 96 bytes,
+>0      ubelong     !0x0            {invalid}
+>4      ubelong     x               vendor id: %d,
+>8      ubelong     x               product_id: %d,
+>12     string      x               version: "%s",
+>28     ubelong     0x00            firmware type: combo,
+>28     ubelong     0x01            firmware type: bootloader,
+>28     ubelong     0x02            firmware type: kernel,
+>28     ubelong     0x03            firmware type: kernelapp,
+>28     ubelong     0x04            firmware type: apps,
+>28     ubelong     0x05            firmware type: littleapps (D-Link)/factoryapps (EnGenius),
+>28     ubelong     0x07            firmware type: sounds (D-Link)/littleapps (EnGenius),
+>28     ubelong     0x08            firmware type: userconfig (D-Link)/appdata (EnGenius),
+>28     ubelong     0x09            firmware type: odmapps (EnGenius),
+>28     ubelong     0x0a            firmware type: factoryapps (D-Link),
+>28     ubelong     0x0b            firmware type: odmapps (D-Link),
+>28     ubelong     0x0c            firmware type: langpack (D-Link),
+>32     ubelong     x               file size: %d bytes,
+>36     ubelong    !0x0             {invalid}
+# >40                                 md5
+>56     ubelong    !0x0             {invalid}
+>88     ubelong     x               check crc: 0x%.8X
 
 # Found in DIR-100 firmware
 0       string      AIH0N       AIH0N firmware header, header size: 48,

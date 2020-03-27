@@ -30,6 +30,7 @@ COMBINEDIMAGE_KERNEL = 5
 UBI_KERNEL = 6
 SEAMA_KERNEL = 7
 UBIQUITI_KERNEL = 8
+TPLINK_KERNEL = 9
 
 
 COMPONENT_ATTRIBUTES = [
@@ -174,6 +175,9 @@ def __handle_legacy_uimage(image_path, uimage3=False, uimage3_offset=None):
 
 
 def __handle_lzma_kernel(image_path):
+    if not os.path.exists(image_path):
+        print('plugin for {} is missing'.format(image_path))
+        return None, None, None
     kernel = __replace_extension(image_path, 'imagetag', 'kernel')
     uimage = __replace_extension(image_path, 'imagetag', 'uimage')
     dtb = None
@@ -182,6 +186,8 @@ def __handle_lzma_kernel(image_path):
     module = __binwalk_scan_all(image_path, os.path.dirname(image_path), extract=True)
     for result in module.results:
         if str(result.description.lower()).find('lzma compressed data') != -1:
+            if result.offset != 0:
+                return None, None, None
             # we will get kernel.7z, so kernel=kernel.7z[:-3]
             kernel = module.extractor.output[result.file.path].carved[result.offset][:-3]
             uimage = kernel + '.uimage'
@@ -341,12 +347,18 @@ def unpack(path, target_dir=None, extract=True):
             components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_legacy_uimage(
                 components.path_to_image, uimage3=uimage3, uimage3_offset=uimage3_offset)
         elif str(result.description).find('TRX') != -1:
+            # sometimes, we have trx header + uImage(uImage header + lzma kernel)
+            path_to_image = module.extractor.output[result.file.path].carved[result.offset]
+            if path_to_image.endswith('uimage'):
+                components = unpack(path_to_image, target_dir=os.path.dirname(path_to_image))
+            elif path_to_image.endswith('7x'):
+                # because *.trx will be overwrote by *.7z, we replace 7z with trx here
+                path_to_image = path_to_image.replace('7z', 'trx')
+                components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_trx_kernel(
+                    components.path_to_image)
             components.set_type(TRX_KERNEL)
-            # because *.trx will be overwrote by *.7z, we replace 7z with trx here
-            components.set_path_to_image(
-                module.extractor.output[result.file.path].carved[result.offset].replace('7z', 'trx'))
-            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_trx_kernel(
-                components.path_to_image)
+            path_to_image = module.extractor.output[result.file.path].carved[result.offset]
+            components.set_path_to_image(path_to_image)
         elif str(result.description).find('Broadcom 96345 firmware header') != -1:
             components.set_type(IMAGETAG_KERNEL)
             components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
@@ -389,6 +401,16 @@ def unpack(path, target_dir=None, extract=True):
             if str(result.description).find('kernel') == -1:
                 continue
             components.set_type(UBIQUITI_KERNEL)
+            components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
+            # this kernel is not recognized yet
+            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
+                components.path_to_image)
+        elif str(result.description).find('AVM EVA header') != -1:
+            break
+        elif str(result.description).find('SENAO firmware header') != -1:
+            break
+        elif str(result.description).find('TPLink firmware header') != -1:
+            components.set_type(TPLINK_KERNEL)
             components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
             # this kernel is not recognized yet
             components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
