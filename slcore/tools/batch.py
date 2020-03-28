@@ -88,6 +88,7 @@ def project_scan(t, path, **kwargs):
             print('[+] {} unsupported'.format(item))
             continue
         if has_device_tree and not components.has_device_tree():
+            print('[+] {} has no device tree'.format(item))
             continue
         print('[+] add {}'.format(item))
         candidates.append(item)

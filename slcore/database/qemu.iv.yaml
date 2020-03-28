@@ -17,8 +17,6 @@ qca,ar7100-reset:
       # bootstrap = ath79_reset_rr(0xb0);
       # if (bootstrap & (1UL << (4))) ref_rate = 40 * 1000 * 1000; else ref_rate = 25 * 1000 * 1000;
     - {offset: 0x94, size: 0x4, value: 0x0010, path: arch/mips/ath79/clock.i, function: qca955x_clocks_init}
-qca,ar7240-misc-intc:
-    - {offset: 0x4, size: 0x4, value: 0x0000, path: drivers/irqchip/irq-ath79-misc.c, function: ath79_misc_intc_domain_init}
 qca,qca9550-pll:
       # if (of_device_is_compatible(np, "qca,ar7240-pll") || of_device_is_compatible(np, "qca,ar9130-pll"))
       #     ar724x_clocks_init(pll_base);

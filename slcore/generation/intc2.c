@@ -130,8 +130,8 @@ static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned
             for (irqn = 0; irqn < N_IRQ; irqn++)
                 if ({{ register.unmask_action }} == (uint32_t)val) {
                     s->masked[irqn] = false;
-                }{% endif %}
-            s->{{ register.rname }}= val;
+                }{% endif %}{% if register.override %}
+            s->{{ register.rname }}= val;{% endif %}
             break;{% endfor %}
     }
     {{ name }}_update(s);
@@ -172,7 +172,7 @@ static void {{ name }}_reset(DeviceState *dev)
 {
     int irqn;
     {{ name|upper }}State *s = {{ name|upper }}(dev);{% for register in intc_get_registers %}
-    s->{{ register.rname }} = 0;{% endfor %}
+    s->{{ register.rname }} = {{ register.value }};{% endfor %}
 
     for (irqn = 0; irqn < N_IRQ; irqn++)
         s->masked[irqn] = true;

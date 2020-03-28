@@ -1,18 +1,18 @@
 from slcore.analyses.manager import AnalysesManager
 from slcore.environment import restore_analysis, save_analysis
-from slcore.analyses.static_analysis.mfilter import Filter
-from slcore.analyses.static_analysis.ram import RAM
-from slcore.analyses.static_analysis.loaddr import LoadAddr
-from slcore.analyses.static_analysis.entrypoint import EntryPoint
+from slcore.analyses.mfilter import Filter
+from slcore.analyses.ram import RAM
+from slcore.analyses.loaddr import LoadAddr
+from slcore.analyses.entrypoint import EntryPoint
 from slcore.analyses.preparation import Preparation
 from slcore.analyses.initvalue import InitValue
 from slcore.analyses.preprocdt import DTPreprocessing
 from slcore.analyses.trace import DoTracing, LoadTrace
 from slcore.analyses.c_user_level import Checking
+from slcore.analyses.c_user_level import FastChecking
 from slcore.analyses.c_data_abort import DataAbort
 from slcore.analyses.c_undef_inst import UndefInst
-from slcore.analyses.c_panic import Panic
-from slcore.analyses.bamboos import Bamboos
+from slcore.analyses.machines import Machines
 
 
 def run_static_analysis(firmware, binary=True):
@@ -43,6 +43,24 @@ def run_trace_analysis(firmware):
 
     return status
 
+def run_bootup(firmware):
+    analyses_manager = AnalysesManager(firmware)
+
+    at = analyses_manager.new_analyses_tree()
+    analyses_manager.register_analysis(Machines(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(Preparation(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(DTPreprocessing(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(InitValue(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(DoTracing(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(FastChecking(analyses_manager), analyses_tree=at)
+    try:
+        status = analyses_manager.run(target_analyses_tree=at)
+    except SystemExit:
+        status = True
+        pass
+
+    return status
+
 
 def run_diagnosis(firmware):
     analyses_manager = AnalysesManager(firmware)
@@ -56,9 +74,6 @@ def run_diagnosis(firmware):
     analyses_manager.register_analysis(Checking(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(DataAbort(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(UndefInst(analyses_manager), analyses_tree=at)
-    # analyses_manager.register_analysis(CallStack(analyses_manager), analyses_tree=at)
-    # analyses_manager.register_analysis(Panic(analyses_manager), analyses_tree=at)
-    # analyses_manager.register_analysis(Bamboos(analyses_manager), analyses_tree=at)
 
     max_iteration = firmware.max_iteration
 
@@ -84,3 +99,4 @@ def run_dt_renderer(firmware):
     analyses_manager.register_analysis(DTPreprocessing(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(InitValue(analyses_manager), analyses_tree=at)
     analyses_manager.run(target_analyses_tree=at)
+

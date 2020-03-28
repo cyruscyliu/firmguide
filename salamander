@@ -239,7 +239,7 @@ if __name__ == '__main__':
     pdiagnose.add_argument('-nc', '--nocompilation', action='store_true', default=False, help='set this for multi-tasks')
     pdiagnose.set_defaults(func=__diagnose)
     # 3.4 bootup
-    pbootup = commands.add_parser('bootup', help='Run - Boot up your image in current project', conflict_handler='resolve')
+    pbootup = commands.add_parser('boot', help='Run - Boot your image in current project', conflict_handler='resolve')
     pbootup.add_argument('-f', '--firmware', required=False, metavar='IMAGE')
     pbootup.add_argument('-l', '--url', required=False, help='will be removed in the future')
     pbootup.add_argument('-nc', '--nocompilation', action='store_true', default=False, help='set this for multi-tasks')

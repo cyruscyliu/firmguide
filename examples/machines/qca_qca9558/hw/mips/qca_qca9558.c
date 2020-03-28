@@ -47,20 +47,18 @@ typedef struct QCA_QCA9558State {
     uint32_t stub_reserved10[0x4c >> 2];
     MemoryRegion stub11_mmio;
     uint32_t stub_reserved11[0x8 >> 2];
-    MemoryRegion stub28_mmio;
-    uint32_t stub_reserved28[0x4 >> 2];
     MemoryRegion stub13_mmio;
     uint32_t stub_reserved13[0x4 >> 2];
+    MemoryRegion stub28_mmio;
+    uint32_t stub_reserved28[0x4 >> 2];
     MemoryRegion stub29_mmio;
     uint32_t stub_reserved29[0x4 >> 2];
-    MemoryRegion stub30_mmio;
-    uint32_t stub_reserved30[0x4 >> 2];
     MemoryRegion stub14_mmio;
     uint32_t stub_reserved14[0x4 >> 2];
+    MemoryRegion stub30_mmio;
+    uint32_t stub_reserved30[0x4 >> 2];
     MemoryRegion stub31_mmio;
     uint32_t stub_reserved31[0x4 >> 2];
-    MemoryRegion stub32_mmio;
-    uint32_t stub_reserved32[0x4 >> 2];
     MemoryRegion stub15_mmio;
     uint32_t stub_reserved15[0x58 >> 2];
     MemoryRegion stub16_mmio;
@@ -73,8 +71,8 @@ typedef struct QCA_QCA9558State {
     uint32_t stub_reserved19[0x1000 >> 2];
     MemoryRegion stub20_mmio;
     uint32_t stub_reserved20[0x100 >> 2];
-    MemoryRegion stub33_mmio;
-    uint32_t stub_reserved33[0x4 >> 2];
+    MemoryRegion stub32_mmio;
+    uint32_t stub_reserved32[0x4 >> 2];
     MemoryRegion stub21_mmio;
     uint32_t stub_reserved21[0x1fc >> 2];
     MemoryRegion stub23_mmio;
@@ -85,8 +83,8 @@ typedef struct QCA_QCA9558State {
     uint32_t stub_reserved25[0x10 >> 2];
     MemoryRegion stub22_mmio;
     uint32_t stub_reserved22[0x1fc >> 2];
-    MemoryRegion stub34_mmio;
-    uint32_t stub_reserved34[0x4 >> 2];
+    MemoryRegion stub33_mmio;
+    uint32_t stub_reserved33[0x4 >> 2];
     MemoryRegion flash;
     MemoryRegion ram;
 } QCA_QCA9558State;
@@ -637,48 +635,6 @@ static const MemoryRegionOps stub11_ops = {
     .endianness = DEVICE_BIG_ENDIAN,
 };
 
-static void stub28_update(void *opaque)
-{
-    /* QCA_QCA9558State *s = opaque; */
-}
-
-static uint64_t stub28_read(void *opaque, hwaddr offset, unsigned size)
-{
-    QCA_QCA9558State *s = opaque;
-    uint32_t res = 0;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return 0;
-    case 0x0:
-        res = s->stub_reserved28[offset >> 2];
-        break;
-    }
-    return res;
-}
-
-static void stub28_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
-{
-    QCA_QCA9558State *s = opaque;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return;
-    case 0x0:
-        s->stub_reserved28[offset >> 2] = val;
-        break;
-    }
-    stub28_update(s);
-}
-
-static const MemoryRegionOps stub28_ops = {
-    .read = stub28_read,
-    .write = stub28_write,
-    .endianness = DEVICE_BIG_ENDIAN,
-};
-
 static void stub13_update(void *opaque)
 {
     /* QCA_QCA9558State *s = opaque; */
@@ -718,6 +674,48 @@ static void stub13_write(void *opaque, hwaddr offset, uint64_t val, unsigned siz
 static const MemoryRegionOps stub13_ops = {
     .read = stub13_read,
     .write = stub13_write,
+    .endianness = DEVICE_BIG_ENDIAN,
+};
+
+static void stub28_update(void *opaque)
+{
+    /* QCA_QCA9558State *s = opaque; */
+}
+
+static uint64_t stub28_read(void *opaque, hwaddr offset, unsigned size)
+{
+    QCA_QCA9558State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case 0x0:
+        res = s->stub_reserved28[offset >> 2];
+        break;
+    }
+    return res;
+}
+
+static void stub28_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
+{
+    QCA_QCA9558State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case 0x0:
+        s->stub_reserved28[offset >> 2] = val;
+        break;
+    }
+    stub28_update(s);
+}
+
+static const MemoryRegionOps stub28_ops = {
+    .read = stub28_read,
+    .write = stub28_write,
     .endianness = DEVICE_BIG_ENDIAN,
 };
 
@@ -763,48 +761,6 @@ static const MemoryRegionOps stub29_ops = {
     .endianness = DEVICE_BIG_ENDIAN,
 };
 
-static void stub30_update(void *opaque)
-{
-    /* QCA_QCA9558State *s = opaque; */
-}
-
-static uint64_t stub30_read(void *opaque, hwaddr offset, unsigned size)
-{
-    QCA_QCA9558State *s = opaque;
-    uint32_t res = 0;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return 0;
-    case 0x0:
-        res = s->stub_reserved30[offset >> 2];
-        break;
-    }
-    return res;
-}
-
-static void stub30_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
-{
-    QCA_QCA9558State *s = opaque;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return;
-    case 0x0:
-        s->stub_reserved30[offset >> 2] = val;
-        break;
-    }
-    stub30_update(s);
-}
-
-static const MemoryRegionOps stub30_ops = {
-    .read = stub30_read,
-    .write = stub30_write,
-    .endianness = DEVICE_BIG_ENDIAN,
-};
-
 static void stub14_update(void *opaque)
 {
     /* QCA_QCA9558State *s = opaque; */
@@ -847,6 +803,48 @@ static const MemoryRegionOps stub14_ops = {
     .endianness = DEVICE_BIG_ENDIAN,
 };
 
+static void stub30_update(void *opaque)
+{
+    /* QCA_QCA9558State *s = opaque; */
+}
+
+static uint64_t stub30_read(void *opaque, hwaddr offset, unsigned size)
+{
+    QCA_QCA9558State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case 0x0:
+        res = s->stub_reserved30[offset >> 2];
+        break;
+    }
+    return res;
+}
+
+static void stub30_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
+{
+    QCA_QCA9558State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case 0x0:
+        s->stub_reserved30[offset >> 2] = val;
+        break;
+    }
+    stub30_update(s);
+}
+
+static const MemoryRegionOps stub30_ops = {
+    .read = stub30_read,
+    .write = stub30_write,
+    .endianness = DEVICE_BIG_ENDIAN,
+};
+
 static void stub31_update(void *opaque)
 {
     /* QCA_QCA9558State *s = opaque; */
@@ -886,48 +884,6 @@ static void stub31_write(void *opaque, hwaddr offset, uint64_t val, unsigned siz
 static const MemoryRegionOps stub31_ops = {
     .read = stub31_read,
     .write = stub31_write,
-    .endianness = DEVICE_BIG_ENDIAN,
-};
-
-static void stub32_update(void *opaque)
-{
-    /* QCA_QCA9558State *s = opaque; */
-}
-
-static uint64_t stub32_read(void *opaque, hwaddr offset, unsigned size)
-{
-    QCA_QCA9558State *s = opaque;
-    uint32_t res = 0;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return 0;
-    case 0x0:
-        res = s->stub_reserved32[offset >> 2];
-        break;
-    }
-    return res;
-}
-
-static void stub32_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
-{
-    QCA_QCA9558State *s = opaque;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return;
-    case 0x0:
-        s->stub_reserved32[offset >> 2] = val;
-        break;
-    }
-    stub32_update(s);
-}
-
-static const MemoryRegionOps stub32_ops = {
-    .read = stub32_read,
-    .write = stub32_write,
     .endianness = DEVICE_BIG_ENDIAN,
 };
 
@@ -1183,12 +1139,12 @@ static const MemoryRegionOps stub20_ops = {
     .endianness = DEVICE_BIG_ENDIAN,
 };
 
-static void stub33_update(void *opaque)
+static void stub32_update(void *opaque)
 {
     /* QCA_QCA9558State *s = opaque; */
 }
 
-static uint64_t stub33_read(void *opaque, hwaddr offset, unsigned size)
+static uint64_t stub32_read(void *opaque, hwaddr offset, unsigned size)
 {
     QCA_QCA9558State *s = opaque;
     uint32_t res = 0;
@@ -1198,13 +1154,13 @@ static uint64_t stub33_read(void *opaque, hwaddr offset, unsigned size)
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return 0;
     case 0x0:
-        res = s->stub_reserved33[offset >> 2];
+        res = s->stub_reserved32[offset >> 2];
         break;
     }
     return res;
 }
 
-static void stub33_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
+static void stub32_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
 {
     QCA_QCA9558State *s = opaque;
 
@@ -1213,15 +1169,15 @@ static void stub33_write(void *opaque, hwaddr offset, uint64_t val, unsigned siz
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return;
     case 0x0:
-        s->stub_reserved33[offset >> 2] = val;
+        s->stub_reserved32[offset >> 2] = val;
         break;
     }
-    stub33_update(s);
+    stub32_update(s);
 }
 
-static const MemoryRegionOps stub33_ops = {
-    .read = stub33_read,
-    .write = stub33_write,
+static const MemoryRegionOps stub32_ops = {
+    .read = stub32_read,
+    .write = stub32_write,
     .endianness = DEVICE_BIG_ENDIAN,
 };
 
@@ -1435,12 +1391,12 @@ static const MemoryRegionOps stub22_ops = {
     .endianness = DEVICE_BIG_ENDIAN,
 };
 
-static void stub34_update(void *opaque)
+static void stub33_update(void *opaque)
 {
     /* QCA_QCA9558State *s = opaque; */
 }
 
-static uint64_t stub34_read(void *opaque, hwaddr offset, unsigned size)
+static uint64_t stub33_read(void *opaque, hwaddr offset, unsigned size)
 {
     QCA_QCA9558State *s = opaque;
     uint32_t res = 0;
@@ -1450,13 +1406,13 @@ static uint64_t stub34_read(void *opaque, hwaddr offset, unsigned size)
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return 0;
     case 0x0:
-        res = s->stub_reserved34[offset >> 2];
+        res = s->stub_reserved33[offset >> 2];
         break;
     }
     return res;
 }
 
-static void stub34_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
+static void stub33_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
 {
     QCA_QCA9558State *s = opaque;
 
@@ -1465,15 +1421,15 @@ static void stub34_write(void *opaque, hwaddr offset, uint64_t val, unsigned siz
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return;
     case 0x0:
-        s->stub_reserved34[offset >> 2] = val;
+        s->stub_reserved33[offset >> 2] = val;
         break;
     }
-    stub34_update(s);
+    stub33_update(s);
 }
 
-static const MemoryRegionOps stub34_ops = {
-    .read = stub34_read,
-    .write = stub34_write,
+static const MemoryRegionOps stub33_ops = {
+    .read = stub33_read,
+    .write = stub33_write,
     .endianness = DEVICE_BIG_ENDIAN,
 };
 
@@ -1494,26 +1450,25 @@ static void qca_qca9558_reset(void *opaque)
     s->stub_reserved27[0] = 0x810;
     s->stub_reserved10[0] = 0x0;
     s->stub_reserved11[0] = 0x0;
-    s->stub_reserved28[0] = 0x0;
     s->stub_reserved13[0] = 0x0;
-    s->stub_reserved29[0] = 0xb0;
-    s->stub_reserved30[0] = 0x10;
+    s->stub_reserved28[0] = 0xb0;
+    s->stub_reserved29[0] = 0x10;
     s->stub_reserved14[0] = 0x0;
-    s->stub_reserved31[0] = 0xb0;
-    s->stub_reserved32[0] = 0x10;
+    s->stub_reserved30[0] = 0xb0;
+    s->stub_reserved31[0] = 0x10;
     s->stub_reserved15[0] = 0x0;
     s->stub_reserved16[0] = 0x0;
     s->stub_reserved17[0] = 0x0;
     s->stub_reserved18[0] = 0x0;
     s->stub_reserved19[0] = 0x0;
     s->stub_reserved20[0] = 0x0;
-    s->stub_reserved33[0] = 0x0;
+    s->stub_reserved32[0] = 0x0;
     s->stub_reserved21[0] = 0x0;
     s->stub_reserved23[0] = 0x0;
     s->stub_reserved24[0] = 0x0;
     s->stub_reserved25[0] = 0x0;
     s->stub_reserved22[0] = 0x0;
-    s->stub_reserved34[0] = 0x0;
+    s->stub_reserved33[0] = 0x0;
 }
 
 static void qca_qca9558_init(MachineState *machine)
@@ -1568,20 +1523,18 @@ static void qca_qca9558_init(MachineState *machine)
     memory_region_add_subregion_overlap(get_system_memory(), 0x18050004, &s->stub10_mmio, 0);
     memory_region_init_io(&s->stub11_mmio, NULL, &stub11_ops, s, TYPE_QCA_QCA9558, 0x8);
     memory_region_add_subregion_overlap(get_system_memory(), 0x18060008, &s->stub11_mmio, 0);
-    memory_region_init_io(&s->stub28_mmio, NULL, &stub28_ops, s, TYPE_QCA_QCA9558, 0x4);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x18060014, &s->stub28_mmio, 0);
     memory_region_init_io(&s->stub13_mmio, NULL, &stub13_ops, s, TYPE_QCA_QCA9558, 0x4);
     memory_region_add_subregion_overlap(get_system_memory(), 0x1806001c, &s->stub13_mmio, 0);
+    memory_region_init_io(&s->stub28_mmio, NULL, &stub28_ops, s, TYPE_QCA_QCA9558, 0x4);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x18060090, &s->stub28_mmio, 0);
     memory_region_init_io(&s->stub29_mmio, NULL, &stub29_ops, s, TYPE_QCA_QCA9558, 0x4);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x18060090, &s->stub29_mmio, 0);
-    memory_region_init_io(&s->stub30_mmio, NULL, &stub30_ops, s, TYPE_QCA_QCA9558, 0x4);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x180600b0, &s->stub30_mmio, 0);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x180600b0, &s->stub29_mmio, 0);
     memory_region_init_io(&s->stub14_mmio, NULL, &stub14_ops, s, TYPE_QCA_QCA9558, 0x4);
     memory_region_add_subregion_overlap(get_system_memory(), 0x180600c0, &s->stub14_mmio, 0);
+    memory_region_init_io(&s->stub30_mmio, NULL, &stub30_ops, s, TYPE_QCA_QCA9558, 0x4);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x18060134, &s->stub30_mmio, 0);
     memory_region_init_io(&s->stub31_mmio, NULL, &stub31_ops, s, TYPE_QCA_QCA9558, 0x4);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x18060134, &s->stub31_mmio, 0);
-    memory_region_init_io(&s->stub32_mmio, NULL, &stub32_ops, s, TYPE_QCA_QCA9558, 0x4);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x18060154, &s->stub32_mmio, 0);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x18060154, &s->stub31_mmio, 0);
     memory_region_init_io(&s->stub15_mmio, NULL, &stub15_ops, s, TYPE_QCA_QCA9558, 0x58);
     memory_region_add_subregion_overlap(get_system_memory(), 0x18070000, &s->stub15_mmio, 0);
     memory_region_init_io(&s->stub16_mmio, NULL, &stub16_ops, s, TYPE_QCA_QCA9558, 0x1000);
@@ -1594,8 +1547,8 @@ static void qca_qca9558_init(MachineState *machine)
     memory_region_add_subregion_overlap(get_system_memory(), 0x18250000, &s->stub19_mmio, 0);
     memory_region_init_io(&s->stub20_mmio, NULL, &stub20_ops, s, TYPE_QCA_QCA9558, 0x100);
     memory_region_add_subregion_overlap(get_system_memory(), 0x18280000, &s->stub20_mmio, 0);
-    memory_region_init_io(&s->stub33_mmio, NULL, &stub33_ops, s, TYPE_QCA_QCA9558, 0x4);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x19000000, &s->stub33_mmio, 0);
+    memory_region_init_io(&s->stub32_mmio, NULL, &stub32_ops, s, TYPE_QCA_QCA9558, 0x4);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x19000000, &s->stub32_mmio, 0);
     memory_region_init_io(&s->stub21_mmio, NULL, &stub21_ops, s, TYPE_QCA_QCA9558, 0x1fc);
     memory_region_add_subregion_overlap(get_system_memory(), 0x19000004, &s->stub21_mmio, 0);
     memory_region_init_io(&s->stub23_mmio, NULL, &stub23_ops, s, TYPE_QCA_QCA9558, 0x1fc);
@@ -1606,8 +1559,8 @@ static void qca_qca9558_init(MachineState *machine)
     memory_region_add_subregion_overlap(get_system_memory(), 0x1f000000, &s->stub25_mmio, 0);
     memory_region_init_io(&s->stub22_mmio, NULL, &stub22_ops, s, TYPE_QCA_QCA9558, 0x1fc);
     memory_region_add_subregion_overlap(get_system_memory(), 0x1a000004, &s->stub22_mmio, 0);
-    memory_region_init_io(&s->stub34_mmio, NULL, &stub34_ops, s, TYPE_QCA_QCA9558, 0x4);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x1a000000, &s->stub34_mmio, 0);
+    memory_region_init_io(&s->stub33_mmio, NULL, &stub33_ops, s, TYPE_QCA_QCA9558, 0x4);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x1a000000, &s->stub33_mmio, 0);
     
     memory_region_init_rom(&s->flash, NULL, "boot.flash", 0x400000, &err);
     memory_region_add_subregion_overlap(get_system_memory(), 0x1fc00000, &s->flash, 0);

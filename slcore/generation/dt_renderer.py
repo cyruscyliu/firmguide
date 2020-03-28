@@ -242,6 +242,7 @@ static const MemoryRegionOps {0}_ops = {{
             self.context['timer_get_header'] = []
             self.context['timer_get_body'] = []
             self.context['timer_get_field'] = []
+            self.context['timer_get_connection'] = []
         if 'flash_get_header' not in self.context:
             self.context['flash_get_header'] = []
             self.context['flash_get_body'] = []

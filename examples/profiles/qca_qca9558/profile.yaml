@@ -126,17 +126,17 @@ bamboo:
     registers:
       stub_reserved27: {offset: '0x0', value: '0x810'}
   stub28:
-    compatible: qca,ar7240-misc-intc
-    mmio_base: '0x18060014'
-    mmio_size: '0x4'
-    registers:
-      stub_reserved28: {offset: '0x0', value: '0x0'}
-  stub29:
     compatible: qca,ar7100-reset
     mmio_base: '0x18060090'
     mmio_size: '0x4'
     registers:
-      stub_reserved29: {offset: '0x0', value: '0xb0'}
+      stub_reserved28: {offset: '0x0', value: '0xb0'}
+  stub29:
+    compatible: qca,ar7100-reset
+    mmio_base: '0x180600b0'
+    mmio_size: '0x4'
+    registers:
+      stub_reserved29: {offset: '0x0', value: '0x10'}
   stub3:
     compatible: [ns16550a]
     mmio_base: '0x18020000'
@@ -145,34 +145,28 @@ bamboo:
       stub_reserved3: {offset: 0x0 ... 0x1c, value: '0x0'}
   stub30:
     compatible: qca,ar7100-reset
-    mmio_base: '0x180600b0'
-    mmio_size: '0x4'
-    registers:
-      stub_reserved30: {offset: '0x0', value: '0x10'}
-  stub31:
-    compatible: qca,ar7100-reset
     mmio_base: '0x18060134'
     mmio_size: '0x4'
     registers:
-      stub_reserved31: {offset: '0x0', value: '0xb0'}
-  stub32:
+      stub_reserved30: {offset: '0x0', value: '0xb0'}
+  stub31:
     compatible: qca,ar7100-reset
     mmio_base: '0x18060154'
     mmio_size: '0x4'
     registers:
-      stub_reserved32: {offset: '0x0', value: '0x10'}
-  stub33:
+      stub_reserved31: {offset: '0x0', value: '0x10'}
+  stub32:
     compatible: qca,qca9550-eth
     mmio_base: '0x19000000'
     mmio_size: '0x4'
     registers:
-      stub_reserved33: {offset: '0x0', value: '0x0'}
-  stub34:
+      stub_reserved32: {offset: '0x0', value: '0x0'}
+  stub33:
     compatible: qca,qca9550-eth
     mmio_base: '0x1a000000'
     mmio_size: '0x4'
     registers:
-      stub_reserved34: {offset: '0x0', value: '0x0'}
+      stub_reserved33: {offset: '0x0', value: '0x0'}
   stub4:
     compatible: &id003 ['qca,qca9550-usb-phy', 'qca,ar7200-usb-phy']
     mmio_base: '0x18030000'
@@ -209,8 +203,8 @@ bamboo:
     mmio_size: '0x44'
     registers:
       stub_reserved9: {offset: 0x0 ... 0x40, value: '0x0'}
-basics: {architecture: mips, board: ath79, board_id: '0xFFFFFFFF', endian: b, machine_description: null,
-  machine_name: qca_qca9558}
+basics: {architecture: mips, board: ath79, board_id: '0xFFFFFFFF', brand: openwrt,
+  endian: b, machine_description: null, machine_name: qca_qca9558}
 components: {output: '0x00000000    uImage header, header size: 64 bytes, created:
     2020-01-29 16:05:35, image size: 3571355 bytes, Data Address: 0x80060000, Entry
     Point: 0x80060000, OS: Linux, CPU: MIPS, compression type: lzma, image name: "MIPS

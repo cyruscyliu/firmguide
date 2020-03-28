@@ -7,7 +7,12 @@ mach-at91:
     openwrt: [at91]
 mach-axxia: {device_tree: true}
 mach-bcm:
+  compatible: {'asus,rt-n18u': examples/profiles/brcm_bcm4708/profile.yaml, 'brcm,bcm4708': examples/profiles/brcm_bcm4708/profile.yaml,
+    'brcm,bcm47081': examples/profiles/brcm_bcm4708/profile.yaml}
   device_tree: true
+  profiles:
+    examples/profiles/brcm_bcm4708/profile.yaml: {brand: openwrt, subtarget: generic,
+      target: bcm53xx, version: null}
   targets:
     openwrt: [bcm53xx]
 mach-bcm2708:
@@ -101,9 +106,14 @@ mach-moxart: {device_tree: false}
 mach-msm: {device_tree: false}
 mach-mv78xx0: {device_tree: false}
 mach-mvebu:
+  compatible: {'linksys,viper': examples/profiles/marvell_kirkwood/profile.yaml, 'marvell,kirkwood': examples/profiles/marvell_kirkwood/profile.yaml,
+    'marvell,kirkwood-88f6282': examples/profiles/marvell_kirkwood/profile.yaml}
   device_tree: true
+  profiles:
+    examples/profiles/marvell_kirkwood/profile.yaml: {brand: openwrt, subtarget: kirkwood,
+      target: kirkwood, version: null}
   targets:
-    openwrt: [mvebu]
+    openwrt: [mvebu, kirkwood]
 mach-mxs:
   device_tree: true
   targets:
@@ -125,9 +135,9 @@ mach-orion5x:
   targets:
     openwrt: [orion]
 mach-oxnas:
-  device_tree: true
   compatible: {'plxtech,nas7820': examples/profiles/plxtech_nas782x/profile.yaml,
     'plxtech,nas782x': examples/profiles/plxtech_nas782x/profile.yaml}
+  device_tree: true
   profiles:
     examples/profiles/plxtech_nas782x/profile.yaml: {brand: openwrt, subtarget: generic,
       target: oxnas, version: null}

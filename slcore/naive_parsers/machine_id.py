@@ -2961,6 +2961,6 @@ def find_machine_id(path_to_kernel):
     """
     candidates = get_candidates(path_to_kernel)
     strings = get_all_strings(candidates)
-    return find_machind_id_s(strings)
+    return find_machine_id_s(strings)
 
 

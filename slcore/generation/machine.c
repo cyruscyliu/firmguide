@@ -53,6 +53,8 @@ static void {{ machine_name }}_init(MachineState *machine)
     {{ line }}{% endfor %}
     {% for line in timer_get_body %}
     {{ line }}{% endfor %}
+    {% for line in timer_get_connection %}
+    {{ line }}{% endfor %}
     {% for line in serial_get_body %}
     {{ line }}{% endfor %}
     {% for line in misc_get_body %}

@@ -1,0 +1,178 @@
+bamboo:
+  stub0:
+    compatible: &id001 ['brcm,bus-axi']
+    mmio_base: '0x18000000'
+    mmio_size: '0x300'
+    registers:
+      stub_reserved0: {offset: 0x0 ... 0x2fc, value: '0x0'}
+  stub1:
+    compatible: [ns16550]
+    mmio_base: '0x18000300'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved1: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub10:
+    compatible: ['arm,cortex-a9-twd-timer']
+    mmio_base: '0x19020600'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved10: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub11:
+    compatible: &id003 ['arm,cortex-a9-gic']
+    mmio_base: '0x19021000'
+    mmio_size: '0x1000'
+    registers:
+      stub_reserved11: {offset: 0x0 ... 0xffc, value: '0x0'}
+  stub12:
+    compatible: ['arm,pl310-cache']
+    mmio_base: '0x19022000'
+    mmio_size: '0x1000'
+    registers:
+      stub_reserved12: {offset: 0x0 ... 0xffc, value: '0x0'}
+  stub2:
+    compatible: *id001
+    mmio_base: '0x18000500'
+    mmio_size: '0xb00'
+    registers:
+      stub_reserved2: {offset: 0x0 ... 0xafc, value: '0x0'}
+  stub3:
+    compatible: [ns16550]
+    mmio_base: '0x18000400'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved3: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub4:
+    compatible: &id002 ['brcm,nand-iproc', 'brcm,brcmnand-v6.1', 'brcm,brcmnand']
+    mmio_base: '0x18028000'
+    mmio_size: '0x600'
+    registers:
+      stub_reserved4: {offset: 0x0 ... 0x5fc, value: '0x0'}
+  stub5:
+    compatible: *id002
+    mmio_base: '0x18028f00'
+    mmio_size: '0x20'
+    registers:
+      stub_reserved5: {offset: 0x0 ... 0x1c, value: '0x0'}
+  stub6:
+    compatible: *id002
+    mmio_base: '0x1811a408'
+    mmio_size: '0x600'
+    registers:
+      stub_reserved6: {offset: 0x0 ... 0x5fc, value: '0x0'}
+  stub7:
+    compatible: ['arm,cortex-a9-scu']
+    mmio_base: '0x19020000'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved7: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub8:
+    compatible: *id003
+    mmio_base: '0x19020100'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved8: {offset: 0x0 ... 0xfc, value: '0x0'}
+  stub9:
+    compatible: ['arm,cortex-a9-global-timer']
+    mmio_base: '0x19020200'
+    mmio_size: '0x100'
+    registers:
+      stub_reserved9: {offset: 0x0 ... 0xfc, value: '0x0'}
+basics: {architecture: arm, board: mach-bcm, board_id: '0xFFFFFFFF', brand: openwrt,
+  endian: l, machine_name: brcm_bcm4708}
+components: {output: '0x0000001C    TRX firmware header, little endian, version: 1,
+    header size: 28 bytes, linux kernel offset: 0x1C, rootfs offset: 0x400000
+
+    0x0000001C    LZMA compressed data, properties: 0x5D, dictionary size: 65536 bytes,
+    uncompressed size: 1436856 bytes
+
+    0x00400000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00420000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00440000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00460000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00480000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x004A0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x004C0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x004E0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00500000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00520000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00540000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00560000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00580000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x005A0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x005C0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x005E0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00600000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00620000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00640000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00660000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x00680000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x006A0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x006C0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    0x006E0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
+    0x800, data offset: 0x1000
+
+    ', path_to_dtb: /root/esv/../build/mach-bcm/_openwrt-15.05-bcm53xx-asus-rt-n18u-squashfs.trx.extracted/_1C.kernel.extracted/15DB80.dtb,
+  path_to_image: /root/esv/../build/mach-bcm/_openwrt-15.05-bcm53xx-asus-rt-n18u-squashfs.trx.extracted/1C.trx,
+  path_to_kernel: /root/esv/../build/mach-bcm/_openwrt-15.05-bcm53xx-asus-rt-n18u-squashfs.trx.extracted/1C.kernel,
+  path_to_raw: /mnt/iscsi/openwrt-build-docker/share/15.05-653f4efe62bbf5e0a329dac4a57de2b5/./chaos_calmer-15.05/bin/bcm53xx/openwrt-15.05-bcm53xx-asus-rt-n18u-squashfs.trx,
+  path_to_rootfs: null, path_to_uimage: /root/esv/../build/mach-bcm/_openwrt-15.05-bcm53xx-asus-rt-n18u-squashfs.trx.extracted/1C.uimage,
+  supported: true, type: 1}
+kernel: {kernel_entry_point: '0xc0008000', kernel_load_address: '0x00008000'}
+path_to_dtb: examples/profiles/brcm_bcm4708/profile.dtb
+ram:
+  base: '0x0'
+  blocks:
+  - {base: 2281701376, priority: '0', size: 134217728}
+  - {base: 2281701376, priority: '0', size: 134217728}
+  - {base: 2281701376, priority: '0', size: 134217728}
+  - {base: 2281701376, priority: '0', size: 134217728}
+  priority: '0'
+  size: '0x8000000'
+runtime: {iteration: 1, user_mode: true}
+uart: {num: 2}

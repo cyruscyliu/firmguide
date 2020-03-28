@@ -131,16 +131,20 @@ static void qca_ar7240_misc_intc_write(void *opaque, hwaddr offset, uint64_t val
             return;
         case 0x00:
             old = (uint32_t)s->r0;
+            for (irqn = 0; irqn < N_IRQ; irqn++)
+                if ((old & (~(1 << (irqn)))) == (uint32_t)val) {
+                    s->pending[irqn] = false;
+                }
             s->r0= val;
             break;
         case 0x04:
             old = (uint32_t)s->r1;
             for (irqn = 0; irqn < N_IRQ; irqn++)
-                if ((1 << irqn) == (uint32_t)val) {
+                if ((old & (~(1 << irqn))) == (uint32_t)val) {
                     s->masked[irqn] = true;
                 }
             for (irqn = 0; irqn < N_IRQ; irqn++)
-                if ((1 << irqn) == (uint32_t)val) {
+                if ((old | ((1 << irqn))) == (uint32_t)val) {
                     s->masked[irqn] = false;
                 }
             s->r1= val;
@@ -172,7 +176,7 @@ static void qca_ar7240_misc_intc_init(Object *obj)
     QCA_AR7240_MISC_INTCState *s = QCA_AR7240_MISC_INTC(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &qca_ar7240_misc_intc_ops, s, TYPE_QCA_AR7240_MISC_INTC, 0x4);
+    memory_region_init_io(&s->mmio, obj, &qca_ar7240_misc_intc_ops, s, TYPE_QCA_AR7240_MISC_INTC, 0x8);
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the irq/fip to cpu */
