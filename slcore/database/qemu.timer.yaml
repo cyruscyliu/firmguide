@@ -67,7 +67,7 @@ marvell,armada-370-timer: {extend: 'timer,generic'}
 marvell,armada-375-timer: {extend: 'timer,generic'}
 marvell,armada-xp-timer:
     extend: 'timer,generic'
-    n_irq: 2
+    n_irq: 6
     counters: [{'addr': '0x14', 'id': 1}]
 marvell,orion-timer:
     extend: 'timer,generic'

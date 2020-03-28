@@ -276,6 +276,31 @@ def fix_owrtdtb(components, new_path_to_dtb):
     return True
 
 
+def fix_smp(components):
+    """Disable SMP/Keep only 1 cpu in dts."""
+    path_to_dtb = components.get_path_to_dtb()
+    os.system('cp {0} {0}.fix_smp'.format(path_to_dtb))
+
+    from slcore.dt_parsers.common import load_dtb
+    from slcore.dt_parsers.cpu import find_flatten_cpu_in_fdt
+    dts = load_dtb(path_to_dtb)
+    path_to_cpu = find_flatten_cpu_in_fdt(dts)[0]['path']
+    if not path_to_cpu.endswith('@0'):
+        # only one cpu, skip
+        return True
+
+    next_path_to_cpu = path_to_cpu[:-1] + str(int(path_to_cpu[-1]) + 1)
+    while dts.exist_node(next_path_to_cpu):
+        dts.remove_node(
+            os.path.basename(next_path_to_cpu),
+            os.path.dirname(next_path_to_cpu))
+        next_path_to_cpu = next_path_to_cpu[:-1] + str(int(next_path_to_cpu[-1]) + 1)
+
+    with open(path_to_dtb, 'wb') as f:
+        f.write(dts.to_dtb(version=17))
+    return True
+
+
 def fix_armdtb(components, new_path_to_dtb):
     """Disable built-in dtb in arm image"""
     kernel = components.get_path_to_kernel()

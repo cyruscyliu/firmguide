@@ -1,7 +1,7 @@
 import os
 
 from slcore.generation.compilerf import get_compiler
-from slcore.compositor import pack_kernel, fix_armdtb, \
+from slcore.compositor import pack_kernel, fix_armdtb, fix_smp, \
     pack_initramfs, fix_cmdline, fix_owrtdtb, fix_choosen_bootargs
 from slcore.generation.dt_renderer import DTRenderer
 from slcore.generation.common import to_upper
@@ -72,7 +72,10 @@ class Preparation(Analysis):
             fix_owrtdtb(firmware.get_components(), firmware.get_dtb())
             fix_choosen_bootargs(firmware.get_components())
         elif firmware.get_arch() == 'arm':
+            # 3.3 If an arm firmware has a built-in dtb, disable it.
             fix_armdtb(firmware.get_components(), firmware.get_dtb())
+        # 3.4 we cannot handle SMP
+        fix_smp(firmware.get_components())
         # 3.2 add a uimage header on the kernel image
         load_address = firmware.get_kernel_load_address()
         if firmware.get_arch() == 'arm':
