@@ -130,8 +130,8 @@ static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned
             for (irqn = 0; irqn < N_IRQ; irqn++)
                 if ({{ register.unmask_action }} == (uint32_t)val) {
                     s->masked[irqn] = false;
-                }{% endif %}
-            s->{{ register.rname }}= val;
+                }{% endif %}{% if register.override %}
+            s->{{ register.rname }}= val;{% endif %}
             break;{% endfor %}
     }
     {{ name }}_update(s);

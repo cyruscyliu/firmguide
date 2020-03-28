@@ -143,6 +143,7 @@ class Model(object):
                 context['id'] = j
                 context['iid'] = context['irqn'] // context['intcp']['n_irq']
                 context['irqn'] = context['irqn'] % context['intcp']['n_irq']
+                context['siid'] = i
                 actual = self.__render('get_connection', context)
                 self.actual['get_connection'].extend(actual)
 

@@ -147,7 +147,7 @@ timer,generic:
     'qdev_set_parent_bus(DEVICE(&s->timer{{ id }}), sysbus_get_default());', 'object_property_set_bool(OBJECT(&s->timer{{ id }}),
       true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer{{ id }}), 0, {{
       reg.base }});']
-  get_connection: ['qdev_connect_gpio_out(DEVICE(&s->timer{{ id }}), 0, {{ intcp.get_irqn }});']
+  get_connection: ['qdev_connect_gpio_out(DEVICE(&s->timer{{ id }}), {{ siid }}, {{ intcp.get_irqn }});']
   get_field: ['{{ name|upper }}State timer{{ id }};']
   get_header: ['hw/timer/{{ name }}.h']
   parameters: [intcp, irqns]

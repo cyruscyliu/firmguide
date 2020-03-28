@@ -48,7 +48,7 @@ def find_flatten_serial_in_fdt(dts):
 
         try:
             baud_rate = dts.get_property('current-speed', path_to_serial).data[0]
-        except AttributeError as e:
+        except AttributeError:
             baud_rate = 0x1c200
         reg_shift = dts.get_property('reg-shift', path_to_serial)
         if reg_shift is not None:
@@ -59,9 +59,6 @@ def find_flatten_serial_in_fdt(dts):
         interrupt_parent = find_interrupt_parent_by_path(dts, path_to_serial)
         interrupts = dts.get_property('interrupts', path_to_serial).data
         irqns = find_irqnc_by_pphandle(dts, interrupt_parent, interrupts)
-        # TODO only for arm-gic
-        if irqns[0] > 32:
-            irqns[0] -= 32
 
         flatten_serial.append({
             'path': path_to_serial, 'compatible': compatible,

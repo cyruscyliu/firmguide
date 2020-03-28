@@ -107,13 +107,13 @@ marvell,mpic:
   external: true
   get_registers:
   - {ack: false, mask: true, mask_ack: true, mask_ack_action: (irqn), mask_action: (irqn),
-    offset: '0x34', rname: r13, unmask: false}
+    offset: '0x34', rname: r13, unmask: false, override: True}
   - {ack: false, mask: true, mask_ack: true, mask_ack_action: (irqn), mask_action: (irqn),
-    offset: '0x48', rname: r18, unmask: false}
+    offset: '0x48', rname: r18, unmask: false, override: True}
   - {ack: false, mask: false, mask_ack: false, offset: '0x30', rname: r12, unmask: true,
-    unmask_action: (irqn)}
+    unmask_action: (irqn), override: True}
   - {ack: false, mask: false, mask_ack: false, offset: '0x4C', rname: r19, unmask: true,
-    unmask_action: (irqn)}
+    unmask_action: (irqn), override: True}
   - {ack: false, mask: false, mask_ack: false, offset: '0x44', rname: r17, unmask: false}
   irqn_to_regs:
   - clear_body: [s->r17 = 0xffffffff;]
@@ -153,10 +153,10 @@ marvell,orion-bridge-intc:
   external: true
   get_registers:
   - {ack: true, ack_action: (~(1 << (irqn % 32))), mask: false, mask_ack: false, offset: '0x00',
-    rname: r0, unmask: false}
+    rname: r0, unmask: false, override: False}
   - {ack: false, mask: true, mask_ack: false, mask_action: (old & (~(1 << (irqn %
       32)))), offset: '0x04', rname: r1, unmask: true, unmask_action: (old | (1 <<
-      (irqn % 32)))}
+          (irqn % 32))), override: True}
   irqn_to_regs:
   - clear_body: [s->r0 &= ~0x00000002;]
     irqn: 1
@@ -172,14 +172,17 @@ marvell,orion-intc:
   extend: intc,generic
   external: true
   get_registers:
-  - {ack: false, mask: false, mask_ack: false, offset: '0x00', rname: r0, unmask: false}
+  - {ack: false, mask: false, mask_ack: false, offset: '0x00', rname: r0, unmask: false, override: True}
   - {ack: false, mask: true, mask_ack: false, mask_action: (old & (~(1 << (irqn %
       32)))), offset: '0x04', rname: r1, unmask: true, unmask_action: (old | ((1 <<
-      (irqn % 32))))}
+      (irqn % 32)))), override: True}
   irqn_to_regs:
   - clear_body: [s->r0 &= ~0x00000001;]
     irqn: 0
     set_body: [s->r0 |= 0x00000001;]
+  - clear_body: [s->r0 &= ~0x00000002;]
+    irqn: 1
+    set_body: [s->r0 |= 0x00000002;]
   - clear_body: [s->r0 &= ~0x00000008;]
     irqn: 3
     set_body: [s->r0 |= 0x00000008;]
@@ -221,9 +224,9 @@ qca,ar7240-misc-intc:
   extend: intc,generic
   external: true
   get_registers:
-  - {ack: true, ack_action: (old & (~(1 << (irqn)))), mask: false, mask_ack: false, offset: '0x00', rname: r0, unmask: false}
+  - {ack: true, ack_action: (old & (~(1 << (irqn)))), mask: false, mask_ack: false, offset: '0x00', rname: r0, unmask: false, override: True}
   - {ack: false, mask: true, mask_ack: false, mask_action: (old & (~(1 << irqn))), offset: '0x04',
-    rname: r1, unmask: true, unmask_action: (old | ((1 << irqn)))}
+    rname: r1, unmask: true, unmask_action: (old | ((1 << irqn))), override: True}
   irqn_to_regs:
   - clear_body: [s->r0 &= ~(1 << 2);]
     irqn: 2
@@ -242,11 +245,11 @@ ralink,rt2880-intc:
   extend: intc,generic
   external: true
   get_registers:
-  - {ack: false, mask: false, mask_ack: false, offset: '0x00', rname: r0, unmask: false}
+  - {ack: false, mask: false, mask_ack: false, offset: '0x00', rname: r0, unmask: false, override: True}
   - {ack: false, mask: false, mask_ack: false, offset: '0x34', rname: r1, unmask: true,
-    unmask_action: (1 << irqn)}
+    unmask_action: (1 << irqn), override: True}
   - {ack: false, mask: true, mask_ack: true, mask_ack_action: (1 << irqn), mask_action: (1
-      << irqn), offset: '0x38', rname: r2, unmask: false}
+      << irqn), offset: '0x38', rname: r2, unmask: false, override: True}
   irqn_to_regs:
   - clear_body: [s->r0 &= ~0x00000020;]
     irqn: 5
