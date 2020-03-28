@@ -1,7 +1,7 @@
 import os
 
 from slcore.generation.compilerf import get_compiler
-from slcore.compositor import pack_kernel, pack_image, \
+from slcore.compositor import pack_kernel, fix_armdtb, \
     pack_initramfs, fix_cmdline, fix_owrtdtb, fix_choosen_bootargs
 from slcore.generation.dt_renderer import DTRenderer
 from slcore.generation.common import to_upper
@@ -71,6 +71,8 @@ class Preparation(Analysis):
             # 3.1 replace the built-in kernel
             fix_owrtdtb(firmware.get_components(), firmware.get_dtb())
             fix_choosen_bootargs(firmware.get_components())
+        elif firmware.get_arch() == 'arm':
+            fix_armdtb(firmware.get_components(), firmware.get_dtb())
         # 3.2 add a uimage header on the kernel image
         load_address = firmware.get_kernel_load_address()
         if firmware.get_arch() == 'arm':

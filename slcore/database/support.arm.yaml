@@ -101,9 +101,14 @@ mach-moxart: {device_tree: false}
 mach-msm: {device_tree: false}
 mach-mv78xx0: {device_tree: false}
 mach-mvebu:
+  compatible: {'linksys,viper': examples/profiles/marvell_kirkwood/profile.yaml, 'marvell,kirkwood': examples/profiles/marvell_kirkwood/profile.yaml,
+    'marvell,kirkwood-88f6282': examples/profiles/marvell_kirkwood/profile.yaml}
   device_tree: true
+  profiles:
+    examples/profiles/marvell_kirkwood/profile.yaml: {brand: openwrt, subtarget: kirkwood,
+      target: kirkwood, version: null}
   targets:
-    openwrt: [mvebu]
+    openwrt: [mvebu, kirkwood]
 mach-mxs:
   device_tree: true
   targets:

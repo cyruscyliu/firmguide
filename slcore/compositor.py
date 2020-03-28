@@ -276,6 +276,22 @@ def fix_owrtdtb(components, new_path_to_dtb):
     return True
 
 
+def fix_armdtb(components, new_path_to_dtb):
+    """Disable built-in dtb in arm image"""
+    kernel = components.get_path_to_kernel()
+    os.system('cp {0} {0}.fix_armdtb'.format(kernel))
+
+    path_to_dtb = __scan_dtb(kernel, extract=True)
+    if path_to_dtb is None:
+        return False
+
+    start = int(os.path.basename(path_to_dtb).split('.')[0], 16)
+    a = 'dd if=/dev/zero of={} bs=1 seek={} count=8 conv=notrunc > /dev/null 2>&1'.format(
+        kernel, start)
+    os.system(a)
+    return True
+
+
 def fix_cmdline(components):
     """Remove the default cmdline in a kernel image."""
     # this api should be called before pack_kernel
@@ -379,6 +395,8 @@ def unpack(path, target_dir=None, extract=True):
             components.set_path_to_rootfs(
                 module.extractor.output[result.file.path].carved[result.offset])
         elif str(result.description).find('UBI erase count header') != -1:
+            if components.get_type() != None:
+                continue
             v1 = min(result.offset, v1)
             if result.jump != 0:
                 # we have a correct peb size
