@@ -33,7 +33,7 @@ arm,cortex-a9-gic:
       }});']
   get_field: ['A9MPPrivState {{ name }};']
   get_header: [hw/cpu/a9mpcore.h]
-  get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}), {{ irqn }})
+  get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}), {{ irqn }} - 32)
   n_irq: 96
   parameters: [name, regs, intcp]
   unique: true

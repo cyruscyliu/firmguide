@@ -7,7 +7,12 @@ mach-at91:
     openwrt: [at91]
 mach-axxia: {device_tree: true}
 mach-bcm:
+  compatible: {'asus,rt-n18u': examples/profiles/brcm_bcm4708/profile.yaml, 'brcm,bcm4708': examples/profiles/brcm_bcm4708/profile.yaml,
+    'brcm,bcm47081': examples/profiles/brcm_bcm4708/profile.yaml}
   device_tree: true
+  profiles:
+    examples/profiles/brcm_bcm4708/profile.yaml: {brand: openwrt, subtarget: generic,
+      target: bcm53xx, version: null}
   targets:
     openwrt: [bcm53xx]
 mach-bcm2708:
