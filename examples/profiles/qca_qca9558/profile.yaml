@@ -205,25 +205,28 @@ bamboo:
       stub_reserved9: {offset: 0x0 ... 0x40, value: '0x0'}
 basics: {architecture: mips, board: ath79, board_id: '0xFFFFFFFF', brand: openwrt,
   endian: b, machine_description: null, machine_name: qca_qca9558}
-components: {output: '0x00000000    uImage header, header size: 64 bytes, created:
-    2020-01-29 16:05:35, image size: 3571355 bytes, Data Address: 0x80060000, Entry
-    Point: 0x80060000, OS: Linux, CPU: MIPS, compression type: lzma, image name: "MIPS
-    OpenWrt Linux-4.14.167"
+components: {output: '0x00000200    TPLink firmware header, v1, 512 bytes, vendor:
+    "OpenWrt", version: "r10911-c155900f66", load address: 0x80060000, entry point:
+    0x80060000, kernel offset: 0x200, kernel size: 0x185A44, rootfs offset: 0x185C44,
+    rootfs size: 0x263182, bootloader offset: 0x0, bootloader size: 0x0
 
-    0x00000040    LZMA compressed data, properties: 0x6D, dictionary size: 8388608
-    bytes, uncompressed size: 10957909 bytes
+    0x00000200    LZMA compressed data, properties: 0x6D, dictionary size: 8388608
+    bytes, uncompressed size: 5012204 bytes
 
-    ', path_to_dtb: /root/esv/../build/ath79/_openwrt-19.07.1-ath79-generic-librerouter_librerouter-v1-initramfs-kernel.bin.extracted/_40.extracted/A71264.dtb,
-  path_to_image: /root/esv/../build/ath79/_openwrt-19.07.1-ath79-generic-librerouter_librerouter-v1-initramfs-kernel.bin.extracted/0.uimage,
-  path_to_kernel: /root/esv/../build/ath79/_openwrt-19.07.1-ath79-generic-librerouter_librerouter-v1-initramfs-kernel.bin.extracted/40,
-  path_to_raw: /root/openwrt-build-docker/share/19.07.1-ath79-generic/openwrt-19.07.1/bin/targets/ath79/generic/openwrt-19.07.1-ath79-generic-librerouter_librerouter-v1-initramfs-kernel.bin,
-  path_to_rootfs: null, path_to_uimage: /root/esv/../build/ath79/_openwrt-19.07.1-ath79-generic-librerouter_librerouter-v1-initramfs-kernel.bin.extracted/0.uimage,
-  supported: true, type: 2}
+    0x00185C44    Squashfs filesystem, little endian, version 4.0, compression:xz,
+    size: 2503042 bytes, 1165 inodes, blocksize: 262144 bytes, created: 2020-01-29
+    16:05:35
+
+    ', path_to_dtb: /root/esv/examples/profiles/qca_qca9558/profile.dtb, path_to_image: /root/esv/../build/ath79/_4824e5e9914bec9e3719c48e199302bca300e296.bin.extracted/200.7z,
+  path_to_kernel: /root/esv/../build/ath79/_4824e5e9914bec9e3719c48e199302bca300e296.bin.extracted/_200.7z.extracted/0,
+  path_to_raw: /root/images/4824e5e9914bec9e3719c48e199302bca300e296.bin, path_to_rootfs: /root/esv/../build/ath79/_4824e5e9914bec9e3719c48e199302bca300e296.bin.extracted/185C44.squashfs,
+  path_to_uimage: /root/esv/../build/ath79/_4824e5e9914bec9e3719c48e199302bca300e296.bin.extracted/_200.7z.extracted/0.uimage,
+  supported: true, type: 9}
 kernel: {kernel_entry_point: '0x80448320', kernel_load_address: '0x80060000'}
 mapping:
   '0x80000000': {pa: '0x00000000', size: '0x20000000', va: '0x80000000'}
   '0xa0000000': {pa: '0x00000000', size: '0x20000000', va: '0xa0000000'}
 path_to_dtb: examples/profiles/qca_qca9558/profile.dtb
 ram: {base: '0x0', priority: '0', size: 256 * MiB}
-runtime: {iteration: 1, user_mode: true}
+runtime: {user_mode: true}
 uart: {num: 1}

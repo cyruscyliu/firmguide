@@ -82,18 +82,20 @@ class Machines(Analysis):
         components = firmware.get_components()
 
         if components is None:
-            self.update_profile(firmware)
             self.context['input'] = 'components is missing'
             return False
 
+        # L1 every case needs a custom profile
+        self.update_profile(firmware)
+
         if not components.supported:
-            self.update_profile(firmware)
             self.context['input'] = 'cannot unpack this image'
             return False
 
+        # L2 format supported cases need statistics
+        self.update_stats(firmware)
+
         if not components.has_kernel():
-            self.update_profile(firmware)
-            self.update_stats(firmware)
             self.context['input'] = 'have no kernel, maybe a rootfs image'
             return False
 
@@ -123,7 +125,6 @@ class Machines(Analysis):
                 firmware.set_profile(path_to_profile=profile)
                 firmware.set_components(components)
                 self.update_profile(firmware)
-                self.update_stats(firmware)
                 self.update_trace(firmware)
                 components.set_path_to_dtb(firmware.dtb)
                 return True
@@ -132,12 +133,14 @@ class Machines(Analysis):
         # T4 MACHINE_ID_SIGNATURE
         machine_ids = find_machine_id(components.get_path_to_kernel())
         if machine_ids is None:
+            self.info(firmware, 'we will try our profiles one by one', 1)
             profile = list(md.get_profiles().keys())
             if len(profile):
                 profile = profile[0]
             else:
                 profile = None
         else:
+            self.info(firmware, 'we support {}'.format(machine_ids), 1)
             profile = md.find_profile_by_id(machine_ids)
 
         # T5 WHETHER OR NOT WE ARE PREPARED
@@ -148,9 +151,10 @@ class Machines(Analysis):
 
         # update profile and change save-to-path to avoid modifing our well-defined profile
         firmware.set_profile(path_to_profile=profile)
+        firmware.set_components(components)
         self.update_profile(firmware)
-        self.update_stats(firmware)
         self.update_trace(firmware)
+        components.set_path_to_dtb(firmware.dtb)
         firmware.set_components(components)
 
         return True
