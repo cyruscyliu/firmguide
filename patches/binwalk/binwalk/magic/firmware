@@ -516,8 +516,10 @@
 # >72  ubelong     x                       region code: %d,
 # >76                                      md5sum1
 # >92  ubelong     x                       unk2: %d,
+>92  ubelong     !0                      {invalid}
 # >96                                      md5sum2
 # >112 ubelong     x                       unk3: %d,
+>112 ubelong     !0                      {invalid}
 >116 ubelong     x                       load address: 0x%X,
 >120 ubelong     x                       entry point: 0x%0X,
 # >124 ubelong     x                       firmware size: %d,
