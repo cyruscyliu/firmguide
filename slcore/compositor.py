@@ -392,11 +392,11 @@ def unpack(path, target_dir=None, extract=True):
             path_to_image = module.extractor.output[result.file.path].carved[result.offset]
             if path_to_image.endswith('uimage'):
                 components = unpack(path_to_image, target_dir=os.path.dirname(path_to_image))
-            elif path_to_image.endswith('7x'):
+            elif path_to_image.endswith('7z'):
                 # because *.trx will be overwrote by *.7z, we replace 7z with trx here
                 path_to_image = path_to_image.replace('7z', 'trx')
                 components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_trx_kernel(
-                    components.path_to_image)
+                    path_to_image)
             components.set_type(TRX_KERNEL)
             path_to_image = module.extractor.output[result.file.path].carved[result.offset]
             components.set_path_to_image(path_to_image)
