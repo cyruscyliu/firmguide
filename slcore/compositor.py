@@ -439,6 +439,7 @@ def unpack(path, target_dir=None, extract=True):
             components = unpack(path_to_image, target_dir=os.path.dirname(path_to_image))
             components.set_type(KIRKWOOD_TAR_KERNEL)
             components.set_path_to_image(path_to_image)
+            components.set_path_to_raw(path)
         elif str(result.description).find('UBI erase count header') != -1:
             if components.get_type() != None:
                 continue
