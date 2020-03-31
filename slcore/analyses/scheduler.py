@@ -12,6 +12,7 @@ from slcore.analyses.c_user_level import Checking
 from slcore.analyses.c_user_level import FastChecking
 from slcore.analyses.c_data_abort import DataAbort
 from slcore.analyses.c_undef_inst import UndefInst
+from slcore.analyses.c_tlb_excpt import TLBException
 from slcore.analyses.machines import Machines
 
 
@@ -39,6 +40,7 @@ def run_trace_analysis(firmware):
     analyses_manager.register_analysis(Checking(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(DataAbort(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(UndefInst(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(TLBException(analyses_manager), analyses_tree=at)
     status = analyses_manager.run(target_analyses_tree=at)
 
     return status
@@ -74,6 +76,7 @@ def run_diagnosis(firmware):
     analyses_manager.register_analysis(Checking(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(DataAbort(analyses_manager), analyses_tree=at)
     analyses_manager.register_analysis(UndefInst(analyses_manager), analyses_tree=at)
+    analyses_manager.register_analysis(TLBException(analyses_manager), analyses_tree=at)
 
     max_iteration = firmware.max_iteration
 

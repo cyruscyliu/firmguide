@@ -79,13 +79,6 @@ mach-ixp4xx:
   targets:
     openwrt: [ixp4xx]
 mach-keystone: {device_tree: true}
-mach-kirkwood:
-  compatible: {}
-  device_tree: null
-  machine_ids: {}
-  profiles: {}
-  targets:
-    openwrt: [kirkwood]
 mach-ks8695: {device_tree: false}
 mach-lpc32xx: {device_tree: true}
 mach-mcs814x:
@@ -105,6 +98,15 @@ mach-mmp: {device_tree: true}
 mach-moxart: {device_tree: false}
 mach-msm: {device_tree: false}
 mach-mv78xx0: {device_tree: false}
+mach-kirkwood:
+  compatible: {'linksys,viper': examples/profiles/marvell_kirkwood/profile.yaml, 'marvell,kirkwood': examples/profiles/marvell_kirkwood/profile.yaml,
+    'marvell,kirkwood-88f6282': examples/profiles/marvell_kirkwood/profile.yaml}
+  device_tree: true
+  profiles:
+    examples/profiles/marvell_kirkwood/profile.yaml: {brand: openwrt, subtarget: kirkwood,
+      target: kirkwood, version: null}
+  targets:
+    openwrt: [mvebu, kirkwood]
 mach-mvebu:
   compatible: {'linksys,viper': examples/profiles/marvell_kirkwood/profile.yaml, 'marvell,kirkwood': examples/profiles/marvell_kirkwood/profile.yaml,
     'marvell,kirkwood-88f6282': examples/profiles/marvell_kirkwood/profile.yaml}
