@@ -246,11 +246,11 @@ ralink,rt2880-intc:
   extend: intc,generic
   external: true
   get_registers:
-  - {ack: false, mask: false, mask_ack: false, offset: '0x00', rname: r0, unmask: false, override: True}
+  - {ack: false, mask: false, mask_ack: false, offset: '0x00', rname: r0, unmask: false, override: True, value: 0}
   - {ack: false, mask: false, mask_ack: false, offset: '0x34', rname: r1, unmask: true,
-    unmask_action: (1 << irqn), override: True}
+    unmask_action: (1 << irqn), override: True, value: 0}
   - {ack: false, mask: true, mask_ack: true, mask_ack_action: (1 << irqn), mask_action: (1
-      << irqn), offset: '0x38', rname: r2, unmask: false, override: True}
+      << irqn), offset: '0x38', rname: r2, unmask: false, override: True, value: 0}
   irqn_to_regs:
   - clear_body: [s->r0 &= ~0x00000020;]
     irqn: 5

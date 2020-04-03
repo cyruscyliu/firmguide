@@ -31,6 +31,7 @@ UBI_KERNEL = 6
 SEAMA_KERNEL = 7
 UBIQUITI_KERNEL = 8
 TPLINK_KERNEL = 9
+KIRKWOOD_TAR_KERNEL = 10
 
 
 COMPONENT_ATTRIBUTES = [
@@ -251,7 +252,8 @@ def fix_choosen_bootargs(components):
     os.system('dd if=/dev/zero of={0} bs=1 seek={1} count=1 conv=notrunc >/dev/null 2>&1'.format(kernel, real_start - 1))
     return True
 
-def fix_owrtdtb(components, new_path_to_dtb):
+
+def fix_owrtdtb(components, new_path_to_dtb, remove_bootargs=False):
     """Replace built-in dtb with new dtb."""
     # .fill 4000
     size = os.path.getsize(new_path_to_dtb)
@@ -270,9 +272,20 @@ def fix_owrtdtb(components, new_path_to_dtb):
     a = 'dd if=/dev/zero of={} bs=1 seek={} count={} conv=notrunc > /dev/null 2>&1'.format(
         kernel, int(start) + 8, size + 1)
     os.system(a)
+
+    if remove_bootargs:
+        from slcore.dt_parsers.common import load_dtb
+        dts = load_dtb(new_path_to_dtb)
+        dts.remove_property('bootargs', '/chosen')
+        new_path_to_dtb += '.fix_bootargs'
+        with open(new_path_to_dtb, 'wb') as f:
+            f.write(dts.to_dtb(version=17))
+
     b = 'dd if={} of={} bs=1 seek={} count={} conv=notrunc > /dev/null 2>&1'.format(
         new_path_to_dtb, kernel, int(start) + 8, size)
     os.system(b)
+    if remove_bootargs:
+        os.remove(new_path_to_dtb)
     return True
 
 
@@ -315,6 +328,18 @@ def fix_armdtb(components, new_path_to_dtb):
         kernel, start)
     os.system(a)
     return True
+
+
+def fix_builtin_dtb(components):
+    kernel = components.get_path_to_kernel()
+    os.system('cp {0} {0}.fix_builtin_dtb'.format(kernel))
+
+    path_to_dtb = __scan_dtb(kernel, extract=True)
+    if path_to_dtb is None:
+        return None
+
+    start = int(os.path.basename(path_to_dtb).split('.')[0], 16)
+    return start
 
 
 def fix_cmdline(components):
@@ -392,11 +417,11 @@ def unpack(path, target_dir=None, extract=True):
             path_to_image = module.extractor.output[result.file.path].carved[result.offset]
             if path_to_image.endswith('uimage'):
                 components = unpack(path_to_image, target_dir=os.path.dirname(path_to_image))
-            elif path_to_image.endswith('7x'):
+            elif path_to_image.endswith('7z'):
                 # because *.trx will be overwrote by *.7z, we replace 7z with trx here
                 path_to_image = path_to_image.replace('7z', 'trx')
                 components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_trx_kernel(
-                    components.path_to_image)
+                    path_to_image)
             components.set_type(TRX_KERNEL)
             path_to_image = module.extractor.output[result.file.path].carved[result.offset]
             components.set_path_to_image(path_to_image)
@@ -419,6 +444,26 @@ def unpack(path, target_dir=None, extract=True):
         elif str(result.description).find('Squashfs filesystem') != -1:
             components.set_path_to_rootfs(
                 module.extractor.output[result.file.path].carved[result.offset])
+        elif str(result.description).find('POSIX tar archive (GNU)') != -1:
+            if components.get_type() != None:
+                continue
+            path_to_image = module.extractor.output[result.file.path].carved[result.offset]
+            with os.popen('tar -t -f {}'.format(path_to_image)) as f:
+                for line in f:
+                    if line.strip().endswith('kernel'):
+                        path_to_kernel = \
+                            os.path.join(os.path.dirname(path_to_image), line.strip())
+                    elif line.strip().endswith('root'):
+                        path_to_rootfs = \
+                            os.path.join(os.path.dirname(path_to_image), line.strip())
+            # construct the image
+            path_to_image += '.kirkwood'
+            os.system('cat {} >  {}'.format(path_to_kernel, path_to_image))
+            os.system('cat {} >> {}'.format(path_to_rootfs, path_to_image))
+            components = unpack(path_to_image, target_dir=os.path.dirname(path_to_image))
+            components.set_type(KIRKWOOD_TAR_KERNEL)
+            components.set_path_to_image(path_to_image)
+            components.set_path_to_raw(path)
         elif str(result.description).find('UBI erase count header') != -1:
             if components.get_type() != None:
                 continue

@@ -79,90 +79,6 @@ bamboo:
       stub_reserved9: {offset: 0x0 ... 0xfc, value: '0x0'}
 basics: {architecture: arm, board: mach-bcm, board_id: '0xFFFFFFFF', brand: openwrt,
   endian: l, machine_name: brcm_bcm4708}
-components: {output: '0x0000001C    TRX firmware header, little endian, version: 1,
-    header size: 28 bytes, linux kernel offset: 0x1C, rootfs offset: 0x400000
-
-    0x0000001C    LZMA compressed data, properties: 0x5D, dictionary size: 65536 bytes,
-    uncompressed size: 1436856 bytes
-
-    0x00400000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00420000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00440000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00460000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00480000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x004A0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x004C0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x004E0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00500000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00520000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00540000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00560000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00580000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x005A0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x005C0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x005E0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00600000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00620000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00640000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00660000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x00680000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x006A0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x006C0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    0x006E0000    UBI erase count header, version: 1, EC: 0x0, VID header offset:
-    0x800, data offset: 0x1000
-
-    ', path_to_dtb: /root/esv/../build/mach-bcm/_openwrt-15.05-bcm53xx-asus-rt-n18u-squashfs.trx.extracted/_1C.kernel.extracted/15DB80.dtb,
-  path_to_image: /root/esv/../build/mach-bcm/_openwrt-15.05-bcm53xx-asus-rt-n18u-squashfs.trx.extracted/1C.trx,
-  path_to_kernel: /root/esv/../build/mach-bcm/_openwrt-15.05-bcm53xx-asus-rt-n18u-squashfs.trx.extracted/1C.kernel,
-  path_to_raw: /mnt/iscsi/openwrt-build-docker/share/15.05-653f4efe62bbf5e0a329dac4a57de2b5/./chaos_calmer-15.05/bin/bcm53xx/openwrt-15.05-bcm53xx-asus-rt-n18u-squashfs.trx,
-  path_to_rootfs: null, path_to_uimage: /root/esv/../build/mach-bcm/_openwrt-15.05-bcm53xx-asus-rt-n18u-squashfs.trx.extracted/1C.uimage,
-  supported: true, type: 1}
 kernel: {kernel_entry_point: '0xc0008000', kernel_load_address: '0x00008000'}
 path_to_dtb: examples/profiles/brcm_bcm4708/profile.dtb
 ram:
@@ -174,5 +90,4 @@ ram:
   - {base: 2281701376, priority: '0', size: 134217728}
   priority: '0'
   size: '0x8000000'
-runtime: {iteration: 1, user_mode: true}
 uart: {num: 2}

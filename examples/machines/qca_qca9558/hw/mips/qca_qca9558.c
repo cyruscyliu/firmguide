@@ -1494,6 +1494,7 @@ static void qca_qca9558_init(MachineState *machine)
     qdev_connect_gpio_out(DEVICE(&s->qca_ar7240_misc_intc0), 0, s->cpu->env.irq[6]);
     
     
+    
     serial_mm_init(get_system_memory(), 0x18020000, 2, qdev_get_gpio_in(DEVICE(&s->qca_ar7240_misc_intc0), 3), 115200, serial_hd(0), DEVICE_BIG_ENDIAN);
     
     

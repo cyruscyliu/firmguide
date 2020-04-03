@@ -1,8 +1,8 @@
 import os
 
 from slcore.generation.compilerf import get_compiler
-from slcore.compositor import pack_kernel, fix_armdtb, fix_smp, \
-    pack_initramfs, fix_cmdline, fix_owrtdtb, fix_choosen_bootargs
+from slcore.compositor import pack_kernel, fix_smp, \
+    pack_initramfs, fix_cmdline, fix_builtin_dtb, fix_armdtb
 from slcore.generation.dt_renderer import DTRenderer
 from slcore.generation.common import to_upper
 from slcore.analyses.analysis import Analysis
@@ -66,14 +66,14 @@ class Preparation(Analysis):
 
         # 3. prepare -k path/to/kernel
         if firmware.get_arch() == 'mips':
-            # 3.1 If a mips firmware has CMDLINE: filled, it will use our customed cmdline.
+            # 3.1 If a mips firmware has CMDLINE: filled, we replace it with our cmdline.
             fix_cmdline(firmware.get_components())
-            # 3.1 replace the built-in kernel
-            fix_owrtdtb(firmware.get_components(), firmware.get_dtb())
-            fix_choosen_bootargs(firmware.get_components())
+            # 3.3 find the builtin dtb
+            offset = fix_builtin_dtb(firmware.get_components())
         elif firmware.get_arch() == 'arm':
             # 3.3 If an arm firmware has a built-in dtb, disable it.
             fix_armdtb(firmware.get_components(), firmware.get_dtb())
+            offset = None
         # 3.4 we cannot handle SMP
         fix_smp(firmware.get_components())
         # 3.2 add a uimage header on the kernel image
@@ -81,7 +81,11 @@ class Preparation(Analysis):
         if firmware.get_arch() == 'arm':
             entry_point = load_address
         else:
-            entry_point = firmware.get_kernel_entry_point()
+            # entry_point = firmware.get_kernel_entry_point()
+            # we move our metadata to a higher place, so maybe
+            # 0x80000000 is safe, sometimes a specific
+            # entry point is not such universal
+            entry_point = '0x80000000'
         # Why we don't use vmlinux if any?
         # ARM32 has two head.S, the one is in side of the vmlinux
         # the other is outside of the vmlinux. Due to historical
@@ -102,7 +106,7 @@ class Preparation(Analysis):
         running_command = firmware.qemuc.get_command(
             firmware.get_arch(), firmware.get_endian(), firmware.get_machine_name(),
             kernel, initrd=path_to_initramfs, dtb=firmware.get_components().get_path_to_dtb(),
-            n_serial=firmware.get_uart_num()
+            n_serial=firmware.get_uart_num(), dtb_offset=offset,
         )
         self.debug(firmware, 'get command: {}'.format(running_command), 1)
         firmware.running_command = running_command

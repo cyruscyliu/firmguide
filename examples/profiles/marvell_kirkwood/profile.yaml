@@ -265,28 +265,7 @@ bamboo:
       stub_reserved9: {offset: 0x0 ... 0x1c, value: '0x0'}
 basics: {architecture: arm, board: mach-mvebu, board_id: '0xFFFFFFFF', brand: openwrt,
   endian: l, machine_name: marvell_kirkwood}
-components: {output: '0x00000000    uImage header, header size: 64 bytes, created:
-    2019-06-27 12:18:52, image size: 2050134 bytes, Data Address: 0x8000, Entry Point:
-    0x8000, OS: Linux, CPU: ARM, compression type: none, image name: "ARM OpenWrt
-    Linux-4.14.131"
-
-    0x00000064    Linux kernel ARM boot executable zImage (little-endian), load address:
-    "0x00000000", end address: "0x001F17B0"
-
-    0x00006620    xz compressed data
-
-    0x000067C0    xz compressed data
-
-    0x001F17F0    Flattened device tree, size: 12454 bytes, version: 17
-
-    ', path_to_dtb: /root/esv/../build/mach-kirkwood/_openwrt-18.06.4-kirkwood-linksys_viper-squashfs-factory.bin.extracted/1F17F0.dtb,
-  path_to_image: /root/esv/../build/mach-kirkwood/_openwrt-18.06.4-kirkwood-linksys_viper-squashfs-factory.bin.extracted/0.uimage,
-  path_to_kernel: /root/esv/../build/mach-kirkwood/_openwrt-18.06.4-kirkwood-linksys_viper-squashfs-factory.bin.extracted/0.kernel,
-  path_to_raw: /mnt/iscsi/openwrt-build-docker/share/18.06.4-1eb17956454ba2925775bced266ee1a9/./openwrt-18.06.4/bin/targets/kirkwood/generic/openwrt-18.06.4-kirkwood-linksys_viper-squashfs-factory.bin,
-  path_to_rootfs: null, path_to_uimage: /root/esv/../build/mach-kirkwood/_openwrt-18.06.4-kirkwood-linksys_viper-squashfs-factory.bin.extracted/0.uimage,
-  supported: true, type: 2}
 kernel: {kernel_entry_point: '0xc0008000', kernel_load_address: '0x00008000'}
 path_to_dtb: examples/profiles/marvell_kirkwood/profile.dtb
 ram: {base: '0x0', priority: '0', size: '0x8000000'}
-runtime: {iteration: 1, user_mode: true}
 uart: {num: 2}
