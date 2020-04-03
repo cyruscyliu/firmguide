@@ -42,6 +42,14 @@ class MD(Common):
 
 
 class Machines(Analysis):
+    def select_first_profile(self, md):
+        profile = list(md.get_profiles().keys())
+        if len(profile):
+            profile = profile[0]
+        else:
+            profile = None
+        return profile
+
     def update_profile(self, firmware):
         raw_name = firmware.get_components().get_raw_name()
         firmware.path_to_profile = os.path.join(
@@ -124,12 +132,14 @@ class Machines(Analysis):
                 # T5 WHETHER OR NOT WE ARE PREPARED
                 profile = md.find_profile_by_compatible(compatible)
                 if profile is None:
+                    profile = self.select_first_profile(md)
+                if profile is None:
                     # modeling 002
                     self.clear_runtime(firmware)
-                    self.context['input'] = '002 cannot find the compatible {}'.format(compatible)
+                    self.context['input'] = '002 cannot find the compatible {} and nothing prepared'.format(compatible)
                     return False
                 self.info(firmware, 'we support {}'.format(compatible), 1)
-                # update profile and change save-to-path to avoid modifing our well-defined profile
+                # update profile and change save-to-path to avoid modifying our well-defined profile
                 firmware.set_profile(path_to_profile=profile)
                 firmware.set_components(components)
                 self.update_profile(firmware)
@@ -142,11 +152,7 @@ class Machines(Analysis):
         machine_ids = find_machine_id(components.get_path_to_kernel())
         if machine_ids is None:
             self.info(firmware, 'we will try our profiles one by one', 1)
-            profile = list(md.get_profiles().keys())
-            if len(profile):
-                profile = profile[0]
-            else:
-                profile = None
+            profile = self.select_first_profile(md)
         else:
             self.info(firmware, 'we support {}'.format(machine_ids), 1)
             profile = md.find_profile_by_id(machine_ids)
