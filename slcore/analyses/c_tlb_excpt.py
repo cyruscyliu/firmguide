@@ -5,11 +5,13 @@ from slcore.analyses.trace import LoadTrace
 class TLBException(Analysis):
     def handle_mips_tlb_exception(self, firmware, pql):
         tlb = []
+        tlbl = 0
         tlbs = 0
         for k, cpurf in pql.cpurfs.items():
             if 'exception' in cpurf and 'type' in cpurf['exception'] and \
-                    cpurf['exception']['type'] == 'tlbl':
+                    cpurf['exception']['type'] == 'tlbl' and tlbl < 10:
                 tlb.append(cpurf)
+                tlbl += 1
             if 'exception' in cpurf and 'type' in cpurf['exception'] and \
                     cpurf['exception']['type'] == 'tlbs' and tlbs < 10:
                 tlb.append(cpurf)

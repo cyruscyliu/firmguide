@@ -62,7 +62,7 @@ class QEMUController(object):
                 return '{}/mips-softmmu/qemu-system-mips'.format(self.qemu_root)
 
     def get_command(
-            self, arch, endian, machine, kernel,
+            self, arch, endian, machine, kernel, dtb_offset=None,
             initrd=None, flash=None, image=None, flash_size=None, dtb=None, n_serial=1):
         running_command = self.__get_binary(arch, endian)
         if running_command is None:
@@ -73,6 +73,8 @@ class QEMUController(object):
 
         if dtb:
             running_command += ' -dtb {}'.format(dtb)
+        if dtb_offset:
+            running_command += ',offset=0x{:x}'.format(dtb_offset)
 
         if flash == 'nor':
             running_command += ' -drive file={},if=pflash,format=raw'.format(image)

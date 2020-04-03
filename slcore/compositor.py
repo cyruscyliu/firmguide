@@ -252,7 +252,8 @@ def fix_choosen_bootargs(components):
     os.system('dd if=/dev/zero of={0} bs=1 seek={1} count=1 conv=notrunc >/dev/null 2>&1'.format(kernel, real_start - 1))
     return True
 
-def fix_owrtdtb(components, new_path_to_dtb):
+
+def fix_owrtdtb(components, new_path_to_dtb, remove_bootargs=False):
     """Replace built-in dtb with new dtb."""
     # .fill 4000
     size = os.path.getsize(new_path_to_dtb)
@@ -271,9 +272,20 @@ def fix_owrtdtb(components, new_path_to_dtb):
     a = 'dd if=/dev/zero of={} bs=1 seek={} count={} conv=notrunc > /dev/null 2>&1'.format(
         kernel, int(start) + 8, size + 1)
     os.system(a)
+
+    if remove_bootargs:
+        from slcore.dt_parsers.common import load_dtb
+        dts = load_dtb(new_path_to_dtb)
+        dts.remove_property('bootargs', '/chosen')
+        new_path_to_dtb += '.fix_bootargs'
+        with open(new_path_to_dtb, 'wb') as f:
+            f.write(dts.to_dtb(version=17))
+
     b = 'dd if={} of={} bs=1 seek={} count={} conv=notrunc > /dev/null 2>&1'.format(
         new_path_to_dtb, kernel, int(start) + 8, size)
     os.system(b)
+    if remove_bootargs:
+        os.remove(new_path_to_dtb)
     return True
 
 
@@ -316,6 +328,18 @@ def fix_armdtb(components, new_path_to_dtb):
         kernel, start)
     os.system(a)
     return True
+
+
+def fix_builtin_dtb(components):
+    kernel = components.get_path_to_kernel()
+    os.system('cp {0} {0}.fix_builtin_dtb'.format(kernel))
+
+    path_to_dtb = __scan_dtb(kernel, extract=True)
+    if path_to_dtb is None:
+        return None
+
+    start = int(os.path.basename(path_to_dtb).split('.')[0], 16)
+    return start
 
 
 def fix_cmdline(components):
