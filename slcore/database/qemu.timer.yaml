@@ -88,7 +88,12 @@ oxsemi,ox810se-rps-timer: {extend: 'timer,generic'}
 oxsemi,ox820-rps-timer: {extend: 'timer,generic'}
 oxsemi,ox820se-rps-timer: {extend: 'timer,generic'}
 picochip,pc3x2-timer: {extend: 'timer,generic'}
-plxtech,nas782x-rps-timer: {extend: 'timer,generic'}
+plxtech,nas782x-rps-timer:
+    extend: 'timer,generic'
+    n_irq: 1
+    counters: [{'addr': '0x24', 'id': 0}]
+    parameters: []
+    get_connection: []
 qcom,kpss-timer: {extend: 'timer,generic'}
 qcom,scss-timer: {extend: 'timer,generic'}
 ralink,cevt-systick: {extend: 'timer,generic'}

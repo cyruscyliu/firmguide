@@ -84,7 +84,7 @@ class QEMUController(object):
         running_command += ' -nographic'
         if initrd:
             running_command += ' -initrd {}'.format(initrd)
-        running_command += ' -append "console=ttyS0"'
+        running_command += ' -append "console=ttyS0 nowatchdog nokaslr"'
 
         if n_serial > 1:
             # -chardev stdio,mux=on,id=char0 -mon chardev=char0,mode=readline -serial chardev:char0 -serial chardev:char0

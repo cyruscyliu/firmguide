@@ -21,7 +21,7 @@ def __is_timer(dts, path):
     return False
 
 
-def find_flatten_timer_in_fdt(dts, intc=False):
+def find_flatten_timer_in_fdt(dts, intc=True):
     """Find timers in a machine.
 
     Args:

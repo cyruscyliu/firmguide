@@ -9,7 +9,7 @@ class RAM(Analysis):
             return True
         arch = firmware.get_arch()
         if arch == 'arm':
-            rs = 32
+            rs = 256
         elif arch == 'mips':
             rs = 256
             firmware.set_va_pa_mapping('0x80000000', '0x00000000', '0x20000000')
