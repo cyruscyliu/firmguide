@@ -88,18 +88,24 @@ oxsemi,ox810se-rps-timer: {extend: 'timer,generic'}
 oxsemi,ox820-rps-timer: {extend: 'timer,generic'}
 oxsemi,ox820se-rps-timer: {extend: 'timer,generic'}
 picochip,pc3x2-timer: {extend: 'timer,generic'}
-plxtech,nas782x-rps-timer: {extend: 'timer,generic'}
+plxtech,nas782x-rps-timer:
+    extend: 'timer,generic'
+    n_irq: 1
+    counters: [{'addr': '0x24', 'id': 0}]
+    parameters: []
+    get_connection: []
 qcom,kpss-timer: {extend: 'timer,generic'}
 qcom,scss-timer: {extend: 'timer,generic'}
 ralink,cevt-systick: {extend: 'timer,generic'}
 ralink,rt2880-timer:
   external: true
-  get_body: ['object_initialize(&s->timer, sizeof(s->timer), TYPE_{{ name|upper }});',
-    'qdev_set_parent_bus(DEVICE(&s->timer), sysbus_get_default());', 'object_property_set_bool(OBJECT(&s->timer),
-      true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer), 0, {{
+  get_body: ['object_initialize(&s->timer{{ id }}, sizeof(s->timer{{ id }}), TYPE_{{ name|upper }});',
+    'qdev_set_parent_bus(DEVICE(&s->timer{{ id }}), sysbus_get_default());', 'object_property_set_bool(OBJECT(&s->timer{{ id }}),
+      true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer{{ id }}), 0, {{
       reg.base }});']
-  get_field: ['{{ name|upper }}State timer;']
+  get_field: ['{{ name|upper }}State timer{{ id }};']
   get_header: ['hw/timer/{{ name }}.h']
+  # get_connection: ['qdev_connect_gpio_out(DEVICE(&s->timer{{ id }}), {{ siid }}, {{ intcp.get_irqn }});']
   get_connection: []
   parameters: [intcp, irqns]
   counters: []

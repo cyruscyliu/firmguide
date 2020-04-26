@@ -12,6 +12,7 @@
 #include "target/arm/cpu-qom.h"
 #include "target/arm/cpu.h"
 #include "hw/cpu/arm11mpcore.h"
+#include "hw/timer/plxtech_nas782x_rps_timer.h"
 #include "hw/char/serial.h"
 
 #define TYPE_PLXTECH_NAS782X "plxtech_nas782x"
@@ -21,6 +22,7 @@
 typedef struct PLXTECH_NAS782XState {
     ARMCPU *cpu;
     ARM11MPCorePriveState arm_arm11mp_gic;
+    PLXTECH_NAS782X_RPS_TIMERState timer0;
     MemoryRegion stub0_mmio;
     uint32_t stub_reserved0[0xf00 >> 2];
     MemoryRegion stub1_mmio;
@@ -39,8 +41,6 @@ typedef struct PLXTECH_NAS782XState {
     uint32_t stub_reserved5[0x100 >> 2];
     MemoryRegion stub7_mmio;
     uint32_t stub_reserved7[0x14 >> 2];
-    MemoryRegion stub8_mmio;
-    uint32_t stub_reserved8[0x40 >> 2];
     MemoryRegion stub9_mmio;
     uint32_t stub_reserved9[0xc >> 2];
     MemoryRegion stub10_mmio;
@@ -457,48 +457,6 @@ static void stub7_write(void *opaque, hwaddr offset, uint64_t val, unsigned size
 static const MemoryRegionOps stub7_ops = {
     .read = stub7_read,
     .write = stub7_write,
-    .endianness = DEVICE_LITTLE_ENDIAN,
-};
-
-static void stub8_update(void *opaque)
-{
-    /* PLXTECH_NAS782XState *s = opaque; */
-}
-
-static uint64_t stub8_read(void *opaque, hwaddr offset, unsigned size)
-{
-    PLXTECH_NAS782XState *s = opaque;
-    uint32_t res = 0;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return 0;
-    case 0x0 ... 0x3c:
-        res = s->stub_reserved8[offset >> 2];
-        break;
-    }
-    return res;
-}
-
-static void stub8_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
-{
-    PLXTECH_NAS782XState *s = opaque;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return;
-    case 0x0 ... 0x3c:
-        s->stub_reserved8[offset >> 2] = val;
-        break;
-    }
-    stub8_update(s);
-}
-
-static const MemoryRegionOps stub8_ops = {
-    .read = stub8_read,
-    .write = stub8_write,
     .endianness = DEVICE_LITTLE_ENDIAN,
 };
 
@@ -1313,7 +1271,6 @@ static void plxtech_nas782x_reset(void *opaque)
     s->stub_reserved4[0] = 0x0;
     s->stub_reserved5[0] = 0x0;
     s->stub_reserved7[0] = 0x0;
-    s->stub_reserved8[0] = 0x0;
     s->stub_reserved9[0] = 0x0;
     s->stub_reserved10[0] = 0x0;
     s->stub_reserved11[0] = 0x0;
@@ -1354,6 +1311,11 @@ static void plxtech_nas782x_init(MachineState *machine)
     
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->arm_arm11mp_gic), 0, qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));
     
+    object_initialize(&s->timer0, sizeof(s->timer0), TYPE_PLXTECH_NAS782X_RPS_TIMER);
+    qdev_set_parent_bus(DEVICE(&s->timer0), sysbus_get_default());
+    object_property_set_bool(OBJECT(&s->timer0), true, "realized", &err);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer0), 0, 0x44400200);
+    
     
     serial_mm_init(get_system_memory(), 0x44200000, 0, qdev_get_gpio_in(DEVICE(&s->arm_arm11mp_gic), 23), 115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
     
@@ -1376,8 +1338,6 @@ static void plxtech_nas782x_init(MachineState *machine)
     memory_region_add_subregion_overlap(get_system_memory(), 0x44100000, &s->stub5_mmio, 0);
     memory_region_init_io(&s->stub7_mmio, NULL, &stub7_ops, s, TYPE_PLXTECH_NAS782X, 0x14);
     memory_region_add_subregion_overlap(get_system_memory(), 0x44400000, &s->stub7_mmio, 0);
-    memory_region_init_io(&s->stub8_mmio, NULL, &stub8_ops, s, TYPE_PLXTECH_NAS782X, 0x40);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x44400200, &s->stub8_mmio, 0);
     memory_region_init_io(&s->stub9_mmio, NULL, &stub9_ops, s, TYPE_PLXTECH_NAS782X, 0xc);
     memory_region_add_subregion_overlap(get_system_memory(), 0x44900000, &s->stub9_mmio, 0);
     memory_region_init_io(&s->stub10_mmio, NULL, &stub10_ops, s, TYPE_PLXTECH_NAS782X, 0x10);
@@ -1431,7 +1391,7 @@ static void plxtech_nas782x_machine_init(MachineClass *mc)
 {
     mc->desc = "plxtech_nas782x";
     mc->init = plxtech_nas782x_init;
-    mc->default_ram_size = 32 * MiB;
+    mc->default_ram_size = 256 * MiB;
     mc->default_cpu_type = ARM_CPU_TYPE_NAME("arm11mpcore");
     mc->ignore_memory_transaction_failures = false;
 }
