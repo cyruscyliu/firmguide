@@ -1,0 +1,18 @@
+of_init:
+    help: "Plugin - Find of_init callbacks w.s.t compatibles in given device tree."
+    optional: &optional
+        dtb: {short: dtb, required: False}
+    callback: __scan_dtcb
+topology:
+    help: "Plugin - Find the interrupt topology in given device tree."
+    optional: *optional
+    callback: __scan_topology
+disclose:
+    help: "Plugin - Disclose device tree blob."
+    optional:
+        <<: *optional
+        mmio: {short: m, required: False, action: "store_true", default: True,
+            help: "Show MMIO regions in the device tree blob."}
+        flash: {short: f, required: False, action: "store_true", default: True,
+            help: "Show FLASH chips in the device tree blob."}
+    callback: __dtinfo

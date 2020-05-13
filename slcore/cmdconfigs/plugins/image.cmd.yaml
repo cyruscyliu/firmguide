@@ -1,0 +1,9 @@
+unpack:
+    help: "Plugin - Unpack an image."
+    optional:
+        firmware: {short: f, metavar: "IMAGE",
+            help: "We extend Binwalk to identify more image headers and can extract the Linux kernel in the image."}
+    callback: __unpack
+prbtcmd:
+    help: "Plugin - Print booting cmdline for given image."
+    callback: __prbtcmd

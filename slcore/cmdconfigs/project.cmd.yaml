@@ -1,0 +1,57 @@
+create:
+    help: "Project - Create a project."
+    description: Salamander is a project-style tool.
+        A project is a global information center and
+        will be used in every future step implicitly.
+        The project is quite useful saving you from
+        long and forgettable command lines.
+    optional: &create_optional
+        name: &name
+            short: n
+            type: str
+            required: True
+            help: "A name for this project. It can be any string you like except -."
+        arch: {short: a, choices: ["arm", "arm64", "mips"], required: True,
+            help: "The architecture. We only support arm, arm64, and mips."}
+        endian: {short: e, choices: ["b", "l"], required: True,
+            help: "The endianness. ARMEB is not supported, other combinations are OK."}
+        brand: {short: b, choices: ["openwrt"], required: False,
+            help: "Optional. Say openwrt(lower case of OpenWRT)."}
+        target: {short: t, required: False,
+            help: "Brand related. Say ath79 of OpenWRT."}
+        subtarget: {short: st, required: False,
+            help: "Brand related. Say generic is a subtarget of the target ath79 in OpenWRT."}
+        source: {short: s, metavar: "path/to/source", required: False,
+            help: "Optional. The source code you'd like to analyze. BTW, you have to compile your source first. See --makeout for more infomation."}
+        cross_compile: {short: cc, metavar: "path/to/cc_prefix", required: False,
+            help: "Source related. The cross compiler prefix."}
+        makeout: {short: m, metavar: "path/to/makeout", required: False,
+            help: "Source related. When you compile your source, remember to save the output.
+            For Linux, the command can be make ARCH: xxx, CROSS_COMPILE: xxx V: 1 >makeout.txt 2>&1."}
+    callback: __project_create
+config:
+    help: "Project - Config the project."
+    description: "Config the project you created/opened. The arguments are the same as create."
+    optional: *create_optional
+    callback:  __project_config
+open:
+    help: "Project - Open a project."
+    optional:
+        name: *name
+    callback:  __project_open
+rename:
+    help: "Project - Rename the project."
+    optional:
+        name: *name
+    callback: __project_rename
+close:
+    help: "Project - Close the project."
+    callback: __project_close
+delete:
+    help: "Project - Delete a project."
+    optional:
+        name: *name
+    callback: __project_delete
+show:
+    help: "Project - Show the project."
+    callback: __project_show

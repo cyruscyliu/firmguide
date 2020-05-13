@@ -1,0 +1,18 @@
+batchproc:
+    help: "Plugin - Batch processing."
+    optional:
+        add: {short: a, required: False, metavar: "PATH_TO_IMAGE", nargs: "+",
+            help: "Add(skip if exists) an image or images to current project by image paths."}
+        extend: {short: e, required: False, metavar: "DIR_TO_IMAGES",
+            help: "Add(skip if exists) an image or images to current project by images directory."}
+        add_dtb: {short: ad, required: False, metavar: "PATH_TO_DTB", nargs: "+",
+            help: "Add(skip if exists) a dtb or dtbs to current project by dtb paths."}
+        extend_dtb: {short: ed, required: False, metavar: "DIR_TO_DTBS",
+            help: "Add(skip if exists) a dtb or dtbs to current project by dtbs directory."}
+        dt: {short: dt, required: False, action: "store_true", default: True,
+            help: "Add images with device tree, only effecting -e, True by default."}
+        count: {short: c, required: False, type: int, default: 10,
+            help: "Limit how many images to be added to current project, only effecting -e, 10 by default."}
+        show: {short: s, required: False, action: "store_true", default: False,
+            help: "Show images/dtbs of current project. Similar to ./salamander show."}
+    callback: __batch

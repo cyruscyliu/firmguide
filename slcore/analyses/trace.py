@@ -10,7 +10,7 @@ class LoadTrace(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'load_trace'
-        self.description = 'load trace from do_tracing'
+        self.description = 'Load QEMU trace from file.'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = True
         self.required = ['do_tracing', 'preparation']
@@ -45,7 +45,7 @@ class DoTracing(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'do_tracing'
-        self.description = 'tracing for diagnosis'
+        self.description = 'Trace QEMU execution for diagnosis.'
         self.context['hint'] = 'user interrup or QEMU internal error'
         self.critical = True
         self.required = ['preparation']

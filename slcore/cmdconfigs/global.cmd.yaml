@@ -1,0 +1,4 @@
+global:
+    optional:
+        reset: {short: r, action: "store_true", default: False, help: "reset all analyses"}
+        debug: {short: d, action: "store_true", help: "show verbose logs"}
