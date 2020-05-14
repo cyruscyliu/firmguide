@@ -1,0 +1,21 @@
+booting:
+    analyses: [FindMachine, Preparation, DTPreprocessing,
+        InitValue, Tracing, CheckUserLevelF]
+    description: ''
+asmany:
+    analyses: [CheckBoard, CalcRAM, CalcLoadAddr, EntryPoint]
+    save_and_restore: True
+    description: ''
+trace:
+    analyses: [LoadTrace, CheckUserLevel, CheckDataAbort, CheckUndefInst,
+        CheckTLBExcep]
+    description: ''
+asmsrc:
+    analyses: [Preparation, DTPreprocessing, InitValue,
+        Tracing, LoadTrace, CheckUserLevel, CheckDataAbort,
+        CheckUndefInst, CheckTLBExcep]
+    iterative: 20
+    description: ''
+rendering:
+    analyses: [Preparation, DTPreprocessing, InitValue]
+    description: ''

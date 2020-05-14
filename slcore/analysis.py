@@ -50,14 +50,3 @@ class Analysis(Common):
             self.warning(self.name, ', '.join([self.context['hint'], self.context['input']]), 0)
 
 
-class AnalysisGroup(object):
-    def __init__(self):
-        self.name = None
-        self.description = None
-        self.members = []
-        self.required = []
-
-    @abc.abstractmethod
-    def run(self, firmware):
-        pass
-
