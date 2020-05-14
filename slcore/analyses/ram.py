@@ -1,7 +1,7 @@
 from slcore.analysis import Analysis
 
 
-class RAM(Analysis):
+class CalcRAM(Analysis):
     def run(self, firmware):
         ram_size = firmware.get_ram_size()
         if ram_size is not None:
@@ -29,6 +29,6 @@ class RAM(Analysis):
         super().__init__(analysis_manager)
         self.name = 'ram'
         self.description = 'Allocate 32M(ARM)/128M(MIPS) RAM by default.'
-        self.required = ['mfilter']
+        self.required = ['bfilter']
         self.critical = False
 

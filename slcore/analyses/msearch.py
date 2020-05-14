@@ -41,7 +41,7 @@ class MD(Common):
                 return self.machine_ids[machine_id]
 
 
-class Machines(Analysis):
+class FindMachine(Analysis):
     def select_first_profile(self, md):
         profile = list(md.get_profiles().keys())
         if len(profile):
@@ -175,8 +175,8 @@ class Machines(Analysis):
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-        self.name = 'machines'
-        self.description = 'find a valid profile'
+        self.name = 'msearch'
+        self.description = 'Find a valid machine profile.'
         self.context['hint'] = 'oops'
         self.required = []
         self.critical = True

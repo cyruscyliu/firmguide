@@ -4,7 +4,7 @@ from slcore.analysis import Analysis
 from slcore.database.dbf import get_database
 
 
-class Filter(Analysis):
+class CheckBoard(Analysis):
     def find_dir_compiled(self, exclude=None):
         if exclude is None:
             exclude = []
@@ -88,8 +88,8 @@ class Filter(Analysis):
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-        self.name = 'mfilter'
-        self.description = 'some machines are not possible to support yet'
+        self.name = 'bfilter'
+        self.description = 'Filter our Linux Kernels board which are supported.'
         self.required = []
         self.context['hint'] = 'cannot support this machine yet'
         self.critical = True

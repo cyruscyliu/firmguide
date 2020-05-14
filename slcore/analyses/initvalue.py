@@ -29,7 +29,7 @@ class InitValue(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'initvalue'
-        self.description = 'update init value of registers'
+        self.description = 'Update init value of registers.'
         self.required = ['preprocdt']
         self.context['hint'] = ''
         self.critical = False

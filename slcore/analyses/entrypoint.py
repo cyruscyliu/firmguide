@@ -28,8 +28,8 @@ class EntryPoint(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'entrypoint'
-        self.description = 'resolve kernel entry point'
+        self.description = 'Resolve kernel entry point.'
         self.context['hint'] = 'problem in getting kernel entry point'
         self.critical = True
-        self.required = ['mfilter']
+        self.required = ['bfilter']
 

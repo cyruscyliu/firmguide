@@ -9,11 +9,11 @@ from pyqemulog import get_pql
 class LoadTrace(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-        self.name = 'load_trace'
+        self.name = 'loadtrace'
         self.description = 'Load QEMU trace from file.'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = True
-        self.required = ['do_tracing', 'preparation']
+        self.required = ['tracing', 'preparation']
         self.type = 'diag'
 
         # store trace context
@@ -41,10 +41,10 @@ class LoadTrace(Analysis):
         return True
 
 
-class DoTracing(Analysis):
+class Tracing(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-        self.name = 'do_tracing'
+        self.name = 'tracing'
         self.description = 'Trace QEMU execution for diagnosis.'
         self.context['hint'] = 'user interrup or QEMU internal error'
         self.critical = True
@@ -71,4 +71,3 @@ class DoTracing(Analysis):
             qemu.close()
             socket.close()
         return self.analysis_status(status)
-

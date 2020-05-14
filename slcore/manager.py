@@ -1,7 +1,7 @@
 import os
 
 from slcore.common import Common
-from slcore.analyses.analysis import Analysis, AnalysisGroup
+from slcore.analysis import Analysis, AnalysisGroup
 
 
 def finished(firmware, analysis):

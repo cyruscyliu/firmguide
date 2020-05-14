@@ -1,15 +1,15 @@
 from slcore.dt_parsers.flash import find_flatten_flash_in_fdt
 from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
 from slcore.dt_parsers.common import load_dtb
-from slcore.analyses.anaysis import Analysis
+from slcore.analysis import Analysis
 
 
-class PluginDiscloseDT(Analysis):
+class DiscloseDT(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
 
         self.name = 'disclosedt'
-        self.description = 'Plugin - Disclose device tree blob.'
+        self.description = 'Disclose device tree blob.'
 
     def run(self, firmware, **kwargs):
         path_to_dtb = kwargs.pop(
@@ -45,3 +45,4 @@ class PluginDiscloseDT(Analysis):
                     self.info(firmware, message, 1)
 
         self.info(firmware, 'save dts at {}'.format(path_to_dts), 1)
+        return True

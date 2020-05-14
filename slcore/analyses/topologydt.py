@@ -4,13 +4,13 @@ from slcore.dt_parsers.common import load_dtb
 from slcore.analysis import Analysis
 
 
-class PluginTopologyDT(Analysis):
+class TopologyDT(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
 
         self.name = 'tolologydt'
         self.description = \
-            'Plugin - Display the interrupt topology in given device tree blob.'
+            'Display the interrupt topology in given device tree blob.'
 
     def run(self, firmware, **kwargs):
         path_to_dtb = kwargs.pop(
@@ -42,4 +42,5 @@ class PluginTopologyDT(Analysis):
                         g.edge(f, t, str(i))
         g.graph_attr['rankdir'] = 'LR'
         print(g.source)
-        self.info(firmware, 'ONLINE GRAPHIVZ VIEWER: https://edotor.net', 1)
+        self.info(irmware, 'ONLINE GRAPHIVZ VIEWER: https://edotor.net', 1)
+        return True

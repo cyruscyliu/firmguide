@@ -2,12 +2,12 @@ from slcore.compositor import unpack
 from slcore.analysis import Analysis
 
 
-class PluginUnpacking(Analysis):
+class Unpacking(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
 
         self.name = 'unpacking'
-        self.description = 'Plugin - Unpack given image.'
+        self.description = 'Unpack given image.'
 
     def run(self, firmware, **kwargs):
         path_to_firmware = kwargs.pop(
@@ -21,3 +21,4 @@ class PluginUnpacking(Analysis):
                     self.info(firmware, '{}: {}'.format(k, line), 1)
             else:
                 self.info(firmware, '{}: {}'.format(k, v), 1)
+        return True

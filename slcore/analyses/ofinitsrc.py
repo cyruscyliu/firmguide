@@ -115,12 +115,12 @@ candidates = [
 ]
 
 
-class PluginUpdateCompatibleDB(Analysis):
+class UpdateCompatibleDB(Analysis):
     def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
 
         self.name = 'updatecompatibledb'
-        self.description = \
-            'we want to know whether or not there are declares we don\'t known'
+        self.description = 'Update hardware in new source.'
 
     def run(self, firmware, **kwargs):
         path_to_source = kwargs.pop(
@@ -179,13 +179,13 @@ class PluginUpdateCompatibleDB(Analysis):
         return True
 
 
-class PluginOfInitSrc(Analysis):
+class OfInitSrc(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
 
-        self.name = 'initsrc'
+        self.name = 'ofinitsrc'
         self.description = \
-            'Plugin - Find of_init callbacks w.s.t compatibles in given device tree.'
+            'Find of_init callbacks w.s.t compatibles in given device tree.'
 
     def run(self, firmware, **kwargs):
         path_to_source = kwargs.pop(

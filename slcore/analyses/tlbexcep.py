@@ -1,8 +1,7 @@
 from slcore.analysis import Analysis
-from slcore.analyses.trace import LoadTrace
 
 
-class TLBException(Analysis):
+class CheckTLBExcep(Analysis):
     def handle_mips_tlb_exception(self, firmware, pql):
         tlb = []
         tlbl = 0
@@ -36,8 +35,7 @@ class TLBException(Analysis):
         return True
 
     def run(self, firmware):
-        trace = self.analysis_manager.get_analysis('load_trace')
-        assert isinstance(trace, LoadTrace)
+        trace = self.analysis_manager.get_analysis('loadtrace')
         pql = trace.pql
 
         if firmware.get_arch() == 'arm':
@@ -47,10 +45,9 @@ class TLBException(Analysis):
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-        self.name = 'tlbl'
-        self.description = 'find tlb load exception'
+        self.name = 'tlbexcep'
+        self.description = 'Find tlb load exception info.'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = False
-        self.required = ['check']
+        self.required = ['checkuserlevel', 'checkuserlevelf']
         self.type = 'diag'
-

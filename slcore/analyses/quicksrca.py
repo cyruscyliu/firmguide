@@ -19,12 +19,12 @@ generic_fcbs = {
 }
 
 
-class PluginQuickSrcAnalysis(Analysis):
+class QuickSrcA(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
 
-        self.name = 'quicksrcanalysis'
-        self.description = ''
+        self.name = 'quicksrca'
+        self.description = 'Quick source code analysis.'
 
     def run(self, firmware, **kwargs):
         ep = kwargs.pop('ep', None)
@@ -52,3 +52,4 @@ class PluginQuickSrcAnalysis(Analysis):
 
         if cfcfg:
             srcodec.traverse_funccalls2([ep], caller=caller, fcbs=generic_fcbs)
+        return True

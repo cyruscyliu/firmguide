@@ -1,7 +1,6 @@
 from capstone.mips_const import MIPS_OP_REG, MIPS_OP_IMM, MIPS_OP_MEM
 
 from slcore.analysis import Analysis
-from slcore.analyses.trace import LoadTrace
 from capstone import *
 import struct
 
@@ -22,7 +21,7 @@ def get_instruction(address, bb):
     return ' '.join([instruction['opcode'], ' '.join(instruction['operand'])])
 
 
-class DataAbort(Analysis):
+class CheckDataAbort(Analysis):
     def handle_arm_dabt(self, firmware, pql):
         dabts = []
         for k, cpurf in pql.cpurfs.items():
@@ -95,8 +94,7 @@ class DataAbort(Analysis):
     def run(self, firmware):
         self.dead_addresses = []
 
-        trace = self.analysis_manager.get_analysis('load_trace')
-        assert isinstance(trace, LoadTrace)
+        trace = self.analysis_manager.get_analysis('loadtrace')
         pql = trace.pql
 
         if firmware.get_arch() == 'arm':
@@ -106,11 +104,11 @@ class DataAbort(Analysis):
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-        self.name = 'data_abort'
-        self.description = 'find data abort info'
+        self.name = 'databort'
+        self.description = 'Find data abort info.'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = False
-        self.required = ['check']
+        self.required = ['checkuserlevel', 'checkuserlevelf']
         self.type = 'diag'
         #
         self.dead_addresses = []

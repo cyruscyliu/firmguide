@@ -1,8 +1,7 @@
 from slcore.analysis import Analysis
-from slcore.analyses.trace import LoadTrace
 
 
-class Checking(Analysis):
+class CheckUserLevel(Analysis):
     def scan_user_level_qemudebug(self, firmware, pql):
         user_level = 'usr32' if firmware.get_arch() == 'arm' else 'user'
         for k, cpurf in pql.cpurfs.items():
@@ -17,8 +16,7 @@ class Checking(Analysis):
     def run(self, firmware):
         self.info(firmware, 'scan user level indicators in {}'.format(firmware.path_to_trace), 1)
 
-        trace = self.analysis_manager.get_analysis('load_trace')
-        assert isinstance(trace, LoadTrace)
+        trace = self.analysis_manager.get_analysis('loadtrace')
         pql = trace.pql
 
         if firmware.trace_format == 'qemudebug':
@@ -34,15 +32,15 @@ class Checking(Analysis):
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-        self.name = 'check'
-        self.description = 'check whether we have done our job'
+        self.name = 'userlevel'
+        self.description = 'Check whether we have entered user level.'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = False
-        self.required = ['load_trace', 'preparation', 'do_tracing']
+        self.required = ['loadtrace', 'preparation', 'tracing']
         self.type = 'diag'
 
 
-class FastChecking(Analysis):
+class CheckUserLevelF(Analysis):
     def __scan_arm_user_level_qemudebug(self, path_to_trace):
         with open(path_to_trace) as f:
             for line in f:
@@ -87,10 +85,10 @@ class FastChecking(Analysis):
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-        self.name = 'check'
-        self.description = 'check whether we have done our job in a faster way'
+        self.name = 'fastuserlevel'
+        self.description = 'Check whether we have entered user level in a faster way.'
         self.context['hint'] = 'bad bad bad trace'
         self.critical = False
-        self.required = ['load_trace', 'preparation', 'do_tracing']
+        self.required = ['loadtrace', 'preparation', 'tracing']
         self.type = 'diag'
 

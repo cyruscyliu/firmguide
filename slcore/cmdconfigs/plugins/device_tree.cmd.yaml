@@ -2,7 +2,7 @@ topology:
     help: "Plugin - Find the interrupt topology in given device tree."
     optional: &optional
         dtb: {short: dtb, required: False}
-    callback: __plugintopologydt
+    callback: __topologydt
 disclose:
     help: "Plugin - Disclose device tree blob."
     optional:
@@ -11,4 +11,4 @@ disclose:
             help: "Show MMIO regions in the device tree blob."}
         flash: {short: f, required: False, action: "store_true", default: True,
             help: "Show FLASH chips in the device tree blob."}
-    callback: __plugindisclosedt
+    callback: __disclosedt
