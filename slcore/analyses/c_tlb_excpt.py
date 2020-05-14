@@ -1,4 +1,4 @@
-from slcore.analyses.analysis import Analysis
+from slcore.analysis import Analysis
 from slcore.analyses.trace import LoadTrace
 
 

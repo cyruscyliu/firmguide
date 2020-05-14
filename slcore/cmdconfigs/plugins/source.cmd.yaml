@@ -1,6 +1,6 @@
 newperph:
     help: "Plugin - Find new peripherals in the OS source."
-    callback: __scan_declare
+    callback: __pluginupdatecompatibledb
 quicksrc:
     help: "Plugin - Quick analysis of the OS source."
     optional:
@@ -11,3 +11,8 @@ quicksrc:
             help: "Do cg/cfg analysis from the ep and show the interesting places."}
         caller: {short: caller, required: False, help: "Give the caller of the entry point."}
     callback: __source
+of_init:
+    help: "Plugin - Find of_init callbacks w.s.t compatibles in given device tree."
+    optional: &optional
+        dtb: {short: dtb, required: False}
+    callback: __pluginofinitsrc

@@ -1,6 +1,6 @@
 import os
 
-from slcore.analyses.analysis import Analysis
+from slcore.analysis import Analysis
 from slcore.database.dbf import get_database
 
 

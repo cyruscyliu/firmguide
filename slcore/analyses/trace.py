@@ -2,7 +2,7 @@ import subprocess
 import tempfile
 import qmp
 
-from slcore.analyses.analysis import Analysis
+from slcore.analysis import Analysis
 from pyqemulog import get_pql
 
 

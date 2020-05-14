@@ -5,7 +5,7 @@ from slcore.compositor import pack_kernel, fix_smp, \
     pack_initramfs, fix_cmdline, fix_builtin_dtb, fix_armdtb
 from slcore.generation.dt_renderer import DTRenderer
 from slcore.generation.common import to_upper
-from slcore.analyses.analysis import Analysis
+from slcore.analysis import Analysis
 from examples.rootfs.rootfs import get_initramfs
 
 

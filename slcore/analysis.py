@@ -27,7 +27,7 @@ class Analysis(Common):
         pass
 
     @abc.abstractmethod
-    def run(self, firmware):
+    def run(self, firmware, **kwargs):
         pass
 
     def info(self, firmware, message, status):
