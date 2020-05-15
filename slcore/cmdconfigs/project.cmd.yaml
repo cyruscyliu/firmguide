@@ -67,3 +67,11 @@ delete:
 show:
     help: "Project - Show the project."
     callback: project_show
+batch:
+    help: "Project - Add images or device tree blobs."
+    optional:
+        add: {short: a, required: False, metavar: "PATH_TO_IMAGE", nargs: "+",
+            help: "Add(skip if exists) an image or images to current project by image paths."}
+        add_dtb: {short: ad, required: False, metavar: "PATH_TO_DTB", nargs: "+",
+            help: "Add(skip if exists) a dtb or dtbs to current project by dtb paths."}
+    callback: project_batch
