@@ -4,7 +4,7 @@ import os
 
 from slcore.database.dbf import get_database
 from slcore.dt_parsers.common import load_dtb
-from slcore.analysis import Analysis
+from slcore.amanager import Analysis
 
 
 def __re_scan(path, declare='.*?', compatible='.*?', depress=False):

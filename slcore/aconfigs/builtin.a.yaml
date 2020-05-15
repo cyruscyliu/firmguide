@@ -1,8 +1,8 @@
-booting:
+asmany:
     analyses: [FindMachine, Preparation, DTPreprocessing,
         InitValue, Tracing, CheckUserLevelF]
     description: ''
-asmany:
+bricksanalysis:
     analyses: [CheckBoard, CalcRAM, CalcLoadAddr, EntryPoint]
     save_and_restore: True
     description: ''

@@ -1,6 +1,6 @@
 import os
 
-from slcore.analysis import Analysis
+from slcore.amanager import Analysis
 
 
 class EntryPoint(Analysis):

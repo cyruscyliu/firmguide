@@ -1,5 +1,5 @@
 from slcore.compositor import unpack
-from slcore.analysis import Analysis
+from slcore.amanager import Analysis
 
 
 class Unpacking(Analysis):

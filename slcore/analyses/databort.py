@@ -1,6 +1,6 @@
 from capstone.mips_const import MIPS_OP_REG, MIPS_OP_IMM, MIPS_OP_MEM
 
-from slcore.analysis import Analysis
+from slcore.amanager import Analysis
 from capstone import *
 import struct
 

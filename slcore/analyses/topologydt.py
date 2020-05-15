@@ -1,7 +1,7 @@
 from graphviz import Digraph
 from slcore.dt_parsers.intc import find_flatten_intc_in_fdt
 from slcore.dt_parsers.common import load_dtb
-from slcore.analysis import Analysis
+from slcore.amanager import Analysis
 
 
 class TopologyDT(Analysis):

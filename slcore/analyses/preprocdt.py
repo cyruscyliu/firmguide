@@ -1,6 +1,6 @@
 import os
 
-from slcore.analysis import Analysis
+from slcore.amanager import Analysis
 from slcore.dt_parsers.common import load_dtb
 from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
 from slcore.dt_parsers.memory import find_memory_in_fdt

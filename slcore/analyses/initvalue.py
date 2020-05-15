@@ -1,4 +1,4 @@
-from slcore.analysis import Analysis
+from slcore.amanager import Analysis
 from slcore.database.dbf import get_database
 
 

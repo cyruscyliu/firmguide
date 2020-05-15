@@ -13,23 +13,23 @@ bricks:
                 no valid image and there is no image in your project,
                 you must provide a image."}
         trace: {short: t, help: "Path to the trace of format uuid-arch-endian.trace"}
-    callback: __inference
+    callback: bricksanalysis
 asmsrc:
     help: "Run - Online assembling for the image produced by compiling
         the OS source. Debug interface will be exposed if the validation fails."
     optional: *optional
-    callback: __validation
+    callback: asmsrc
 asmany:
     help: "Run - Online assembling for any image. No debug interfaces."
     optional:
         <<: *optional
         url: {short: l, required: False, help: "will be removed in the future"}
-    callback: __booting
+    callback: asmany
 rendering:
     help: "Run - Standalone: Rendering QEMU machine with given device tree source."
     optional: *optional
-    callback: __rendering
+    callback: rendering
 trace:
     help: "Run - Standalone: QEMU trace analysis."
     optional: *optional
-    callback: __tranalysis
+    callback: trace

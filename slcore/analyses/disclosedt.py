@@ -1,7 +1,7 @@
 from slcore.dt_parsers.flash import find_flatten_flash_in_fdt
 from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
 from slcore.dt_parsers.common import load_dtb
-from slcore.analysis import Analysis
+from slcore.amanager import Analysis
 
 
 class DiscloseDT(Analysis):

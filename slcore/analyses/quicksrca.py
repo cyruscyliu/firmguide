@@ -1,4 +1,4 @@
-from slcore.analysis import Analysis
+from slcore.amanager import Analysis
 
 
 generic_fcbs = {
