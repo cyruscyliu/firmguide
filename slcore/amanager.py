@@ -1,7 +1,9 @@
 import os
 import abc
+import yaml
 import shutil
 import logging
+import logging.config
 
 from slcore.common import Common
 from slcore.profile.firmware import Firmware
@@ -29,11 +31,10 @@ class AnalysesManager(Common):
         self.archive = kwargs.pop('archive')
 
         self.analyses_flat = {}  # name:analysis
-        self.analyses_forest = {}  # analysis blocks
-        self.analyses_remaining = {}  # name:analysis
+        self.analyses_tree = {}
         self.last_analysis_status = True
 
-    def setup_logging(self, default_level=logging.INFO)
+    def setup_logging(self, default_level=logging.INFO):
         path = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), 'logging.yaml')
         if os.path.exists(path):
@@ -58,9 +59,9 @@ class AnalysesManager(Common):
         # load profile from path_to_profile
         path_to_profile = os.path.join(path, 'profile.yaml')
         if not os.path.exists(path_to_profile):
-            self.firmware.set_profile(target_dir=path, first=True)
+            self.firmware.create_empty_profile(path)
         else:
-            self.firmware.set_profile(path_to_profile=path_to_profile)
+            self.firmware.load_from_profile(path_to_profile)
             # change save-to-path to avoid modifing our well-defined profile
             self.firmware.path_to_profile = \
                 os.path.join(path, 'profile.yaml')
@@ -74,21 +75,25 @@ class AnalysesManager(Common):
         images = self.project.attrs['images']
         if 'firmware' in self.arguments:
             components = self.firmware.get_components()
-            if components is not None and \
-                        self.arguments['firmware'] != components.get_path_to_raw():
-                components = unpack(
-                    self.arguments['firmware'], target_dir=path)
-            else:
+            if components is None and self.arguments['firmware'] is None:
+                return False
+            elif components is None and self.arguments['firmware'] is not None:
                 components = unpack(self.arguments['firmware'], target_dir=path)
-        else:
-            components = unpack(images[0], target_dir=path)
+            elif components is not None and self.arguments['firmware'] is None:
+                pass
+            else:
+                if self.arguments['firmware'] != components.get_path_to_raw():
+                    components = unpack(self.arguments['firmware'], target_dir=path)
 
-        working_path = os.path.join(path, components.get_raw_name())
-        if not os.path.exists(working_path):
-            shutil.copy(components.get_path_to_raw(), os.path.join(working_path))
-        self.firmware.set_components(components)
+            if not components.supported:
+                return False
 
-        debug = self.kwargs.pop('debug')
+            working_path = os.path.join(path, components.get_raw_name())
+            if not os.path.exists(working_path):
+                shutil.copy(components.get_path_to_raw(), os.path.join(working_path))
+            self.firmware.set_components(components)
+
+        debug = self.arguments.pop('debug')
         if debug:
             self.setup_logging(default_level=logging.DEBUG)
         else:
@@ -96,7 +101,7 @@ class AnalysesManager(Common):
         return True
 
     def wrapup(self):
-        self.firmware.snapshot()
+        self.firmware.snapshot(self.project.attrs['path'])
         if self.archive and self.firmware.get_stage('user_mode'):
             return self.archive()
         return True
@@ -130,39 +135,6 @@ class AnalysesManager(Common):
         ))
 
         return True
-
-    def get_analysis(self, name):
-        try:
-            return self.analyses_flat[name]
-        except KeyError:
-            return None
-
-    @staticmethod
-    def find_analysis_in_tree(analyses_tree, analysis):
-        to_add = [analysis.name]
-        to_add.extend(analysis.required)
-        for key in analyses_tree.keys():
-            if key in to_add:
-                return True
-        for value in analyses_tree.values():
-            if value in to_add:
-                return True
-        return False
-
-    def new_analyses_tree(self):
-        """
-        :return: the name of an anlyses tree
-        """
-        analyses_tree = 'analyses_tree_{}'.format(len(self.analyses_forest))
-        self.analyses_forest[analyses_tree] = {}
-        return analyses_tree
-
-    def add_analysis_to_tree(self, analyses_tree_name, analysis):
-        analyses_tree = self.analyses_forest[analyses_tree_name]
-        analyses_tree[analysis.name] = analysis.required
-        for requirement in analysis.required:
-            if requirement in self.analyses_remaining:
-                self.remove_analyses_from_remaining_analyses(requirement)
 
     def topological_sort(self, graph, v, visited, stack):
         # mark the current node as visited
@@ -203,93 +175,85 @@ class AnalysesManager(Common):
         stack.reverse()
         return stack
 
-    def remove_analyses_from_remaining_analyses(self, name):
-        self.analyses_remaining.pop(name)
+    def add_analysis_to_tree(self, analysis):
+        self.analyses_tree[analysis.name] = analysis.required
 
-    def register_analysis(self, analysis, analyses_tree=None, required=True):
-        """
-        An analysis must belong to an analysis tree(block) or be required to run.
-        The required option is ignored if an analysis is in an analysis tree(block).
-        """
-        assert isinstance(analysis, Analysis) or isinstance(analysis, AnalysisGroup)
+    def register_analysis(self, analysis, required=True):
+        assert isinstance(analysis, Analysis)
         self.analyses_flat[analysis.name] = analysis
+        self.add_analysis_to_tree(analysis)
 
-        # not in analysis tree(block) but must be run
-        if analyses_tree is None and required:
-            self.analyses_remaining[analysis.name] = analysis
-            return True
+    def restore_analysis(self):
+        # handle analysis
+        analysis = os.path.join(self.project.attrs['path'], 'analysis')
+        if not os.path.exists(analysis) or self.reset:
+            with open(analysis, 'w') as f:
+                f.close()
 
-        # in analysis tree(block)
-        self.add_analysis_to_tree(analyses_tree, analysis)
+        with open(analysis, 'r') as f:
+            analysis_progress = yaml.safe_load(f)
+            if analysis_progress is None:
+                self.firmware.analysis_progress = {}
+            else:
+                self.firmware.analysis_progress = analysis_progress
 
-    def run_analysis(self, firmware, name):
-        analysis = self.analyses_flat[name]
-        self.last_analysis_status = analysis.run(firmware)
+    def save_analysis(self):
+        analysis = os.path.join(self.project.attrs['path'], 'analysis')
+        with open(analysis, 'w') as f:
+            yaml.safe_dump(self.firmware.analysis_progress, f)
 
-    def run_remaining_analyses(self):
-        for analysis in self.analyses_remaining:
-            self.last_analysis_status = analysis.run(self.firmware)
-
-    def finish(self, firmware, analysis):
-        if firmware.analysis_progress is None:
+    def finish(self, analysis):
+        if self.firmware.analysis_progress is None:
             return
         if analysis.type == 'diag':
             return
-        if analysis.name not in firmware.analysis_progress:
-            firmware.analysis_progress[analysis.name] = 1
+        if analysis.name not in self.firmware.analysis_progress:
+            self.firmware.analysis_progress[analysis.name] = 1
 
-    def finished(self, firmware, analysis):
-        if firmware.analysis_progress is None:
+    def finished(self, analysis):
+        if self.firmware.analysis_progress is None:
             return False
         try:
-            firmware.analysis_progress[analysis.name]
+            self.firmware.analysis_progress[analysis.name]
             return True
         except KeyError:
             return False
 
-    def run(self, target_analyses_tree=None):
-        for analyses_tree_name, analyses_tree in self.analyses_forest.items():
-            if target_analyses_tree is not None and analyses_tree_name != target_analyses_tree:
-                continue
-            analyses_chain = self.topological_traversal(analyses_tree)
-            for analysis in analyses_chain:
-                try:
-                    a = self.analyses_flat[analysis]
-                except KeyError:
-                    # meaning that there is no such analysis at all
-                    continue
-                # save and restore
-                if not self.firmware.rerun and self.finished(self.firmware, a):
-                    self.info('done before', a.name, 0)
-                    continue
-                try:
-                    res = a.run(self.firmware)
-                    self.last_analysis_status = res
-                    if not res:
-                        a.error(self.firmware)
-                    if not res and a.is_critical():
-                        return False
-                except NotImplementedError as e:
-                    self.warning('exception', e.args[0], 0)
-                    return False
+    def run(self):
+        analyses_chain = self.topological_traversal(self.analyses_tree)
+        for analysis in analyses_chain:
+            try:
+                a = self.analyses_flat[analysis]
+            except KeyError:
+                continue  # there is no such analysis
+            # save and restore
 
-                self.finish(self.firmware, a)
+            if not self.reset and self.finished(a):
+                self.info('done before', a.name, 0)
+                continue
+
+            try:
+                res = a.run(self.firmware)
+                self.last_analysis_status = res
+                if not res:
+                    a.error(self.firmware)
+                if not res and a.is_critical():
+                    return False
+            except NotImplementedError as e:
+                self.warning('exception', e.args[0], 0)
+                return False
+
+            self.finish(a)
         return True
 
 
 class AnalysisInterface():
     def __init__(self):
         self.analysis_manager = None
-        self.analysis_tree = None
 
     @abc.abstractmethod
-    def register(self, firmware):
+    def register(self, project):
         """Register this analysis to analysis manager."""
-        pass
-
-    @abc.abstractmethod
-    def schedule(self):
-        """Schedule this analysis."""
         pass
 
 
@@ -297,7 +261,6 @@ class Analysis(Common, AnalysisInterface):
     def __init__(self, analysis_manager):
         super().__init__()
 
-        self.analysis_manager = analysis_manager
         self.firmware = None
         self.name = None
         self.description = None
@@ -338,14 +301,17 @@ class Analysis(Common, AnalysisInterface):
                 if len(line):
                     self.warning(self.name, line, 0)
         else:
-            self.warning(self.name, ', '.join([self.context['hint'], self.context['input']]), 0)
+            self.warning(
+                self.name,
+                ', '.join([self.context['hint'], self.context['input']]), 0)
 
-    def register(self, firmware):
-        self.firmware = firmware
-        pass
+    def register(self, project, **kwargs):
+        analysis_manager = AnalysesManager(project, **kwargs)
+        self.analysis_manager = analysis_manager
 
-    def schedule(self):
-        self.run(self.firmware)
+        analysis_manager.register_analysis(self)
+
+        return analysis_manager
 
 
 class AnalysisGroup(AnalysisInterface):
@@ -357,28 +323,11 @@ class AnalysisGroup(AnalysisInterface):
         self.members = []
         self.required = []
 
-    def register(self, firmware):
-        analysis_manager = AnalysesManager(firmware)
-        at = analysis_manager.new_analyses_tree()
-
-        for member in self.members():
-            analysis_manager.register_analysis(
-                member['class'](analysis_manager),
-                analyses_tree=at)
-
+    def register(self, project, **kwargs):
+        analysis_manager = AnalysesManager(project, **kwargs)
         self.analysis_manager = analysis_manager
-        self.analysis_tree = at
 
-    def schedule(self):
-        status = self.analysis_manager.run(
-            target_analyses_tree=self.analyses_tree)
-        # try:
-        #     status = self.analysis_manager.run(
-        #         target_analyses_tree=self.analyses_tree)
-        # except SystemExit:
-        #     pass
+        for member in self.members:
+            analysis_manager.register_analysis(member['class'](analysis_manager))
 
-        # if not firmware.get_stage('user_mode') and firmware.debug:
-        #     firmware.qemuc.debug(firmware.running_command, firmware.srcodec.get_path_to_vmlinux())
-
-        return status
+        return analysis_manager

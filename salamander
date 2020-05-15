@@ -10,7 +10,6 @@ if __name__ == '__main__':
     parser = generate_cmd_parser()
 
     args = vars(parser.parse_args())
-    debug = args.pop('debug')
 
     # check: wrong command
     if 'callback' not in args:
@@ -43,7 +42,9 @@ if __name__ == '__main__':
         exit(-1)
     # 2.3 register && warmup && run && wrapup
     analysis_manager = \
-        analyses_and_groups[callback]['object'].register(**args)
-    analysis_manager.warmup()
-    analysis_manager.run()
+        analyses_and_groups[callback]['object'].register(project, **args)
+    status = analysis_manager.warmup()
+    if not status:
+        exit(-1)
+    # analysis_manager.run()
     analysis_manager.wrapup()
