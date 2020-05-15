@@ -89,7 +89,7 @@ install_llvm()
         ln -s /usr/bin/llvm-link-9 $SALAMANDER_BUILD/llvm-9/llvm-link && \
         ln -s /usr/bin/opt-9 $SALAMANDER_BUILD/llvm-9/opt && \
         cd $OLDPWD)
-    echo $SALAMANDER_BUILD/llvm-9.0 > .llvmbin
+    echo $SALAMANDER_BUILD/llvm-9 > .llvmbin
 }
 
 install()
