@@ -235,3 +235,6 @@ class QEMUController(object):
             content = [makefile]
             target = self.__resolve_makefile(path, makefile, content)
 
+
+def get_qemucontroller(qemu_root):
+    return QEMUController(qemu_root)

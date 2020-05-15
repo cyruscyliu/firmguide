@@ -202,6 +202,35 @@ def project_delete(*args, **kwargs):
     return False
 
 
+def __project_add(container, items):
+    if items is None:
+        return
+    for item in items:
+        if item in container:
+            print('[+] {} existed'.format(item))
+            continue
+        container.append(item)
+
+
+def project_batch(*args, **kwargs):
+    """BATCH command interface."""
+    base_dir = kwargs.pop('base_dir')
+    project = project_get_current(base_dir)
+    if project is None:
+        project_print('please create/open a project.')
+        return False
+
+    images = kwargs.pop('add')
+    if project.attrs['images'] is None:
+        project.attrs['images'] = []
+    __project_add(project.attrs['images'], images)
+    dtbs = kwargs.pop('add_dtb')
+    if project.attrs['dtbs'] is None:
+        project.attrs['dtbs'] = []
+    __project_add(project.attrs['dtbs'], dtbs)
+    project_set_current(project)
+
+
 def get_project_callbacks():
     return {
         'project_open': project_open,
@@ -211,4 +240,5 @@ def get_project_callbacks():
         'project_close': project_close,
         'project_show': project_show,
         'project_delete': project_delete,
+        'project_batch': project_batch
     }

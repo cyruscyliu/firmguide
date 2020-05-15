@@ -356,3 +356,20 @@ class SRCodeController(Common):
         return {}
 
 
+def get_srcodecontroller(source, cross_compile, arch, endian, makeout=None):
+    srcodec = SRCodeController()
+
+    if source is None:
+        return None
+    srcodec.set_path_to_source_code(source)
+    srcodec.set_path_to_vmlinux(os.path.join(source, 'vmlinux'))
+    srcodec.set_path_to_dot_config(os.path.join(source, '.config'))
+
+    if cross_compile is None:
+        return None
+    srcodec.set_path_to_cross_compile(cross_compile)
+
+    srcodec.set_arch(arch)
+    srcodec.set_endian(endian)
+    srcodec.set_path_to_makeout(makeout)
+    return srcodec
