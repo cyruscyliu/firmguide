@@ -15,6 +15,10 @@ create:
             help: "The architecture. We only support arm, arm64, and mips."}
         endian: {short: e, choices: ["b", "l"], required: True,
             help: "The endianness. ARMEB is not supported, other combinations are OK."}
+        path: &path
+            short: p
+            required: True
+            help: "The path to the project."
         brand: {short: b, choices: ["openwrt"], required: False,
             help: "Optional. Say openwrt(lower case of OpenWRT)."}
         target: {short: t, required: False,
@@ -28,30 +32,38 @@ create:
         makeout: {short: m, metavar: "path/to/makeout", required: False,
             help: "Source related. When you compile your source, remember to save the output.
             For Linux, the command can be make ARCH: xxx, CROSS_COMPILE: xxx V: 1 >makeout.txt 2>&1."}
-    callback: __project_create
+    callback: project_create
 config:
     help: "Project - Config the project."
     description: "Config the project you created/opened. The arguments are the same as create."
-    optional: *create_optional
-    callback:  __project_config
+    optional:
+        << : *create_optional
+        name: {short: n, type: str, required: False,
+            help: "A name for this project. It can be any string you like except -."}
+        arch: {short: a, choices: ["arm", "arm64", "mips"], required: False,
+            help: "The architecture. We only support arm, arm64, and mips."}
+        endian: {short: e, choices: ["b", "l"], required: False,
+            help: "The endianness. ARMEB is not supported, other combinations are OK."}
+        path: {short: p, required: False, help: "The path to the project."}
+    callback:  project_config
 open:
     help: "Project - Open a project."
     optional:
-        name: *name
-    callback:  __project_open
+        path: *path
+    callback:  project_open
 rename:
     help: "Project - Rename the project."
     optional:
         name: *name
-    callback: __project_rename
+    callback: project_rename
 close:
     help: "Project - Close the project."
-    callback: __project_close
+    callback: project_close
 delete:
     help: "Project - Delete a project."
     optional:
-        name: *name
-    callback: __project_delete
+        path: *path
+    callback: project_delete
 show:
     help: "Project - Show the project."
-    callback: __project_show
+    callback: project_show
