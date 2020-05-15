@@ -19,3 +19,6 @@ extract_tmp
 .analyses.csv
 .project
 *.dtb
+.llvmbin
+.qemu
+.sparse
