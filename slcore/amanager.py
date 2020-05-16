@@ -101,9 +101,19 @@ class AnalysesManager(Common):
         return True
 
     def wrapup(self):
-        self.firmware.snapshot(self.project.attrs['path'])
+        self.firmware.save_profile()
+        self.snapshot()
         if self.archive and self.firmware.get_stage('user_mode'):
             return self.archive()
+        return True
+
+    def snapshot(self):
+        path = self.project.attrs['path']
+        self.info('snapshot', 'profile at {}'.format(self.firmware.path_to_profile), 1)
+        self.info('snapshot', 'dtb at {}'.format(self.firmware.realdtb), 1)
+        self.info('snapshot', 'dts at {}'.format(self.firmware.realdts), 1)
+        self.info('snapshot', 'project at {}/project.yaml'.format(path), 1)
+        self.info('snapshot', 'source at {}/qemu-4.0.0'.format(path), 1)
         return True
 
     def archive(self):
