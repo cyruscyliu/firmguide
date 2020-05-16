@@ -11,9 +11,11 @@ class DiscloseDT(Analysis):
         self.name = 'disclosedt'
         self.description = 'Disclose device tree blob.'
 
-    def run(self, firmware, **kwargs):
-        path_to_dtb = kwargs.pop(
-            'dtb', firmware.get_components().get_path_to_dtb())
+    def run(self, **kwargs):
+        path_to_dtb = kwargs.pop('dtb')
+        if path_to_dtb is None:
+            path_to_dtb = self.firmware.get_components().get_path_to_dtb()
+
         mmio = kwargs.pop('mmio', False)
         flash = kwargs.pop('flash', False)
 
@@ -34,7 +36,7 @@ class DiscloseDT(Analysis):
                         '[MMIO] base 0x{:08x} size 0x{:08x} of {}/{}'.format(
                             reg['base'], reg['size'],
                             mmio['path'], mmio['compatible'])
-                    self.info(firmware, message, 1)
+                    self.info(message, 1)
         if flash:
             for flash in find_flatten_flash_in_fdt(dts):
                 for reg in flash['regs']:
@@ -42,7 +44,7 @@ class DiscloseDT(Analysis):
                         '[FLASH] base 0x{:08x} size 0x{:08x} of {}/{}'.format(
                             reg['base'], reg['size'],
                             flash['path'], flash['compatible'])
-                    self.info(firmware, message, 1)
+                    self.info(message, 1)
 
-        self.info(firmware, 'save dts at {}'.format(path_to_dts), 1)
+        self.info('save dts at {}'.format(path_to_dts), 1)
         return True

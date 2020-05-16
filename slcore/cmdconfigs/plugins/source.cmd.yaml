@@ -1,5 +1,7 @@
 newperph:
     help: "Plugin - Find new peripherals in the OS source."
+    optional: &optional
+        source: {short: s, required: False, help: "Path to the OS source."}
     callback: updatecompatibledb
 quicksrc:
     help: "Plugin - Quick analysis of the OS source."
@@ -13,6 +15,7 @@ quicksrc:
     callback: quicksrca
 ofinit:
     help: "Plugin - Find of_init callbacks w.s.t compatibles in given device tree."
-    optional: &optional
+    optional:
+        << : *optional
         dtb: {short: dtb, required: False}
     callback: ofinitsrc

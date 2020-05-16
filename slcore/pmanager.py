@@ -105,6 +105,8 @@ def project_config(*args, **kwargs):
         return False
 
     for k, v in kwargs.items():
+        if k not in project.attrs:
+            continue
         if v is None:
             continue
         project.attrs[k] = v

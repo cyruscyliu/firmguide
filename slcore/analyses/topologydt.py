@@ -12,9 +12,10 @@ class TopologyDT(Analysis):
         self.description = \
             'Display the interrupt topology in given device tree blob.'
 
-    def run(self, firmware, **kwargs):
-        path_to_dtb = kwargs.pop(
-            'dtb', firmware.get_components().get_path_to_dtb())
+    def run(self, **kwargs):
+        path_to_dtb = kwargs.pop('dtb')
+        if path_to_dtb is None:
+            path_to_dtb = self.firmware.get_components().get_path_to_dtb()
 
         dts = load_dtb(path_to_dtb)
 
@@ -42,5 +43,5 @@ class TopologyDT(Analysis):
                         g.edge(f, t, str(i))
         g.graph_attr['rankdir'] = 'LR'
         print(g.source)
-        self.info(irmware, 'ONLINE GRAPHIVZ VIEWER: https://edotor.net', 1)
+        self.info('ONLINE GRAPHIVZ VIEWER: https://edotor.net', 1)
         return True

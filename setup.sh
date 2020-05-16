@@ -24,7 +24,7 @@ install_python()
 
     echo =========================================
     echo Install Python requirments
-    sudo -H pip3.7 install qmp fdt capstone pydot
+    sudo -H pip3.7 install qmp fdt capstone pydot graphviz
     $SALAMANDER_BUILD/pyqemulog/pyqemulog -h >/dev/null 2>&1 || \
         (git clone https://github.com/cyruscyliu/pyqemulog $SALAMANDER_BUILD/pyqemulog && \
         cd $SALAMANDER_BUILD/pyqemulog && sudo -H pip3.7 install . && cd $OLDPWD)

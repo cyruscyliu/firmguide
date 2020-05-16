@@ -26,30 +26,33 @@ class QuickSrcA(Analysis):
         self.name = 'quicksrca'
         self.description = 'Quick source code analysis.'
 
-    def run(self, firmware, **kwargs):
-        ep = kwargs.pop('ep', None)
+    def run(self, **kwargs):
+        ep = kwargs.pop('entry_point', None)
         caller = kwargs.pop('caller', 'unknown')
         cfcfg = kwargs.pop('cgcfg', False)
 
         # We simply preprocess the c file containing
         # the entry point if no other arguments assigned.
-        srcodec = firmware.srcodec
+        srcodec = self.analysis_manager.srcodec
 
-        # 1 symbol2file
-        path_to_entry_point = srcodec.symbol2file(ep)
-        if path_to_entry_point is None:
-            path_to_entry_point = srcodec.symbol2fileg(ep)
+        if ep:
+            path_to_entry_point = srcodec.symbol2file(ep)
             if path_to_entry_point is None:
-                self.info(firmware, 'cannot find {}'.format(ep), 0)
-                return False
-        self.info(
-            firmware, 'find {} in {}'.format(ep, path_to_entry_point), 1)
-        cmdline = srcodec.get_cmdline(path_to_entry_point)
-        path_to_pentry_point = \
-            srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
-        self.info(firmware,  'preprocess and save as {}/{}'.format(
-            srcodec.get_path_to_source_code(), path_to_pentry_point))
+                path_to_entry_point = srcodec.symbol2fileg(ep)
+                if path_to_entry_point is None:
+                    self.info('cannot find {}'.format(ep), 0)
+                    return False
+            self.info('find {} in {}'.format(ep, path_to_entry_point), 1)
+            cmdline = srcodec.get_cmdline(path_to_entry_point)
+            path_to_pentry_point = \
+                srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
+            self.info('preprocess and save as {}/{}'.format(
+                srcodec.get_path_to_source_code(), path_to_pentry_point), 1)
+            return True
 
         if cfcfg:
             srcodec.traverse_funccalls2([ep], caller=caller, fcbs=generic_fcbs)
-        return True
+            return True
+
+        self.error_info = 'nothing expected'
+        return False

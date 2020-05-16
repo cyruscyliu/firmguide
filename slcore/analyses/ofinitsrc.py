@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import re
 import os
 
@@ -7,7 +6,7 @@ from slcore.dt_parsers.common import load_dtb
 from slcore.amanager import Analysis
 
 
-def __re_scan(path, declare='.*?', compatible='.*?', depress=False):
+def re_scan(path, declare='.*?', compatible='.*?', depress=False):
     # XXX_DECLARE(arc_gfrc, "snps,archs-timer-gfrc", arc_cs_setup_gfrc);
     string = ''
     with open(path) as f:
@@ -53,7 +52,7 @@ def __scan_dtcb(declare, path_to_source):
     with os.popen('grep -r {} {}//'.format(declare, path_to_source)) as f:
         for line in f:
             path = line.split(':')[0]
-            cb = __re_scan(path, declare=declare)
+            cb = re_scan(path, declare=declare)
             if cb is None:
                 continue
             cbs.extend(cb)
@@ -122,14 +121,17 @@ class UpdateCompatibleDB(Analysis):
         self.name = 'updatecompatibledb'
         self.description = 'Update hardware in new source.'
 
-    def run(self, firmware, **kwargs):
-        path_to_source = kwargs.pop(
-            'source', firmware.srcodec.get_path_to_source_code())
+    def run(self, **kwargs):
+        path_to_source = kwargs.pop('source')
+        if path_to_source is None:
+            path_to_source = \
+                self.analysis_manager.srcodec.get_path_to_source_code()
+        if path_to_source is None:
+            self.error_info = 'there is no OS source available'
+            return False
 
-        self.info(
-            firmware,
-            'checking unexpected XXX_DECLARE in {}'.format(path_to_source), 1)
-        self.info(firmware, 'expected: {}'.format(' '.join(candidates)), 1)
+        self.info('checking unexpected XXX_DECLARE in {}'.format(path_to_source), 1)
+        self.info('expected: {}'.format(' '.join(candidates)), 1)
 
         unexpected = []
         # grep "_DECLARE(" -nir ./")"
@@ -149,10 +151,9 @@ class UpdateCompatibleDB(Analysis):
                     print('[-] unexpected line: {}'.format(line))
                     unexpected.append(declare)
         if len(unexpected):
-            self.info(
-                firmware, 'unexpected macro: {}'.format(' '.join(list(set(unexpected)))), 1)
+            self.info('unexpected macro: {}'.format(' '.join(list(set(unexpected)))), 1)
         else:
-            self.info(firmware, 'nothing unexpected', 1)
+            self.info('nothing unexpected', 1)
 
         jobs = {
             'clk': scan_clk_dtcb,
@@ -171,7 +172,7 @@ class UpdateCompatibleDB(Analysis):
                 if we_have is not None and cb[1] in we_have:
                     continue
                 qdevices.add(cb[1], extend='{},generic'.format(t))
-                self.info(firmware, 'new {} {} updated'.format(t, cb), 1)
+                self.info('new {} {} updated'.format(t, cb), 1)
 
         for t, job in jobs.items():
             do_job(t, job, path_to_source)
@@ -187,11 +188,21 @@ class OfInitSrc(Analysis):
         self.description = \
             'Find of_init callbacks w.s.t compatibles in given device tree.'
 
-    def run(self, firmware, **kwargs):
-        path_to_source = kwargs.pop(
-            'source', firmware.srcodec.get_path_to_source_code())
-        path_to_dtb = kwargs.pop(
-            'dtb', firmware.get_components().get_path_to_dtb())
+    def run(self, **kwargs):
+        path_to_source = kwargs.pop('source')
+        if path_to_source is None:
+            path_to_source = \
+                self.analysis_manager.srcodec.get_path_to_source_code()
+        if path_to_source is None:
+            self.error_info = 'there is no source available'
+            return False
+
+        path_to_dtb = kwargs.pop('dtb')
+        if path_to_dtb is None:
+            path_to_dtb = self.firmware.get_components().get_path_to_dtb()
+        if path_to_dtb is None:
+            self.error_info = 'there is no device tree blob available'
+            return False
 
         # let's traverse the device tree
         dts = load_dtb(path_to_dtb)
@@ -200,20 +211,20 @@ class OfInitSrc(Analysis):
             if not dts.exist_property('compatible', path):
                 continue
             compatible = dts.get_property('compatible', path)
-            self.info(firmware, 'searching {}'.format(compatible), 1)
+            self.info('searching {}'.format(compatible), 1)
             for cmptb in compatible:
                 with os.popen('grep -r \\"{}\\" {}/'.format(cmptb, path_to_source)) as f:
                     for line in f:
                         path = line.split(':')[0]
                         if not os.path.exists(path):
                             continue
-                        cb = __re_scan(path, declare='[_A-Z]+_DECLARE', depress=True)
+                        cb = re_scan(path, declare='[_A-Z]+_DECLARE', depress=True)
                         if len(path) > 160:
                             path = '...' + path[150:]
                         if (cb) is not None:
                             for i in cb:
                                 if i[1] != cmptb:
                                     continue
-                                self.info(firmware, '[bingo] {} in {}'.format(i, path), 1)
+                                self.info('[bingo] {} in {}'.format(i, path), 1)
                                 c_cb.append(i)
         return True

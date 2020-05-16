@@ -23,12 +23,19 @@ class AnalysesManager(Common):
             self.project.attrs['makeout']
         )
         self.qemuc = get_qemucontroller(self.project.attrs['qemu_dir'])
-        self.firmware = None
+        self.firmware = Firmware()
 
         self.arguments = kwargs
         self.max_iteration = 1
         self.reset = kwargs.pop('reset')
         self.archive = kwargs.pop('archive')
+
+        self.arguments['trace_format'] = 'qemudebug'
+        self.arguments['path_to_trace'] = kwargs.pop(
+            'trace', '{}/{}-{}-{}.trace'.format(
+                self.project.attrs['path'], self.project.attrs['name'],
+                self.project.attrs['arch'], self.project.attrs['endian']
+            ))
 
         self.analyses_flat = {}  # name:analysis
         self.analyses_tree = {}
@@ -51,8 +58,6 @@ class AnalysesManager(Common):
         return True
 
     def warmup(self):
-        self.firmware = Firmware()
-
         # set target dir
         path = self.project.attrs['path']
 
@@ -73,10 +78,11 @@ class AnalysesManager(Common):
 
         # there at least one image available
         images = self.project.attrs['images']
+        assert len(images), 'please add an image first'
         if 'firmware' in self.arguments:
             components = self.firmware.get_components()
             if components is None and self.arguments['firmware'] is None:
-                return False
+                components = unpack(images[0], target_dir=path)
             elif components is None and self.arguments['firmware'] is not None:
                 components = unpack(self.arguments['firmware'], target_dir=path)
             elif components is not None and self.arguments['firmware'] is None:
@@ -193,6 +199,12 @@ class AnalysesManager(Common):
         stack.reverse()
         return stack
 
+    def get_analysis(self, name):
+        try:
+            return self.analyses_flat[name]
+        except KeyError:
+            return None
+
     def add_analysis_to_tree(self, analysis):
         self.analyses_tree[analysis.name] = analysis.required
 
@@ -251,10 +263,10 @@ class AnalysesManager(Common):
                 continue
 
             try:
-                res = a.run(self.firmware)
+                res = a.run(**self.arguments)
                 self.last_analysis_status = res
                 if not res:
-                    a.error(self.firmware)
+                    a.error()
                 if not res and a.is_critical():
                     return False
             except NotImplementedError as e:
@@ -266,9 +278,6 @@ class AnalysesManager(Common):
 
 
 class AnalysisInterface():
-    def __init__(self):
-        self.analysis_manager = None
-
     @abc.abstractmethod
     def register(self, project):
         """Register this analysis to analysis manager."""
@@ -279,15 +288,20 @@ class Analysis(Common, AnalysisInterface):
     def __init__(self, analysis_manager):
         super().__init__()
 
-        self.firmware = None
         self.name = None
         self.description = None
         self.required = []
         self.settings = []
-        self.context = {'hint': '', 'input': ''}
+        self.error_info = ''
         self.critical = False
         self.args = None
         self.type = 'inf'
+
+        self.analysis_manager = analysis_manager
+        if analysis_manager is not None:
+            self.firmware = analysis_manager.firmware
+        else:
+            self.firmware = None
 
     def is_critical(self):
         return self.critical
@@ -299,33 +313,31 @@ class Analysis(Common, AnalysisInterface):
         pass
 
     @abc.abstractmethod
-    def run(self, firmware, **kwargs):
+    def run(self, **kwargs):
         pass
 
-    def info(self, firmware, message, status):
+    def info(self, message, status):
         super().info(self.name, message, status)
 
-    def debug(self, firmware, message, status):
+    def debug(self, message, status):
         super().debug(self.name, message, status)
 
-    def warning(self, firmware, message, status):
+    def warning(self, message, status):
         super().warning(self.name, message, status)
 
-    def error(self, firmware):
-        if self.context['input'].find('\n') != -1:
-            self.warning(self.name, self.context['hint'], 0)
-            lines = self.context['input'].split('\n')
+    def error(self):
+        if self.error_info.find('\n') != -1:
+            lines = self.error_info.split('\n')
             for line in lines:
-                if len(line):
-                    self.warning(self.name, line, 0)
+                if len(line) > 0:
+                    self.warning(line, 0)
         else:
-            self.warning(
-                self.name,
-                ', '.join([self.context['hint'], self.context['input']]), 0)
+            self.warning(self.error_info, 0)
 
     def register(self, project, **kwargs):
         analysis_manager = AnalysesManager(project, **kwargs)
         self.analysis_manager = analysis_manager
+        self.firmware = analysis_manager.firmware
 
         analysis_manager.register_analysis(self)
 
@@ -339,13 +351,9 @@ class AnalysisGroup(AnalysisInterface):
         self.name = None
         self.description = None
         self.members = []
-        self.required = []
 
     def register(self, project, **kwargs):
         analysis_manager = AnalysesManager(project, **kwargs)
-        self.analysis_manager = analysis_manager
-
         for member in self.members:
             analysis_manager.register_analysis(member['class'](analysis_manager))
-
         return analysis_manager

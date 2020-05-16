@@ -47,4 +47,5 @@ if __name__ == '__main__':
     if not status:
         exit(-1)
     analysis_manager.print_analyses_chain()
+    analysis_manager.run()
     analysis_manager.wrapup()
