@@ -4,7 +4,7 @@ unpack:
         firmware: {short: f, metavar: "IMAGE",
             help: "We extend Binwalk to identify more image headers and can extract the Linux kernel in the image."}
     callback: unpacking
-pbtngcmd:
+printcmd:
     help: "Plugin - Print booting cmdline for given image."
     optional: *optional
-    callback: pbtngcmd
+    callback: printcmd
