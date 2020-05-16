@@ -146,6 +146,14 @@ class AnalysesManager(Common):
 
         return True
 
+    def print_analyses_chain(self):
+        analyses_chain = self.topological_traversal(self.analyses_tree)
+        if len(analyses_chain) > 5:
+            self.info('chain', '->'.join(analyses_chain[:5]), 1)
+            self.info('chain cont\'d', '->'.join(analyses_chain[5:]), 1)
+        else:
+            self.info('chain', '->'.join(analyses_chain), 1)
+
     def topological_sort(self, graph, v, visited, stack):
         # mark the current node as visited
         visited[v] = True
