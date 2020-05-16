@@ -1,9 +1,11 @@
 bricks:
     help: "Run - Offline bricks analysis."
     optional: &optional
-        dtb: {short: dtb, required: False,
+        dtb: &dtb
+            short: dtb
+            required: False
             help: "If the image you provide has no device tree blob,
-                you can provide a device tree blob, otherwise, ignored."}
+                you can provide a device tree blob, otherwise, ignored."
         nocompilation: {short: nc, action: "store_true", default: False,
             help: "set this for multi-tasks"}
         firmware: {short: f, required: False, metavar: "IMAGE",
@@ -27,7 +29,8 @@ asmany:
     callback: asmany
 rendering:
     help: "Run - Standalone: Rendering QEMU machine with given device tree source."
-    optional: *optional
+    optional:
+        dtb: *dtb
     callback: rendering
 trace:
     help: "Run - Standalone: QEMU trace analysis."
