@@ -1,6 +1,6 @@
 asmany:
     analyses: [FindMachine, Preparation, DTPreprocessing,
-        InitValue, Tracing, CheckUserLevelF]
+        Tracing, CheckUserLevelF]
     description: ''
 bricksanalysis:
     analyses: [CheckBoard, CalcRAM, CalcLoadAddr, EntryPoint]
@@ -11,11 +11,11 @@ trace:
         CheckTLBExcep]
     description: ''
 asmsrc:
-    analyses: [Preparation, DTPreprocessing, InitValue,
+    analyses: [Preparation, DTPreprocessing,
         Tracing, LoadTrace, CheckUserLevel, CheckDataAbort,
         CheckUndefInst, CheckTLBExcep]
     iterative: 20
     description: ''
 rendering:
-    analyses: [Preparation, DTPreprocessing, InitValue]
+    analyses: [Preparation, DTPreprocessing]
     description: ''

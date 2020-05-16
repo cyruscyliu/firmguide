@@ -153,12 +153,20 @@ class AnalysesManager(Common):
         return True
 
     def print_analyses_chain(self):
-        analyses_chain = self.topological_traversal(self.analyses_tree)
-        if len(analyses_chain) > 5:
-            self.info('chain', '->'.join(analyses_chain[:5]), 1)
-            self.info('chain cont\'d', '->'.join(analyses_chain[5:]), 1)
+        analyses_chain = self.topological_traversal()
+
+        analyses_chain_p = []
+        for analysis in analyses_chain:
+            if self.get_analysis(analysis) is None:
+                analyses_chain_p.append('{}(invalid)'.format(analysis))
+            else:
+                analyses_chain_p.append(analysis)
+
+        if len(analyses_chain_p) > 5:
+            self.info('chain', '->'.join(analyses_chain_p[:5]), 1)
+            self.info('chain cont\'d', '->'.join(analyses_chain_p[5:]), 1)
         else:
-            self.info('chain', '->'.join(analyses_chain), 1)
+            self.info('chain', '->'.join(analyses_chain_p), 1)
 
     def topological_sort(self, graph, v, visited, stack):
         # mark the current node as visited
@@ -176,10 +184,10 @@ class AnalysesManager(Common):
         stack.insert(0, v)
         # the function to do Topological Sort. It uses recursive
 
-    def topological_traversal(self, analyses_tree):
+    def topological_traversal(self):
         # mark all the vertices as not visited
-        vertices = list(analyses_tree.keys())
-        for value in analyses_tree.values():
+        vertices = list(self.analyses_tree.keys())
+        for value in self.analyses_tree.values():
             vertices.extend(list(value))
         vertices = list(set(vertices))
 
@@ -193,7 +201,7 @@ class AnalysesManager(Common):
         # sort starting from all vertices one by one
         for i in vertices:
             if not visited[i]:
-                self.topological_sort(analyses_tree, i, visited, stack)
+                self.topological_sort(self.analyses_tree, i, visited, stack)
 
         # fix the order
         stack.reverse()
@@ -250,7 +258,7 @@ class AnalysesManager(Common):
             return False
 
     def run(self):
-        analyses_chain = self.topological_traversal(self.analyses_tree)
+        analyses_chain = self.topological_traversal()
         for analysis in analyses_chain:
             try:
                 a = self.analyses_flat[analysis]
