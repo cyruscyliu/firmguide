@@ -227,4 +227,3 @@ def find_flatten_intc(path_to_dtb):
     """
     dts = load_dtb(path_to_dtb)
     return find_flatten_intc_in_fdt(dts)
-

@@ -80,5 +80,3 @@ def find_flatten_serial(path_to_dtb):
     """
     dts = load_dtb(path_to_dtb)
     return find_flatten_serial_in_fdt(dts)
-
-

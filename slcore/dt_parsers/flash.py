@@ -64,4 +64,3 @@ def find_flatten_flash(path_to_dtb):
     """
     dts = load_dtb(path_to_dtb)
     return find_flatten_flash_in_fdt(dts)
-

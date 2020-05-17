@@ -54,4 +54,3 @@ def find_flatten_cpu(path_to_dtb):
     """
     dts = load_dtb(dtb)
     return find_flatten_cpu_in_fdt(dts)
-

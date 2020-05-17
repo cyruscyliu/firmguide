@@ -68,4 +68,3 @@ def find_flatten_misc(path_to_dtb):
     """
     dts = load_dtb(path_to_dtb)
     return find_flatten_misc_in_fdt(dts)
-

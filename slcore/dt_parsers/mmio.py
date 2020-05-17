@@ -209,4 +209,3 @@ def find_flatten_mmio(path_to_dtb):
     """
     dts = load_dtb(path_to_dtb)
     return find_flatten_mmio_in_fdt(dts)
-
