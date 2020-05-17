@@ -34,6 +34,9 @@ class QuickSrcA(Analysis):
         # We simply preprocess the c file containing
         # the entry point if no other arguments assigned.
         srcodec = self.analysis_manager.srcodec
+        if not srcodec.supported:
+            self.error_info = 'please set the source code'
+            return False
 
         if ep:
             path_to_entry_point = srcodec.symbol2file(ep)

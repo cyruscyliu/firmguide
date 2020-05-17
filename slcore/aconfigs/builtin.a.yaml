@@ -3,7 +3,7 @@ asmany:
         Tracing, CheckUserLevelF]
     description: ''
 bricksanalysis:
-    analyses: [CheckBoard, CalcRAM, CalcLoadAddr, EntryPoint]
+    analyses: [CheckBoard, CalcLoadAddr, EntryPoint]
     save_and_restore: True
     description: ''
 trace:

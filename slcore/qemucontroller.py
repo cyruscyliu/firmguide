@@ -45,6 +45,10 @@ class QEMUController(object):
                 'makefile': 'hw/timer/Makefile.objs'
             }
         }
+        if qemu_root is None:
+            self.supported = False
+        else:
+            self.supported = True
 
     def __get_file_path(self, path):
         return os.path.join(self.qemu_root, path)

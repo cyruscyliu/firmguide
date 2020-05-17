@@ -363,6 +363,9 @@ def get_srcodecontroller(source, cross_compile, arch, endian, makeout=None):
     if source is not None:
         srcodec.set_path_to_vmlinux(os.path.join(source, 'vmlinux'))
         srcodec.set_path_to_dot_config(os.path.join(source, '.config'))
+        srcodec.supported = True
+    else:
+        srcodec.supported = False
     srcodec.set_path_to_cross_compile(cross_compile)
     srcodec.set_arch(arch)
     srcodec.set_endian(endian)

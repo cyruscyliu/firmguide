@@ -30,70 +30,68 @@ class CheckBoard(Analysis):
         else:
             return None
 
-    def is_unsupport_arm_machine(self, firmware):
+    def is_unsupport_arm_machine(self):
         exclude = [
-            'boot', 'common', 'configs', 'crypto', 'firmware', 'include', 'kernel',
-            'kvm', 'lib', 'mm', 'net', 'nvfpe', 'oprofile', 'tools', 'xen', 'vfp'
-        ]
-        self.path_to_srcode = firmware.get_srcodec().get_path_to_source_code()
-        self.arch = 'arm'
+            'boot', 'common', 'configs', 'crypto', 'firmware', 'include',
+            'kernel', 'kvm', 'lib', 'mm', 'net', 'nvfpe', 'oprofile',
+            'tools', 'xen', 'vfp']
         target = self.find_dir_compiled(exclude=exclude)
         if target is None:
-            self.context['input'] = 'no available target found, please check the source code'
+            self.error_info = \
+                'no available target found, please compile the source code'
             return False
         support = get_database('support')
         status = support.select('board', board=target, arch='arm')
         if status:
-            self.info(firmware, 'arm/{} is supported'.format(target), 1)
-            firmware.set_board(target)
+            self.info('arm/{} is supported'.format(target), 1)
+            self.firmware.set_board(target)
             return True
         else:
-            self.context['input'] = 'arm/{} is not supported yet'.format(target)
+            self.error_info = 'arm/{} is not supported yet'.format(target)
             return False
 
-    def is_unsupport_mips_machine(self, firmware):
+    def is_unsupport_mips_machine(self):
         exclude = [
             'boot', 'configs', 'fw', 'include', 'kernel', 'kvm', 'lib', 'mm',
             'math-emu', 'lib', 'net', 'oprofile', 'paravirt', 'pci', 'power'
         ]
-        self.path_to_srcode = firmware.get_srcodec().get_path_to_source_code()
-        self.arch = 'mips'
         target = self.find_dir_compiled(exclude=exclude)
         if target is None:
-            self.context['input'] = 'no available target found, please check the source code'
+            self.error_info = \
+                'no available target found, please check the source code'
             return False
         support = get_database('support')
         status = support.select('board', board=target, arch='mips')
         if status:
-            firmware.set_board(target)
-            self.info(firmware, 'mips/{} is supported'.format(target), 1)
+            self.firmware.set_board(target)
+            self.info('mips/{} is supported'.format(target), 1)
             return True
         else:
-            self.context['input'] = 'mips/{} is not supported yet'.format(target)
+            self.error_info = 'mips/{} is not supported yet'.format(target)
             return False
 
-    def run(self, firmware):
-        srcodec = firmware.get_srcodec()
-        if srcodec is None:
-            self.context['input'] = 'please set the source code'
+    def run(self, **kwargs):
+        srcodec = self.analysis_manager.srcodec
+        if not srcodec.supported:
+            self.error_info = 'please set the source code'
             return False
+        self.path_to_srcode = srcodec.get_path_to_source_code()
 
-        arch = firmware.get_arch()
+        arch = self.firmware.get_arch()
+        self.arch = arch
         if arch == 'arm':
-            return self.is_unsupport_arm_machine(firmware)
+            return self.is_unsupport_arm_machine()
         elif arch == 'mips':
-            return self.is_unsupport_mips_machine(firmware)
+            return self.is_unsupport_mips_machine()
         else:
             return False
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'bfilter'
-        self.description = 'Filter our Linux Kernels board which are supported.'
+        self.description = \
+            'Filter our Linux Kernels board which are supported.'
         self.required = []
-        self.context['hint'] = 'cannot support this machine yet'
         self.critical = True
-        #
         self.path_to_srcode = None
         self.arch = None
-
