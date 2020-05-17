@@ -15,7 +15,6 @@ asmsrc:
     analyses: [Preparation, DTPreprocessing,
         Tracing, LoadTrace, CheckUserLevel, CheckDataAbort,
         CheckUndefInst, CheckTLBExcep]
-    iterative: 20
     description: ''
 rendering:
     analyses: [Preparation, DTPreprocessing]

@@ -1,10 +1,6 @@
-#!/usr/bin/python
 import os
-import sys
 import yaml
-import argparse
 
-sys.path.extend(['..'])
 from slcore.amanager import Analysis, AnalysisGroup
 
 
@@ -51,8 +47,9 @@ def register_analysis_group(analyses):
                     analysis_group.description = attributes['description']
                 for analysis in attributes['analyses']:
                     if analysis.lower() not in analyses:
-                        print('error: there is no analysis named {}'.format(analysis))
-                        exit()
+                        print('error: there is no analysis named {}'.format(
+                            analysis))
+                        return None
                     analysis_group.members.append(analyses[analysis.lower()])
                     callback = group
                     analysis_groups[callback] = {
@@ -70,48 +67,3 @@ def register_analysis_and_group():
     for k, v in analysis_groups.items():
         analyses_and_groups[k] = v
     return analyses_and_groups
-
-
-def list_analysis_and_group():
-    analyses = register_analysis()
-    print('List all analyses.')
-    print('  {:20}{:20}{:20}{:40}{}'.format(
-        'FILENAME', 'NAME', 'CALLBACK',
-        'REQUIRMENT', 'DESCRIPTION'))
-    for callback, attributes in analyses.items():
-        analysis_object = attributes['object']
-        print('  {:20}{:20}{:20}{:40}{}'.format(
-            attributes['filename'],
-            analysis_object.name,
-            callback,
-            ','.join(analysis_object.required),
-            analysis_object.description))
-
-    analysis_groups = register_analysis_group(analyses)
-    print('List all analysis groups.')
-    print('  {:20}{:20}{:20}{:40}{}'.format(
-        'FILENAME', 'NAME', 'CALLBACK',
-        'MEMBERS', 'DESCRIPTION'))
-    for callback, attributes in analysis_groups.items():
-        analysis_group_object = attributes['object']
-        print('  {:20}{:20}{:20}{:40}{}'.format(
-            attributes['filename'],
-            analysis_group_object.name,
-            callback,
-            ','.join([analysis['class'].__name__ for analysis in analysis_group_object.members]),
-            analysis_group_object.description
-        ))
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument(
-        '-a', '--all', action='store_true', default=False,
-        help='list all analysis and analysis group')
-    args = parser.parse_args()
-
-    if args.all:
-        list_analysis_and_group()
-    else:
-        list_analysis_and_group()
