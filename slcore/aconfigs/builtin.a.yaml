@@ -3,7 +3,8 @@ asmany:
         Tracing, CheckUserLevelF]
     description: ''
 bricksanalysis:
-    analyses: [CheckBoard, CalcLoadAddr, EntryPoint]
+    analyses: [CheckBoard, CalcLoadAddr, EntryPoint, CToLLVM,
+        PartiallyLink, SymVExe, SVEPostProcess]
     save_and_restore: True
     description: ''
 trace:
