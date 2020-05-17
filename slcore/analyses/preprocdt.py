@@ -3,6 +3,7 @@ import os
 from slcore.amanager import Analysis
 from slcore.dt_parsers.common import load_dtb
 from slcore.dt_parsers.compatible import find_compatible_in_fdt
+from slcore.dt_parsers.serial import find_flatten_serial_in_fdt
 
 
 class DTPreprocessing(Analysis):
@@ -30,6 +31,9 @@ class DTPreprocessing(Analysis):
 
         # board_id
         self.firmware.set_board_id('0xFFFFFFFF')
+
+        # uart count
+        self.firmware.set_uart_num(len(find_flatten_serial_in_fdt(dts)))
 
         return True
 
