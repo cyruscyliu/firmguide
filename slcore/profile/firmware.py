@@ -70,6 +70,8 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware, Common):
             self.profile['path_to_dtb'] = \
                 os.path.join('examples/profiles',
                              self.get_machine_name(), 'profile.dtb')
+        if self.running_command:
+            self.profile['booting_command'] = self.running_command
 
         with open(self.path_to_profile, 'w') as f:
             yaml.safe_dump(self.profile, f)
@@ -229,3 +231,13 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware, Common):
     def set_stage(self, *args, **kwargs):
         # set_state(True, 'user_mode')
         self.set_general('runtime', args[1], value=args[0])
+
+    # ######## statistics ########
+    def set_uart_num(self, *args, **kwargs):
+        self.set_general('uart', 'num', value=args[0])
+
+    def get_uart_num(self, *args, **kwargs):
+        uart_num = self.get_general('uart', 'num')
+        if uart_num is None:
+            self.set_uart_num(0)
+        return self.get_general('uart', 'num')

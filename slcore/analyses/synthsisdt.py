@@ -1,5 +1,6 @@
 import os
 
+from slcore.amanager import Analysis
 from slcore.dt_parsers.cpu import find_flatten_cpu_in_fdt
 from slcore.dt_parsers.serial import find_flatten_serial_in_fdt
 from slcore.dt_parsers.intc import find_flatten_intc_in_fdt
@@ -7,31 +8,36 @@ from slcore.dt_parsers.common import load_dtb
 from slcore.dt_parsers.timer import find_flatten_timer_in_fdt
 from slcore.dt_parsers.flash import find_flatten_flash_in_fdt
 from slcore.dt_parsers.misc import find_flatten_misc_in_fdt
-from slcore.generation.render import Template
-from slcore.generation.common import to_mmio, to_ops
-from slcore.generation.gllrender import Model
-from slcore.common import Common
+# from slcore.dt_parsers.ram import find_flatten_ram_in_fdt
+from slcore.render import Template
+from slcore.gcommon import to_mmio, to_ops
+from slcore.brick import Brick
 
 
-class DTRenderer(Common):
-    def __init__(self, firmware):
-        super().__init__()
+        # self.context['ram_get_priority'] = firmware.get_ram_priority()
+        # self.context['ram_get_size'] = firmware.get_ram_size()
 
-        self.firmware = firmware
+class SynthesisDT(Analysis):
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
+
+        self.name = 'synthesisdt'
+        self.description = 'Synthesize bricks to QEMU machines.'
+        self.required = ['preprocdt']
+
         self.context = {}
-        self.context['machine_name'] = firmware.get_machine_name()
-        self.context['machine_description'] = self.context['machine_name']
-        self.context['arch'] = firmware.get_arch()
-        self.context['endian'] = firmware.get_endian()
-        self.context['board_id'] = firmware.get_board_id()
-        self.context['ram_get_priority'] = firmware.get_ram_priority()
-        self.context['ram_get_size'] = firmware.get_ram_size()
-        self.context['license'] = '/*\n * automatically generated, don\'t change\n */'
-        self.context['upper'] = lambda x: x.upper()
-        self.context['range'] = lambda x: range(0, x)
+        # self.context['machine_name'] = self.firmware.get_machine_name()
+        # self.context['machine_description'] = self.context['machine_name']
+        # self.context['arch'] = self.firmware.get_arch()
+        # self.context['endian'] = self.firmware.get_endian()
+        # self.context['board_id'] = self.firmware.get_board_id()
+        # self.context['license'] = '/*\n * automatically generated, don\'t change\n */'
+        # self.context['upper'] = lambda x: x.upper()
+        # self.context['range'] = lambda x: range(0, x)
 
         self.rendering_handlers = {
             'cpu': find_flatten_cpu_in_fdt,
+            # 'ram': find_flatten_ram_in_fdt,
             'intc': find_flatten_intc_in_fdt,
             'serial': find_flatten_serial_in_fdt,
             'timer': find_flatten_timer_in_fdt,
@@ -45,15 +51,6 @@ class DTRenderer(Common):
             'intc': 'hw/intc', 'timer': 'hw/timer'}
         self.external = {}
         self.skipped_bdevices = []
-
-    def info(self, message, action):
-        super().info(action, message, 0)
-
-    def debug(self, message, action):
-        super().debug(action, message, 0)
-
-    def warning(self, message, action):
-        super().warning(action, message, 0)
 
     def __render_bamboo_devices(self):
         # TODO we add extra ram here which is silly
@@ -144,8 +141,14 @@ static const MemoryRegionOps {0}_ops = {{
             if cmptb in self.skipped_bdevices:
                 return True
 
-    def render(self):
-        path_to_dtb = self.firmware.get_dtb()
+    def run(self, **kwargs):
+        path_to_dtb = kwargs.pop('dtb', None)
+        if path_to_dtb is None:
+            path_to_dtb = self.firmware.get_realdtb()
+        if path_to_dtb is None:
+            self.error_info = 'there is no device tree blob available'
+            return False
+
         dts = load_dtb(path_to_dtb)
 
         # all intcp should replaced by a real intc
@@ -153,7 +156,7 @@ static const MemoryRegionOps {0}_ops = {{
         flatten_intc = find_flatten_intc_in_fdt(dts)
         if flatten_intc is not None:
             for intc in flatten_intc:
-                m = Model('intc', intc['compatible'])
+                m = Brick('intc', intc['compatible'])
                 if not m.supported:
                     continue
                 if 'phandle' not in intc:
@@ -162,43 +165,46 @@ static const MemoryRegionOps {0}_ops = {{
         flatten_cpu = find_flatten_cpu_in_fdt(dts)
         if flatten_cpu is not None:
             for cpu in flatten_cpu:
-                m = Model('cpu', cpu['compatible'])
+                m = Brick('cpu', cpu['compatible'])
                 if not m.supported:
                     continue
                 intcp[-1] = m
 
+        # let's begin
         for k, v in self.rendering_handlers.items():
+            # ######### handle flash ########
             if k == 'flash' and self.firmware.get_arch() == 'arm':
                 continue
             if k == 'flash' and self.firmware.get_components() \
                     and self.firmware.get_components().has_device_tree():
                 dts = load_dtb(self.firmware.get_components().get_path_to_dtb())
+            # ######### !!!!!!!!!!!! ########
             flatten_ks = v(dts)
             if flatten_ks is None:
-                self.warning('no {} found'.format(k), 'parse')
+                self.warning('no {} found'.format(k), 0)
                 continue
+            # ######### handle flash ########
             if self.firmware.get_arch() == 'mips' and k == 'flash' and \
                     not len(flatten_ks):
                 # mips will have a default flash if no flash is detected
                 flatten_ks = [{'compatible': ['flash,generic'], 'regs': [{'base': 0x1fc00000, 'size': 0x400000}]}]
-            if k == 'serial':
-                self.firmware.set_uart_num(len(flatten_ks))
+            # ######### !!!!!!!!!!!! ########
             for context in flatten_ks:
                 if k != 'serial' and self.__skip(context['compatible']):
-                    self.debug('skip {}'.format(context['compatible']), 'parse')
+                    self.debug('skip {}'.format(context['compatible']), 0)
                     continue
-                # the 1st check, compatible check
-                m = Model(k, context['compatible'])
+                # ######## the 1st check, (type, compatible) check ########
+                # ######### !!!!!!!!!!!! ########
+                m = Brick(k, context['compatible'])
                 if not m.supported:
-                    self.warning('cannot support {} {}'.format(k, context['compatible']), 'parse')
+                    self.warning('cannot support {} {}'.format(k, context['compatible']), 0)
                     continue
-
-                # the 2nd check, parameters check
+                # ######## the 2nd check, parameters check ########
                 context['name'] = m.effic_compatible.replace(',', '_').replace('-', '_')
                 if 'intcp' in context:
                     phandle = context['intcp']
                     if phandle not in intcp:
-                        self.warning('cannot support {} {}, {}'.format(k, m.effic_compatible, 'intcp is missing'), 'parse')
+                        self.warning('cannot support {} {}, {}'.format(k, m.effic_compatible, 'intcp is missing'), 0)
                         continue
                     context['intcp'] = intcp[phandle].model
                     context['intcp']['name'] = intcp[phandle].effic_compatible.replace(',', '_').replace('-', '_')
@@ -211,30 +217,32 @@ static const MemoryRegionOps {0}_ops = {{
                     if context['regs'][0]['base'] > 0x20000000:
                         context['regs'][0]['base'] &= 0x1FFFFFF
                     context['regs'][0]['size'] = 0x20000000 - context['regs'][0]['base']
+                # ######### !!!!!!!!!!!! ########
                 m_context = m.render(context)
                 if isinstance(m_context, str):
-                    self.warning('cannot suport {} {}, {} is missing'.format(k, m.effic_compatible, m_context), 'parse')
+                    self.warning('cannot suport {} {}, {} is missing'.format(k, m.effic_compatible, m_context), 0)
                     continue
                 self.__add_context(m_context)
-
-                # the 3rd check, external check
+                # ######### the 3rd check, external check ########
                 for x, y in m_context.items():
                     context[x] = y
                 context['license'] = self.context['license']
                 m.load_template()
+                # ######### !!!!!!!!!!!! ########
                 source, header = m.render_qdev(context)
                 if isinstance(source, KeyError):
-                    self.warning('cannot suport {} {}, {} is missing'.format(k, m.effic_compatible, source), 'parse')
+                    self.error_info = 'cannot suport {} {}, {} is missing'.format(k, m.effic_compatible, source)
                     return False
                 if m.external:
                     self.external[context['name']] = {'type': k, 'source': source, 'header': header}
-
                 # update the skipped_bdevices
                 self.skipped_bdevices.append(m.effic_compatible)
                 self.skipped_bdevices.extend(m.buddy_compatible)
 
         # bamboo devices have to be processed in a special way
-        self.__render_bamboo_devices()
+        # self.__render_bamboo_devices()
+
+        # let's go on
         if 'ram_get_body' not in self.context:
             self.context['ram_get_body'] = []
             self.context['ram_get_field'] = []
@@ -252,21 +260,20 @@ static const MemoryRegionOps {0}_ops = {{
             self.context['misc_get_body'] = []
             self.context['misc_get_field'] = []
 
+        # ######## !!!!!!!! ########
         try:
             a = Template(self.machine).render(self.context)
             source = Template(a).render(self.context)
         except KeyError as e:
-            self.warning('error in parsing, missing {}'.format(e), 'render')
+            self.error_info = 'error in parsing, missing {}'.format(e)
             return False
-
-        # save machine.c
+        # ######## save machine.c ########
         base = os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0')
         location = self.location[self.context['arch']]
         fname =  self.context['machine_name'] + '.c'
         self.__save(source, base, location, fname)
         self.info('save at {}/{}/{}'.format(base, location, fname), 'link')
-
-        # save model.c
+        # ######## save model.c ########
         for k, v in self.external.items():
             location = self.location[v['type']]
             fname = k + '.c'

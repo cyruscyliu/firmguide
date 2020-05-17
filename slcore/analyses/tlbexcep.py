@@ -2,7 +2,7 @@ from slcore.amanager import Analysis
 
 
 class CheckTLBExcep(Analysis):
-    def handle_mips_tlb_exception(self, firmware, pql):
+    def handle_mips_tlb_exception(self, pql):
         tlb = []
         tlbl = 0
         tlbs = 0
@@ -17,37 +17,36 @@ class CheckTLBExcep(Analysis):
                 tlbs += 1
 
         if not len(tlb):
-            self.context['input'] = 'no tlb exception'
+            self.error_info = 'no tlb exception'
             return True
 
         for cpurf in tlb:
             ret = pql.get_exception_return_cpurf(cpurf)
             if ret is None:
-                self.info(firmware, 'line {}:0x{} has a {} exception, return abnormally'.format(
+                self.info('line {}:0x{} has a {} exception, return abnormally'.format(
                     cpurf['ln'], cpurf['exception']['type'], cpurf['register_files']['pc']), 1)
             else:
-                self.info(firmware, 'line {}:0x{} has a {} exception, return normally'.format(
+                self.info('line {}:0x{} has a {} exception, return normally'.format(
                     cpurf['ln'], cpurf['exception']['type'], cpurf['register_files']['pc']), 1)
-                self.info(firmware, 'the program re-entry {}'.format(ret['exception']['pc']), 1)
+                self.info('the program re-entry {}'.format(ret['exception']['pc']), 1)
         return True
 
-    def handle_arm_tlb_exception(self, firmware, pql):
+    def handle_arm_tlb_exception(self, pql):
         return True
 
-    def run(self, firmware):
+    def run(self, **kwargs):
         trace = self.analysis_manager.get_analysis('loadtrace')
         pql = trace.pql
 
-        if firmware.get_arch() == 'arm':
-            return self.handle_arm_tlb_exception(firmware, pql)
+        if self.firmware.get_arch() == 'arm':
+            return self.handle_arm_tlb_exception(pql)
         else:
-            return self.handle_mips_tlb_exception(firmware, pql)
+            return self.handle_mips_tlb_exception(pql)
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'tlbexcep'
         self.description = 'Find tlb load exception info.'
-        self.context['hint'] = 'bad bad bad trace'
         self.critical = False
-        self.required = ['checkuserlevel', 'checkuserlevelf']
+        self.required = ['userlevel', 'fastuserlevel']
         self.type = 'diag'

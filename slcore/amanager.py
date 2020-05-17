@@ -31,11 +31,13 @@ class AnalysesManager(Common):
         self.archive = kwargs.pop('archive')
 
         self.arguments['trace_format'] = 'qemudebug'
-        self.arguments['path_to_trace'] = kwargs.pop(
-            'trace', '{}/{}-{}-{}.trace'.format(
+        default_path_to_trace = '{}/{}-{}-{}.trace'.format(
                 self.project.attrs['path'], self.project.attrs['name'],
-                self.project.attrs['arch'], self.project.attrs['endian']
-            ))
+                self.project.attrs['arch'], self.project.attrs['endian'])
+        path_to_trace = kwargs.pop('trace', default_path_to_trace)
+        if path_to_trace is None:
+            path_to_trace = default_path_to_trace
+        self.arguments['path_to_trace'] = path_to_trace
 
         self.analyses_flat = {}  # name:analysis
         self.analyses_tree = {}

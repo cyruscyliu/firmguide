@@ -1,49 +1,18 @@
-"""
-General Low Level Render.
-
-The GLLR(General Low Level Render) is a abstract layer of rendering
-low level templates. We define the syntax of low level templates
-as below. Let's take intc,generic as an example.
-
-Example:
-    intc,generic:
-        paramters: [name, reg, intcp]
-        get_header: ['hw/intc/{{ name }}.h']
-        get_field: ['{{ name|upper }}State {{name}}']
-        get_body:
-            - 'object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_{{ name|upper }});'
-            - 'qdev_set_parent_bus(DEVICE(&s->{{ name }}), sysbus_get_default());'
-            - 'object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized", &err);'
-            - 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ reg.base }});',
-        get_connection: ['qdev_connect_gpio_out(DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn }});']
-        get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}), {{ irqn|__restore_irqn }})
-        buddy_compatible: []
-
-Note:
-    1. You have to assign a key to a peripheral. Mostly, the key is the one of
-    the compatibles of the peripheral and you can put the others into the
-    buddy_compatible. To together with buddy_compatible, only the key compatible
-    will be recognized, the others will be ignored, which is useful when we use
-    integrated devices in QEMU, such as arm1mpcore-priv..
-    2. Put all context keys used in parameters, say we will use `name` in get_header,
-    then you put `name` in the parameters, in order to pre-check the context.
-    3. Put all header templates into get_header.
-    4. Put all soc field templates into get_field.
-    5. Put all initialization templates into get_body.
-    6. Put all connection templates into get_connection.
-    7. Put all irq input templates into get_irqn.
-"""
 import os
+import sys
 import copy
+import argparse
 
-from slcore.generation.render import Template
+sys.path.extend(['..'])
+
+from slcore.render import Template
 from slcore.database.dbf import get_database
 
 
 EXTERNAL_TEMPLATE_VERSION = 2
 
 
-class Model(object):
+class Brick(object):
     def __init__(self, t, compatible):
         """
         Args:
@@ -52,11 +21,15 @@ class Model(object):
 
         Attributes:
             effic_compatible(str): The compatible of the model.
-            buddy_compatible(str): The compatible of the dt node but not the compatible of the model.
+            buddy_compatible(str): The compatible of the dt node
+                                   but not the compatible of the model.
             supported(bool)      : Whether or not this model is supported.
-            model(dict)          : The metadata from the database is used to generate machine.c/peripheral.c etc.
-            context(dict)        : The metadata from the dt node like reg.base/reg.size.
-            external             : Whether or not this model is not built-in qdev.
+            model(dict)          : The metadata from the database is used
+                                   to generate machine.c/peripheral.c etc.
+            context(dict)        : The metadata from the dt node like
+                                   reg.base/reg.size.
+            external             : Whether or not this model is not
+                                   built-in qdev.
         """
         self.t = t
         self.compatible = compatible
@@ -65,8 +38,12 @@ class Model(object):
         self.actual = {}
         self.effic_compatible = None
         self.buddy_compatible = []
+
         self.source = None
+        self.path_to_source = None
         self.header = None
+        self.path_to_header = None
+
         self.unique = False
         self.fix_size = None
 
@@ -78,16 +55,31 @@ class Model(object):
             self.effic_compatible = cmptb
             self.model = self.__expand_model(model)
             self.supported = True
-            if 'external' in model:
-                self.external = model['external']
-            else:
-                self.external = False
             if 'buddy_compatible' in model:
                 self.buddy_compatible.extend(model['buddy_compatible'])
             if 'unique' in model:
                 self.unique = True
             if 'fix_size' in model:
                 self.fix_size = model['fix_size']
+            # external source and header
+            if 'external' in model:
+                self.external = model['external']
+            else:
+                self.external = False
+            if 'external_source' in model:
+                self.template_to_source = model['external_source']
+            else:
+                self.template_to_source = os.path.join(
+                    os.path.dirname(os.path.realpath(__file__)),
+                    'qemutemplates',
+                    '{}{}.c'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
+            if 'external_header' in model:
+                self.template_to_header = model['external_header']
+            else:
+                self.template_to_header = os.path.join(
+                    os.path.dirname(os.path.realpath(__file__)),
+                    'qemutemplates',
+                    '{}{}.h'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
             break
         self.context = None
 
@@ -95,8 +87,7 @@ class Model(object):
         """low level render."""
         self.context = context
 
-        # the 2nd check, parameters check
-        # self.model['parameters'] tells us what should be in the context
+        # model['parameters'] tells us what should be in the context
         if 'parameters' in self.model:
             for param in self.model['parameters']:
                 if param not in context:
@@ -115,9 +106,11 @@ class Model(object):
             self.__render_get_body(context, n=len(context['regs']))
         if 'irqns' in context:
             if 'regs' in context:
-                self.__render_get_connection(context, n=len(context['irqns']), p=len(context['regs']))
+                self.__render_get_connection(
+                    context, n=len(context['irqns']), p=len(context['regs']))
             else:
-                self.__render_get_connection(context, n=len(context['irqns']))
+                self.__render_get_connection(
+                    context, n=len(context['irqns']))
 
         # rendering was done so we could concat them all
         # get_field/body/connection  LIST -> [str]
@@ -217,17 +210,30 @@ class Model(object):
     def load_template(self):
         """Load external templates if the external is true."""
         if not self.external:
-            return
-        psource = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            '{}{}.c'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
-        if os.path.exists(psource):
-            with open(psource) as f:
+            return False
+
+        if os.path.exists(self.template_to_source):
+            with open(self.template_to_source) as f:
                 self.source = ''.join(f.readlines())
-        pheader = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            '{}{}.h'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
-        if os.path.exists(pheader):
-            with open(pheader) as f:
+        if os.path.exists(self.template_to_header):
+            with open(self.template_to_header) as f:
                 self.header = ''.join(f.readlines())
 
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument(
+        'type',
+        choices=['clk', 'cpu', 'flash', 'intc', 'misc', 'serial', 'timer'],
+        help='hardware type')
+    parser.add_argument('compatible', nargs='+', help='hardware compatible')
+    args = parser.parse_args()
+
+    b = Brick(args.type, args.compatible)
+    if not b.supported:
+        print('{} {} is not supported'.format(args.type, args.compatible))
+        exit(-1)
+
+    import json
+    print(json.dumps(vars(b), indent=4, sort_keys=True))

@@ -1,8 +1,8 @@
-from capstone.mips_const import MIPS_OP_REG, MIPS_OP_IMM, MIPS_OP_MEM
+import struct
 
+from capstone.mips_const import MIPS_OP_REG, MIPS_OP_IMM, MIPS_OP_MEM
 from slcore.amanager import Analysis
 from capstone import *
-import struct
 
 
 def get_raw_code(address, bb):
@@ -22,36 +22,37 @@ def get_instruction(address, bb):
 
 
 class CheckDataAbort(Analysis):
-    def handle_arm_dabt(self, firmware, pql):
+    def handle_arm_dabt(self, pql):
         dabts = []
         for k, cpurf in pql.cpurfs.items():
-            if 'exception' in cpurf and 'type' in cpurf['exception'] and cpurf['exception']['type'] == 'dabt':
+            if 'exception' in cpurf and \
+                    'type' in cpurf['exception'] and cpurf['exception']['type'] == 'dabt':
                 dabts.append(cpurf)
 
         if not len(dabts):
-            self.context['input'] = 'no data abort'
+            self.error_info = 'no data abort'
             return True
 
         for cpurf in dabts:
             # dabt
             # current bb has where to abort -> next bb has where to return
             if pql.get_exception_return_cpurf(cpurf) is None:
-                self.info(firmware, 'line {}:0x{} has a data abort at {}, return abnormally'.format(
+                self.info('line {}:0x{} has a data abort at {}, return abnormally'.format(
                     cpurf['ln'], cpurf['register_files']['R15'], cpurf['register_files']['DFAR']), 1)
             else:
-                self.info(firmware, 'line {}:0x{} has a data abort at {}, return normally'.format(
+                self.info('line {}:0x{} has a data abort at {}, return normally'.format(
                     cpurf['ln'], cpurf['register_files']['R15'], cpurf['register_files']['DFAR']), 1)
                 next_cpurf = pql.get_next_cpurf(cpurf)
                 where_to_return = int(next_cpurf['register_files']['R14'], 16) - 8
-                self.info(firmware, 'the program should re-entry 0x{:x} {}'.format(
+                self.info('the program should re-entry 0x{:x} {}'.format(
                     where_to_return, get_instruction(where_to_return, pql.get_bb(cpurf))), 1)
                 if int(cpurf['register_files']['DFAR'], 16) == 0:
-                    self.info(firmware, 'kernel panic by accessing 0', 1)
+                    self.info('kernel panic by accessing 0', 1)
                     continue
                 self.dead_addresses.append(cpurf['register_files']['DFAR'])
         return True
 
-    def handle_mips_dabt(self, firmware, pql):
+    def handle_mips_dabt(self, pql):
         dbes = []
         for k, cpurf in pql.cpurfs.items():
             if 'exception' in cpurf and 'type' in cpurf['exception'] and \
@@ -59,14 +60,14 @@ class CheckDataAbort(Analysis):
                 dbes.append(cpurf)
 
         if not len(dbes):
-            self.context['input'] = 'no data abort'
+            self.error_info = 'no data abort'
             return True
 
         for cpurf in dbes:
             # dabt
             # current cpurf tells us where to return and current bb tells us where to abort
             where_to_return = cpurf['register_files']['EPC']
-            self.info(firmware, 'line {}:0x{} has a data abort at PC {}'.format(
+            self.info('line {}:0x{} has a data abort at PC {}'.format(
                 cpurf['ln'], cpurf['register_files']['pc'], where_to_return), 1)
             bb = pql.get_bb(cpurf)
             where_to_return = int(where_to_return, 16)
@@ -87,28 +88,27 @@ class CheckDataAbort(Analysis):
                         disp = operand.mem.disp
                         bad_addr = int(cpurf['register_files'][base], 16) + disp
                         self.dead_addresses.append(hex(bad_addr))
-                        self.info(firmware, 'line {}:0x{} has a data abort at 0x{:x}'.format(
+                        self.info('line {}:0x{} has a data abort at 0x{:x}'.format(
                             cpurf['ln'], cpurf['register_files']['pc'], bad_addr), 1)
         return True
 
-    def run(self, firmware):
+    def run(self, **kwargs):
         self.dead_addresses = []
 
         trace = self.analysis_manager.get_analysis('loadtrace')
         pql = trace.pql
 
-        if firmware.get_arch() == 'arm':
-            return self.handle_arm_dabt(firmware, pql)
+        if self.firmware.get_arch() == 'arm':
+            return self.handle_arm_dabt(pql)
         else:
-            return self.handle_mips_dabt(firmware, pql)
+            return self.handle_mips_dabt(pql)
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'databort'
         self.description = 'Find data abort info.'
-        self.context['hint'] = 'bad bad bad trace'
         self.critical = False
-        self.required = ['checkuserlevel', 'checkuserlevelf']
+        self.required = ['userlevel', 'fastuserlevel']
         self.type = 'diag'
         #
         self.dead_addresses = []
