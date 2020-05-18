@@ -137,6 +137,7 @@ class SynthesisDT(Analysis):
                 context['to_range'] = self.context['to_range']
                 context['to_endian'] = self.context['to_endian']
                 context['to_hex'] = self.context['to_hex']
+                context['to_offset'] = self.context['to_offset']
                 context['endian'] = self.context['endian']
                 context['arch'] = self.context['arch']
                 context['machine_name'] = self.context['machine_name']
@@ -185,13 +186,6 @@ class SynthesisDT(Analysis):
             self.context['misc_get_header'] = []
             self.context['misc_get_body'] = []
             self.context['misc_get_field'] = []
-        if 'mmio_get_header' not in self.context:
-            self.context['mmio_get_header'] = []
-            self.context['mmio_get_body'] = []
-            self.context['mmio_get_field'] = []
-            self.context['mmio_get_reset'] = []
-            self.context['mmio_get_registers'] = []
-            self.context['mmio_get_suite'] = []
         # ######## !!!!!!!! ########
         try:
             self.load_template()

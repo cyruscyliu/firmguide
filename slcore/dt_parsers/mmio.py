@@ -59,7 +59,7 @@ def find_parent_offset(dts, path, x, fx, debug=False):
             print('[+] {} range cells: {:x} {:x} {:x}'.format(
                 path, local_address_cells, parent_address_cells, local_size_cells))
         bank_size = \
-            (local_address_cells + parent_address_cells + local_size_cells )
+            (local_address_cells + parent_address_cells + local_size_cells)
         fx_parent = {}
         for i in range(0, len(ranges) // bank_size):
             if debug:
@@ -188,7 +188,7 @@ def find_flatten_mmio_in_fdt(dts, memory=False):
             # sometimes we get a size 0xffffffff...
             if base + size > (1 << 32):
                 size = (1 << 32) - base
-            mmio[pa]['regs'].append({'base': base, 'size': size})
+            mmio[pa]['regs'].append({'base': base, 'size': size, 'priority': 0})
 
     flatten_mmio = []
     for k, v in mmio.items():

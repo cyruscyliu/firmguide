@@ -1,19 +1,22 @@
 #!/usr/bin/python
 import sys
 import yaml
+import json
 import argparse
 
 sys.path.extend(['../..'])
 
-from slcore.brick import Brick, to_offset, to_upper, to_hex
+from slcore.brick import Brick, to_offset, \
+    to_upper, to_hex, to_qemu_endian
 
 
-def burn_brick(parameter_file):
+def burn_brick(b, parameter_file):
     context = yaml.safe_load(open(parameter_file))
     context['machine_name'] = 'test_machine'
     context['to_hex'] = to_hex
     context['to_upper'] = to_upper
     context['to_offset'] = to_offset
+    context['to_endian'] = to_qemu_endian
     b_context = b.render(context)
     if isinstance(b_context, str):
         print('cannot suport {} {}, {} is missing'.format(
@@ -39,8 +42,7 @@ if __name__ == '__main__':
         print('{} {} is not supported'.format(args.type, args.compatible))
         exit(-1)
 
-    import json
     if args.context is not None:
-        burn_brick(args.context)
+        burn_brick(b, args.context)
     else:
         print(json.dumps(vars(b), indent=4, sort_keys=True))

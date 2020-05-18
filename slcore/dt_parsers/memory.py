@@ -8,11 +8,14 @@ def __get_ram_generic():
 
 
 def __validate_ram_size(memory):
-    for reg in memory['regs']:
+    for reg in memory[0]['regs']:
         reg['priority'] = 0
 
-    if len(memory['regs']) == 1 and memory['regs'][0]['size'] == 0:
-        memory['regs']['size'] = 256 * 1024 * 1024
+    if len(memory[0]['regs']) == 1 and \
+            memory[0]['regs'][0]['size'] == 0:
+        memory[0]['regs']['size'] = 256 * 1024 * 1024
+
+    return memory
 
 
 def __find_memory_path(dts):
@@ -42,11 +45,16 @@ def find_memory_in_fdt(dts):
 
     if path_to_memory is None:
         return __get_ram_generic()
-    mmios = find_mmio_by_path(dts, path_to_memory, memory=True)
-    assert mmios is not None, 'bugs in find_mmio_by_path'
-    __validate_ram_size(mmios)
 
-    return [mmios]
+    memory = [find_mmio_by_path(dts, path_to_memory, memory=True)]
+    assert memory[0] is not None, 'bugs in find_mmio_by_path'
+
+    if len(memory[0]['regs']) == 0:
+        memory = __get_ram_generic()
+
+    __validate_ram_size(memory)
+
+    return memory
 
 
 def find_memory(path_to_dtb):
@@ -66,7 +74,7 @@ def find_memory(path_to_dtb):
     if memory is None:
         return __get_ram_generic()
 
-    __validate_ram_size(memory[0])
+    __validate_ram_size(memory)
     return memory
 
 

@@ -46,7 +46,7 @@ class TestDTParsers(TestCase):
             'dts/memory_zero_regs.dts')
         dts = load_dtb(path_to_dtb)
         a = find_memory_in_fdt(dts)[0]
-        self.assertEqual(0, len(a['regs']))
+        self.assertEqual(1, len(a['regs']))
 
     def test_memory_path_with_act(self):
         path_to_dtb = self.compile_dts(

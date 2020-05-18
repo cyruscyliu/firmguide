@@ -33,6 +33,14 @@ class UpdateHardwareDT(Analysis):
         }
         self.skipped_bdevices = []
 
+    def is_gpio_intc(self, t, compatible):
+        if t != 'intc':
+            return False
+
+        for cmptb in compatible:
+            if cmptb.find('gpio') != -1:
+                return True
+
     def __skip(self, compatible):
         for cmptb in compatible:
             if cmptb in self.skipped_bdevices:
@@ -46,7 +54,8 @@ class UpdateHardwareDT(Analysis):
                     self.debug('skip {}'.format(context['compatible']), 0)
                     continue
                 b = Brick(k, context['compatible'])
-                if not b.supported:
+                if not b.supported and \
+                        not self.is_gpio_intc(k, context['compatible']):
                     b.update_model()
                     self.info('update {} {}'.format(
                         k, context['compatible']), 1)

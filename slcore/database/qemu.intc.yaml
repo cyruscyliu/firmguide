@@ -221,9 +221,6 @@ opencores,or1k-pic: {extend: 'intc,generic'}
 opencores,or1k-pic-edge: {extend: 'intc,generic'}
 opencores,or1k-pic-level: {extend: 'intc,generic'}
 oxsemi,ox810se-rps-irq: {extend: 'intc,generic'}
-plxtech,nas782x-gpio:
-  buddy_compatible: []
-  extend: intc,generic
 plxtech,nas782x-rps: {extend: 'intc,generic'}
 qca,ar7100-cpu-intc: {extend: 'mti,cpu-interrupt-controller'}
 qca,ar7100-misc-intc: {extend: 'intc,generic'}

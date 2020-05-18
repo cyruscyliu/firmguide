@@ -20,9 +20,9 @@ mmio,generic:
       \ *s = opaque;\n\n    switch (offset) {\n    default:\n        qemu_log_mask(LOG_GUEST_ERROR,\
       \ \"%s: Bad offset %\"HWADDR_PRIx\"\\\\n\", __func__, offset);\n        return;\n\
       \    case {{ reg.size|to_offset }}:\n        s->{{ name }}{{ id }}[offset >>\
-      \ 2] = val;\n        break;\n}\n{{ name }}{{ id }}_update(s);\n}\n\nstatic const\
+      \ 2] = val;\n        break;\n    }\n    {{ name }}{{ id }}_update(s);\n}\n\nstatic const\
       \ MemoryRegionOps {{ name }}_ops{{ id }} = {\n    .read = {{ name }}{{ id }}_read,\n\
-      \    .write = {{ name }}{{ id }}_write,\n    .endianness = {{ endian }},\n};"]
+      \    .write = {{ name }}{{ id }}_write,\n    .endianness = {{ endian|to_endian }},\n};"]
   parameters: [name, regs, endian]
 plxtech,nas782x-ehci:
   buddy_compatible: []

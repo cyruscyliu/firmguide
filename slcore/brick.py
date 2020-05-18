@@ -149,6 +149,7 @@ class Brick(object):
                     context['{}_{}'.format(self.t, k)] = v
             else:
                 context['{}_{}'.format(self.t, k)] = v
+
         return context
 
     def __render_get_connection(self, context, n=1, p=1):

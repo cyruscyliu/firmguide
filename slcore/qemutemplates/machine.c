@@ -25,7 +25,8 @@ typedef struct {{ machine_name|to_upper }}State {
     {{ line }}{% endfor %}{% for line in ram_get_field %}
     {{ line }}{% endfor %}{% for line in mmio_get_registers %}
     {{ line }}{% endfor %}
-} {{ machine_name|to_upper }}State;{% for suite in mmio_get_suite %}
+} {{ machine_name|to_upper }}State;
+{% for suite in mmio_get_suite %}
 {{ suite }}{% endfor %}
 
 static void {{ machine_name }}_reset(void *opaque)
