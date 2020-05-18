@@ -1,5 +1,3 @@
-? ''
-: {extend: 'serial,generic'}
 actions,owl-uart: {extend: 'serial,generic'}
 altr,juart-1.0: {extend: 'serial,generic'}
 altr,uart-1.0: {extend: 'serial,generic'}
@@ -24,8 +22,8 @@ marvell,armada-3700-uart: {extend: 'serial,generic'}
 mediatek,mt6577-uart: {extend: 'serial,generic'}
 mrvl,pxa-uart: {extend: 'serial,generic'}
 ns16550: {extend: ns16550a}
-ns16550a:
-  get_body: ['serial_mm_init(get_system_memory(), {{ reg.base }}, {{ reg_shift }},
+ns16550a: &ns16550a
+  get_body: ['serial_mm_init(get_system_memory(), {{ reg.base|to_hex }}, {{ reg_shift }},
       {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ sid }}), {{ endian }});']
   get_connection: []
   get_field: []
@@ -35,7 +33,7 @@ nvidia,tegra20-uart: {extend: 'serial,generic'}
 qcom,msm-uart: {extend: 'serial,generic'}
 qcom,msm-uartdm: {extend: 'serial,generic'}
 ralink,rt2880-uart:
-  get_body: ['serial_mm_init_au(get_system_memory(), {{ reg.base }}, {{ reg_shift
+  get_body: ['serial_mm_init_au(get_system_memory(), {{ reg.base|to_hex }}, {{ reg_shift
       }}, {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ sid }}), {{ endian
       }});']
   get_connection: []
@@ -64,3 +62,4 @@ xlnx,opb-uartlite-1.00.b: {extend: 'serial,generic'}
 xlnx,xps-uartlite-1.00.a: {extend: 'serial,generic'}
 xlnx,xuartps: {extend: 'serial,generic'}
 xlnx,zynqmp-uart: {extend: 'serial,generic'}
+serial,generic: *ns16550a

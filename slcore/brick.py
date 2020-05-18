@@ -1,15 +1,26 @@
 import os
-import sys
 import copy
-import argparse
-
-sys.path.extend(['..'])
 
 from slcore.render import Template
 from slcore.database.dbf import get_database
 
 
 EXTERNAL_TEMPLATE_VERSION = 2
+
+
+def to_hex(number):
+    return hex(number)
+
+
+def to_offset(size):
+    if size == 4:
+        return '0x0'
+    else:
+        return '0x0 ... 0x{:x}'.format(size - 4)
+
+
+def to_upper(string):
+    return string.upper()
 
 
 class Brick(object):
@@ -40,9 +51,9 @@ class Brick(object):
         self.buddy_compatible = []
 
         self.source = None
-        self.path_to_source = None
+        self.template_to_source = None
         self.header = None
-        self.path_to_header = None
+        self.template_to_header = None
 
         self.unique = False
         self.fix_size = None
@@ -66,20 +77,21 @@ class Brick(object):
                 self.external = model['external']
             else:
                 self.external = False
-            if 'external_source' in model:
-                self.template_to_source = model['external_source']
-            else:
-                self.template_to_source = os.path.join(
-                    os.path.dirname(os.path.realpath(__file__)),
-                    'qemutemplates',
-                    '{}{}.c'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
-            if 'external_header' in model:
-                self.template_to_header = model['external_header']
-            else:
-                self.template_to_header = os.path.join(
-                    os.path.dirname(os.path.realpath(__file__)),
-                    'qemutemplates',
-                    '{}{}.h'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
+            if self.external:
+                if 'external_source' in model:
+                    self.template_to_source = model['external_source']
+                else:
+                    self.template_to_source = os.path.join(
+                        os.path.dirname(os.path.realpath(__file__)),
+                        'qemutemplates',
+                        '{}{}.c'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
+                if 'external_header' in model:
+                    self.template_to_header = model['external_header']
+                else:
+                    self.template_to_header = os.path.join(
+                        os.path.dirname(os.path.realpath(__file__)),
+                        'qemutemplates',
+                        '{}{}.h'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
             break
         self.context = None
 
@@ -93,17 +105,17 @@ class Brick(object):
                 if param not in context:
                     return param
 
-        # update int to hex, especially in reg
-        if 'regs' in context:
-            for reg in context['regs']:
-                reg['base'] = hex(reg['base'])
-                reg['size'] = hex(reg['size'])
-
         self.actual = copy.deepcopy(self.model)
         self.__render_get_header(context)
         if 'regs' in context:
             self.__render_get_field(context, n=len(context['regs']))
             self.__render_get_body(context, n=len(context['regs']))
+            if 'get_registers' in self.model:
+                self.__render_get_registers(context, n=len(context['regs']))
+            if 'get_reset' in self.model:
+                self.__render_get_reset(context, n=len(context['regs']))
+            if 'get_suite' in self.model:
+                self.__render_get_suite(context, n=len(context['regs']))
         if 'irqns' in context:
             if 'regs' in context:
                 self.__render_get_connection(
@@ -117,7 +129,9 @@ class Brick(object):
         # at the same time, we add a prefix to all keys
         context = {}
         for k, v in self.actual.items():
-            if k == 'get_body' or k == 'get_field' or k == 'get_connection':
+            if k == 'get_body' or k == 'get_field' or \
+                    k == 'get_connection' or k == 'get_reset' or \
+                    k == 'get_registers' or k == 'get_suite':
                 if len(v) > 1:
                     context['{}_{}'.format(self.t, k)] = ['\n    '.join(v)]
                 else:
@@ -145,8 +159,8 @@ class Brick(object):
         if self.unique:
             n = 1
         for i in range(0, n):
-            context['reg'] = context['regs'][i]
             context['id'] = i
+            context['reg'] = context['regs'][i]
             if 'irqn' in context:
                 context['iid'] = context['irqn'] // context['intcp']['n_irq']
                 context['irqn'] = context['irqn'] % context['intcp']['n_irq']
@@ -163,8 +177,36 @@ class Brick(object):
             n = 1
         for i in range(0, n):
             context['id'] = i
+            context['reg'] = context['regs'][i]
             actual = self.__render('get_field', context)
             self.actual['get_field'].extend(actual)
+
+    def __render_get_registers(self, context, n=1):
+        self.actual['get_registers'] = []
+        for i in range(0, n):
+            context['id'] = i
+            context['reg'] = context['regs'][i]
+            actual = self.__render('get_registers', context)
+            self.actual['get_registers'].extend(actual)
+
+    def __render_get_reset(self, context, n=1):
+        self.actual['get_reset'] = []
+        for i in range(0, n):
+            context['id'] = i
+            context['reg'] = context['regs'][i]
+            if 'registers' in context['reg']:
+                for register in context['reg']['registers']:
+                    context['register'] = register
+                    actual = self.__render('get_reset', context)
+                    self.actual['get_reset'].extend(actual)
+
+    def __render_get_suite(self, context, n=1):
+        self.actual['get_suite'] = []
+        for i in range(0, n):
+            context['id'] = i
+            context['reg'] = context['regs'][i]
+            actual = self.__render('get_suite', context)
+            self.actual['get_suite'].extend(actual)
 
     def __render(self, key, context):
         actual = []
@@ -218,22 +260,3 @@ class Brick(object):
         if os.path.exists(self.template_to_header):
             with open(self.template_to_header) as f:
                 self.header = ''.join(f.readlines())
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument(
-        'type',
-        choices=['clk', 'cpu', 'flash', 'intc', 'misc', 'serial', 'timer'],
-        help='hardware type')
-    parser.add_argument('compatible', nargs='+', help='hardware compatible')
-    args = parser.parse_args()
-
-    b = Brick(args.type, args.compatible)
-    if not b.supported:
-        print('{} {} is not supported'.format(args.type, args.compatible))
-        exit(-1)
-
-    import json
-    print(json.dumps(vars(b), indent=4, sort_keys=True))

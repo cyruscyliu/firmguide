@@ -1,0 +1,6 @@
+regs:
+    - {base: 0, size: 8192, priority: 0}
+    - {base: 81920, size: 819200, priority: 0}
+compatible:
+    - 'ram,generic'
+path: /memory

@@ -1,13 +1,13 @@
 {{ license }}
 
-#ifndef {{ name|upper }}_H
-#define {{ name|upper }}_H
+#ifndef {{ name|to_upper }}_H
+#define {{ name|to_upper }}_H
 
 #include "hw/sysbus.h"
 
-#define TYPE_{{ name|upper }} "{{ name }}"
-#define {{ name|upper }}(obj) \
-    OBJECT_CHECK({{ name|upper }}State, (obj), TYPE_{{ name|upper }})
+#define TYPE_{{ name|to_upper }} "{{ name }}"
+#define {{ name|to_upper }}(obj) \
+    OBJECT_CHECK({{ name|to_upper }}State, (obj), TYPE_{{ name|to_upper }})
 
 /*
  * interrupt actions
@@ -18,7 +18,7 @@
 
 #define N_IRQ           {{ intc_n_irq }}
 
-typedef struct {{ name|upper }}State {
+typedef struct {{ name|to_upper }}State {
     /*< private >*/
     SysBusDevice sys_bus;
     /*< public >*/
@@ -32,7 +32,6 @@ typedef struct {{ name|upper }}State {
     uint32_t state[N_IRQ];
     bool pending[N_IRQ];
     bool masked[N_IRQ];
-} {{ name|upper }}State;
+} {{ name|to_upper }}State;
 
-#endif /* {{ name|upper }}_H */
-
+#endif /* {{ name|to_upper }}_H */

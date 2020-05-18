@@ -1,0 +1,9 @@
+ram,generic:
+    get_header: [exec/address-space.h]
+    get_field:
+        - 'MemoryRegion ram{{ id }};'
+    get_body:
+        - memory_region_allocate_system_memory(&s->ram{{ id }}, OBJECT(machine), "ram{{ id }}", {{ reg.size|to_hex }});
+        - memory_region_add_subregion_overlap(get_system_memory(), {{ reg.base|to_hex }}, &s->ram{{ id }}, {{ reg.priority }});
+    get_connection: []
+    parameters: ['regs']

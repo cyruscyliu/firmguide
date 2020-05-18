@@ -7,7 +7,7 @@
 
 static bool set_{{ name }}_irqn_to_regs(void *opaque, int irqn)
 {
-    {{ name|upper }}State *s = opaque;
+    {{ name|to_upper }}State *s = opaque;
     switch(irqn) { {% for irqn_to_reg in intc_irqn_to_regs %}
         case {{ irqn_to_reg.irqn }}:{% for line in irqn_to_reg.set_body %}
             {{ line }}{% endfor %}
@@ -18,7 +18,7 @@ static bool set_{{ name }}_irqn_to_regs(void *opaque, int irqn)
 
 static bool clear_{{ name }}_irqn_to_regs(void *opaque, int irqn)
 {
-    {{ name|upper }}State *s = opaque;
+    {{ name|to_upper }}State *s = opaque;
     switch(irqn) { {% for irqn_to_reg in intc_irqn_to_regs %}
         case {{ irqn_to_reg.irqn }}:{% for line in irqn_to_reg.clear_body %}
             {{ line }}{% endfor %}
@@ -29,7 +29,7 @@ static bool clear_{{ name }}_irqn_to_regs(void *opaque, int irqn)
 
 static void {{ name }}_update(void *opaque)
 {
-    {{ name|upper }}State *s = opaque;
+    {{ name|to_upper }}State *s = opaque;
     int i;
 
     // state transition table
@@ -90,7 +90,7 @@ static void {{ name }}_update(void *opaque)
 
 static uint64_t {{ name }}_read(void *opaque, hwaddr offset, unsigned size)
 {
-    {{ name|upper }}State *s = opaque;
+    {{ name|to_upper }}State *s = opaque;
     uint32_t res = 0;
 
     switch (offset) {
@@ -105,7 +105,7 @@ static uint64_t {{ name }}_read(void *opaque, hwaddr offset, unsigned size)
 
 static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
 {
-    {{ name|upper }}State *s = opaque;
+    {{ name|to_upper }}State *s = opaque;
     uint64_t irqn;
     uint32_t old;
 
@@ -145,7 +145,7 @@ static const MemoryRegionOps {{ name }}_ops = {
 
 static void {{ name }}_set_irq(void *opaque, int irq, int level)
 {
-    {{ name|upper }}State *s = opaque;
+    {{ name|to_upper }}State *s = opaque;
 
     if (level)
         s->pending[irq] = true;
@@ -157,10 +157,10 @@ static void {{ name }}_set_irq(void *opaque, int irq, int level)
 
 static void {{ name }}_init(Object *obj)
 {
-    {{ name|upper }}State *s = {{ name|upper }}(obj);
+    {{ name|to_upper }}State *s = {{ name|to_upper }}(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &{{ name }}_ops, s, TYPE_{{ name|upper }}, {{ reg.size }});
+    memory_region_init_io(&s->mmio, obj, &{{ name }}_ops, s, TYPE_{{ name|to_upper }}, {{ reg.size }});
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize the irq/fip to cpu */
@@ -171,7 +171,7 @@ static void {{ name }}_init(Object *obj)
 static void {{ name }}_reset(DeviceState *dev)
 {
     int irqn;
-    {{ name|upper }}State *s = {{ name|upper }}(dev);{% for register in intc_get_registers %}
+    {{ name|to_upper }}State *s = {{ name|to_upper }}(dev);{% for register in intc_get_registers %}
     s->{{ register.rname }} = {{ register.value }};{% endfor %}
 
     for (irqn = 0; irqn < N_IRQ; irqn++)
@@ -186,9 +186,9 @@ static void {{ name }}_class_init(ObjectClass *klass, void *data)
 }
 
 static TypeInfo {{ name }}_type_info = {
-    .name = TYPE_{{ name|upper }},
+    .name = TYPE_{{ name|to_upper }},
     .parent = TYPE_SYS_BUS_DEVICE,
-    .instance_size = sizeof({{ name|upper }}State),
+    .instance_size = sizeof({{ name|to_upper }}State),
     .instance_init = {{ name }}_init,
     .class_init = {{ name }}_class_init,
 };
@@ -199,4 +199,3 @@ static void {{ name }}_register_types(void)
 }
 
 type_init({{ name }}_register_types)
-

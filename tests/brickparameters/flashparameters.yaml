@@ -1,0 +1,4 @@
+compatible: ['flash,generic']
+name: flash_generic
+regs:
+    - {base: 0xFFFF6000, size: 0x4000, priority: 0}

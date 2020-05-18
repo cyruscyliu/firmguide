@@ -9,6 +9,8 @@ def get_database(dbtype, **kwargs):
         return DatabaseQEMUDevices()
     elif dbtype == 'qemu.cpu':
         return DatabaseQEMUModels('cpu')
+    elif dbtype == 'qemu.ram':
+        return DatabaseQEMUModels('ram')
     elif dbtype == 'qemu.serial':
         return DatabaseQEMUModels('serial')
     elif dbtype == 'qemu.intc':
@@ -21,6 +23,8 @@ def get_database(dbtype, **kwargs):
         return DatabaseQEMUModels('flash')
     elif dbtype == 'qemu.misc':
         return DatabaseQEMUModels('misc')
+    elif dbtype == 'qemu.mmio':
+        return DatabaseQEMUModels('mmio')
     elif dbtype == 'qemu.iv':
         return DatabaseQEMUModels('iv')
     elif dbtype == 'qemu.apis':

@@ -5,7 +5,7 @@ misc,generic:
     get_connection: []
 arm,pl310-cache:
     extend: misc,generic
-    get_body: ['sysbus_create_varargs("l2x0", {{ reg.base }} , NULL);']
+    get_body: ['sysbus_create_varargs("l2x0", {{ reg.base|to_hex }} , NULL);']
 marvell,aurora-system-cache:
     extend: misc,generic
-    get_body: ['sysbus_create_varargs("l2x0", {{ reg.base }} , NULL);']
+    get_body: ['sysbus_create_varargs("l2x0", {{ reg.base|to_hex }} , NULL);']

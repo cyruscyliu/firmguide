@@ -133,7 +133,7 @@ def find_flatten_mmio_in_fdt(dts, memory=False):
     Returns:
         list: A list of mmio regions in the machine. For example:
         [{'compatible': ['example,mmio'], 'path': /example/mmio,
-        'regs': [{'base': 0xFFFF0000, 'size': 0x10000}]}]
+        'regs': [{'base': 0xFFFF0000, 'size': 0x10000, 'priority': 0}]}]
     """
     top_address_cells = dts.get_property('#address-cells', '/').data[0]
     top_size_cells = dts.get_property('#size-cells', '/').data[0]
