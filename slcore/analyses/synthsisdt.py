@@ -151,14 +151,14 @@ class SynthesisDT(Analysis):
                     context['regs'][0]['size'] = \
                         0x20000000 - context['regs'][0]['base']
                 # ######### !!!!!!!!!!!! ########
-                fix_parameters = self.load_fix_parameters(b.effic_compatible)
+                fix_parameters = self.load_fix_parameters(k, b.effic_compatible)
                 if fix_parameters is not None:
                     if k != 'mmio':
                         for x, y in fix_parameters.items():
-                            context[x] = y
+                            b.model[x] = y
                     else:
-                        for k, v in fix_parameters.items():
-                            context['regs'][x]['registers'] = v
+                        for x, y in fix_parameters.items():
+                            context['regs'][x]['registers'] = y
                 m_context = b.render(context)
                 if isinstance(m_context, str):
                     self.warning('cannot suport {} {}, {} is missing'.format(
@@ -247,7 +247,7 @@ class SynthesisDT(Analysis):
         with open(os.path.join(generate_dir, 'machine.c')) as f:
             self.machine = ''.join(f.readlines())
 
-    def load_fix_parameters(self, compatible):
-        qemu_devices = get_database('qemu.{}'.format(self.t))
+    def load_fix_parameters(self, t, compatible):
+        qemu_devices = get_database('qemu.{}'.format(t))
         fix_parameters = qemu_devices.select('fix_parameters', compatible=compatible)
         return fix_parameters

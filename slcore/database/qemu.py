@@ -22,13 +22,18 @@ class DatabaseQEMUModels(Database):
         # get the database
         database_dir = os.path.dirname(os.path.realpath(__file__))
         if action == 'fix_parameters':
-            qemu_models = open(os.path.join(
-                database_dir, 'fixparameters/qemu.{}.yaml'.format(self.t)))
+            path = os.path.join(
+                database_dir, 'fixparameters/qemu.{}.yaml'.format(self.t))
+            if not os.path.exists(path):
+                return None
+            qemu_models = open(path)
         else:
             qemu_models = open(os.path.join(
                 database_dir, 'bricktemplate/qemu.{}.yaml'.format(self.t)))
         database_qemu_models = yaml.safe_load(qemu_models)
         qemu_models.close()
+        if database_qemu_models is None:
+            return None
 
         if action == 'model' and compatible is not None:
             if compatible in database_qemu_models:
