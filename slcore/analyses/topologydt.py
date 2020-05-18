@@ -13,10 +13,7 @@ class TopologyDT(Analysis):
             'Display the interrupt topology in given device tree blob.'
 
     def run(self, **kwargs):
-        path_to_dtb = kwargs.pop('dtb')
-        if path_to_dtb is None:
-            path_to_dtb = self.firmware.get_components().get_path_to_dtb()
-
+        path_to_dtb = self.firmware.get_realdtb()
         dts = load_dtb(path_to_dtb)
 
         flatten_intc_all = find_flatten_intc_in_fdt(dts, nonintc_slave=True)

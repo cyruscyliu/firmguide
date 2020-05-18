@@ -59,17 +59,13 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware, Common):
         if 'components' in profile:
             self.components = Components()
             self.components.set_attributes(profile['components'])
-        # if 'path_to_dtb' in profile:
-        #     self.dtb = os.path.join(BASE_DIR, profile['path_to_dtb'])
+        if 'booting_command' in profile:
+            self.running_command = profile['booting_command']
         self.set_profile(profile)
 
     def save_profile(self):
         if self.components:
             self.profile['components'] = self.components.get_attributes()
-        if self.realdtb:
-            self.profile['path_to_dtb'] = \
-                os.path.join('examples/profiles',
-                             self.get_machine_name(), 'profile.dtb')
         if self.running_command:
             self.profile['booting_command'] = self.running_command
 

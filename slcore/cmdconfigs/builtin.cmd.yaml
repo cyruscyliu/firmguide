@@ -4,8 +4,7 @@ bricks:
         dtb: &dtb
             short: dtb
             required: False
-            help: "If the image you provide has no device tree blob,
-                you can provide a device tree blob, otherwise, ignored."
+            help: "Path to a device tree blob."
         nocompilation: {short: nc, action: "store_true", default: False,
             help: "set this for multi-tasks"}
         firmware: {short: f, required: False, metavar: "IMAGE",

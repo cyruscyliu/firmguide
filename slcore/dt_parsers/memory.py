@@ -3,8 +3,8 @@ from slcore.dt_parsers.mmio import find_mmio_by_path
 
 
 def __get_ram_generic():
-    return {'regs': [{'base': 0, 'size': 256 * 1024 * 1024, 'priority': 0}],
-            'compatible': ['ram,generic'], 'path': '/memory'}
+    return [{'regs': [{'base': 0, 'size': 256 * 1024 * 1024, 'priority': 0}],
+            'compatible': ['ram,generic'], 'path': '/memory'}]
 
 
 def __validate_ram_size(memory):
@@ -34,9 +34,9 @@ def find_memory_in_fdt(dts):
         dts(dts): The dts from load_dtb.
 
     Returns:
-        dict: A dict of the memory node in the machine. For example:
-        {'regs': [{'base': 0, 'size': 8192}], 'compatible':
-        ['test,compatible'], 'path': '/memory'}
+        dict: A list of the memory node in the machine. For example:
+        [{'regs': [{'base': 0, 'size': 8192}], 'compatible':
+        ['test,compatible'], 'path': '/memory'}]
     """
     path_to_memory = __find_memory_path(dts)
 
@@ -46,7 +46,7 @@ def find_memory_in_fdt(dts):
     assert mmios is not None, 'bugs in find_mmio_by_path'
     __validate_ram_size(mmios)
 
-    return mmios
+    return [mmios]
 
 
 def find_memory(path_to_dtb):
@@ -56,9 +56,9 @@ def find_memory(path_to_dtb):
         path_to_dtb(str): The path to the device tree blob.
 
     Returns:
-        dict: A dict of the memory node in the machine. For example:
-        {'regs': [{'base': 0, 'size': 8192}], 'compatible':
-        ['test,compatible'], 'path': '/memory'}
+        dict: A list of the memory node in the machine. For example:
+        [{'regs': [{'base': 0, 'size': 8192}], 'compatible':
+        ['test,compatible'], 'path': '/memory'}]
     """
     dts = load_dtb(path_to_dtb)
     memory = find_memory_in_fdt(dts)
@@ -66,8 +66,8 @@ def find_memory(path_to_dtb):
     if memory is None:
         return __get_ram_generic()
 
-    __validate_ram_size(memory)
+    __validate_ram_size(memory[0])
     return memory
 
 
-find_flatten_ram_in_fdt = find_memory
+find_flatten_ram_in_fdt = find_memory_in_fdt

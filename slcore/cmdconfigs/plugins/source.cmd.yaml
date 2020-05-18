@@ -17,5 +17,5 @@ ofinit:
     help: "Plugin - Find of_init callbacks w.s.t compatibles in given device tree."
     optional:
         << : *optional
-        dtb: {short: dtb, required: False}
+        dtb: {short: dtb, required: False, help: "Path to a device tree blob."}
     callback: ofinitsrc

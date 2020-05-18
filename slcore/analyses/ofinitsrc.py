@@ -197,14 +197,8 @@ class OfInitSrc(Analysis):
             self.error_info = 'there is no source available'
             return False
 
-        path_to_dtb = kwargs.pop('dtb')
-        if path_to_dtb is None:
-            path_to_dtb = self.firmware.get_components().get_path_to_dtb()
-        if path_to_dtb is None:
-            self.error_info = 'there is no device tree blob available'
-            return False
-
         # let's traverse the device tree
+        path_to_dtb = self.firmware.get_realdtb()
         dts = load_dtb(path_to_dtb)
         c_cb = []
         for path, nodes, pros in dts.walk():

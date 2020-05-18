@@ -12,13 +12,10 @@ class DiscloseDT(Analysis):
         self.description = 'Disclose device tree blob.'
 
     def run(self, **kwargs):
-        path_to_dtb = kwargs.pop('dtb')
-        if path_to_dtb is None:
-            path_to_dtb = self.firmware.get_components().get_path_to_dtb()
-
         mmio = kwargs.pop('mmio', False)
         flash = kwargs.pop('flash', False)
 
+        path_to_dtb = self.firmware.get_realdtb()
         dts = load_dtb(path_to_dtb)
         path_to_dts = path_to_dtb + '.dts'
         with open(path_to_dts, 'w') as f:

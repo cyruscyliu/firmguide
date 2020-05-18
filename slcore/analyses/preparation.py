@@ -12,23 +12,6 @@ from rootfs.rootfs import get_initramfs
 class Preparation(Analysis):
     def run(self, **kwargs):
         nocompilation = kwargs.pop('nocompilation', True)
-        # if not nocompilation:
-            # # 1. generate code(render in multi-levels)
-            # # compiler only link files locally
-            # # 1.1 the old fashion
-            # if self.firmware.get_dtb() is None:
-                # machine_compiler = get_compiler(self.firmware)
-                # # machine_compiler.compile()
-                # machine_compiler.link()
-            # # 1.2 the latest dt_renderer
-            # else:
-                # if self.firmware.get_components().get_path_to_dtb() is not None:
-                    # self.firmware.set_dtb(self.firmware.get_components().get_path_to_dtb())
-                # dt_renderer = DTRenderer(self.firmware)
-                # dt_renderer.load_template()
-                # # status = dt_renderer.render()
-                # if not status:
-                    # raise NotImplementedError('error in dt rendering')
             # # 2. install and make(compile qemu)
             # # 2.1 the old fashion
             # if self.firmware.get_dtb() is None:

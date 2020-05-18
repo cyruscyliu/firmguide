@@ -21,7 +21,6 @@
 typedef struct {{ machine_name|to_upper }}State {
     {% for line in cpu_get_field %}{{ line }}{% endfor %}{% for line in intc_get_field %}
     {{ line }}{% endfor %}{% for line in timer_get_field %}
-    {{ line }}{% endfor %}{% for line in bamboo_get_field %}
     {{ line }}{% endfor %}{% for line in flash_get_field %}
     {{ line }}{% endfor %}{% for line in ram_get_field %}
     {{ line }}{% endfor %}{% for line in mmio_get_registers %}
@@ -56,8 +55,6 @@ static void {{ machine_name }}_init(MachineState *machine)
     {% for line in serial_get_body %}
     {{ line }}{% endfor %}
     {% for line in misc_get_body %}
-    {{ line }}{% endfor %}
-    {% for line in bamboo_get_body %}
     {{ line }}{% endfor %}
     {% for line in flash_get_body %}
     {{ line }}{% endfor %}

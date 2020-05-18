@@ -8,6 +8,13 @@ from slcore.database.dbf import get_database
 EXTERNAL_TEMPLATE_VERSION = 2
 
 
+def to_qemu_endian(endian):
+    if endian == 'l':
+        return 'DEVICE_LITTLE_ENDIAN'
+    else:
+        return 'DEVICE_BIG_ENDIAN'
+
+
 def to_hex(number):
     return hex(number)
 
@@ -21,6 +28,10 @@ def to_offset(size):
 
 def to_upper(string):
     return string.upper()
+
+
+def to_range(n):
+    return range(0, n)
 
 
 class Brick(object):

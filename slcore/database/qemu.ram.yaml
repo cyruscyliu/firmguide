@@ -7,3 +7,6 @@ ram,generic:
         - memory_region_add_subregion_overlap(get_system_memory(), {{ reg.base|to_hex }}, &s->ram{{ id }}, {{ reg.priority }});
     get_connection: []
     parameters: ['regs']
+plxtech,nas782x:
+    extend: ram,generic
+    buddy_compatible: plxtech,nas7820

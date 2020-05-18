@@ -17,5 +17,5 @@ asmsrc:
         CheckUndefInst, CheckTLBExcep]
     description: ''
 rendering:
-    analyses: [Preparation, DTPreprocessing]
+    analyses: [SynthesisDT, DTPreprocessing]
     description: ''

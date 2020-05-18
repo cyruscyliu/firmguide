@@ -5,7 +5,7 @@
 #include "qapi/error.h"
 #include "qemu/timer.h"
 #include "hw/timer/{{ name }}.h"
-{% for i in timer_n_irq|range %}
+{% for i in timer_n_irq|to_range %}
 static void {{ name }}_tick_callback{{ i }}(void *opaque)
 {
     {{ name|to_upper}}State *s = opaque;
@@ -71,7 +71,7 @@ static void {{ name }}_init(Object *obj)
     /* initialize an irq to the intc */
     qdev_init_gpio_out(DEVICE(s), s->irq, {{ timer_n_irq }});
 
-    /* initialize the timer */{% for i in timer_n_irq|range %}
+    /* initialize the timer */{% for i in timer_n_irq|to_range %}
     s->timer[{{ i }}] = timer_new_ns(QEMU_CLOCK_VIRTUAL, {{ name }}_tick_callback{{ i }}, s);{% endfor %}
 }
 
@@ -79,7 +79,7 @@ static void {{ name }}_reset(DeviceState *dev)
 {
     {{ name|to_upper}}State *s = {{ name|to_upper }}(dev);
     int64_t now;
-    {% for i in timer_n_irq|range %}
+    {% for i in timer_n_irq|to_range %}
     now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
     timer_mod(s->timer[{{i}}], 0x10000000 + now); /* 100HZ */
     s->counter[{{i}}] = 0;{% endfor %}

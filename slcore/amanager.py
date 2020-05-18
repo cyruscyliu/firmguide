@@ -101,6 +101,18 @@ class AnalysesManager(Common):
                 shutil.copy(components.get_path_to_raw(), os.path.join(working_path))
             self.firmware.set_components(components)
 
+        if 'dtb' in self.arguments:
+            realdtb = self.firmware.get_realdtb()
+            if realdtb is None and self.arguments['dtb'] is None:
+                realdtb = self.firmware.get_components().get_path_to_dtb()
+            elif realdtb is None and self.arguments['dtb'] is not None:
+                realdtb = self.arguments['dtb']
+            elif realdtb is not None and self.arguments['dtb'] is None:
+                pass
+            else:
+                realdtb = self.arguments['dtb']
+            self.firmware.set_realdtb(realdtb)
+
         debug = self.arguments.pop('debug')
         if debug:
             self.setup_logging(default_level=logging.DEBUG)

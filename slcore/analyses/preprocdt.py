@@ -8,14 +8,9 @@ from slcore.dt_parsers.serial import find_flatten_serial_in_fdt
 
 class DTPreprocessing(Analysis):
     def run(self, **kwargs):
-        path_to_dtb = kwargs.pop('dtb', None)
-        if path_to_dtb is None:
-            path_to_dtb = self.firmware.get_realdtb()
-        if path_to_dtb is None:
-            self.error_info = 'there is no device tree blob available'
-            return False
-
+        path_to_dtb = self.firmware.get_realdtb()
         dts = load_dtb(path_to_dtb)
+
         path_to_dts = os.path.join(
             self.analysis_manager.project.attrs['path'],
             '{}.dts'.format(os.path.basename(path_to_dtb)))
@@ -42,4 +37,4 @@ class DTPreprocessing(Analysis):
         self.name = 'preprocdt'
         self.description = 'Preprocess the device tree blob.'
         self.required = ['bfilter', 'msearch']
-        self.critical = False
+        self.critical = True

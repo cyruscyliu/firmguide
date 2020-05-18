@@ -17,11 +17,11 @@ class TestDTParsers(TestCase):
         path_to_dtb = self.compile_dts(
             'dts/memory_generic_case.dts')
         dts = load_dtb(path_to_dtb)
-        a = find_memory_in_fdt(dts)
+        a = find_memory_in_fdt(dts)[0]
         self.assertEqual(1, len(a['regs']))
         self.assertEqual(0x0, a['regs'][0]['base'])
         self.assertEqual(0x2000, a['regs'][0]['size'])
-        a = find_memory(path_to_dtb)
+        a = find_memory(path_to_dtb)[0]
         self.assertEqual(1, len(a['regs']))
         self.assertEqual(0x0, a['regs'][0]['base'])
         self.assertEqual(0x2000, a['regs'][0]['size'])
@@ -30,14 +30,14 @@ class TestDTParsers(TestCase):
         path_to_dtb = self.compile_dts(
             'dts/memory_dual_rams.dts')
         dts = load_dtb(path_to_dtb)
-        a = find_memory_in_fdt(dts)
+        a = find_memory_in_fdt(dts)[0]
         self.assertEqual(2, len(a['regs']))
 
     def test_memory_no_memory_node(self):
         path_to_dtb = self.compile_dts(
             'dts/memory_no_memory_node.dts')
         dts = load_dtb(path_to_dtb)
-        a = find_memory_in_fdt(dts)
+        a = find_memory_in_fdt(dts)[0]
         self.assertEqual(1, len(a['regs']))
         self.assertEqual('ram,generic', a['compatible'][0])
 
@@ -45,18 +45,18 @@ class TestDTParsers(TestCase):
         path_to_dtb = self.compile_dts(
             'dts/memory_zero_regs.dts')
         dts = load_dtb(path_to_dtb)
-        a = find_memory_in_fdt(dts)
+        a = find_memory_in_fdt(dts)[0]
         self.assertEqual(0, len(a['regs']))
 
     def test_memory_path_with_act(self):
         path_to_dtb = self.compile_dts(
             'dts/memory_path_with_act.dts')
         dts = load_dtb(path_to_dtb)
-        a = find_memory_in_fdt(dts)
+        a = find_memory_in_fdt(dts)[0]
         self.assertEqual(1, len(a['regs']))
         self.assertEqual(0x0, a['regs'][0]['base'])
         self.assertEqual(0x2000, a['regs'][0]['size'])
-        a = find_memory(path_to_dtb)
+        a = find_memory(path_to_dtb)[0]
         self.assertEqual(1, len(a['regs']))
         self.assertEqual(0x0, a['regs'][0]['base'])
         self.assertEqual(0x2000, a['regs'][0]['size'])
