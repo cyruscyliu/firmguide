@@ -59,38 +59,3 @@ class DatabaseQEMUModels(Database):
     def __init__(self, t):
         super().__init__()
         self.t = t
-
-
-class DatabaseQEMUDevices(Database):
-    def select(self, *args, **kwargs):
-        """
-        Examples:
-            select cpu where compatible=arm,arm11mpcore
-        """
-        # parse arguments
-        device = args[0]
-        compatible = kwargs.pop('compatible', None)
-
-        # get the database
-        database_dir = os.path.dirname(os.path.realpath(__file__))
-        qemu_devices = open(os.path.join(database_dir, 'qemu.devices.yaml'))
-        database_qemu_devices = yaml.safe_load(qemu_devices)
-        qemu_devices.close()
-
-        # get choices
-        choices = database_qemu_devices[device]
-
-        result = None
-        if device == 'cpu' and compatible is not None:
-            if compatible in choices:
-                result = choices[compatible][0]
-        return result
-
-    def add(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
-
-    def delete(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
-
-    def update(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
