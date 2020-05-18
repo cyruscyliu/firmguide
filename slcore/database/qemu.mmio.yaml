@@ -1,56 +1,47 @@
 mmio,generic:
-    get_header: []
-    get_field:
-        - MemoryRegion {{ name }}_mmio{{ id }};
-    get_registers:
-        - uint32_t {{ name }}{{ id }}_regs[{{ reg.size|to_hex }} >> 2];
-    get_reset:
-        - s->{{ name }}{{ id }}[{{ register.offset|to_hex }}] = {{ register.value|to_hex }};
-    get_body:
-        - memory_region_init_io(&s->{{ name }}_mmio{{ id }}, NULL, &{{ name }}_ops{{ id }}, s, TYPE_{{ machine_name|to_upper }}, {{ reg.size|to_hex }});
-        - memory_region_add_subregion_overlap(get_system_memory(), {{ reg.base|to_hex }}, &s->{{ name }}_mmio{{ id }}, {{ reg.priority }});
-    get_connection: []
-    get_suite:
-        - |-
-            static void {{ name }}{{ id }}_update(void *opaque)
-            {
-                /* {{ machine_name|to_upper }}State *s = opaque; */
-            }
-
-            static uint64_t {{ name }}{{ id }}_read(void *opaque, hwaddr offset, unsigned size)
-            {
-                {{ machine_name|to_upper }}State *s = opaque;
-                uint32_t res = 0;
-
-                switch (offset) {
-                default:
-                    qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\\n", __func__, offset);
-                    return 0;
-                case {{ reg.size|to_offset }}:
-                    res = s->{{ name }}{{ id }}[offset >> 2];
-                    break;
-                }
-                return res;
-            }
-
-            static void {{ name }}{{ id }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
-            {
-                {{ machine_name|to_upper  }}State *s = opaque;
-
-                switch (offset) {
-                default:
-                    qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\\n", __func__, offset);
-                    return;
-                case {{ reg.size|to_offset }}:
-                    s->{{ name }}{{ id }}[offset >> 2] = val;
-                    break;
-            }
-            {{ name }}{{ id }}_update(s);
-            }
-
-            static const MemoryRegionOps {{ name }}_ops{{ id }} = {
-                .read = {{ name }}{{ id }}_read,
-                .write = {{ name }}{{ id }}_write,
-                .endianness = {{ endian }},
-            };
-    parameters: [name, regs, endian]
+  get_body: ['memory_region_init_io(&s->{{ name }}_mmio{{ id }}, NULL, &{{ name }}_ops{{
+      id }}, s, TYPE_{{ machine_name|to_upper }}, {{ reg.size|to_hex }});', 'memory_region_add_subregion_overlap(get_system_memory(),
+      {{ reg.base|to_hex }}, &s->{{ name }}_mmio{{ id }}, {{ reg.priority }});']
+  get_connection: []
+  get_field: ['MemoryRegion {{ name }}_mmio{{ id }};']
+  get_header: []
+  get_registers: ['uint32_t {{ name }}{{ id }}_regs[{{ reg.size|to_hex }} >> 2];']
+  get_reset: ['s->{{ name }}{{ id }}[{{ register.offset|to_hex }}] = {{ register.value|to_hex
+      }};']
+  get_suite: ["static void {{ name }}{{ id }}_update(void *opaque)\n{\n    /* {{ machine_name|to_upper\
+      \ }}State *s = opaque; */\n}\n\nstatic uint64_t {{ name }}{{ id }}_read(void\
+      \ *opaque, hwaddr offset, unsigned size)\n{\n    {{ machine_name|to_upper }}State\
+      \ *s = opaque;\n    uint32_t res = 0;\n\n    switch (offset) {\n    default:\n\
+      \        qemu_log_mask(LOG_GUEST_ERROR, \"%s: Bad offset %\"HWADDR_PRIx\"\\\\\
+      n\", __func__, offset);\n        return 0;\n    case {{ reg.size|to_offset }}:\n\
+      \        res = s->{{ name }}{{ id }}[offset >> 2];\n        break;\n    }\n\
+      \    return res;\n}\n\nstatic void {{ name }}{{ id }}_write(void *opaque, hwaddr\
+      \ offset, uint64_t val, unsigned size)\n{\n    {{ machine_name|to_upper  }}State\
+      \ *s = opaque;\n\n    switch (offset) {\n    default:\n        qemu_log_mask(LOG_GUEST_ERROR,\
+      \ \"%s: Bad offset %\"HWADDR_PRIx\"\\\\n\", __func__, offset);\n        return;\n\
+      \    case {{ reg.size|to_offset }}:\n        s->{{ name }}{{ id }}[offset >>\
+      \ 2] = val;\n        break;\n}\n{{ name }}{{ id }}_update(s);\n}\n\nstatic const\
+      \ MemoryRegionOps {{ name }}_ops{{ id }} = {\n    .read = {{ name }}{{ id }}_read,\n\
+      \    .write = {{ name }}{{ id }}_write,\n    .endianness = {{ endian }},\n};"]
+  parameters: [name, regs, endian]
+plxtech,nas782x-ehci:
+  buddy_compatible: []
+  extend: mmio,generic
+plxtech,nas782x-pcie:
+  buddy_compatible: []
+  extend: mmio,generic
+plxtech,nas782x-plla:
+  buddy_compatible: []
+  extend: mmio,generic
+plxtech,nas782x-pllb:
+  buddy_compatible: []
+  extend: mmio,generic
+plxtech,nas782x-reset:
+  buddy_compatible: []
+  extend: mmio,generic
+plxtech,nas782x-sata:
+  buddy_compatible: []
+  extend: mmio,generic
+snps,dwmac:
+  buddy_compatible: ['plxtech,nas782x-gmac']
+  extend: mmio,generic

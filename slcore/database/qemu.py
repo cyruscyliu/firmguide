@@ -126,4 +126,3 @@ class DatabaseQEMUDevices(Database):
 
     def update(self, *args, **kwargs):
         raise NotImplementedError('you are not expected to modify this table')
-

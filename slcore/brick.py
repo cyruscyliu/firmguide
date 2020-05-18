@@ -249,6 +249,16 @@ class Brick(object):
             return None
         return model
 
+    def update_model(self):
+        """Update the low level template to the database."""
+        qemu_devices = get_database('qemu.{}'.format(self.t))
+        model = {
+            'buddy_compatible': self.buddy_compatible[:-1],
+            'extend': '{},generic'.format(self.t)
+        }
+        qemu_devices.add(self.buddy_compatible[-1], **model)
+        return True
+
     def __expand_model(self, model):
         """Expand the low level template if extend exists."""
         if 'extend' in model:

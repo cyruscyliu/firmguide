@@ -3,6 +3,10 @@ newperph:
     optional: &optional
         source: {short: s, required: False, help: "Path to the OS source."}
     callback: updatecompatibledb
+newhardware:
+    help: "Plugin - Find new hardware in the OS source."
+    optional: *optional
+    callback: updatehardwaredt
 quicksrc:
     help: "Plugin - Quick analysis of the OS source."
     optional:

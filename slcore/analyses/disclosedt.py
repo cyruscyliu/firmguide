@@ -16,6 +16,10 @@ class DiscloseDT(Analysis):
         flash = kwargs.pop('flash', False)
 
         path_to_dtb = self.firmware.get_realdtb()
+        if path_to_dtb is None:
+            self.error_info = 'there is no device tree blob available.'
+            return False
+
         dts = load_dtb(path_to_dtb)
         path_to_dts = path_to_dtb + '.dts'
         with open(path_to_dts, 'w') as f:

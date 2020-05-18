@@ -122,14 +122,11 @@ class UpdateCompatibleDB(Analysis):
         self.description = 'Update hardware in new source.'
 
     def run(self, **kwargs):
-        path_to_source = kwargs.pop('source')
-        if path_to_source is None:
-            path_to_source = \
-                self.analysis_manager.srcodec.get_path_to_source_code()
-        if path_to_source is None:
-            self.error_info = 'there is no OS source available'
+        srcodec = self.analysis_manager.srcodec
+        if not srcodec.supported:
+            self.error_info = 'please set the source code'
             return False
-
+        path_to_source = srcodec.get_path_to_source_code()
         self.info('checking unexpected XXX_DECLARE in {}'.format(path_to_source), 1)
         self.info('expected: {}'.format(' '.join(candidates)), 1)
 
@@ -189,16 +186,18 @@ class OfInitSrc(Analysis):
             'Find of_init callbacks w.s.t compatibles in given device tree.'
 
     def run(self, **kwargs):
-        path_to_source = kwargs.pop('source')
-        if path_to_source is None:
-            path_to_source = \
-                self.analysis_manager.srcodec.get_path_to_source_code()
-        if path_to_source is None:
-            self.error_info = 'there is no source available'
+        srcodec = self.analysis_manager.srcodec
+        if not srcodec.supported:
+            self.error_info = 'please set the source code'
             return False
+        path_to_source = srcodec.get_path_to_source_code()
 
         # let's traverse the device tree
         path_to_dtb = self.firmware.get_realdtb()
+        if path_to_dtb is None:
+            self.error_info = 'there is no device tree blob available.'
+            return False
+
         dts = load_dtb(path_to_dtb)
         c_cb = []
         for path, nodes, pros in dts.walk():

@@ -17,11 +17,7 @@ class AnalysesManager(Common):
         super().__init__()
 
         self.project = project
-        self.srcodec = get_srcodecontroller(
-            self.project.attrs['source'], self.project.attrs['cross_compile'],
-            self.project.attrs['arch'], self.project.attrs['endian'],
-            self.project.attrs['makeout']
-        )
+        self.srcodec = None
         self.qemuc = get_qemucontroller(self.project.attrs['qemu_dir'])
         self.firmware = Firmware()
 
@@ -112,6 +108,14 @@ class AnalysesManager(Common):
             else:
                 realdtb = self.arguments['dtb']
             self.firmware.set_realdtb(realdtb)
+
+        if 'source' in self.arguments:
+            source = self.arguments['source'] or self.project.attrs['source']
+            self.srcodec = get_srcodecontroller(
+                source, self.project.attrs['cross_compile'],
+                self.project.attrs['arch'], self.project.attrs['endian'],
+                self.project.attrs['makeout']
+            )
 
         debug = self.arguments.pop('debug')
         if debug:
