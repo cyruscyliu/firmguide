@@ -67,12 +67,10 @@ marvell,armada-370-timer: {extend: 'timer,generic'}
 marvell,armada-375-timer: {extend: 'timer,generic'}
 marvell,armada-xp-timer:
     extend: 'timer,generic'
-    n_irq: 6
-    counters: [{'addr': '0x14', 'id': 1}]
+    external: true
 marvell,orion-timer:
     extend: 'timer,generic'
-    n_irq: 2
-    counters: [{'addr': '0x14', 'id': 1}]
+    external: true
 marvell,pxa-timer: {extend: 'timer,generic'}
 mediatek,mt6577-timer: {extend: 'timer,generic'}
 mediatek,mt6765-timer: {extend: 'timer,generic'}
@@ -90,8 +88,7 @@ oxsemi,ox820se-rps-timer: {extend: 'timer,generic'}
 picochip,pc3x2-timer: {extend: 'timer,generic'}
 plxtech,nas782x-rps-timer:
     extend: 'timer,generic'
-    n_irq: 1
-    counters: [{'addr': '0x24', 'id': 0}]
+    external: true
     parameters: []
     get_connection: []
 qcom,kpss-timer: {extend: 'timer,generic'}
@@ -108,8 +105,6 @@ ralink,rt2880-timer:
   # get_connection: ['qdev_connect_gpio_out(DEVICE(&s->timer{{ id }}), {{ siid }}, {{ intcp.get_irqn }});']
   get_connection: []
   parameters: [intcp, irqns]
-  counters: []
-  n_irq: 1
 rda,8810pl-timer: {extend: 'timer,generic'}
 renesas,16bit-timer: {extend: 'timer,generic'}
 renesas,8bit-timer: {extend: 'timer,generic'}
@@ -146,9 +141,6 @@ ti,da830-timer: {extend: 'timer,generic'}
 ti,keystone-timer: {extend: 'timer,generic'}
 ti,omap-counter32k: {extend: 'timer,generic'}
 timer,generic:
-  external: true
-  n_irq: 1
-  counters: []
   get_body: ['object_initialize(&s->timer{{ id }}, sizeof(s->timer{{ id }}), TYPE_{{ name|to_upper }});',
     'qdev_set_parent_bus(DEVICE(&s->timer{{ id }}), sysbus_get_default());', 'object_property_set_bool(OBJECT(&s->timer{{ id }}),
       true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer{{ id }}), 0, {{

@@ -1,0 +1,12 @@
+marvell,armada-xp-timer:
+    n_irq: 6
+    counters: [{'addr': '0x14', 'id': 1}]
+marvell,orion-timer:
+    n_irq: 2
+    counters: [{'addr': '0x14', 'id': 1}]
+plxtech,nas782x-rps-timer:
+    n_irq: 1
+    counters: [{'addr': '0x24', 'id': 0}]
+ralink,rt2880-timer:
+    n_irq: 1
+    counters: []

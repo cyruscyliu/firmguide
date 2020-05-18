@@ -13,6 +13,7 @@ from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
 from slcore.render import Template
 from slcore.brick import Brick, to_offset, to_upper, to_hex, \
     to_qemu_endian, to_range
+from slcore.database.dbf import get_database
 
 
 class SynthesisDT(Analysis):
@@ -147,8 +148,17 @@ class SynthesisDT(Analysis):
                 if k == 'flash' and self.firmware.get_arch() == 'mips':
                     if context['regs'][0]['base'] > 0x20000000:
                         context['regs'][0]['base'] &= 0x1FFFFFF
-                    context['regs'][0]['size'] = 0x20000000 - context['regs'][0]['base']
+                    context['regs'][0]['size'] = \
+                        0x20000000 - context['regs'][0]['base']
                 # ######### !!!!!!!!!!!! ########
+                fix_parameters = self.load_fix_parameters(b.effic_compatible)
+                if fix_parameters is not None:
+                    if k != 'mmio':
+                        for x, y in fix_parameters.items():
+                            context[x] = y
+                    else:
+                        for k, v in fix_parameters.items():
+                            context['regs'][x]['registers'] = v
                 m_context = b.render(context)
                 if isinstance(m_context, str):
                     self.warning('cannot suport {} {}, {} is missing'.format(
@@ -197,7 +207,7 @@ class SynthesisDT(Analysis):
         # ######## save machine.c ########
         base = os.path.join(self.analysis_manager.project.attrs['path'], 'qemu-4.0.0')
         location = self.location[self.context['arch']]
-        fname =  self.context['machine_name'] + '.c'
+        fname = self.context['machine_name'] + '.c'
         self.__save(source, base, location, fname)
         self.info('save at {}/{}/{}'.format(base, location, fname), 'link')
         # ######## save model.c ########
@@ -236,3 +246,8 @@ class SynthesisDT(Analysis):
         generate_dir = os.path.dirname(os.path.realpath(__file__))
         with open(os.path.join(generate_dir, 'machine.c')) as f:
             self.machine = ''.join(f.readlines())
+
+    def load_fix_parameters(self, compatible):
+        qemu_devices = get_database('qemu.{}'.format(self.t))
+        fix_parameters = qemu_devices.select('fix_parameters', compatible=compatible)
+        return fix_parameters
