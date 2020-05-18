@@ -1,5 +1,5 @@
 from slcore.database.qemu import DatabaseQEMUDevices,\
-    DatabaseQEMUModels, DatabaseQEMUAPIS
+    DatabaseQEMUModels
 from slcore.database.support import SupportMachines
 
 
@@ -27,8 +27,6 @@ def get_database(dbtype, **kwargs):
         return DatabaseQEMUModels('mmio')
     elif dbtype == 'qemu.iv':
         return DatabaseQEMUModels('iv')
-    elif dbtype == 'qemu.apis':
-        return DatabaseQEMUAPIS()
     elif dbtype == 'support':
         return SupportMachines()
     else:

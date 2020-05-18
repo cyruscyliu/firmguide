@@ -7,38 +7,6 @@ import yaml
 from slcore.database.db import Database
 
 
-class DatabaseQEMUAPIS(Database):
-    def select(self, *args, **kwargs):
-        """
-        Examples:
-            select cpu where name like arm,arm11mpcore
-        """
-        # parse arguments
-        device, wanted_property = args[0], args[1]
-
-        # get the database
-        database_dir = os.path.dirname(os.path.realpath(__file__))
-        qemu_apis = open(os.path.join(database_dir, 'qemu.apis.yaml'))
-        database_qemu_apis = yaml.safe_load(qemu_apis)
-        qemu_apis.close()
-
-        # get choices
-        choices = database_qemu_apis[device]
-        if wanted_property in choices:
-            return choices[wanted_property]
-        else:
-            return None
-
-    def add(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
-
-    def delete(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
-
-    def update(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
-
-
 class DatabaseQEMUModels(Database):
     def select(self, *args, **kwargs):
         """
