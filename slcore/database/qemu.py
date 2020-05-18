@@ -20,7 +20,7 @@ class DatabaseQEMUModels(Database):
 
         # get the database
         database_dir = os.path.dirname(os.path.realpath(__file__))
-        qemu_models = open(os.path.join(database_dir, 'qemu.{}.yaml'.format(self.t)))
+        qemu_models = open(os.path.join(database_dir, 'bricktemplate/qemu.{}.yaml'.format(self.t)))
         database_qemu_models = yaml.safe_load(qemu_models)
         qemu_models.close()
 
@@ -46,7 +46,7 @@ class DatabaseQEMUModels(Database):
                 qdevices[compatible] = kwargs
 
         database_dir = os.path.dirname(os.path.realpath(__file__))
-        f = open(os.path.join(database_dir, 'qemu.{}.yaml'.format(self.t)), 'w')
+        f = open(os.path.join(database_dir, 'bricktemplate/qemu.{}.yaml'.format(self.t)), 'w')
         yaml.safe_dump(qdevices, f)
         f.close()
 
