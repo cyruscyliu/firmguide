@@ -4,7 +4,7 @@ import yaml
 import json
 import argparse
 
-sys.path.extend(['../..'])
+sys.path.extend(['.', '..', '../..'])
 
 from slcore.brick import Brick, to_offset, \
     to_upper, to_hex, to_qemu_endian

@@ -2,7 +2,7 @@
 import yaml
 import sys
 
-sys.path.extend(['../..'])
+sys.path.extend(['.', '..', '../..'])
 
 from slcore.cgenerator import construct_cmd_args, \
     get_parser, generate_cmd_parser

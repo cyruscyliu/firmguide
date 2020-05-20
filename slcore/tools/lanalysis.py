@@ -2,7 +2,7 @@
 import sys
 import argparse
 
-sys.path.extend(['../..'])
+sys.path.extend(['.', '..', '../..'])
 
 from slcore.aregister import register_analysis, register_analysis_group
 
