@@ -8,7 +8,7 @@ newhardware:
     optional: *optional
     callback: updatehardwaredt
 quicksrc:
-    help: "Plugin - Quick analysis of the OS source."
+    help: "Plugin - Analyze the OS source quickly."
     optional:
         file: {short: f, required: False, help: "Preprocess the file."}
         entry_point: {short: e, required: False,
@@ -18,7 +18,7 @@ quicksrc:
         caller: {short: caller, required: False, help: "Give the caller of the entry point."}
     callback: quicksrca
 ofinit:
-    help: "Plugin - Find of_init callbacks w.s.t compatibles in given device tree."
+    help: "Plugin - Find of_init callbacks w.s.t given device tree."
     optional:
         << : *optional
         dtb: {short: dtb, required: False, help: "Path to a device tree blob."}

@@ -67,7 +67,7 @@ delete:
 show:
     help: "Project - Show the project."
     callback: project_show
-batch:
+enrich:
     help: "Project - Add images or device tree blobs."
     optional:
         add: {short: a, required: False, metavar: "PATH_TO_IMAGE", nargs: "+",

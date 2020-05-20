@@ -1,20 +1,20 @@
-asmany:
-    analyses: [FindMachine, Preparation, DTPreprocessing,
-        Tracing, CheckUserLevelF]
+uploading:
+    analyses: [FindMachine,
+        DTPreprocessing, SynthesisDT,
+        Install, Preparation, Tracing,
+        LoadTrace, CheckUserLevelF]
     description: ''
-bricksanalysis:
-    analyses: [CheckBoard, CalcLoadAddr, EntryPoint]
-    save_and_restore: True
+tracecoverup:
+    analyses: [
+        LoadTrace, CheckUserLevel, CheckDataAbort, CheckUndefInst, CheckTLBExcep]
     description: ''
-trace:
-    analyses: [LoadTrace, CheckUserLevel, CheckDataAbort, CheckUndefInst,
-        CheckTLBExcep]
+diagnosis:
+    analyses: [
+        DTPreprocessing, SynthesisDT,
+        Install, Preparation, Tracing,
+        LoadTrace, CheckUserLevel, CheckDataAbort, CheckUndefInst, CheckTLBExcep]
     description: ''
-asmsrc:
-    analyses: [Preparation, DTPreprocessing,
-        Tracing, LoadTrace, CheckUserLevel, CheckDataAbort,
-        CheckUndefInst, CheckTLBExcep]
-    description: ''
-rendering:
-    analyses: [SynthesisDT, DTPreprocessing]
+synthesis:
+    analyses: [
+        DTPreprocessing, SynthesisDT]
     description: ''

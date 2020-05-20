@@ -1,9 +1,9 @@
-topology:
+itopology:
     help: "Plugin - Find the interrupt topology in given device tree."
     optional: &optional
         dtb: {short: dtb, required: False, help: 'Path to a device tree blob.'}
     callback: topologydt
-disclose:
+listdt:
     help: "Plugin - Disclose device tree blob."
     optional:
         <<: *optional
