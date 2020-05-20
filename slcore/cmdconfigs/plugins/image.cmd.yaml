@@ -10,4 +10,4 @@ printcmd:
         << : *optional
         dtb: {short: dtb, required: False, help: "If the image you provide has no device tree blob,
                 you can provide a device tree blob, otherwise, ignored."}
-    callback: printcmd
+    callback: bootingcmd

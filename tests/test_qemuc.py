@@ -58,11 +58,7 @@ class TestQEMUController(TestCase):
         qemuc.compile()
 
     def test_debug(self):
-        qemuc = QEMUController(QEMU_DIR)
-        path_to_vmlinux = os.path.join(os.path.dirname(__file__), 'vmlinux')
-        running_command = \
-            qemuc.get_command('arm', 'l', 'versatilepb', path_to_vmlinux)
-        qemuc.debug(running_command, path_to_vmlinux)
+        pass
 
     def test_trace(self):
         pass
