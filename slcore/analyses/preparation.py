@@ -1,67 +1,26 @@
-import os
-
-# from slcore.generation.compilerf import get_compiler
 from slcore.compositor import pack_kernel, fix_smp, \
     pack_initramfs, fix_cmdline, fix_builtin_dtb, fix_armdtb
-# from slcore.generation.dt_renderer import DTRenderer
-# from slcore.generation.common import to_upper
 from slcore.amanager import Analysis
 from rootfs.rootfs import get_initramfs
 
 
 class Preparation(Analysis):
     def run(self, **kwargs):
-        nocompilation = kwargs.pop('nocompilation', True)
-            # # 2. install and make(compile qemu)
-            # # 2.1 the old fashion
-            # if self.firmware.get_dtb() is None:
-                # prefix = os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0')
-                # for root, dirs, files in os.walk(prefix):
-                    # if len(dirs):
-                        # continue
-                    # for f in files:
-                        # full = os.path.join(root, f)
-                        # target = self.firmware.qemuc.patch(full, full[len(prefix)+1:])
-                        # self.debug('install {} at {}'.format(f, target), 'install')
-                # self.firmware.qemuc.add_target(
-                    # to_upper(self.firmware.get_machine_name()), (self.firmware.get_machine_name()),
-                    # t='hw', arch=self.firmware.get_arch(), endian=self.firmware.get_endian())
-                # if machine_compiler.has_sintc():
-                    # self.firmware.qemuc.add_target(
-                        # to_upper(self.firmware.get_machine_name()), 'sintc', t='intc')
-                # self.firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
-                # # guarentee qemu is clean
-                # self.firmware.qemuc.recover()
-            # # 2.2 the latest dt_renderer
-            # else:
-                # # 6.1 copy files to qemu/
-                # prefix = os.path.join(self.firmware.get_target_dir(), 'qemu-4.0.0')
-                # self.firmware.qemuc.install(prefix)
-                # # 6.2 update compilation targets
-                # self.firmware.qemuc.add_target(
-                    # (self.firmware.get_machine_name()), self.firmware.get_machine_name(),
-                    # t='hw',arch=self.firmware.get_arch(), endian=self.firmware.get_endian())
-                # for k, v in dt_renderer.external.items():
-                    # self.firmware.qemuc.add_target((self.firmware.get_machine_name()), k, t=v['type'])
-                # # 6.3 compile
-                # self.firmware.qemuc.compile(cflags='-Wmaybe-uninitialized', cpu=4)
-                # 6.4 keep qemu clean
-                # self.firmware.qemuc.recover()
-
-        # 3. prepare -k path/to/kernel
+        # 1. prepare -k path/to/kernel
         if self.firmware.get_arch() == 'mips':
-            # 3.1 If a mips firmware has CMDLINE label,
+            # 1.1 If a mips firmware has CMDLINE label,
             # we replace what after CMDLINE with our cmdline.
             fix_cmdline(self.firmware.get_components())
-            # 3.3 find the builtin dtb
+            # 1.2 find the builtin dtb
             offset = fix_builtin_dtb(self.firmware.get_components())
         elif self.firmware.get_arch() == 'arm':
-            # 3.3 If an arm firmware has a built-in dtb, disable it.
-            fix_armdtb(self.firmware.get_components(), self.firmware.get_realdtb())
+            # 1.2 If an arm firmware has a built-in dtb, disable it.
+            fix_armdtb(
+                self.firmware.get_components(), self.firmware.get_realdtb())
             offset = None
-        # 3.4 we cannot handle SMP
+        # 1.3 we cannot handle SMP
         fix_smp(self.firmware.get_components())
-        # 3.2 add a uimage header on the kernel image
+        # 1.4 add a uimage header on the kernel image
         load_address = self.firmware.get_kernel_load_address()
         if self.firmware.get_arch() == 'arm':
             entry_point = load_address
@@ -71,7 +30,7 @@ class Preparation(Analysis):
             # 0x80000000 is safe, sometimes a specific
             # entry point is not such universal
             entry_point = '0x80000000'
-        # Why we don't use vmlinux if any?
+        # 2 Why we don't use vmlinux if any?
         # ARM32 has two head.S, the one is in side of the vmlinux
         # the other is outside of the vmlinux. Due to historical
         # reasons, some critical code related to page tables is

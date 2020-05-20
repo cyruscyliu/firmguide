@@ -28,6 +28,7 @@ class LoadTrace(Analysis):
             self.error_info = '{} doesn\'t exist'.format(path_to_trace)
             return False
 
+        self.info('loading {} ...'.format(path_to_trace), 1)
         if self.firmware.get_arch() == 'arm':
             if self.firmware.get_endian() == 'l':
                 self.pql = get_pql('aarch32', 'little', path_to_trace)
