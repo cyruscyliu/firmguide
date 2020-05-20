@@ -15,4 +15,3 @@ def parse_openwrt_url(url):
         target = subtarget
 
     return revision, target, subtarget
-

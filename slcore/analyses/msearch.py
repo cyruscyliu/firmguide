@@ -1,7 +1,7 @@
 import os
 
 from slcore.database.dbf import get_database
-from slcore.naive_parsers.machine_id import find_machine_id
+from slcore.database.machine_id import find_machine_id
 from slcore.dt_parsers.compatible import find_compatible
 from slcore.common import Common
 from slcore.amanager import Analysis
@@ -78,7 +78,7 @@ class FindMachine(Analysis):
         if brand is None:
             print('maybe brand is missing?')
         if url is not None and brand == 'openwrt':
-            from slcore.naive_parsers.openwrt import parse_openwrt_url
+            from slcore.brandsupkg.openwrt import parse_openwrt_url
             revision, target, subtarget = parse_openwrt_url(url)
 
         board = support.select('board', arch=arch, brand=brand, target=target)
