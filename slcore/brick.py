@@ -198,8 +198,8 @@ class Brick(object):
         for i in range(0, n):
             context['id'] = i
             context['reg'] = context['regs'][i]
-            actual = self.__render('get_reversed', context)
-            self.actual['get_reversed'].extend(actual)
+            actual = self.__render('get_reserved', context)
+            self.actual['get_reserved'].extend(actual)
 
     def __render_get_reset(self, context, n=1):
         self.actual['get_reset'] = []

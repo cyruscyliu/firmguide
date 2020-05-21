@@ -32,7 +32,7 @@ mmio,generic:
   get_connection: []
   get_field: ['MemoryRegion {{ name }}_mmio{{ id }};']
   get_header: []
-  get_registers: ['uint32_t {{ name }}{{ id }}_regs[{{ reg.size|to_hex }} >> 2];']
+  get_reserved: ['uint32_t {{ name }}{{ id }}_regs[{{ reg.size|to_hex }} >> 2];']
   get_reset: ['s->{{ name }}{{ id }}[{{ register.offset|to_hex }}] = {{ register.value|to_hex
       }};']
   get_suite: ["static void {{ name }}{{ id }}_update(void *opaque)\n{\n    /* {{ machine_name|to_upper\

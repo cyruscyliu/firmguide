@@ -182,6 +182,7 @@ class SynthesisDT(Analysis):
                 # update the skipped_bdevices
                 self.skipped_bdevices.append(b.effic_compatible)
                 self.skipped_bdevices.extend(b.buddy_compatible)
+                self.debug('{} done'.format(context['compatible']), 1)
         # let's go on
         if 'timer_get_header' not in self.context:
             self.context['timer_get_header'] = []
