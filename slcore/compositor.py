@@ -217,9 +217,12 @@ def pack_kernel(components, arch='arm', load_address="0x00008000", entry_point="
     """Add a uimage header to a kernel."""
     kernel = components.get_path_to_kernel()
     uimage = components.get_path_to_uimage()
-    os.system(
-        'mkimage -A {0} -C none -O linux -T kernel -d {1} -a {2} -e {3} {4} >/dev/null 2>&1'.format(
-            arch, kernel, load_address, entry_point, uimage))
+    mkimage = \
+        'mkimage -A {0} -C none -O linux -T kernel \
+        -d {1} -a {2} -e {3} {4} >/dev/null 2>&1'.format(
+            arch, kernel, load_address, entry_point, uimage)
+    status = os.system(mkimage)
+    assert status == 0, 'error in {}'.format(mkimage)
     return uimage
 
 
