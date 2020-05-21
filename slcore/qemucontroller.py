@@ -197,33 +197,35 @@ class QEMUController(Common):
         gdb_cmdline = \
             'gdb-multiarch --cd={} {} -ex "target remote:1234"'.format(
                 d, path_to_vmlinux)
-        print('\nOPEN *ANOTHER* SHELL and RUN\n    {}'.format(gdb_cmdline))
-        print('SEVERAL BPS YOU MAY INTERESTED IN:')
-        print('    b kernel_entry # MIPS')
-        print('    b start_kernel')
-        print('    b setup_arch')
-        print('    b prom_init # MIPS')
-        print('    b prom_putchar # MIPS')
-        print('    b init_IRQ')
-        print('    b time_init')
-        print('    b calibrate_delay')
-        print('    b rest_init')
-        print('    b kernel_init')
-        print('    b populate_rootfs')
-        print('    b run_init_process')
-        print('    b panic')
-        print('SOMETHING YOU NEED TO KNOW:')
-        print('    calibrate_delay in start_kernel should never be stuck')
-        print('    do_initcalls in do_basic_setup should never be stuck')
-        print('    prepare_namespace in kernel_init_freeable should never be called')
-
+        help_info = [
+            'OPEN *ANOTHER* SHELL and RUN {}'.format(gdb_cmdline),
+            'SEVERAL BPS YOU MAY INTERESTED IN:',
+            '    b kernel_entry # MIPS',
+            '    b start_kernel',
+            '    b setup_arch',
+            '    b prom_init # MIPS',
+            '    b prom_putchar # MIPS',
+            '    b init_IRQ',
+            '    b time_init',
+            '    b calibrate_delay'
+            '    b rest_init',
+            '    b kernel_init',
+            '    b populate_rootfs',
+            '    b run_init_process',
+            '    b panic',
+            'SOMETHING YOU NEED TO KNOW:',
+            '    calibrate_delay in start_kernel should never be stuck',
+            '    do_initcalls in do_basic_setup should never be stuck',
+            '    prepare_namespace in kernel_init_freeable should never be called']
         debug_cmdline = running_cmdline + ' -s -S'
-        print('RUNNING\n    {}'.format(debug_cmdline))
-        print('PRESS ctrl-a x to exit; PRESS ctrl-a c to QEMU console')
-        print('In QEMU console: enter system_reset to reset')
-        print('In QEMU console: enter info mtree to show memory layout')
-        print('In QEMU console: enter info qtree to show device layout')
-        os.system(debug_cmdline)
+        help_info.extend([
+            'RUNNING {}'.format(debug_cmdline),
+            'PRESS ctrl-a x to exit; PRESS ctrl-a c to QEMU console',
+            'In QEMU console: enter system_reset to reset',
+            'In QEMU console: enter info mtree to show memory layout',
+            'In QEMU console: enter info qtree to show device layout',
+        ])
+        return gdb_cmdline, debug_cmdline, help_info
 
     def __resolve_makefile(self, path, label, content):
         """

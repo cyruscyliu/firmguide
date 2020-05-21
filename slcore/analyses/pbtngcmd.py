@@ -10,5 +10,17 @@ class PBtngCMD(Analysis):
         self.required = ['preparation']
 
     def run(self, **kwargs):
+        # running command
         self.info(self.firmware.running_command, 1)
+
+        srcodec = self.analysis_manager.srcodec
+        if not srcodec.supported:
+            return True
+
+        qemuc = self.analysis_manager.qemuc
+        gdb_cmdline, debug_cmdline, help_info = qemuc.debug_ifs(
+            self.firmware.running_command,
+            srcodec.get_path_to_source_code())
+        for help_info_line in help_info:
+            self.info(help_info_line, 1)
         return True

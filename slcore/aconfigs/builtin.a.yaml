@@ -6,13 +6,17 @@ uploading:
     description: ''
 tracecoverup:
     analyses: [
-        LoadTrace, CheckUserLevel, CheckDataAbort, CheckUndefInst, CheckTLBExcep]
+        LoadTrace, CheckUserLevel, CheckMissingCode,
+        ShowCallstack, ShowDeadLoop,
+        CheckDataAbort, CheckUndefInst, CheckTLBExcep]
     description: ''
 diagnosis:
     analyses: [
         DTPreprocessing, SynthesisDT, Install,
         Preparation, Tracing,
-        LoadTrace, CheckUserLevel, CheckDataAbort, CheckUndefInst, CheckTLBExcep]
+        LoadTrace, CheckUserLevel, CheckMissingCode,
+        ShowCallstack, ShowDeadLoop,
+        CheckDataAbort, CheckUndefInst, CheckTLBExcep]
     description: ''
 synthesis:
     analyses: [
