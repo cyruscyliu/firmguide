@@ -127,6 +127,7 @@ class ShowCallstack(Analysis):
 
         for c in callstack.construct(pql):
             symbol = self.address2symbol(c.be_called)
+            self.callstack.append(c)
             self.info(c.__str__(symbol=symbol), 1)
         return True
 
@@ -137,3 +138,4 @@ class ShowCallstack(Analysis):
         self.critical = False
         self.required = ['userlevel', 'fastuserlevel', 'loadtrace']
         self.type = 'diag'
+        self.callstack = []
