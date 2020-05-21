@@ -12,3 +12,7 @@ listdt:
         flash: {short: f, required: False, action: "store_true", default: True,
             help: "Show FLASH chips in the device tree blob."}
     callback: disclosedt
+newhwdt:
+    help: "Plugin - newhardware by given device tree blob."
+    optional: *optional
+    callback: updatehardwaredt

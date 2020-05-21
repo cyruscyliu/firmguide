@@ -6,7 +6,7 @@ newperph:
 newhardware:
     help: "Plugin - Find new hardware in the OS source."
     optional: *optional
-    callback: updatehardwaredt
+    callback: updatehardware
 quicksrc:
     help: "Plugin - Analyze the OS source quickly."
     optional:
