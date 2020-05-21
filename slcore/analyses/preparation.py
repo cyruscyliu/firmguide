@@ -41,6 +41,8 @@ class Preparation(Analysis):
         kernel = pack_kernel(
             self.firmware.get_components(), load_address=load_address,
             entry_point=entry_point, arch=self.firmware.get_arch())
+        self.info('repack kernel with {}/{}/{}'.format(
+            self.firmware.get_arch(), load_address, entry_point), 1)
 
         # 4. prepare -initrd path/to/cpio
         path_to_initramfs = get_initramfs(
@@ -53,7 +55,7 @@ class Preparation(Analysis):
             dtb=self.firmware.get_components().get_path_to_dtb(),
             n_serial=self.firmware.get_uart_num(), dtb_offset=offset,
         )
-        self.debug('get command: {}'.format(running_command), 1)
+        self.info('get command: {}'.format(running_command), 1)
         self.firmware.running_command = running_command
 
         return True
