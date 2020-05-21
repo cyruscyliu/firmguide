@@ -41,4 +41,5 @@ coverup:
     help: "Standalone - QEMU trace analysis."
     optional:
         trace: *trace
+        source: {short: s, required: False, help: "Path to the OS source."}
     callback: tracecoverup

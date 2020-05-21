@@ -19,10 +19,10 @@ SOURCE_CODE_ATTRIBUTES = [
 ]
 
 
-def parse_system_map(path, bits=32):
-    """Parse system map, get the address, the type, and the symbol in the lines.
+def load_system_map(path, bits=32):
+    """Parse system map, get the address/size, the type, and the symbol in the lines.
 
-    Example: ffffffff803687e8 T arch_init_irq
+    Example: ffffffff803687e8 00000008 T arch_init_irq
 
     Args:
         path(str): path: The path to the System.map.
@@ -38,10 +38,22 @@ def parse_system_map(path, bits=32):
     else:
         mask = 0xffffffffffffffff >> (64 - bits)
 
-    with open(path) as f:
+    os.system('nm -S {0}/vmlinux > /tmp/system.map.nms'.format(path))
+
+    with open('/tmp/system.map.nms'.format(path)) as f:
         for line in f:
-            addr, type_, sym = line.strip().split()
-            system_map[sym] = {'addr': int(addr, 16) & mask, 'type': type_}
+            items = line.strip().split()
+            if len(items) == 3:
+                addr, t, sym = items
+                size = '0'
+            elif len(items) == 4:
+                addr, size, t, sym = items
+            else:
+                continue
+            system_map[sym] = {
+                'addr': int(addr, 16) & mask,
+                'size': int(size, 16),
+                'type': t}
     return system_map
 
 
@@ -119,10 +131,18 @@ class SRCodeController(Common):
         else:
             return f
 
+    def address2symbol(self, address):
+        if self.system_map is None:
+            self.system_map = load_system_map(self.path_to_source_code)
+
+        for k, v in self.system_map.items():
+            if v['addr'] <= address <= v['addr'] + v['size']:
+                return k
+        return None
+
     def symbol2file(self, symbol, relative=True):
         if self.system_map is None:
-            path = os.path.join(self.path_to_source_code, 'System.map')
-            self.system_map = parse_system_map(path)
+            self.system_map = load_system_map(self.path_to_source_code)
 
         if symbol in self.system_map:
             address = self.system_map[symbol]['addr']
