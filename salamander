@@ -39,7 +39,7 @@ if __name__ == '__main__':
     # 2.2 register analysis and analysis group
     analyses_and_groups = register_analysis_and_group()
     if callback not in analyses_and_groups:
-        print('error: callback {} is not implemented')
+        print('error: callback {} is not implemented'.format(callback))
         exit(-1)
     # 2.3 register && warmup && run && wrapup
     analysis_manager = \

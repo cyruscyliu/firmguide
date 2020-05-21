@@ -41,4 +41,4 @@ coverup:
     help: "Standalone - QEMU trace analysis."
     optional:
         trace: *trace
-    callback: coveruptrace
+    callback: tracecoverup
