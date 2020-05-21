@@ -194,10 +194,18 @@ class QEMUController(Common):
             return
 
         d = os.path.dirname(path_to_vmlinux)
+        debug_cmdline = running_cmdline + ' -s -S'
+        help_info = [
+            'RUN {}'.format(debug_cmdline),
+            'PRESS ctrl-a x to exit; PRESS ctrl-a c to QEMU console',
+            'In QEMU console: enter system_reset to reset',
+            'In QEMU console: enter info mtree to show memory layout',
+            'In QEMU console: enter info qtree to show device layout',
+        ]
         gdb_cmdline = \
             'gdb-multiarch --cd={} {} -ex "target remote:1234"'.format(
                 d, path_to_vmlinux)
-        help_info = [
+        help_info.extend([
             'OPEN *ANOTHER* SHELL and RUN {}'.format(gdb_cmdline),
             'SEVERAL BPS YOU MAY INTERESTED IN:',
             '    b kernel_entry # MIPS',
@@ -216,15 +224,7 @@ class QEMUController(Common):
             'SOMETHING YOU NEED TO KNOW:',
             '    calibrate_delay in start_kernel should never be stuck',
             '    do_initcalls in do_basic_setup should never be stuck',
-            '    prepare_namespace in kernel_init_freeable should never be called']
-        debug_cmdline = running_cmdline + ' -s -S'
-        help_info.extend([
-            'RUNNING {}'.format(debug_cmdline),
-            'PRESS ctrl-a x to exit; PRESS ctrl-a c to QEMU console',
-            'In QEMU console: enter system_reset to reset',
-            'In QEMU console: enter info mtree to show memory layout',
-            'In QEMU console: enter info qtree to show device layout',
-        ])
+            '    prepare_namespace in kernel_init_freeable should never be called'])
         return gdb_cmdline, debug_cmdline, help_info
 
     def __resolve_makefile(self, path, label, content):

@@ -1,3 +1,5 @@
+import os
+
 from slcore.amanager import Analysis
 
 
@@ -20,7 +22,7 @@ class PBtngCMD(Analysis):
         qemuc = self.analysis_manager.qemuc
         gdb_cmdline, debug_cmdline, help_info = qemuc.debug_ifs(
             self.firmware.running_command,
-            srcodec.get_path_to_source_code())
+            os.path.join(srcodec.get_path_to_source_code(), 'vmlinux'))
         for help_info_line in help_info:
             self.info(help_info_line, 1)
         return True
