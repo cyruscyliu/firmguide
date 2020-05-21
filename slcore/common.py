@@ -33,4 +33,3 @@ class Common(object):
 
     def warning(self, action, message, status):
         logger.warning(' - '.join([self.__class__.__name__, action, message]))
-

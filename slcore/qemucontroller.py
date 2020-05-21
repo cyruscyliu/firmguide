@@ -3,14 +3,17 @@ QEMU controller
 
 after several experiments, I conclude
     1) QEMU is likely to be supported on Windows with extra compilation efforts
-    https://stackoverflow.com/questions/53084815/compile-qemu-under-windows-10-64-bit-for-windows-10-64-bit
-    which is not elegant and not easy. I hope QEMU will be officially supported on Windows in the future.
-    2) Multi-processing introduces more complexity than speed increment. If you'd like to
-    analyze more than one firmware at the same time, you must consider QEMU pollution(synchronization) problem.
-    Modifying QEMU source code at the same time makes everything messy and embarrassing. JIT solution is
-    the idealest ways to solve this problem. BTW, running in different directories looks quick and dirty but is
-    really helpful. Another solution is to have a qemu controller which can lock/unlock qemu source code
-    read/write and compilation.
+    https://stackoverflow.com/questions/53084815/compile-qemu-under-
+    windows-10-64-bit-for-windows-10-64-bit which is not elegant and not easy.
+    I hope QEMU will be officially supported on Windows in the future.
+    2) Multi-processing introduces more complexity than speed increment.
+    If you'd like to analyze more than one firmware at the same time,
+    you must consider QEMU pollution(synchronization) problem. Modifying QEMU
+    source code at the same time makes everything messy and embarrassing.
+    JIT solution is the idealest ways to solve this problem. BTW, running
+    in different directories looks quick and dirty but is really helpful.
+    Another solution is to have a qemu controller which can lock/unlock qemu
+    source code read/write and compilation.
 
 interfaces:
     + get_command()/trace()/debug()
@@ -20,24 +23,30 @@ import os
 import qmp
 import tempfile
 
+from slcore.common import Common
 
-class QEMUController(object):
+
+class QEMUController(Common):
     def __init__(self, qemu_root):
         self.modified = []
         self.new = []
         self.qemu_root = qemu_root
         self.build_system = {
             'arml': {
-                'defconfig': 'default-configs/arm-softmmu.mak', 'kconfig': 'hw/arm/Kconfig',
+                'defconfig': 'default-configs/arm-softmmu.mak',
+                'kconfig': 'hw/arm/Kconfig',
                 'makefile': 'hw/arm/Makefile.objs',
-            },'armb': {
-                'defconfig': 'default-configs/arm-softmmu.mak', 'kconfig': 'hw/arm/Kconfig',
+            }, 'armb': {
+                'defconfig': 'default-configs/arm-softmmu.mak',
+                'kconfig': 'hw/arm/Kconfig',
                 'makefile': 'hw/arm/Makefile.objs',
             }, 'mipsl': {
-                'defconfig': 'default-configs/mipsel-softmmu.mak', 'kconfig': 'hw/mips/Kconfig',
+                'defconfig': 'default-configs/mipsel-softmmu.mak',
+                'kconfig': 'hw/mips/Kconfig',
                 'makefile':  'hw/mips/Makefile.objs',
             }, 'mipsb': {
-                'defconfig': 'default-configs/mips-softmmu.mak', 'kconfig': 'hw/mips/Kconfig',
+                'defconfig': 'default-configs/mips-softmmu.mak',
+                'kconfig': 'hw/mips/Kconfig',
                 'makefile':  'hw/mips/Makefile.objs',
             }, 'intc': {
                 'makefile': 'hw/intc/Makefile.objs'
@@ -58,16 +67,20 @@ class QEMUController(object):
             if endian == 'l':
                 return '{}/arm-softmmu/qemu-system-arm'.format(self.qemu_root)
             else:
-                raise NotImplementedError('QEMU won\'t support ARMEB machines.')
+                raise NotImplementedError(
+                    'QEMU won\'t support ARMEB machines.')
         elif arch == 'mips':
             if endian == 'l':
-                return '{}/mipsel-softmmu/qemu-system-mipsel'.format(self.qemu_root)
+                return '{}/mipsel-softmmu/qemu-system-mipsel'.format(
+                    self.qemu_root)
             else:
-                return '{}/mips-softmmu/qemu-system-mips'.format(self.qemu_root)
+                return '{}/mips-softmmu/qemu-system-mips'.format(
+                    self.qemu_root)
 
     def get_command(
             self, arch, endian, machine, kernel, dtb_offset=None,
-            initrd=None, flash=None, image=None, flash_size=None, dtb=None, n_serial=1):
+            initrd=None, flash=None, image=None,
+            flash_size=None, dtb=None, n_serial=1):
         running_command = self.__get_binary(arch, endian)
         if running_command is None:
             return None
@@ -81,9 +94,11 @@ class QEMUController(object):
             running_command += ',offset=0x{:x}'.format(dtb_offset)
 
         if flash == 'nor':
-            running_command += ' -drive file={},if=pflash,format=raw'.format(image)
+            running_command += \
+                ' -drive file={},if=pflash,format=raw'.format(image)
         elif flash == 'nand':
-            running_command += ' -drive file={},if=mtd,format=raw'.format(image)
+            running_command += \
+                ' -drive file={},if=mtd,format=raw'.format(image)
 
         running_command += ' -nographic'
         if initrd:
@@ -91,7 +106,8 @@ class QEMUController(object):
         running_command += ' -append "console=ttyS0 nowatchdog nokaslr"'
 
         if n_serial > 1:
-            # -chardev stdio,mux=on,id=char0 -mon chardev=char0,mode=readline -serial chardev:char0 -serial chardev:char0
+            # -chardev stdio,mux=on,id=char0 -mon chardev=char0,mode=readline
+            # -serial chardev:char0 -serial chardev:char0
             running_command += ' -chardev stdio,mux=on,id=char0'
             running_command += ' -mon chardev=char0,mode=readline'
             for i in range(0, n_serial):
@@ -126,7 +142,7 @@ class QEMUController(object):
                 continue
             for f in files:
                 full = os.path.join(root, f)
-                target = self.patch(full, full[len(prefix)+1:])
+                self.patch(full, full[len(prefix)+1:])
 
     def recover(self, *args, **kwargs):
         """
@@ -139,16 +155,31 @@ class QEMUController(object):
             os.system('rm {}'.format(dst))
         self.new = []
 
+    def run_command(self, command):
+        error_start = 0
+        with os.popen(command) as f:
+            for line in f:
+                if line.find('error') != -1:
+                    error_start = -3
+                if error_start < 0:
+                    self.warning('compile', line.strip(), 0)
+                    error_start += 1
+                else:
+                    self.debug('compile', line.strip(), 1)
+
     def compile(self, cflags=None, cpu=4):
         if cflags:
-            os.system('cd {} && make -j{} CFLAGS={} && cd $OLDPWD'.format(self.qemu_root, cpu, cflags))
+            self.run_command(
+                'cd {} && make -j{} CFLAGS={} 2>&1 && cd $OLDPWD'.format(
+                    self.qemu_root, cpu, cflags))
         else:
-            os.system('cd {} && make -j{} && cd $OLDPWD'.format(self.qemu_root, cpu))
+            self.run_command('cd {} && make -j{} 2>&1 && cd $OLDPWD'.format(
+                self.qemu_root, cpu))
 
     def trace(self, *args, **kwargs):
         raise NotImplementedError()
 
-    def debug(self, running_cmdline, path_to_vmlinux, **kwargs):
+    def debug_ifs(self, running_cmdline, path_to_vmlinux, **kwargs):
         """
         provide a GDB interface
         running_cmdline comes from get_cmdline()
@@ -227,17 +258,19 @@ class QEMUController(object):
             content = ['\n', kconfig, '    bool\n']
             target = self.__resolve_makefile(path, kconfig, content)
             # update makefile
-            makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(hwname.upper(), fname)
+            makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(
+                hwname.upper(), fname)
             path = os.path.join(build_system['makefile'])
             content = [makefile]
-            target = self.__resolve_makefile(path, makefile, content)
+            self.__resolve_makefile(path, makefile, content)
         # elif t in ['intc', 'timer']:
         else:
             build_system = self.build_system[t]
-            makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(hwname.upper(), fname)
+            makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(
+                hwname.upper(), fname)
             path = os.path.join(build_system['makefile'])
             content = [makefile]
-            target = self.__resolve_makefile(path, makefile, content)
+            self.__resolve_makefile(path, makefile, content)
 
 
 def get_qemucontroller(qemu_root):
