@@ -47,7 +47,7 @@ static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned
     switch (offset) {
         default:
             return;
-        case 0x0 ... {{ reg.size }} - 0x4:
+        case {{ reg.size|to_offset }}:
             s->reserved = val;
             break;
     }
@@ -65,7 +65,7 @@ static void {{ name }}_init(Object *obj)
     {{ name|to_upper}}State *s = {{ name|to_upper }}(obj);
 
     /* initialize the mmio */
-    memory_region_init_io(&s->mmio, obj, &{{ name }}_ops, s, TYPE_{{ name|to_upper }}, {{ reg.size }});
+    memory_region_init_io(&s->mmio, obj, &{{ name }}_ops, s, TYPE_{{ name|to_upper }}, {{ reg.size|to_hex }});
     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
 
     /* initialize an irq to the intc */
