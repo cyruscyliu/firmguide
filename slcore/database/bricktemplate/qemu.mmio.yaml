@@ -1,3 +1,30 @@
+ehci-platform:
+  buddy_compatible: ['ralink,rt3xxx-ehci']
+  extend: mmio,generic
+en25q32b:
+  buddy_compatible: []
+  extend: mmio,generic
+en25q64:
+  buddy_compatible: []
+  extend: mmio,generic
+gd25q64:
+  buddy_compatible: []
+  extend: mmio,generic
+inxp,pcf8574a:
+  buddy_compatible: []
+  extend: mmio,generic
+linux,spidev:
+  buddy_compatible: []
+  extend: mmio,generic
+m25p80:
+  buddy_compatible: [f25l32pa]
+  extend: mmio,generic
+mediatek,mt7620-pci:
+  buddy_compatible: []
+  extend: mmio,generic
+mediatek,mt7621-pci:
+  buddy_compatible: []
+  extend: mmio,generic
 mmio,generic:
   get_body: ['memory_region_init_io(&s->{{ name }}_mmio{{ id }}, NULL, &{{ name }}_ops{{
       id }}, s, TYPE_{{ machine_name|to_upper }}, {{ reg.size|to_hex }});', 'memory_region_add_subregion_overlap(get_system_memory(),
@@ -20,10 +47,47 @@ mmio,generic:
       \ *s = opaque;\n\n    switch (offset) {\n    default:\n        qemu_log_mask(LOG_GUEST_ERROR,\
       \ \"%s: Bad offset %\"HWADDR_PRIx\"\\\\n\", __func__, offset);\n        return;\n\
       \    case {{ reg.size|to_offset }}:\n        s->{{ name }}{{ id }}[offset >>\
-      \ 2] = val;\n        break;\n    }\n    {{ name }}{{ id }}_update(s);\n}\n\nstatic const\
-      \ MemoryRegionOps {{ name }}_ops{{ id }} = {\n    .read = {{ name }}{{ id }}_read,\n\
-      \    .write = {{ name }}{{ id }}_write,\n    .endianness = {{ endian|to_endian }},\n};"]
+      \ 2] = val;\n        break;\n    }\n    {{ name }}{{ id }}_update(s);\n}\n\n\
+      static const MemoryRegionOps {{ name }}_ops{{ id }} = {\n    .read = {{ name\
+      \ }}{{ id }}_read,\n    .write = {{ name }}{{ id }}_write,\n    .endianness\
+      \ = {{ endian|to_endian }},\n};"]
   parameters: [name, regs, endian]
+mtk,mt7621-gpio:
+  buddy_compatible: ['mtk,mt7628-gpio']
+  extend: mmio,generic
+mtk,mt7621-memc:
+  buddy_compatible: []
+  extend: mmio,generic
+mtk,mt7621-nand:
+  buddy_compatible: []
+  extend: mmio,generic
+mtk,mt7621-sysc:
+  buddy_compatible: []
+  extend: mmio,generic
+mtk,mt7621-wdt:
+  buddy_compatible: ['ralink,mt7628an-wdt']
+  extend: mmio,generic
+mx25l12805d:
+  buddy_compatible: []
+  extend: mmio,generic
+mx25l25635e:
+  buddy_compatible: []
+  extend: mmio,generic
+mx25l3205d:
+  buddy_compatible: []
+  extend: mmio,generic
+mx25l6405d:
+  buddy_compatible: []
+  extend: mmio,generic
+national,lm92:
+  buddy_compatible: []
+  extend: mmio,generic
+ohci-platform:
+  buddy_compatible: ['ralink,rt3xxx-ohci']
+  extend: mmio,generic
+pciclass0604:
+  buddy_compatible: ['ralink,rt2880-pci', pciclass060400]
+  extend: mmio,generic
 plxtech,nas782x-ehci:
   buddy_compatible: []
   extend: mmio,generic
@@ -42,6 +106,114 @@ plxtech,nas782x-reset:
 plxtech,nas782x-sata:
   buddy_compatible: []
   extend: mmio,generic
+pm25lq032:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,eth-port:
+  buddy_compatible: ['ralink,rt3883-port']
+  extend: mmio,generic
+ralink,i2c-mt7621:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7620-sdhci:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7620a-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7620a-gsw:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7620a-i2s:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7620a-pcm:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7620a-sysc:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7621-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7621-spi:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt2880-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt2880-gdma:
+  buddy_compatible: ['ralink,mt7620a-gdma']
+  extend: mmio,generic
+ralink,rt2880-gpio:
+  buddy_compatible: ['ralink,rt3883-gpio']
+  extend: mmio,generic
+ralink,rt2880-i2c:
+  buddy_compatible: ['link,rt5350-i2c']
+  extend: mmio,generic
+ralink,rt2880-memc:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt2880-spi:
+  buddy_compatible: ['ralink,rt3883-spi']
+  extend: mmio,generic
+ralink,rt2880-sysc:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt2880-wdt:
+  buddy_compatible: ['ralink,rt3883-wdt']
+  extend: mmio,generic
+ralink,rt2880-wmac:
+  buddy_compatible: ['ralink,rt3883-wmac']
+  extend: mmio,generic
+ralink,rt288x-pci:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt3050-esw:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt3050-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt3050-memc:
+  buddy_compatible: ['ralink,rt3883-memc']
+  extend: mmio,generic
+ralink,rt3050-sysc:
+  buddy_compatible: ['ralink,rt3883-sysc']
+  extend: mmio,generic
+ralink,rt3883-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt5350-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt5350-spi:
+  buddy_compatible: []
+  extend: mmio,generic
+s25fl064k:
+  buddy_compatible: []
+  extend: mmio,generic
+s25fl129p1:
+  buddy_compatible: []
+  extend: mmio,generic
+snps,dwc2:
+  buddy_compatible: ['ralink,rt3050-otg']
+  extend: mmio,generic
 snps,dwmac:
   buddy_compatible: ['plxtech,nas782x-gmac']
+  extend: mmio,generic
+w25q128:
+  buddy_compatible: []
+  extend: mmio,generic
+w25q256:
+  buddy_compatible: []
+  extend: mmio,generic
+w25q32:
+  buddy_compatible: []
+  extend: mmio,generic
+w25q64:
+  buddy_compatible: []
+  extend: mmio,generic
+xhci-platform:
+  buddy_compatible: []
   extend: mmio,generic

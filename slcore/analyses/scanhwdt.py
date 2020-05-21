@@ -41,6 +41,14 @@ class UpdateHardwareDT(Analysis):
             if cmptb.find('gpio') != -1:
                 return True
 
+    def is_pci_intc(self, t, compatible):
+        if t != 'intc':
+            return False
+
+        for cmptb in compatible:
+            if cmptb.find('pci') != -1:
+                return True
+
     def __skip(self, compatible):
         for cmptb in compatible:
             if cmptb in self.skipped_bdevices:
@@ -55,10 +63,13 @@ class UpdateHardwareDT(Analysis):
                     continue
                 b = Brick(k, context['compatible'])
                 if not b.supported and \
-                        not self.is_gpio_intc(k, context['compatible']):
+                        not self.is_gpio_intc(k, context['compatible']) and \
+                        not self.is_pci_intc(k, context['compatible']):
                     b.update_model()
                     self.info('update {} {}'.format(
                         k, context['compatible']), 1)
+                else:
+                    self.debug('skip {}'.format(context['compatible']), 0)
                 self.skipped_bdevices.append(b.effic_compatible)
                 self.skipped_bdevices.extend(b.buddy_compatible)
 
@@ -70,8 +81,13 @@ class UpdateHardwareDT(Analysis):
 
         # search *.dtb in the source
         path_to_source = srcodec.get_path_to_source_code()
-        with os.popen('find {} -name *.dtb'.format(path_to_source)) as f:
+        cmd = 'find {} -name *.dtb'.format(path_to_source)
+        self.debug(cmd, 1)
+        with os.popen(cmd) as f:
             for dtb in f:
-                dts = load_dtb(dtb.strip())
-                self.scan_and_update(dts)
+                try:
+                    dts = load_dtb(dtb.strip())
+                    self.scan_and_update(dts)
+                except Exception as e:
+                    self.warning('{} of {}'.format(str(e), dtb.strip()), 0)
         return True

@@ -102,16 +102,10 @@ intel,i8259: {extend: 'intc,generic'}
 jcore,aic1: {extend: 'intc,generic'}
 jcore,aic2: {extend: 'intc,generic'}
 lsi,zevio-intc: {extend: 'intc,generic'}
-marvell,mpic:
-  extend: intc,generic
-  external: true
+marvell,mpic: {extend: 'intc,generic', external: true}
 marvell,odmi-controller: {extend: 'intc,generic'}
-marvell,orion-bridge-intc:
-  extend: intc,generic
-  external: true
-marvell,orion-intc:
-  extend: intc,generic
-  external: true
+marvell,orion-bridge-intc: {extend: 'intc,generic', external: true}
+marvell,orion-intc: {extend: 'intc,generic', external: true}
 marvell,pxa-intc: {extend: 'intc,generic'}
 mediatek,mt6577-sysirq: {extend: 'intc,generic'}
 mediatek,mtk-cirq: {extend: 'intc,generic'}
@@ -142,15 +136,14 @@ oxsemi,ox810se-rps-irq: {extend: 'intc,generic'}
 plxtech,nas782x-rps: {extend: 'intc,generic'}
 qca,ar7100-cpu-intc: {extend: 'mti,cpu-interrupt-controller'}
 qca,ar7100-misc-intc: {extend: 'intc,generic'}
-qca,ar7240-misc-intc:
-  extend: intc,generic
-  external: true
+qca,ar7240-misc-intc: {extend: 'intc,generic', external: true}
 qca,ar9340-intc: {extend: 'intc,generic'}
 qcom,msm-8660-qgic: {extend: 'intc,generic'}
 qcom,msm-qgic2: {extend: 'intc,generic'}
-ralink,rt2880-intc:
+ralink,mt7621-gic:
+  buddy_compatible: []
   extend: intc,generic
-  external: true
+ralink,rt2880-intc: {extend: 'intc,generic', external: true}
 renesas,h8300h-intc: {extend: 'intc,generic'}
 renesas,h8s-intc: {extend: 'intc,generic'}
 samsung,exynos4210-combiner: {extend: 'intc,generic'}

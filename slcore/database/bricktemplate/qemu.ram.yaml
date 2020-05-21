@@ -1,12 +1,21 @@
+mediatek,mt7621-soc:
+  buddy_compatible: ['mediatek,mt7621-eval-board']
+  extend: ram,generic
+mediatek,mt7628an-soc:
+  buddy_compatible: ['mediatek,mt7628an-eval-board']
+  extend: ram,generic
+plxtech,nas782x: {buddy_compatible: 'plxtech,nas7820', extend: 'ram,generic'}
+ralink,mt7621-soc:
+  buddy_compatible: ['ralink,mt7621-eval-board']
+  extend: ram,generic
+ralink,rt5350-soc:
+  buddy_compatible: [HLKRM04]
+  extend: ram,generic
 ram,generic:
-    get_header: [exec/address-space.h]
-    get_field:
-        - 'MemoryRegion ram{{ id }};'
-    get_body:
-        - memory_region_allocate_system_memory(&s->ram{{ id }}, OBJECT(machine), "ram{{ id }}", {{ reg.size|to_hex }});
-        - memory_region_add_subregion_overlap(get_system_memory(), {{ reg.base|to_hex }}, &s->ram{{ id }}, {{ reg.priority }});
-    get_connection: []
-    parameters: ['regs']
-plxtech,nas782x:
-    extend: ram,generic
-    buddy_compatible: plxtech,nas7820
+  get_body: ['memory_region_allocate_system_memory(&s->ram{{ id }}, OBJECT(machine),
+      "ram{{ id }}", {{ reg.size|to_hex }});', 'memory_region_add_subregion_overlap(get_system_memory(),
+      {{ reg.base|to_hex }}, &s->ram{{ id }}, {{ reg.priority }});']
+  get_connection: []
+  get_field: ['MemoryRegion ram{{ id }};']
+  get_header: [exec/address-space.h]
+  parameters: [regs]
