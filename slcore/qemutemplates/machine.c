@@ -23,11 +23,13 @@ typedef struct {{ machine_name|to_upper }}State {
     {{ line }}{% endfor %}{% for line in timer_get_field %}
     {{ line }}{% endfor %}{% for line in flash_get_field %}
     {{ line }}{% endfor %}{% for line in ram_get_field %}
+    {{ line }}{% endfor %}{% for line in mmio_get_field %}
     {{ line }}{% endfor %}{% for line in mmio_get_reserved %}
     {{ line }}{% endfor %}
 } {{ machine_name|to_upper }}State;
 {% for suite in mmio_get_suite %}
-{{ suite }}{% endfor %}
+{{ suite }}
+{% endfor %}
 
 static void {{ machine_name }}_reset(void *opaque)
 {
@@ -75,7 +77,7 @@ static void {{ machine_name }}_machine_init(MachineClass *mc)
 {
     mc->desc = "{{ machine_description }}";
     mc->init = {{ machine_name }}_init;
-    mc->default_ram_size =  256 MiB;
+    mc->default_ram_size = 256 * MiB;
     mc->default_cpu_type = {{ arch|to_upper }}_CPU_TYPE_NAME("{{ cpu_get_type }}");
     mc->ignore_memory_transaction_failures = false;
 }

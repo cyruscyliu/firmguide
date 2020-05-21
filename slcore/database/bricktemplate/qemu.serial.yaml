@@ -24,7 +24,7 @@ mrvl,pxa-uart: {extend: 'serial,generic'}
 ns16550: {extend: ns16550a}
 ns16550a: &ns16550a
   get_body: ['serial_mm_init(get_system_memory(), {{ reg.base|to_hex }}, {{ reg_shift }},
-      {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ sid }}), {{ endian }});']
+      {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ sid }}), {{ endian|to_endian }});']
   get_connection: []
   get_field: []
   get_header: [hw/char/serial.h]
@@ -34,7 +34,7 @@ qcom,msm-uart: {extend: 'serial,generic'}
 qcom,msm-uartdm: {extend: 'serial,generic'}
 ralink,rt2880-uart:
   get_body: ['serial_mm_init_au(get_system_memory(), {{ reg.base|to_hex }}, {{ reg_shift
-      }}, {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ sid }}), {{ endian
+      }}, {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ sid }}), {{ endian|to_endian
       }});']
   get_connection: []
   get_field: []

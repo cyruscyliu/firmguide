@@ -26,14 +26,14 @@ mediatek,mt7621-pci:
   buddy_compatible: []
   extend: mmio,generic
 mmio,generic:
-  get_body: ['memory_region_init_io(&s->{{ name }}_mmio{{ id }}, NULL, &{{ name }}_ops{{
+  get_body: ['memory_region_init_io(&s->{{ name }}{{ id }}_mmio, NULL, &{{ name }}_ops{{
       id }}, s, TYPE_{{ machine_name|to_upper }}, {{ reg.size|to_hex }});', 'memory_region_add_subregion_overlap(get_system_memory(),
-      {{ reg.base|to_hex }}, &s->{{ name }}_mmio{{ id }}, {{ reg.priority }});']
+      {{ reg.base|to_hex }}, &s->{{ name }}{{ id }}_mmio, {{ reg.priority }});']
   get_connection: []
-  get_field: ['MemoryRegion {{ name }}_mmio{{ id }};']
+  get_field: ['MemoryRegion {{ name }}{{ id }}_mmio;']
   get_header: []
-  get_reserved: ['uint32_t {{ name }}{{ id }}_regs[{{ reg.size|to_hex }} >> 2];']
-  get_reset: ['s->{{ name }}{{ id }}[{{ register.offset|to_hex }}] = {{ register.value|to_hex
+  get_reserved: ['uint32_t {{ name }}{{ id }}_reserved[{{ reg.size|to_hex }} >> 2];']
+  get_reset: ['s->{{ name }}{{ id }}_reserved[{{ register.offset|to_hex }}] = {{ register.value|to_hex
       }};']
   get_suite: ["static void {{ name }}{{ id }}_update(void *opaque)\n{\n    /* {{ machine_name|to_upper\
       \ }}State *s = opaque; */\n}\n\nstatic uint64_t {{ name }}{{ id }}_read(void\
@@ -41,12 +41,12 @@ mmio,generic:
       \ *s = opaque;\n    uint32_t res = 0;\n\n    switch (offset) {\n    default:\n\
       \        qemu_log_mask(LOG_GUEST_ERROR, \"%s: Bad offset %\"HWADDR_PRIx\"\\\\\
       n\", __func__, offset);\n        return 0;\n    case {{ reg.size|to_offset }}:\n\
-      \        res = s->{{ name }}{{ id }}[offset >> 2];\n        break;\n    }\n\
+      \        res = s->{{ name }}{{ id }}_reserved[offset >> 2];\n        break;\n    }\n\
       \    return res;\n}\n\nstatic void {{ name }}{{ id }}_write(void *opaque, hwaddr\
       \ offset, uint64_t val, unsigned size)\n{\n    {{ machine_name|to_upper  }}State\
       \ *s = opaque;\n\n    switch (offset) {\n    default:\n        qemu_log_mask(LOG_GUEST_ERROR,\
       \ \"%s: Bad offset %\"HWADDR_PRIx\"\\\\n\", __func__, offset);\n        return;\n\
-      \    case {{ reg.size|to_offset }}:\n        s->{{ name }}{{ id }}[offset >>\
+      \    case {{ reg.size|to_offset }}:\n        s->{{ name }}{{ id }}_reserved[offset >>\
       \ 2] = val;\n        break;\n    }\n    {{ name }}{{ id }}_update(s);\n}\n\n\
       static const MemoryRegionOps {{ name }}_ops{{ id }} = {\n    .read = {{ name\
       \ }}{{ id }}_read,\n    .write = {{ name }}{{ id }}_write,\n    .endianness\

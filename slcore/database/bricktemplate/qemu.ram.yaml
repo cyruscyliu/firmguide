@@ -17,5 +17,5 @@ ram,generic:
       {{ reg.base|to_hex }}, &s->ram{{ id }}, {{ reg.priority }});']
   get_connection: []
   get_field: ['MemoryRegion ram{{ id }};']
-  get_header: [exec/address-space.h]
+  get_header: [exec/address-spaces.h]
   parameters: [regs]

@@ -140,7 +140,7 @@ static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned
 static const MemoryRegionOps {{ name }}_ops = {
     .read = {{ name }}_read,
     .write = {{ name }}_write,
-    .endianness = {{ endian }},
+    .endianness = {{ endian|to_endian }},
 };
 
 static void {{ name }}_set_irq(void *opaque, int irq, int level)
