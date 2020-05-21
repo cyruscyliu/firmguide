@@ -6,8 +6,11 @@ diagnose:
             short: dtb
             required: False
             help: "Path to a device tree blob."
-        nocompilation: {short: nc, action: "store_true", default: False,
-            help: "set this for multi-tasks"}
+        nocompilation: &nocompilation
+            short: nc
+            action: "store_true"
+            default: False
+            help: "set this for multi-tasks"
         firmware: &firmware
             short: f
             required: False
@@ -32,6 +35,7 @@ synthesize:
     optional:
         dtb: *dtb
         firmware: *firmware
+        nocompilation: *nocompilation
     callback: synthesis
 coverup:
     help: "Standalone - QEMU trace analysis."

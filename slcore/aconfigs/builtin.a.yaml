@@ -1,7 +1,7 @@
 uploading:
     analyses: [FindMachine,
-        DTPreprocessing, SynthesisDT,
-        Install, Preparation, Tracing,
+        DTPreprocessing, SynthesisDT, Install,
+        Preparation, Tracing,
         LoadTrace, CheckUserLevelF]
     description: ''
 tracecoverup:
@@ -10,11 +10,11 @@ tracecoverup:
     description: ''
 diagnosis:
     analyses: [
-        DTPreprocessing, SynthesisDT,
-        Install, Preparation, Tracing,
+        DTPreprocessing, SynthesisDT, Install,
+        Preparation, Tracing,
         LoadTrace, CheckUserLevel, CheckDataAbort, CheckUndefInst, CheckTLBExcep]
     description: ''
 synthesis:
     analyses: [
-        DTPreprocessing, SynthesisDT]
+        DTPreprocessing, SynthesisDT, Install]
     description: ''

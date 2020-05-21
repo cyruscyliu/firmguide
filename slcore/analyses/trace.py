@@ -56,7 +56,7 @@ class Tracing(Analysis):
         self.name = 'tracing'
         self.description = 'Trace QEMU execution for diagnosis.'
         self.critical = True
-        self.required = ['preparation']
+        self.required = ['preparation', 'install']
         self.type = 'diag'
 
     def analysis_status(self, status):

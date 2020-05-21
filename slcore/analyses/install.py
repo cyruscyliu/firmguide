@@ -14,7 +14,8 @@ class Install(Analysis):
         # 1 copy files to qemu/
         prefix = os.path.join(
             self.analysis_manager.project.attrs['path'], 'qemu-4.0.0')
-        self.anlaysis_manager.qemuc.install(prefix)
+        self.analysis_manager.qemuc.install(prefix)
+        self.info('install {}'.format(prefix), 1)
         # 2 update compilation targets
         self.analysis_manager.qemuc.add_target(
             self.firmware.get_machine_name(), self.firmware.get_machine_name(),
