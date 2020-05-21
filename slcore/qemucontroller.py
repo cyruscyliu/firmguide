@@ -161,6 +161,12 @@ class QEMUController(Common):
             for line in f:
                 if line.find('error') != -1:
                     error_start = -3
+                elif line.strip().startswith('CC'):
+                    self.info('compile', line.strip(), 0)
+                    continue
+                elif line.strip().startswith('LINK'):
+                    self.info('compile', line.strip(), 0)
+                    continue
                 if error_start < 0:
                     self.warning('compile', line.strip(), 0)
                     error_start += 1
@@ -188,7 +194,9 @@ class QEMUController(Common):
             return
 
         d = os.path.dirname(path_to_vmlinux)
-        gdb_cmdline = 'gdb-multiarch --cd={} {} -ex "target remote:1234"'.format(d, path_to_vmlinux)
+        gdb_cmdline = \
+            'gdb-multiarch --cd={} {} -ex "target remote:1234"'.format(
+                d, path_to_vmlinux)
         print('\nOPEN *ANOTHER* SHELL and RUN\n    {}'.format(gdb_cmdline))
         print('SEVERAL BPS YOU MAY INTERESTED IN:')
         print('    b kernel_entry # MIPS')
@@ -256,7 +264,7 @@ class QEMUController(Common):
             kconfig = 'config {}\n'.format(hwname.upper())
             path = os.path.join(build_system['kconfig'])
             content = ['\n', kconfig, '    bool\n']
-            target = self.__resolve_makefile(path, kconfig, content)
+            self.__resolve_makefile(path, kconfig, content)
             # update makefile
             makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(
                 hwname.upper(), fname)
