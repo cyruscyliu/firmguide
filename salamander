@@ -32,7 +32,8 @@ if __name__ == '__main__':
     # 2 analysis commands
     project = project_get_current(args['base_dir'])
     # 2.1 check: no image
-    if not len(project.attrs['images']):
+    images = project.attrs['images']
+    if images is None or len(images) == 0:
         print('error: please add a image first')
         exit()
     # 2.2 register analysis and analysis group
