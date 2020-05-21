@@ -23,7 +23,7 @@ typedef struct {{ machine_name|to_upper }}State {
     {{ line }}{% endfor %}{% for line in timer_get_field %}
     {{ line }}{% endfor %}{% for line in flash_get_field %}
     {{ line }}{% endfor %}{% for line in ram_get_field %}
-    {{ line }}{% endfor %}{% for line in mmio_get_registers %}
+    {{ line }}{% endfor %}{% for line in mmio_get_reserved %}
     {{ line }}{% endfor %}
 } {{ machine_name|to_upper }}State;
 {% for suite in mmio_get_suite %}

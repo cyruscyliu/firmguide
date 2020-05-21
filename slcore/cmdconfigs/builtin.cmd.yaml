@@ -8,12 +8,15 @@ diagnose:
             help: "Path to a device tree blob."
         nocompilation: {short: nc, action: "store_true", default: False,
             help: "set this for multi-tasks"}
-        firmware: {short: f, required: False, metavar: "IMAGE",
+        firmware: &firmware
+            short: f
+            required: False
+            metavar: "IMAGE"
             help: "Use the IMAGE to diagnose your models. If not set,
                 use the last valid image, otherwise, use the first image
                 in your current project(./samander batch -s). If there is
                 no valid image and there is no image in your project,
-                you must provide a image."}
+                you must provide a image."
         trace: &trace
             short: t
             help: "Path to the trace of format uuid-arch-endian.trace"
@@ -28,6 +31,7 @@ synthesize:
     help: "Standalone - QEMU machine rendering with bricks."
     optional:
         dtb: *dtb
+        firmware: *firmware
     callback: synthesis
 coverup:
     help: "Standalone - QEMU trace analysis."

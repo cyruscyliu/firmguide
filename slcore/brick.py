@@ -121,8 +121,8 @@ class Brick(object):
         if 'regs' in context:
             self.__render_get_field(context, n=len(context['regs']))
             self.__render_get_body(context, n=len(context['regs']))
-            if 'get_registers' in self.model:
-                self.__render_get_registers(context, n=len(context['regs']))
+            if 'get_reserved' in self.model:
+                self.__render_get_reserved(context, n=len(context['regs']))
             if 'get_reset' in self.model:
                 self.__render_get_reset(context, n=len(context['regs']))
             if 'get_suite' in self.model:
@@ -142,7 +142,7 @@ class Brick(object):
         for k, v in self.actual.items():
             if k == 'get_body' or k == 'get_field' or \
                     k == 'get_connection' or k == 'get_reset' or \
-                    k == 'get_registers' or k == 'get_suite':
+                    k == 'get_reserved' or k == 'get_suite':
                 if len(v) > 1:
                     context['{}_{}'.format(self.t, k)] = ['\n    '.join(v)]
                 else:
@@ -193,13 +193,13 @@ class Brick(object):
             actual = self.__render('get_field', context)
             self.actual['get_field'].extend(actual)
 
-    def __render_get_registers(self, context, n=1):
-        self.actual['get_registers'] = []
+    def __render_get_reserved(self, context, n=1):
+        self.actual['get_reserved'] = []
         for i in range(0, n):
             context['id'] = i
             context['reg'] = context['regs'][i]
-            actual = self.__render('get_registers', context)
-            self.actual['get_registers'].extend(actual)
+            actual = self.__render('get_reversed', context)
+            self.actual['get_reversed'].extend(actual)
 
     def __render_get_reset(self, context, n=1):
         self.actual['get_reset'] = []
