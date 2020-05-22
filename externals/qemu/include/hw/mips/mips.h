@@ -5,6 +5,7 @@
 /* Kernels can be configured with 64KB pages */
 /* Considering BSS we enlarge the page align to 8MB */
 #define INITRD_PAGE_MASK (~((1 << 23) - 1))
+#define DTB_PAGE_MASK (~((1 << 12) -1))
 
 #include "exec/memory.h"
 #include "target/mips/cpu-qom.h"
@@ -30,6 +31,14 @@ struct mips_boot_info {
     const char *kernel_filename;
     const char *kernel_cmdline;
     const char *initrd_filename;
+    const char *dtb_filename;
+    hwaddr dtb_start;
+    hwaddr dtb_offset;
+    hwaddr dtb_limit;
+    int is_linux;
+    hwaddr initrd_start;
+    hwaddr initrd_size;
+    hwaddr entry;
 };
 
 typedef struct CommonResetData {
@@ -37,7 +46,8 @@ typedef struct CommonResetData {
     uint64_t vector;
 } CommonResetData;
 
-
+int mips_load_dtb(hwaddr addr, struct mips_boot_info *binfo,
+                  hwaddr addr_limit, AddressSpace *as);
 void mips_load_kernel(MIPSCPU *cpu, struct mips_boot_info *info);
 
 #endif
