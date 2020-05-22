@@ -10,6 +10,7 @@ newhardware:
 quicksrc:
     help: "Plugin - Analyze the OS source quickly."
     optional:
+        << : *optional
         file: {short: f, required: False, help: "Preprocess the file."}
         entry_point: {short: e, required: False,
             help: "Find the file contains the entry point of data or function and preprocess the file."}
@@ -17,9 +18,3 @@ quicksrc:
             help: "Do cg/cfg analysis from the ep and show the interesting places."}
         caller: {short: caller, required: False, help: "Give the caller of the entry point."}
     callback: quicksrca
-ofinit:
-    help: "Plugin - Find of_init callbacks w.s.t given device tree."
-    optional:
-        << : *optional
-        dtb: {short: dtb, required: False, help: "Path to a device tree blob."}
-    callback: ofinitsrc
