@@ -139,8 +139,11 @@ class SRCodeController(Common):
             self.system_map = load_system_map(self.path_to_source_code)
 
         for k, v in self.system_map.items():
+            symbols = []
             if v['addr'] <= address <= v['addr'] + v['size']:
-                return k
+                symbols.append(k)
+            if len(symbols):
+                return ','.join(symbols)
         return None
 
     def symbol2file(self, symbol, relative=True):

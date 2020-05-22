@@ -7,7 +7,7 @@ from capstone import Cs, CS_ARCH_ARM, CS_ARCH_MIPS,\
 
 
 class CallRecord(object):
-    def __init__(self, pc, ir, ignored=False,
+    def __init__(self, pc, ir, target, ignored=False,
                  returned=False, cpurf=None, bb=None, indent=0):
         self.be_called = pc
         self.to_return = ir
@@ -15,6 +15,7 @@ class CallRecord(object):
         self.cpurf = cpurf
         self.bb = bb
         self.indent = indent
+        self.target = target
 
     def __str__(self, symbol=None):
         summary = 'ln {:5} {}0x{:x} -> 0x{:x} returned {}'.format(
@@ -49,14 +50,15 @@ class CallStackI(object):
             # we will firstly skip returned functions
             if int(pql.get_pc(cpurf), 16) == self.guard:
                 self.skip = False
-            if self.skip:
-                continue
+            # if self.skip:
+            #     continue
             # every basic block is assumed to be not returned
             bb = pql.get_bb(cpurf)
             for insn in self.get_insn(bb['instructions']):
                 # find the bl/jal instruction and test it
                 if insn.mnemonic not in self.callbacks:
                     continue
+                target = int(insn.op_str, 16)
                 # find it!
                 lr = self.find_lr(insn)
                 self.guard = lr
@@ -68,8 +70,11 @@ class CallStackI(object):
                     self.skip = False
                     self.ret = False
 
+                if self.ret:
+                    continue
+
                 yield CallRecord(
-                    insn.address, lr, cpurf=cpurf, bb=bb,
+                    insn.address, lr, target, cpurf=cpurf, bb=bb,
                     returned=self.ret, indent=self.level)
 
                 if not self.ret:
@@ -126,9 +131,11 @@ class ShowCallstack(Analysis):
             return False
 
         for c in callstack.construct(pql):
-            symbol = self.address2symbol(c.be_called)
+            symbol_from = self.address2symbol(c.be_called)
+            symbol_to = self.address2symbol(c.target)
             self.callstack.append(c)
-            self.info(c.__str__(symbol=symbol), 1)
+            self.info(c.__str__(symbol='{} -> {}'.format(
+                symbol_from, symbol_to)), 1)
         return True
 
     def __init__(self, analysis_manager):
