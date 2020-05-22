@@ -21,6 +21,7 @@ diagnosis:
 trace:
     analyses: [
         Preparation, Tracing]
+    description: ''
 synthesis:
     analyses: [
         DTPreprocessing, SynthesisDT, Install]

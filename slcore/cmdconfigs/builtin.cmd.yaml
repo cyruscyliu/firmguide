@@ -21,7 +21,7 @@ diagnose:
         timeout: &timeout
             short: to
             type: int
-            default: 10
+            default: 60
             help: "Trace timeout."
         source: &source
             short: s
