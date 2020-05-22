@@ -18,6 +18,9 @@ diagnosis:
         ShowCallstack, ShowDeadLoop,
         CheckDataAbort, CheckUndefInst, CheckTLBExcep]
     description: ''
+trace:
+    analyses: [
+        Preparation, Tracing]
 synthesis:
     analyses: [
         DTPreprocessing, SynthesisDT, Install]

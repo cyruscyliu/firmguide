@@ -22,7 +22,9 @@ interfaces:
 import os
 import qmp
 import tempfile
+import subprocess
 
+from threading import Timer
 from slcore.common import Common
 
 
@@ -183,7 +185,36 @@ class QEMUController(Common):
                 self.qemu_root, cpu))
 
     def trace(self, *args, **kwargs):
-        raise NotImplementedError()
+        path_to_trace = kwargs.pop('path_to_trace')
+        running_command = kwargs.pop('running_command')
+        timeout = kwargs.pop('timeout')
+
+        # nochain is too too slow
+        trace_flags = '-d in_asm,int,cpu -D {}'.format(path_to_trace)
+        socket = tempfile.NamedTemporaryFile()
+        qmp_flags = '-qmp unix:{},server,nowait'.format(socket.name)
+        full_command = ' '.join([running_command, trace_flags, qmp_flags])
+
+        def stop(p):
+            qemu = qmp.QEMUMonitorProtocol(socket.name)
+            qemu.connect()
+            qemu.cmd('quit')
+            qemu.close()
+            socket.close()
+
+        p = subprocess.Popen(
+            full_command, shell=True, universal_newlines=True,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        timer = Timer(timeout, stop, args=[p])
+        timer.start()
+
+        with p.stdout as f:
+            for line in f:
+                self.info('tracing', line.strip(), 1)
+
+        retcode = p.wait()
+        timer.cancel()
+        return True
 
     def debug_ifs(self, running_cmdline, path_to_vmlinux, **kwargs):
         """
@@ -261,7 +292,7 @@ class QEMUController(Common):
             config = 'CONFIG_{}=y\n'.format(hwname.upper())
             path = os.path.join(build_system['defconfig'])
             content = [config]
-            target = self.__resolve_makefile(path, config, content)
+            self.__resolve_makefile(path, config, content)
             # update kconfig
             kconfig = 'config {}\n'.format(hwname.upper())
             path = os.path.join(build_system['kconfig'])

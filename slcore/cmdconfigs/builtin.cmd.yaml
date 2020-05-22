@@ -18,6 +18,11 @@ diagnose:
         trace: &trace
             short: t
             help: "Path to the trace of format uuid-arch-endian.trace"
+        timeout: &timeout
+            short: to
+            type: int
+            default: 10
+            help: "Trace timeout."
         source: &source
             short: s
             required: False
@@ -47,3 +52,9 @@ coverup:
         trace: *trace
         source: *source
     callback: tracecoverup
+trace:
+    help: "Standalone - Trace."
+    optional:
+        trace: *trace
+        timeout: *timeout
+    callback: trace

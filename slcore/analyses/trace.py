@@ -1,7 +1,4 @@
 import os
-import qmp
-import tempfile
-import subprocess
 
 from slcore.amanager import Analysis
 from pyqemulog import get_pql
@@ -51,6 +48,12 @@ class LoadTrace(Analysis):
 
 
 class Tracing(Analysis):
+    def run(self, **kwargs):
+        kwargs['running_command'] = self.firmware.running_command
+        self.info('tracing QEMU machine {}'.format(
+            self.firmware.get_machine_name()), 1)
+        return self.analysis_manager.qemuc.trace(**kwargs)
+
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'tracing'
@@ -58,28 +61,3 @@ class Tracing(Analysis):
         self.critical = True
         self.required = ['preparation', 'install']
         self.type = 'diag'
-
-    def analysis_status(self, status):
-        return not status
-
-    def run(self, **kwargs):
-        path_to_trace = kwargs.pop('path_to_trace')
-
-        # nochain is too too slow
-        trace_flags = '-d in_asm,int,cpu -D {}'.format(path_to_trace)
-        socket = tempfile.NamedTemporaryFile()
-        qmp_flags = '-qmp unix:{},server,nowait'.format(socket.name)
-        full_command = ' '.join(
-            [self.firmware.running_command, trace_flags, qmp_flags])
-        try:
-            self.info(full_command, 1)
-            status = subprocess.run(
-                full_command, timeout=60, shell=True).returncode
-        except subprocess.TimeoutExpired:
-            status = 0
-            qemu = qmp.QEMUMonitorProtocol(socket.name)
-            qemu.connect()
-            qemu.cmd('quit')
-            qemu.close()
-            socket.close()
-        return self.analysis_status(status)
