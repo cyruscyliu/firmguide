@@ -9,7 +9,8 @@ from slcore.dt_parsers.timer import find_flatten_timer_in_fdt
 from slcore.dt_parsers.flash import find_flatten_flash_in_fdt
 from slcore.dt_parsers.misc import find_flatten_misc_in_fdt
 from slcore.dt_parsers.memory import find_flatten_ram_in_fdt
-from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
+from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt, \
+    merge_flatten_mmio
 from slcore.render import Template
 from slcore.brick import Brick, to_offset, to_upper, to_hex, \
     to_qemu_endian, to_range
@@ -111,6 +112,8 @@ class SynthesisDT(Analysis):
                 flatten_ks = [{'compatible': ['flash,generic'],
                                'regs': [{'base': 0x1fc00000, 'size': 0x400000}]}]
             # ######### !!!!!!!!!!!! ########
+            if k == 'mmio':
+                flatten_ks = merge_flatten_mmio(flatten_ks)
             for context in flatten_ks:
                 if k != 'serial' and self.__skip(context['compatible']):
                     self.debug('skip {}'.format(context['compatible']), 0)

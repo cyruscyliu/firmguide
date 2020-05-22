@@ -198,6 +198,21 @@ def find_flatten_mmio_in_fdt(dts, memory=False):
     return flatten_mmio
 
 
+def merge_flatten_mmio(flatten_mmio):
+    """Merge flatten mmio regions with same compatible."""
+    merged_flatten_mmio = []
+
+    compatibles = []
+    for mmio in flatten_mmio:
+        if mmio['compatible'] not in compatibles:
+            compatibles.append(mmio['compatible'])
+            merged_flatten_mmio.append(mmio)
+        else:
+            merged_flatten_mmio[compatibles.index(
+                mmio['compatible'])]['regs'].extend(mmio['regs'])
+    return merged_flatten_mmio
+
+
 def find_flatten_mmio(path_to_dtb):
     """Find the mmio regions in a machine.
 
