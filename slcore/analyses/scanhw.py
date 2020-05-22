@@ -59,17 +59,21 @@ class UpdateHardware(Analysis):
             flatten_ks = v(dts)
             for context in flatten_ks:
                 if self.__skip(context['compatible']):
-                    self.debug('skip {}'.format(context['compatible']), 0)
+                    self.debug('skip improper or duplicated {}'.format(
+                        context['compatible']), 0)
                     continue
                 b = Brick(k, context['compatible'])
-                if not b.supported and \
-                        not self.is_gpio_intc(k, context['compatible']) and \
-                        not self.is_pci_intc(k, context['compatible']):
+                if not b.supported:
+                    if self.is_pci_intc(k, context['compatible']):
+                        continue
+                    if self.is_gpio_intc(k, context['compatible']):
+                        continue
                     b.update_model()
                     self.info('update {} {}'.format(
                         k, context['compatible']), 1)
                 else:
-                    self.debug('skip {}'.format(context['compatible']), 0)
+                    self.debug('skip supported {}'.format(
+                        context['compatible']), 0)
                 self.skipped_bdevices.append(b.effic_compatible)
                 self.skipped_bdevices.extend(b.buddy_compatible)
 

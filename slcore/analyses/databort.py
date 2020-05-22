@@ -64,16 +64,16 @@ class CheckDataAbort(Analysis):
             return True
 
         for cpurf in dbes:
-            # dabt
-            # current cpurf tells us where to return and current bb tells us where to abort
+            # current cpurf tells us where to return
+            # and current bb tells us where to abort
             where_to_return = cpurf['register_files']['EPC']
             self.info('line {}:0x{} has a data abort at PC {}'.format(
                 cpurf['ln'], cpurf['register_files']['pc'], where_to_return), 1)
             bb = pql.get_bb(cpurf)
             where_to_return = int(where_to_return, 16)
-            instruction = get_raw_code(where_to_return, bb)
-            # use capstone
+            print(hex(where_to_return))
 
+            instruction = get_raw_code(where_to_return, bb)
             cs = Cs(CS_ARCH_MIPS, CS_MODE_MIPS32)
             cs.detail = True
             for cs_instruction in cs.disasm(struct.pack('I', int(instruction, 16)), where_to_return):

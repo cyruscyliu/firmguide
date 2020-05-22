@@ -74,6 +74,9 @@ class Brick(object):
             if model is None:
                 self.buddy_compatible.append(cmptb)
                 continue
+            if self.supported:
+                self.buddy_compatible.append(cmptb)
+                continue
             self.effic_compatible = cmptb
             self.model = self.__expand_model(model)
             self.supported = True
@@ -103,7 +106,6 @@ class Brick(object):
                         os.path.dirname(os.path.realpath(__file__)),
                         'qemutemplates',
                         '{}{}.h'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
-            break
         self.context = None
 
     def render(self, context):
