@@ -2,19 +2,22 @@ uploading:
     analyses: [FindMachine,
         DTPreprocessing, SynthesisDT, Install,
         Preparation, Tracing,
-        LoadTrace, CheckUserLevelF]
+        LoadTrace,
+        CheckUserLevelF]
     description: ''
 tracecoverup:
     analyses: [
-        LoadTrace, CheckUserLevel, CheckMissingCode,
-        ShowCallstack, ShowDeadLoop,
+        LoadTrace,
+        CheckMissingCode, ShowCallstack, ShowDeadLoop,
         CheckDataAbort, CheckUndefInst, CheckTLBExcep]
     description: ''
 diagnosis:
     analyses: [
         DTPreprocessing, SynthesisDT, Install,
         Preparation, Tracing,
-        LoadTrace, CheckUserLevel, CheckMissingCode,
+        LoadTrace,
+        CheckUserLevel,
+        CheckMissingCode,
         ShowCallstack, ShowDeadLoop,
         CheckDataAbort, CheckUndefInst, CheckTLBExcep]
     description: ''
