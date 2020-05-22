@@ -127,7 +127,10 @@ class SRCodeController(Common):
         if f is None:
             return f
         if relative:
-            return f[len(os.path.realpath(self.path_to_source_code)) + 1:]
+            realsource = os.path.realpath(self.path_to_source_code)
+            if f[:6] != realsource[:6]:
+                self.warning('addr2file', 'maybe you should use sudo?', 0)
+            return f[len(realsource) + 1:]
         else:
             return f
 
@@ -154,7 +157,10 @@ class SRCodeController(Common):
         if f is None:
             return None
         if relative:
-            return f[len(os.path.realpath(self.path_to_source_code)) + 1:]
+            realsource = os.path.realpath(self.path_to_source_code)
+            if f[:6] != realsource[:6]:
+                self.warning('addr2file', 'maybe you should use sudo?', 0)
+            return f[len(realsource) + 1:]
         else:
             return f
 

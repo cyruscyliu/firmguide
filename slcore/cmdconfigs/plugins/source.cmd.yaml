@@ -11,9 +11,9 @@ quicksrc:
     help: "Plugin - Analyze the OS source quickly."
     optional:
         << : *optional
-        file: {short: f, required: False, help: "Preprocess the file."}
         entry_point: {short: e, required: False,
             help: "Find the file contains the entry point of data or function and preprocess the file."}
+        file: {short: f, required: False, help: "Preprocess the file."}
         cgcfg: {short: cgcfg,  cgcfg, required: False, action: "store_true", default: False,
             help: "Do cg/cfg analysis from the ep and show the interesting places."}
         caller: {short: caller, required: False, help: "Give the caller of the entry point."}

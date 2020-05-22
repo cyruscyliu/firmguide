@@ -24,10 +24,10 @@ class CheckTLBExcep(Analysis):
             ret = pql.get_exception_return_cpurf(cpurf)
             if ret is None:
                 self.info('line {}:0x{} has a {} exception, return abnormally'.format(
-                    cpurf['ln'], cpurf['exception']['type'], cpurf['register_files']['pc']), 1)
+                    cpurf['ln'], cpurf['register_files']['pc'], cpurf['exception']['type']), 1)
             else:
                 self.info('line {}:0x{} has a {} exception, return normally'.format(
-                    cpurf['ln'], cpurf['exception']['type'], cpurf['register_files']['pc']), 1)
+                    cpurf['ln'], cpurf['register_files']['pc'], cpurf['exception']['type']), 1)
                 self.info('the program re-entry {}'.format(ret['exception']['pc']), 1)
         return True
 

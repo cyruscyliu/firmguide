@@ -2,15 +2,6 @@ diagnose:
     help: "Run - Online assembling for the image produced by compiling
         the OS source. Debug interface will be exposed if the validation fails."
     optional: &optional
-        dtb: &dtb
-            short: dtb
-            required: False
-            help: "Path to a device tree blob."
-        nocompilation: &nocompilation
-            short: nc
-            action: "store_true"
-            default: False
-            help: "set this for multi-tasks"
         firmware: &firmware
             short: f
             required: False
@@ -20,9 +11,22 @@ diagnose:
                 in your current project(./samander batch -s). If there is
                 no valid image and there is no image in your project,
                 you must provide a image."
+        dtb: &dtb
+            short: dtb
+            required: False
+            help: "Path to a device tree blob."
         trace: &trace
             short: t
             help: "Path to the trace of format uuid-arch-endian.trace"
+        source: &source
+            short: s
+            required: False
+            help: "Path to the OS source."
+        nocompilation: &nocompilation
+            short: nc
+            action: "store_true"
+            default: False
+            help: "set this for multi-tasks"
     callback: diagnosis
 upload:
     help: "Run - Online assembling for any image. No debug interfaces."
@@ -41,5 +45,5 @@ coverup:
     help: "Standalone - QEMU trace analysis."
     optional:
         trace: *trace
-        source: {short: s, required: False, help: "Path to the OS source."}
+        source: *source
     callback: tracecoverup
