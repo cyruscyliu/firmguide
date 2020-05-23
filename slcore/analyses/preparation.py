@@ -19,7 +19,11 @@ class Preparation(Analysis):
                 self.firmware.get_components(), self.firmware.get_realdtb())
             offset = None
         # 1.3 we cannot handle SMP
+        saved_dtb = self.firmware.get_components().get_path_to_dtb()
+        self.firmware.get_components().set_path_to_dtb(
+            self.firmware.get_realdtb())
         fix_smp(self.firmware.get_components())
+        self.firmware.get_components().set_path_to_dtb(saved_dtb)
         # 1.4 add a uimage header on the kernel image
         if self.firmware.get_arch() == 'arm':
             entry_point = '0x00008000'
@@ -53,7 +57,7 @@ class Preparation(Analysis):
         running_command = self.analysis_manager.qemuc.get_command(
             self.firmware.get_arch(), self.firmware.get_endian(),
             self.firmware.get_machine_name(), kernel, initrd=path_to_initramfs,
-            dtb=self.firmware.get_components().get_path_to_dtb(),
+            dtb=self.firmware.get_realdtb(),
             n_serial=self.firmware.get_uart_num(), dtb_offset=offset,
         )
         self.info('get command: {}'.format(running_command), 1)

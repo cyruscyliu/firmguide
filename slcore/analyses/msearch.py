@@ -3,12 +3,12 @@ import os
 from slcore.database.dbf import get_database
 from slcore.database.machine_id import find_machine_id
 from slcore.dt_parsers.compatible import find_compatible
-from slcore.common import Common
+from slcore.common import Common, setup_logging
 from slcore.amanager import Analysis
 
 
 MD_ATRRIBUTES = [
-    'machine_ids', 'compatible', 'profiles', 'device_tree', 'targets']
+    'support_list', 'device_tree', 'targets']
 
 
 class MD(Common):
@@ -29,38 +29,42 @@ class MD(Common):
         return self.device_tree
 
     def find_profile_by_compatible(self, compatible):
-        if self.compatible is None:
+        if self.support_list is None:
             return None
         for cmptb in compatible:
-            if cmptb in self.compatible:
-                return self.compatible[cmptb]
+            if cmptb in self.support_list:
+                return self.support_list[cmptb]
+        return None
 
     def find_profile_by_id(self, machine_ids):
-        if self.machine_ids is None:
+        if self.support_list is None:
             return None
         for machine_id in machine_ids:
-            if machine_id in self.machine_ids:
-                return self.machine_ids[machine_id]
+            for k, v in self.support_list.items():
+                if 'machine_ids' not in v:
+                    continue
+                if machine_id in v['machine_ids']:
+                    return v
+        return None
+
+    def select_first_profile(self):
+        if len(self.support_list):
+            for k, v in self.support_list.items():
+                return v
+        else:
+            return None
 
 
 class FindMachine(Analysis):
-    def select_first_profile(self, md):
-        profile = list(md.get_profiles().keys())
-        if len(profile):
-            profile = profile[0]
-        else:
-            profile = None
-        return profile
-
     def update_profile(self):
         raw_name = self.firmware.get_components().get_raw_name()
         self.firmware.path_to_profile = os.path.join(
             self.analysis_manager.project.attrs['path'],
             '{}.profile.yaml'.format(raw_name))
 
-    def clear_runtime(self):
-        if 'runtime' in self.firmware.profile:
-            self.firmware.profile.pop('runtime')
+    def update_log(self):
+        raw_name = self.firmware.get_components().get_raw_name()
+        setup_logging(self.project.attrs['path'], raw_name)
 
     def update_trace(self):
         raw_name = self.firmware.get_components().get_raw_name()
@@ -96,32 +100,31 @@ class FindMachine(Analysis):
             self.error_info = 'components is missing'
             return False
 
-        # L1 every case needs a custom profile
         self.update_profile()
+        self.update_log()
+        self.update_trace()
 
         if not components.supported:
-            self.clear_runtime()
             self.error_info = 'cannot unpack this image'
             return False
 
         if not components.has_kernel():
-            self.clear_runtime()
             self.error_info = 'have no kernel, maybe a rootfs image'
             return False
 
         # T1: LATEST_BOARD_SIGNATURE
         # BOARD=TARGET>SUBTARGET>MACHINE=compatible=machine_id>PROFILE
-        md = self.find_latest_board(url=self.firmware.get_url())
+        md = self.find_latest_board(url=kwargs.pop('url'))
         if md is None:
             # modeling 001
-            self.clear_runtime()
             self.error_info = '001 cannot find the board'
             return False
         self.info('find the board {}'.format(md), 1)
 
         # T2 DEVICE_TREE_DISTRIBUTION
         if md.has_device_tree():
-            self.info('this board has device tree, we are tying the built-in device tree files', 1)
+            self.info("""this board has device tree,
+                      we are tying the built-in device tree files""", 1)
             # A3 BUILTIN DEVICE TREE
             if components.has_device_tree():
                 compatible = find_compatible(components.get_path_to_dtb())
@@ -131,22 +134,19 @@ class FindMachine(Analysis):
                     profile = self.select_first_profile(md)
                 if profile is None:
                     # modeling 002
-                    self.clear_runtime()
                     self.error_info = \
-                        '002 cannot find the compatible {} and nothing prepared'.format(compatible)
+                        """002 cannot find the compatible {}
+                    and nothing prepared""".format(compatible)
                     return False
+                self.firmware.set_realdtb(os.path.join(
+                    self.analysis_manager.project.attrs['base_dir'],
+                    profile['realdtb']))
                 self.info('we support {}'.format(compatible), 1)
-                # update profile and change save-to-path to
-                # avoid modifying our well-defined profile
-                self.firmware.load_from_profile(path_to_profile=profile)
-                self.firmware.set_components(components)
-                self.update_profile()
-                self.update_trace()
-                components.set_path_to_dtb(self.firmware.get_realdtb())
                 return True
-        self.info('this board doesn\'t have device tree, we will be looking for its machine ids', 1)
 
         # T4 MACHINE_ID_SIGNATURE
+        self.info("""this board doesn\'t have device tree,
+                  we will be looking for its machine ids""", 1)
         machine_ids = find_machine_id(components.get_path_to_kernel())
         if machine_ids is None:
             self.info('we will try our profiles one by one', 1)
@@ -158,19 +158,13 @@ class FindMachine(Analysis):
         # T5 WHETHER OR NOT WE ARE PREPARED
         if profile is None:
             # modeling 003
-            self.clear_runtime()
             self.error_info = \
                 '003 cannot find any machine id or any built-in profile'
             return False
 
-        # update profile and change save-to-path to
-        # avoid modifing our well-defined profile
-        self.firmware.load_from_profile(path_to_profile=profile)
-        self.firmware.set_components(components)
-        self.update_profile()
-        self.update_trace()
-        components.set_path_to_dtb(self.firmware.get_realdtb())
-
+        self.firmware.set_realdtb(os.path.join(
+            self.analysis_manager.project.attrs['base_dir'],
+            profile['realdtb']))
         return True
 
     def __init__(self, analysis_manager):
