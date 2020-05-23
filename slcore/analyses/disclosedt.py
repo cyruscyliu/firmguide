@@ -1,3 +1,4 @@
+from slcore.dt_parsers.cpu import find_flatten_cpu_in_fdt
 from slcore.dt_parsers.flash import find_flatten_flash_in_fdt
 from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
 from slcore.dt_parsers.common import load_dtb
@@ -24,6 +25,10 @@ class DiscloseDT(Analysis):
         path_to_dts = path_to_dtb + '.dts'
         with open(path_to_dts, 'w') as f:
             f.write(dts.to_dts())
+
+        for cpu in find_flatten_cpu_in_fdt(dts):
+            message = '[CPU] of {}/{}'.format(cpu['path'], cpu['compatible'])
+            self.info(message, 1)
 
         if mmio:
             mmios = []
