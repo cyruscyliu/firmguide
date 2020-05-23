@@ -21,10 +21,26 @@
      ((*(uint8_t *) (p)) << 16) | \
      ((*(uint8_t *) (p)) << 24)) )
 
-typedef struct write_once {
+#define __swap32(num) \
+    (((num)>>24)&0xff) | \
+    (((num)<<8)&0xff0000) | \
+    (((num)>>8)&0xff00) | \
+    (((num)<<24)&0xff000000)
+
+#define TRIFLE_INVALID       0
+#define TRIFLE_KER_READ      1
+#define TRIFLE_KER_WRITE     2
+#define TRIFLE_HW_EVT        3
+
+typedef struct auto_trifle {
+    int type;
+    // kernel read & write use the off & old value
     hwaddr off;
     uint64_t old_val;
+    // only kernel write use the new value
     uint64_t new_val;
-} write_once;
+    // onlt hw event use the following
+    uint32_t hw_evt;
+} auto_trifle;
 
 #endif /* TYPE_AUTOBOARD_UTILS_H */
