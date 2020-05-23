@@ -8,11 +8,6 @@ from slcore.dt_parsers.serial import find_flatten_serial_in_fdt
 
 class DTPreprocessing(Analysis):
     def run(self, **kwargs):
-        nocompilation = kwargs.pop('nocompilation', None)
-        if nocompilation:
-            self.info('don\'t install and compile this new machine', 0)
-            return True
-
         path_to_dtb = self.firmware.get_realdtb()
         if path_to_dtb is None:
             self.error_info = 'there is no device tree blob available.'

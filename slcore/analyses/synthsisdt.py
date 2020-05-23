@@ -64,11 +64,6 @@ class SynthesisDT(Analysis):
         self.context['board_id'] = self.firmware.get_board_id()
 
     def run(self, **kwargs):
-        nocompilation = kwargs.pop('nocompilation', None)
-        if nocompilation:
-            self.info('don\'t install and compile this new machine', 0)
-            return True
-
         path_to_dtb = self.firmware.get_realdtb()
         if path_to_dtb is None:
             self.error_info = 'there is no device tree blob available.'
