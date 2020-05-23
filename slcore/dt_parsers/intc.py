@@ -15,6 +15,14 @@ COMPATIBLE_INTERRUPTS_INDEX = {
     'atmel,sama5d2-aic': 0,
     'atmel,sama5d3-aic': 0,
     'atmel,sama5d4-aic': 0,
+    'arm,arm1176jzf-devchip-gic': 1,
+    'arm,eb11mp-gic': 1,
+    'arm,pl390': 1,
+    'arm,tc11mp-gic': 1,
+    'brcm,brahma-b15-gic': 1,
+    'nvidia,tegra210-agic': 1,
+    'qcom,msm-8660-qgic': 1,
+    'qcom,msm-qgic2': 1,
 }
 
 
@@ -105,7 +113,7 @@ def find_interrupt_parent_by_path(dts, path):
     cnode = dts.get_node(path)
     for prop in cnode.props:
         if prop.name == 'interrupt-parent' and \
-                hasattr(prop,'data'):
+                hasattr(prop, 'data'):
             ip = prop.data[0]
 
     if ip is None:

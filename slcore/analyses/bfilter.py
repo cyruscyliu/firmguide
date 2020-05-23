@@ -34,7 +34,7 @@ class CheckBoard(Analysis):
         exclude = [
             'boot', 'common', 'configs', 'crypto', 'firmware', 'include',
             'kernel', 'kvm', 'lib', 'mm', 'net', 'nvfpe', 'oprofile',
-            'tools', 'xen', 'vfp']
+            'tools', 'xen', 'vfp', 'vdso']
         target = self.find_dir_compiled(exclude=exclude)
         if target is None:
             self.error_info = \
@@ -53,7 +53,8 @@ class CheckBoard(Analysis):
     def is_unsupport_mips_machine(self):
         exclude = [
             'boot', 'configs', 'fw', 'include', 'kernel', 'kvm', 'lib', 'mm',
-            'math-emu', 'lib', 'net', 'oprofile', 'paravirt', 'pci', 'power'
+            'math-emu', 'lib', 'net', 'oprofile', 'paravirt', 'pci', 'power',
+            'vdso'
         ]
         target = self.find_dir_compiled(exclude=exclude)
         if target is None:
