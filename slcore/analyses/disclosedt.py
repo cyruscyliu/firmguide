@@ -1,6 +1,7 @@
 from slcore.dt_parsers.cpu import find_flatten_cpu_in_fdt
 from slcore.dt_parsers.flash import find_flatten_flash_in_fdt
 from slcore.dt_parsers.serial import find_flatten_serial_in_fdt
+from slcore.dt_parsers.timer import find_flatten_timer_in_fdt
 from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
 from slcore.dt_parsers.common import load_dtb
 from slcore.amanager import Analysis
@@ -31,6 +32,22 @@ class DiscloseDT(Analysis):
             message = '[CPU] of {}/{}'.format(cpu['path'], cpu['compatible'])
             self.info(message, 1)
 
+        for timer in find_flatten_timer_in_fdt(dts):
+            for reg in timer['regs']:
+                message =  \
+                    '[TIMER] base 0x{:08x} size 0x{:08x} of {}/{}'.format(
+                        reg['base'], reg['size'],
+                        timer['path'], timer['compatible'])
+                self.info(message, 1)
+
+        for serial in find_flatten_serial_in_fdt(dts):
+            for reg in serial['regs']:
+                message =  \
+                    '[SERIAL] base 0x{:08x} size 0x{:08x} of {}/{}'.format(
+                        reg['base'], reg['size'],
+                        serial['path'], serial['compatible'])
+                self.info(message, 1)
+
         if mmio:
             mmios = []
             for mmio in find_flatten_mmio_in_fdt(dts):
@@ -44,14 +61,6 @@ class DiscloseDT(Analysis):
                             reg['base'], reg['size'],
                             mmio['path'], mmio['compatible'])
                     self.info(message, 1)
-
-        for serial in find_flatten_serial_in_fdt(dts):
-            for reg in serial['regs']:
-                message =  \
-                    '[SERIAL] base 0x{:08x} size 0x{:08x} of {}/{}'.format(
-                        reg['base'], reg['size'],
-                        serial['path'], serial['compatible'])
-                self.info(message, 1)
 
         if flash:
             for flash in find_flatten_flash_in_fdt(dts):
