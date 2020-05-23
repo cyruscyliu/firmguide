@@ -54,7 +54,7 @@ class SupportMachines(Database):
 
     def update(self, *args, **kwargs):
         """
-        update mach-oxnas where arch='arm' and board=board
+        update mach-oxnas where arch='arm' and board=board_properties
         """
         arch = kwargs.pop('arch')
         assert arch in ['arm', 'arm64', 'mips']

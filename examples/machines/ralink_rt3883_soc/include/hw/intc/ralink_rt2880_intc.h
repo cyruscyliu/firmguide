@@ -39,4 +39,3 @@ typedef struct RALINK_RT2880_INTCState {
 } RALINK_RT2880_INTCState;
 
 #endif /* RALINK_RT2880_INTC_H */
-

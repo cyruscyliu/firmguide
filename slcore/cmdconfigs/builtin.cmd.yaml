@@ -58,3 +58,8 @@ trace:
         trace: *trace
         timeout: *timeout
     callback: trace
+archive:
+    help: "Standalone - QEMU machine archiving."
+    optional:
+        dtb: *dtb
+    callback: archive

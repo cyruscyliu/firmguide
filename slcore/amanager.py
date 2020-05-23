@@ -3,9 +3,8 @@ import abc
 import yaml
 import shutil
 import logging
-import logging.config
 
-from slcore.common import Common
+from slcore.common import Common, setup_logging
 from slcore.profile.firmware import Firmware
 from slcore.srcodecontroller import get_srcodecontroller
 from slcore.qemucontroller import get_qemucontroller
@@ -24,7 +23,6 @@ class AnalysesManager(Common):
         self.arguments = kwargs
         self.max_iteration = 1
         self.reset = kwargs.pop('reset')
-        self.archive = kwargs.pop('archive')
 
         self.arguments['trace_format'] = 'qemudebug'
         default_path_to_trace = '{}/{}-{}-{}.trace'.format(
@@ -38,22 +36,6 @@ class AnalysesManager(Common):
         self.analyses_flat = {}  # name:analysis
         self.analyses_tree = {}
         self.last_analysis_status = True
-
-    def setup_logging(self, default_level=logging.INFO):
-        path = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), 'logging.yaml')
-        if os.path.exists(path):
-            with open(path, "r") as f:
-                config = yaml.safe_load(f)
-            config['handlers']['file']['filename'] = \
-                os.path.join(
-                    self.project.attrs['path'],
-                    '{}.log'.format(self.project.attrs['name']))
-            config['root']['level'] = default_level
-            logging.config.dictConfig(config)
-        else:
-            logging.basicConfig(level=default_level)
-        return True
 
     def warmup(self):
         # set target dir
@@ -82,19 +64,22 @@ class AnalysesManager(Common):
             if components is None and self.arguments['firmware'] is None:
                 components = unpack(images[0], target_dir=path)
             elif components is None and self.arguments['firmware'] is not None:
-                components = unpack(self.arguments['firmware'], target_dir=path)
+                components = unpack(
+                    self.arguments['firmware'], target_dir=path)
             elif components is not None and self.arguments['firmware'] is None:
                 pass
             else:
                 if self.arguments['firmware'] != components.get_path_to_raw():
-                    components = unpack(self.arguments['firmware'], target_dir=path)
+                    components = unpack(
+                        self.arguments['firmware'], target_dir=path)
 
             if not components.supported:
                 return False
 
             working_path = os.path.join(path, components.get_raw_name())
             if not os.path.exists(working_path):
-                shutil.copy(components.get_path_to_raw(), os.path.join(working_path))
+                shutil.copy(components.get_path_to_raw(),
+                            os.path.join(working_path))
             self.firmware.set_components(components)
 
         if 'dtb' in self.arguments:
@@ -119,55 +104,27 @@ class AnalysesManager(Common):
 
         debug = self.arguments.pop('debug')
         if debug:
-            self.setup_logging(default_level=logging.DEBUG)
+            setup_logging(
+                self.project.attrs['path'],
+                self.project.attrs['name'],
+                default_level=logging.DEBUG)
         else:
-            self.setup_logging()
+            setup_logging(
+                self.project.attrs['path'],
+                self.project.attrs['name'])
         return True
 
     def wrapup(self):
         self.firmware.save_profile()
         self.snapshot()
-        if self.archive and self.firmware.get_stage('user_mode'):
-            return self.archive()
         return True
 
     def snapshot(self):
         path = self.project.attrs['path']
-        self.info('snapshot', 'profile at {}'.format(self.firmware.path_to_profile), 1)
-        self.info('snapshot', 'dtb at {}'.format(self.firmware.realdtb), 1)
-        self.info('snapshot', 'dts at {}'.format(self.firmware.realdts), 1)
+        self.info('snapshot', 'profile at {}'.format(
+            self.firmware.path_to_profile), 1)
         self.info('snapshot', 'project at {}/project.yaml'.format(path), 1)
         self.info('snapshot', 'source at {}/qemu-4.0.0'.format(path), 1)
-        return True
-
-    def archive(self):
-        """Should be called after firmware.snapshot()."""
-        # move profile to examples/profiles/machine_name/profile.yaml
-        target_profiles = os.path.join(
-            self.project.attrs['base_dir'],
-            'examples/profiles/{}'.format(self.firmware.get_machine_name()))
-        os.makedirs(target_profiles, exist_ok=True)
-        os.system('cp {} {}'.format(
-            os.path.join(self.project.attrs['path'], 'profile.yaml'),
-            os.path.join(target_profiles, 'profile.yaml')
-        ))
-
-        # move dtb to examples/profiles/machine_name/profile.dtb
-        os.system('cp {} {}'.format(
-            self.firmware.get_realdtb(),
-            os.path.join(target_profiles, 'profile.dtb')
-        ))
-
-        # move qemu c files to examples/machines/machine_name/profile.yaml
-        target_machines = os.path.join(
-            self.project.attrs['base_dir'],
-            'examples/machines/{}'.format(self.firmware.get_machine_name()))
-        os.makedirs(target_machines, exist_ok=True)
-        os.system('cp -r {}/* {}'.format(
-            os.path.join(self.project.attrs['path'], 'qemu-4.0.0'),
-            target_machines
-        ))
-
         return True
 
     def print_analyses_chain(self):
@@ -298,7 +255,9 @@ class AnalysesManager(Common):
             except NotImplementedError as e:
                 self.warning('exception', e.args[0], 0)
                 return False
-
+            except SystemExit:
+                self.finish(a)
+                break
             self.finish(a)
         return True
 
@@ -381,5 +340,6 @@ class AnalysisGroup(AnalysisInterface):
     def register(self, project, **kwargs):
         analysis_manager = AnalysesManager(project, **kwargs)
         for member in self.members:
-            analysis_manager.register_analysis(member['class'](analysis_manager))
+            analysis_manager.register_analysis(
+                member['class'](analysis_manager))
         return analysis_manager

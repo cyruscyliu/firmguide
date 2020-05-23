@@ -7,28 +7,23 @@ mach-at91:
     openwrt: [at91]
 mach-axxia: {device_tree: true}
 mach-bcm:
-  compatible: {'asus,rt-n18u': examples/profiles/brcm_bcm4708/profile.yaml, 'brcm,bcm4708': examples/profiles/brcm_bcm4708/profile.yaml,
-    'brcm,bcm47081': examples/profiles/brcm_bcm4708/profile.yaml}
   device_tree: true
-  profiles:
-    examples/profiles/brcm_bcm4708/profile.yaml: {brand: openwrt, subtarget: generic,
-      target: bcm53xx, version: null}
   targets:
     openwrt: [bcm53xx]
 mach-bcm2708:
-  compatible: {}
+  
   device_tree: null
   machine_ids: {}
-  profiles: {}
+  
   targets:
     openwrt: [brcm2708]
 mach-berlin: {device_tree: true}
 mach-clps711x: {device_tree: true}
 mach-cns21xx:
-  compatible: {}
+  
   device_tree: null
   machine_ids: {}
-  profiles: {}
+  
   targets:
     openwrt: [cns21xx]
 mach-cns3xxx:
@@ -47,18 +42,18 @@ mach-ep93xx:
 mach-exynos: {device_true: true}
 mach-footbridge: {device_tree: false}
 mach-gemini:
-  compatible: {}
+  
   device_tree: null
   machine_ids: {}
-  profiles: {}
+  
   targets:
     openwrt: [gemini]
 mach-genimi: {device_tree: true}
 mach-goldfish:
-  compatible: {}
+  
   device_tree: null
   machine_ids: {}
-  profiles: {}
+  
   targets:
     openwrt: [goldfish]
 mach-highbank: {device_tree: true}
@@ -80,21 +75,16 @@ mach-ixp4xx:
     openwrt: [ixp4xx]
 mach-keystone: {device_tree: true}
 mach-kirkwood:
-  compatible: {'linksys,viper': examples/profiles/marvell_kirkwood/profile.yaml, 'marvell,kirkwood': examples/profiles/marvell_kirkwood/profile.yaml,
-    'marvell,kirkwood-88f6282': examples/profiles/marvell_kirkwood/profile.yaml}
   device_tree: true
-  profiles:
-    examples/profiles/marvell_kirkwood/profile.yaml: {brand: openwrt, subtarget: kirkwood,
-      target: kirkwood, version: null}
   targets:
     openwrt: [mvebu, kirkwood]
 mach-ks8695: {device_tree: false}
 mach-lpc32xx: {device_tree: true}
 mach-mcs814x:
-  compatible: {}
+  
   device_tree: null
   machine_ids: {}
-  profiles: {}
+  
   targets:
     openwrt: [mcs814x]
 mach-mediatek:
@@ -108,12 +98,7 @@ mach-moxart: {device_tree: false}
 mach-msm: {device_tree: false}
 mach-mv78xx0: {device_tree: false}
 mach-mvebu:
-  compatible: {'linksys,viper': examples/profiles/marvell_kirkwood/profile.yaml, 'marvell,kirkwood': examples/profiles/marvell_kirkwood/profile.yaml,
-    'marvell,kirkwood-88f6282': examples/profiles/marvell_kirkwood/profile.yaml}
   device_tree: true
-  profiles:
-    examples/profiles/marvell_kirkwood/profile.yaml: {brand: openwrt, subtarget: kirkwood,
-      target: kirkwood, version: null}
   targets:
     openwrt: [mvebu, kirkwood]
 mach-mxs:
@@ -132,17 +117,10 @@ mach-omap2:
 mach-orion5x:
   device_tree: true
   machine_ids: {'0x661': examples/arm/mach-orion5x/profile.yaml, '0x709': examples/arm/mach-orion5x/profile.yaml}
-  profiles:
-    examples/arm/mach-orion5x/profile.yaml: {brand: openwrt, revision: '10.03', version: 2.16.32.10}
   targets:
     openwrt: [orion]
 mach-oxnas:
-  compatible: {'plxtech,nas7820': examples/profiles/plxtech_nas782x/profile.yaml,
-    'plxtech,nas782x': examples/profiles/plxtech_nas782x/profile.yaml}
   device_tree: true
-  profiles:
-    examples/profiles/plxtech_nas782x/profile.yaml: {brand: openwrt, subtarget: generic,
-      target: oxnas, version: null}
   targets:
     openwrt: [oxnas]
 mach-picoxcell: {device_tree: true}
@@ -162,10 +140,10 @@ mach-realview:
 mach-rockchip: {device_tree: true}
 mach-rpc: {device_tree: false}
 mach-s3c2410:
-  compatible: {}
+  
   device_tree: null
   machine_ids: {}
-  profiles: {}
+  
   targets:
     openwrt: [s3c24xx]
 mach-s3c24xx: {device_tree: true}

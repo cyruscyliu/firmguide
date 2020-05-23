@@ -13,6 +13,7 @@ tracecoverup:
     description: ''
 diagnosis:
     analyses: [
+        CheckBoard,
         DTPreprocessing, SynthesisDT, Install,
         Preparation, Tracing,
         LoadTrace,

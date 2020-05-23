@@ -47,7 +47,7 @@ static void ralink_rt2880_timer_write(void *opaque, hwaddr offset, uint64_t val,
     switch (offset) {
         default:
             return;
-        case 0x0 ... 0x20 - 0x4:
+        case 0x0 ... 0x1c:
             s->reserved = val;
             break;
     }
@@ -108,4 +108,3 @@ static void ralink_rt2880_timer_register_types(void)
 }
 
 type_init(ralink_rt2880_timer_register_types)
-

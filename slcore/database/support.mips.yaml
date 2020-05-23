@@ -3,10 +3,8 @@ adm5120:
   targets:
     openwrt: [adm5120]
 adm8668:
-  compatible: {}
   device_tree: null
   machine_ids: {}
-  profiles: {}
   targets:
     openwrt: [adm8668]
 alchemy:
@@ -14,10 +12,8 @@ alchemy:
   targets:
     openwrt: [au1000]
 amazon:
-  compatible: {}
   device_tree: null
   machine_ids: {}
-  profiles: {}
   targets:
     openwrt: [amazon]
 ar231x:
@@ -30,25 +26,16 @@ ar7:
   targets:
     openwrt: [ar7]
 ath25:
-  compatible: {}
   device_tree: null
   machine_ids: {}
-  profiles: {}
   targets:
     openwrt: [ath25]
 ath79:
-  compatible: {'librerouter,librerouter-v1': examples/profiles/qca_qca9558/profile.yaml,
-    'qca,qca9558': examples/profiles/qca_qca9558/profile.yaml}
   device_tree: true
-  profiles:
-    examples/profiles/qca_qca9558/profile.yaml: {brand: openwrt, subtarget: generic,
-      target: ath79, version: null}
   targets:
     openwrt: [ar71xx, ath79, ath79]
 bcm47xx:
   device_tree: false
-  profiles:
-    examples/mips/bcm47xx/profile.yaml: {brand: openwrt, revision: '15.05', version: 3.18.20}
   targets:
     openwrt: [brcm47xx]
 bcm63xx:
@@ -56,10 +43,8 @@ bcm63xx:
   targets:
     openwrt: [brcm63xx]
 bcm947xx:
-  compatible: {}
   device_tree: null
   machine_ids: {}
-  profiles: {}
   targets:
     openwrt: [brcm-2.4]
 bmips: {device_tree: true}
@@ -74,10 +59,8 @@ cobalt:
 dec: {device_tree: false}
 emma: {device_tree: false}
 ifxmips:
-  compatible: {}
   device_tree: null
   machine_ids: {}
-  profiles: {}
   targets:
     openwrt: [ifxmips]
 jazz: {device_tree: false}
@@ -111,11 +94,14 @@ pistachio:
 pmcs-msp71xx: {device_tree: false}
 pnx833x: {device_tree: false}
 ralink:
-  compatible: {OMNI-EMB-HPM: examples/profiles/ralink_rt3883_soc/profile.yaml, 'ralink,rt3883-soc': examples/profiles/ralink_rt3883_soc/profile.yaml}
   device_tree: true
-  profiles:
-    examples/profiles/ralink_rt3883_soc/profile.yaml: {brand: openwrt, subtarget: rt3883,
-      target: ramips, version: null}
+  support_list:
+    BR-6475ND: {arch: mips, brand: openwrt, endian: l, example: examples/machines/ralink_rt3883_soc,
+      realdtb: slcore/database/archivedtb/ralink_rt3883_soc.dtb, subtarget: rt3883,
+      target: ramips}
+    ralink,rt3883-soc: {arch: mips, brand: openwrt, endian: l, example: examples/machines/ralink_rt3883_soc,
+      realdtb: slcore/database/archivedtb/ralink_rt3883_soc.dtb, subtarget: rt3883,
+      target: ramips}
   targets:
     openwrt: [ramips]
 rb532:

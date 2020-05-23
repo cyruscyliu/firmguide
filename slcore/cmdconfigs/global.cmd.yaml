@@ -4,5 +4,3 @@ global:
             help: "reset all analyses"}
         debug: {short: d, action: "store_true",
             help: "show verbose logs"}
-        archive: {short: x, action: "store_true", default: False,
-            help: "archive profiles and QEMU machines"}

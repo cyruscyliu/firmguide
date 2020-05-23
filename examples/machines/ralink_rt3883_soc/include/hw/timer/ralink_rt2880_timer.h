@@ -27,4 +27,3 @@ typedef struct RALINK_RT2880_TIMERState {
 } RALINK_RT2880_TIMERState;
 
 #endif /* RALINK_RT2880_TIMER_H */
-

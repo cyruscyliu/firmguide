@@ -219,4 +219,3 @@ static void ralink_rt2880_intc_register_types(void)
 }
 
 type_init(ralink_rt2880_intc_register_types)
-
