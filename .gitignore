@@ -7,3 +7,4 @@ __pycache__
 .llvmbin
 .qemu
 .sparse
+*.fix_smp

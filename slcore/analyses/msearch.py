@@ -19,9 +19,9 @@ class MD(Common):
     def __str__(self):
         a = 'DEVICE TREE: {}, TARGETS: {}'.format(
             self.device_tree, self.targets)
-        if self.profiles is not None and len(self.profiles):
-            a += '\n   PROFILES {}'.format(len(self.profiles))
-            for k, v in self.profiles.items():
+        if self.support_list is not None:
+            a += '\n   PROFILES {}'.format(len(self.support_list))
+            for k, v in self.support_list.items():
                 a += '\n   {} {}'.format(k, v)
         return a
 
@@ -64,7 +64,7 @@ class FindMachine(Analysis):
 
     def update_log(self):
         raw_name = self.firmware.get_components().get_raw_name()
-        setup_logging(self.project.attrs['path'], raw_name)
+        setup_logging(self.analysis_manager.project.attrs['path'], raw_name)
 
     def update_trace(self):
         raw_name = self.firmware.get_components().get_raw_name()
@@ -123,8 +123,7 @@ class FindMachine(Analysis):
 
         # T2 DEVICE_TREE_DISTRIBUTION
         if md.has_device_tree():
-            self.info("""this board has device tree,
-                      we are tying the built-in device tree files""", 1)
+            self.info('this board has device tree, we are tying the built-in device tree files', 1)
             # A3 BUILTIN DEVICE TREE
             if components.has_device_tree():
                 compatible = find_compatible(components.get_path_to_dtb())
@@ -135,8 +134,7 @@ class FindMachine(Analysis):
                 if profile is None:
                     # modeling 002
                     self.error_info = \
-                        """002 cannot find the compatible {}
-                    and nothing prepared""".format(compatible)
+                        '002 cannot find the compatible {} and nothing prepared'.format(compatible)
                     return False
                 self.firmware.set_realdtb(os.path.join(
                     self.analysis_manager.project.attrs['base_dir'],
@@ -145,8 +143,7 @@ class FindMachine(Analysis):
                 return True
 
         # T4 MACHINE_ID_SIGNATURE
-        self.info("""this board doesn\'t have device tree,
-                  we will be looking for its machine ids""", 1)
+        self.info('this board doesn\'t have device tree, we will be looking for its machine ids', 1)
         machine_ids = find_machine_id(components.get_path_to_kernel())
         if machine_ids is None:
             self.info('we will try our profiles one by one', 1)
