@@ -1,4 +1,4 @@
-import os
+import subprocess
 
 from slcore.amanager import Analysis
 from slcore.dt_parsers.common import load_dtb
@@ -55,8 +55,12 @@ class UpdateHardware(Analysis):
                 return True
 
     def scan_and_update(self, dts):
+        error_type = []
         for k, v in self.scan_handlers.items():
             flatten_ks = v(dts)
+            if flatten_ks is None:
+                error_type.append(k)
+                continue
             for context in flatten_ks:
                 if self.__skip(context['compatible']):
                     self.debug('skip improper or duplicated {}'.format(
@@ -68,7 +72,7 @@ class UpdateHardware(Analysis):
                         continue
                     if self.is_gpio_intc(k, context['compatible']):
                         continue
-                    b.update_model()
+                    b.update_model(self.firmware.get_arch())
                     self.info('update {} {}'.format(
                         k, context['compatible']), 1)
                 else:
@@ -76,6 +80,8 @@ class UpdateHardware(Analysis):
                         context['compatible']), 0)
                 self.skipped_bdevices.append(b.effic_compatible)
                 self.skipped_bdevices.extend(b.buddy_compatible)
+        if len(error_type):
+            raise Exception('cannot find {}'.format(','.join(error_type)))
 
     def run(self, **kwargs):
         srcodec = self.analysis_manager.srcodec
@@ -87,7 +93,9 @@ class UpdateHardware(Analysis):
         path_to_source = srcodec.get_path_to_source_code()
         cmd = 'find {} -name *.dtb'.format(path_to_source)
         self.debug(cmd, 1)
-        with os.popen(cmd) as f:
+        with subprocess.Popen(
+                cmd, shell=True, stdout=subprocess.PIPE,
+                universal_newlines=True, stderr=subprocess.STDOUT).stdout as f:
             for dtb in f:
                 try:
                     dts = load_dtb(dtb.strip())

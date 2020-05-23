@@ -17,7 +17,7 @@ def find_flatten_cpu_in_fdt(dts):
     """
     path_to_cpu = None
     for p, ns, pros in dts.walk():
-        if not p.startswith('/cpus/cpu@'):
+        if not p.startswith('/cpus/cpu'):
             continue
         path_to_cpu = p
 
@@ -52,5 +52,5 @@ def find_flatten_cpu(path_to_dtb):
     Returns:
         list: A list of cpus in the machine.
     """
-    dts = load_dtb(dtb)
+    dts = load_dtb(path_to_dtb)
     return find_flatten_cpu_in_fdt(dts)

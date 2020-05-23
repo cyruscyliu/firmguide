@@ -252,12 +252,21 @@ class Brick(object):
             return None
         return model
 
-    def update_model(self):
+    def update_model(self, arch):
         """Update the low level template to the database."""
         qemu_devices = get_database('qemu.{}'.format(self.t))
+
+        if self.t == 'cpu':
+            if arch == 'arm':
+                extend = 'arm'
+            else:
+                extend = 'mips(el)'
+        else:
+            extend = self.t
+
         model = {
             'buddy_compatible': self.buddy_compatible[:-1],
-            'extend': '{},generic'.format(self.t)
+            'extend': '{},generic'.format(extend)
         }
         qemu_devices.add(self.buddy_compatible[-1], **model)
         return True
