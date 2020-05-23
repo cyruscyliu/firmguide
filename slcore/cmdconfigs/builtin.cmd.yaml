@@ -36,7 +36,10 @@ diagnose:
 upload:
     help: "Run - Online assembling for any image. No debug interfaces."
     optional:
-        <<: *optional
+        firmware: *firmware
+        dtb: *dtb
+        timeout: *timeout
+        nocompilation: *nocompilation
         url: {short: l, required: False, help: "will be removed in the future"}
     callback: uploading
 synthesize:
