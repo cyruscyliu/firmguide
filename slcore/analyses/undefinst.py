@@ -43,7 +43,7 @@ class CheckUndefInst(Analysis):
         self.name = 'undefinst'
         self.description = 'Find data abort info.'
         self.critical = False
-        self.required = ['userlevel', 'fastuserlevel']
+        self.required = ['userlevel', 'fastuserlevel', 'loadaddress']
         self.type = 'diag'
         #
         self.dead_addresses = []
