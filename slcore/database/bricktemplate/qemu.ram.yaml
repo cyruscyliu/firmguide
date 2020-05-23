@@ -1,3 +1,15 @@
+atmel,at91rm9200:
+  buddy_compatible: ['phontech,mpa1600']
+  extend: ram,generic
+atmel,at91sam9:
+  buddy_compatible: ['atmel,at91sam9g20ek_2mmc', 'atmel,at91sam9g20']
+  extend: ram,generic
+atmel,at91sam9260:
+  buddy_compatible: []
+  extend: ram,generic
+fsl,ls1043a:
+  buddy_compatible: []
+  extend: ram,generic
 mediatek,mt7621-soc:
   buddy_compatible: ['mediatek,mt7621-eval-board']
   extend: ram,generic
@@ -5,6 +17,18 @@ mediatek,mt7628an-soc:
   buddy_compatible: ['mediatek,mt7628an-eval-board']
   extend: ram,generic
 plxtech,nas782x: {buddy_compatible: 'plxtech,nas7820', extend: 'ram,generic'}
+qcom,ipq8064:
+  buddy_compatible: ['nec,wg2600hp']
+  extend: ram,generic
+qcom,ipq8065:
+  buddy_compatible: ['zyxel,nbg6817']
+  extend: ram,generic
+qcom,mdm9615:
+  buddy_compatible: ['swir,mangoh-green-wp8548', 'swir,wp8548']
+  extend: ram,generic
+qcom,msm8974:
+  buddy_compatible: ['sony,xperia-honami']
+  extend: ram,generic
 ralink,mt7621-soc:
   buddy_compatible: ['ralink,mt7621-eval-board']
   extend: ram,generic
@@ -19,3 +43,6 @@ ram,generic:
   get_field: ['MemoryRegion ram{{ id }};']
   get_header: [exec/address-spaces.h]
   parameters: [regs]
+xen,xenvm:
+  buddy_compatible: ['xen,xenvm-4.2']
+  extend: ram,generic

@@ -138,8 +138,17 @@ qca,ar7100-cpu-intc: {extend: 'mti,cpu-interrupt-controller'}
 qca,ar7100-misc-intc: {extend: 'intc,generic'}
 qca,ar7240-misc-intc: {extend: 'intc,generic', external: true}
 qca,ar9340-intc: {extend: 'intc,generic'}
+qcom,apq8084-pinctrl:
+  buddy_compatible: []
+  extend: intc,generic
 qcom,msm-8660-qgic: {extend: 'intc,generic'}
 qcom,msm-qgic2: {extend: 'intc,generic'}
+qcom,smp2p:
+  buddy_compatible: []
+  extend: intc,generic
+qcom,smsm:
+  buddy_compatible: []
+  extend: intc,generic
 ralink,mt7621-gic:
   buddy_compatible: []
   extend: intc,generic
