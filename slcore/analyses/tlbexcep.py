@@ -17,7 +17,7 @@ class CheckTLBExcep(Analysis):
                 tlbs += 1
 
         if not len(tlb):
-            self.error_info = 'no tlb exception'
+            self.debug('there is no tlb exception', 1)
             return True
 
         for cpurf in tlb:

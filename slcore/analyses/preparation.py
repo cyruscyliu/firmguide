@@ -27,14 +27,15 @@ class Preparation(Analysis):
         # 1.4 add a uimage header on the kernel image
         if self.firmware.get_arch() == 'arm':
             entry_point = '0x00008000'
-            load_address = '0x00008000'
         else:
-            # entry_point = firmware.get_kernel_entry_point()
             # we move our metadata to a higher place, so maybe
             # 0x80000000 is safe, sometimes a specific
             # entry point is not such universal
             entry_point = '0x80000000'
-            load_address = '0x80000000'
+        load_address = self.firmware.get_kernel_loading_address()
+        if load_address is None:
+            self.error_info = 'there is no loading address'
+            return False
         # 2 Why we don't use vmlinux if any?
         # ARM32 has two head.S, the one is in side of the vmlinux
         # the other is outside of the vmlinux. Due to historical

@@ -60,7 +60,7 @@ class CheckDataAbort(Analysis):
                 dbes.append(cpurf)
 
         if not len(dbes):
-            self.error_info = 'no data abort'
+            self.debug('there is no data abort', 1)
             return True
 
         for cpurf in dbes:

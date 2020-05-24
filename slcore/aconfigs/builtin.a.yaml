@@ -15,7 +15,7 @@ diagnosis:
     analyses: [
         CheckBoard,
         DTPreprocessing, SynthesisDT, Install,
-        Preparation, Tracing,
+        CalcLoadAddr, Preparation, Tracing,
         LoadTrace,
         CheckUserLevel,
         CheckMissingCode,
