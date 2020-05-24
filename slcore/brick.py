@@ -84,8 +84,6 @@ class Brick(object):
                 self.buddy_compatible.extend(model['buddy_compatible'])
             if 'unique' in model:
                 self.unique = True
-            if 'fix_size' in model:
-                self.fix_size = model['fix_size']
             # external source and header
             if 'external' in model:
                 self.external = model['external']
@@ -111,6 +109,9 @@ class Brick(object):
     def render(self, context):
         """low level render."""
         self.context = context
+
+        if 'fix_size' in self.model:
+            self.fix_size = self.model['fix_size']
 
         # model['parameters'] tells us what should be in the context
         if 'parameters' in self.model:
@@ -175,6 +176,8 @@ class Brick(object):
         for i in range(0, n):
             context['id'] = i
             context['reg'] = context['regs'][i]
+            if self.fix_size:
+                context['reg']['size'] = self.fix_size
             if 'irqn' in context:
                 context['iid'] = context['irqn'] // context['intcp']['n_irq']
                 context['irqn'] = context['irqn'] % context['intcp']['n_irq']
@@ -192,6 +195,8 @@ class Brick(object):
         for i in range(0, n):
             context['id'] = i
             context['reg'] = context['regs'][i]
+            if self.fix_size:
+                context['reg']['size'] = self.fix_size
             actual = self.__render('get_field', context)
             self.actual['get_field'].extend(actual)
 
@@ -200,6 +205,8 @@ class Brick(object):
         for i in range(0, n):
             context['id'] = i
             context['reg'] = context['regs'][i]
+            if self.fix_size:
+                context['reg']['size'] = self.fix_size
             actual = self.__render('get_reserved', context)
             self.actual['get_reserved'].extend(actual)
 
@@ -208,6 +215,8 @@ class Brick(object):
         for i in range(0, n):
             context['id'] = i
             context['reg'] = context['regs'][i]
+            if self.fix_size:
+                context['reg']['size'] = self.fix_size
             if 'registers' in context['reg']:
                 for register in context['reg']['registers']:
                     context['register'] = register
@@ -219,6 +228,8 @@ class Brick(object):
         for i in range(0, n):
             context['id'] = i
             context['reg'] = context['regs'][i]
+            if self.fix_size:
+                context['reg']['size'] = self.fix_size
             actual = self.__render('get_suite', context)
             self.actual['get_suite'].extend(actual)
 

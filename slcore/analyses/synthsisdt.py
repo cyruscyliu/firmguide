@@ -156,12 +156,12 @@ class SynthesisDT(Analysis):
                 # ######### !!!!!!!!!!!! ########
                 fix_parameters = self.load_fix_parameters(k, b.effic_compatible)
                 if fix_parameters is not None:
-                    if k != 'mmio':
-                        for x, y in fix_parameters.items():
+                    for x, y in fix_parameters.items():
+                        if x != 'regs_index_registers':
                             b.model[x] = y
-                    else:
-                        for x, y in fix_parameters.items():
-                            context['regs'][x]['registers'] = y
+                        else:
+                            for xx, yy in y.items():
+                                context['regs'][xx]['registers'] = yy
                 m_context = b.render(context)
                 if isinstance(m_context, str):
                     self.warning('cannot suport {} {}, {} is missing'.format(
