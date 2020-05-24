@@ -117,6 +117,11 @@ class ShowCallstack(Analysis):
         return srcodec.address2symbol(address)
 
     def run(self, **kwargs):
+        nocallstack = kwargs.pop('nocallstack')
+        if nocallstack:
+            self.debug('skip callstack analysis', 1)
+            return True
+
         trace = self.analysis_manager.get_analysis('loadtrace')
         pql = trace.pql
 

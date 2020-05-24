@@ -32,6 +32,11 @@ diagnose:
             action: "store_true"
             default: False
             help: "set this for multi-tasks"
+        nocallstack:
+            short: ncs
+            action: "store_true"
+            default: False
+            help: "skip callstack for sake of time"
     callback: diagnosis
 upload:
     help: "Run - Online assembling for any image. No debug interfaces."

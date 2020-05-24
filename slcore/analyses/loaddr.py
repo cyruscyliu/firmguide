@@ -11,7 +11,7 @@ class CalcLoadAddr(Analysis):
                 0x8000), 1)
             return True
 
-        srcodec = self.analysis_manager.get_srcodec()
+        srcodec = self.analysis_manager.srcodec
         if not srcodec.supported:
             self.error_info = 'please set the source code'
             return False

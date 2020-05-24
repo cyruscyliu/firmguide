@@ -32,7 +32,7 @@ class Preparation(Analysis):
             # 0x80000000 is safe, sometimes a specific
             # entry point is not such universal
             entry_point = '0x80000000'
-        load_address = self.firmware.get_kernel_loading_address()
+        load_address = self.firmware.get_kernel_load_address()
         if load_address is None:
             self.error_info = 'there is no loading address'
             return False
@@ -71,5 +71,5 @@ class Preparation(Analysis):
         self.name = 'preparation'
         self.description = 'Prepare to boot the image.'
         self.critical = True
-        self.required = ['preprocdt', 'synthesisdt']
+        self.required = ['preprocdt', 'synthesisdt', 'loaddr']
         self.type = 'diag'
