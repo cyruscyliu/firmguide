@@ -188,7 +188,8 @@ def find_flatten_mmio_in_fdt(dts, memory=False):
             # sometimes we get a size 0xffffffff...
             if base + size > (1 << 32):
                 size = (1 << 32) - base
-            mmio[pa]['regs'].append({'base': base, 'size': size, 'priority': 0})
+            mmio[pa]['regs'].append(
+                {'base': base, 'size': size, 'priority': 0})
 
     flatten_mmio = []
     for k, v in mmio.items():
@@ -210,8 +211,11 @@ def merge_flatten_mmio(flatten_mmio):
             compatibles.append(mmio['compatible'])
             merged_flatten_mmio.append(mmio)
         else:
-            merged_flatten_mmio[compatibles.index(
-                mmio['compatible'])]['regs'].extend(mmio['regs'])
+            index = compatibles.index(mmio['compatible'])
+            merged_flatten_mmio[index]['regs'].extend(mmio['regs'])
+            merged_flatten_mmio[index]['regs'] = \
+                sorted(merged_flatten_mmio[index]['regs'],
+                       key=lambda x: x['base'])
     return merged_flatten_mmio
 
 
