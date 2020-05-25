@@ -216,4 +216,3 @@ static void qca_ar7240_misc_intc_register_types(void)
 }
 
 type_init(qca_ar7240_misc_intc_register_types)
-

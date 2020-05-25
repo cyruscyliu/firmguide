@@ -38,4 +38,3 @@ typedef struct QCA_AR7240_MISC_INTCState {
 } QCA_AR7240_MISC_INTCState;
 
 #endif /* QCA_AR7240_MISC_INTC_H */
-
