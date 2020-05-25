@@ -207,6 +207,8 @@ def merge_flatten_mmio(flatten_mmio):
     for mmio in flatten_mmio:
         if 'simple-bus' in mmio['compatible']:
             mmio['compatible'].remove('simple-bus')
+        if 'syscon' in mmio['compatible']:
+            mmio['compatible'].remove('syscon')
         if mmio['compatible'] not in compatibles:
             compatibles.append(mmio['compatible'])
             merged_flatten_mmio.append(mmio)

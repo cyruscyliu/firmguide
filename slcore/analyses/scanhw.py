@@ -9,7 +9,8 @@ from slcore.dt_parsers.timer import find_flatten_timer_in_fdt
 from slcore.dt_parsers.flash import find_flatten_flash_in_fdt
 from slcore.dt_parsers.misc import find_flatten_misc_in_fdt
 from slcore.dt_parsers.memory import find_flatten_ram_in_fdt
-from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
+from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt, \
+    merge_flatten_mmio
 from slcore.brick import Brick
 
 
@@ -61,6 +62,8 @@ class UpdateHardware(Analysis):
             if flatten_ks is None:
                 error_type.append(k)
                 continue
+            if k == 'mmio':
+                flatten_ks = merge_flatten_mmio(flatten_ks)
             for context in flatten_ks:
                 if self.__skip(context['compatible']):
                     self.debug('skip improper or duplicated {}'.format(
