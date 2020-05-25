@@ -47,7 +47,10 @@ class Archive(Analysis):
         board = support.select('board', arch=self.firmware.get_arch(),
                                board=self.firmware.get_board())
         if board is None:
-            board = {'device_tree': True, 'support_list': {}}
+            board = {'device_tree': True}
+
+        if 'support_list' not in board:
+            board['support_list'] = {}
 
         brand = self.firmware.get_brand()
         target = self.analysis_manager.project.attrs['target']
@@ -63,6 +66,7 @@ class Archive(Analysis):
                 'example': target_machines[l + 1:],
                 'arch': self.firmware.get_arch(),
                 'endian': self.firmware.get_endian(),
+                'loaddr': self.firmware.get_kernel_load_address(),
             }
             self.info('update {} {}'.format(
                 cmptbl, board['support_list'][cmptbl]), 1)
