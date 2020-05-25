@@ -12,6 +12,13 @@ def get_raw_code(address, bb):
             break
     return instruction['raw']
 
+def get_readable_code(address, bb):
+    instruction = None
+    for instruction in bb['instructions']:
+        if int(instruction['address'], 16) == address:
+            break
+    return ' '.join([instruction['opcode']] + instruction['operand'])
+
 
 def get_instruction(address, bb):
     instruction = None
@@ -71,7 +78,6 @@ class CheckDataAbort(Analysis):
                 cpurf['ln'], cpurf['register_files']['pc'], where_to_return), 1)
             bb = pql.get_bb(cpurf)
             where_to_return = int(where_to_return, 16)
-            print(hex(where_to_return))
 
             instruction = get_raw_code(where_to_return, bb)
             cs = Cs(CS_ARCH_MIPS, CS_MODE_MIPS32)
@@ -90,6 +96,8 @@ class CheckDataAbort(Analysis):
                         self.dead_addresses.append(hex(bad_addr))
                         self.info('line {}:0x{} has a data abort at 0x{:x}'.format(
                             cpurf['ln'], cpurf['register_files']['pc'], bad_addr), 1)
+            self.info('please also check next instruction {}'.format(
+                      get_readable_code(where_to_return + 4, bb)), 1)
         return True
 
     def run(self, **kwargs):
