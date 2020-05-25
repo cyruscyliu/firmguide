@@ -32,7 +32,7 @@ diagnose:
             action: "store_true"
             default: False
             help: "set this for multi-tasks"
-        nocallstack:
+        nocallstack: &nocallstack
             short: ncs
             action: "store_true"
             default: False
@@ -59,6 +59,7 @@ coverup:
     optional:
         trace: *trace
         source: *source
+        nocallstack: *nocallstack
     callback: tracecoverup
 trace:
     help: "Standalone - Trace."

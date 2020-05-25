@@ -40,7 +40,7 @@ def load_system_map(path, bits=32):
 
     os.system('nm -S {0}/vmlinux > /tmp/system.map.nms'.format(path))
 
-    with open('/tmp/system.map.nms'.format(path)) as f:
+    with open('/tmp/system.map.nms') as f:
         for line in f:
             items = line.strip().split()
             if len(items) == 3:

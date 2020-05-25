@@ -88,10 +88,8 @@ class ARMCallStack(CallStackI):
     def __init__(self, endian):
         super().__init__()
         self.callbacks = {'bl': self.arm_bl}
-        if endian == 'l':
-            self.md = Cs(CS_ARCH_ARM, CS_MODE_ARM + CS_MODE_LITTLE_ENDIAN)
-        else:
-            self.md = Cs(CS_ARCH_ARM, CS_MODE_ARM + CS_MODE_BIG_ENDIAN)
+        # QEMU helps us to make everything little endian
+        self.md = Cs(CS_ARCH_ARM, CS_MODE_ARM + CS_MODE_LITTLE_ENDIAN)
         self.md.detail = True
 
 
@@ -102,10 +100,8 @@ class MIPSCallStack(CallStackI):
     def __init__(self, endian):
         super().__init__()
         self.callbacks = {'jal': self.mips_jal}
-        if endian == 'l':
-            self.md = Cs(CS_ARCH_MIPS, CS_MODE_MIPS32 + CS_MODE_LITTLE_ENDIAN)
-        else:
-            self.md = Cs(CS_ARCH_MIPS, CS_MODE_MIPS32 + CS_MODE_BIG_ENDIAN)
+        # QEMU helps us to make everything little endian
+        self.md = Cs(CS_ARCH_MIPS, CS_MODE_MIPS32 + CS_MODE_LITTLE_ENDIAN)
         self.md.detail = True
 
 
