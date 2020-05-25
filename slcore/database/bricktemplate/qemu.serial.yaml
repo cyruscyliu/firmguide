@@ -22,13 +22,17 @@ marvell,armada-3700-uart: {extend: 'serial,generic'}
 mediatek,mt6577-uart: {extend: 'serial,generic'}
 mrvl,pxa-uart: {extend: 'serial,generic'}
 ns16550: {extend: ns16550a}
-ns16550a: &ns16550a
-  get_body: ['serial_mm_init(get_system_memory(), {{ reg.base|to_hex }}, {{ reg_shift }},
-      {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ sid }}), {{ endian|to_endian }});']
+ns16550a: &id001
+  get_body: ['serial_mm_init(get_system_memory(), {{ reg.base|to_hex }}, {{ reg_shift
+      }}, {{  intcp.get_irqn }}, {{ baud_rate }}, serial_hd({{ sid }}), {{ endian|to_endian
+      }});']
   get_connection: []
   get_field: []
   get_header: [hw/char/serial.h]
   parameters: [regs, reg_shift, intcp, irqn, baud_rate, sid, endian]
+ns8250:
+  buddy_compatible: []
+  extend: serial,generic
 nvidia,tegra20-uart: {extend: 'serial,generic'}
 qcom,msm-uart: {extend: 'serial,generic'}
 qcom,msm-uartdm: {extend: 'serial,generic'}
@@ -51,6 +55,7 @@ samsung,s3c2412-uart: {extend: 'serial,generic'}
 samsung,s3c2440-uart: {extend: 'serial,generic'}
 samsung,s3c6400-uart: {extend: 'serial,generic'}
 samsung,s5pv210-uart: {extend: 'serial,generic'}
+serial,generic: *id001
 snps,arc-uart: {extend: 'serial,generic'}
 snps,dw-apb-uart: {extend: ns16550a}
 socionext,uniphier-uart: {extend: 'serial,generic'}
@@ -62,4 +67,3 @@ xlnx,opb-uartlite-1.00.b: {extend: 'serial,generic'}
 xlnx,xps-uartlite-1.00.a: {extend: 'serial,generic'}
 xlnx,xuartps: {extend: 'serial,generic'}
 xlnx,zynqmp-uart: {extend: 'serial,generic'}
-serial,generic: *ns16550a

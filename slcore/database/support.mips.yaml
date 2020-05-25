@@ -32,6 +32,13 @@ ath25:
     openwrt: [ath25]
 ath79:
   device_tree: true
+  support_list:
+    librerouter,librerouter-v1: {arch: mips, brand: openwrt, endian: b, example: examples/machines/qca_qca9558,
+      loaddr: '0x80060000', realdtb: slcore/database/archivedtb/qca_qca9558.dtb, subtarget: generic,
+      target: ath79}
+    qca,qca9558: {arch: mips, brand: openwrt, endian: b, example: examples/machines/qca_qca9558,
+      loaddr: '0x80060000', realdtb: slcore/database/archivedtb/qca_qca9558.dtb, subtarget: generic,
+      target: ath79}
   targets:
     openwrt: [ar71xx, ath79, ath79]
 bcm47xx:

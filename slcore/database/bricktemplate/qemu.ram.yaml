@@ -17,6 +17,9 @@ mediatek,mt7628an-soc:
   buddy_compatible: ['mediatek,mt7628an-eval-board']
   extend: ram,generic
 plxtech,nas782x: {buddy_compatible: 'plxtech,nas7820', extend: 'ram,generic'}
+qca,ar7161:
+  buddy_compatible: ['jjplus,ja76pf2']
+  extend: ram,generic
 qcom,ipq8064:
   buddy_compatible: ['nec,wg2600hp']
   extend: ram,generic

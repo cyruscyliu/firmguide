@@ -1,3 +1,6 @@
+168c,0030:
+  buddy_compatible: []
+  extend: mmio,generic
 arm,primecell:
   buddy_compatible: ['arm,pl18x']
   extend: mmio,generic
@@ -165,6 +168,9 @@ cdns,emac:
   extend: mmio,generic
 cdns,macb:
   buddy_compatible: ['cdns,at91sam9260-macb']
+  extend: mmio,generic
+chipidea,usb2:
+  buddy_compatible: []
   extend: mmio,generic
 ehci-platform:
   buddy_compatible: ['ralink,rt3xxx-ehci']
@@ -469,8 +475,32 @@ national,lm92:
 ohci-platform:
   buddy_compatible: ['ralink,rt3xxx-ohci']
   extend: mmio,generic
+pci168c,0029:
+  buddy_compatible: []
+  extend: mmio,generic
+pci168c,002a:
+  buddy_compatible: []
+  extend: mmio,generic
+pci168c,002e:
+  buddy_compatible: []
+  extend: mmio,generic
+pci168c,0030:
+  buddy_compatible: []
+  extend: mmio,generic
+pci168c,0033:
+  buddy_compatible: []
+  extend: mmio,generic
+pci168c,003c:
+  buddy_compatible: []
+  extend: mmio,generic
+pci168c,0056:
+  buddy_compatible: []
+  extend: mmio,generic
 pciclass0604:
   buddy_compatible: ['ralink,rt2880-pci', pciclass060400]
+  extend: mmio,generic
+pinctrl-single:
+  buddy_compatible: []
   extend: mmio,generic
 plxtech,nas782x-ehci:
   buddy_compatible: []
@@ -491,6 +521,123 @@ plxtech,nas782x-sata:
   buddy_compatible: []
   extend: mmio,generic
 pm25lq032:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-ddr-controller:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-gpio:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-pci:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-pll:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-reset:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-spi:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-usb-phy:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7130-wdt:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7200-usb-phy:
+  buddy_compatible: ['qca,qca9550-usb-phy']
+  extend: mmio,generic
+qca,ar7240-ddr-controller:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7240-pll:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7241-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7242-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9130-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9130-pll:
+  buddy_compatible: ['qca,ar9132-pll']
+  extend: mmio,generic
+qca,ar9130-wmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9330-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9330-gmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9330-pll:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9330-uart:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9330-wmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9340-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9340-gmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9340-gpio:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9340-pll:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9340-wmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ath79-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9530-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9530-pll:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9530-wmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9550-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9550-gmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9550-pll:
+  buddy_compatible: ['qca,ar9557-pll']
+  extend: mmio,generic
+qca,qca9550-wmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9560-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9560-gmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9560-pll:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9560-wmac:
   buddy_compatible: []
   extend: mmio,generic
 qcom,adm:
@@ -516,6 +663,9 @@ qcom,apq8074:
   extend: mmio,generic
 qcom,apq8084:
   buddy_compatible: ['qcom,apq8084-sbc']
+  extend: mmio,generic
+qcom,ar7240-pci:
+  buddy_compatible: ['qcom,ar9340-pci']
   extend: mmio,generic
 qcom,bam-v1.3.0:
   buddy_compatible: []
@@ -807,6 +957,9 @@ s25fl129p1:
   extend: mmio,generic
 simple-bus:
   buddy_compatible: ['fsl,ifc']
+  extend: mmio,generic
+simple-mfd:
+  buddy_compatible: []
   extend: mmio,generic
 smsc,lan9115:
   buddy_compatible: ['smsc,lan9221']

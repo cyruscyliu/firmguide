@@ -84,7 +84,7 @@ marvell,orion-intc:
     set_body: [s->r0 |= 0x00000010;]
   n_irq: 32
 qca,ar7240-misc-intc:
-  fix_size: '0x8'
+  fix_size: 0x8
   get_registers:
   - {ack: true, ack_action: (old & (~(1 << (irqn)))), mask: false, mask_ack: false,
     offset: '0x00', override: true, rname: r0, unmask: false, value: 0}
