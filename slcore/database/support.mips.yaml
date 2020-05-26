@@ -33,8 +33,14 @@ ath25:
 ath79:
   device_tree: true
   support_list:
+    buffalo,whr-g301n: {arch: mips, brand: openwrt, endian: b, example: examples/machines/qca_ar7240,
+      loaddr: '0x80060000', realdtb: slcore/database/archivedtb/qca_ar7240.dtb, subtarget: tiny,
+      target: ath79}
     librerouter,librerouter-v1: {arch: mips, brand: openwrt, endian: b, example: examples/machines/qca_qca9558,
       loaddr: '0x80060000', realdtb: slcore/database/archivedtb/qca_qca9558.dtb, subtarget: generic,
+      target: ath79}
+    qca,ar7240: {arch: mips, brand: openwrt, endian: b, example: examples/machines/qca_ar7240,
+      loaddr: '0x80060000', realdtb: slcore/database/archivedtb/qca_ar7240.dtb, subtarget: tiny,
       target: ath79}
     qca,qca9558: {arch: mips, brand: openwrt, endian: b, example: examples/machines/qca_qca9558,
       loaddr: '0x80060000', realdtb: slcore/database/archivedtb/qca_qca9558.dtb, subtarget: generic,

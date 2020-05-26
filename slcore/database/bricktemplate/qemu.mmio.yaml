@@ -514,6 +514,9 @@ pinctrl-single:
 plxtech,nas782x-ehci:
   buddy_compatible: []
   extend: mmio,generic
+plxtech,nas782x-gpio:
+  buddy_compatible: []
+  extend: mmio,generic
 plxtech,nas782x-pcie:
   buddy_compatible: []
   extend: mmio,generic

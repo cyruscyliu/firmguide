@@ -27,9 +27,11 @@ class QuickSrcA(Analysis):
         self.description = 'Quick source code analysis.'
 
     def run(self, **kwargs):
-        ep = kwargs.pop('entry_point', None)
-        caller = kwargs.pop('caller', 'unknown')
-        cfcfg = kwargs.pop('cgcfg', False)
+        ep = kwargs.pop('entry_point')
+        caller = kwargs.pop('caller')
+        cfcfg = kwargs.pop('cgcfg')
+        f = kwargs.pop('file')
+        print(f)
 
         # We simply preprocess the c file containing
         # the entry point if no other arguments assigned.
@@ -51,6 +53,13 @@ class QuickSrcA(Analysis):
                 srcodec.preprocess(path_to_entry_point, cmdline=cmdline)
             self.info('preprocess and save as {}/{}'.format(
                 srcodec.get_path_to_source_code(), path_to_pentry_point), 1)
+            return True
+
+        if f:
+            cmdline = srcodec.get_cmdline(f)
+            fp = srcodec.preprocess(f, cmdline=cmdline)
+            self.info('preprocess and save as {}/{}'.format(
+                srcodec.get_path_to_source_code(), fp), 1)
             return True
 
         if cfcfg:

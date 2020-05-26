@@ -34,13 +34,20 @@ qca,qca9550-pll:
     regs_index:
         0:
             registers:
+                - {offset: 0x0, size: 0x4, value: 0x0810, path: arch/mips/ath79/clock.c, function: qca955x_clocks_init}
+qca,ar7240-pll:
+    regs_index:
+        0:
+            registers:
+                # cpu_clk_rate = clk_get_rate(of_clk_get(of_get_cpu_node()))
+                # cpus/cpu@0/clocks=<0x4 0x0> -> qca,ar7240-pll -> ath79_clocks_init_dt -> ar724x_clocks_init
                 # if (of_device_is_compatible(np, "qca,ar7240-pll") || of_device_is_compatible(np, "qca,ar9130-pll"))
                 #     ar724x_clocks_init(pll_base);
                 # ref_rate = 4000000;
                 # pll = ath79_pll_rr(0x00); mul = ((pll >> 0) & 0x3ff); div = ((pll > 10) & 0xf) * 2
                 # 4000000 * ((pll >> 0) & 0x3ff) / (((pll > 10 & 0xf)) * 2)
                 # 4000000 * ((0x1010 >> 0) & 0x3ff) / (((0x1010 > 10 & 0xf)) * 2) = 80M
-                - {offset: 0x0, size: 0x4, value: 0x0810, path: arch/mips/ath79/clock.c, function: ar724x_clocks_init}
+                - {offset: 0x0, size: 0x4, value: 0x0810, path: arch/mips/ath79/clock.c, function:  ar724x_clocks_init}
 qca,ar9340-gpio:
     # gpio_base = (void *)(((((int)(int)((0x18000000 + 0x00040000))) & 0x1fffffff) | 0xa0000000));
     # t = __raw_readl(gpio_base + 0x28);
