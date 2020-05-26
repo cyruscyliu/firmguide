@@ -35,7 +35,7 @@ def to_range(n):
 
 
 class Brick(object):
-    def __init__(self, t, compatible):
+    def __init__(self, t, compatible, cast=None, effi=None):
         """
         Args:
             t(str)          : Type of the mode, e.g. cpu, intc, serial.
@@ -54,11 +54,16 @@ class Brick(object):
                                    built-in qdev.
         """
         self.t = t
-        self.compatible = compatible
+        if cast:
+            self.compatible = cast
+            self.old_compatible = compatible
+        else:
+            self.compatible = compatible
+            self.old_compatible = None
         self.supported = False
         self.model = None
         self.actual = {}
-        self.effic_compatible = None
+        self.effic_compatible = effi
         self.buddy_compatible = []
 
         self.source = None
@@ -78,7 +83,10 @@ class Brick(object):
             if self.supported:
                 self.buddy_compatible.append(cmptb)
                 continue
-            self.effic_compatible = cmptb
+            if self.old_compatible:
+                self.buddy_compatible.extend(self.old_compatible)
+            if self.effic_compatible is None:
+                self.effic_compatible = cmptb
             self.model = self.__expand_model(model)
             self.supported = True
             if 'buddy_compatible' in model:

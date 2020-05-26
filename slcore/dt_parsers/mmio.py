@@ -221,7 +221,6 @@ def merge_flatten_mmio(flatten_mmio):
             merged_flatten_mmio[index]['regs'] = \
                 sorted(merged_flatten_mmio[index]['regs'],
                        key=lambda x: x['base'])
-    print(merged_flatten_mmio)
     return merged_flatten_mmio
 
 

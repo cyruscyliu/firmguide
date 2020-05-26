@@ -111,11 +111,18 @@ class SynthesisDT(Analysis):
                     self.context['ram_default_size'] = \
                         flatten_ks[0]['regs'][0]['size'] // 1024 // 1024
             # ######### handle flash ########
+            cast, effi = None, None
             if self.firmware.get_arch() == 'mips' and k == 'flash' and \
                     not len(flatten_ks):
                 # mips will have a default flash if no flash is detected
                 flatten_ks = [{'compatible': ['flash,generic'],
                                'regs': [{'base': 0x1fc00000, 'size': 0x400000}]}]
+            elif self.firmware.get_arch() == 'arm' and k == 'flash' and \
+                    len(flatten_ks):
+                # arm flash treated as mmio region
+                k = 'mmio'
+                cast = ['mmio,generic']
+                effi = 'plxtech,nand-nas782x'
             # ######### !!!!!!!!!!!! ########
             if k == 'mmio':
                 flatten_ks = merge_flatten_mmio(flatten_ks)
@@ -125,7 +132,7 @@ class SynthesisDT(Analysis):
                     continue
                 # ######## the 1st check, (type, compatible) check ########
                 # ######### !!!!!!!!!!!! ########
-                b = Brick(k, context['compatible'])
+                b = Brick(k, context['compatible'], cast=cast, effi=effi)
                 if not b.supported:
                     self.warning('cannot support {} {}'.format(
                         k, context['compatible']), 0)
