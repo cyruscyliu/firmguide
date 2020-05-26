@@ -40,7 +40,7 @@ class CheckDataAbort(Analysis):
             self.error_info = 'no data abort'
             return True
 
-        for cpurf in dabts:
+        for cpurf in dabts[:10]:
             # dabt
             # current bb has where to abort -> next bb has where to return
             if pql.get_exception_return_cpurf(cpurf) is None:
@@ -70,7 +70,7 @@ class CheckDataAbort(Analysis):
             self.debug('there is no data abort', 1)
             return True
 
-        for cpurf in dbes:
+        for cpurf in dbes[:10]:
             # current cpurf tells us where to return
             # and current bb tells us where to abort
             where_to_return = cpurf['register_files']['EPC']

@@ -20,7 +20,7 @@ class CheckTLBExcep(Analysis):
             self.debug('there is no tlb exception', 1)
             return True
 
-        for cpurf in tlb:
+        for cpurf in tlb[:10]:
             ret = pql.get_exception_return_cpurf(cpurf)
             if ret is None:
                 self.info('line {}:0x{} has a {} exception, return abnormally'.format(

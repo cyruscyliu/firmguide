@@ -10,10 +10,10 @@ class CheckUndefInst(Analysis):
                 uis.append(cpurf)
 
         if not len(uis):
-            self.error_info = 'no undefined instruction'
+            self.debug('there is no undefined instruction', 1)
             return True
 
-        for cpurf in uis:
+        for cpurf in uis[:10]:
             ret = pql.get_exception_return_cpurf(cpurf)
             if ret is None:
                 self.info('line {}:0x{} has an undef inst, return abnormally'.format(
@@ -35,7 +35,7 @@ class CheckUndefInst(Analysis):
             self.debug('there is no unknown instruction', 1)
             return True
 
-        for cpurf in unkinsns:
+        for cpurf in unkinsns[:10]:
             ret = pql.get_exception_return_cpurf(cpurf)
             if ret is None:
                 self.info('line {}:0x{} has a {} exception, return abnormally'.format(

@@ -68,6 +68,7 @@ class Brick(object):
 
         self.unique = False
         self.fix_size = None
+        self.disable = False
 
         for cmptb in self.compatible:
             model = self.__load_model(cmptb)
@@ -84,6 +85,8 @@ class Brick(object):
                 self.buddy_compatible.extend(model['buddy_compatible'])
             if 'unique' in model:
                 self.unique = True
+            if 'disable' in model:
+                self.disable = True
             # external source and header
             if 'external' in model:
                 self.external = model['external']
@@ -108,6 +111,9 @@ class Brick(object):
 
     def render(self, context):
         """low level render."""
+        if self.disable:
+            return {}
+
         self.context = context
 
         if 'fix_size' in self.model:
@@ -242,6 +248,9 @@ class Brick(object):
 
     def render_qdev(self, context):
         """External template render."""
+        if self.disable:
+            return None, None
+
         if self.fix_size:
             context['reg']['size'] = self.fix_size
         try:

@@ -3,6 +3,7 @@ from slcore.dt_parsers.flash import find_flatten_flash_in_fdt
 from slcore.dt_parsers.serial import find_flatten_serial_in_fdt
 from slcore.dt_parsers.timer import find_flatten_timer_in_fdt
 from slcore.dt_parsers.mmio import find_flatten_mmio_in_fdt
+from slcore.dt_parsers.memory import find_flatten_ram_in_fdt
 from slcore.dt_parsers.common import load_dtb
 from slcore.amanager import Analysis
 
@@ -31,6 +32,14 @@ class DiscloseDT(Analysis):
         for cpu in find_flatten_cpu_in_fdt(dts):
             message = '[CPU] of {}/{}'.format(cpu['path'], cpu['compatible'])
             self.info(message, 1)
+
+        for mem in find_flatten_ram_in_fdt(dts):
+            for reg in mem['regs']:
+                message =  \
+                    '[MEM] base 0x{:08x} size 0x{:08x} of {}/{}'.format(
+                        reg['base'], reg['size'],
+                        mem['path'], mem['compatible'])
+                self.info(message, 1)
 
         for timer in find_flatten_timer_in_fdt(dts):
             for reg in timer['regs']:
