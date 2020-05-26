@@ -24,7 +24,7 @@ typedef struct RALINK_RT3883_SOCState {
     MIPSCPU *cpu;
     RALINK_RT2880_INTCState ralink_rt2880_intc0;
     RALINK_RT2880_TIMERState timer0;
-    MemoryRegion flash;
+    MemoryRegion flash0;
     MemoryRegion ram0;
     MemoryRegion ohci_platform0_mmio;
     MemoryRegion ehci_platform0_mmio;
@@ -45,10 +45,10 @@ typedef struct RALINK_RT3883_SOCState {
     uint32_t ralink_rt3883_pci0_reserved[0x20000 >> 2];
     uint32_t ralink_rt3883_eth0_reserved[0x2710 >> 2];
     uint32_t ralink_rt2880_spi0_reserved[0x100 >> 2];
-    uint32_t ralink_rt2880_gpio0_reserved[0x24 >> 2];
+    uint32_t ralink_rt2880_gpio0_reserved[0x34 >> 2];
     uint32_t ralink_rt2880_gpio1_reserved[0x24 >> 2];
     uint32_t ralink_rt2880_gpio2_reserved[0x24 >> 2];
-    uint32_t ralink_rt2880_gpio3_reserved[0x34 >> 2];
+    uint32_t ralink_rt2880_gpio3_reserved[0x24 >> 2];
     uint32_t ralink_rt3050_memc0_reserved[0x100 >> 2];
     uint32_t ralink_rt2880_wdt0_reserved[0x10 >> 2];
     uint32_t ralink_rt3050_sysc0_reserved[0x100 >> 2];
@@ -320,7 +320,7 @@ static uint64_t ralink_rt2880_gpio0_read(void *opaque, hwaddr offset, unsigned s
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return 0;
-    case 0x0 ... 0x20:
+    case 0x0 ... 0x30:
         res = s->ralink_rt2880_gpio0_reserved[offset >> 2];
         break;
     }
@@ -335,7 +335,7 @@ static void ralink_rt2880_gpio0_write(void *opaque, hwaddr offset, uint64_t val,
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return;
-    case 0x0 ... 0x20:
+    case 0x0 ... 0x30:
         s->ralink_rt2880_gpio0_reserved[offset >> 2] = val;
         break;
     }
@@ -443,7 +443,7 @@ static uint64_t ralink_rt2880_gpio3_read(void *opaque, hwaddr offset, unsigned s
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return 0;
-    case 0x0 ... 0x30:
+    case 0x0 ... 0x20:
         res = s->ralink_rt2880_gpio3_reserved[offset >> 2];
         break;
     }
@@ -458,7 +458,7 @@ static void ralink_rt2880_gpio3_write(void *opaque, hwaddr offset, uint64_t val,
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return;
-    case 0x0 ... 0x30:
+    case 0x0 ... 0x20:
         s->ralink_rt2880_gpio3_reserved[offset >> 2] = val;
         break;
     }
@@ -637,8 +637,8 @@ static void ralink_rt3883_soc_init(MachineState *machine)
     serial_mm_init_au(get_system_memory(), 0x10000500, 2, qdev_get_gpio_in(DEVICE(&s->ralink_rt2880_intc0), 5), 115200, serial_hd(1), DEVICE_LITTLE_ENDIAN);
     
     
-    memory_region_init_rom(&s->flash, NULL, "boot.flash", 0x4000000, &err);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x1c000000, &s->flash, 0);
+    memory_region_init_rom(&s->flash0, NULL, "boot.flash.0", 0x4000000, &err);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x1c000000, &s->flash0, 0);
     
     memory_region_init_io(&s->ohci_platform0_mmio, NULL, &ohci_platform_ops0, s, TYPE_RALINK_RT3883_SOC, 0x1000);
     memory_region_add_subregion_overlap(get_system_memory(), 0x101c1000, &s->ohci_platform0_mmio, 0);
@@ -652,14 +652,14 @@ static void ralink_rt3883_soc_init(MachineState *machine)
     memory_region_add_subregion_overlap(get_system_memory(), 0x10100000, &s->ralink_rt3883_eth0_mmio, 0);
     memory_region_init_io(&s->ralink_rt2880_spi0_mmio, NULL, &ralink_rt2880_spi_ops0, s, TYPE_RALINK_RT3883_SOC, 0x100);
     memory_region_add_subregion_overlap(get_system_memory(), 0x10000b00, &s->ralink_rt2880_spi0_mmio, 0);
-    memory_region_init_io(&s->ralink_rt2880_gpio0_mmio, NULL, &ralink_rt2880_gpio_ops0, s, TYPE_RALINK_RT3883_SOC, 0x24);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x10000688, &s->ralink_rt2880_gpio0_mmio, 0);
+    memory_region_init_io(&s->ralink_rt2880_gpio0_mmio, NULL, &ralink_rt2880_gpio_ops0, s, TYPE_RALINK_RT3883_SOC, 0x34);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x10000600, &s->ralink_rt2880_gpio0_mmio, 0);
     memory_region_init_io(&s->ralink_rt2880_gpio1_mmio, NULL, &ralink_rt2880_gpio_ops1, s, TYPE_RALINK_RT3883_SOC, 0x24);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x10000660, &s->ralink_rt2880_gpio1_mmio, 0);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x10000638, &s->ralink_rt2880_gpio1_mmio, 0);
     memory_region_init_io(&s->ralink_rt2880_gpio2_mmio, NULL, &ralink_rt2880_gpio_ops2, s, TYPE_RALINK_RT3883_SOC, 0x24);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x10000638, &s->ralink_rt2880_gpio2_mmio, 0);
-    memory_region_init_io(&s->ralink_rt2880_gpio3_mmio, NULL, &ralink_rt2880_gpio_ops3, s, TYPE_RALINK_RT3883_SOC, 0x34);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x10000600, &s->ralink_rt2880_gpio3_mmio, 0);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x10000660, &s->ralink_rt2880_gpio2_mmio, 0);
+    memory_region_init_io(&s->ralink_rt2880_gpio3_mmio, NULL, &ralink_rt2880_gpio_ops3, s, TYPE_RALINK_RT3883_SOC, 0x24);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x10000688, &s->ralink_rt2880_gpio3_mmio, 0);
     memory_region_init_io(&s->ralink_rt3050_memc0_mmio, NULL, &ralink_rt3050_memc_ops0, s, TYPE_RALINK_RT3883_SOC, 0x100);
     memory_region_add_subregion_overlap(get_system_memory(), 0x10000300, &s->ralink_rt3050_memc0_mmio, 0);
     memory_region_init_io(&s->ralink_rt2880_wdt0_mmio, NULL, &ralink_rt2880_wdt_ops0, s, TYPE_RALINK_RT3883_SOC, 0x10);

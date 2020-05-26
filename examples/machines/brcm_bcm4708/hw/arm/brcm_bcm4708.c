@@ -22,18 +22,145 @@
 typedef struct BRCM_BCM4708State {
     ARMCPU *cpu;
     A9MPPrivState arm_cortex_a9_gic;
-    MemoryRegion flash0;
-    MemoryRegion flash1;
-    MemoryRegion flash2;
     MemoryRegion ram0;
     MemoryRegion ram1;
+    MemoryRegion plxtech_nand_nas782x0_mmio;
+    MemoryRegion plxtech_nand_nas782x1_mmio;
+    MemoryRegion plxtech_nand_nas782x2_mmio;
     MemoryRegion mmio_sram0_mmio;
     MemoryRegion brcm_bcm4708_sysram0_mmio;
     MemoryRegion brcm_bus_axi0_mmio;
+    uint32_t plxtech_nand_nas782x0_reserved[0x600 >> 2];
+    uint32_t plxtech_nand_nas782x1_reserved[0x600 >> 2];
+    uint32_t plxtech_nand_nas782x2_reserved[0x20 >> 2];
     uint32_t mmio_sram0_reserved[0x10000 >> 2];
     uint32_t brcm_bcm4708_sysram0_reserved[0x1000 >> 2];
     uint32_t brcm_bus_axi0_reserved[0x1000 >> 2];
 } BRCM_BCM4708State;
+
+static void plxtech_nand_nas782x0_update(void *opaque)
+{
+    /* BRCM_BCM4708State *s = opaque; */
+}
+
+static uint64_t plxtech_nand_nas782x0_read(void *opaque, hwaddr offset, unsigned size)
+{
+    BRCM_BCM4708State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case 0x0 ... 0x5fc:
+        res = s->plxtech_nand_nas782x0_reserved[offset >> 2];
+        break;
+    }
+    return res;
+}
+
+static void plxtech_nand_nas782x0_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
+{
+    BRCM_BCM4708State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case 0x0 ... 0x5fc:
+        s->plxtech_nand_nas782x0_reserved[offset >> 2] = val;
+        break;
+    }
+    plxtech_nand_nas782x0_update(s);
+}
+
+static const MemoryRegionOps plxtech_nand_nas782x_ops0 = {
+    .read = plxtech_nand_nas782x0_read,
+    .write = plxtech_nand_nas782x0_write,
+    .endianness = DEVICE_LITTLE_ENDIAN,
+};
+    static void plxtech_nand_nas782x1_update(void *opaque)
+{
+    /* BRCM_BCM4708State *s = opaque; */
+}
+
+static uint64_t plxtech_nand_nas782x1_read(void *opaque, hwaddr offset, unsigned size)
+{
+    BRCM_BCM4708State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case 0x0 ... 0x5fc:
+        res = s->plxtech_nand_nas782x1_reserved[offset >> 2];
+        break;
+    }
+    return res;
+}
+
+static void plxtech_nand_nas782x1_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
+{
+    BRCM_BCM4708State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case 0x0 ... 0x5fc:
+        s->plxtech_nand_nas782x1_reserved[offset >> 2] = val;
+        break;
+    }
+    plxtech_nand_nas782x1_update(s);
+}
+
+static const MemoryRegionOps plxtech_nand_nas782x_ops1 = {
+    .read = plxtech_nand_nas782x1_read,
+    .write = plxtech_nand_nas782x1_write,
+    .endianness = DEVICE_LITTLE_ENDIAN,
+};
+    static void plxtech_nand_nas782x2_update(void *opaque)
+{
+    /* BRCM_BCM4708State *s = opaque; */
+}
+
+static uint64_t plxtech_nand_nas782x2_read(void *opaque, hwaddr offset, unsigned size)
+{
+    BRCM_BCM4708State *s = opaque;
+    uint32_t res = 0;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return 0;
+    case 0x0 ... 0x1c:
+        res = s->plxtech_nand_nas782x2_reserved[offset >> 2];
+        break;
+    }
+    return res;
+}
+
+static void plxtech_nand_nas782x2_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
+{
+    BRCM_BCM4708State *s = opaque;
+
+    switch (offset) {
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
+        return;
+    case 0x0 ... 0x1c:
+        s->plxtech_nand_nas782x2_reserved[offset >> 2] = val;
+        break;
+    }
+    plxtech_nand_nas782x2_update(s);
+}
+
+static const MemoryRegionOps plxtech_nand_nas782x_ops2 = {
+    .read = plxtech_nand_nas782x2_read,
+    .write = plxtech_nand_nas782x2_write,
+    .endianness = DEVICE_LITTLE_ENDIAN,
+};
 
 static void mmio_sram0_update(void *opaque)
 {
@@ -166,6 +293,7 @@ static void brcm_bcm4708_reset(void *opaque)
 {
     BRCM_BCM4708State *s = opaque;
     
+    s->plxtech_nand_nas782x0_reserved[0x0 >> 2] = 0x40;
 }
 
 static void brcm_bcm4708_init(MachineState *machine)
@@ -197,13 +325,13 @@ static void brcm_bcm4708_init(MachineState *machine)
     
     sysbus_create_varargs("l2x0", 0x19022000 , NULL);
     
-    memory_region_init_rom(&s->flash0, NULL, "boot.flash.0", 0x600, &err);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x18028000, &s->flash0, 0);
-    memory_region_init_rom(&s->flash1, NULL, "boot.flash.1", 0x600, &err);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x1811a408, &s->flash1, 0);
-    memory_region_init_rom(&s->flash2, NULL, "boot.flash.2", 0x20, &err);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x18028f00, &s->flash2, 0);
     
+    memory_region_init_io(&s->plxtech_nand_nas782x0_mmio, NULL, &plxtech_nand_nas782x_ops0, s, TYPE_BRCM_BCM4708, 0x600);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x18028000, &s->plxtech_nand_nas782x0_mmio, 0);
+    memory_region_init_io(&s->plxtech_nand_nas782x1_mmio, NULL, &plxtech_nand_nas782x_ops1, s, TYPE_BRCM_BCM4708, 0x600);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x1811a408, &s->plxtech_nand_nas782x1_mmio, 0);
+    memory_region_init_io(&s->plxtech_nand_nas782x2_mmio, NULL, &plxtech_nand_nas782x_ops2, s, TYPE_BRCM_BCM4708, 0x20);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x18028f00, &s->plxtech_nand_nas782x2_mmio, 0);
     memory_region_init_io(&s->mmio_sram0_mmio, NULL, &mmio_sram_ops0, s, TYPE_BRCM_BCM4708, 0x10000);
     memory_region_add_subregion_overlap(get_system_memory(), 0xffff0000, &s->mmio_sram0_mmio, 0);
     memory_region_init_io(&s->brcm_bcm4708_sysram0_mmio, NULL, &brcm_bcm4708_sysram_ops0, s, TYPE_BRCM_BCM4708, 0x1000);

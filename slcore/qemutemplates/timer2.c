@@ -12,9 +12,9 @@ static void {{ name }}_tick_callback{{ i }}(void *opaque)
 
     /* stupid timer */
     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
-    timer_mod(s->timer[{{i}}], 0x10000 + now); /* 0.1MHZ */
-    /* 100,000HZ -> 100HZ */
-    if (s->counter[{{i}}] % 1000 == 0)
+    timer_mod(s->timer[{{i}}], 0x100000 + now); /* 10KHZ */
+    /* 10,000HZ -> 100HZ */
+    if (s->counter[{{i}}] % 100 == 0)
         qemu_set_irq(s->irq[{{i}}], 1);
     s->counter[{{i}}]++;
 }

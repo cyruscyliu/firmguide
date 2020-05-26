@@ -21,7 +21,7 @@
 typedef struct QCA_QCA9558State {
     MIPSCPU *cpu;
     QCA_AR7240_MISC_INTCState qca_ar7240_misc_intc0;
-    MemoryRegion flash;
+    MemoryRegion flash0;
     MemoryRegion ram0;
     MemoryRegion qca_ar7100_spi0_mmio;
     MemoryRegion generic_ehci0_mmio;
@@ -1106,8 +1106,8 @@ static void qca_qca9558_init(MachineState *machine)
     serial_mm_init(get_system_memory(), 0x18020000, 2, qdev_get_gpio_in(DEVICE(&s->qca_ar7240_misc_intc0), 3), 115200, serial_hd(0), DEVICE_BIG_ENDIAN);
     
     
-    memory_region_init_rom(&s->flash, NULL, "boot.flash", 0x400000, &err);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x1fc00000, &s->flash, 0);
+    memory_region_init_rom(&s->flash0, NULL, "boot.flash.0", 0x400000, &err);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x1fc00000, &s->flash0, 0);
     
     memory_region_init_io(&s->qca_ar7100_spi0_mmio, NULL, &qca_ar7100_spi_ops0, s, TYPE_QCA_QCA9558, 0x10);
     memory_region_add_subregion_overlap(get_system_memory(), 0x1f000000, &s->qca_ar7100_spi0_mmio, 0);

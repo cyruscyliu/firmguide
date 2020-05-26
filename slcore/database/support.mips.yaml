@@ -110,8 +110,8 @@ ralink:
   device_tree: true
   support_list:
     BR-6475ND: {arch: mips, brand: openwrt, endian: l, example: examples/machines/ralink_rt3883_soc,
-      realdtb: slcore/database/archivedtb/ralink_rt3883_soc.dtb, subtarget: rt3883,
-      target: ramips}
+      loaddr: '0x80000000', realdtb: slcore/database/archivedtb/ralink_rt3883_soc.dtb,
+      subtarget: rt3883, target: ramips}
     mediatek,linkit-smart-7688: {arch: mips, brand: openwrt, endian: l, example: examples/machines/mediatek_mt7628an_soc,
       realdtb: slcore/database/archivedtb/mediatek_mt7628an_soc.dtb, subtarget: mt76x8,
       target: ramips}
@@ -119,8 +119,8 @@ ralink:
       realdtb: slcore/database/archivedtb/mediatek_mt7628an_soc.dtb, subtarget: mt76x8,
       target: ramips}
     ralink,rt3883-soc: {arch: mips, brand: openwrt, endian: l, example: examples/machines/ralink_rt3883_soc,
-      realdtb: slcore/database/archivedtb/ralink_rt3883_soc.dtb, subtarget: rt3883,
-      target: ramips}
+      loaddr: '0x80000000', realdtb: slcore/database/archivedtb/ralink_rt3883_soc.dtb,
+      subtarget: rt3883, target: ramips}
   targets:
     openwrt: [ramips]
 rb532:
