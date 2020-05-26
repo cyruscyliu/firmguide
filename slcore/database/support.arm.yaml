@@ -118,6 +118,13 @@ mach-orion5x:
     openwrt: [orion]
 mach-oxnas:
   device_tree: true
+  support_list:
+    plxtech,nas7820: {arch: arm, brand: openwrt, endian: l, example: examples/machines/plxtech_nas782x,
+      loaddr: '0x00008000', realdtb: slcore/database/archivedtb/plxtech_nas782x.dtb,
+      subtarget: generic, target: oxnas}
+    plxtech,nas782x: {arch: arm, brand: openwrt, endian: l, example: examples/machines/plxtech_nas782x,
+      loaddr: '0x00008000', realdtb: slcore/database/archivedtb/plxtech_nas782x.dtb,
+      subtarget: generic, target: oxnas}
   targets:
     openwrt: [oxnas]
 mach-picoxcell: {device_tree: true}

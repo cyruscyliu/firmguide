@@ -49,7 +49,7 @@ static void plxtech_nas782x_rps_timer_write(void *opaque, hwaddr offset, uint64_
     switch (offset) {
         default:
             return;
-        case 0x0 ... 0x40 - 0x4:
+        case 0x0 ... 0x3c:
             s->reserved = val;
             break;
     }
@@ -110,4 +110,3 @@ static void plxtech_nas782x_rps_timer_register_types(void)
 }
 
 type_init(plxtech_nas782x_rps_timer_register_types)
-
