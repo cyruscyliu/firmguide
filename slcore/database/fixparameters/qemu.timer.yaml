@@ -5,6 +5,9 @@ marvell,orion-timer:
     n_irq: 2
     counters: [{'addr': '0x14', 'id': 1}]
 plxtech,nas782x-rps-timer:
+    # clocksource_mmio_init(base + TIMER_CURR, "",
+    #                       clock_rate, 250, TIMER_BITS, clocksource_mmio_readl_down);
+    # sched_clock_register(rps_read_sched_clock, TIMER_BITS, clock_rate);
     n_irq: 1
     counters: [{'addr': '0x24', 'id': 0}]
 ralink,rt2880-timer:
