@@ -216,8 +216,12 @@ def merge_flatten_mmio(flatten_mmio):
             index = compatibles.index(mmio['compatible'])
             merged_flatten_mmio[index]['regs'].extend(mmio['regs'])
             merged_flatten_mmio[index]['regs'] = \
+                [dict(t) for t in {tuple(d.items()) for d in
+                                   merged_flatten_mmio[index]['regs']}]
+            merged_flatten_mmio[index]['regs'] = \
                 sorted(merged_flatten_mmio[index]['regs'],
                        key=lambda x: x['base'])
+    print(merged_flatten_mmio)
     return merged_flatten_mmio
 
 

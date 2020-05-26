@@ -95,8 +95,6 @@ class SynthesisDT(Analysis):
         # let's begin
         for k, v in self.rendering_handlers.items():
             # ######### handle flash ########
-            if k == 'flash' and self.firmware.get_arch() == 'arm':
-                continue
             if k == 'flash' and self.firmware.get_components() \
                     and self.firmware.get_components().has_device_tree():
                 dts = load_dtb(self.firmware.get_components().get_path_to_dtb())
@@ -105,7 +103,7 @@ class SynthesisDT(Analysis):
             if flatten_ks is None:
                 self.warning('no {} found'.format(k), 0)
                 continue
-            # ######### handle flash ########
+            # ######### handle ram ########
             if k == 'ram':
                 if len(flatten_ks[0]['regs']) == 0:
                     self.context['ram_default_size'] = 256
@@ -164,11 +162,12 @@ class SynthesisDT(Analysis):
                 fix_parameters = self.load_fix_parameters(k, b.effic_compatible)
                 if fix_parameters is not None:
                     for x, y in fix_parameters.items():
-                        if x != 'regs_index_registers':
+                        if x != 'regs_index':
                             b.model[x] = y
                         else:
-                            for xx, yy in y.items():
-                                context['regs'][xx]['registers'] = yy
+                            for index, yy in y.items():
+                                for xxx, yyy in yy.items():
+                                    context['regs'][index][xxx] = yyy
                 m_context = b.render(context)
                 if isinstance(m_context, str):
                     self.warning('cannot suport {} {}, {} is missing'.format(
