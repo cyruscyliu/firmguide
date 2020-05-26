@@ -106,6 +106,13 @@ class SynthesisDT(Analysis):
                 self.warning('no {} found'.format(k), 0)
                 continue
             # ######### handle flash ########
+            if k == 'ram':
+                if len(flatten_ks[0]['regs']) == 0:
+                    self.context['ram_default_size'] = 256
+                else:
+                    self.context['ram_default_size'] = \
+                        flatten_ks[0]['regs'][0]['size'] // 1024 // 1024
+            # ######### handle flash ########
             if self.firmware.get_arch() == 'mips' and k == 'flash' and \
                     not len(flatten_ks):
                 # mips will have a default flash if no flash is detected

@@ -54,6 +54,9 @@ def find_memory_in_fdt(dts):
 
     __validate_ram_size(memory)
 
+    memory[0]['regs'] = \
+        sorted(memory[0]['regs'], key=lambda x: x['base'])
+
     return memory
 
 
