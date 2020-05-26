@@ -58,7 +58,10 @@ class CallStackI(object):
                 # find the bl/jal instruction and test it
                 if insn.mnemonic not in self.callbacks:
                     continue
-                target = int(insn.op_str, 16)
+                if insn.op_str.startswith('#'):
+                    target = int(insn.op_str[1:], 16)
+                else:
+                    target = int(insn.op_str, 16)
                 # find it!
                 lr = self.find_lr(insn)
                 self.guard = lr
