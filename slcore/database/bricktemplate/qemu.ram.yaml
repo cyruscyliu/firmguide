@@ -7,6 +7,9 @@ atmel,at91sam9:
 atmel,at91sam9260:
   buddy_compatible: []
   extend: ram,generic
+brcm,bcm4708:
+  buddy_compatible: ['netgear,r8000', 'brcm,bcm4709']
+  extend: ram,generic
 fsl,ls1043a:
   buddy_compatible: []
   extend: ram,generic

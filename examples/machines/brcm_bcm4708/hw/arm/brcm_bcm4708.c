@@ -22,29 +22,25 @@
 typedef struct BRCM_BCM4708State {
     ARMCPU *cpu;
     A9MPPrivState arm_cortex_a9_gic;
-    MemoryRegion stub0_mmio;
-    uint32_t stub_reserved0[0x300 >> 2];
-    MemoryRegion stub2_mmio;
-    uint32_t stub_reserved2[0xb00 >> 2];
-    MemoryRegion stub4_mmio;
-    uint32_t stub_reserved4[0x600 >> 2];
-    MemoryRegion stub5_mmio;
-    uint32_t stub_reserved5[0x20 >> 2];
-    MemoryRegion stub6_mmio;
-    uint32_t stub_reserved6[0x600 >> 2];
-    MemoryRegion ram;
+    MemoryRegion flash0;
+    MemoryRegion flash1;
+    MemoryRegion flash2;
     MemoryRegion ram0;
     MemoryRegion ram1;
-    MemoryRegion ram2;
-    MemoryRegion ram3;
+    MemoryRegion mmio_sram0_mmio;
+    MemoryRegion brcm_bcm4708_sysram0_mmio;
+    MemoryRegion brcm_bus_axi0_mmio;
+    uint32_t mmio_sram0_reserved[0x10000 >> 2];
+    uint32_t brcm_bcm4708_sysram0_reserved[0x1000 >> 2];
+    uint32_t brcm_bus_axi0_reserved[0x1000 >> 2];
 } BRCM_BCM4708State;
 
-static void stub0_update(void *opaque)
+static void mmio_sram0_update(void *opaque)
 {
     /* BRCM_BCM4708State *s = opaque; */
 }
 
-static uint64_t stub0_read(void *opaque, hwaddr offset, unsigned size)
+static uint64_t mmio_sram0_read(void *opaque, hwaddr offset, unsigned size)
 {
     BRCM_BCM4708State *s = opaque;
     uint32_t res = 0;
@@ -53,14 +49,14 @@ static uint64_t stub0_read(void *opaque, hwaddr offset, unsigned size)
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return 0;
-    case 0x0 ... 0x2fc:
-        res = s->stub_reserved0[offset >> 2];
+    case 0x0 ... 0xfffc:
+        res = s->mmio_sram0_reserved[offset >> 2];
         break;
     }
     return res;
 }
 
-static void stub0_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
+static void mmio_sram0_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
 {
     BRCM_BCM4708State *s = opaque;
 
@@ -68,25 +64,25 @@ static void stub0_write(void *opaque, hwaddr offset, uint64_t val, unsigned size
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return;
-    case 0x0 ... 0x2fc:
-        s->stub_reserved0[offset >> 2] = val;
+    case 0x0 ... 0xfffc:
+        s->mmio_sram0_reserved[offset >> 2] = val;
         break;
     }
-    stub0_update(s);
+    mmio_sram0_update(s);
 }
 
-static const MemoryRegionOps stub0_ops = {
-    .read = stub0_read,
-    .write = stub0_write,
+static const MemoryRegionOps mmio_sram_ops0 = {
+    .read = mmio_sram0_read,
+    .write = mmio_sram0_write,
     .endianness = DEVICE_LITTLE_ENDIAN,
 };
 
-static void stub2_update(void *opaque)
+static void brcm_bcm4708_sysram0_update(void *opaque)
 {
     /* BRCM_BCM4708State *s = opaque; */
 }
 
-static uint64_t stub2_read(void *opaque, hwaddr offset, unsigned size)
+static uint64_t brcm_bcm4708_sysram0_read(void *opaque, hwaddr offset, unsigned size)
 {
     BRCM_BCM4708State *s = opaque;
     uint32_t res = 0;
@@ -95,14 +91,14 @@ static uint64_t stub2_read(void *opaque, hwaddr offset, unsigned size)
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return 0;
-    case 0x0 ... 0xafc:
-        res = s->stub_reserved2[offset >> 2];
+    case 0x0 ... 0xffc:
+        res = s->brcm_bcm4708_sysram0_reserved[offset >> 2];
         break;
     }
     return res;
 }
 
-static void stub2_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
+static void brcm_bcm4708_sysram0_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
 {
     BRCM_BCM4708State *s = opaque;
 
@@ -110,25 +106,25 @@ static void stub2_write(void *opaque, hwaddr offset, uint64_t val, unsigned size
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return;
-    case 0x0 ... 0xafc:
-        s->stub_reserved2[offset >> 2] = val;
+    case 0x0 ... 0xffc:
+        s->brcm_bcm4708_sysram0_reserved[offset >> 2] = val;
         break;
     }
-    stub2_update(s);
+    brcm_bcm4708_sysram0_update(s);
 }
 
-static const MemoryRegionOps stub2_ops = {
-    .read = stub2_read,
-    .write = stub2_write,
+static const MemoryRegionOps brcm_bcm4708_sysram_ops0 = {
+    .read = brcm_bcm4708_sysram0_read,
+    .write = brcm_bcm4708_sysram0_write,
     .endianness = DEVICE_LITTLE_ENDIAN,
 };
 
-static void stub4_update(void *opaque)
+static void brcm_bus_axi0_update(void *opaque)
 {
     /* BRCM_BCM4708State *s = opaque; */
 }
 
-static uint64_t stub4_read(void *opaque, hwaddr offset, unsigned size)
+static uint64_t brcm_bus_axi0_read(void *opaque, hwaddr offset, unsigned size)
 {
     BRCM_BCM4708State *s = opaque;
     uint32_t res = 0;
@@ -137,14 +133,14 @@ static uint64_t stub4_read(void *opaque, hwaddr offset, unsigned size)
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return 0;
-    case 0x0 ... 0x5fc:
-        res = s->stub_reserved4[offset >> 2];
+    case 0x0 ... 0xffc:
+        res = s->brcm_bus_axi0_reserved[offset >> 2];
         break;
     }
     return res;
 }
 
-static void stub4_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
+static void brcm_bus_axi0_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
 {
     BRCM_BCM4708State *s = opaque;
 
@@ -152,112 +148,24 @@ static void stub4_write(void *opaque, hwaddr offset, uint64_t val, unsigned size
     default:
         qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
         return;
-    case 0x0 ... 0x5fc:
-        s->stub_reserved4[offset >> 2] = val;
+    case 0x0 ... 0xffc:
+        s->brcm_bus_axi0_reserved[offset >> 2] = val;
         break;
     }
-    stub4_update(s);
+    brcm_bus_axi0_update(s);
 }
 
-static const MemoryRegionOps stub4_ops = {
-    .read = stub4_read,
-    .write = stub4_write,
+static const MemoryRegionOps brcm_bus_axi_ops0 = {
+    .read = brcm_bus_axi0_read,
+    .write = brcm_bus_axi0_write,
     .endianness = DEVICE_LITTLE_ENDIAN,
 };
 
-static void stub5_update(void *opaque)
-{
-    /* BRCM_BCM4708State *s = opaque; */
-}
-
-static uint64_t stub5_read(void *opaque, hwaddr offset, unsigned size)
-{
-    BRCM_BCM4708State *s = opaque;
-    uint32_t res = 0;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return 0;
-    case 0x0 ... 0x1c:
-        res = s->stub_reserved5[offset >> 2];
-        break;
-    }
-    return res;
-}
-
-static void stub5_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
-{
-    BRCM_BCM4708State *s = opaque;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return;
-    case 0x0 ... 0x1c:
-        s->stub_reserved5[offset >> 2] = val;
-        break;
-    }
-    stub5_update(s);
-}
-
-static const MemoryRegionOps stub5_ops = {
-    .read = stub5_read,
-    .write = stub5_write,
-    .endianness = DEVICE_LITTLE_ENDIAN,
-};
-
-static void stub6_update(void *opaque)
-{
-    /* BRCM_BCM4708State *s = opaque; */
-}
-
-static uint64_t stub6_read(void *opaque, hwaddr offset, unsigned size)
-{
-    BRCM_BCM4708State *s = opaque;
-    uint32_t res = 0;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return 0;
-    case 0x0 ... 0x5fc:
-        res = s->stub_reserved6[offset >> 2];
-        break;
-    }
-    return res;
-}
-
-static void stub6_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
-{
-    BRCM_BCM4708State *s = opaque;
-
-    switch (offset) {
-    default:
-        qemu_log_mask(LOG_GUEST_ERROR, "%s: Bad offset %"HWADDR_PRIx"\n", __func__, offset);
-        return;
-    case 0x0 ... 0x5fc:
-        s->stub_reserved6[offset >> 2] = val;
-        break;
-    }
-    stub6_update(s);
-}
-
-static const MemoryRegionOps stub6_ops = {
-    .read = stub6_read,
-    .write = stub6_write,
-    .endianness = DEVICE_LITTLE_ENDIAN,
-};
 
 static void brcm_bcm4708_reset(void *opaque)
 {
     BRCM_BCM4708State *s = opaque;
     
-    s->stub_reserved0[0] = 0x0;
-    s->stub_reserved2[0] = 0x0;
-    s->stub_reserved4[0] = 0x0;
-    s->stub_reserved5[0] = 0x0;
-    s->stub_reserved6[0] = 0x0;
 }
 
 static void brcm_bcm4708_init(MachineState *machine)
@@ -269,18 +177,11 @@ static void brcm_bcm4708_init(MachineState *machine)
     s->cpu = ARM_CPU(object_new(machine->cpu_type));
     object_property_set_int(OBJECT(s->cpu), 0x19020000 & 0xffff0000, "reset-cbar", &err);
     object_property_set_bool(OBJECT(s->cpu), true, "realized", &err);
-
-    memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
-    memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, 0);
     
-    memory_region_allocate_system_memory(&s->ram0, OBJECT(machine), "ram0", 134217728);
-    memory_region_add_subregion_overlap(get_system_memory(), 2281701376, &s->ram0, 0);
-    memory_region_allocate_system_memory(&s->ram1, OBJECT(machine), "ram1", 134217728);
-    memory_region_add_subregion_overlap(get_system_memory(), 2281701376, &s->ram1, 0);
-    memory_region_allocate_system_memory(&s->ram2, OBJECT(machine), "ram2", 134217728);
-    memory_region_add_subregion_overlap(get_system_memory(), 2281701376, &s->ram2, 0);
-    memory_region_allocate_system_memory(&s->ram3, OBJECT(machine), "ram3", 134217728);
-    memory_region_add_subregion_overlap(get_system_memory(), 2281701376, &s->ram3, 0);
+    memory_region_allocate_system_memory(&s->ram0, OBJECT(machine), "ram0", 0x8000000);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x0, &s->ram0, 0);
+    memory_region_allocate_system_memory(&s->ram1, OBJECT(machine), "ram1", 0x8000000);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x88000000, &s->ram1, 0);
     
     object_initialize(&s->arm_cortex_a9_gic, sizeof(s->arm_cortex_a9_gic), TYPE_A9MPCORE_PRIV);
     qdev_prop_set_uint32(DEVICE(&s->arm_cortex_a9_gic), "num-cpu", 2);
@@ -296,17 +197,19 @@ static void brcm_bcm4708_init(MachineState *machine)
     
     sysbus_create_varargs("l2x0", 0x19022000 , NULL);
     
-    memory_region_init_io(&s->stub0_mmio, NULL, &stub0_ops, s, TYPE_BRCM_BCM4708, 0x300);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x18000000, &s->stub0_mmio, 0);
-    memory_region_init_io(&s->stub2_mmio, NULL, &stub2_ops, s, TYPE_BRCM_BCM4708, 0xb00);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x18000500, &s->stub2_mmio, 0);
-    memory_region_init_io(&s->stub4_mmio, NULL, &stub4_ops, s, TYPE_BRCM_BCM4708, 0x600);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x18028000, &s->stub4_mmio, 0);
-    memory_region_init_io(&s->stub5_mmio, NULL, &stub5_ops, s, TYPE_BRCM_BCM4708, 0x20);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x18028f00, &s->stub5_mmio, 0);
-    memory_region_init_io(&s->stub6_mmio, NULL, &stub6_ops, s, TYPE_BRCM_BCM4708, 0x600);
-    memory_region_add_subregion_overlap(get_system_memory(), 0x1811a408, &s->stub6_mmio, 0);
+    memory_region_init_rom(&s->flash0, NULL, "boot.flash.0", 0x600, &err);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x18028000, &s->flash0, 0);
+    memory_region_init_rom(&s->flash1, NULL, "boot.flash.1", 0x600, &err);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x1811a408, &s->flash1, 0);
+    memory_region_init_rom(&s->flash2, NULL, "boot.flash.2", 0x20, &err);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x18028f00, &s->flash2, 0);
     
+    memory_region_init_io(&s->mmio_sram0_mmio, NULL, &mmio_sram_ops0, s, TYPE_BRCM_BCM4708, 0x10000);
+    memory_region_add_subregion_overlap(get_system_memory(), 0xffff0000, &s->mmio_sram0_mmio, 0);
+    memory_region_init_io(&s->brcm_bcm4708_sysram0_mmio, NULL, &brcm_bcm4708_sysram_ops0, s, TYPE_BRCM_BCM4708, 0x1000);
+    memory_region_add_subregion_overlap(get_system_memory(), 0xffff0000, &s->brcm_bcm4708_sysram0_mmio, 0);
+    memory_region_init_io(&s->brcm_bus_axi0_mmio, NULL, &brcm_bus_axi_ops0, s, TYPE_BRCM_BCM4708, 0x1000);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x18000000, &s->brcm_bus_axi0_mmio, -1);
     brcm_bcm4708_reset(s);
 
     binfo.board_id = 0xFFFFFFFF;
@@ -321,10 +224,9 @@ static void brcm_bcm4708_machine_init(MachineClass *mc)
 {
     mc->desc = "brcm_bcm4708";
     mc->init = brcm_bcm4708_init;
-    mc->default_ram_size = 0x8000000;
+    mc->default_ram_size = 128 * MiB;
     mc->default_cpu_type = ARM_CPU_TYPE_NAME("cortex-a9");
     mc->ignore_memory_transaction_failures = false;
 }
 
 DEFINE_MACHINE("brcm_bcm4708", brcm_bcm4708_machine_init)
-

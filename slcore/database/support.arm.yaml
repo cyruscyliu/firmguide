@@ -8,22 +8,25 @@ mach-at91:
 mach-axxia: {device_tree: true}
 mach-bcm:
   device_tree: true
+  support_list:
+    asus,rt-ac56u: {arch: arm, brand: openwrt, endian: l, example: examples/machines/brcm_bcm4708,
+      loaddr: '0x00008000', realdtb: slcore/database/archivedtb/brcm_bcm4708.dtb,
+      subtarget: generic, target: bcm53xx}
+    brcm,bcm4708: {arch: arm, brand: openwrt, endian: l, example: examples/machines/brcm_bcm4708,
+      loaddr: '0x00008000', realdtb: slcore/database/archivedtb/brcm_bcm4708.dtb,
+      subtarget: generic, target: bcm53xx}
   targets:
     openwrt: [bcm53xx]
 mach-bcm2708:
-  
   device_tree: null
   machine_ids: {}
-  
   targets:
     openwrt: [brcm2708]
 mach-berlin: {device_tree: true}
 mach-clps711x: {device_tree: true}
 mach-cns21xx:
-  
   device_tree: null
   machine_ids: {}
-  
   targets:
     openwrt: [cns21xx]
 mach-cns3xxx:
@@ -42,18 +45,14 @@ mach-ep93xx:
 mach-exynos: {device_true: true}
 mach-footbridge: {device_tree: false}
 mach-gemini:
-  
   device_tree: null
   machine_ids: {}
-  
   targets:
     openwrt: [gemini]
 mach-genimi: {device_tree: true}
 mach-goldfish:
-  
   device_tree: null
   machine_ids: {}
-  
   targets:
     openwrt: [goldfish]
 mach-highbank: {device_tree: true}
@@ -81,10 +80,8 @@ mach-kirkwood:
 mach-ks8695: {device_tree: false}
 mach-lpc32xx: {device_tree: true}
 mach-mcs814x:
-  
   device_tree: null
   machine_ids: {}
-  
   targets:
     openwrt: [mcs814x]
 mach-mediatek:
@@ -140,10 +137,8 @@ mach-realview:
 mach-rockchip: {device_tree: true}
 mach-rpc: {device_tree: false}
 mach-s3c2410:
-  
   device_tree: null
   machine_ids: {}
-  
   targets:
     openwrt: [s3c24xx]
 mach-s3c24xx: {device_tree: true}

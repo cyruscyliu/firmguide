@@ -1,10 +1,10 @@
 flash,generic:
     get_header: []
     get_field:
-        - MemoryRegion flash;
+        - MemoryRegion flash{{ id }};
     get_body:
-      - memory_region_init_rom(&s->flash, NULL, "boot.flash", {{ reg.size|to_hex }}, &err);
-      - memory_region_add_subregion_overlap(get_system_memory(), {{ reg.base|to_hex }}, &s->flash, 0);
+      - memory_region_init_rom(&s->flash{{ id }}, NULL, "boot.flash.{{ id }}", {{ reg.size|to_hex }}, &err);
+      - memory_region_add_subregion_overlap(get_system_memory(), {{ reg.base|to_hex }}, &s->flash{{ id }}, 0);
     get_connection: []
     parameters: [regs]
 abb,socrates-nand: {extend: 'flash,generic'}

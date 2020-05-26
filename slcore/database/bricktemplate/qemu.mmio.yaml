@@ -163,6 +163,12 @@ atmel,hsmci:
 atmel,sama5d3-rstc:
   buddy_compatible: []
   extend: mmio,generic
+brcm,bcm4708-sysram:
+  buddy_compatible: []
+  extend: mmio,generic
+brcm,bus-axi:
+  buddy_compatible: []
+  extend: mmio,generic
 cdns,emac:
   buddy_compatible: ['cdns,at91rm9200-emac']
   extend: mmio,generic
@@ -481,6 +487,9 @@ pci168c,0029:
 pci168c,002a:
   buddy_compatible: []
   extend: mmio,generic
+pci168c,002b:
+  buddy_compatible: []
+  extend: mmio,generic
 pci168c,002e:
   buddy_compatible: []
   extend: mmio,generic
@@ -554,6 +563,9 @@ qca,ar7200-usb-phy:
   buddy_compatible: ['qca,qca9550-usb-phy']
   extend: mmio,generic
 qca,ar7240-ddr-controller:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7240-eth:
   buddy_compatible: []
   extend: mmio,generic
 qca,ar7240-pll:
