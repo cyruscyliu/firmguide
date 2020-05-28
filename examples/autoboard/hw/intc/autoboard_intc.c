@@ -10,6 +10,7 @@
 #include "hw/intc/autoboard_gen.h"
 #include "hw/intc/autoboard_edge_irq.h"
 #include "hw/intc/autoboard_level_irq.h"
+#include "hw/intc/autoboard_eoi_lvl_irq.h"
 #include "hw/intc/autoboard_intc.h"
 
 static autoboard_intc_cfg_id choosen_id = AUTOBOARD_INTC_INVALID;
@@ -38,6 +39,7 @@ static uint32_t autoboard_mmio_write(autoboard_mmio *mmio, hwaddr off, uint64_t 
 static bool is_irq_act(AUTOBOARD_INTCState *s, int32_t irq_idx, int32_t action)
 {
     uint8_t type;
+    auto_trifle at;
 
     type = s->in_irqs[irq_idx].type;
     switch(type) {
@@ -45,12 +47,16 @@ static bool is_irq_act(AUTOBOARD_INTCState *s, int32_t irq_idx, int32_t action)
         {
         level_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
         if (action == 1) {
-            //printf("[+] do real act on irq %d\n", irq_idx);
-            mach->do_act(mach);
+            //printf("[+] send do act lvl hwevt on irq %d\n", irq_idx);
+            at.type = TRIFLE_HW_EVT;
+            at.hw_evt = LVL_HW_EVT_DOACT;
+            mach->dispatch(mach, &at);
         }
         if (action == 2) {
-            //printf("[+] do real deact on irq %d\n", irq_idx);
-            mach->do_deact(mach);
+            //printf("[+] send do deact lvl hwevt on irq %d\n", irq_idx);
+            at.type = TRIFLE_HW_EVT;
+            at.hw_evt = LVL_HW_EVT_DODEACT;
+            mach->dispatch(mach, &at);
         }
 
         return mach->is_acted(mach);
@@ -61,18 +67,41 @@ static bool is_irq_act(AUTOBOARD_INTCState *s, int32_t irq_idx, int32_t action)
         {
         edge_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
         if (action == 1) {
-            //printf("[+] do real act on irq %d\n", irq_idx);
-            mach->do_act(mach);
+            //printf("[+] send do act edge hwevt on irq %d\n", irq_idx);
+            at.type = TRIFLE_HW_EVT;
+            at.hw_evt = EDGE_HW_EVT_DOACT;
+            mach->dispatch(mach, &at);
         }
         if (action == 2) {
-            //printf("[+] do real deact on irq %d\n", irq_idx);
-            mach->do_deact(mach);
+            //printf("[+] send do deact edge hwevt on irq %d\n", irq_idx);
+            at.type = TRIFLE_HW_EVT;
+            at.hw_evt = EDGE_HW_EVT_DODEACT;
+            mach->dispatch(mach, &at);
         }
 
         return mach->is_acted(mach);
         }
         break;
 
+    case STAT_MACH_EOI_LVL_IRQ:
+        {
+        eoi_lvl_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
+        if (action == 1) {
+            //printf("[+] send do act eoi lvl hwevt on irq %d\n", irq_idx);
+            at.type = TRIFLE_HW_EVT;
+            at.hw_evt = EOI_LVL_HW_EVT_DOACT;
+            mach->dispatch(mach, &at);
+        }
+        if (action == 2) {
+            //printf("[+] send do deact eoi lvl hwevt on irq %d\n", irq_idx);
+            at.type = TRIFLE_HW_EVT;
+            at.hw_evt = EOI_LVL_HW_EVT_DODEACT;
+            mach->dispatch(mach, &at);
+        }
+
+        return mach->is_acted(mach);
+        }
+        break;
     case STAT_MACH_EMPTY:
         return false;
         break;
@@ -109,6 +138,14 @@ static int32_t find_next_act_irq_round_robin(AUTOBOARD_INTCState *s, int32_t sta
             }
             break;
 
+        case STAT_MACH_EOI_LVL_IRQ:
+            {
+            eoi_lvl_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
+            if (mach->is_acted(mach))
+                return irq_idx;
+            }
+            break;
+
         case STAT_MACH_EMPTY:
             break;
 
@@ -127,16 +164,22 @@ static void autoboard_refresh_irq_lines(AUTOBOARD_INTCState *s)
     // we use round robin to activate irq
     int32_t *act_irq = &(s->act_irq);
     int32_t irq_idx;
+    
+    static int count = 0;
+    count++;
+
+    //printf("[+][%d] %s start refresh\n", count, s->name);
 
     if (*act_irq != -1) {
         if (is_irq_act(s, *act_irq, 0)) {
             // still act, do nothing
-            //printf("[+] %s keep raise irq %d\n", s->name, *act_irq);
+            is_irq_act(s, *act_irq, 1);
+            //printf("[+][%d] %s keep raise irq %d\n", count, s->name, *act_irq);
             qemu_set_irq(s->irq, 1);
+            //printf("[+][%d] %s end 1 refresh\n", count, s->name);
             return;
         } else {
-            // deact act_irq
-            //printf("[+] %s deact irq, irq %d\n", s->name, *act_irq);
+            //printf("[+][%d] %s deact irq, irq %d\n", count, s->name, *act_irq);
             is_irq_act(s, *act_irq, 2);
         }
     }
@@ -144,16 +187,18 @@ static void autoboard_refresh_irq_lines(AUTOBOARD_INTCState *s)
     irq_idx = find_next_act_irq_round_robin(s, *act_irq);
     if (irq_idx == -1) {
         // no act irq
-        //printf("[+] %s lower irq line off\n", s->name);
         *act_irq = -1;
+        //printf("[+][%d] %s lower irq line off\n", count, s->name);
         qemu_set_irq(s->irq, 0);
     } else {
         // act act_irq 
-        //printf("[+] %s raise irq %d\n", s->name, irq_idx);
         is_irq_act(s, irq_idx, 1);
         *act_irq = irq_idx;
+        //printf("[+][%d] %s raise irq %d\n", count, s->name, irq_idx);
         qemu_set_irq(s->irq, 1);
     }
+
+    //printf("[+][%d] %s end 2 refresh\n", count, s->name);
 }
 
 static uint32_t dispatch_mmio_rw(AUTOBOARD_INTCState *s, auto_trifle *at)
@@ -180,6 +225,13 @@ static uint32_t dispatch_mmio_rw(AUTOBOARD_INTCState *s, auto_trifle *at)
             }
             break;
 
+        case STAT_MACH_EOI_LVL_IRQ:
+            {
+            eoi_lvl_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
+            triggered += mach->dispatch(mach, at);
+            }
+            break;
+
         case STAT_MACH_EMPTY:
             break;
 
@@ -192,7 +244,7 @@ static uint32_t dispatch_mmio_rw(AUTOBOARD_INTCState *s, auto_trifle *at)
     return triggered;
 }
 
-static uint64_t autoboard_intc_read(void *opaque, hwaddr offset, unsigned size)
+static uint64_t autoboard_intc_read(void *opaque, hwaddr offset, unsigned size, unsigned mmio_idx)
 {
     // as this is a read-only function, we may not need raise an event but read w/w.o lock
     AUTOBOARD_INTCState *s;
@@ -202,27 +254,28 @@ static uint64_t autoboard_intc_read(void *opaque, hwaddr offset, unsigned size)
 
     s = opaque;
 
-    res = s->aummio->read(s->aummio, offset);
+    res = s->aummios[mmio_idx].read(&s->aummios[mmio_idx], offset);
 
     at.type = TRIFLE_KER_READ;
+    at.mmio_idx = mmio_idx;
     at.off = offset;
     at.old_val = res;
     at.new_val = 0;
 
     triggered = dispatch_mmio_rw(s, &at);
 
-    // read again as the mmio read may induce the change of mmio content
-    res = s->aummio->read(s->aummio, offset);
-
-    //printf("[+] %s read off 0x%lx, size %d, value 0x%lx, %d event(s) are triggered\n", s->name, offset, size, res, triggered);
-
     if (triggered) 
         autoboard_refresh_irq_lines(s);
+
+    // read again as the mmio read may induce the change of mmio content
+    res = s->aummios[mmio_idx].read(&s->aummios[mmio_idx], offset);
+
+    //printf("[+] %s read idx %d off 0x%lx, size %d, value 0x%lx, %d event(s) are triggered\n", s->name, mmio_idx, offset, size, res, triggered);
 
     return res;
 }
 
-static void autoboard_intc_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)
+static void autoboard_intc_write(void *opaque, hwaddr offset, uint64_t val, unsigned size, unsigned mmio_idx)
 {
     AUTOBOARD_INTCState *s;
     auto_trifle at;
@@ -232,25 +285,47 @@ static void autoboard_intc_write(void *opaque, hwaddr offset, uint64_t val, unsi
 
     // offset, old_value, new_value
     at.type = TRIFLE_KER_WRITE;
+    at.mmio_idx = mmio_idx;
     at.off = offset;
-    at.old_val = (uint64_t)s->aummio->read(s->aummio, offset);
+    at.old_val = (uint64_t)s->aummios[mmio_idx].read(&s->aummios[mmio_idx], offset);
     at.new_val = val;
 
     // update the value
-    s->aummio->write(s->aummio, offset, val);
+    s->aummios[mmio_idx].write(&s->aummios[mmio_idx], offset, val);
 
     triggered = dispatch_mmio_rw(s, &at);
 
-    //printf("[+] %s write off 0x%lx, size %d, change value from 0x%lx to 0x%lx, %d event(s) are triggered\n", s->name, at.off, size, at.old_val, at.new_val, triggered);
-
     if (triggered) 
         autoboard_refresh_irq_lines(s);
+
+    //printf("[+] %s write idx %d off 0x%lx, size %d, change value from 0x%lx to 0x%lx, %d event(s) are triggered\n", s->name, mmio_idx, at.off, size, at.old_val, at.new_val, triggered);
 }
 
-static const MemoryRegionOps autoboard_intc_ops = {
-    .read = autoboard_intc_read,
-    .write = autoboard_intc_write,
-    .endianness = DEVICE_LITTLE_ENDIAN,
+#define AUTOBOARD_MAKE_MMIO_RANGE_RW_FUNCS(idx) \
+static uint64_t autoboard_intc_read_range##idx(void *opaque, hwaddr offset, unsigned size)\
+{\
+    return autoboard_intc_read(opaque, offset, size, idx);\
+}\
+static void autoboard_intc_write_range##idx(void *opaque, hwaddr offset, uint64_t val, unsigned size)\
+{\
+    autoboard_intc_write(opaque, offset, val, size, idx);\
+}
+
+AUTOBOARD_MAKE_MMIO_RANGE_RW_FUNCS(0)
+AUTOBOARD_MAKE_MMIO_RANGE_RW_FUNCS(1)
+
+#define AUTOBOARD_MMIO_OPS_STATIC_STRUCT(idx) \
+    {\
+        .read = autoboard_intc_read_range##idx,\
+        .write = autoboard_intc_write_range##idx,\
+        .endianness = DEVICE_LITTLE_ENDIAN,\
+    },
+
+#define AUTOBOARD_MMIO_REGION_NUM 2
+
+static const MemoryRegionOps autoboard_intc_ops[AUTOBOARD_MMIO_REGION_NUM] = {
+    AUTOBOARD_MMIO_OPS_STATIC_STRUCT(0)
+    AUTOBOARD_MMIO_OPS_STATIC_STRUCT(1)
 };
 
 static void autoboard_intc_device_irq_cb(void *opaque, int irq, int level)
@@ -296,6 +371,21 @@ static void autoboard_intc_device_irq_cb(void *opaque, int irq, int level)
         }
         break;
     
+    case STAT_MACH_EOI_LVL_IRQ:
+        {
+        eoi_lvl_irq_stat_mach *mach;
+
+        at.type = TRIFLE_HW_EVT;
+        if (level)
+            at.hw_evt = EOI_LVL_EVT_ACT;
+        else
+            at.hw_evt = EOI_LVL_EVT_DEACT;
+
+        mach = s->in_irqs[irq].stat_mach;
+        mach->dispatch(mach, &at);
+        }
+        break;
+    
     default:
         return;
         break;
@@ -307,25 +397,39 @@ static void autoboard_intc_device_irq_cb(void *opaque, int irq, int level)
 static void autoboard_intc_init(Object *obj)
 {
     AUTOBOARD_INTCState *s = AUTOBOARD_INTC(obj);
+    int i;
 
     s->act_irq = -1;
     s->name = intc_name;
     s->cfg = get_autoboard_intc_config(choosen_id);
 
     /* initialize the mmio cache & the mmio */
-    s->aummio = calloc(1, sizeof(autoboard_mmio));
-    s->aummio->mmio_len = s->cfg->mmio_len;
-    s->aummio->caches = calloc(1, s->aummio->mmio_len);
-    s->aummio->read = autoboard_mmio_read;
-    s->aummio->write = autoboard_mmio_write;
+    assert(s->cfg->mm_amount > 0 && s->cfg->mm_amount <= AUTOBOARD_MMIO_REGION_NUM && "wierd s->cfg->mm_amount");
 
-    memory_region_init_io(&s->mmio, obj, &autoboard_intc_ops, s, TYPE_AUTOBOARD_INTC, s->aummio->mmio_len);
-    sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->mmio);
+    s->mmios = calloc(s->cfg->mm_amount, sizeof(MemoryRegion));
+    s->aummios = calloc(s->cfg->mm_amount, sizeof(autoboard_mmio));
+    for (i = 0; i < s->cfg->mm_amount; i++) {
+        s->aummios[i].mmio_len = s->cfg->mm_lens[i];
+        s->aummios[i].caches = calloc(1, s->aummios[i].mmio_len);
+        s->aummios[i].read = autoboard_mmio_read;
+        s->aummios[i].write = autoboard_mmio_write;
+
+        memory_region_init_io(&(s->mmios[i]), obj, &(autoboard_intc_ops[i]), s, TYPE_AUTOBOARD_INTC, s->aummios[i].mmio_len);
+        sysbus_init_mmio(SYS_BUS_DEVICE(s), &(s->mmios[i]));
+    }
+
+    // TODO: ugly fix for init value of one addr in oxnas.gic
+    if (choosen_id == AUTOBOARD_INTC_OXNAS_GENERIC_GIC)
+        s->aummios[0].write(&s->aummios[0], 0x4, 0x1);
 
     /* initialize the out irq to cpu */
     // seems xxx & xxx_named cannot be mixly used
     //qdev_init_gpio_out_named(DEVICE(s), &s->irq, "irq2cpu", 1);
-    qdev_init_gpio_out(DEVICE(s), &s->irq, 1);
+    // TODO: another ugly fix for the gic, re-do this when free
+    if (choosen_id == AUTOBOARD_INTC_OXNAS_GENERIC_GIC)
+        sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
+    else
+        qdev_init_gpio_out(DEVICE(s), &s->irq, 1);
 
     /* initialize the in irqs connected with device */
     //printf("autoboard_irq_num %d\n", s->cfg->irq_num);
@@ -350,6 +454,9 @@ static void autoboard_intc_init(Object *obj)
                 break;
             case STAT_MACH_EDGE_IRQ:
                 s->in_irqs[i].stat_mach = init_edge_irq_stat_mach(s, i);
+                break;
+            case STAT_MACH_EOI_LVL_IRQ:
+                s->in_irqs[i].stat_mach = init_eoi_lvl_irq_stat_mach(s, i);
                 break;
             default:
                 assert("wierd irq type:" && type && false);
@@ -390,6 +497,18 @@ static void autoboard_intc_reset(DeviceState *dev)
 
             at.type = TRIFLE_HW_EVT;
             at.hw_evt = EDGE_EVT_RESET;
+
+            mach = s->in_irqs[i].stat_mach;
+            mach->dispatch(mach, &at);
+            }
+            break;
+
+        case STAT_MACH_EOI_LVL_IRQ:
+            {
+            eoi_lvl_irq_stat_mach *mach;
+
+            at.type = TRIFLE_HW_EVT;
+            at.hw_evt = EOI_LVL_EVT_RESET;
 
             mach = s->in_irqs[i].stat_mach;
             mach->dispatch(mach, &at);

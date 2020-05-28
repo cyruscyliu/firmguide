@@ -50,8 +50,10 @@ typedef enum {
     LVL_EVT_UNMSK,
     LVL_EVT_RESET,
     LVL_EVT_INIT,
+    LVL_HW_EVT_DOACT,
+    LVL_HW_EVT_DODEACT,
     // The following are not valid events
-    LVL_EVT_NUM,
+    LVL_ALL_EVT_NUM,
     LVL_EVT_INVALID = -1,
 } level_irq_event;
 
@@ -81,6 +83,8 @@ typedef struct level_irq_stat_mach {
     uint8_t act;
     uint8_t msk;
 
+    uint32_t progs[LVL_ALL_EVT_NUM];
+
     uint8_t (* is_evt_off) (struct level_irq_stat_mach *, auto_trifle *);
     uint8_t (* is_evt_on) (struct level_irq_stat_mach *, auto_trifle *);
     uint8_t (* is_evt_act) (struct level_irq_stat_mach *, auto_trifle *);
@@ -91,8 +95,8 @@ typedef struct level_irq_stat_mach {
     uint8_t (* is_evt_init) (struct level_irq_stat_mach *, auto_trifle *);
 
     bool (* is_acted) (struct level_irq_stat_mach *);
-    uint8_t (* do_act) (struct level_irq_stat_mach *);
-    uint8_t (* do_deact) (struct level_irq_stat_mach *);
+    uint8_t (* do_act) (struct level_irq_stat_mach *, auto_trifle *);
+    uint8_t (* do_deact) (struct level_irq_stat_mach *, auto_trifle *);
 
     void (* handle_event)(struct level_irq_stat_mach *, level_irq_event);
     int (* dispatch)(struct level_irq_stat_mach *, auto_trifle *);

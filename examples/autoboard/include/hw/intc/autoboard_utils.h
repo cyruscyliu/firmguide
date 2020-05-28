@@ -35,6 +35,8 @@
 typedef struct auto_trifle {
     int type;
     // kernel read & write use the off & old value
+    // this specifies the index of mmio regions
+    uint32_t mmio_idx;
     hwaddr off;
     uint64_t old_val;
     // only kernel write use the new value

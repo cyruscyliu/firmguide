@@ -38,7 +38,10 @@ typedef uint8_t (* acu_func) (AUTOBOARD_INTCState *s, struct auto_config_unit *,
 
 typedef struct auto_config_unit {
     uint8_t type;
-    uint32_t off;
+
+    uint32_t midx;
+    uint32_t moff;
+
     uint32_t irq;
 
     uint32_t hw_evt;

@@ -15,7 +15,17 @@ static bool edge_irq_is_acted(struct edge_irq_stat_mach *m)
 
 static int edge_irq_dispatch(struct edge_irq_stat_mach *m, auto_trifle *at)
 {
-    int triggered = 0;
+    int triggered;
+
+    if (at->type == TRIFLE_HW_EVT) {
+        // do act & do deact are mutually exclusive
+        if (at->hw_evt == EDGE_HW_EVT_DOACT) 
+            m->progs[EDGE_HW_EVT_DODEACT] = 0;
+        if (at->hw_evt == EDGE_HW_EVT_DODEACT)
+            m->progs[EDGE_HW_EVT_DOACT] = 0;
+    }
+
+    triggered = 0;
 
     if (m->is_evt_off(m, at) == ACU_ST_DONE) {
         //printf("[+] trigger off event for edge irq %d\n", m->irq_idx);
@@ -62,6 +72,16 @@ static int edge_irq_dispatch(struct edge_irq_stat_mach *m, auto_trifle *at)
     if (m->is_evt_init(m, at) == ACU_ST_DONE) {
         //printf("[+] trigger init event for edge irq %d\n", m->irq_idx);
         m->handle_event(m, EDGE_EVT_INIT);
+        triggered++;
+    }
+
+    if (m->do_act(m, at) == ACU_ST_DONE) {
+        //printf("[+] trigger do act event for edge irq %d\n", m->irq_idx);
+        triggered++;
+    }
+
+    if (m->do_deact(m, at) == ACU_ST_DONE) {
+        //printf("[+] trigger do deact event for edge irq %d\n", m->irq_idx);
         triggered++;
     }
 
@@ -158,24 +178,54 @@ static void edge_irq_handle_event(edge_irq_stat_mach *m, edge_irq_event lie)
     return;
 }
 
-static uint8_t edge_irq_acu_func_flow(edge_irq_stat_mach *m, auto_config_action *aca, auto_trifle *at)
+static uint8_t edge_irq_acu_func_flow(edge_irq_stat_mach *m, auto_config_action *aca, auto_trifle *at, uint8_t evt)
 {
     uint32_t stat;
+    uint32_t *prog;
     auto_config_unit *acu;
+
+    prog = &m->progs[evt];
 
     do {
         // continue the execution from the last time
-        acu = &aca->acus[aca->prog];
+        acu = &aca->acus[*prog];
         stat = try_process_at_on_acu(m->s, acu, at);
         if (stat == ACU_ST_NEXT) {
-            aca->prog = acu->next;
+            *prog = acu->next;
         }
     } while (ACU_IS_DO_REACT(acu->type) && stat == ACU_ST_NEXT);
 
-    if (stat != ACU_ST_NEXT) 
-        // mismatch or done
-        aca->prog = 0;
+    // if done, means trigger
+    if (stat == ACU_ST_DONE) {
+        *prog = 0;
+        return stat;
+    }
 
+    // matching...
+    if (stat == ACU_ST_NEXT) {
+        return stat;
+    }
+
+    // if mismatch, re-match from the start again
+    if (stat == ACU_ST_MISMATCH) {
+        // TODO: for edge irq, maybe we shoule do cmp for specific hw evt 
+        //     when we have not start usage of hw evt
+        if ( (at->type == TRIFLE_HW_EVT && ACU_IS_DO_HW_WATCH(acu->type)) ||
+             ((at->type == TRIFLE_KER_READ || at->type == TRIFLE_KER_WRITE) && 
+                ACU_IS_DO_KER_WATCH(acu->type))
+           ) {
+            // if wait & come are same sources of event
+            //    then reset the prog & try match 1st thing again
+            if (*prog != 0) {
+                *prog = 0;
+                return edge_irq_acu_func_flow(m, aca, at, evt);
+            }
+        }
+
+        return stat;
+    }
+
+    assert(false && "shouldn't come to here in edge_irq_acu_func_flow");
     return stat;
 }
 
@@ -183,7 +233,7 @@ static uint8_t edge_irq_is_evt_off(edge_irq_stat_mach *m, auto_trifle *at)
 {
     auto_config_action *aca = m->cfg->is_off;
     if (aca) 
-        return edge_irq_acu_func_flow(m, aca, at);
+        return edge_irq_acu_func_flow(m, aca, at, EDGE_EVT_OFF);
 
     return ACU_ST_MISMATCH;
 }
@@ -192,7 +242,7 @@ static uint8_t edge_irq_is_evt_on(edge_irq_stat_mach *m, auto_trifle *at)
 {
     auto_config_action *aca = m->cfg->is_on;
     if (aca) 
-        return edge_irq_acu_func_flow(m, aca, at);
+        return edge_irq_acu_func_flow(m, aca, at, EDGE_EVT_ON);
 
     return ACU_ST_MISMATCH;
 }
@@ -201,7 +251,7 @@ static uint8_t edge_irq_is_evt_pulse(edge_irq_stat_mach *m, auto_trifle *at)
 {
     auto_config_action *aca = m->cfg->is_pulse;
     if (aca) 
-        return edge_irq_acu_func_flow(m, aca, at);
+        return edge_irq_acu_func_flow(m, aca, at, EDGE_EVT_PULSE);
 
     return ACU_ST_MISMATCH;
 }
@@ -210,7 +260,7 @@ static uint8_t edge_irq_is_evt_ack(edge_irq_stat_mach *m, auto_trifle *at)
 {
     auto_config_action *aca = m->cfg->is_ack;
     if (aca) 
-        return edge_irq_acu_func_flow(m, aca, at);
+        return edge_irq_acu_func_flow(m, aca, at, EDGE_EVT_ACK);
 
     return ACU_ST_MISMATCH;
 }
@@ -219,7 +269,7 @@ static uint8_t edge_irq_is_evt_msk(edge_irq_stat_mach *m, auto_trifle *at)
 {
     auto_config_action *aca = m->cfg->is_msk;
     if (aca) 
-        return edge_irq_acu_func_flow(m, aca, at);
+        return edge_irq_acu_func_flow(m, aca, at, EDGE_EVT_MSK);
 
     return ACU_ST_MISMATCH;
 }
@@ -228,7 +278,7 @@ static uint8_t edge_irq_is_evt_unmsk(edge_irq_stat_mach *m, auto_trifle *at)
 {
     auto_config_action *aca = m->cfg->is_unmsk;
     if (aca) 
-        return edge_irq_acu_func_flow(m, aca, at);
+        return edge_irq_acu_func_flow(m, aca, at, EDGE_EVT_UNMSK);
 
     return ACU_ST_MISMATCH;
 }
@@ -237,7 +287,7 @@ static uint8_t edge_irq_is_evt_reset(edge_irq_stat_mach *m, auto_trifle *at)
 {
     auto_config_action *aca = m->cfg->is_reset;
     if (aca) 
-        return edge_irq_acu_func_flow(m, aca, at);
+        return edge_irq_acu_func_flow(m, aca, at, EDGE_EVT_RESET);
 
     return ACU_ST_MISMATCH;
 }
@@ -246,34 +296,36 @@ static uint8_t edge_irq_is_evt_init(edge_irq_stat_mach *m, auto_trifle *at)
 {
     auto_config_action *aca = m->cfg->is_init;
     if (aca) 
-        return edge_irq_acu_func_flow(m, aca, at);
+        return edge_irq_acu_func_flow(m, aca, at, EDGE_EVT_INIT);
 
     return ACU_ST_MISMATCH;
 }
 
-static uint8_t edge_irq_do_act(edge_irq_stat_mach *m)
+static uint8_t edge_irq_do_act(edge_irq_stat_mach *m, auto_trifle *at)
 {
     auto_config_action *aca = m->cfg->do_act;
     if (aca) 
-        return edge_irq_acu_func_flow(m, aca, NULL);
+        return edge_irq_acu_func_flow(m, aca, at, EDGE_HW_EVT_DOACT);
 
     return ACU_ST_MISMATCH;
 }
 
-static uint8_t edge_irq_do_deact(edge_irq_stat_mach *m)
+static uint8_t edge_irq_do_deact(edge_irq_stat_mach *m, auto_trifle *at)
 {
     auto_config_action *aca = m->cfg->do_deact;
     if (aca) 
-        return edge_irq_acu_func_flow(m, aca, NULL);
+        return edge_irq_acu_func_flow(m, aca, at, EDGE_HW_EVT_DODEACT);
 
     return ACU_ST_MISMATCH;
 }
 
 edge_irq_stat_mach *init_edge_irq_stat_mach(AUTOBOARD_INTCState *s, uint32_t cfg_idx)
 {
-    edge_irq_stat_mach *m = calloc(1, sizeof(edge_irq_stat_mach));
-
+    int i;
+    edge_irq_stat_mach *m;
     assert(s->cfg->irq_cfgs[cfg_idx].irq_type == STAT_MACH_EDGE_IRQ);
+
+    m = calloc(1, sizeof(edge_irq_stat_mach));
 
     m->s = s;
     m->irq_idx = cfg_idx;
@@ -284,6 +336,9 @@ edge_irq_stat_mach *init_edge_irq_stat_mach(AUTOBOARD_INTCState *s, uint32_t cfg
     m->on = 0;
     m->act = 0;
     m->msk = 0;
+
+    for (i = 0; i < EDGE_ALL_EVT_NUM; i++)
+        m->progs[i] = 0;
 
     m->is_evt_off = edge_irq_is_evt_off;
     m->is_evt_on = edge_irq_is_evt_on;

@@ -20,6 +20,7 @@ typedef enum {
     STAT_MACH_EMPTY = 0,
     STAT_MACH_LEVEL_IRQ,
     STAT_MACH_EDGE_IRQ,
+    STAT_MACH_EOI_LVL_IRQ,
 } autoboard_stat_mach_type;
 
 typedef struct autoboard_mmio {
@@ -35,6 +36,7 @@ typedef enum {
     AUTOBOARD_INTC_ATH79_GENERIC,
     AUTOBOARD_INTC_KIRKWOOD_GENERIC_ORION,
     AUTOBOARD_INTC_KIRKWOOD_GENERIC_BRIDGE,
+    AUTOBOARD_INTC_OXNAS_GENERIC_GIC,
     AUTOBOARD_INTC_NUM,
 } autoboard_intc_cfg_id;
 
@@ -46,7 +48,8 @@ typedef struct auto_config_one_irq {
 
 typedef struct auto_one_intc_cfg {
     auto_config_one_irq *irq_cfgs;
-    uint32_t mmio_len;
+    uint32_t *mm_lens;
+    uint32_t mm_amount;
     uint32_t irq_num;
 } auto_one_intc_cfg;
 
@@ -72,14 +75,19 @@ typedef struct AUTOBOARD_INTCState {
     struct auto_one_intc_cfg *cfg;
 
     /*
+     * amount of memory region
+     */
+    int32_t mm_amount;
+
+    /*
      * mmio is the memory layout of the ic
      */
-    MemoryRegion mmio;
+    MemoryRegion *mmios;
 
     /*
      * cache of the mmio, internal read & write should use this
      */
-    autoboard_mmio *aummio;
+    autoboard_mmio *aummios;
 
     /* 
      * Output to the parent device, usually cpu 

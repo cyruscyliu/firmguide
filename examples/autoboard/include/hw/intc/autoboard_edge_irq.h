@@ -42,15 +42,17 @@ typedef enum {
     EDGE_EVT_OFF = 0,
     EDGE_EVT_ON,
     EDGE_EVT_PULSE,
-    EDGE_HW_EVT_PULSE_UP,
-    EDGE_HW_EVT_PULSE_DOWN,
     EDGE_EVT_ACK,
     EDGE_EVT_MSK,
     EDGE_EVT_UNMSK,
     EDGE_EVT_RESET,
     EDGE_EVT_INIT,
+    EDGE_HW_EVT_PULSE_UP,
+    EDGE_HW_EVT_PULSE_DOWN,
+    EDGE_HW_EVT_DOACT,
+    EDGE_HW_EVT_DODEACT,
     // The following are not valid events
-    EDGE_EVT_NUM,
+    EDGE_ALL_EVT_NUM,
     EDGE_EVT_INVALID = -1,
 } edge_irq_event;
 
@@ -80,6 +82,8 @@ typedef struct edge_irq_stat_mach {
     uint8_t act;
     uint8_t msk;
 
+    uint32_t progs[EDGE_ALL_EVT_NUM];
+
     uint8_t (* is_evt_off) (struct edge_irq_stat_mach *, auto_trifle *);
     uint8_t (* is_evt_on) (struct edge_irq_stat_mach *, auto_trifle *);
     uint8_t (* is_evt_pulse) (struct edge_irq_stat_mach *, auto_trifle *);
@@ -90,8 +94,8 @@ typedef struct edge_irq_stat_mach {
     uint8_t (* is_evt_init) (struct edge_irq_stat_mach *, auto_trifle *);
 
     bool (* is_acted) (struct edge_irq_stat_mach *);
-    uint8_t (* do_act) (struct edge_irq_stat_mach *);
-    uint8_t (* do_deact) (struct edge_irq_stat_mach *);
+    uint8_t (* do_act) (struct edge_irq_stat_mach *, auto_trifle *);
+    uint8_t (* do_deact) (struct edge_irq_stat_mach *, auto_trifle *);
 
     void (* handle_event)(struct edge_irq_stat_mach *, edge_irq_event);
     int (* dispatch)(struct edge_irq_stat_mach *, auto_trifle *);
