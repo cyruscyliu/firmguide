@@ -4,9 +4,10 @@
 
 #include "qemu/osdep.h"
 
-#include "hw/intc/autoboard_gen.h"
+#include "hw/intc/autoboard_intc_gen.h"
 #include "hw/intc/autoboard_edge_irq.h"
-#include "hw/intc/autoboard_utils.h"
+#include "hw/intc/autoboard_intc_utils.h"
+#include "hw/misc/autoboard_utils.h"
 
 static bool edge_irq_is_acted(struct edge_irq_stat_mach *m)
 {
@@ -189,7 +190,7 @@ static uint8_t edge_irq_acu_func_flow(edge_irq_stat_mach *m, auto_config_action 
     do {
         // continue the execution from the last time
         acu = &aca->acus[*prog];
-        stat = try_process_at_on_acu(m->s, acu, at);
+        stat = intc_try_process_at_on_acu(m->s, acu, at);
         if (stat == ACU_ST_NEXT) {
             *prog = acu->next;
         }
@@ -323,7 +324,7 @@ edge_irq_stat_mach *init_edge_irq_stat_mach(AUTOBOARD_INTCState *s, uint32_t cfg
 {
     int i;
     edge_irq_stat_mach *m;
-    assert(s->cfg->irq_cfgs[cfg_idx].irq_type == STAT_MACH_EDGE_IRQ);
+    assert(s->cfg->irq_cfgs[cfg_idx].irq_type == STAT_MACH_IRQ_EDGE);
 
     m = calloc(1, sizeof(edge_irq_stat_mach));
 

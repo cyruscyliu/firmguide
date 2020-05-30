@@ -1,5 +1,5 @@
 /*
- * autoboard maybe auto generated implementation
+ * autoboard intc auto generated implementation
  */
 
 #include "qemu/osdep.h"
@@ -8,8 +8,9 @@
 #include "hw/intc/autoboard_edge_irq.h"
 #include "hw/intc/autoboard_level_irq.h"
 #include "hw/intc/autoboard_eoi_lvl_irq.h"
-#include "hw/intc/autoboard_gen.h"
-#include "hw/intc/autoboard_utils.h"
+#include "hw/intc/autoboard_intc_gen.h"
+#include "hw/intc/autoboard_intc_utils.h"
+#include "hw/misc/autoboard_utils.h"
 
 // xxx_verify is untested & no use currently
 static uint8_t bit_verify(auto_trifle *at, uint32_t bit_pos, uint32_t raise)
@@ -32,7 +33,7 @@ static uint8_t constraint_verify(auto_trifle *at)
     return ACU_ST_MISMATCH;
 }
 
-uint8_t try_process_at_on_acu(AUTOBOARD_INTCState *s, auto_config_unit *acu, auto_trifle *at)
+uint8_t intc_try_process_at_on_acu(AUTOBOARD_INTCState *s, auto_config_unit *acu, auto_trifle *at)
 {
     switch (acu->type) {
         case ACU_DO_WATCH_READ:
@@ -349,7 +350,7 @@ static level_irq_cfg ramips_rt3883_uart_level_irq_cfg = {
 
 static auto_config_one_irq ramips_rt3883_irq_cfgs[RAMIPS_RT3883_AUTOBOARD_IRQ_NUM] = {
     [12] = {
-        .irq_type = STAT_MACH_LEVEL_IRQ,
+        .irq_type = STAT_MACH_IRQ_LEVEL,
         .irq_stat_mach_cfg = &ramips_rt3883_uart_level_irq_cfg,
     }
 };
@@ -542,7 +543,7 @@ static level_irq_cfg ath79_generic_uart_level_irq_cfg = {
 
 static auto_config_one_irq ath79_generic_irq_cfgs[ATH79_GENERIC_AUTOBOARD_IRQ_NUM] = {
     [3] = {
-        .irq_type = STAT_MACH_LEVEL_IRQ,
+        .irq_type = STAT_MACH_IRQ_LEVEL,
         .irq_stat_mach_cfg = &ath79_generic_uart_level_irq_cfg,
     }
 };
@@ -870,15 +871,15 @@ static level_irq_cfg kirkwood_generic_orion_uart1_intc_level_irq_cfg = {
 
 static auto_config_one_irq kirkwood_generic_orion_irq_cfgs[KIRKWOOD_GENERIC_ORION_AUTOBOARD_IRQ_NUM] = {
     [1] = {
-        .irq_type = STAT_MACH_LEVEL_IRQ,
+        .irq_type = STAT_MACH_IRQ_LEVEL,
         .irq_stat_mach_cfg = &kirkwood_generic_orion_bridge_intc_level_irq_cfg,
     },
     [33] = {
-        .irq_type = STAT_MACH_LEVEL_IRQ,
+        .irq_type = STAT_MACH_IRQ_LEVEL,
         .irq_stat_mach_cfg = &kirkwood_generic_orion_uart0_level_irq_cfg,
     },
     [34] = {
-        .irq_type = STAT_MACH_LEVEL_IRQ,
+        .irq_type = STAT_MACH_IRQ_LEVEL,
         .irq_stat_mach_cfg = &kirkwood_generic_orion_uart1_intc_level_irq_cfg,
     },
 };
@@ -1200,16 +1201,16 @@ static edge_irq_cfg kirkwood_generic_bridge_wdt_intc_edge_irq_cfg = {
 
 static auto_config_one_irq kirkwood_generic_bridge_irq_cfgs[KIRKWOOD_GENERIC_BRIDGE_AUTOBOARD_IRQ_NUM] = {
     [1] = {
-        .irq_type = STAT_MACH_EDGE_IRQ,
+        .irq_type = STAT_MACH_IRQ_EDGE,
         .irq_stat_mach_cfg = &kirkwood_generic_bridge_timer1_edge_irq_cfg,
     },
     [2] = {
-        .irq_type = STAT_MACH_EDGE_IRQ,
+        .irq_type = STAT_MACH_IRQ_EDGE,
         .irq_stat_mach_cfg = &kirkwood_generic_bridge_timer2_intc_edge_irq_cfg,
     },
     [3] = {
-        //.irq_type = STAT_MACH_EDGE_IRQ,
-        .irq_type = STAT_MACH_EMPTY,
+        //.irq_type = STAT_MACH_IRQ_EDGE,
+        .irq_type = STAT_MACH_IRQ_EMPTY,
         .irq_stat_mach_cfg = &kirkwood_generic_bridge_wdt_intc_edge_irq_cfg,
     },
 };
@@ -1549,11 +1550,11 @@ static eoi_lvl_irq_cfg oxnas_generic_gic_uart_eoi_lvl_irq_cfg = {
 
 static auto_config_one_irq oxnas_generic_gic_irq_cfgs[OXNAS_GENERIC_GIC_AUTOBOARD_IRQ_NUM] = {
     [29] = {
-        .irq_type = STAT_MACH_EOI_LVL_IRQ,
+        .irq_type = STAT_MACH_IRQ_EOI_LVL,
         .irq_stat_mach_cfg = &oxnas_generic_gic_timer_eoi_lvl_irq_cfg,
     },
     [55] = {
-        .irq_type = STAT_MACH_EOI_LVL_IRQ,
+        .irq_type = STAT_MACH_IRQ_EOI_LVL,
         .irq_stat_mach_cfg = &oxnas_generic_gic_uart_eoi_lvl_irq_cfg,
     },
 };

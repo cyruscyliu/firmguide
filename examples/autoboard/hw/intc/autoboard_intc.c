@@ -6,8 +6,9 @@
 #include "qemu/log.h"
 #include "qapi/error.h"
 
-#include "hw/intc/autoboard_utils.h"
-#include "hw/intc/autoboard_gen.h"
+#include "hw/intc/autoboard_intc_utils.h"
+#include "hw/misc/autoboard_utils.h"
+#include "hw/intc/autoboard_intc_gen.h"
 #include "hw/intc/autoboard_edge_irq.h"
 #include "hw/intc/autoboard_level_irq.h"
 #include "hw/intc/autoboard_eoi_lvl_irq.h"
@@ -43,7 +44,7 @@ static bool is_irq_act(AUTOBOARD_INTCState *s, int32_t irq_idx, int32_t action)
 
     type = s->in_irqs[irq_idx].type;
     switch(type) {
-    case STAT_MACH_LEVEL_IRQ:
+    case STAT_MACH_IRQ_LEVEL:
         {
         level_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
         if (action == 1) {
@@ -63,7 +64,7 @@ static bool is_irq_act(AUTOBOARD_INTCState *s, int32_t irq_idx, int32_t action)
         }
         break;
     
-    case STAT_MACH_EDGE_IRQ:
+    case STAT_MACH_IRQ_EDGE:
         {
         edge_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
         if (action == 1) {
@@ -83,7 +84,7 @@ static bool is_irq_act(AUTOBOARD_INTCState *s, int32_t irq_idx, int32_t action)
         }
         break;
 
-    case STAT_MACH_EOI_LVL_IRQ:
+    case STAT_MACH_IRQ_EOI_LVL:
         {
         eoi_lvl_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
         if (action == 1) {
@@ -102,7 +103,7 @@ static bool is_irq_act(AUTOBOARD_INTCState *s, int32_t irq_idx, int32_t action)
         return mach->is_acted(mach);
         }
         break;
-    case STAT_MACH_EMPTY:
+    case STAT_MACH_IRQ_EMPTY:
         return false;
         break;
 
@@ -122,7 +123,7 @@ static int32_t find_next_act_irq_round_robin(AUTOBOARD_INTCState *s, int32_t sta
         irq_idx = (start_idx + 1 + i) % (s->in_irq_num);
         type = s->in_irqs[irq_idx].type;
         switch(type) {
-        case STAT_MACH_LEVEL_IRQ:
+        case STAT_MACH_IRQ_LEVEL:
             {
             level_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
             if (mach->is_acted(mach))
@@ -130,7 +131,7 @@ static int32_t find_next_act_irq_round_robin(AUTOBOARD_INTCState *s, int32_t sta
             }
             break;
     
-        case STAT_MACH_EDGE_IRQ:
+        case STAT_MACH_IRQ_EDGE:
             {
             edge_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
             if (mach->is_acted(mach))
@@ -138,7 +139,7 @@ static int32_t find_next_act_irq_round_robin(AUTOBOARD_INTCState *s, int32_t sta
             }
             break;
 
-        case STAT_MACH_EOI_LVL_IRQ:
+        case STAT_MACH_IRQ_EOI_LVL:
             {
             eoi_lvl_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
             if (mach->is_acted(mach))
@@ -146,7 +147,7 @@ static int32_t find_next_act_irq_round_robin(AUTOBOARD_INTCState *s, int32_t sta
             }
             break;
 
-        case STAT_MACH_EMPTY:
+        case STAT_MACH_IRQ_EMPTY:
             break;
 
         default:
@@ -211,28 +212,28 @@ static uint32_t dispatch_mmio_rw(AUTOBOARD_INTCState *s, auto_trifle *at)
         // TODO: here may add trigger series feature
         type = s->in_irqs[irq_idx].type;
         switch (type) {
-        case STAT_MACH_LEVEL_IRQ:
+        case STAT_MACH_IRQ_LEVEL:
             {
             level_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
             triggered += mach->dispatch(mach, at);
             }
             break;
     
-        case STAT_MACH_EDGE_IRQ:
+        case STAT_MACH_IRQ_EDGE:
             {
             edge_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
             triggered += mach->dispatch(mach, at);
             }
             break;
 
-        case STAT_MACH_EOI_LVL_IRQ:
+        case STAT_MACH_IRQ_EOI_LVL:
             {
             eoi_lvl_irq_stat_mach *mach = s->in_irqs[irq_idx].stat_mach;
             triggered += mach->dispatch(mach, at);
             }
             break;
 
-        case STAT_MACH_EMPTY:
+        case STAT_MACH_IRQ_EMPTY:
             break;
 
         default:
@@ -301,31 +302,12 @@ static void autoboard_intc_write(void *opaque, hwaddr offset, uint64_t val, unsi
     //printf("[+] %s write idx %d off 0x%lx, size %d, change value from 0x%lx to 0x%lx, %d event(s) are triggered\n", s->name, mmio_idx, at.off, size, at.old_val, at.new_val, triggered);
 }
 
-#define AUTOBOARD_MAKE_MMIO_RANGE_RW_FUNCS(idx) \
-static uint64_t autoboard_intc_read_range##idx(void *opaque, hwaddr offset, unsigned size)\
-{\
-    return autoboard_intc_read(opaque, offset, size, idx);\
-}\
-static void autoboard_intc_write_range##idx(void *opaque, hwaddr offset, uint64_t val, unsigned size)\
-{\
-    autoboard_intc_write(opaque, offset, val, size, idx);\
-}
+AUTOBOARD_MAKE_MMIO_RANGE_RW_FUNCS(intc, 0)
+AUTOBOARD_MAKE_MMIO_RANGE_RW_FUNCS(intc, 1)
 
-AUTOBOARD_MAKE_MMIO_RANGE_RW_FUNCS(0)
-AUTOBOARD_MAKE_MMIO_RANGE_RW_FUNCS(1)
-
-#define AUTOBOARD_MMIO_OPS_STATIC_STRUCT(idx) \
-    {\
-        .read = autoboard_intc_read_range##idx,\
-        .write = autoboard_intc_write_range##idx,\
-        .endianness = DEVICE_LITTLE_ENDIAN,\
-    },
-
-#define AUTOBOARD_MMIO_REGION_NUM 2
-
-static const MemoryRegionOps autoboard_intc_ops[AUTOBOARD_MMIO_REGION_NUM] = {
-    AUTOBOARD_MMIO_OPS_STATIC_STRUCT(0)
-    AUTOBOARD_MMIO_OPS_STATIC_STRUCT(1)
+static const MemoryRegionOps autoboard_intc_ops[AUTOBOARD_INTC_MMIO_REGION_NUM] = {
+    AUTOBOARD_MMIO_OPS_STATIC_STRUCT(intc, 0)
+    AUTOBOARD_MMIO_OPS_STATIC_STRUCT(intc, 1)
 };
 
 static void autoboard_intc_device_irq_cb(void *opaque, int irq, int level)
@@ -341,7 +323,7 @@ static void autoboard_intc_device_irq_cb(void *opaque, int irq, int level)
     // raise an irq act/deact event
     switch (s->in_irqs[irq].type)
     {
-    case STAT_MACH_LEVEL_IRQ:
+    case STAT_MACH_IRQ_LEVEL:
         {
         level_irq_stat_mach *mach;
 
@@ -356,7 +338,7 @@ static void autoboard_intc_device_irq_cb(void *opaque, int irq, int level)
         }
         break;
     
-    case STAT_MACH_EDGE_IRQ:
+    case STAT_MACH_IRQ_EDGE:
         {
         edge_irq_stat_mach *mach;
 
@@ -371,7 +353,7 @@ static void autoboard_intc_device_irq_cb(void *opaque, int irq, int level)
         }
         break;
     
-    case STAT_MACH_EOI_LVL_IRQ:
+    case STAT_MACH_IRQ_EOI_LVL:
         {
         eoi_lvl_irq_stat_mach *mach;
 
@@ -404,7 +386,7 @@ static void autoboard_intc_init(Object *obj)
     s->cfg = get_autoboard_intc_config(choosen_id);
 
     /* initialize the mmio cache & the mmio */
-    assert(s->cfg->mm_amount > 0 && s->cfg->mm_amount <= AUTOBOARD_MMIO_REGION_NUM && "wierd s->cfg->mm_amount");
+    assert(s->cfg->mm_amount > 0 && s->cfg->mm_amount <= AUTOBOARD_INTC_MMIO_REGION_NUM && "wierd s->cfg->mm_amount");
 
     s->mmios = calloc(s->cfg->mm_amount, sizeof(MemoryRegion));
     s->aummios = calloc(s->cfg->mm_amount, sizeof(autoboard_mmio));
@@ -447,15 +429,15 @@ static void autoboard_intc_init(Object *obj)
         uint8_t type = s->cfg->irq_cfgs[i].irq_type;
         s->in_irqs[i].type = type;
         switch(type) {
-            case STAT_MACH_EMPTY:
+            case STAT_MACH_IRQ_EMPTY:
                 break;
-            case STAT_MACH_LEVEL_IRQ:
+            case STAT_MACH_IRQ_LEVEL:
                 s->in_irqs[i].stat_mach = init_level_irq_stat_mach(s, i);
                 break;
-            case STAT_MACH_EDGE_IRQ:
+            case STAT_MACH_IRQ_EDGE:
                 s->in_irqs[i].stat_mach = init_edge_irq_stat_mach(s, i);
                 break;
-            case STAT_MACH_EOI_LVL_IRQ:
+            case STAT_MACH_IRQ_EOI_LVL:
                 s->in_irqs[i].stat_mach = init_eoi_lvl_irq_stat_mach(s, i);
                 break;
             default:
@@ -479,7 +461,7 @@ static void autoboard_intc_reset(DeviceState *dev)
     for (uint32_t i = 0; i < s->in_irq_num; i++) {
         switch (s->in_irqs[i].type)
         {
-        case STAT_MACH_LEVEL_IRQ:
+        case STAT_MACH_IRQ_LEVEL:
             {
             level_irq_stat_mach *mach;
 
@@ -491,7 +473,7 @@ static void autoboard_intc_reset(DeviceState *dev)
             }
             break;
         
-        case STAT_MACH_EDGE_IRQ:
+        case STAT_MACH_IRQ_EDGE:
             {
             edge_irq_stat_mach *mach;
 
@@ -503,7 +485,7 @@ static void autoboard_intc_reset(DeviceState *dev)
             }
             break;
 
-        case STAT_MACH_EOI_LVL_IRQ:
+        case STAT_MACH_IRQ_EOI_LVL:
             {
             eoi_lvl_irq_stat_mach *mach;
 

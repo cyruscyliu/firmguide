@@ -1,15 +1,13 @@
 /*
- * autoboard maybe auto-generated header file
+ * autoboard timer auto-generated header file
  */
 
-#ifndef TYPE_AUTOBOARD_GEN_H
-#define TYPE_AUTOBOARD_GEN_H
+#ifndef TYPE_AUTOBOARD_TIMER_GEN_H
+#define TYPE_AUTOBOARD_TIMER_GEN_H
 
-#include "hw/intc/autoboard_intc.h"
-#include "hw/intc/autoboard_utils.h"
-
-#define MMIO_LEN 0x100
-#define AUTOBOARD_IRQ_NUM  1
+#include "hw/timer/autoboard_timer.h"
+#include "hw/timer/autoboard_timer_utils.h"
+#include "hw/misc/autoboard_utils.h"
 
 // type for acu
 // acu is for auto config unit
@@ -34,7 +32,7 @@
 
 struct auto_config_unit;
 
-typedef uint8_t (* acu_func) (AUTOBOARD_INTCState *s, struct auto_config_unit *, auto_trifle *);
+typedef uint8_t (* acu_func) (AUTOBOARD_TIMERState *s, struct auto_config_unit *, auto_trifle *);
 
 typedef struct auto_config_unit {
     uint8_t type;
@@ -61,9 +59,9 @@ typedef struct auto_config_action {
     auto_config_unit acus[];
 } auto_config_action;
 
-uint8_t try_process_at_on_acu(AUTOBOARD_INTCState *s, auto_config_unit *acu, auto_trifle *at);
+uint8_t timer_try_process_at_on_acu(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at);
 
 // This init func should be called at the very beginning as it will init the above global variables
-auto_one_intc_cfg *get_autoboard_intc_config(autoboard_intc_cfg_id id);
+auto_one_timer_cfg *get_autoboard_timer_config(autoboard_timer_cfg_id id);
 
-#endif /* TYPE_AUTOBOARD_GEN_H */
+#endif /* TYPE_AUTOBOARD_TIMER_GEN_H */

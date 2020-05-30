@@ -6,29 +6,24 @@
 #define TYPE_AUTOBOARD_INTC_H
 
 #include "hw/sysbus.h"
+#include "hw/intc/autoboard_intc_utils.h"
+#include "hw/misc/autoboard_utils.h"
 
 #define TYPE_AUTOBOARD_INTC "autoboard_intc"
 #define AUTOBOARD_INTC(obj) \
     OBJECT_CHECK(AUTOBOARD_INTCState, (obj), TYPE_AUTOBOARD_INTC)
 
-typedef struct irq_bundle {
-    uint8_t type;
-    void    *stat_mach;
-} irq_bundle;
-
 typedef enum {
-    STAT_MACH_EMPTY = 0,
-    STAT_MACH_LEVEL_IRQ,
-    STAT_MACH_EDGE_IRQ,
-    STAT_MACH_EOI_LVL_IRQ,
-} autoboard_stat_mach_type;
+    STAT_MACH_IRQ_EMPTY = 0,
+    STAT_MACH_IRQ_LEVEL,
+    STAT_MACH_IRQ_EDGE,
+    STAT_MACH_IRQ_EOI_LVL,
+} autoboard_irq_stat_mach_type;
 
-typedef struct autoboard_mmio {
-    uint32_t mmio_len;
-    unsigned char *caches;
-    uint32_t (* read)(struct autoboard_mmio *mmio, hwaddr off);
-    uint32_t (* write)(struct autoboard_mmio *mmio, hwaddr off, uint64_t val);
-} autoboard_mmio;
+typedef struct irq_bundle {
+    autoboard_irq_stat_mach_type    type;
+    void                            *stat_mach;
+} irq_bundle;
 
 typedef enum {
     AUTOBOARD_INTC_INVALID = -1,

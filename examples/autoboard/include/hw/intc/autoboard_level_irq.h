@@ -7,8 +7,9 @@
 
 #include "hw/sysbus.h"
 #include "hw/intc/autoboard_intc.h"
-#include "hw/intc/autoboard_gen.h"
-#include "hw/intc/autoboard_utils.h"
+#include "hw/intc/autoboard_intc_gen.h"
+#include "hw/intc/autoboard_intc_utils.h"
+#include "hw/misc/autoboard_utils.h"
 
 /*
  * LEVEL IRQ STAT MACHINE

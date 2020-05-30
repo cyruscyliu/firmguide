@@ -4,9 +4,10 @@
 
 #include "qemu/osdep.h"
 
-#include "hw/intc/autoboard_gen.h"
+#include "hw/intc/autoboard_intc_gen.h"
 #include "hw/intc/autoboard_level_irq.h"
-#include "hw/intc/autoboard_utils.h"
+#include "hw/intc/autoboard_intc_utils.h"
+#include "hw/misc/autoboard_utils.h"
 
 static bool level_irq_is_acted(struct level_irq_stat_mach *m)
 {
@@ -190,7 +191,7 @@ static uint8_t level_irq_acu_func_flow(level_irq_stat_mach *m, auto_config_actio
     do {
         // continue the execution from the last time
         acu = &aca->acus[*prog];
-        stat = try_process_at_on_acu(m->s, acu, at);
+        stat = intc_try_process_at_on_acu(m->s, acu, at);
         if (stat == ACU_ST_NEXT) {
             *prog = acu->next;
         }
@@ -326,7 +327,7 @@ level_irq_stat_mach *init_level_irq_stat_mach(AUTOBOARD_INTCState *s, uint32_t c
     int i;
     level_irq_stat_mach *m;
 
-    assert(s->cfg->irq_cfgs[cfg_idx].irq_type == STAT_MACH_LEVEL_IRQ);
+    assert(s->cfg->irq_cfgs[cfg_idx].irq_type == STAT_MACH_IRQ_LEVEL);
 
     m = calloc(1, sizeof(level_irq_stat_mach));
 

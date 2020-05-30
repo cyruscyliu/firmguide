@@ -1,11 +1,21 @@
 /*
- * autoboard common utility header file
+ * autoboard timer common utility header file
  */
 
 #ifndef TYPE_AUTOBOARD_UTILS_H
 #define TYPE_AUTOBOARD_UTILS_H
 
 #include "hw/sysbus.h"
+
+/*
+ * bit ops
+ */ 
+
+#define __bit(b) (1 << b)
+
+/*
+ * MMIO region related
+ */
 
 #define __u32_native(p) (*(uint32_t *) (p))
 #define __u32_big(p) \
@@ -26,6 +36,38 @@
     (((num)<<8)&0xff0000) | \
     (((num)>>8)&0xff00) | \
     (((num)<<24)&0xff000000)
+
+#define AUTOBOARD_MAKE_MMIO_RANGE_RW_FUNCS(name, idx) \
+static uint64_t autoboard_##name##_read_range##idx(void *opaque, hwaddr offset, unsigned size)\
+{\
+    return autoboard_##name##_read(opaque, offset, size, idx);\
+}\
+static void autoboard_##name##_write_range##idx(void *opaque, hwaddr offset, uint64_t val, unsigned size)\
+{\
+    autoboard_##name##_write(opaque, offset, val, size, idx);\
+}
+
+#define AUTOBOARD_MMIO_OPS_STATIC_STRUCT(name, idx) \
+    {\
+        .read = autoboard_##name##_read_range##idx,\
+        .write = autoboard_##name##_write_range##idx,\
+        .endianness = DEVICE_LITTLE_ENDIAN,\
+    },
+
+#define AUTOBOARD_INTC_MMIO_REGION_NUM 2
+#define AUTOBOARD_TIMER_MMIO_REGION_NUM 1
+
+typedef struct autoboard_mmio {
+    uint32_t mmio_len;
+    unsigned char *caches;
+    uint32_t (* read)(struct autoboard_mmio *mmio, hwaddr off);
+    uint32_t (* write)(struct autoboard_mmio *mmio, hwaddr off, uint64_t val);
+} autoboard_mmio;
+
+
+/*
+ * Definition of the trifle, presenting an outside event
+ */
 
 #define TRIFLE_INVALID       0
 #define TRIFLE_KER_READ      1
