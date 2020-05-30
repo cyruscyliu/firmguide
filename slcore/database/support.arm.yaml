@@ -96,6 +96,16 @@ mach-msm: {device_tree: false}
 mach-mv78xx0: {device_tree: false}
 mach-mvebu:
   device_tree: true
+  support_list:
+    linksys,viper: {arch: arm, brand: openwrt, endian: l, example: examples/machines/marvell_kirkwood,
+      loaddr: '0x00008000', realdtb: slcore/database/archivedtb/marvell_kirkwood.dtb,
+      subtarget: generic, target: kirkwood}
+    marvell,kirkwood: {arch: arm, brand: openwrt, endian: l, example: examples/machines/marvell_kirkwood,
+      loaddr: '0x00008000', realdtb: slcore/database/archivedtb/marvell_kirkwood.dtb,
+      subtarget: generic, target: kirkwood}
+    marvell,kirkwood-88f6282: {arch: arm, brand: openwrt, endian: l, example: examples/machines/marvell_kirkwood,
+      loaddr: '0x00008000', realdtb: slcore/database/archivedtb/marvell_kirkwood.dtb,
+      subtarget: generic, target: kirkwood}
   targets:
     openwrt: [mvebu, kirkwood]
 mach-mxs:

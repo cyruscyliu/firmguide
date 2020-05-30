@@ -15,7 +15,7 @@ static void marvell_orion_timer_tick_callback0(void *opaque)
     /* stupid timer */
     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
     timer_mod(s->timer[0], 0x1000 + now); /* 1MHZ */
-    /* 1,000,000HZ -> 100HZ */
+    /* 1MHZ -> 100HZ */
     if (s->counter[0] % 10000 == 0)
         qemu_set_irq(s->irq[0], 1);
     s->counter[0]++;
@@ -28,7 +28,7 @@ static void marvell_orion_timer_tick_callback1(void *opaque)
     /* stupid timer */
     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
     timer_mod(s->timer[1], 0x1000 + now); /* 1MHZ */
-    /* 1,000,000HZ -> 100HZ */
+    /* 1MHZ -> 100HZ */
     if (s->counter[1] % 10000 == 0)
         qemu_set_irq(s->irq[1], 1);
     s->counter[1]++;
@@ -62,7 +62,7 @@ static void marvell_orion_timer_write(void *opaque, hwaddr offset, uint64_t val,
     switch (offset) {
         default:
             return;
-        case 0x0 ... 0x20 - 0x4:
+        case 0x0 ... 0x1c:
             s->reserved = val;
             break;
     }
@@ -127,4 +127,3 @@ static void marvell_orion_timer_register_types(void)
 }
 
 type_init(marvell_orion_timer_register_types)
-

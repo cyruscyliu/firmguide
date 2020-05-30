@@ -2,6 +2,24 @@ marvell,armada-xp-timer:
     n_irq: 6
     counters: [{'addr': '0x14', 'id': 1}]
 marvell,orion-timer:
+    # register_current_timer_delay
+    # [#0] 0xc0721584 -> register_current_timer_delay(timer=0xc0c22700 <orion_clkevt>)
+    # [#1] 0xc07195b8 -> orion_delay_timer_init(rate=<optimized out>)
+    # [#2] 0xc07195b8 -> orion_timer_init(np=0xc7ef5f04)
+    # [#3] 0xc0719314 -> timer_probe()
+    # [#4] 0xc07036ac -> time_init()
+    # [#5] 0xc0700bac -> start_kernel()
+    # __timer_delay: timer_delay->read_current_timer
+    # p *delay_timer
+    # $2 = {
+    #   read_current_timer = 0xc0452e44 <orion_read_timer>,
+    #     freq = 0xbebc200
+    # }
+    # TIMER_OF_DECLARE(orion_timer, "marvell,orion-timer", orion_timer_init);
+    # in orion_timer_init, we have
+    # ret = clocksource_mmio_init(timer_base + TIMER0_VAL, "orion_clocksource",
+    #                             rate, 300, 32, clocksource_mmio_readl_down);
+    # sched_clock_register(orion_read_sched_clock, 32, rate);
     n_irq: 2
     counters: [{'addr': '0x14', 'id': 1}]
 plxtech,nas782x-rps-timer:

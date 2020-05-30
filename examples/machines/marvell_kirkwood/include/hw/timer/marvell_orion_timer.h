@@ -27,4 +27,3 @@ typedef struct MARVELL_ORION_TIMERState {
 } MARVELL_ORION_TIMERState;
 
 #endif /* MARVELL_ORION_TIMER_H */
-

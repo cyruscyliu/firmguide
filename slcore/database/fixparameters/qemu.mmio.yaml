@@ -1,3 +1,11 @@
+marvell,orion-system-controller:
+    regs_index:
+        0:
+            priority: -1
+marvell,orion-wdt:
+    regs_index:
+        0:
+            priority: -1
 brcm,bus-axi:
     regs_index:
         0:

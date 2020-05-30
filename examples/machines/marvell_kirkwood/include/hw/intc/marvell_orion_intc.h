@@ -38,4 +38,3 @@ typedef struct MARVELL_ORION_INTCState {
 } MARVELL_ORION_INTCState;
 
 #endif /* MARVELL_ORION_INTC_H */
-

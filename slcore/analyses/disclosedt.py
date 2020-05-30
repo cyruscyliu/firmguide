@@ -57,18 +57,32 @@ class DiscloseDT(Analysis):
                         serial['path'], serial['compatible'])
                 self.info(message, 1)
 
-        if mmio:
-            mmios = []
-            for mmio in find_flatten_mmio_in_fdt(dts):
-                if len(mmio['regs']):
-                    mmios.append(mmio)
-            for mmio in sorted(
-                    mmios, key=lambda x: x['regs'][0]['base']):
+        flatten_mmio = find_flatten_mmio_in_fdt(dts)
+        def memory_overlapping_detection(compatible, start, end):
+            for mmio in flatten_mmio:
+                if mmio['compatible'] == compatible:
+                    continue
                 for reg in mmio['regs']:
+                    if reg['base'] <= start <= reg['base'] + reg['size']:
+                        return mmio['compatible']
+                    if reg['base'] <= end <= reg['base'] + reg['size']:
+                        return mmio['compatible']
+            return None
+
+        if mmio:
+            sorted_mmio = []
+            for mmio in flatten_mmio:
+                if len(mmio['regs']):
+                    sorted_mmio.append(mmio)
+            for mmio in sorted(
+                    sorted_mmio, key=lambda x: x['regs'][0]['base']):
+                for reg in mmio['regs']:
+                    base, size = reg['base'], reg['size']
+                    compatible = mmio['compatible']
+                    overlap = memory_overlapping_detection(compatible, base, base + size)
                     message =  \
-                        '[MMIO] base 0x{:08x} size 0x{:08x} of {}/{}'.format(
-                            reg['base'], reg['size'],
-                            mmio['path'], mmio['compatible'])
+                        '[MMIO] base 0x{:08x} size 0x{:08x} of {}/{} overlap:{}'.format(
+                            base, size, mmio['path'], compatible, overlap)
                     self.info(message, 1)
 
         if flash:

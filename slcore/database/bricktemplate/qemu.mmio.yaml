@@ -391,6 +391,87 @@ linux,spidev:
 m25p80:
   buddy_compatible: [f25l32pa]
   extend: mmio,generic
+marvell,88e6171:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,88f6192-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,88f6281-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,88f6282-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,98dx4122-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-audio:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-cache:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-core-clock:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-crypto:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-gating-clock:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-mbus:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-pcie:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-thermal:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,mbus-controller:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,mv64xxx-i2c:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,mvebu-sata-phy:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-ehci:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-gpio:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-mdio:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-rtc:
+  buddy_compatible: ['marvell,kirkwood-rtc']
+  extend: mmio,generic
+marvell,orion-sata:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-sdio:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-spi:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-system-controller:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-wdt:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-xor:
+  buddy_compatible: []
+  extend: mmio,generic
 mdio-mux-mmioreg:
   buddy_compatible: []
   extend: mmio,generic
@@ -874,6 +955,9 @@ qcom,ssbi:
 qcom,tcsr:
   buddy_compatible: []
   extend: mmio,generic
+qnap,power-off:
+  buddy_compatible: []
+  extend: mmio,generic
 ralink,eth-port:
   buddy_compatible: ['ralink,rt3883-port']
   extend: mmio,generic
@@ -992,6 +1076,9 @@ snps,dwmac:
   buddy_compatible: ['plxtech,nas782x-gmac']
   extend: mmio,generic
 sst,sst25vf040b:
+  buddy_compatible: []
+  extend: mmio,generic
+synology,power-off:
   buddy_compatible: []
   extend: mmio,generic
 syscon:

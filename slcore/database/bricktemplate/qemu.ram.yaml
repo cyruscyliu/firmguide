@@ -13,6 +13,9 @@ brcm,bcm4708:
 fsl,ls1043a:
   buddy_compatible: []
   extend: ram,generic
+marvell,kirkwood:
+  buddy_compatible: ['mpl,cec4-10', 'mpl,cec4', 'marvell,kirkwood-88f6281']
+  extend: ram,generic
 mediatek,mt7621-soc:
   buddy_compatible: ['mediatek,mt7621-eval-board']
   extend: ram,generic
