@@ -14,9 +14,9 @@ static void ralink_rt2880_timer_tick_callback0(void *opaque)
 
     /* stupid timer */
     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
-    timer_mod(s->timer[0], 0x100000 + now); /* 10KHZ */
-    /* 10,000HZ -> 100HZ */
-    if (s->counter[0] % 100 == 0)
+    timer_mod(s->timer[0], 0x1000 + now); /* 1MHZ */
+    /* 1MHZ -> 100HZ */
+    if (s->counter[0] % 10000 == 0)
         qemu_set_irq(s->irq[0], 1);
     s->counter[0]++;
 }
