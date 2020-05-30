@@ -56,6 +56,18 @@ class AnalysesManager(Common):
         self.firmware.set_endian(self.project.attrs['endian'])
         self.firmware.set_brand(self.project.attrs['brand'])
 
+        # setup logger as early as possible
+        debug = self.arguments.pop('debug')
+        if debug:
+            setup_logging(
+                self.project.attrs['path'],
+                self.project.attrs['name'],
+                default_level=logging.DEBUG)
+        else:
+            setup_logging(
+                self.project.attrs['path'],
+                self.project.attrs['name'])
+
         # there at least one image available
         images = self.project.attrs['images']
         assert len(images), 'please add an image first'
@@ -74,6 +86,7 @@ class AnalysesManager(Common):
                         self.arguments['firmware'], target_dir=path)
 
             if not components.supported:
+                self.warning('amanager', 'firmware is not supported', 0)
                 return False
 
             working_path = os.path.join(path, components.get_raw_name())
@@ -102,16 +115,6 @@ class AnalysesManager(Common):
                 self.project.attrs['makeout']
             )
 
-        debug = self.arguments.pop('debug')
-        if debug:
-            setup_logging(
-                self.project.attrs['path'],
-                self.project.attrs['name'],
-                default_level=logging.DEBUG)
-        else:
-            setup_logging(
-                self.project.attrs['path'],
-                self.project.attrs['name'])
         return True
 
     def wrapup(self):

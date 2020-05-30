@@ -131,3 +131,50 @@ ralink,rt3050-sysc:
                 # }
                 - {offset: 0x0, size: 0x4, value: 0x30335452, path: arch/mips/ralink/rt7620.c, function: prom_soc_init}
                 - {offset: 0x4, size: 0x4, value: 0x20203235, path: arch/mips/ralink/rt7620.c ,function: prom_soc_init}
+# ralink,mt7620a-sysc:
+    # regs_index:
+        # 0:
+            # registers:
+                # static void *chipid_membase = ( void * ) ((((int)(int)(0x10000004)) & 0x1fffffff) | 0xa0000000);
+                # static inline int soc_is_mt7628(void)
+                # {
+                #     return (1 || 0) && (__raw_readl(chipid_membase) == 0x20203832);
+                # }
+                #
+                # void prom_putchar(unsigned char ch)
+                # {
+                #     if ((0 || 0) || soc_is_mt7628()) {
+                #         uart_w32(ch, 0);
+                #         while ((uart_r32(0x14) & 0x20) == 0);
+                #      } else {
+                #      while ((uart_r32(0x1c) & 0x20) == 0);
+                #      uart_w32(ch, 0x04);
+                #      while ((uart_r32(0x1c) & 0x20) == 0);
+                # }
+                # prom_soc_init(struct ralink_soc_info *soc_info)
+                # void *sysc = (void *) ((((int)(int)(0x10000000)) & 0x1fffffff) | 0xa0000000);
+                # n0 = __raw_readl(sysc + 0x00);
+                # n1 = __raw_readl(sysc + 0x04);
+                # rev = __raw_readl(sysc + 0x0c);
+                # bga = (rev >> 16) & 0x1;
+                # 
+                # if (n0 == 0x3637544d && n1 == 0x20203032) {
+                # if (bga) {
+                #         ralink_soc = MT762X_SOC_MT7620A;
+                #         name = "MT7620A";
+                #         soc_info->compatible = "ralink,mt7620a-soc";
+                #     } else {
+                #         ralink_soc = MT762X_SOC_MT7620N;
+                #         name = "MT7620N";
+                #         soc_info->compatible = "ralink,mt7620n-soc";
+                #     }
+                # } else if (n0 == 0x3637544d && n1 == 0x20203832) {
+                #     ralink_soc = MT762X_SOC_MT7628AN;
+                #     name = "MT7628AN";
+                #     soc_info->compatible = "ralink,mt7628an-soc";
+                # } else {
+                #     panic("mt762x: unknown SoC, n0:%08x n1:%08x\n", n0, n1);
+                # }
+                # - {offset: 0x0, size: 0x4, value: 0x3637544d, path: arch/mips/ralink/rt7620.c, function: prom_soc_init}
+                # - {offset: 0x4, size: 0x4, value: 0x20203032, path: arch/mips/ralink/rt7620.c ,function: prom_soc_init}
+                # - {offset: 0x8, size: 0x4, value: 0x00100000, path: arch/mips/ralink/rt7620.c ,function: prom_soc_init}

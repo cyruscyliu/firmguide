@@ -28,6 +28,9 @@ plxtech,nas782x-rps-timer:
     # sched_clock_register(rps_read_sched_clock, TIMER_BITS, clock_rate);
     n_irq: 1
     counters: [{'addr': '0x24', 'id': 0}]
+ralink,cevt-systick:
+    n_irq: 1
+    counters: []
 ralink,rt2880-timer:
     n_irq: 1
     counters: []

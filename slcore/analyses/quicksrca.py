@@ -31,7 +31,6 @@ class QuickSrcA(Analysis):
         caller = kwargs.pop('caller')
         cfcfg = kwargs.pop('cgcfg')
         f = kwargs.pop('file')
-        print(f)
 
         # We simply preprocess the c file containing
         # the entry point if no other arguments assigned.
