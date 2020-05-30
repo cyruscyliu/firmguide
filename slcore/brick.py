@@ -70,6 +70,7 @@ class Brick(object):
         self.template_to_source = None
         self.header = None
         self.template_to_header = None
+        self.external_type = t
 
         self.unique = False
         self.fix_size = None
@@ -115,6 +116,9 @@ class Brick(object):
                         os.path.dirname(os.path.realpath(__file__)),
                         'qemutemplates',
                         '{}{}.h'.format(self.t, EXTERNAL_TEMPLATE_VERSION))
+                if 'external_type' in model:
+                    self.external_type = model['external_type']
+
         self.context = None
 
     def render(self, context):

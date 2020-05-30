@@ -1020,7 +1020,18 @@ ralink,rt288x-pci:
   extend: mmio,generic
 ralink,rt3050-esw:
   buddy_compatible: []
-  extend: mmio,generic
+  get_body: ['object_initialize(&s->ralink_rt3050_esw{{ id }},
+      sizeof(s->ralink_rt3050_esw{{ id }}), TYPE_RALINK_RT3050_ESW);',
+      'qdev_set_parent_bus(DEVICE(&s->ralink_rt3050_esw{{ id }}), sysbus_get_default());',
+    'object_property_set_bool(OBJECT(&s->ralink_rt3050_esw{{ id }}), true, "realized", &err);',
+    'sysbus_mmio_map(SYS_BUS_DEVICE(&s->ralink_rt3050_esw{{ id }}), 0, {{ reg.base|to_hex }});']
+  get_connection: []
+  get_field: ['RALINK_RT3050_ESWState ralink_rt3050_esw{{ id }};']
+  get_header: ['hw/net/ralink_rt3050_esw.h']
+  external_source: 'examples/hardware/ralink_rt3050_esw/hw/net/ralink_rt3050_esw.c'
+  external_header: 'examples/hardware/ralink_rt3050_esw/include/hw/net/ralink_rt3050_esw.h'
+  external: True
+  external_type: net
 ralink,rt3050-eth:
   buddy_compatible: []
   extend: mmio,generic

@@ -109,6 +109,9 @@ pnx833x: {device_tree: false}
 ralink:
   device_tree: true
   support_list:
+    3G-6200N: {arch: mips, brand: openwrt, endian: l, example: examples/machines/ralink_rt3050_soc,
+      loaddr: '0x80000000', realdtb: slcore/database/archivedtb/ralink_rt3050_soc.dtb,
+      subtarget: rt305x, target: ramips}
     BR-6475ND: {arch: mips, brand: openwrt, endian: l, example: examples/machines/ralink_rt3883_soc,
       loaddr: '0x80000000', realdtb: slcore/database/archivedtb/ralink_rt3883_soc.dtb,
       subtarget: rt3883, target: ramips}
@@ -118,6 +121,9 @@ ralink:
     mediatek,mt7628an-soc: {arch: mips, brand: openwrt, endian: l, example: examples/machines/mediatek_mt7628an_soc,
       realdtb: slcore/database/archivedtb/mediatek_mt7628an_soc.dtb, subtarget: mt76x8,
       target: ramips}
+    ralink,rt3050-soc: {arch: mips, brand: openwrt, endian: l, example: examples/machines/ralink_rt3050_soc,
+      loaddr: '0x80000000', realdtb: slcore/database/archivedtb/ralink_rt3050_soc.dtb,
+      subtarget: rt305x, target: ramips}
     ralink,rt3883-soc: {arch: mips, brand: openwrt, endian: l, example: examples/machines/ralink_rt3883_soc,
       loaddr: '0x80000000', realdtb: slcore/database/archivedtb/ralink_rt3883_soc.dtb,
       subtarget: rt3883, target: ramips}

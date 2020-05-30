@@ -54,6 +54,8 @@ class QEMUController(Common):
                 'makefile': 'hw/intc/Makefile.objs'
             }, 'timer': {
                 'makefile': 'hw/timer/Makefile.objs'
+            }, 'net': {
+                'makefile': 'hw/net/Makefile.objs'
             }
         }
         if qemu_root is None:

@@ -63,9 +63,9 @@ class DiscloseDT(Analysis):
                 if mmio['compatible'] == compatible:
                     continue
                 for reg in mmio['regs']:
-                    if reg['base'] <= start <= reg['base'] + reg['size']:
+                    if reg['base'] <= start and start < reg['base'] + reg['size']:
                         return mmio['compatible']
-                    if reg['base'] <= end <= reg['base'] + reg['size']:
+                    if reg['base'] < end and end <= reg['base'] + reg['size']:
                         return mmio['compatible']
             return None
 

@@ -40,7 +40,7 @@ class SynthesisDT(Analysis):
         self.machine = None
         self.location = {
             'arm': 'hw/arm', 'mips': 'hw/mips',
-            'intc': 'hw/intc', 'timer': 'hw/timer'}
+            'intc': 'hw/intc', 'timer': 'hw/timer', 'net': 'hw/net'}
         self.external = {}
         self.skipped_bdevices = []
 
@@ -194,7 +194,7 @@ class SynthesisDT(Analysis):
                     return False
                 if b.external:
                     self.external[context['name']] = \
-                        {'type': k, 'source': source, 'header': header}
+                        {'type': b.external_type, 'source': source, 'header': header}
                 # update the skipped_bdevices
                 self.skipped_bdevices.append(b.effic_compatible)
                 self.skipped_bdevices.extend(b.buddy_compatible)
