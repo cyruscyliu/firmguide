@@ -1312,7 +1312,6 @@ static void plxtech_nas782x_init(MachineState *machine)
     memory_region_allocate_system_memory(&s->ram, OBJECT(machine), "ram", machine->ram_size);
     memory_region_add_subregion_overlap(get_system_memory(), 0, &s->ram, 0);
     
-    
     //object_initialize(&s->arm_arm11mp_gic, sizeof(s->arm_arm11mp_gic), TYPE_ARM11MPCORE_PRIV);
     //object_property_set_bool(OBJECT(&s->arm_arm11mp_gic), true, "realized", &err);
     //sysbus_mmio_map(SYS_BUS_DEVICE(&s->arm_arm11mp_gic), 0, 0x47001000 & 0xffff0000);

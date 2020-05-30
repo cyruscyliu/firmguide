@@ -7,11 +7,13 @@
 
 #include "hw/sysbus.h"
 
+
 /*
  * bit ops
  */ 
 
 #define __bit(b) (1 << b)
+
 
 /*
  * MMIO region related

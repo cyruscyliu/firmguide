@@ -14,11 +14,13 @@
 static void clkevt_past_one_cycle(struct clkevt_stat_mach *m)
 {
     if (m->repeat || m->enable) {
-        m->countdown--;
-        if (m->countdown == 0) {
+        //printf("[+] %s load value is %u\n", m->name, m->load);
+        m->load--;
+        if (m->load == 0) {
             // act irq
+            //printf("[+] %s act the irq\n", m->name);
             m->act_irq(m->s);
-            m->countdown = IMPOSSIBLE;
+            m->load = m->countdown;
             m->enable = false;
         }
     }
@@ -133,6 +135,7 @@ static void clkevt_handle_event(clkevt_stat_mach *m, clkevt_event ce)
     
     case CLKEVT_EVT_SET_ONESHOT:
         if (m->on) {
+            assert(false && "we think now has no case working on oneshot mode now");
             m->stat = CLKEVT_STAT_ONESHOT;
             m->enable = false;
             m->repeat = false;
@@ -141,6 +144,7 @@ static void clkevt_handle_event(clkevt_stat_mach *m, clkevt_event ce)
     
     case CLKEVT_EVT_ACK:
         if (m->stat == CLKEVT_STAT_PERIODIC || m->stat == CLKEVT_STAT_ONESHOT) {
+            //printf("[+] %s deact the irq\n", m->name);
             m->deact_irq(m->s);
         }
         break;
@@ -314,6 +318,7 @@ clkevt_stat_mach *init_clkevt_stat_mach(AUTOBOARD_TIMERState *s)
     m->enable = false;
     m->repeat = false;
     m->countdown = IMPOSSIBLE;
+    m->load = m->countdown;
     // at the very beginning, the timer is off
     m->stat = CLKEVT_STAT_OFF;
 

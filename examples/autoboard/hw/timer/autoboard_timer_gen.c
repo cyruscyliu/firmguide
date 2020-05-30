@@ -78,7 +78,10 @@ static auto_config_action wait_hw_evt_clksrc_reset_cfg = {
  * 
  */
 
-#define OXNAS_GENERIC_RPS_LEVEL_IRQ true
+/*
+ * for oxnas.generic rps clksrc device
+ */
+
 #define OXNAS_GENERIC_RPS_INCREMENT false
 #define OXNAS_GENERIC_RPS_NS_PER_CYCLE 2560
 #define OXNAS_GENERIC_RPS_MMIO_AMOUNT 1
@@ -125,10 +128,8 @@ static uint8_t oxnas_generic_rps_do_convert_func(AUTOBOARD_TIMERState *s, auto_c
 {
     uint32_t midx = 0, moff = 0x24;
     uint32_t cycles = ((clksrc_stat_mach *)(((timer_bundle *)s->clkdev)->stat_mach))->cycles;
-    //uint32_t val = s->aummios[acu->midx].read(&s->aummios[acu->midx], acu->moff);
-    //printf("[+] uart act write before 0x%x, size %d, value 0x%x\n", acu->moff, 4, val);
+
     s->aummios[midx].write(s->aummios, moff, (uint32_t)(cycles));
-    //printf("[+] uart act write after 0x%x, size %d, value 0x%x\n", acu->moff, 4, val | (uint32_t)(1 << acu->irq));
     return 0;
 }
 
@@ -158,6 +159,186 @@ static auto_config_one_timer oxnas_generic_rps_timer_cfgs = {
 };
 
 /*
+ * for oxnas.generic mptimer clkevt device
+ */
+
+#define OXNAS_GENERIC_MPTIMER_LEVEL_IRQ true
+#define OXNAS_GENERIC_MPTIMER_NS_PER_CYCLE 2560
+#define OXNAS_GENERIC_MPTIMER_MMIO_AMOUNT 1
+#define OXNAS_GENERIC_MPTIMER_MMIO1 0x20
+static uint32_t oxnas_generic_mptimer_mmio_lens[OXNAS_GENERIC_MPTIMER_MMIO_AMOUNT] = {
+   OXNAS_GENERIC_MPTIMER_MMIO1, 
+};
+
+static uint8_t oxnas_generic_mptimer_set_idle_func(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    //printf("[+] match init func1 at->new_val:0x%x result: %d \n", at->new_val, (at->new_val == (uint32_t)(__bit(2) | __bit(6) | __bit(7)));
+    return (at->new_val == (uint32_t)(0));
+}
+
+static auto_config_action oxnas_generic_mptimer_set_idle_cfg = {
+    .prog = 0,
+    .acus = {
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x8,
+            .match_write_cnt = oxnas_generic_mptimer_set_idle_func,
+            .next = 0,
+        },
+    }
+};
+
+static uint8_t oxnas_generic_mptimer_is_set_perio_func0(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    //printf("[+] is set perio func0 countdown & load value is: %lu \n", ((uint32_t) 10E9) / at->new_val);
+    // TODO: we need to fill the actual rate/factor value here
+    //return (at->new_val == (uint32_t)(???));
+    ((clkevt_stat_mach *)(((timer_bundle *)s->clkdev)->stat_mach))->countdown = ((uint32_t) 10E9) / at->new_val;
+    ((clkevt_stat_mach *)(((timer_bundle *)s->clkdev)->stat_mach))->load = ((uint32_t) 10E9) / at->new_val;
+    return true;
+}
+
+static uint8_t oxnas_generic_mptimer_is_set_perio_func1(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    //printf("[+] match is set perio func1 result: %d \n", (at->new_val == (uint32_t)(__bit(0) | __bit(1) | __bit(2))));
+    return (at->new_val == (uint32_t)(__bit(0) | __bit(1) | __bit(2)));
+}
+
+static auto_config_action oxnas_generic_mptimer_is_set_perio_cfg = {
+    .prog = 0,
+    .acus = {
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x0,
+            .match_write_cnt = oxnas_generic_mptimer_is_set_perio_func0,
+            .next = 1,
+        },
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x8,
+            .match_write_cnt = oxnas_generic_mptimer_is_set_perio_func1,
+            .next = 0,
+        },
+    }
+};
+
+static uint8_t oxnas_generic_mptimer_is_set_oneshot_func(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    //printf("[+] match init func1 at->new_val:0x%x result: %d \n", at->new_val, (at->new_val == (uint32_t)(__bit(2))));
+    // TODO: we need to fill the actual rate/factor value here
+    return (at->new_val == (uint32_t)(__bit(2)));
+}
+
+static auto_config_action oxnas_generic_mptimer_is_set_oneshot_cfg = {
+    .prog = 0,
+    .acus = {
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x8,
+            .match_write_cnt = oxnas_generic_mptimer_is_set_oneshot_func,
+            .next = 0,
+        },
+    }
+};
+
+static uint8_t oxnas_generic_mptimer_is_ack_func0(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    uint32_t midx = 0, moff = 0xc;
+    s->aummios[midx].write(&s->aummios[midx], moff, 1);
+    return 0;
+}
+
+static uint8_t oxnas_generic_mptimer_is_ack_func1(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    return at->new_val == 1;
+}
+
+static auto_config_action oxnas_generic_mptimer_is_ack_cfg = {
+    .prog = 0,
+    .acus = {
+        {
+            .type = ACU_DO_WATCH_READ,
+            .midx = 0,
+            .moff = 0xc,
+            .next = 1,
+        },
+        {
+            .type = ACU_DO_REACT,
+            .do_react = oxnas_generic_mptimer_is_ack_func0,
+            .next = 2,
+        },
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0xc,
+            .match_write_cnt = oxnas_generic_mptimer_is_ack_func1,
+            .next = 0,
+        },
+    }
+};
+
+static uint8_t oxnas_generic_mptimer_is_oneshot_set_next_func0(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    // TODO: here may need more consideration?
+    // now we know that the written cnt directly tells the cycle num
+    //printf("[+] is oneshot set next func0 load value is: %lu \n", at->new_val);
+    ((clkevt_stat_mach *)(((timer_bundle *)s->clkdev)->stat_mach))->load = at->new_val;
+    return true;
+}
+
+static uint8_t oxnas_generic_mptimer_is_oneshot_set_next_func1(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    return at->new_val == ((at->old_val) | (uint32_t)(__bit(0)));
+}
+
+static auto_config_action oxnas_generic_mptimer_is_oneshot_set_next_cfg = {
+    .prog = 0,
+    .acus = {
+        {
+            .type = ACU_DO_WATCH_READ,
+            .midx = 0,
+            .moff = 0x8,
+            .next = 1,
+        },
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x4,
+            .match_write_cnt = oxnas_generic_mptimer_is_oneshot_set_next_func0,
+            .next = 2,
+        },
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x8,
+            .match_write_cnt = oxnas_generic_mptimer_is_oneshot_set_next_func1,
+            .next = 0,
+        },
+    }
+};
+
+static clkevt_cfg oxnas_generic_mptimer_timer_cfg = {
+    .is_off = NULL,
+    .is_on = NULL,
+    .is_init = &oxnas_generic_mptimer_set_idle_cfg,
+    .is_reset = &wait_hw_evt_clkevt_reset_cfg,
+    .is_set_unused = &oxnas_generic_mptimer_set_idle_cfg,
+    .is_set_perio = &oxnas_generic_mptimer_is_set_perio_cfg,
+    .is_set_oneshot = &oxnas_generic_mptimer_is_set_oneshot_cfg,
+    .is_ack = &oxnas_generic_mptimer_is_ack_cfg,
+    .is_oneshot_set_next = &oxnas_generic_mptimer_is_oneshot_set_next_cfg,
+};
+
+static auto_config_one_timer oxnas_generic_mptimer_timer_cfgs = {
+    .timer_type = STAT_MACH_CLKDEV_EVENT,
+    .timer_stat_mach_cfg = &oxnas_generic_mptimer_timer_cfg,
+};
+
+/*
  * Config Panel
  */
 
@@ -166,8 +347,14 @@ static auto_one_timer_cfg all_timer_cfgs[AUTOBOARD_TIMER_NUM] = {
         .timer_cfgs = &oxnas_generic_rps_timer_cfgs,
         .mm_lens = oxnas_generic_rps_mmio_lens,
         .mm_amount = OXNAS_GENERIC_RPS_MMIO_AMOUNT,
-        .is_level_irq = OXNAS_GENERIC_RPS_LEVEL_IRQ,
         .ns_per_cycle = OXNAS_GENERIC_RPS_NS_PER_CYCLE,
+    },
+    [AUTOBOARD_TIMER_OXNAS_GENERIC_MPTIMER] = {
+        .timer_cfgs = &oxnas_generic_mptimer_timer_cfgs,
+        .mm_lens = oxnas_generic_mptimer_mmio_lens,
+        .mm_amount = OXNAS_GENERIC_MPTIMER_MMIO_AMOUNT,
+        .is_level_irq = OXNAS_GENERIC_MPTIMER_LEVEL_IRQ,
+        .ns_per_cycle = OXNAS_GENERIC_MPTIMER_NS_PER_CYCLE,
     },
 };
 

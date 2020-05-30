@@ -156,7 +156,7 @@ static uint64_t autoboard_timer_read(void *opaque, hwaddr offset, unsigned size,
     // read again as the mmio read may induce the change of mmio content
     res = s->aummios[mmio_idx].read(&s->aummios[mmio_idx], offset);
 
-    //printf("[+] %s read idx %d off 0x%lx, size %d, value 0x%lx, %d event(s) are triggered\n", s->name, mmio_idx, offset, size, res, triggered);
+    //printf("[+] %s read idx %d off 0x%lx, size %d, value 0x%x, %u event(s) are triggered\n", s->name, mmio_idx, offset, size, res, triggered);
     return res;
 }
 
@@ -184,7 +184,7 @@ static void autoboard_timer_write(void *opaque, hwaddr offset, uint64_t val, uns
         // do nothing now
     }
 
-    //printf("[+] %s write idx %d off 0x%lx, size %d, change value from 0x%lx to 0x%lx, %d event(s) are triggered\n", s->name, mmio_idx, at.off, size, at.old_val, at.new_val, triggered);
+    //printf("[+] %s write idx %d off 0x%lx, size %d, change value from 0x%lx to 0x%lx, %u event(s) are triggered\n", s->name, mmio_idx, at.off, size, at.old_val, at.new_val, triggered);
 }
 
 AUTOBOARD_MAKE_MMIO_RANGE_RW_FUNCS(timer, 0)
@@ -221,7 +221,12 @@ static void autoboard_timer_init(Object *obj)
     }
 
     /* initialize an irq to the timer */
-    qdev_init_gpio_out(DEVICE(s), &s->irq, 1);
+    // TODO: ugly fix for the gic timer, re-do this when free
+    if (choosen_id == AUTOBOARD_TIMER_OXNAS_GENERIC_MPTIMER)
+        sysbus_init_irq(SYS_BUS_DEVICE(s), &s->irq);
+    else
+        qdev_init_gpio_out(DEVICE(s), &s->irq, 1);
+
 
     /* setup the s->clkdev */
     s->clkdev = (timer_bundle *)calloc(1, sizeof(struct timer_bundle));

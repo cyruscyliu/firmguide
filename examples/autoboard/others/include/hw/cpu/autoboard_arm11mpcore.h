@@ -13,7 +13,8 @@
 #include "hw/misc/arm11scu.h"
 //#include "hw/intc/arm_gic.h"
 #include "hw/intc/autoboard_intc.h"
-#include "hw/timer/arm_mptimer.h"
+//#include "hw/timer/arm_mptimer.h"
+#include "hw/timer/autoboard_timer.h"
 
 #define TYPE_AUTOBOARDARM11MPCORE_PRIV "autoboardarm11mpcore_priv"
 #define AUTOBOARDARM11MPCORE_PRIV(obj) \
@@ -28,7 +29,8 @@ typedef struct AUTOBOARDARM11MPCorePriveState {
 
     ARM11SCUState scu;
     AUTOBOARD_INTCState aic;
-    ARMMPTimerState mptimer;
+    AUTOBOARD_TIMERState mptimer;
+    //ARMMPTimerState mptimer;
     //ARMMPTimerState wdtimer;
 } AUTOBOARDARM11MPCorePriveState;
 

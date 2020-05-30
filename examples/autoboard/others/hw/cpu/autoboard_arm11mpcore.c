@@ -76,7 +76,7 @@ static void mpcore_priv_realize(DeviceState *dev, Error **errp)
     AUTOBOARDARM11MPCorePriveState *s = AUTOBOARDARM11MPCORE_PRIV(dev);
     DeviceState *scudev = DEVICE(&s->scu);
     //DeviceState *aicdev = DEVICE(&s->aic);
-    DeviceState *mptimerdev = DEVICE(&s->mptimer);
+    //DeviceState *mptimerdev = DEVICE(&s->mptimer);
     //DeviceState *wdtimerdev = DEVICE(&s->wdtimer);
     Error *err = NULL;
 
@@ -107,12 +107,13 @@ static void mpcore_priv_realize(DeviceState *dev, Error **errp)
     //qdev_init_gpio_in(dev, mpcore_priv_set_irq, s->num_irq - 32);
     qdev_init_gpio_in(dev, mpcore_priv_set_irq, s->num_irq);
 
-    qdev_prop_set_uint32(mptimerdev, "num-cpu", s->num_cpu);
+    //qdev_prop_set_uint32(mptimerdev, "num-cpu", s->num_cpu);
+    //object_property_set_bool(OBJECT(&s->mptimer), true, "realized", &err);
+    //if (err != NULL) {
+    //    error_propagate(errp, err);
+    //    return;
+    //}
     object_property_set_bool(OBJECT(&s->mptimer), true, "realized", &err);
-    if (err != NULL) {
-        error_propagate(errp, err);
-        return;
-    }
 
     //qdev_prop_set_uint32(wdtimerdev, "num-cpu", s->num_cpu);
     //object_property_set_bool(OBJECT(&s->wdtimer), true, "realized", &err);
@@ -145,11 +146,17 @@ static void mpcore_priv_initfn(Object *obj)
     /* Request the legacy 11MPCore GIC behaviour: */
     //qdev_prop_set_uint32(DEVICE(&s->gic), "revision", 0);
 
-    sysbus_init_child_obj(obj, "mptimer", &s->mptimer, sizeof(s->mptimer),
-                          TYPE_ARM_MPTIMER);
+    //sysbus_init_child_obj(obj, "mptimer", &s->mptimer, sizeof(s->mptimer),
+    //                      TYPE_ARM_MPTIMER);
+
+    set_autoboard_timer_cfg(AUTOBOARD_TIMER_OXNAS_GENERIC_MPTIMER, "auto-mptimer");
+    sysbus_init_child_obj(obj, "mptimer", &s->mptimer, sizeof(s->mptimer), TYPE_AUTOBOARD_TIMER);
+    //object_initialize(&s->timer0, sizeof(s->timer0), TYPE_AUTOBOARD_TIMER);
+    //qdev_set_parent_bus(DEVICE(&s->timer0), sysbus_get_default());
 
     //sysbus_init_child_obj(obj, "wdtimer", &s->wdtimer, sizeof(s->wdtimer),
     //                      TYPE_ARM_MPTIMER);
+
 }
 
 static Property mpcore_priv_properties[] = {

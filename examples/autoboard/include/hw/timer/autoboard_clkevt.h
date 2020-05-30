@@ -28,6 +28,10 @@ typedef enum {
     CLKEVT_STAT_UNUSED,
     CLKEVT_STAT_PERIODIC,
     CLKEVT_STAT_ONESHOT,
+    // TODO: for ACK EVT, actually the behaviors are different when 
+    //       clkevt device works on different stats (oneshot/perio/...)
+    //       we should consider introduce more detail stats to supp this when free
+    //       now there only has timer running on periodic mode as far as I know
     CLKEVT_STAT_NUM,
     CLKEVT_STAT_INVALID = -1,
 } clkevt_stat;
@@ -75,6 +79,7 @@ typedef struct clkevt_stat_mach {
     bool on;
     bool enable;
     bool repeat;
+    uint32_t load;
     uint32_t countdown;
 
     uint32_t progs[CLKEVT_ALL_EVT_NUM];
