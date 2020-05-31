@@ -6,6 +6,10 @@ from rootfs.rootfs import get_initramfs
 
 class Preparation(Analysis):
     def run(self, **kwargs):
+        status = self.check_components()
+        if not status:
+            return status
+
         # 1. prepare -k path/to/kernel
         if self.firmware.get_arch() == 'mips':
             # 1.1 If a mips firmware has CMDLINE label,

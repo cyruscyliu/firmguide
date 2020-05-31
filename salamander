@@ -47,6 +47,6 @@ if __name__ == '__main__':
     status = analysis_manager.warmup()
     if not status:
         exit(-1)
-    analysis_manager.print_analyses_chain()
     analysis_manager.run()
+    analysis_manager.print_analyses_chain()
     analysis_manager.wrapup()

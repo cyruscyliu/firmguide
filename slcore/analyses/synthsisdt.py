@@ -64,6 +64,10 @@ class SynthesisDT(Analysis):
         self.context['board_id'] = self.firmware.get_board_id()
 
     def run(self, **kwargs):
+        status = self.check_components()
+        if not status:
+            return status
+
         path_to_dtb = self.firmware.get_realdtb()
         if path_to_dtb is None:
             self.error_info = 'there is no device tree blob available.'

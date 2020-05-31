@@ -16,6 +16,9 @@ class Unpacking(Analysis):
         path_to_firmware = kwargs.pop('ffirmware')
         if path_to_firmware is None:
             # Note: if ffirmware is None, we just use what we've done
+            status = self.check_components()
+            if not status:
+                return status
             path_to_firmware = \
                 components = self.firmware.get_components()
         else:

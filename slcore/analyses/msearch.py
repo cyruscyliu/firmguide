@@ -99,20 +99,14 @@ class FindMachine(Analysis):
     def run(self, **kwargs):
         components = self.firmware.get_components()
 
-        if components is None:
-            self.error_info = 'components is missing'
+        if self.check_components_is_none():
             return False
 
         self.update_profile()
         self.update_log()
         self.update_trace()
 
-        if not components.supported:
-            self.error_info = 'cannot unpack this image'
-            return False
-
-        if not components.has_kernel():
-            self.error_info = 'have no kernel, maybe a rootfs image'
+        if not self.check_components():
             return False
 
         # T1: LATEST_BOARD_SIGNATURE

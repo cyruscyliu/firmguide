@@ -85,10 +85,6 @@ class AnalysesManager(Common):
                     components = unpack(
                         self.arguments['firmware'], target_dir=path)
 
-            if not components.supported:
-                self.warning('amanager', 'firmware format is not supported', 0)
-                return False
-
             working_path = os.path.join(path, components.get_raw_name())
             if not os.path.exists(working_path):
                 shutil.copy(components.get_path_to_raw(),
@@ -330,6 +326,28 @@ class Analysis(Common, AnalysisInterface):
         analysis_manager.register_analysis(self)
 
         return analysis_manager
+
+    def check_components_is_none(self):
+        components = self.firmware.get_components()
+        if components is None:
+            self.error_info = 'components is missing'
+            return True
+        return False
+
+    def check_components(self):
+        if self.check_components_is_none():
+            return False
+
+        components = self.firmware.get_components()
+        if not components.supported:
+            self.error_info = 'firmware format is not supported'
+            return False
+
+        if not components.has_kernel():
+            self.error_info = 'firmware have no kernel, maybe is a rootfs image'
+            return False
+
+        return True
 
 
 class AnalysisGroup(AnalysisInterface):
