@@ -1,6 +1,6 @@
 unpack:
     help: "Plugin - Unpack an image."
     optional: &optional
-        firmware: {short: f, metavar: "IMAGE",
+        ffirmware: {short: ff, metavar: "IMAGE",
             help: "We extend Binwalk to identify more image headers and can extract the Linux kernel in the image."}
     callback: unpacking

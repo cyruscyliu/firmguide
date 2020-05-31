@@ -86,7 +86,7 @@ class AnalysesManager(Common):
                         self.arguments['firmware'], target_dir=path)
 
             if not components.supported:
-                self.warning('amanager', 'firmware is not supported', 0)
+                self.warning('amanager', 'firmware format is not supported', 0)
                 return False
 
             working_path = os.path.join(path, components.get_raw_name())

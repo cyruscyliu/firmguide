@@ -512,9 +512,9 @@ def unpack(path, target_dir=None, extract=True):
             if path_to_dtb is not None:
                 components.path_to_dtb = path_to_dtb
         elif str(result.description).find('AVM EVA header') != -1:
-            break
+            pass
         elif str(result.description).find('SENAO firmware header') != -1:
-            break
+            pass
         elif str(result.description).find('TPLink firmware header') != -1:
             components.set_type(TPLINK_KERNEL)
             components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])

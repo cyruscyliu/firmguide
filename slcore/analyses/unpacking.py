@@ -10,14 +10,19 @@ class Unpacking(Analysis):
         self.description = 'Unpack given image.'
 
     def run(self, **kwargs):
-        path_to_firmware = kwargs.pop('firmware')
+        # Note: ffirmware not firmware, otherwise the firmware
+        # will be unpacked for two times, and if the format
+        # is not supported, we cannot even come here
+        path_to_firmware = kwargs.pop('ffirmware')
         if path_to_firmware is None:
+            # Note: if ffirmware is None, we just use what we've done
             path_to_firmware = \
-                self.firmware.get_components().get_path_to_raw()
+                components = self.firmware.get_components()
+        else:
+            components = unpack(
+                path_to_firmware,
+                target_dir=self.analysis_manager.project.attrs['path'])
 
-        components = unpack(
-            path_to_firmware,
-            target_dir=self.analysis_manager.project.attrs['path'])
         for k, v in components.get_attributes().items():
             if isinstance(v, str):
                 for line in v.strip().split('\n'):
