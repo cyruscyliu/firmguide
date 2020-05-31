@@ -127,7 +127,8 @@ class FindMachine(Analysis):
                 # T5 WHETHER OR NOT WE ARE PREPARED
                 profile = md.find_profile_by_compatible(compatible)
                 if profile is None:
-                    profile = self.select_first_profile(md)
+                    self.info('we will try our profiles one by one', 1)
+                    profile = md.select_first_profile()
                 if profile is None:
                     # modeling 002
                     self.error_info = \
@@ -144,7 +145,7 @@ class FindMachine(Analysis):
         machine_ids = find_machine_id(components.get_path_to_kernel())
         if machine_ids is None:
             self.info('we will try our profiles one by one', 1)
-            profile = self.select_first_profile(md)
+            profile = md.select_first_profile()
         else:
             self.info('we support {}'.format(machine_ids), 1)
             profile = md.find_profile_by_id(machine_ids)
@@ -158,7 +159,7 @@ class FindMachine(Analysis):
 
         self.firmware.set_realdtb(os.path.join(
             self.analysis_manager.project.attrs['base_dir'],
-            profile['realdtb']))
+           profile['realdtb']))
         return True
 
     def __init__(self, analysis_manager):
