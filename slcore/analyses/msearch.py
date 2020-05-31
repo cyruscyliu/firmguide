@@ -57,6 +57,9 @@ class MD(Common):
 
 class FindMachine(Analysis):
     def update_profile(self):
+        # fix runtime
+        self.firmware.set_stage(False, 'user_mode')
+
         raw_name = self.firmware.get_components().get_raw_name()
         self.firmware.path_to_profile = os.path.join(
             self.analysis_manager.project.attrs['path'],
