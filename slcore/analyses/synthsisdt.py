@@ -76,6 +76,7 @@ class SynthesisDT(Analysis):
         dts = load_dtb(path_to_dtb)
 
         self.init_context()
+        self.clear_statistics()
 
         # all intcp should replaced by a real intc
         intcp = {}
@@ -179,6 +180,7 @@ class SynthesisDT(Analysis):
                             for index, yy in y.items():
                                 for xxx, yyy in yy.items():
                                     context['regs'][index][xxx] = yyy
+                                    self.firmware.inc_iv_num()
                 m_context = b.render(context)
                 if isinstance(m_context, str):
                     self.warning('cannot suport {} {}, {} is missing'.format(
@@ -203,6 +205,7 @@ class SynthesisDT(Analysis):
                 self.skipped_bdevices.append(b.effic_compatible)
                 self.skipped_bdevices.extend(b.buddy_compatible)
                 self.debug('{} done'.format(context['compatible']), 1)
+                self.update_statistics(k)
         # let's go on
         if 'timer_get_header' not in self.context:
             self.context['timer_get_header'] = []
@@ -243,6 +246,20 @@ class SynthesisDT(Analysis):
             self.__save(v['header'], base, location, fname)
             self.info('save at {}/{}/{}'.format(base, location, fname), 'link')
         return True
+
+    def clear_statistics(self):
+        self.firmware.set_crm_num(0)
+        self.firmware.set_smm_num(0)
+        self.firmware.set_mrm_num(0)
+        self.firmware.set_iv_num(0)
+
+    def update_statistics(self, t):
+        if t in ['cpu', 'ram', 'serial', 'misc']:
+            self.firmware.inc_crm_num()
+        elif t in ['intc', 'timer']:
+            self.firmware.inc_smm_num()
+        else:
+            self.firmware.inc_mrm_num()
 
     def __save(self, s, base, location, fname):
         os.makedirs(base, exist_ok=True)

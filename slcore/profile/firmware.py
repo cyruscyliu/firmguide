@@ -5,9 +5,11 @@ from slcore.common import Common
 from slcore.compositor import Components
 from slcore.profile.kernel import KernelForFirmware
 from slcore.profile.openwrt import OpenWRTForFirmware
+from slcore.profile.statistics import StatisticsForFirmware
 
 
-class Firmware(KernelForFirmware, OpenWRTForFirmware, Common):
+class Firmware(StatisticsForFirmware, KernelForFirmware,
+               OpenWRTForFirmware, Common):
     def __init__(self, *args, **kwargs):
         self.analysis_progress = None  # /tmp/uuid/analyses
 
@@ -230,10 +232,74 @@ class Firmware(KernelForFirmware, OpenWRTForFirmware, Common):
 
     # ######## statistics ########
     def set_uart_num(self, *args, **kwargs):
-        self.set_general('uart', 'num', value=args[0])
+        self.set_general('statistics', 'uart', value=args[0])
 
     def get_uart_num(self, *args, **kwargs):
-        uart_num = self.get_general('uart', 'num')
+        uart_num = self.get_general('statistics', 'uart')
         if uart_num is None:
             self.set_uart_num(0)
-        return self.get_general('uart', 'num')
+        return self.get_general('statistics', 'uart')
+
+    def get_crm_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'crm')
+        if num is None:
+            self.set_crm_num(0)
+        return self.get_general('statistics', 'crm')
+
+    def set_crm_num(self, *args, **kwargs):
+        self.set_general('statistics', 'crm', value=args[0])
+
+    def inc_crm_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'crm')
+        if num is None:
+            self.set_crm_num(1)
+        else:
+            self.set_crm_num(num + 1)
+
+    def get_smm_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'smm')
+        if num is None:
+            self.set_smm_num(0)
+        return self.get_general('statistics', 'smm')
+
+    def set_smm_num(self, *args, **kwargs):
+        self.set_general('statistics', 'smm', value=args[0])
+
+    def inc_smm_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'smm')
+        if num is None:
+            self.set_smm_num(1)
+        else:
+            self.set_smm_num(num + 1)
+
+    def get_mrm_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'mrm')
+        if num is None:
+            self.set_mrm_num(0)
+        return self.get_general('statistics', 'mrm')
+
+    def set_mrm_num(self, *args, **kwargs):
+        self.set_general('statistics', 'mrm', value=args[0])
+
+    def inc_mrm_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'mrm')
+        if num is None:
+            self.set_mrm_num(1)
+        else:
+            self.set_mrm_num(num + 1)
+
+    def get_iv_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'iv')
+        if num is None:
+            self.set_iv_num(0)
+        return self.get_general('statistics', 'iv')
+
+    def set_iv_num(self, *args, **kwargs):
+        self.set_general('statistics', 'iv', value=args[0])
+
+    def inc_iv_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'iv')
+        if num is None:
+            self.set_iv_num(1)
+        else:
+            self.set_iv_num(num + 1)
