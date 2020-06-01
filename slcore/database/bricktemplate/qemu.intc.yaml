@@ -20,6 +20,7 @@ arm,arm11mp-gic:
   n_irq: 64
   parameters: [name, regs, intcp]
   unique: true
+  builtin: 3
 arm,armv7m-nvic: {extend: 'intc,generic'}
 arm,cortex-a15-gic: {extend: 'intc,generic'}
 arm,cortex-a7-gic: {extend: 'intc,generic'}
@@ -37,6 +38,7 @@ arm,cortex-a9-gic:
   n_irq: 96
   parameters: [name, regs, intcp]
   unique: true
+  builtin: 4
 arm,eb11mp-gic: {extend: 'intc,generic'}
 arm,gic-400: {extend: 'intc,generic'}
 arm,gic-v3: {extend: 'intc,generic'}
@@ -122,6 +124,7 @@ mti,cpu-interrupt-controller:
   get_irqn: s->cpu->env.irq[{{ irqn }}]
   n_irq: 8
   paramters: []
+  builtin: 2
 mti,gic: {extend: 'intc,generic'}
 nvidia,tegra20-ictlr: {extend: 'intc,generic'}
 nvidia,tegra210-ictlr: {extend: 'intc,generic'}

@@ -205,7 +205,7 @@ class SynthesisDT(Analysis):
                 self.skipped_bdevices.append(b.effic_compatible)
                 self.skipped_bdevices.extend(b.buddy_compatible)
                 self.debug('{} done'.format(context['compatible']), 1)
-                self.update_statistics(k)
+                self.update_statistics(k, crm=b.builtin)
         # let's go on
         if 'timer_get_header' not in self.context:
             self.context['timer_get_header'] = []
@@ -253,11 +253,14 @@ class SynthesisDT(Analysis):
         self.firmware.set_mrm_num(0)
         self.firmware.set_iv_num(0)
 
-    def update_statistics(self, t):
+    def update_statistics(self, t, crm=None):
         if t in ['cpu', 'ram', 'serial', 'misc']:
             self.firmware.inc_crm_num()
-        elif t in ['intc', 'timer']:
+        elif t in ['intc', 'timer'] and crm is None:
             self.firmware.inc_smm_num()
+        elif t in ['intc', 'timer'] and crm is not None:
+            self.firmware.set_crm_num(
+                self.firmware.get_crm_num() + crm)
         else:
             self.firmware.inc_mrm_num()
 

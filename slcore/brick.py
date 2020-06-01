@@ -75,6 +75,7 @@ class Brick(object):
         self.unique = False
         self.fix_size = None
         self.disable = False
+        self.builtin = None
 
         for cmptb in self.compatible:
             model = self.__load_model(cmptb)
@@ -96,6 +97,8 @@ class Brick(object):
                 self.unique = True
             if 'disable' in model:
                 self.disable = True
+            if 'builtin' in model:
+                self.builtin = model['builtin']
             # external source and header
             if 'external' in model:
                 self.external = model['external']
