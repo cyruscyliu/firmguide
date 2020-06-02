@@ -13,7 +13,7 @@ handlers:
     level: DEBUG
     formatter: simple
     encoding: utf8
-    mode: a
+    mode: w
 root:
   level: INFO
   handlers: [console, file]

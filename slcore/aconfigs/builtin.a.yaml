@@ -1,6 +1,5 @@
 uploading:
     analyses: [FindMachine,
-        DTPreprocessing, SynthesisDT, Install,
         Preparation, Tracing,
         LoadTrace,
         CheckUserLevelF]
