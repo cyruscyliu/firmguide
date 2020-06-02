@@ -24,7 +24,7 @@
 typedef struct RALINK_RT3050_SOCState {
     MIPSCPU *cpu;
     RALINK_RT2880_INTCState ralink_rt2880_intc0;
-    RALINK_RT2880_TIMERState timer0;
+    RALINK_RT2880_TIMERState ralink_rt2880_timer0;
     MemoryRegion flash0;
     MemoryRegion ram0;
     MemoryRegion snps_dwc20_mmio;
@@ -498,10 +498,10 @@ static void ralink_rt3050_soc_init(MachineState *machine)
     
     qdev_connect_gpio_out(DEVICE(&s->ralink_rt2880_intc0), 0, s->cpu->env.irq[2]);
     
-    object_initialize(&s->timer0, sizeof(s->timer0), TYPE_RALINK_RT2880_TIMER);
-    qdev_set_parent_bus(DEVICE(&s->timer0), sysbus_get_default());
-    object_property_set_bool(OBJECT(&s->timer0), true, "realized", &err);
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer0), 0, 0x10000100);
+    object_initialize(&s->ralink_rt2880_timer0, sizeof(s->ralink_rt2880_timer0), TYPE_RALINK_RT2880_TIMER);
+    qdev_set_parent_bus(DEVICE(&s->ralink_rt2880_timer0), sysbus_get_default());
+    object_property_set_bool(OBJECT(&s->ralink_rt2880_timer0), true, "realized", &err);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->ralink_rt2880_timer0), 0, 0x10000100);
     
     
     serial_mm_init_au(get_system_memory(), 0x10000c00, 2, qdev_get_gpio_in(DEVICE(&s->ralink_rt2880_intc0), 12), 115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
