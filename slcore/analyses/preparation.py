@@ -75,5 +75,5 @@ class Preparation(Analysis):
         self.name = 'preparation'
         self.description = 'Prepare to boot the image.'
         self.critical = True
-        self.required = ['preprocdt', 'synthesisdt', 'loaddr']
+        self.required = ['preprocdt', 'synthesisdt', 'loaddr', 'msearch']
         self.type = 'diag'
