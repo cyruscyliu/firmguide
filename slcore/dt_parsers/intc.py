@@ -53,8 +53,8 @@ def __find_interrupts_index(dts, phandle):
             for cmptb in compatible:
                 if cmptb in COMPATIBLE_INTERRUPTS_INDEX:
                     return COMPATIBLE_INTERRUPTS_INDEX[cmptb]
-            raise NotImplementedError(
-                'update COMPATIBLE_INTERRUPTS_INDEX for {}'.format(compatible))
+            print('>>>> ERROR <<<< update COMPATIBLE_INTERRUPTS_INDEX for {}'.format(compatible))
+            return 0
     return None
 
 
