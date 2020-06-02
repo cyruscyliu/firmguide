@@ -15,8 +15,9 @@ static void clkevt_past_one_cycle(struct clkevt_stat_mach *m)
 {
     if (m->repeat || m->enable) {
         //printf("[+] %s load value is %u\n", m->name, m->load);
-        m->load--;
-        if (m->load == 0) {
+        if (m->load > m->delta)
+            m->load -= m->delta;
+        else {
             // act irq
             //printf("[+] %s act the irq\n", m->name);
             m->act_irq(m->s);
@@ -135,7 +136,6 @@ static void clkevt_handle_event(clkevt_stat_mach *m, clkevt_event ce)
     
     case CLKEVT_EVT_SET_ONESHOT:
         if (m->on) {
-            assert(false && "we think now has no case working on oneshot mode now");
             m->stat = CLKEVT_STAT_ONESHOT;
             m->enable = false;
             m->repeat = false;
@@ -150,9 +150,13 @@ static void clkevt_handle_event(clkevt_stat_mach *m, clkevt_event ce)
         break;
     
     case CLKEVT_EVT_ONESHOT_SET_NEXT:
-        if (m->stat == CLKEVT_STAT_ONESHOT) {
+        // TODO: now we just remove this check , as in kirkwood case
+        //       the ONESHOT stat is the same as UNUSED
+        //       maybe design a variable stat model next time
+        //if (m->stat == CLKEVT_STAT_ONESHOT) {
+            //assert(false && "we think now has no case really working on oneshot mode now");
             m->enable = true;
-        }
+        //}
         break;
     
     case CLKEVT_HW_EVT_ONE_CYCLE:
@@ -299,12 +303,12 @@ static uint8_t clkevt_is_evt_oneshot_set_next(clkevt_stat_mach *m, auto_trifle *
     return ACU_ST_MISMATCH;
 }
 
-clkevt_stat_mach *init_clkevt_stat_mach(AUTOBOARD_TIMERState *s)
+clkevt_stat_mach *init_clkevt_stat_mach(AUTOBOARD_TIMERState *s, uint32_t cfg_idx)
 {
     int i;
     clkevt_stat_mach *m;
 
-    assert(s->cfg->timer_cfgs->timer_type == STAT_MACH_CLKDEV_EVENT);
+    assert(s->cfg->timer_cfgs[cfg_idx].timer_type == STAT_MACH_CLKDEV_EVENT);
     assert(s->act_irq != NULL);
     assert(s->deact_irq != NULL);
 
@@ -312,13 +316,17 @@ clkevt_stat_mach *init_clkevt_stat_mach(AUTOBOARD_TIMERState *s)
 
     m->s = s;
     m->name = s->name;
-    m->cfg = (clkevt_cfg *)(s->cfg->timer_cfgs->timer_stat_mach_cfg);
+    m->clk_idx = cfg_idx;
+    m->cfg = (clkevt_cfg *)(s->cfg->timer_cfgs[cfg_idx].timer_stat_mach_cfg);
 
     m->on = false;
     m->enable = false;
     m->repeat = false;
+
+    m->delta = s->ns_per_cycle / s->cfg->ns_per_cycle;
     m->countdown = IMPOSSIBLE;
     m->load = m->countdown;
+
     // at the very beginning, the timer is off
     m->stat = CLKEVT_STAT_OFF;
 

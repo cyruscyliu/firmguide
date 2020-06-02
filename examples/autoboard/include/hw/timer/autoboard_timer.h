@@ -14,6 +14,8 @@
 #define AUTOBOARD_TIMER(obj) \
     OBJECT_CHECK(AUTOBOARD_TIMERState, (obj), TYPE_AUTOBOARD_TIMER)
 
+#define AUTOBOARD_TIMER_NS_PER_CYCLE 4096
+
 typedef enum {
     STAT_MACH_CLKDEV_EMPTY = 0,
     STAT_MACH_CLKDEV_EVENT,
@@ -27,10 +29,7 @@ typedef struct timer_bundle {
 
 typedef enum {
     AUTOBOARD_TIMER_INVALID = -1,
-    //AUTOBOARD_TIMER_RAMIPS_RT3883,
-    //AUTOBOARD_TIMER_ATH79_GENERIC,
-    //AUTOBOARD_TIMER_KIRKWOOD_GENERIC_ORION,
-    //AUTOBOARD_TIMER_KIRKWOOD_GENERIC_BRIDGE,
+    AUTOBOARD_TIMER_MARVELL_ORION,
     AUTOBOARD_TIMER_OXNAS_GENERIC_RPS,
     AUTOBOARD_TIMER_OXNAS_GENERIC_MPTIMER,
     AUTOBOARD_TIMER_NUM,
@@ -48,11 +47,13 @@ typedef struct auto_one_timer_cfg {
     uint32_t mm_amount;
     bool is_level_irq;
     uint32_t ns_per_cycle;
+    uint32_t clkdev_num;
 } auto_one_timer_cfg;
 
 typedef struct AUTOBOARD_TIMERState {
     /*< private >*/
     SysBusDevice sys_bus;
+
     /*< public >*/
 
     /*
@@ -80,18 +81,21 @@ typedef struct AUTOBOARD_TIMERState {
      */
     autoboard_mmio *aummios;
 
-    /* output of the timer */
-    qemu_irq irq;
-    bool is_level_irq;
-
+    /* the inner timer */
     QEMUTimer *timer;
-
+    // this is inited as the lowest multiply of s->cfg->ns_per_cycle 
+    //         which is greater than AUTOBOARD_TIMER_NS_PER_CYCLE
     uint32_t ns_per_cycle;
 
-    timer_bundle *clkdev;
-
+    /* out irq of the timer */
+    qemu_irq irq;
+    bool is_level_irq;
     void (* act_irq) (struct AUTOBOARD_TIMERState *s);
     void (* deact_irq) (struct AUTOBOARD_TIMERState *s);
+
+    /* clock devices */
+    uint32_t clkdev_num;
+    timer_bundle *clkdevs;
 
 } AUTOBOARD_TIMERState;
 

@@ -101,9 +101,10 @@ typedef struct AUTOBOARD_INTCState {
      */
     qemu_irq irq;
 
+    /* 
+     * internal state for every interrupt source 
+     */
     uint32_t in_irq_num;
-
-    /* internal state for every interrupt source */
     irq_bundle *in_irqs;
 
 } AUTOBOARD_INTCState;

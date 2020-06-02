@@ -74,7 +74,7 @@ static auto_config_action wait_hw_evt_clksrc_reset_cfg = {
 /*
  * for oxnas.generic
  * 
- * we have 2 timers, 1 for clvevt in giv, 1 for clksrc
+ * we have 2 timers, 1 for clvevt in gic, 1 for clksrc
  * 
  */
 
@@ -82,6 +82,7 @@ static auto_config_action wait_hw_evt_clksrc_reset_cfg = {
  * for oxnas.generic rps clksrc device
  */
 
+#define OXNAS_GENERIC_RPS_CLKDEV_NUM 1
 #define OXNAS_GENERIC_RPS_INCREMENT false
 #define OXNAS_GENERIC_RPS_NS_PER_CYCLE 2560
 #define OXNAS_GENERIC_RPS_MMIO_AMOUNT 1
@@ -124,21 +125,27 @@ static auto_config_action oxnas_generic_rps_is_init_cfg = {
 
 // TODO: this logic can be more clear by only doing necessary conversion when kernel reads
 //       should add one more event & partly re-design the stat machine
-static uint8_t oxnas_generic_rps_do_convert_func(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+static uint8_t oxnas_generic_rps_is_kernel_read_func(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
 {
     uint32_t midx = 0, moff = 0x24;
-    uint32_t cycles = ((clksrc_stat_mach *)(((timer_bundle *)s->clkdev)->stat_mach))->cycles;
+    uint32_t cycles = ((clksrc_stat_mach *)(((timer_bundle)s->clkdevs[0]).stat_mach))->cycles;
 
     s->aummios[midx].write(s->aummios, moff, (uint32_t)(cycles));
     return 0;
 }
 
-static auto_config_action oxnas_generic_rps_do_convert_cfg = {
+static auto_config_action oxnas_generic_rps_is_kernel_read_cfg = {
     .prog = 0,
     .acus = {
         {
+            .type = ACU_DO_WATCH_READ,
+            .midx = 0,
+            .moff = 0x24,
+            .next = 1,
+        },
+        {
             .type = ACU_DO_REACT,
-            .do_react = oxnas_generic_rps_do_convert_func,
+            .do_react = oxnas_generic_rps_is_kernel_read_func,
             .next = 0,
         }
     }
@@ -150,20 +157,25 @@ static clksrc_cfg oxnas_generic_rps_timer_cfg = {
     .is_on = NULL,
     .is_init = &oxnas_generic_rps_is_init_cfg,
     .is_reset = &wait_hw_evt_clksrc_reset_cfg,
-    .do_convert = &oxnas_generic_rps_do_convert_cfg,
+    .is_kernel_read = &oxnas_generic_rps_is_kernel_read_cfg,
 };
 
-static auto_config_one_timer oxnas_generic_rps_timer_cfgs = {
-    .timer_type = STAT_MACH_CLKDEV_SOURCE,
-    .timer_stat_mach_cfg = &oxnas_generic_rps_timer_cfg,
+static auto_config_one_timer oxnas_generic_rps_timer_cfgs[OXNAS_GENERIC_RPS_CLKDEV_NUM] = {
+    [0] = {
+        .timer_type = STAT_MACH_CLKDEV_SOURCE,
+        .timer_stat_mach_cfg = &oxnas_generic_rps_timer_cfg,
+    },
 };
 
 /*
  * for oxnas.generic mptimer clkevt device
  */
 
+#define OXNAS_GENERIC_MPTIMER_CLKDEV_NUM 1
 #define OXNAS_GENERIC_MPTIMER_LEVEL_IRQ true
-#define OXNAS_GENERIC_MPTIMER_NS_PER_CYCLE 2560
+// TODO: currently set it as 2560, but its calculated value is 6 
+//       maybe we should limit the symbolic execution to give a reasonable value here
+#define OXNAS_GENERIC_MPTIMER_NS_PER_CYCLE 2000
 #define OXNAS_GENERIC_MPTIMER_MMIO_AMOUNT 1
 #define OXNAS_GENERIC_MPTIMER_MMIO1 0x20
 static uint32_t oxnas_generic_mptimer_mmio_lens[OXNAS_GENERIC_MPTIMER_MMIO_AMOUNT] = {
@@ -191,11 +203,14 @@ static auto_config_action oxnas_generic_mptimer_set_idle_cfg = {
 
 static uint8_t oxnas_generic_mptimer_is_set_perio_func0(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
 {
-    //printf("[+] is set perio func0 countdown & load value is: %lu \n", ((uint32_t) 10E9) / at->new_val);
+    //printf("[+] is set perio func0 at->new_val: 0x%lx, countdown & load value is: %lu \n", at->new_val, ((uint32_t) 10E9) / at->new_val);
     // TODO: we need to fill the actual rate/factor value here
     //return (at->new_val == (uint32_t)(???));
-    ((clkevt_stat_mach *)(((timer_bundle *)s->clkdev)->stat_mach))->countdown = ((uint32_t) 10E9) / at->new_val;
-    ((clkevt_stat_mach *)(((timer_bundle *)s->clkdev)->stat_mach))->load = ((uint32_t) 10E9) / at->new_val;
+    //printf("[+] is set perio func0 at->new_val: 0x%lx\n", at->new_val);
+    //((clkevt_stat_mach *)(((timer_bundle)s->clkdevs[0]).stat_mach))->countdown = at->new_val / 500;
+    //((clkevt_stat_mach *)(((timer_bundle)s->clkdevs[0]).stat_mach))->load = at->new_val / 500;
+    ((clkevt_stat_mach *)(((timer_bundle)s->clkdevs[0]).stat_mach))->countdown = at->new_val;
+    ((clkevt_stat_mach *)(((timer_bundle)s->clkdevs[0]).stat_mach))->load = at->new_val;
     return true;
 }
 
@@ -286,7 +301,7 @@ static uint8_t oxnas_generic_mptimer_is_oneshot_set_next_func0(AUTOBOARD_TIMERSt
     // TODO: here may need more consideration?
     // now we know that the written cnt directly tells the cycle num
     //printf("[+] is oneshot set next func0 load value is: %lu \n", at->new_val);
-    ((clkevt_stat_mach *)(((timer_bundle *)s->clkdev)->stat_mach))->load = at->new_val;
+    ((clkevt_stat_mach *)(((timer_bundle)s->clkdevs[0]).stat_mach))->load = at->new_val;
     return true;
 }
 
@@ -333,9 +348,255 @@ static clkevt_cfg oxnas_generic_mptimer_timer_cfg = {
     .is_oneshot_set_next = &oxnas_generic_mptimer_is_oneshot_set_next_cfg,
 };
 
-static auto_config_one_timer oxnas_generic_mptimer_timer_cfgs = {
-    .timer_type = STAT_MACH_CLKDEV_EVENT,
-    .timer_stat_mach_cfg = &oxnas_generic_mptimer_timer_cfg,
+static auto_config_one_timer oxnas_generic_mptimer_timer_cfgs[OXNAS_GENERIC_MPTIMER_CLKDEV_NUM] = {
+    [0] = {
+        .timer_type = STAT_MACH_CLKDEV_EVENT,
+        .timer_stat_mach_cfg = &oxnas_generic_mptimer_timer_cfg,
+    },
+};
+
+/*
+ * for kirkwood.generic
+ * 
+ * we have 1 timer: marvell orion timer
+ * 
+ */
+#define MARVELL_ORION_CLKDEV_NUM 2
+#define MARVELL_ORION_INCREMENT false
+#define MARVELL_ORION_LEVEL_IRQ false
+#define MARVELL_ORION_NS_PER_CYCLE 5
+#define MARVELL_ORION_MMIO_AMOUNT 1
+#define MARVELL_ORION_MMIO1 0x20
+static uint32_t marvell_orion_mmio_lens[MARVELL_ORION_MMIO_AMOUNT] = {
+   MARVELL_ORION_MMIO1, 
+};
+
+static uint8_t marvell_orion_timer_is_init_func0(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    return (at->new_val == (uint32_t)(~0));
+}
+
+static uint8_t marvell_orion_timer_is_init_func1(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    uint32_t mask = __bit(0) | __bit(1);
+    uint32_t set = __bit(0) | __bit(1);
+    return (at->new_val == (uint32_t)(((uint32_t)(at->old_val) & ~mask) | (mask & set)));
+}
+
+static auto_config_action marvell_orion_timer_is_init_cfg = {
+    .prog = 0,
+    .acus = {
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x14,
+            .match_write_cnt = marvell_orion_timer_is_init_func0,
+            .next = 1,
+        },
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x10,
+            .match_write_cnt = marvell_orion_timer_is_init_func0,
+            .next = 2,
+        },
+        {
+            .type = ACU_DO_WATCH_READ,
+            .midx = 0,
+            .moff = 0x0,
+            .next = 3,
+        },
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x0,
+            .match_write_cnt = marvell_orion_timer_is_init_func1,
+            .next = 0,
+        },
+    }
+};
+
+static uint8_t marvell_orion_timer_is_kernel_read_func(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    uint32_t midx = 0, moff = 0x14;
+    uint32_t cycles = ((clksrc_stat_mach *)(((timer_bundle)s->clkdevs[0]).stat_mach))->cycles;
+
+    s->aummios[midx].write(s->aummios, moff, (uint32_t)(cycles));
+    return 0;
+}
+
+static auto_config_action marvell_orion_timer_is_kernel_read_cfg = {
+    .prog = 0,
+    .acus = {
+        {
+            .type = ACU_DO_WATCH_READ,
+            .midx = 0,
+            .moff = 0x14,
+            .next = 1,
+        },
+        {
+            .type = ACU_DO_REACT,
+            .do_react = marvell_orion_timer_is_kernel_read_func,
+            .next = 0,
+        }
+    }
+};
+
+static clksrc_cfg marvell_orion_timer_clksrc_cfg = {
+    .increment = MARVELL_ORION_INCREMENT,
+    .is_off = NULL,
+    .is_on = NULL,
+    .is_init = &marvell_orion_timer_is_init_cfg,
+    .is_reset = &wait_hw_evt_clksrc_reset_cfg,
+    .is_kernel_read = &marvell_orion_timer_is_kernel_read_cfg,
+};
+
+static uint8_t marvell_orion_timer_is_set_perio_func0(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    //printf("[+] is set perio func0 at->new_val: 0x%lx, countdown & load value is: %lu \n", at->new_val, ((uint32_t) 10E9) / at->new_val);
+    // TODO: we need to fill the actual rate/factor value here
+    //return (at->new_val == (uint32_t)(???));
+    //printf("[+] is set perio func0 at->new_val: 0x%lx\n", at->new_val);
+    ((clkevt_stat_mach *)(((timer_bundle)s->clkdevs[1]).stat_mach))->countdown = at->new_val;
+    ((clkevt_stat_mach *)(((timer_bundle)s->clkdevs[1]).stat_mach))->load = at->new_val;
+    return true;
+}
+
+static uint8_t marvell_orion_timer_is_set_perio_func1(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    //printf("[+] match is set perio func1 result: %d \n", (at->new_val == (uint32_t)(__bit(0) | __bit(1) | __bit(2))));
+    return true;
+}
+
+static uint8_t marvell_orion_timer_is_set_perio_func2(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    uint32_t mask = __bit(2) | __bit(3);
+    uint32_t set = __bit(2) | __bit(3);
+    return (at->new_val == (uint32_t)(((uint32_t)(at->old_val) & ~mask) | (mask & set)));
+}
+
+static auto_config_action marvell_orion_timer_is_set_perio_cfg = {
+    .prog = 0,
+    .acus = {
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x18,
+            .match_write_cnt = marvell_orion_timer_is_set_perio_func0,
+            .next = 1,
+        },
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x1c,
+            .match_write_cnt = marvell_orion_timer_is_set_perio_func1,
+            .next = 2,
+        },
+        {
+            .type = ACU_DO_WATCH_READ,
+            .midx = 0,
+            .moff = 0x0,
+            .next = 3,
+        },
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x0,
+            .match_write_cnt = marvell_orion_timer_is_set_perio_func2,
+            .next = 0,
+        },
+    }
+};
+
+static uint8_t marvell_orion_timer_is_set_oneshot_func(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    uint32_t mask = __bit(2) | __bit(3);
+    uint32_t set = 0;
+    return (at->new_val == (uint32_t)(((uint32_t)(at->old_val) & ~mask) | (mask & set)));
+}
+
+static auto_config_action marvell_orion_timer_is_set_oneshot_cfg = {
+    .prog = 0,
+    .acus = {
+        {
+            .type = ACU_DO_WATCH_READ,
+            .midx = 0,
+            .moff = 0x0,
+            .next = 1,
+        },
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x0,
+            .match_write_cnt = marvell_orion_timer_is_set_oneshot_func,
+            .next = 0,
+        },
+    }
+};
+
+static uint8_t marvell_orion_timer_is_oneshot_set_next_func0(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    // TODO: here may need more consideration?
+    // now we know that the written cnt directly tells the cycle num
+    //printf("[+] is oneshot set next func0 load value is: %lu \n", at->new_val);
+    ((clkevt_stat_mach *)(((timer_bundle)s->clkdevs[1]).stat_mach))->load = at->new_val;
+    return true;
+}
+
+static uint8_t marvell_orion_timer_is_oneshot_set_next_func1(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
+{
+    uint32_t mask = __bit(2) | __bit(3);
+    uint32_t set = __bit(2);
+    return (at->new_val == (uint32_t)(((uint32_t)(at->old_val) & ~mask) | (mask & set)));
+}
+
+static auto_config_action marvell_orion_timer_is_oneshot_set_next_cfg = {
+    .prog = 0,
+    .acus = {
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x1c,
+            .match_write_cnt = marvell_orion_timer_is_oneshot_set_next_func0,
+            .next = 1,
+        },
+        {
+            .type = ACU_DO_WATCH_READ,
+            .midx = 0,
+            .moff = 0x0,
+            .next = 2,
+        },
+        {
+            .type = ACU_DO_WATCH_WRITE,
+            .midx = 0,
+            .moff = 0x0,
+            .match_write_cnt = marvell_orion_timer_is_oneshot_set_next_func1,
+            .next = 0,
+        },
+    }
+};
+
+static clkevt_cfg marvell_orion_timer_clkevt_cfg = {
+    .is_off = NULL,
+    .is_on = NULL,
+    .is_init = &marvell_orion_timer_is_init_cfg,
+    .is_reset = &wait_hw_evt_clkevt_reset_cfg,
+    .is_set_unused = NULL,
+    .is_set_perio = &marvell_orion_timer_is_set_perio_cfg,
+    .is_set_oneshot = &marvell_orion_timer_is_set_oneshot_cfg,
+    .is_ack = NULL,
+    .is_oneshot_set_next = &marvell_orion_timer_is_oneshot_set_next_cfg,
+};
+
+static auto_config_one_timer marvell_orion_timer_cfgs[MARVELL_ORION_CLKDEV_NUM] = {
+    [0] = {
+        .timer_type = STAT_MACH_CLKDEV_SOURCE,
+        .timer_stat_mach_cfg = &marvell_orion_timer_clksrc_cfg,
+    },
+    [1] = {
+        .timer_type = STAT_MACH_CLKDEV_EVENT,
+        .timer_stat_mach_cfg = &marvell_orion_timer_clkevt_cfg,
+    },
 };
 
 /*
@@ -344,17 +605,27 @@ static auto_config_one_timer oxnas_generic_mptimer_timer_cfgs = {
 
 static auto_one_timer_cfg all_timer_cfgs[AUTOBOARD_TIMER_NUM] = {
     [AUTOBOARD_TIMER_OXNAS_GENERIC_RPS] = {
-        .timer_cfgs = &oxnas_generic_rps_timer_cfgs,
+        .timer_cfgs = oxnas_generic_rps_timer_cfgs,
         .mm_lens = oxnas_generic_rps_mmio_lens,
         .mm_amount = OXNAS_GENERIC_RPS_MMIO_AMOUNT,
         .ns_per_cycle = OXNAS_GENERIC_RPS_NS_PER_CYCLE,
+        .clkdev_num = OXNAS_GENERIC_RPS_CLKDEV_NUM,
     },
     [AUTOBOARD_TIMER_OXNAS_GENERIC_MPTIMER] = {
-        .timer_cfgs = &oxnas_generic_mptimer_timer_cfgs,
+        .timer_cfgs = oxnas_generic_mptimer_timer_cfgs,
         .mm_lens = oxnas_generic_mptimer_mmio_lens,
         .mm_amount = OXNAS_GENERIC_MPTIMER_MMIO_AMOUNT,
         .is_level_irq = OXNAS_GENERIC_MPTIMER_LEVEL_IRQ,
         .ns_per_cycle = OXNAS_GENERIC_MPTIMER_NS_PER_CYCLE,
+        .clkdev_num = OXNAS_GENERIC_MPTIMER_CLKDEV_NUM,
+    },
+    [AUTOBOARD_TIMER_MARVELL_ORION] = {
+        .timer_cfgs = marvell_orion_timer_cfgs,
+        .mm_lens = marvell_orion_mmio_lens,
+        .mm_amount = MARVELL_ORION_MMIO_AMOUNT,
+        .is_level_irq = MARVELL_ORION_LEVEL_IRQ,
+        .ns_per_cycle = MARVELL_ORION_NS_PER_CYCLE,
+        .clkdev_num = MARVELL_ORION_CLKDEV_NUM,
     },
 };
 

@@ -1280,8 +1280,8 @@ static void plxtech_nas782x_reset(void *opaque)
     s->stub_reserved11[0] = 0x0;
     s->stub_reserved12[0] = 0x0;
     s->stub_reserved13[0] = 0x0;
-    s->stub_reserved32[0] = 0x00000200;
-    //s->stub_reserved32[0] = 0x0;
+    //s->stub_reserved32[0] = 0x00000200;
+    s->stub_reserved32[0] = 0x0;
     //s->stub_reserved32[0] = 0x8000;
     s->stub_reserved15[0] = 0x0;
     s->stub_reserved16[0] = 0x0;
@@ -1295,9 +1295,9 @@ static void plxtech_nas782x_reset(void *opaque)
     s->stub_reserved28[0] = 0x0;
     s->stub_reserved29[0] = 0x0;
     s->stub_reserved14[0] = 0x0;
-    s->stub_reserved33[0] = 0x2ccb8000;
+    //s->stub_reserved33[0] = 0x2ccb8000;
     //s->stub_reserved33[0] = 0x0;
-    //s->stub_reserved33[0] = 0x8000;
+    s->stub_reserved33[0] = 0x51f;
 }
 
 static void plxtech_nas782x_init(MachineState *machine)

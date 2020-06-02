@@ -375,7 +375,7 @@ static uint8_t ath79_generic_uart_is_msk_func0(AUTOBOARD_INTCState *s, auto_conf
 {
     // This endian swap may due to the uart serial initializes with BIG ENDIAN
     //if (at->new_val == ((at->old_val) & (__swap32(~(uint32_t)(1 << acu->irq)))))
-    //    printf("[+] match the msk of irq %d\n", acu->irq);
+    //    //printf("[+] match the msk of irq %d\n", acu->irq);
     return at->new_val == ((at->old_val) & (__swap32(~(uint32_t)(1 << acu->irq))));
 }
 
@@ -409,7 +409,7 @@ static uint8_t ath79_generic_uart_is_unmsk_func0(AUTOBOARD_INTCState *s, auto_co
 {
     // This endian swap may due to the uart serial initializes with BIG ENDIAN
     //if (at->new_val == ((at->old_val) | (__swap32((uint32_t)(1 << acu->irq)))))
-    //    printf("[+] match the unmsk of irq %d\n", acu->irq);
+    //    //printf("[+] match the unmsk of irq %d\n", acu->irq);
     return at->new_val == ((at->old_val) | (__swap32((uint32_t)(1 << acu->irq))));
 }
 

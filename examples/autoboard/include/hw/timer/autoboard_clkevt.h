@@ -68,6 +68,8 @@ typedef struct clkevt_cfg {
 } clkevt_cfg;
 
 typedef struct clkevt_stat_mach {
+    uint32_t clk_idx;
+
     const char *name;
 
     clkevt_cfg *cfg;
@@ -79,6 +81,8 @@ typedef struct clkevt_stat_mach {
     bool on;
     bool enable;
     bool repeat;
+
+    uint32_t delta;
     uint32_t load;
     uint32_t countdown;
 
@@ -103,6 +107,6 @@ typedef struct clkevt_stat_mach {
     void (* pass_one_cycle)(struct clkevt_stat_mach *);
 } clkevt_stat_mach;
 
-clkevt_stat_mach *init_clkevt_stat_mach(AUTOBOARD_TIMERState *s);
+clkevt_stat_mach *init_clkevt_stat_mach(AUTOBOARD_TIMERState *s, uint32_t cfg_idx);
 
 #endif /* TYPE_AUTOBOARD_CLKDEV_H */

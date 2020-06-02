@@ -11,12 +11,10 @@
 
 static void clksrc_past_one_cycle(struct clksrc_stat_mach *m)
 {
-    if (m->increment)
-        m->cycles++;
+    if (m->increment) 
+        m->cycles += m->delta;
     else 
-        m->cycles--;
-
-    m->do_convert(m, NULL);
+        m->cycles -= m->delta;
 }
 
 static int clksrc_dispatch(struct clksrc_stat_mach *m, auto_trifle *at)
@@ -52,6 +50,12 @@ static int clksrc_dispatch(struct clksrc_stat_mach *m, auto_trifle *at)
     if (m->is_evt_reset(m, at) == ACU_ST_DONE) {
         //printf("[+] trigger reset event for clock source %s\n", m->name);
         m->handle_event(m, CLKSRC_EVT_RESET);
+        triggered++;
+    }
+
+    if (m->is_kernel_read(m, at) == ACU_ST_DONE) {
+        //printf("[+] trigger kernel read event for clock source %s\n", m->name);
+        m->handle_event(m, CLKSRC_EVT_KERNEL_READ);
         triggered++;
     }
 
@@ -177,32 +181,36 @@ static uint8_t clksrc_is_evt_reset(clksrc_stat_mach *m, auto_trifle *at)
     return ACU_ST_MISMATCH;
 }
 
-static uint8_t clksrc_do_convert(clksrc_stat_mach *m, auto_trifle *at)
+static uint8_t clksrc_is_kernel_read(clksrc_stat_mach *m, auto_trifle *at)
 {
-    auto_config_action *aca = m->cfg->do_convert;
+    auto_config_action *aca = m->cfg->is_kernel_read;
     if (aca) 
-        // use this hwevt's prog slot as only this hwevt can trigger this do_convert
-        return clksrc_acu_func_flow(m, aca, at, CLKSRC_HW_EVT_ONE_CYCLE);
+        // use this hwevt's prog slot as only this hwevt can trigger this is_kernel_read
+        return clksrc_acu_func_flow(m, aca, at, CLKSRC_EVT_KERNEL_READ);
 
     return ACU_ST_MISMATCH;
 }
 
-clksrc_stat_mach *init_clksrc_stat_mach(AUTOBOARD_TIMERState *s)
+clksrc_stat_mach *init_clksrc_stat_mach(AUTOBOARD_TIMERState *s, uint32_t cfg_idx)
 {
     int i;
     clksrc_stat_mach *m;
 
-    assert(s->cfg->timer_cfgs->timer_type == STAT_MACH_CLKDEV_SOURCE);
+    assert(s->cfg->timer_cfgs[cfg_idx].timer_type == STAT_MACH_CLKDEV_SOURCE);
 
     m = calloc(1, sizeof(clksrc_stat_mach));
 
     m->s = s;
     m->name = s->name;
-    m->cfg = (clksrc_cfg *)(s->cfg->timer_cfgs->timer_stat_mach_cfg);
+    m->clk_idx = cfg_idx;
+    m->cfg = (clksrc_cfg *)(s->cfg->timer_cfgs[cfg_idx].timer_stat_mach_cfg);
 
     m->on = false;
     m->increment = m->cfg->increment;
+
+    m->delta = s->ns_per_cycle / s->cfg->ns_per_cycle;
     m->cycles = 0;
+
     // at the very beginning, the timer is off
     m->stat = CLKSRC_STAT_OFF;
 
@@ -213,7 +221,7 @@ clksrc_stat_mach *init_clksrc_stat_mach(AUTOBOARD_TIMERState *s)
     m->is_evt_on = clksrc_is_evt_on;
     m->is_evt_init = clksrc_is_evt_init;
     m->is_evt_reset = clksrc_is_evt_reset;
-    m->do_convert = clksrc_do_convert;
+    m->is_kernel_read = clksrc_is_kernel_read;
 
     m->pass_one_cycle = clksrc_past_one_cycle;
     m->handle_event = clksrc_handle_event;

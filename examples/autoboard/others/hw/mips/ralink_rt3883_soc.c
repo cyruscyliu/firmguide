@@ -744,6 +744,9 @@ static void ralink_rt3883_soc_init(MachineState *machine)
 
     qdev_connect_gpio_out(DEVICE(&s->autoboard_intc0), 0, s->cpu->env.irq[2]);
     
+    // N.B. note that here only need 0x20 mmio region, not a timer
+    //      I comment out all the timer logic code inside the ralink rt2880 timer
+    //      the booting still works perfectly!
     object_initialize(&s->timer0, sizeof(s->timer0), TYPE_RALINK_RT2880_TIMER);
     qdev_set_parent_bus(DEVICE(&s->timer0), sysbus_get_default());
     object_property_set_bool(OBJECT(&s->timer0), true, "realized", &err);

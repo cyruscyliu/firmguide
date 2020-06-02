@@ -67,34 +67,36 @@ static void autoboard_timer_tick_callback(void *opaque)
     timer_mod(s->timer, s->ns_per_cycle + now);
 
     /* trigger hwevt one cycle */
-    switch(s->clkdev->type) {
-        case STAT_MACH_CLKDEV_EVENT:
-        {
-            clkevt_stat_mach *mach;
+    for (uint32_t i = 0; i < s->clkdev_num; i++) {
+        switch (s->clkdevs[i].type) {
+            case STAT_MACH_CLKDEV_EVENT:
+            {
+                clkevt_stat_mach *mach;
 
-            at.type = TRIFLE_HW_EVT;
-            at.hw_evt = CLKEVT_HW_EVT_ONE_CYCLE;
-            
-            mach = s->clkdev->stat_mach;
-            mach->dispatch(mach, &at);
+                at.type = TRIFLE_HW_EVT;
+                at.hw_evt = CLKEVT_HW_EVT_ONE_CYCLE;
+
+                mach = s->clkdevs[i].stat_mach;
+                mach->dispatch(mach, &at);
+            }
+                break;
+
+            case STAT_MACH_CLKDEV_SOURCE:
+            {
+                clksrc_stat_mach *mach;
+
+                at.type = TRIFLE_HW_EVT;
+                at.hw_evt = CLKSRC_HW_EVT_ONE_CYCLE;
+
+                mach = s->clkdevs[i].stat_mach;
+                mach->dispatch(mach, &at);
+            }
+                break;
+
+            default:
+                assert("wierd timer type:" && s->clkdevs[i].type && false);
+                break;
         }
-            break;
-
-        case STAT_MACH_CLKDEV_SOURCE:
-        {
-            clksrc_stat_mach *mach;
-
-            at.type = TRIFLE_HW_EVT;
-            at.hw_evt = CLKSRC_HW_EVT_ONE_CYCLE;
-            
-            mach = s->clkdev->stat_mach;
-            mach->dispatch(mach, &at);
-        }
-            break;
-
-        default:
-            assert("wierd timer type:" && s->clkdev->type && false);
-            break;
     }
 }
 
@@ -104,27 +106,29 @@ static uint32_t dispatch_mmio_rw(AUTOBOARD_TIMERState *s, auto_trifle *at)
 
     // using mmio_rw_once to infer which irq is involved
     // TODO: here may add trigger series feature
-    switch (s->clkdev->type) {
-    case STAT_MACH_CLKDEV_EVENT:
-        {
-        clkevt_stat_mach *mach = s->clkdev->stat_mach;
-        triggered += mach->dispatch(mach, at);
+    for (uint32_t i = 0; i < s->clkdev_num; i++) {
+        switch (s->clkdevs[i].type) {
+            case STAT_MACH_CLKDEV_EVENT:
+                {
+                clkevt_stat_mach *mach = s->clkdevs[i].stat_mach;
+                triggered += mach->dispatch(mach, at);
+                }
+                break;
+
+            case STAT_MACH_CLKDEV_SOURCE:
+                {
+                clksrc_stat_mach *mach = s->clkdevs[i].stat_mach;
+                triggered += mach->dispatch(mach, at);
+                }
+                break;
+
+            case STAT_MACH_CLKDEV_EMPTY:
+                break;
+
+            default:
+                //printf("[+] wierd timer type %d\n", s->clkdevs[i].type);
+                break;
         }
-        break;
-
-    case STAT_MACH_CLKDEV_SOURCE:
-        {
-        clksrc_stat_mach *mach = s->clkdev->stat_mach;
-        triggered += mach->dispatch(mach, at);
-        }
-        break;
-
-    case STAT_MACH_CLKDEV_EMPTY:
-        break;
-
-    default:
-        printf("[+] wierd timer type %d\n", s->clkdev->type);
-        break;
     }
 
     return triggered;
@@ -193,6 +197,12 @@ static const MemoryRegionOps autoboard_timer_ops[AUTOBOARD_TIMER_MMIO_REGION_NUM
     AUTOBOARD_MMIO_OPS_STATIC_STRUCT(timer, 0)
 };
 
+static inline uint32_t calc_ns_per_cycle(uint32_t fix, uint32_t cfg)
+{
+    uint32_t factor = (fix / cfg) + ((fix % cfg == 0) ? (0) : (1));
+    return (cfg > fix) ? (cfg) : (factor * cfg);
+}
+
 static void autoboard_timer_init(Object *obj)
 {
     AUTOBOARD_TIMERState *s = AUTOBOARD_TIMER(obj);
@@ -201,7 +211,7 @@ static void autoboard_timer_init(Object *obj)
     s->name = timer_name;
     s->cfg = get_autoboard_timer_config(choosen_id);
     s->is_level_irq = s->cfg->is_level_irq;
-    s->ns_per_cycle = s->cfg->ns_per_cycle;
+    s->ns_per_cycle = calc_ns_per_cycle(AUTOBOARD_TIMER_NS_PER_CYCLE, s->cfg->ns_per_cycle);
     s->act_irq = autoboard_timer_act_irq;
     s->deact_irq = autoboard_timer_deact_irq;
 
@@ -227,25 +237,29 @@ static void autoboard_timer_init(Object *obj)
     else
         qdev_init_gpio_out(DEVICE(s), &s->irq, 1);
 
+    /* setup the clock devices */
+    s->clkdev_num = s->cfg->clkdev_num;
+    s->clkdevs = (timer_bundle *)calloc(s->cfg->clkdev_num, sizeof(struct timer_bundle));
 
-    /* setup the s->clkdev */
-    s->clkdev = (timer_bundle *)calloc(1, sizeof(struct timer_bundle));
-    s->clkdev->type = s->cfg->timer_cfgs->timer_type;
-    switch(s->clkdev->type) {
-        case STAT_MACH_CLKDEV_EMPTY:
-            break;
+    for (uint32_t i = 0; i < s->clkdev_num; i++) {
+        uint8_t type = s->cfg->timer_cfgs[i].timer_type;
+        s->clkdevs[i].type = type;
+        switch(type) {
+            case STAT_MACH_CLKDEV_EMPTY:
+                break;
 
-        case STAT_MACH_CLKDEV_EVENT:
-            s->clkdev->stat_mach = init_clkevt_stat_mach(s);
-            break;
+            case STAT_MACH_CLKDEV_EVENT:
+                s->clkdevs[i].stat_mach = init_clkevt_stat_mach(s, i);
+                break;
 
-        case STAT_MACH_CLKDEV_SOURCE:
-            s->clkdev->stat_mach = init_clksrc_stat_mach(s);
-            break;
+            case STAT_MACH_CLKDEV_SOURCE:
+                s->clkdevs[i].stat_mach = init_clksrc_stat_mach(s, i);
+                break;
 
-        default:
-            assert("wierd timer type:" && s->clkdev->type && false);
-            break;
+            default:
+                assert("wierd timer type:" && type && false);
+                break;
+        }
     }
 
     /* initialize the timer finally*/
@@ -259,37 +273,39 @@ static void autoboard_timer_reset(DeviceState *dev)
 
     s = AUTOBOARD_TIMER(dev);
 
-    switch (s->clkdev->type) {
-    case STAT_MACH_CLKDEV_EVENT:
-        {
-        clkevt_stat_mach *mach;
+    for (uint32_t i = 0; i < s->clkdev_num; i++) {
+        switch (s->clkdevs[i].type) {
+        case STAT_MACH_CLKDEV_EVENT:
+            {
+            clkevt_stat_mach *mach;
 
-        at.type = TRIFLE_HW_EVT;
-        at.hw_evt = CLKEVT_EVT_RESET;
+            at.type = TRIFLE_HW_EVT;
+            at.hw_evt = CLKEVT_EVT_RESET;
 
-        mach = s->clkdev->stat_mach;
-        mach->dispatch(mach, &at);
+            mach = s->clkdevs[i].stat_mach;
+            mach->dispatch(mach, &at);
+            }
+            break;
+
+        case STAT_MACH_CLKDEV_SOURCE:
+            {
+            clksrc_stat_mach *mach;
+
+            at.type = TRIFLE_HW_EVT;
+            at.hw_evt = CLKSRC_EVT_RESET;
+
+            mach = s->clkdevs[i].stat_mach;
+            mach->dispatch(mach, &at);
+            }
+            break;
+
+        case STAT_MACH_CLKDEV_EMPTY:
+            break;
+
+        default:
+            //printf("[+] wierd timer type %d\n", s->clkdevs[i].type);
+            break;
         }
-        break;
-
-    case STAT_MACH_CLKDEV_SOURCE:
-        {
-        clksrc_stat_mach *mach;
-
-        at.type = TRIFLE_HW_EVT;
-        at.hw_evt = CLKSRC_EVT_RESET;
-
-        mach = s->clkdev->stat_mach;
-        mach->dispatch(mach, &at);
-        }
-        break;
-
-    case STAT_MACH_CLKDEV_EMPTY:
-        break;
-
-    default:
-        printf("[+] wierd timer type %d\n", s->clkdev->type);
-        break;
     }
 
     // kickoff the timer
