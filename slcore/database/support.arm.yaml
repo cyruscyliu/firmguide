@@ -73,10 +73,6 @@ mach-ixp4xx:
   targets:
     openwrt: [ixp4xx]
 mach-keystone: {device_tree: true}
-mach-kirkwood:
-  device_tree: true
-  targets:
-    openwrt: [mvebu, kirkwood]
 mach-ks8695: {device_tree: false}
 mach-lpc32xx: {device_tree: true}
 mach-mcs814x:

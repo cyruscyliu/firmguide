@@ -26,7 +26,7 @@ typedef struct MARVELL_KIRKWOODState {
     MARVELL_ORION_INTCState marvell_orion_intc0;
     MARVELL_ORION_INTCState marvell_orion_intc1;
     MARVELL_ORION_BRIDGE_INTCState marvell_orion_bridge_intc0;
-    MARVELL_ORION_TIMERState timer0;
+    MARVELL_ORION_TIMERState marvell_orion_timer0;
     MemoryRegion ram0;
     MemoryRegion plxtech_nand_nas782x0_mmio;
     MemoryRegion marvell_orion_sdio0_mmio;
@@ -1597,13 +1597,13 @@ static void marvell_kirkwood_init(MachineState *machine)
     qdev_connect_gpio_out(DEVICE(&s->marvell_orion_intc1), 0, qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));
     qdev_connect_gpio_out(DEVICE(&s->marvell_orion_bridge_intc0), 0, qdev_get_gpio_in(DEVICE(&s->marvell_orion_intc0), 1));
     
-    object_initialize(&s->timer0, sizeof(s->timer0), TYPE_MARVELL_ORION_TIMER);
-    qdev_set_parent_bus(DEVICE(&s->timer0), sysbus_get_default());
-    object_property_set_bool(OBJECT(&s->timer0), true, "realized", &err);
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer0), 0, 0xf1020300);
+    object_initialize(&s->marvell_orion_timer0, sizeof(s->marvell_orion_timer0), TYPE_MARVELL_ORION_TIMER);
+    qdev_set_parent_bus(DEVICE(&s->marvell_orion_timer0), sysbus_get_default());
+    object_property_set_bool(OBJECT(&s->marvell_orion_timer0), true, "realized", &err);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->marvell_orion_timer0), 0, 0xf1020300);
     
-    qdev_connect_gpio_out(DEVICE(&s->timer0), 0, qdev_get_gpio_in(DEVICE(&s->marvell_orion_bridge_intc0), 1));
-    qdev_connect_gpio_out(DEVICE(&s->timer0), 1, qdev_get_gpio_in(DEVICE(&s->marvell_orion_bridge_intc0), 2));
+    qdev_connect_gpio_out(DEVICE(&s->marvell_orion_timer0), 0, qdev_get_gpio_in(DEVICE(&s->marvell_orion_bridge_intc0), 1));
+    qdev_connect_gpio_out(DEVICE(&s->marvell_orion_timer0), 1, qdev_get_gpio_in(DEVICE(&s->marvell_orion_bridge_intc0), 2));
     
     serial_mm_init(get_system_memory(), 0xf1012100, 2, qdev_get_gpio_in(DEVICE(&s->marvell_orion_intc1), 2), 115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
     serial_mm_init(get_system_memory(), 0xf1012000, 2, qdev_get_gpio_in(DEVICE(&s->marvell_orion_intc1), 1), 115200, serial_hd(1), DEVICE_LITTLE_ENDIAN);
