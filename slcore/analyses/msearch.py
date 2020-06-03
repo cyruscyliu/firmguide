@@ -48,6 +48,8 @@ class MD(Common):
         return None
 
     def select_first_profile(self):
+        if self.support_list is None:
+            return None
         if len(self.support_list):
             for k, v in self.support_list.items():
                 return v
