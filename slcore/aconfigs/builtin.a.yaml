@@ -2,7 +2,8 @@ uploading:
     analyses: [FindMachine,
         Preparation, Tracing,
         LoadTrace,
-        CheckUserLevelF]
+        CheckUserLevelF,
+        DeleteTrace]
     description: ''
 tracecoverup:
     analyses: [

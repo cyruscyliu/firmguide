@@ -61,3 +61,26 @@ class Tracing(Analysis):
         self.critical = True
         self.required = ['preparation', 'install']
         self.type = 'diag'
+
+
+class DeleteTrace(Analysis):
+    def run(self, **kwargs):
+        path_to_trace = kwargs.pop('path_to_trace')
+        if not os.path.exists(path_to_trace):
+            return True
+
+        delete = kwargs.pop('delete')
+        if not delete:
+            return True
+        if delete:
+            self.info('remove {}'.format(path_to_trace), 1)
+            os.remove(path_to_trace)
+            return True
+
+    def __init__(self, analysis_manager):
+        super().__init__(analysis_manager)
+        self.name = 'deltrace'
+        self.description = 'Delete trace to save space after trace analysis.'
+        self.critical = False
+        self.required = ['userlevel', 'fastuserlevel']
+        self.type = 'diag'

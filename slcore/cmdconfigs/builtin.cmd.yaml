@@ -46,6 +46,8 @@ upload:
         timeout: *timeout
         nocompilation: *nocompilation
         url: {short: l, required: False, help: "will be removed in the future"}
+        delete: {short: del, required: False, action: "store_true", default=False,
+            help: "Delete trace to save space."}
     callback: uploading
 synthesize:
     help: "Standalone - QEMU machine rendering with bricks."
