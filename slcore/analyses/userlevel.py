@@ -85,9 +85,9 @@ class CheckUserLevelF(Analysis):
             if result:
                 self.info('have entered the user level', 1)
                 self.firmware.set_stage(True, 'user_mode')
-                raise SystemExit()
+                return True
             self.firmware.set_stage(False, 'user_mode')
-            return result
+            return False
         else:
             return self.scan_user_level_ktracer(path_to_trace)
 
