@@ -12,11 +12,12 @@ static void {{ name }}_tick_callback{{ i }}(void *opaque)
 
     /* stupid timer */
     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
-    timer_mod(s->timer[{{i}}], 0x1000 + now); /* 1MHZ */
-    /* 1MHZ -> 100HZ */
-    if (s->counter[{{i}}] % 10000 == 0)
-        qemu_set_irq(s->irq[{{i}}], 1);
-    s->counter[{{i}}]++;
+    timer_mod(s->timer[{{ i }}], 1000000000 / {{ timer_freq }} + now); /* {{ timer_freq }}HZ */
+    /* {{ timer_freq }}HZ -> 100HZ */
+    if (s->counter[{{ i }}] % ({{ timer_freq }} / 100) == 0)
+        qemu_set_irq(s->irq[{{ i }}], 1);
+    s->counter[{{ i }}] &= ((1 << {{ timer_bits }}) - 1);
+    s->counter[{{ i }}]++;
 }
 {% endfor %}
 
@@ -34,7 +35,8 @@ static uint64_t {{ name }}_read(void *opaque, hwaddr offset, unsigned size)
         default:
             return 0;{% for counter in timer_counters %}
         case {{ counter.addr }}:
-            res = s->counter[{{ counter.id }}];{% endfor %}
+            res = s->counter[{{ counter.id }}];{% if timer_tilde %}
+            res = ~res;{% endif %}{% endfor %}
             break;
     }
     return res;

@@ -22,7 +22,7 @@
 typedef struct PLXTECH_NAS782XState {
     ARMCPU *cpu;
     ARM11MPCorePriveState arm_arm11mp_gic;
-    PLXTECH_NAS782X_RPS_TIMERState timer0;
+    PLXTECH_NAS782X_RPS_TIMERState plxtech_nas782x_rps_timer0;
     MemoryRegion ram0;
     MemoryRegion plxtech_nand_nas782x0_mmio;
     MemoryRegion plxtech_nand_nas782x1_mmio;
@@ -1009,10 +1009,10 @@ static void plxtech_nas782x_init(MachineState *machine)
     
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->arm_arm11mp_gic), 0, qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ));
     
-    object_initialize(&s->timer0, sizeof(s->timer0), TYPE_PLXTECH_NAS782X_RPS_TIMER);
-    qdev_set_parent_bus(DEVICE(&s->timer0), sysbus_get_default());
-    object_property_set_bool(OBJECT(&s->timer0), true, "realized", &err);
-    sysbus_mmio_map(SYS_BUS_DEVICE(&s->timer0), 0, 0x44400200);
+    object_initialize(&s->plxtech_nas782x_rps_timer0, sizeof(s->plxtech_nas782x_rps_timer0), TYPE_PLXTECH_NAS782X_RPS_TIMER);
+    qdev_set_parent_bus(DEVICE(&s->plxtech_nas782x_rps_timer0), sysbus_get_default());
+    object_property_set_bool(OBJECT(&s->plxtech_nas782x_rps_timer0), true, "realized", &err);
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->plxtech_nas782x_rps_timer0), 0, 0x44400200);
     
     
     serial_mm_init(get_system_memory(), 0x44200000, 0, qdev_get_gpio_in(DEVICE(&s->arm_arm11mp_gic), 23), 115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
