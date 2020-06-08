@@ -1,0 +1,11 @@
+--- accel/tcg/Makefile.objs	2019-04-24 02:14:45.000000000 +0800
++++ accel/tcg/Makefile.objs	2019-10-25 15:58:53.093541564 +0800
+@@ -1,7 +1,7 @@
+ obj-$(CONFIG_SOFTMMU) += tcg-all.o
+ obj-$(CONFIG_SOFTMMU) += cputlb.o
+ obj-y += tcg-runtime.o tcg-runtime-gvec.o
+-obj-y += cpu-exec.o cpu-exec-common.o translate-all.o
++obj-y += cpu-exec.o cpu-exec-common.o translate-all.o ktracer.o
+ obj-y += translator.o
+ 
+ obj-$(CONFIG_USER_ONLY) += user-exec.o
