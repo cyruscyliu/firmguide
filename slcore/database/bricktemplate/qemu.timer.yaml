@@ -90,6 +90,16 @@ plxtech,nas782x-rps-timer:
   external: true
   get_connection: []
   parameters: []
+plxtech,nas782x-rps-timer,autoboard:
+  get_body: ['set_autoboard_timer_cfg(AUTOBOARD_TIMER_OXNAS_GENERIC_RPS, "clksrc-rps");',
+    'object_initialize(&s->autoboard_timer, sizeof(s->autoboard_timer), TYPE_AUTOBOARD_TIMER);',
+    'qdev_set_parent_bus(DEVICE(&s->autoboard_timer), sysbus_get_default());',
+    'object_property_set_bool(OBJECT(&s->autoboard_timer), true, "realized", &err);',
+    'sysbus_mmio_map(SYS_BUS_DEVICE(&s->autoboard_timer), 0, {{ reg.base|to_hex }});']
+  get_connection: []
+  get_field: ['AUTOBOARD_TIMERState autoboard_timer;']
+  get_header: ['hw/timer/autoboard_timer.h']
+  parameters: [regs]
 qcom,kpss-timer: {extend: 'timer,generic'}
 qcom,scss-timer: {extend: 'timer,generic'}
 ralink,cevt-systick:

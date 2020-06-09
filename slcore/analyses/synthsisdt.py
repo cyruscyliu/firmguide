@@ -73,6 +73,8 @@ class SynthesisDT(Analysis):
             self.error_info = 'there is no device tree blob available.'
             return False
 
+        autoboard = kwargs.pop('autoboard')
+
         dts = load_dtb(path_to_dtb)
 
         self.init_context()
@@ -137,7 +139,7 @@ class SynthesisDT(Analysis):
                     continue
                 # ######## the 1st check, (type, compatible) check ########
                 # ######### !!!!!!!!!!!! ########
-                b = Brick(k, context['compatible'], cast=cast, effi=effi)
+                b = Brick(k, context['compatible'], cast=cast, effi=effi, autoboard=autoboard)
                 if not b.supported:
                     self.warning('cannot support {} {}'.format(
                         k, context['compatible']), 0)

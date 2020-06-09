@@ -37,6 +37,11 @@ diagnose:
             action: "store_true"
             default: False
             help: "skip callstack for sake of time"
+        autoboard: &autoboard
+            short: ab
+            action: "store_true"
+            default: False
+            help: "use autoboard interrupt controller and timer"
     callback: diagnosis
 upload:
     help: "Run - Online assembling for any image. No debug interfaces."
@@ -48,6 +53,7 @@ upload:
         url: {short: l, required: False, help: "will be removed in the future"}
         delete: {short: del, required: False, action: "store_true", default=False,
             help: "Delete trace to save space."}
+        autoboard: *autoboard
     callback: uploading
 synthesize:
     help: "Standalone - QEMU machine rendering with bricks."
@@ -55,6 +61,7 @@ synthesize:
         dtb: *dtb
         firmware: *firmware
         nocompilation: *nocompilation
+        autoboard: *autoboard
     callback: synthesis
 coverup:
     help: "Standalone - QEMU trace analysis."

@@ -35,7 +35,7 @@ def to_range(n):
 
 
 class Brick(object):
-    def __init__(self, t, compatible, cast=None, effi=None):
+    def __init__(self, t, compatible, cast=None, effi=None, autoboard=False):
         """
         Args:
             t(str)          : Type of the mode, e.g. cpu, intc, serial.
@@ -65,6 +65,7 @@ class Brick(object):
         self.actual = {}
         self.effic_compatible = effi
         self.buddy_compatible = []
+        self.autoboard = autoboard
 
         self.source = None
         self.template_to_source = None
@@ -283,8 +284,13 @@ class Brick(object):
         """Load the low level template from the database."""
         qemu_devices = get_database('qemu.{}'.format(self.t))
         model = qemu_devices.select('model', compatible=compatible)
+        if self.autoboard:
+            compatible += ',autoboard'
+        model_autoboard = qemu_devices.select('model', compatible=compatible)
         if model is None:
             return None
+        if model_autoboard is not None:
+            return model_autoboard
         return model
 
     def update_model(self, arch):
