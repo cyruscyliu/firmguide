@@ -313,6 +313,7 @@ static void brcm_bcm4708_init(MachineState *machine)
     
     object_initialize(&s->arm_cortex_a9_gic, sizeof(s->arm_cortex_a9_gic), TYPE_A9MPCORE_PRIV);
     qdev_prop_set_uint32(DEVICE(&s->arm_cortex_a9_gic), "num-cpu", 2);
+    qdev_prop_set_uint32(DEVICE(&s->arm_cortex_a9_gic), "num-irq", 128);
     object_property_set_bool(OBJECT(&s->arm_cortex_a9_gic), true, "realized", &err);
     sysbus_mmio_map(SYS_BUS_DEVICE(&s->arm_cortex_a9_gic), 0, 0x19021000 & 0xffff0000);
     
@@ -320,8 +321,8 @@ static void brcm_bcm4708_init(MachineState *machine)
     
     
     
-    serial_mm_init(get_system_memory(), 0x18000400, 0, qdev_get_gpio_in(DEVICE(&s->arm_cortex_a9_gic), 85 - 32), 115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
-    serial_mm_init(get_system_memory(), 0x18000300, 0, qdev_get_gpio_in(DEVICE(&s->arm_cortex_a9_gic), 85 - 32), 115200, serial_hd(1), DEVICE_LITTLE_ENDIAN);
+    serial_mm_init(get_system_memory(), 0x18000400, 0, qdev_get_gpio_in(DEVICE(&s->arm_cortex_a9_gic), 85), 115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
+    serial_mm_init(get_system_memory(), 0x18000300, 0, qdev_get_gpio_in(DEVICE(&s->arm_cortex_a9_gic), 85), 115200, serial_hd(1), DEVICE_LITTLE_ENDIAN);
     
     sysbus_create_varargs("l2x0", 0x19022000 , NULL);
     
