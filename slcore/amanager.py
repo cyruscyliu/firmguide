@@ -68,9 +68,8 @@ class AnalysesManager(Common):
                 self.project.attrs['path'],
                 self.project.attrs['name'])
 
-        # there at least one image available
-        images = self.project.attrs['images']
         if 'firmware' in self.arguments:
+            images = self.project.attrs['images']
             components = self.firmware.get_components()
             if self.arguments['firmware'] is not None:
                 if components is None or (not components.supported):
@@ -96,17 +95,20 @@ class AnalysesManager(Common):
                                 os.path.join(working_path))
             self.firmware.set_components(components)
 
-        if 'dtb' in self.arguments and \
-                images is not None and len(images) > 0:
+        if 'dtb' in self.arguments:
+            dtbs = self.project.attrs['dtbs']
             realdtb = self.firmware.get_realdtb()
-            if realdtb is None and self.arguments['dtb'] is None:
-                realdtb = self.firmware.get_components().get_path_to_dtb()
-            elif realdtb is None and self.arguments['dtb'] is not None:
+            components = self.firmware.get_components()
+            if self.arguments['dtb'] is not None:
                 realdtb = self.arguments['dtb']
-            elif realdtb is not None and self.arguments['dtb'] is None:
-                pass
             else:
-                realdtb = self.arguments['dtb']
+                if components is None or (not components.supported):
+                    if dtbs is not None and len(dtbs) > 0:
+                        realdtb = dtbs[0]
+                    else:
+                        realdtb = None
+                else:
+                    realdtb = self.firmware.get_components().get_path_to_dtb()
             self.firmware.set_realdtb(realdtb)
 
         if 'source' in self.arguments:
@@ -142,11 +144,15 @@ class AnalysesManager(Common):
             else:
                 analyses_chain_p.append(analysis)
 
-        if len(analyses_chain_p) > 5:
-            self.info('chain', '->'.join(analyses_chain_p[:5]), 1)
-            self.info('chain cont\'d', '->'.join(analyses_chain_p[5:]), 1)
-        else:
-            self.info('chain', '->'.join(analyses_chain_p), 1)
+        line = len(analyses_chain_p) // 5
+        rem = len(analyses_chain_p) % 5
+        for i in range(0, line):
+            if line == 1:
+                self.info('chain', '->'.join(analyses_chain_p[:5]), 1)
+            else:
+                self.info('chain cont\'d', '->'.join(analyses_chain_p[5*i:5*(i+1)]), 1)
+        if rem > 0:
+            self.info('chain cont\'d', '->'.join(analyses_chain_p[5*line:]), 1)
 
     def topological_sort(self, graph, v, visited, stack):
         # mark the current node as visited

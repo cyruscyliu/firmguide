@@ -21,7 +21,7 @@ class DiscloseDT(Analysis):
 
         path_to_dtb = self.firmware.get_realdtb()
         if path_to_dtb is None:
-            self.error_info = 'there is no device tree blob available.'
+            self.error_info = 'there is no real dtb available.'
             return False
 
         dts = load_dtb(path_to_dtb)
