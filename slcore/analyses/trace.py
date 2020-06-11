@@ -49,6 +49,9 @@ class LoadTrace(Analysis):
 
 class Tracing(Analysis):
     def run(self, **kwargs):
+        if not self.analysis_manager.qemuc.supported:
+            self.error_info = 'please setup the QEMU'
+            return False
         kwargs['running_command'] = self.firmware.running_command
         self.info('tracing QEMU machine {}'.format(
             self.firmware.get_machine_name()), 1)

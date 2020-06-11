@@ -10,6 +10,10 @@ class Unpacking(Analysis):
         self.description = 'Unpack given image.'
 
     def run(self, **kwargs):
+        status = self.check_components()
+        if not status:
+            return status
+
         # Note: ffirmware not firmware, otherwise the firmware
         # will be unpacked for two times, and if the format
         # is not supported, we cannot even come here

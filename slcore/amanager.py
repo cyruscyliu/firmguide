@@ -70,25 +70,30 @@ class AnalysesManager(Common):
 
         # there at least one image available
         images = self.project.attrs['images']
-        if 'firmware' in self.arguments and \
-                images is not None and len(images) > 0:
+        if 'firmware' in self.arguments:
             components = self.firmware.get_components()
-            if components is None and self.arguments['firmware'] is None:
-                components = unpack(images[0], target_dir=path)
-            elif components is None and self.arguments['firmware'] is not None:
-                components = unpack(
-                    self.arguments['firmware'], target_dir=path)
-            elif components is not None and self.arguments['firmware'] is None:
-                pass
+            if self.arguments['firmware'] is not None:
+                if components is None or (not components.supported):
+                    components = unpack(self.arguments['firmware'], target_dir=path)
+                elif self.arguments['firmware'] != components.get_path_to_raw():
+                    components = unpack(self.arguments['firmware'], target_dir=path)
+                else:
+                    components = components
             else:
-                if self.arguments['firmware'] != components.get_path_to_raw():
-                    components = unpack(
-                        self.arguments['firmware'], target_dir=path)
+                if components is None or (not components.supported):
+                    if images is not None and len(images) > 0:
+                        components = unpack(images[0], target_dir=path)
+                    else:
+                        components = unpack(None)
+                else:
+                    components = components
 
-            working_path = os.path.join(path, components.get_raw_name())
-            if not os.path.exists(working_path):
-                shutil.copy(components.get_path_to_raw(),
-                            os.path.join(working_path))
+            assert components is not None, 'the components must not be none'
+            if components.supported:
+                working_path = os.path.join(path, components.get_raw_name())
+                if not os.path.exists(working_path):
+                    shutil.copy(components.get_path_to_raw(),
+                                os.path.join(working_path))
             self.firmware.set_components(components)
 
         if 'dtb' in self.arguments and \
@@ -333,6 +338,9 @@ class Analysis(Common, AnalysisInterface):
         if components is None:
             self.error_info = 'components is missing'
             return True
+        if not components.supported:
+            self.error_info = 'firmware format is not supported'
+            return True
         return False
 
     def check_components(self):
@@ -340,10 +348,6 @@ class Analysis(Common, AnalysisInterface):
             return False
 
         components = self.firmware.get_components()
-        if not components.supported:
-            self.error_info = 'firmware format is not supported'
-            return False
-
         if not components.has_kernel():
             self.error_info = 'firmware have no kernel, maybe is a rootfs image'
             return False

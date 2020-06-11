@@ -5,6 +5,7 @@ class ShowDeadLoop(Analysis):
     def address2symbol(self, address):
         srcodec = self.analysis_manager.srcodec
         if not srcodec.supported:
+            self.warning('please set the source code', 1)
             return None
         return srcodec.address2symbol(address)
 

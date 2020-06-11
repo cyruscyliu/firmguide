@@ -9,6 +9,10 @@ class Preparation(Analysis):
         status = self.check_components()
         if not status:
             return status
+        
+        if not self.analysis_manager.qemuc.supported:
+            self.error_info = 'please setup the QEMU'
+            return False
 
         # 1. prepare -k path/to/kernel
         if self.firmware.get_arch() == 'mips':

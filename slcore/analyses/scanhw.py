@@ -89,7 +89,7 @@ class UpdateHardware(Analysis):
     def run(self, **kwargs):
         srcodec = self.analysis_manager.srcodec
         if not srcodec.supported:
-            self.error_info('please set the source code')
+            self.error_info = 'please set the source code'
             return False
 
         # search *.dtb in the source

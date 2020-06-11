@@ -381,6 +381,9 @@ def unpack(path, target_dir=None, extract=True):
         Components: A Component object.
     """
     components = Components()
+    if path is None:
+        components.supported = False
+        return components
     if not os.path.exists(path):
         print('[-] {} not exist'.format(path))
         components.supported = False

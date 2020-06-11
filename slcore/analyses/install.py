@@ -5,6 +5,9 @@ from slcore.amanager import Analysis
 
 class Install(Analysis):
     def run(self, **kwargs):
+        if not self.analysis_manager.qemuc.supported:
+            self.error_info = 'please setup the QEMU'
+            return False
         nocompilation = kwargs.pop('nocompilation', True)
         if nocompilation:
             self.info('don\'t install and compile this new machine', 0)
