@@ -26,6 +26,9 @@ class Archive(Analysis):
         # save QEMU source as examples
         source = os.path.join(
             self.analysis_manager.project.attrs['path'], 'qemu-4.0.0')
+        if not os.path.exists(source):
+            self.error_info = '{} doesn\'t exist'.format(source)
+            return False
         target_machines = os.path.join(
             self.analysis_manager.project.attrs['base_dir'],
             'examples/machines/{}'.format(self.firmware.get_machine_name()))
@@ -34,6 +37,9 @@ class Archive(Analysis):
 
         # only compatible can be updated automatically
         realdtb = self.firmware.get_realdtb()
+        if realdtb is None:
+            self.error_info = 'there is no realdtb set'
+            return False
         archivedtb = os.path.join(
             self.analysis_manager.project.attrs['base_dir'],
             'slcore/database/archivedtb',

@@ -46,7 +46,9 @@ diagnose:
 upload:
     help: "Run - Online assembling for any image. No debug interfaces."
     optional:
-        firmware: *firmware
+        firmware:
+            << : *firmware
+            required: True
         dtb: *dtb
         timeout: *timeout
         nocompilation: *nocompilation

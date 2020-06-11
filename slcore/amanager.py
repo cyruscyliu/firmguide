@@ -70,8 +70,8 @@ class AnalysesManager(Common):
 
         # there at least one image available
         images = self.project.attrs['images']
-        assert len(images), 'please add an image first'
-        if 'firmware' in self.arguments:
+        if 'firmware' in self.arguments and \
+                images is not None and len(images) > 0:
             components = self.firmware.get_components()
             if components is None and self.arguments['firmware'] is None:
                 components = unpack(images[0], target_dir=path)
@@ -91,7 +91,8 @@ class AnalysesManager(Common):
                             os.path.join(working_path))
             self.firmware.set_components(components)
 
-        if 'dtb' in self.arguments:
+        if 'dtb' in self.arguments and \
+                images is not None and len(images) > 0:
             realdtb = self.firmware.get_realdtb()
             if realdtb is None and self.arguments['dtb'] is None:
                 realdtb = self.firmware.get_components().get_path_to_dtb()

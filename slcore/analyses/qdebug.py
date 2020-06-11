@@ -10,6 +10,9 @@ class QEMUDbgMachSrc(Analysis):
         prefix_from = os.path.join(
             self.analysis_manager.project.attrs['path'], 'qemu-4.0.0')
         prefix_to = self.analysis_manager.project.attrs['qemu_dir']
+        if not os.path.exists(prefix_from):
+            self.error_info = '{} doesn\'t exist'.format(prefix_from)
+            return False
 
         if not clean:
             # copy files to qemu/
