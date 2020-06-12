@@ -19,7 +19,7 @@ create:
             short: p
             required: True
             help: "The path to the project."
-        brand: {short: b, choices: ["openwrt"], required: False,
+        brand: {short: b, choices: ["openwrt", "netgear"], required: False,
             help: "Optional. Say openwrt(lower case of OpenWRT)."}
         target: {short: t, required: False,
             help: "Brand related. Say ath79 of OpenWRT."}

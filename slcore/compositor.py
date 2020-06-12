@@ -534,4 +534,3 @@ def unpack(path, target_dir=None, extract=True):
     components.supported = components.get_type() != None
 
     return components
-

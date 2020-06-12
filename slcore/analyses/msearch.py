@@ -2,6 +2,7 @@ import os
 
 from slcore.database.dbf import get_database
 from slcore.database.machine_id import find_machine_id
+from slcore.database.board_dir import find_board_dir
 from slcore.dt_parsers.compatible import find_compatible
 from slcore.common import Common, setup_logging
 from slcore.amanager import Analysis
@@ -83,13 +84,18 @@ class FindMachine(Analysis):
         revision, target, subtarget = [None] * 3
 
         brand = self.firmware.get_brand()
+        assert brand is not None, 'brand must be clear'
         arch = self.firmware.get_arch()
 
-        if brand is None:
-            print('maybe brand is missing?')
         if url is not None and brand == 'openwrt':
             from slcore.brandsupkg.openwrt import parse_openwrt_url
             revision, target, subtarget = parse_openwrt_url(url)
+        else:
+            board = find_board_dir(
+                self.firmware.get_components().get_path_to_kernel(), 
+                self.firmware.get_arch())
+            print(board)
+            exit()
 
         board = support.select('board', arch=arch, brand=brand, target=target)
         if board is not None:
