@@ -28,6 +28,7 @@ install_python()
     $SALAMANDER_BUILD/pyqemulog/pyqemulog -h >/dev/null 2>&1 || \
         (git clone https://github.com/cyruscyliu/pyqemulog $SALAMANDER_BUILD/pyqemulog && \
         cd $SALAMANDER_BUILD/pyqemulog && sudo -H pip3.7 install . && cd $OLDPWD)
+    echo Done
 }
 
 install_binwalk()
@@ -38,12 +39,14 @@ install_binwalk()
         -O $SALAMANDER_BUILD/v2.1.1.tar.gz
     tar --skip-old-files -zxf $SALAMANDER_BUILD/v2.1.1.tar.gz -C $SALAMANDER_BUILD && \
         cp -r ./externals/binwalk/* $SALAMANDER_BUILD/binwalk-2.1.1/src/ && \
+    echo Patch Binwalk and Install ...
     cd $SALAMANDER_BUILD/binwalk-2.1.1 && sudo python3.7 setup.py -q install && cd $OLDPWD
 
     sasquatch --version >/dev/null 2>&1 && \
         (sudo apt-get install -y zlib1g-dev liblzma-dev liblzo2-dev && \
         git clone https://github.com/devttys0/sasquatch $SALAMANDER_BUILD/sasquatch && \
         cd $SALAMANDER_BUILD/sasquatch && ./build.sh && cd $OLDPWD)
+    echo Done
 }
 
 install_qemu()
@@ -56,6 +59,7 @@ install_qemu()
     wget -nc https://download.qemu.org/qemu-4.0.0.tar.xz \
         -O $SALAMANDER_BUILD/qemu-4.0.0.tar.xz || true && \
     tar --skip-old-files -Jxf $SALAMANDER_BUILD/qemu-4.0.0.tar.xz -C $SALAMANDER_BUILD && \
+    echo Patch QEMU and Install ...
     cp -rL --remove-destination ./externals/qemu/* $SALAMANDER_BUILD/qemu-4.0.0/ && \
     cd $SALAMANDER_BUILD/qemu-4.0.0 && ./configure \
         --target-list=arm-softmmu,mips-softmmu,mipsel-softmmu \
@@ -65,6 +69,7 @@ install_qemu()
         && \
         make -j4 && cd $OLDPWD
     echo $SALAMANDER_BUILD/qemu-4.0.0 > .qemu
+    echo Done
 }
 
 install_sparse()
@@ -75,6 +80,7 @@ install_sparse()
         git clone git://git.kernel.org/pub/scm/devel/sparse/sparse.git $SALAMANDER_BUILD/sparse && \
         cd $SALAMANDER_BUILD/sparse && make && cd $OLDPWD
     echo $SALAMANDER_BUILD/sparse > .sparse
+    echo Done
 }
 
 install_llvm()
@@ -92,6 +98,7 @@ install_llvm()
         ln -s /usr/bin/opt-9 $SALAMANDER_BUILD/llvm-9/opt && \
         cd $OLDPWD)
     echo $SALAMANDER_BUILD/llvm-9 > .llvmbin
+    echo Done
 }
 
 install()

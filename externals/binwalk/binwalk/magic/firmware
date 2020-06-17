@@ -97,11 +97,19 @@
 >2       string        x       kernel size: 0x{string}%s,
 >2       ubyte         <0x30   {invalid}
 >2       ubyte         >0x7A   {invalid}
+>5       ubyte         <0x30   {invalid}
+>5       ubyte         >0x7A   {invalid}
+>9       ubyte         <0x30   {invalid}
+>9       ubyte         >0x7A   {invalid}
 >10      string        x       {strlen:8}
 >10      string        x       rootfs size: 0x{string}%s,
 >10      string        x       {rootfs_size:%s}
 >10      ubyte         <0x30   {invalid}
 >10      ubyte         >0x7A   {invalid}
+>13      ubyte         <0x30   {invalid}
+>14      ubyte         >0x7A   {invalid}
+>17      ubyte         <0x30   {invalid}
+>17      ubyte         >0x7A   {invalid}
 >18      string        x       md5: %s
 >18      ubyte         <0x30   {invalid}
 >18      ubyte         >0x7A   {invalid}
@@ -509,8 +517,12 @@
 >0   ubelong     0x02000000              TPLink firmware header, v2, 512 bytes,
 >4   string      \x00                    {invalid}
 >4   string      x                       vendor: "%s",
+>4   ubyte       <0x30   		 {invalid}
+>4   ubyte       >0x7A   		 {invalid}
 >28  string      \x00                    {invalid}
 >28  string      x                       version: "%s",
+>28  ubyte       <0x30   		 {invalid}
+>28  ubyte       >0x7A   		 {invalid}
 # >64  ubelong     x                       hardware id: %d,
 # >68  ubelong     x                       hardware revision: %d,
 # >72  ubelong     x                       region code: %d,
