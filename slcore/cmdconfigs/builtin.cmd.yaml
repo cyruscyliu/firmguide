@@ -52,6 +52,7 @@ upload:
         dtb: *dtb
         timeout: *timeout
         nocompilation: *nocompilation
+        board: {short: b, required: False, help: "set board manually to replace --url"}
         url: {short: l, required: False, help: "will be removed in the future"}
         delete: {short: del, required: False, action: "store_true", default=False,
             help: "Delete trace to save space."}

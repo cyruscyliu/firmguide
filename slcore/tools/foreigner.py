@@ -18,7 +18,11 @@ def foreigner(args):
         print('[-] {} doesnot exist'.format(firmware))
         return False
 
-    components = unpack(firmware, tempfile.gettempdir())
+    try:
+        components = unpack(firmware, tempfile.gettempdir())
+    except FileNotFoundError:
+        print('[-] {} not found'.format(firmware))
+        return False
     if not components.supported:
         print('[-] {} format not supported'.format(firmware))
         return False
