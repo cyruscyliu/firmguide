@@ -31,17 +31,22 @@ diagnose:
             short: nc
             action: "store_true"
             default: False
-            help: "set this for multi-tasks"
+            help: "Set this for multi-tasks."
         nocallstack: &nocallstack
             short: ncs
             action: "store_true"
             default: False
-            help: "skip callstack for sake of time"
+            help: "Skip callstack for sake of time."
         autoboard: &autoboard
             short: ab
             action: "store_true"
             default: False
-            help: "use autoboard interrupt controller and timer"
+            help: "Use autoboard except QEMU builtin hardware."
+        autoboard_all: &autoboard_all
+            short: aba
+            action: "store_true"
+            default: False
+            help: "Use autoboard replacing QEMU builtin hardware."
     callback: diagnosis
 upload:
     help: "Run - Online assembling for any image. No debug interfaces."
@@ -57,6 +62,7 @@ upload:
         delete: {short: del, required: False, action: "store_true", default=False,
             help: "Delete trace to save space."}
         autoboard: *autoboard
+        autoboard_all: *autoboard_all
     callback: uploading
 synthesize:
     help: "Standalone - QEMU machine rendering with bricks."
@@ -65,6 +71,7 @@ synthesize:
         firmware: *firmware
         nocompilation: *nocompilation
         autoboard: *autoboard
+        autoboard_all: *autoboard_all
     callback: synthesis
 coverup:
     help: "Standalone - QEMU trace analysis."

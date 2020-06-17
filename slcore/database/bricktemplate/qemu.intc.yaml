@@ -21,7 +21,7 @@ arm,arm11mp-gic:
   parameters: [name, regs, intcp]
   unique: true
   builtin: 3
-arm,arm11mp-gic,autoboard:
+arm,arm11mp-gic,autoboard,all:
   buddy_compatible: ['arm,arm11mp-twd-timer', mpcore_wdt]
   get_body: ['object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_AUTOBOARDARM11MPCORE_PRIV);',
     'object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{

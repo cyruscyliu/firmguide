@@ -74,6 +74,7 @@ class SynthesisDT(Analysis):
             return False
 
         autoboard = kwargs.pop('autoboard')
+        autoboard_all = kwargs.pop('autoboard_all')
 
         dts = load_dtb(path_to_dtb)
 
@@ -139,7 +140,9 @@ class SynthesisDT(Analysis):
                     continue
                 # ######## the 1st check, (type, compatible) check ########
                 # ######### !!!!!!!!!!!! ########
-                b = Brick(k, context['compatible'], cast=cast, effi=effi, autoboard=autoboard)
+                b = Brick(k, context['compatible'],
+                        cast=cast, effi=effi,
+                        autoboard=autoboard, autoboard_all=autoboard_all)
                 if not b.supported:
                     self.warning('cannot support {} {}'.format(
                         k, context['compatible']), 0)
