@@ -133,5 +133,3 @@ while getopts "pbqslah" opt; do
         *) usage && exit ;;
     esac
 done
-
-install
