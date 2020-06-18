@@ -70,6 +70,16 @@ marvell,armada-370-timer: {extend: 'timer,generic'}
 marvell,armada-375-timer: {extend: 'timer,generic'}
 marvell,armada-xp-timer: {extend: 'timer,generic', external: true}
 marvell,orion-timer: {extend: 'timer,generic', external: true}
+marvell,orion-timer,autoboard:
+  get_body: ['set_autoboard_timer_cfg(AUTOBOARD_TIMER_MARVELL_ORION, "marvell-orion-timer");',
+    'object_initialize(&s->{{ name }}{{ id }}, sizeof(s->{{ name }}{{ id }}), TYPE_AUTOBOARD_TIMER);',
+    'qdev_set_parent_bus(DEVICE(&s->{{ name }}{{ id }}), sysbus_get_default());',
+    'object_property_set_bool(OBJECT(&s->{{ name }}{{ id }}), true, "realized", &err);',
+    'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}{{ id }}), 0, {{ reg.base|to_hex }});']
+  get_connection: []
+  get_field: ['AUTOBOARD_TIMERState {{ name }}{{ id }};']
+  get_header: ['hw/timer/autoboard_timer.h']
+  parameters: [name, regs]
 marvell,pxa-timer: {extend: 'timer,generic'}
 mediatek,mt6577-timer: {extend: 'timer,generic'}
 mediatek,mt6765-timer: {extend: 'timer,generic'}
@@ -92,14 +102,14 @@ plxtech,nas782x-rps-timer:
   parameters: []
 plxtech,nas782x-rps-timer,autoboard:
   get_body: ['set_autoboard_timer_cfg(AUTOBOARD_TIMER_OXNAS_GENERIC_RPS, "clksrc-rps");',
-    'object_initialize(&s->autoboard_timer, sizeof(s->autoboard_timer), TYPE_AUTOBOARD_TIMER);',
-    'qdev_set_parent_bus(DEVICE(&s->autoboard_timer), sysbus_get_default());',
-    'object_property_set_bool(OBJECT(&s->autoboard_timer), true, "realized", &err);',
-    'sysbus_mmio_map(SYS_BUS_DEVICE(&s->autoboard_timer), 0, {{ reg.base|to_hex }});']
+    'object_initialize(&s->{{ name }}{{ id }}, sizeof(s->{{ name }}{{ id }}), TYPE_AUTOBOARD_TIMER);',
+    'qdev_set_parent_bus(DEVICE(&s->{{ name }}{{ id }}), sysbus_get_default());',
+    'object_property_set_bool(OBJECT(&s->{{ name }}{{ id }}), true, "realized", &err);',
+    'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}{{ id }}), 0, {{ reg.base|to_hex }});']
   get_connection: []
-  get_field: ['AUTOBOARD_TIMERState autoboard_timer;']
+  get_field: ['AUTOBOARD_TIMERState {{ name }}{{ id }};']
   get_header: ['hw/timer/autoboard_timer.h']
-  parameters: [regs]
+  parameters: [name, regs]
 qcom,kpss-timer: {extend: 'timer,generic'}
 qcom,scss-timer: {extend: 'timer,generic'}
 ralink,cevt-systick:
@@ -154,6 +164,6 @@ timer,generic:
       intcp.get_irqn }});']
   get_field: ['{{ name|to_upper }}State {{ name }}{{ id }};']
   get_header: ['hw/timer/{{ name }}.h']
-  parameters: [intcp, irqns]
+  parameters: [name, intcp, irqns]
 via,vt8500-timer: {extend: 'timer,generic'}
 xlnx,xps-timer-1.00.a: {extend: 'timer,generic'}
