@@ -75,4 +75,3 @@ def find_flatten_timer(path_to_dtb):
     """
     dts = load_dtb(path_to_dtb)
     return find_flatten_timer_in_fdt(dts)
-

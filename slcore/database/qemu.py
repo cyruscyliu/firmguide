@@ -7,44 +7,13 @@ import yaml
 from slcore.database.db import Database
 
 
-class DatabaseQEMUAPIS(Database):
-    def select(self, *args, **kwargs):
-        """
-        Examples:
-            select cpu where name like arm,arm11mpcore
-        """
-        # parse arguments
-        device, wanted_property = args[0], args[1]
-
-        # get the database
-        database_dir = os.path.dirname(os.path.realpath(__file__))
-        qemu_apis = open(os.path.join(database_dir, 'qemu.apis.yaml'))
-        database_qemu_apis = yaml.safe_load(qemu_apis)
-        qemu_apis.close()
-
-        # get choices
-        choices = database_qemu_apis[device]
-        if wanted_property in choices:
-            return choices[wanted_property]
-        else:
-            return None
-
-    def add(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
-
-    def delete(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
-
-    def update(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
-
-
 class DatabaseQEMUModels(Database):
     def select(self, *args, **kwargs):
         """
         Examples:
             select model where compatible=ns16550a
             select *
+            select fix_parameters where compatible=ns16550a
         """
         # parse arguments
         action = args[0]
@@ -52,16 +21,29 @@ class DatabaseQEMUModels(Database):
 
         # get the database
         database_dir = os.path.dirname(os.path.realpath(__file__))
-        qemu_models = open(os.path.join(database_dir, 'qemu.{}.yaml'.format(self.t)))
+        if action == 'fix_parameters':
+            path = os.path.join(
+                database_dir, 'fixparameters/qemu.{}.yaml'.format(self.t))
+            if not os.path.exists(path):
+                return None
+            qemu_models = open(path)
+        else:
+            qemu_models = open(os.path.join(
+                database_dir, 'bricktemplate/qemu.{}.yaml'.format(self.t)))
         database_qemu_models = yaml.safe_load(qemu_models)
         qemu_models.close()
+        if database_qemu_models is None:
+            return None
 
         if action == 'model' and compatible is not None:
             if compatible in database_qemu_models:
                 return database_qemu_models[compatible]
         elif action == '*':
             return database_qemu_models
-
+        elif action == 'fix_parameters':
+            if compatible in database_qemu_models:
+                return database_qemu_models[compatible]
+        return None
 
     def add(self, *args, **kwargs):
         """
@@ -78,7 +60,8 @@ class DatabaseQEMUModels(Database):
                 qdevices[compatible] = kwargs
 
         database_dir = os.path.dirname(os.path.realpath(__file__))
-        f = open(os.path.join(database_dir, 'qemu.{}.yaml'.format(self.t)), 'w')
+        f = open(os.path.join(
+            database_dir, 'bricktemplate/qemu.{}.yaml'.format(self.t)), 'w')
         yaml.safe_dump(qdevices, f)
         f.close()
 
@@ -91,39 +74,3 @@ class DatabaseQEMUModels(Database):
     def __init__(self, t):
         super().__init__()
         self.t = t
-
-
-class DatabaseQEMUDevices(Database):
-    def select(self, *args, **kwargs):
-        """
-        Examples:
-            select cpu where compatible=arm,arm11mpcore
-        """
-        # parse arguments
-        device = args[0]
-        compatible = kwargs.pop('compatible', None)
-
-        # get the database
-        database_dir = os.path.dirname(os.path.realpath(__file__))
-        qemu_devices = open(os.path.join(database_dir, 'qemu.devices.yaml'))
-        database_qemu_devices = yaml.safe_load(qemu_devices)
-        qemu_devices.close()
-
-        # get choices
-        choices = database_qemu_devices[device]
-
-        result = None
-        if device == 'cpu' and compatible is not None:
-            if compatible in choices:
-                result = choices[compatible][0]
-        return result
-
-    def add(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
-
-    def delete(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
-
-    def update(self, *args, **kwargs):
-        raise NotImplementedError('you are not expected to modify this table')
-

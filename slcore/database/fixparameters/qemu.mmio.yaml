@@ -1,0 +1,180 @@
+marvell,orion-system-controller:
+    regs_index:
+        0:
+            priority: -1
+marvell,orion-wdt:
+    regs_index:
+        0:
+            priority: -1
+brcm,bus-axi:
+    regs_index:
+        0:
+            priority: -1
+plxtech,nas782x-plla:
+    regs_index:
+        0:
+            registers:
+                # [MMIO] base 0x44e001f0 size 0x00000010 of /plla@44e001f0/['plxtech,nas782x-plla']
+                - {offset: 0x0, size: 0x4, value: 0x8000}
+                - {offset: 0x4, size: 0x4, value: 0x8000}
+plxtech,nand-nas782x:
+    regs_index:
+        0:
+            registers:
+                #  while (!(chip->read_byte(mtd) & NAND_STATUS_READY))
+                - {offset: 0x0, size: 0x4, value: 0x40, path: drivers/mtd/nand/nand_base.c, function: nand_command}
+qca,ar7100-reset:
+    regs_index:
+        0:
+            registers:
+                # id = __raw_readl(base + 0x90); id &= 0xfff0;
+                # _prom_putchar=prom_putchar_ar71xx:0x00a0,0x00c0,0x0100,0x1100,0x00b0,
+                #                                   0x0120,0x1120,0x2120,0x0140,0x0160,0x0130,0x1130,0x0150,0x1150
+                # _prom_putchar=prom_putchar_ar933x:0x0110,0x1110
+                # _prom_putchar=prom_putchar_dummy:others
+                - {offset: 0x74, size: 0x4, value: 0x00b0, path: arch/mips/ath79/early_printk.c, function: prom_putchar_init}
+                # /root/openwrt-build-docker/share/19.07.1-ath79-generic/openwrt-19.07.1/bin/targets/ath79/generic/openwrt-19.07.1-ath79-generic-librerouter_librerouter-v1-initramfs-kernel.bin
+                # bootstrap = ath79_reset_rr(0xb0);
+                # if (bootstrap & (1UL << (4))) ref_rate = 40 * 1000 * 1000; else ref_rate = 25 * 1000 * 1000;
+                - {offset: 0x94, size: 0x4, value: 0x0010, path: arch/mips/ath79/clock.i, function: qca955x_clocks_init}
+    fix_size: 0x98
+qca,qca9550-pll:
+    regs_index:
+        0:
+            registers:
+                - {offset: 0x0, size: 0x4, value: 0x0810, path: arch/mips/ath79/clock.c, function: qca955x_clocks_init}
+qca,ar7240-pll:
+    regs_index:
+        0:
+            registers:
+                # cpu_clk_rate = clk_get_rate(of_clk_get(of_get_cpu_node()))
+                # cpus/cpu@0/clocks=<0x4 0x0> -> qca,ar7240-pll -> ath79_clocks_init_dt -> ar724x_clocks_init
+                # if (of_device_is_compatible(np, "qca,ar7240-pll") || of_device_is_compatible(np, "qca,ar9130-pll"))
+                #     ar724x_clocks_init(pll_base);
+                # ref_rate = 4000000;
+                # pll = ath79_pll_rr(0x00); mul = ((pll >> 0) & 0x3ff); div = ((pll > 10) & 0xf) * 2
+                # 4000000 * ((pll >> 0) & 0x3ff) / (((pll > 10 & 0xf)) * 2)
+                # 4000000 * ((0x1010 >> 0) & 0x3ff) / (((0x1010 > 10 & 0xf)) * 2) = 80M
+                - {offset: 0x0, size: 0x4, value: 0x0810, path: arch/mips/ath79/clock.c, function:  ar724x_clocks_init}
+qca,ar9340-gpio:
+    # gpio_base = (void *)(((((int)(int)((0x18000000 + 0x00040000))) & 0x1fffffff) | 0xa0000000));
+    # t = __raw_readl(gpio_base + 0x28);
+    # t |= uart_en;
+    # __raw_writel(t, gpio_base + 0x28);
+    # but the device tree tells us 0x28 is out of range
+    fix_size: 0x2c
+ralink,rt3050-sysc:
+    regs_index:
+        0:
+            registers:
+                # void *sysc = (void *) ((((int)(int)(0x10000000)) & 0x1fffffff) | 0xa0000000);
+                # n0 = __raw_readl(sysc + 0x00); n1 = __raw_readl(sysc + 0x04); id = __raw_readl(sysc + 0x0c);
+                # if (n0 == 0x38335452 && n1 == 0x20203338) {  soc_info->compatible = "ralink,rt3883-soc"; name = "RT3883";
+                # } else {  panic("rt3883: unknown SoC, n0:%08x n1:%08x", n0, n1);}
+                - {offset: 0x0, size: 0x4, value: 0x38335452, path: arch/mips/ralink/rt3883.c, function: prom_soc_init}
+                - {offset: 0x4, size: 0x4, value: 0x20203338, path: arch/mips/ralink/rt3883.c ,function: prom_soc_init}
+ralink,mt7620a-sysc:
+    regs_index:
+        0:
+            registers:
+                # n0 = __raw_readl(sysc + 0x00); n1 = __raw_readl(sysc + 0x04); rev = __raw_readl(sysc + 0x0c);
+                # bga = (rev >> 16) & 0x1;
+                # if (n0 == 0x3637544d && n1 == 0x20203032) {
+                #     if (bga) { ralink_soc = MT762X_SOC_MT7620A; name = "MT7620A"; soc_info->compatible = "ralink,mt7620a-soc";
+                #     } else { ralink_soc = MT762X_SOC_MT7620N; name = "MT7620N"; soc_info->compatible = "ralink,mt7620n-soc";
+                #     }
+                # } else if (n0 == 0x3637544d && n1 == 0x20203832) {
+                #     u32 efuse = __raw_readl(sysc + 0x08);
+                #     if (efuse & 0x100000) { ralink_soc = MT762X_SOC_MT7688; name = "MT7688";
+                #     } else { ralink_soc = MT762X_SOC_MT7628AN; name = "MT7628AN"; }
+                #     soc_info->compatible = "ralink,mt7628an-soc";
+                # } else {
+                #     panic("mt762x: unknown SoC, n0:%08x n1:%08x\n", n0, n1); 
+                # }
+                - {offset: 0x0, size: 0x4, value: 0x3637544d, path: arch/mips/ralink/rt7620.c, function: prom_soc_init}
+                - {offset: 0x4, size: 0x4, value: 0x20203832, path: arch/mips/ralink/rt7620.c ,function: prom_soc_init}
+                - {offset: 0x8, size: 0x4, value: 0x00100000, path: arch/mips/ralink/rt7620.c ,function: prom_soc_init}
+ralink,rt3050-sysc:
+    regs_index:
+        0:
+            registers:
+                # void *sysc = (void *) ((((int)(int)(0x10000000)) & 0x1fffffff) | 0xa0000000); 
+                # n0 = __raw_readl(sysc + 0x00);
+                # n1 = __raw_readl(sysc + 0x04);
+                #
+                # if (n0 == 0x30335452 && n1 == 0x20203235) {
+                #     unsigned long icache_sets;
+                #     icache_sets = (read_c0_config1() >> 22) & 7;
+                #     if (icache_sets == 1) {
+                #         ralink_soc = RT305X_SOC_RT3050;
+                #         name = "RT3050";
+                #         soc_info->compatible = "ralink,rt3050-soc";
+                #     } else {
+                #         ralink_soc = RT305X_SOC_RT3052;
+                #         name = "RT3052";
+                #         soc_info->compatible = "ralink,rt3052-soc";
+                #     }
+                # } else if (n0 == 0x33335452 && n1 == 0x20203035) {
+                #     ralink_soc = RT305X_SOC_RT3350;
+                #     name = "RT3350";
+                #     soc_info->compatible = "ralink,rt3350-soc";
+                # } else if (n0 == 0x33335452 && n1 == 0x20203235) {
+                #     ralink_soc = RT305X_SOC_RT3352;
+                #     name = "RT3352";
+                #     soc_info->compatible = "ralink,rt3352-soc";
+                # } else if (n0 == 0x33355452 && n1 == 0x20203035) {
+                #     ralink_soc = RT305X_SOC_RT5350;
+                #     name = "RT5350";
+                #     soc_info->compatible = "ralink,rt5350-soc";
+                # } else {
+                #     panic("rt305x: unknown SoC, n0:%08x n1:%08x", n0, n1);
+                # }
+                - {offset: 0x0, size: 0x4, value: 0x30335452, path: arch/mips/ralink/rt7620.c, function: prom_soc_init}
+                - {offset: 0x4, size: 0x4, value: 0x20203235, path: arch/mips/ralink/rt7620.c ,function: prom_soc_init}
+# ralink,mt7620a-sysc:
+    # regs_index:
+        # 0:
+            # registers:
+                # static void *chipid_membase = ( void * ) ((((int)(int)(0x10000004)) & 0x1fffffff) | 0xa0000000);
+                # static inline int soc_is_mt7628(void)
+                # {
+                #     return (1 || 0) && (__raw_readl(chipid_membase) == 0x20203832);
+                # }
+                #
+                # void prom_putchar(unsigned char ch)
+                # {
+                #     if ((0 || 0) || soc_is_mt7628()) {
+                #         uart_w32(ch, 0);
+                #         while ((uart_r32(0x14) & 0x20) == 0);
+                #      } else {
+                #      while ((uart_r32(0x1c) & 0x20) == 0);
+                #      uart_w32(ch, 0x04);
+                #      while ((uart_r32(0x1c) & 0x20) == 0);
+                # }
+                # prom_soc_init(struct ralink_soc_info *soc_info)
+                # void *sysc = (void *) ((((int)(int)(0x10000000)) & 0x1fffffff) | 0xa0000000);
+                # n0 = __raw_readl(sysc + 0x00);
+                # n1 = __raw_readl(sysc + 0x04);
+                # rev = __raw_readl(sysc + 0x0c);
+                # bga = (rev >> 16) & 0x1;
+                # 
+                # if (n0 == 0x3637544d && n1 == 0x20203032) {
+                # if (bga) {
+                #         ralink_soc = MT762X_SOC_MT7620A;
+                #         name = "MT7620A";
+                #         soc_info->compatible = "ralink,mt7620a-soc";
+                #     } else {
+                #         ralink_soc = MT762X_SOC_MT7620N;
+                #         name = "MT7620N";
+                #         soc_info->compatible = "ralink,mt7620n-soc";
+                #     }
+                # } else if (n0 == 0x3637544d && n1 == 0x20203832) {
+                #     ralink_soc = MT762X_SOC_MT7628AN;
+                #     name = "MT7628AN";
+                #     soc_info->compatible = "ralink,mt7628an-soc";
+                # } else {
+                #     panic("mt762x: unknown SoC, n0:%08x n1:%08x\n", n0, n1);
+                # }
+                # - {offset: 0x0, size: 0x4, value: 0x3637544d, path: arch/mips/ralink/rt7620.c, function: prom_soc_init}
+                # - {offset: 0x4, size: 0x4, value: 0x20203032, path: arch/mips/ralink/rt7620.c ,function: prom_soc_init}
+                # - {offset: 0x8, size: 0x4, value: 0x00100000, path: arch/mips/ralink/rt7620.c ,function: prom_soc_init}

@@ -1,0 +1,3 @@
+bootingcmd:
+    analyses: [DTPreprocessing, Preparation, PBtngCMD]
+    description: ''

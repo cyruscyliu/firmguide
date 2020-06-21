@@ -1,0 +1,1 @@
+../../../../examples/autoboard/hw/intc/autoboard_intc.c

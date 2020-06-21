@@ -47,4 +47,3 @@ def find_compatible_by_path(dts, path):
         return find_compatible_by_path(dts, ppath)
     else:
         return compatible.data
-

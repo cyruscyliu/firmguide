@@ -71,4 +71,3 @@ def load_dtb(path_to_dtb):
         dtb = f.read()
     dts = fdt.parse_dtb(dtb)
     return dts
-

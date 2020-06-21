@@ -1,485 +1,305 @@
 import os
-import abc
 import yaml
 
 from slcore.common import Common
+from slcore.compositor import Components
 from slcore.profile.kernel import KernelForFirmware
 from slcore.profile.openwrt import OpenWRTForFirmware
+from slcore.profile.statistics import StatisticsForFirmware
 
-PROFILE_ATTRIBUTES = ['c_cb']
 
-class Firmware(KernelForFirmware, OpenWRTForFirmware, Common):
+class Firmware(StatisticsForFirmware, KernelForFirmware,
+               OpenWRTForFirmware, Common):
     def __init__(self, *args, **kwargs):
-        # the following arguments will not go to your profile
-        # because they are dynamically resolved
-        self.size = None
-        self.working_dir = None  # /tmp
-        self.target_dir = None  # /tmp/uuid
-        self.working_path = None  # /tmp/uuid/xxx.bin
-
         self.analysis_progress = None  # /tmp/uuid/analyses
-        self.profile = None  # /tmp/uuid/profile.ext, dickt
-        self.profile_ext = 'yaml'
-        self.machine = None
-        self.board = None
 
-        self.stat_reference = \
-            yaml.safe_load(open(os.path.join(os.getcwd(), 'slcore/profile', 'stats.yaml')))
-        self.stat_summary = {}
-        self.path_to_summary = None  # /tmp/uuid/stats.yaml
-
+        self.profile = None
         self.components = None
-
-        self.dtb = None
-        self.dtc = None
-        self.c_cb = None
-
-        self.srcodec = None
-        self.qemuc = None
-        self.config = {}
-
         self.running_command = None
-        self.trace_format = None
-        self.path_to_trace = None
-        self.cancle_compilation = False
-        self.debug = False
 
-        # flags
-        self.do_not_diagnosis = False  # will stop early
-        self.max_iteration = 20  # stop at 20 iteration
-        self.rerun = False  # rerun inference analysis
+        self.path_to_profile = None  # path
+        self.realdtb = None  # path
+        self.realdts = None  # path
 
-    def snapshot(self, override=True):
-        self.save_profile(working_dir=self.get_target_dir())
-        self.info('snapshot', 'profile at {}'.format(self.path_to_profile), 1)
-        self.stats()
-        self.info('snapshot', 'statistics at {}'.format(self.path_to_summary), 1)
-        self.info('snapshot', 'dtb at {}'.format(self.dtb), 1)
-        self.info('snapshot', 'project at {}/project.yaml'.format(self.target_dir), 1)
-        self.info('snapshot', 'source at {}/qemu-4.0.0'.format(self.target_dir), 1)
-        return True
-
-    @abc.abstractmethod
-    def stats(self):
-        pass
-
-    def init_profile(self):
-        pass
-
-    @abc.abstractmethod
-    def print_profile(self):
-        pass
-
-    def get_target_dir(self):
-        return self.target_dir
-
-    def set_target_dir(self, target_dir):
-        self.target_dir = target_dir
-
-    def get_working_dir(self):
-        return self.working_dir
-
-    def set_working_dir(self, working_dir):
-        self.working_dir = working_dir
-
-    def get_working_path(self):
-        return self.working_path
-
-    def set_working_path(self, working_path):
-        self.working_path = working_path
-
-    def get_trace_format(self):
-        return self.trace_format
-
-    def set_trace_format(self, trace_format):
-        self.trace_format = trace_format
-
-    def get_path_to_trace(self):
-        return self.path_to_trace
-
-    def set_path_to_trace(self, path_to_trace):
-        self.path_to_trace = path_to_trace
-
+    # ######## components ########
     def get_components(self):
         return self.components
 
     def set_components(self, components):
         self.components = components
 
-    def get_qemuc(self):
-        return self.qemuc
+    def get_realdtb(self):
+        return self.realdtb
 
-    def set_qemuc(self, qemuc):
-        self.qemuc = qemuc
+    def set_realdtb(self, dtb):
+        self.realdtb = dtb
 
-    def get_srcodec(self):
-        return self.srcodec
+    def get_realdts(self):
+        return self.realdts
 
-    def set_qemuc(self, srcodec):
-        self.srcodec = srcodec
+    def set_realdts(self, dts):
+        self.realdts = dts
 
-    def get_dtb(self):
-        return self.dtb
-
-    def set_dtb(self, dtb):
-        self.dtb = dtb
-
-    @abc.abstractmethod
-    def set_arch(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_arch(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_endian(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_endian(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_brand(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_brand(self, *args, **kwargs):
-        pass
-
-    def set_profile(self, *args, **kwargs):
-        """
-        set_profile(profile)
-        set_profile(target_dir=target_dir, first=True)
-            load from file after create it
-        set_profile(target_dir=target_dir) *
-            load from file by default
-        set_profile(target_dir=target_dir, first=False) *
-            load from file by default
-        set_profile(path_to_profile=path_to_profile) **
-            load from the file assigned
-        set_profile(path_to_profile=path_to_profile, first=False) **
-            load from the file assigned
-        NOTE: * are same and ** are same.
-        """
-        first = kwargs.pop('first', False)
-        target_dir = kwargs.pop('target_dir', None)
-        path_to_profile = kwargs.pop('path_to_profile', None)
-
-        if len(args):
-            profile = args[0]
-        else:
-            profile = None
-
-        if profile is not None:
-            self.profile = profile
-            return
-
-        if target_dir is None:
-            self.path_to_profile = path_to_profile
-        else:
-            self.path_to_profile = os.path.join(target_dir, 'profile.yaml')
-
-        if first:
-            self.create_empty_profile()
-        self.load_from_profile()
-        self.init_profile()
-
-    @abc.abstractmethod
-    def is_empty_profile(self):
-        pass
-
-    @abc.abstractmethod
-    def create_empty_profile(self):
-        pass
-
-    @abc.abstractmethod
-    def load_from_profile(self):
-        pass
+    # ######### profile ##########
+    def set_profile(self, profile):
+        self.profile = profile
 
     def get_profile(self, *args, **kwargs):
         return self.profile
 
-    @abc.abstractmethod
-    def save_profile(self, *args, **kwargs):
-        pass
+    def create_empty_profile(self, path):
+        self.path_to_profile = os.path.join(path, 'profile.yaml')
+        with open(self.path_to_profile, 'w') as f:
+            yaml.safe_dump({}, f)
+        self.set_profile({})
 
-    @abc.abstractmethod
-    def get_dts(self, *args, **kwargs):
-        pass
+    def load_from_profile(self, path_to_profile):
+        self.path_to_profile = path_to_profile
+        with open(self.path_to_profile, 'r') as f:
+            profile = yaml.safe_load(f)
 
-    @abc.abstractmethod
-    def set_dts(self, *args, **kwargs):
-        pass
+        if 'components' in profile:
+            self.components = Components()
+            self.components.set_attributes(profile['components'])
+        if 'booting_command' in profile:
+            self.running_command = profile['booting_command']
+        self.set_profile(profile)
 
-    # components
-    @abc.abstractmethod
-    def set_path_to_vmlinux(self, *args, **kwargs):
-        pass
+    def save_profile(self):
+        if self.components:
+            self.profile['components'] = self.components.get_attributes()
+        if self.running_command:
+            self.profile['booting_command'] = self.running_command
 
-    @abc.abstractmethod
-    def get_path_to_vmlinux(self, *args, **kwargs):
-        pass
+        with open(self.path_to_profile, 'w') as f:
+            yaml.safe_dump(self.profile, f)
 
-    @abc.abstractmethod
-    def set_path_to_makeout(self, *args, **kwargs):
-        pass
+    # ######## setter and getter ########
+    def set_general(self, *levels, value=None):
+        # for loop not recursion
+        profile = self.profile
+        for level in levels[:-1]:
+            if level not in profile:
+                profile[level] = {}
+            profile = profile[level]
+        profile[levels[-1]] = value
 
-    @abc.abstractmethod
-    def get_path_to_makeout(self, *args, **kwargs):
-        pass
+    def get_general(self, *levels):
+        # for loop not recursion
+        profile = self.profile
+        for level in levels:
+            if level in profile:
+                profile = profile[level]
+            else:
+                profile = None
+                break
+        return profile
 
-    @abc.abstractmethod
-    def set_path_to_gcc(self, *args, **kwargs):
-        pass
+    # ######## basics ########
+    def get_board(self, *args, **kwargs):
+        return self.get_general('basics', 'board')
 
-    @abc.abstractmethod
-    def get_path_to_gcc(self, *args, **kwargs):
-        pass
+    def set_board(self, *args, **kwargs):
+        self.set_general('basics', 'board', value=args[0])
 
-    @abc.abstractmethod
-    def set_path_to_source_code(self, *args, **kwargs):
-        pass
+    def set_arch(self, *args, **kwargs):
+        self.set_general('basics', 'architecture', value=args[0])
 
-    @abc.abstractmethod
-    def get_path_to_source_code(self, *args, **kwargs):
-        pass
+    def get_arch(self, *args, **kwargs):
+        return self.get_general('basics', 'architecture')
 
-    @abc.abstractmethod
-    def set_path_to_llvm_bitcode(self, *args, **kwargs):
-        pass
+    def get_endian(self, *args, **kwargs):
+        return self.get_general('basics', 'endian')
 
-    @abc.abstractmethod
-    def get_path_to_llvm_bitcode(self, *args, **kwargs):
-        pass
+    def set_endian(self, *args, **kwargs):
+        self.set_general('basics', 'endian', value=args[0])
 
-    @abc.abstractmethod
-    def set_path_to_dot_config(self, *args, **kwargs):
-        pass
+    def get_brand(self, *args, **kwargs):
+        return self.get_general('basics', 'brand')
 
-    @abc.abstractmethod
-    def get_path_to_dot_config(self, *args, **kwargs):
-        pass
+    def set_brand(self, *args, **kwargs):
+        self.set_general('basics', 'brand', value=args[0])
 
-    # basics
-    @abc.abstractmethod
     def get_machine_description(self, *args, **kwargs):
-        pass
+        return self.get_general('basics', 'machine_description')
 
-    @abc.abstractmethod
     def set_machine_description(self, *args, **kwargs):
-        pass
+        self.set_general('basics', 'machine_description', value=args[0])
 
-    @abc.abstractmethod
     def get_machine_name(self, *args, **kwargs):
-        pass
+        return self.get_general('basics', 'machine_name')
 
-    @abc.abstractmethod
     def set_machine_name(self, *args, **kwargs):
-        pass
+        self.set_general('basics', 'machine_name', value=args[0])
 
-    @abc.abstractmethod
     def get_board_id(self, *args, **kwargs):
-        pass
+        return self.get_general('basics', 'board_id')
 
-    @abc.abstractmethod
     def set_board_id(self, *args, **kwargs):
-        pass
+        self.set_general('basics', 'board_id', value=args[0])
 
-    # ==== cpu ====
-    @abc.abstractmethod
-    def get_cpu_model(self, *args, **kwargs):
-        pass
+    def set_description(self, *args, **kwargs):
+        self.set_general('basics', 'description', value=args[0])
 
-    @abc.abstractmethod
-    def set_cpu_model(self, *args, **kwargs):
-        pass
+    def get_description(self, *args, **kwargs):
+        return self.get_general('basics', 'description')
 
-    def probe_cpu_pp_model(self, *args, **kwargs):
-        return self.get_cpu_pp_name() is not None
+    # ######## OpenWRT ########
+    def set_url(self, *args, **kwargs):
+        self.set_general('brand', 'url', value=args[0])
 
-    @abc.abstractmethod
-    def get_cpu_pp_name(self, *args, **kwargs):
-        pass
+    def get_url(self, *args, **kwargs):
+        return self.get_general('brand', 'url')
 
-    @abc.abstractmethod
-    def set_cpu_pp_name(self, *args, **kwargs):
-        pass
+    def set_homepage(self, *args, **kwargs):
+        self.set_general('brand', 'homepage', value=args[0])
 
-    @abc.abstractmethod
-    def get_cpu_pp_mmio_base(self, *args, **kwargs):
-        pass
+    def get_homepage(self, *args, **kwargs):
+        return self.get_general('brand', 'homepage')
 
-    @abc.abstractmethod
-    def set_cpu_pp_mmio_base(self, *args, **kwargs):
-        pass
+    def set_toh(self, *args, **kwargs):
+        toh = args[0]
+        assert isinstance(toh, list)
+        header = kwargs.pop('header', None)
+        if header is None:
+            return
+        for k, v in zip(header, toh):
+            self.set_general('brand', 'toh', k, value=v)
 
-    # ==== ram ====
-    @abc.abstractmethod
-    def get_ram_priority(self, *args, **kwargs):
-        pass
+    def get_toh(self, *args, **kwargs):
+        toh = []
+        for arg in args:
+            toh.append(self.get_general('brand', 'toh', arg))
+        return toh
 
-    @abc.abstractmethod
-    def set_ram_priority(self, *args, **kwargs):
-        pass
+    def get_revision(self, *args, **kwargs):
+        return self.get_general('brand', 'revision')
 
-    @abc.abstractmethod
-    def get_ram_base(self, *args, **kwargs):
-        pass
+    def set_revision(self, *args, **kwargs):
+        self.set_general('brand', 'revision', value=args[0])
 
-    @abc.abstractmethod
-    def set_ram_base(self, *args, **kwargs):
-        pass
+    def get_target(self, *args, **kwargs):
+        return self.get_general('brand', 'target')
 
-    @abc.abstractmethod
-    def get_ram_size(self, *args, **kwargs):
-        pass
+    def set_target(self, *args, **kwargs):
+        self.set_general('brand', 'target', value=args[0])
 
-    @abc.abstractmethod
-    def set_ram_size(self, *args, **kwargs):
-        pass
+    def get_subtarget(self, *args, **kwargs):
+        return self.get_general('brand', 'subtarget')
 
-    # ===== interrupt controller ====
-    def probe_interrupt_controller(self, *args, **kwargs):
-        return self.get_interrupt_controller_name() is not None
+    def set_subtarget(self, *args, **kwargs):
+        self.set_general('brand', 'subtarget', value=args[0])
 
-    @abc.abstractmethod
-    def get_interrupt_controller_name(self, *args, **kwargs):
-        pass
+    # ######## Linux Kernel ########
+    def get_kernel_load_address(self, *args, **kwargs):
+        return self.get_general('kernel', 'kernel_load_address')
 
-    @abc.abstractmethod
-    def set_interrupt_controller_name(self, *args, **kwargs):
-        pass
+    def set_kernel_load_address(self, *args, **kwargs):
+        self.set_general('kernel', 'kernel_load_address', value=args[0])
 
-    @abc.abstractmethod
-    def get_interrupt_controller_registers(self, *args, **kwargs):
-        pass
+    def get_kernel_version(self, *args, **kwargs):
+        return self.get_general('kernel', 'kernel_version')
 
-    @abc.abstractmethod
-    def set_interrupt_controller_registers(self, *args, **kwargs):
-        pass
+    def set_kernel_version(self, *args, **kwargs):
+        self.set_general('kernel', 'kernel_version', value=args[0])
 
-    @abc.abstractmethod
-    def get_interrupt_controller_mmio_size(self, *args, **kwargs):
-        pass
+    def get_kernel_created_time(self, *args, **kwargs):
+        return self.get_general('kernel', 'kernel_created_time')
 
-    @abc.abstractmethod
-    def set_interrupt_controller_mmio_size(self, *args, **kwargs):
-        pass
+    def set_kernel_created_time(self, *args, **kwargs):
+        self.set_general('kernel', 'kernel_created_time', value=args[0])
 
-    @abc.abstractmethod
-    def get_interrupt_controller_mmio_base(self, *args, **kwargs):
-        pass
+    def get_kernel_entry_point(self, *args, **kwargs):
+        return self.get_general('kernel', 'kernel_entry_point')
 
-    @abc.abstractmethod
-    def set_interrupt_controller_mmio_base(self, *args, **kwargs):
-        pass
+    def set_kernel_entry_point(self, *args, **kwargs):
+        self.set_general('kernel', 'kernel_entry_point', value=args[0])
 
-    @abc.abstractmethod
-    def set_timer_irq(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_timer_irq(self, *args, **kwargs):
-        pass
-
-    # ==== timer ====
-    def probe_timer(self, *args, **kwargs):
-        return self.get_timer_name() is not None
-
-    @abc.abstractmethod
-    def get_timer_name(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_timer_name(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_timer_registers(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_timer_register(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_timer_mmio_size(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_timer_mmio_size(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def get_timer_mmio_base(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def set_timer_mmio_base(self, *args, **kwargs):
-        pass
-
-    # ==== uart ====
-    def probe_uart(self, *args, **kwargs):
-        SERIAL_ATTRIBUTES = [
-            'id', 'name', 'base', 'size',
-            'reg_shift', 'baud_rate', 'irqn'
-        ]
-        return self.get_uart_num() > 0
-
-    # ==== flash ====
-    def probe_flash(self, *args, **kwargs):
-        FLASH_ATTRIBUTES = [
-            'id', 'name', 'base', 'size',
-            'type', 'interface', 'section_size'
-        ]
-        return self.get_flash_num() > 0
-
-    # ==== bamboo devices ====
-    @abc.abstractmethod
-    def get_bamboo_devices(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def print_bamboo_devices(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def load_bamboo_devices(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def update_bamboo_devices(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def insert_bamboo_devices(self, *args, **kwargs):
-        pass
-
-    # ==== mapping ====
-    @abc.abstractmethod
-    def set_va_pa_mapping(self, *args, **kwargs):
-        # va, pa, size
-        pass
-
-    @abc.abstractmethod
-    def get_va_pa_mapping(self, *args, **kwargs):
-        pass
-
-    # ==== runtime ==
-    @abc.abstractmethod
-    def set_iteration(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
+    # ######## runtime ########
     def get_iteration(self, *args, **kwargs):
-        pass
+        return self.get_general('runtime', 'iteration')
 
-    @abc.abstractmethod
-    def set_stage(self, *args, **kwargs):
-        pass
+    def set_iteration(self, *args, **kwargs):
+        self.set_general('runtime', 'iteration', value=args[0])
 
-    @abc.abstractmethod
     def get_stage(self, *args, **kwargs):
-        pass
+        # get_stage('user_mode')
+        return self.get_general('runtime', args[0])
+
+    def set_stage(self, *args, **kwargs):
+        # set_state(True, 'user_mode')
+        self.set_general('runtime', args[1], value=args[0])
+
+    # ######## statistics ########
+    def set_uart_num(self, *args, **kwargs):
+        self.set_general('statistics', 'uart', value=args[0])
+
+    def get_uart_num(self, *args, **kwargs):
+        uart_num = self.get_general('statistics', 'uart')
+        if uart_num is None:
+            self.set_uart_num(0)
+        return self.get_general('statistics', 'uart')
+
+    def get_crm_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'crm')
+        if num is None:
+            self.set_crm_num(0)
+        return self.get_general('statistics', 'crm')
+
+    def set_crm_num(self, *args, **kwargs):
+        self.set_general('statistics', 'crm', value=args[0])
+
+    def inc_crm_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'crm')
+        if num is None:
+            self.set_crm_num(1)
+        else:
+            self.set_crm_num(num + 1)
+
+    def get_smm_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'smm')
+        if num is None:
+            self.set_smm_num(0)
+        return self.get_general('statistics', 'smm')
+
+    def set_smm_num(self, *args, **kwargs):
+        self.set_general('statistics', 'smm', value=args[0])
+
+    def inc_smm_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'smm')
+        if num is None:
+            self.set_smm_num(1)
+        else:
+            self.set_smm_num(num + 1)
+
+    def get_mrm_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'mrm')
+        if num is None:
+            self.set_mrm_num(0)
+        return self.get_general('statistics', 'mrm')
+
+    def set_mrm_num(self, *args, **kwargs):
+        self.set_general('statistics', 'mrm', value=args[0])
+
+    def inc_mrm_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'mrm')
+        if num is None:
+            self.set_mrm_num(1)
+        else:
+            self.set_mrm_num(num + 1)
+
+    def get_iv_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'iv')
+        if num is None:
+            self.set_iv_num(0)
+        return self.get_general('statistics', 'iv')
+
+    def set_iv_num(self, *args, **kwargs):
+        self.set_general('statistics', 'iv', value=args[0])
+
+    def inc_iv_num(self, *args, **kwargs):
+        num = self.get_general('statistics', 'iv')
+        if num is None:
+            self.set_iv_num(1)
+        else:
+            self.set_iv_num(num + 1)

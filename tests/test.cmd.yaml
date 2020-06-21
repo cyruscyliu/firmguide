@@ -1,0 +1,14 @@
+create:
+    help: "Project - Create a project."
+    description: Salamander is a project-style tool.
+    optional:
+        name: {short: n, type: str, required: True,
+            help: "A name for this project. It can be any string you like except -."}
+    callback: project_create
+open:
+    help: "Project - Open a project."
+    description: Salamander is a project-style tool.
+    optional:
+        name: {short: n, type: str, required: True,
+            help: "A name for this project. It can be any string you like except -."}
+    callback: project_open

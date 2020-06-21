@@ -1,0 +1,12 @@
+compatible: ['serial,generic']
+name: serial_generic
+regs: [{base: 0xFFFF2000, size: 0x100}]
+intcp:
+    name: intc_generic
+    get_irqn: qdev_connect_gpio_in(DEVICE(&s->{{ intcp.name }}{{ iid }}), 0, {{ irqn }})
+    n_irq: 32
+irqn: 2 # for body not for connection
+sid: 0
+baud_rate: 115200
+reg_shift: 0
+endian: DEVICE_LITTLE_ENDIAN

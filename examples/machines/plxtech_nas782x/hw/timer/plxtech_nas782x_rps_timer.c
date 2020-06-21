@@ -14,10 +14,11 @@ static void plxtech_nas782x_rps_timer_tick_callback0(void *opaque)
 
     /* stupid timer */
     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
-    timer_mod(s->timer[0], 0x1000 + now); /* 1MHZ */
-    /* 1,000,000HZ -> 100HZ */
-    if (s->counter[0] % 10000 == 0)
+    timer_mod(s->timer[0], 1000000000 / 390625 + now); /* 390625HZ */
+    /* 390625HZ -> 100HZ */
+    if (s->counter[0] % (390625 / 100) == 0)
         qemu_set_irq(s->irq[0], 1);
+    s->counter[0] &= ((1 << 24) - 1);
     s->counter[0]++;
 }
 
@@ -37,6 +38,7 @@ static uint64_t plxtech_nas782x_rps_timer_read(void *opaque, hwaddr offset, unsi
             return 0;
         case 0x24:
             res = s->counter[0];
+            res = ~res;
             break;
     }
     return res;
@@ -49,7 +51,7 @@ static void plxtech_nas782x_rps_timer_write(void *opaque, hwaddr offset, uint64_
     switch (offset) {
         default:
             return;
-        case 0x0 ... 0x40 - 0x4:
+        case 0x0 ... 0x3c:
             s->reserved = val;
             break;
     }
@@ -110,4 +112,3 @@ static void plxtech_nas782x_rps_timer_register_types(void)
 }
 
 type_init(plxtech_nas782x_rps_timer_register_types)
-

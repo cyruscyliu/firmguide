@@ -1,17 +1,16 @@
 from unittest import TestCase
-from slcore.srcodec import SRCodeController
-from settings import *
+from slcore.srcodecontroller import SRCodeController
 
 import os
-import sys
+
 
 class TestSRCodeController(TestCase):
     def test_get_funccalls(self):
         srcodec = SRCodeController()
-        srcodec.set_path_to_source_code(BASE_DIR)
+        srcodec.set_path_to_source_code(os.path.dirname(__file__))
 
         # test 1
-        test_1 = os.path.join('tests/srcodec_setup.i')
+        test_1 = 'srcodec_setup.i'
 
         test_1_1 = srcodec.get_funccalls(test_1, 'plat_time_init', mode='sparse')
         self.assertEqual(
@@ -27,7 +26,7 @@ class TestSRCodeController(TestCase):
         )
 
         # test 2
-        test_2 = os.path.join('tests/srcodec_irq.i')
+        test_2 = os.path.join('srcodec_irq.i')
         test_2_1 = srcodec.get_funccalls(test_2, 'arch_init_irq', mode='sparse')
         self.assertEqual(
             ['__builtin_unreachable', 'ath79_misc_irq_init', 'ar934x_ip2_irq_init',
@@ -37,10 +36,10 @@ class TestSRCodeController(TestCase):
 
     def test_get_globals(self):
         srcodec = SRCodeController()
-        srcodec.set_path_to_source_code(BASE_DIR)
+        srcodec.set_path_to_source_code(os.path.dirname(__file__))
 
         # test 2
-        test_2 = os.path.join('tests/srcodec_irq.i')
+        test_2 = os.path.join('srcodec_irq.i')
         test_2_1 = srcodec.get_globals(test_2, 'arch_init_irq', mode='sparse')
         self.assertEqual({
             'dummy_irq_chip': ['load'],
@@ -51,4 +50,3 @@ class TestSRCodeController(TestCase):
             'ath79_ip3_handler': ['store', 'store', 'store', 'store', 'store', 'store', 'store', 'store'],
             'cp0_perfcount_irq': ['store']
         }, test_2_1)
-

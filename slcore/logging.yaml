@@ -3,7 +3,6 @@ disable_existing_loggers: False
 formatters:
   simple:
     format: "%(asctime)s - %(levelname)s - %(message)s"
-
 handlers:
   console:
     class: logging.StreamHandler
@@ -13,10 +12,8 @@ handlers:
     class: logging.FileHandler
     level: DEBUG
     formatter: simple
-    filename: ./log/salamander.log
     encoding: utf8
     mode: w
-
 root:
   level: INFO
   handlers: [console, file]

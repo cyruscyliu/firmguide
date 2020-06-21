@@ -59,7 +59,7 @@ def find_parent_offset(dts, path, x, fx, debug=False):
             print('[+] {} range cells: {:x} {:x} {:x}'.format(
                 path, local_address_cells, parent_address_cells, local_size_cells))
         bank_size = \
-            (local_address_cells + parent_address_cells + local_size_cells )
+            (local_address_cells + parent_address_cells + local_size_cells)
         fx_parent = {}
         for i in range(0, len(ranges) // bank_size):
             if debug:
@@ -133,7 +133,7 @@ def find_flatten_mmio_in_fdt(dts, memory=False):
     Returns:
         list: A list of mmio regions in the machine. For example:
         [{'compatible': ['example,mmio'], 'path': /example/mmio,
-        'regs': [{'base': 0xFFFF0000, 'size': 0x10000}]}]
+        'regs': [{'base': 0xFFFF0000, 'size': 0x10000, 'priority': 0}]}]
     """
     top_address_cells = dts.get_property('#address-cells', '/').data[0]
     top_size_cells = dts.get_property('#size-cells', '/').data[0]
@@ -188,7 +188,8 @@ def find_flatten_mmio_in_fdt(dts, memory=False):
             # sometimes we get a size 0xffffffff...
             if base + size > (1 << 32):
                 size = (1 << 32) - base
-            mmio[pa]['regs'].append({'base': base, 'size': size})
+            mmio[pa]['regs'].append(
+                {'base': base, 'size': size, 'priority': 0})
 
     flatten_mmio = []
     for k, v in mmio.items():
@@ -196,6 +197,31 @@ def find_flatten_mmio_in_fdt(dts, memory=False):
         flatten_mmio.append(v)
 
     return flatten_mmio
+
+
+def merge_flatten_mmio(flatten_mmio):
+    """Merge flatten mmio regions with same compatible."""
+    merged_flatten_mmio = []
+
+    compatibles = []
+    for mmio in flatten_mmio:
+        if 'simple-bus' in mmio['compatible']:
+            mmio['compatible'].remove('simple-bus')
+        if 'syscon' in mmio['compatible']:
+            mmio['compatible'].remove('syscon')
+        if mmio['compatible'] not in compatibles:
+            compatibles.append(mmio['compatible'])
+            merged_flatten_mmio.append(mmio)
+        else:
+            index = compatibles.index(mmio['compatible'])
+            merged_flatten_mmio[index]['regs'].extend(mmio['regs'])
+            merged_flatten_mmio[index]['regs'] = \
+                [dict(t) for t in {tuple(d.items()) for d in
+                                   merged_flatten_mmio[index]['regs']}]
+            merged_flatten_mmio[index]['regs'] = \
+                sorted(merged_flatten_mmio[index]['regs'],
+                       key=lambda x: x['base'])
+    return merged_flatten_mmio
 
 
 def find_flatten_mmio(path_to_dtb):
@@ -209,4 +235,3 @@ def find_flatten_mmio(path_to_dtb):
     """
     dts = load_dtb(path_to_dtb)
     return find_flatten_mmio_in_fdt(dts)
-

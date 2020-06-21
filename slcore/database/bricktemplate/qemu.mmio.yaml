@@ -1,0 +1,1127 @@
+168c,0030:
+  buddy_compatible: []
+  extend: mmio,generic
+arm,primecell:
+  buddy_compatible: ['arm,pl18x']
+  extend: mmio,generic
+atmel,at91rm9200-gpio:
+  buddy_compatible: ['atmel,at91sam9x5-gpio']
+  extend: mmio,generic
+atmel,at91rm9200-i2c:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91rm9200-rtc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91rm9200-spi:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91rm9200-ssc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91rm9200-tcb:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91rm9200-udc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91rm9200-usart:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9260-adc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9260-i2c:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9260-rstc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9260-rtt:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9260-sdramc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9260-shdwc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9260-udc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9260-usart:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9260-wdt:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9261-i2c:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9261-lcdc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9261-udc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9263-ac97c:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9263-can:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9263-lcdc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9263-udc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9g10-i2c:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9g20-i2c:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9g45-adc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9g45-ddramc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9g45-dma:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9g45-isi:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9g45-lcdc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9g45-rstc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9g45-ssc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9g45-trng:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9g45-udc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9n12-hlcdc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9rl-adc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9rl-dma:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9rl-lcdc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9rl-pwm:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9rl-shdwc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9rl-ssc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9rl-udc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9x5-adc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9x5-can:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9x5-hlcdc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9x5-i2c:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9x5-rtc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9x5-sckc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9x5-shdwc:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,at91sam9x5-tcb:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,hsmci:
+  buddy_compatible: []
+  extend: mmio,generic
+atmel,sama5d3-rstc:
+  buddy_compatible: []
+  extend: mmio,generic
+brcm,bcm4708-sysram:
+  buddy_compatible: []
+  extend: mmio,generic
+brcm,bus-axi:
+  buddy_compatible: []
+  extend: mmio,generic
+cdns,emac:
+  buddy_compatible: ['cdns,at91rm9200-emac']
+  extend: mmio,generic
+cdns,macb:
+  buddy_compatible: ['cdns,at91sam9260-macb']
+  extend: mmio,generic
+chipidea,usb2:
+  buddy_compatible: []
+  extend: mmio,generic
+ehci-platform:
+  buddy_compatible: ['ralink,rt3xxx-ehci']
+  extend: mmio,generic
+en25q32b:
+  buddy_compatible: []
+  extend: mmio,generic
+en25q64:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,bman:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,bman-portal:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,cpm-muram-data:
+  buddy_compatible: ['fsl,qe-muram-data']
+  extend: mmio,generic
+fsl,esdhc:
+  buddy_compatible: ['fsl,ls1021a-esdhc']
+  extend: mmio,generic
+fsl,etsec-ptp:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,etsec2:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,fman-bmi:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,fman-dma:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,fman-fpm:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,fman-keygen:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,fman-memac:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,fman-muram:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,fman-parser:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,fman-policer:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,fman-port-10g-rx:
+  buddy_compatible: ['fsl,fman-v3-port-rx']
+  extend: mmio,generic
+fsl,fman-port-10g-tx:
+  buddy_compatible: ['fsl,fman-v3-port-tx']
+  extend: mmio,generic
+fsl,fman-port-oh:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,fman-qmi:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,fman-vsps:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,fman-xmdio:
+  buddy_compatible: ['fsl,fman-memac-mdio']
+  extend: mmio,generic
+fsl,imx21-wdt:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1012a:
+  buddy_compatible: ['fsl,ls1012a-rdb']
+  extend: mmio,generic
+fsl,ls1012a-clockgen:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1012a-ftm:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1012a-msi:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1021a-ahci:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1021a-clockgen:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1021a-dcu:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1021a-ftm:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1021a-lpuart:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1021a-msi:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1021a-qdma:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1021a-qspi:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1021a-v1.0-dspi:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1021ar2-flexcan:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1043a-ahci:
+  buddy_compatible: ['fsl,ls1012a-ahci']
+  extend: mmio,generic
+fsl,ls1043a-clockgen:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1043a-ftm:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1043a-msi:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,ls1043ardb-cpld:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,pfe:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,qman:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,qman-portal:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,qoriq-gpio:
+  buddy_compatible: ['fsl,ls1021a-gpio']
+  extend: mmio,generic
+fsl,qoriq-memory-controller:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,qoriq-rcpm-2.1:
+  buddy_compatible: ['fsl,ls1012a-rcpm']
+  extend: mmio,generic
+fsl,qoriq-tmu:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,sec-v4.0:
+  buddy_compatible: ['fsl,sec-v5.0']
+  extend: mmio,generic
+fsl,sec-v4.0-job-ring:
+  buddy_compatible: ['fsl,sec-v5.0-job-ring']
+  extend: mmio,generic
+fsl,sec-v4.0-mon:
+  buddy_compatible: ['fsl,sec-v5.4-mon', 'fsl,sec-v5.0-mon']
+  extend: mmio,generic
+fsl,sec-v4.0-rtic:
+  buddy_compatible: ['fsl,sec-v5.4-rtic', 'fsl,sec-v5.0-rtic']
+  extend: mmio,generic
+fsl,sec-v4.0-rtic-memory:
+  buddy_compatible: ['fsl,sec-v5.4-rtic-memory', 'fsl,sec-v5.0-rtic-memory']
+  extend: mmio,generic
+fsl,t1040-qe-si:
+  buddy_compatible: ['fsl,ls1043-qe-si']
+  extend: mmio,generic
+fsl,t1040-qe-siram:
+  buddy_compatible: ['fsl,ls1043-qe-siram']
+  extend: mmio,generic
+fsl,ucc-hdlc:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,vf610-edma:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,vf610-i2c:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl,vf610-sai:
+  buddy_compatible: []
+  extend: mmio,generic
+fsl-usb2-dr:
+  buddy_compatible: [fsl-usb2-dr-v2.5]
+  extend: mmio,generic
+gd25q64:
+  buddy_compatible: []
+  extend: mmio,generic
+generic-ahci:
+  buddy_compatible: ['qcom,ipq806x-ahci']
+  extend: mmio,generic
+generic-ehci:
+  buddy_compatible: []
+  extend: mmio,generic
+generic-ohci:
+  buddy_compatible: []
+  extend: mmio,generic
+gianfar:
+  buddy_compatible: []
+  extend: mmio,generic
+inxp,pcf8574a:
+  buddy_compatible: []
+  extend: mmio,generic
+jedec,spi-nor:
+  buddy_compatible: []
+  extend: mmio,generic
+linux,spidev:
+  buddy_compatible: []
+  extend: mmio,generic
+m25p80:
+  buddy_compatible: [f25l32pa]
+  extend: mmio,generic
+marvell,88e6171:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,88f6192-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,88f6281-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,88f6282-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,98dx4122-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-audio:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-cache:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-core-clock:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-crypto:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-gating-clock:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-mbus:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-pcie:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,kirkwood-thermal:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,mbus-controller:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,mv64xxx-i2c:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,mvebu-sata-phy:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-ehci:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-gpio:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-mdio:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-rtc:
+  buddy_compatible: ['marvell,kirkwood-rtc']
+  extend: mmio,generic
+marvell,orion-sata:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-sdio:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-spi:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-system-controller:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-wdt:
+  buddy_compatible: []
+  extend: mmio,generic
+marvell,orion-xor:
+  buddy_compatible: []
+  extend: mmio,generic
+mdio-mux-mmioreg:
+  buddy_compatible: []
+  extend: mmio,generic
+mediatek,mt7620-pci:
+  buddy_compatible: []
+  extend: mmio,generic
+mediatek,mt7620-usbphy:
+  buddy_compatible: ['mediatek,mt7628-usbphy']
+  extend: mmio,generic
+mediatek,mt7621-i2c:
+  buddy_compatible: []
+  extend: mmio,generic
+mediatek,mt7621-pci:
+  buddy_compatible: []
+  extend: mmio,generic
+mediatek,mt7621-wdt:
+  buddy_compatible: ['ralink,mt7628an-wdt']
+  extend: mmio,generic
+mediatek,mt7628-i2s:
+  buddy_compatible: []
+  extend: mmio,generic
+mediatek,mt7628-pwm:
+  buddy_compatible: []
+  extend: mmio,generic
+mediatek,mt7628-wmac:
+  buddy_compatible: []
+  extend: mmio,generic
+mmio,generic:
+  get_body: ['memory_region_init_io(&s->{{ name }}{{ id }}_mmio, NULL, &{{ name }}_ops{{
+      id }}, s, TYPE_{{ machine_name|to_upper }}, {{ reg.size|to_hex }});', 'memory_region_add_subregion_overlap(get_system_memory(),
+      {{ reg.base|to_hex }}, &s->{{ name }}{{ id }}_mmio, {{ reg.priority }});']
+  get_connection: []
+  get_field: ['MemoryRegion {{ name }}{{ id }}_mmio;']
+  get_header: []
+  get_reserved: ['uint32_t {{ name }}{{ id }}_reserved[{{ reg.size|to_hex }} >> 2];']
+  get_reset: ['s->{{ name }}{{ id }}_reserved[{{ register.offset|to_hex }} >> 2] =
+      {{ register.value|to_hex }};']
+  get_suite: ["static void {{ name }}{{ id }}_update(void *opaque)\n{\n    /* {{ machine_name|to_upper\
+      \ }}State *s = opaque; */\n}\n\nstatic uint64_t {{ name }}{{ id }}_read(void\
+      \ *opaque, hwaddr offset, unsigned size)\n{\n    {{ machine_name|to_upper }}State\
+      \ *s = opaque;\n    uint32_t res = 0;\n\n    switch (offset) {\n    default:\n\
+      \        qemu_log_mask(LOG_GUEST_ERROR, \"%s: Bad offset %\"HWADDR_PRIx\"\\\
+      n\", __func__, offset);\n        return 0;\n    case {{ reg.size|to_offset }}:\n\
+      \        res = s->{{ name }}{{ id }}_reserved[offset >> 2];\n        break;\n\
+      \    }\n    return res;\n}\n\nstatic void {{ name }}{{ id }}_write(void *opaque,\
+      \ hwaddr offset, uint64_t val, unsigned size)\n{\n    {{ machine_name|to_upper\
+      \  }}State *s = opaque;\n\n    switch (offset) {\n    default:\n        qemu_log_mask(LOG_GUEST_ERROR,\
+      \ \"%s: Bad offset %\"HWADDR_PRIx\"\\n\", __func__, offset);\n        return;\n\
+      \    case {{ reg.size|to_offset }}:\n        s->{{ name }}{{ id }}_reserved[offset\
+      \ >> 2] = val;\n        break;\n    }\n    {{ name }}{{ id }}_update(s);\n}\n\
+      \nstatic const MemoryRegionOps {{ name }}_ops{{ id }} = {\n    .read = {{ name\
+      \ }}{{ id }}_read,\n    .write = {{ name }}{{ id }}_write,\n    .endianness\
+      \ = {{ endian|to_endian }},\n};"]
+  parameters: [name, regs, endian]
+mmio-sram:
+  buddy_compatible: []
+  extend: mmio,generic
+mtk,mt7621-gpio:
+  buddy_compatible: ['mtk,mt7628-gpio']
+  extend: mmio,generic
+mtk,mt7621-memc:
+  buddy_compatible: []
+  extend: mmio,generic
+mtk,mt7621-nand:
+  buddy_compatible: []
+  extend: mmio,generic
+mtk,mt7621-sysc:
+  buddy_compatible: []
+  extend: mmio,generic
+mtk,mt7621-wdt:
+  buddy_compatible: ['ralink,mt7628an-wdt']
+  extend: mmio,generic
+mx25l12805d:
+  buddy_compatible: []
+  extend: mmio,generic
+mx25l25635e:
+  buddy_compatible: []
+  extend: mmio,generic
+mx25l3205d:
+  buddy_compatible: []
+  extend: mmio,generic
+mx25l6405d:
+  buddy_compatible: []
+  extend: mmio,generic
+national,lm92:
+  buddy_compatible: []
+  extend: mmio,generic
+ohci-platform:
+  buddy_compatible: ['ralink,rt3xxx-ohci']
+  extend: mmio,generic
+pci168c,0029:
+  buddy_compatible: []
+  extend: mmio,generic
+pci168c,002a:
+  buddy_compatible: []
+  extend: mmio,generic
+pci168c,002b:
+  buddy_compatible: []
+  extend: mmio,generic
+pci168c,002e:
+  buddy_compatible: []
+  extend: mmio,generic
+pci168c,0030:
+  buddy_compatible: []
+  extend: mmio,generic
+pci168c,0033:
+  buddy_compatible: []
+  extend: mmio,generic
+pci168c,003c:
+  buddy_compatible: []
+  extend: mmio,generic
+pci168c,0056:
+  buddy_compatible: []
+  extend: mmio,generic
+pciclass0604:
+  buddy_compatible: ['ralink,rt2880-pci', pciclass060400]
+  extend: mmio,generic
+pinctrl-single:
+  buddy_compatible: []
+  extend: mmio,generic
+plxtech,nas782x-ehci:
+  buddy_compatible: []
+  extend: mmio,generic
+plxtech,nas782x-gpio:
+  buddy_compatible: []
+  extend: mmio,generic
+plxtech,nas782x-pcie:
+  buddy_compatible: []
+  extend: mmio,generic
+plxtech,nas782x-plla:
+  buddy_compatible: []
+  extend: mmio,generic
+plxtech,nas782x-pllb:
+  buddy_compatible: []
+  extend: mmio,generic
+plxtech,nas782x-reset:
+  buddy_compatible: []
+  extend: mmio,generic
+plxtech,nas782x-sata:
+  buddy_compatible: []
+  extend: mmio,generic
+pm25lq032:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-ddr-controller:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-gpio:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-pci:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-pll:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-reset:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-spi:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7100-usb-phy:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7130-wdt:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7200-usb-phy:
+  buddy_compatible: ['qca,qca9550-usb-phy']
+  extend: mmio,generic
+qca,ar7240-ddr-controller:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7240-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7240-pll:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7241-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar7242-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9130-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9130-pll:
+  buddy_compatible: ['qca,ar9132-pll']
+  extend: mmio,generic
+qca,ar9130-wmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9330-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9330-gmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9330-pll:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9330-uart:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9330-wmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9340-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9340-gmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9340-gpio:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9340-pll:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ar9340-wmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,ath79-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9530-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9530-pll:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9530-wmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9550-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9550-gmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9550-pll:
+  buddy_compatible: ['qca,ar9557-pll']
+  extend: mmio,generic
+qca,qca9550-wmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9560-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9560-gmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9560-pll:
+  buddy_compatible: []
+  extend: mmio,generic
+qca,qca9560-wmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,adm:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,adreno-3xx:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,apq8064:
+  buddy_compatible: ['qcom,apq8064-ifc6410']
+  extend: mmio,generic
+qcom,apq8064-iommu:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,apq8064-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,apq8064-sata-phy:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,apq8074:
+  buddy_compatible: ['qcom,apq8074-dragonboard']
+  extend: mmio,generic
+qcom,apq8084:
+  buddy_compatible: ['qcom,apq8084-sbc']
+  extend: mmio,generic
+qcom,ar7240-pci:
+  buddy_compatible: ['qcom,ar9340-pci']
+  extend: mmio,generic
+qcom,bam-v1.3.0:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,bam-v1.4.0:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,bam-v1.7.0:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,ci-hdrc:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,crypto-v5.1:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,dsi-phy-28nm-8960:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,dwc3-hs-usb-phy:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,dwc3-ss-usb-phy:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,gcc-apq8064:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,gcc-apq8084:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,gcc-ipq4019:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,gcc-ipq8064:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,gcc-msm8660:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,gcc-msm8960:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,gcc-msm8974:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,gsbi-v1.0.0:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,hdmi-phy-8960:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,hdmi-tx-8960:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,i2c-qup-v1.1.1:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,i2c-qup-v2.1.1:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,i2c-qup-v2.2.1:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,ipq4019-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,ipq4019-wifi:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,ipq8064-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,ipq8064-tsens:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,ipq806x-gmac:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,ipq806x-sata-phy:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,kpss-acc-v1:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,kpss-acc-v2:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,kpss-wdt-ipq4019:
+  buddy_compatible: ['qcom,kpss-wdt']
+  extend: mmio,generic
+qcom,lcc-apq8064:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,lcc-ipq8064:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,lcc-msm8960:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,lpass-cpu:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,mdp4:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,mdss-dsi-ctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,mmcc-apq8064:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,mmcc-msm8960:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,mmcc-msm8974:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,msm-uartdm:
+  buddy_compatible: ['qcom,msm-uartdm-v1.3']
+  extend: mmio,generic
+qcom,msm8660-ebi2:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,msm8660-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,msm8960-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,msm8974:
+  buddy_compatible: ['lge,hammerhead']
+  extend: mmio,generic
+qcom,msm8974-pinctrl:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,msm8974-tsens:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,nandcs:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,pcie-ipq8064:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,prng:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,pshold:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,qfprom:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,riva-pil:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,rpm-apq8064:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,rpm-ipq8064:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,rpm-msg-ram:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,rpm-msm8660:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,rpm-msm8960:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,saw2:
+  buddy_compatible: ['qcom,apq8064-saw2-v1.1-cpu']
+  extend: mmio,generic
+qcom,sdhci-msm-v4:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,spi-qup-v1.1.1:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,spi-qup-v2.2.1:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,spmi-pmic-arb:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,ssbi:
+  buddy_compatible: []
+  extend: mmio,generic
+qcom,tcsr:
+  buddy_compatible: []
+  extend: mmio,generic
+qnap,power-off:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,eth-port:
+  buddy_compatible: ['ralink,rt3883-port']
+  extend: mmio,generic
+ralink,i2c-mt7621:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7620-sdhci:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7620a-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7620a-gsw:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7620a-i2s:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7620a-pcm:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7620a-sysc:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7621-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,mt7621-spi:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt2880-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt2880-gdma:
+  buddy_compatible: ['ralink,mt7620a-gdma']
+  extend: mmio,generic
+ralink,rt2880-gpio:
+  buddy_compatible: ['ralink,rt3883-gpio']
+  extend: mmio,generic
+ralink,rt2880-i2c:
+  buddy_compatible: ['link,rt5350-i2c']
+  extend: mmio,generic
+ralink,rt2880-memc:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt2880-spi:
+  buddy_compatible: ['ralink,rt3883-spi']
+  extend: mmio,generic
+ralink,rt2880-sysc:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt2880-wdt:
+  buddy_compatible: ['ralink,rt3883-wdt']
+  extend: mmio,generic
+ralink,rt2880-wmac:
+  buddy_compatible: ['ralink,rt3883-wmac']
+  extend: mmio,generic
+ralink,rt288x-pci:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt3050-esw:
+  buddy_compatible: []
+  external: true
+  external_header: examples/hardware/ralink_rt3050_esw/include/hw/net/ralink_rt3050_esw.h
+  external_source: examples/hardware/ralink_rt3050_esw/hw/net/ralink_rt3050_esw.c
+  external_type: net
+  get_body: ['object_initialize(&s->ralink_rt3050_esw{{ id }}, sizeof(s->ralink_rt3050_esw{{
+      id }}), TYPE_RALINK_RT3050_ESW);', 'qdev_set_parent_bus(DEVICE(&s->ralink_rt3050_esw{{
+      id }}), sysbus_get_default());', 'object_property_set_bool(OBJECT(&s->ralink_rt3050_esw{{
+      id }}), true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->ralink_rt3050_esw{{
+      id }}), 0, {{ reg.base|to_hex }});']
+  get_connection: []
+  get_field: ['RALINK_RT3050_ESWState ralink_rt3050_esw{{ id }};']
+  get_header: [hw/net/ralink_rt3050_esw.h]
+ralink,rt3050-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt3050-memc:
+  buddy_compatible: ['ralink,rt3883-memc']
+  extend: mmio,generic
+ralink,rt3050-sysc:
+  buddy_compatible: ['ralink,rt3883-sysc']
+  extend: mmio,generic
+ralink,rt3883-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt3883-gdma:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt3883-pci:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt3xxx-ehci:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt3xxx-ohci:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt5350-eth:
+  buddy_compatible: []
+  extend: mmio,generic
+ralink,rt5350-spi:
+  buddy_compatible: []
+  extend: mmio,generic
+ramoops:
+  buddy_compatible: []
+  extend: mmio,generic
+s25fl064k:
+  buddy_compatible: []
+  extend: mmio,generic
+s25fl129p1:
+  buddy_compatible: []
+  extend: mmio,generic
+simple-bus:
+  buddy_compatible: ['fsl,ifc']
+  extend: mmio,generic
+simple-mfd:
+  buddy_compatible: []
+  extend: mmio,generic
+smsc,lan9115:
+  buddy_compatible: ['smsc,lan9221']
+  extend: mmio,generic
+snps,dw-pcie:
+  buddy_compatible: ['qcom,pcie-apq8064']
+  extend: mmio,generic
+snps,dwc2:
+  buddy_compatible: ['ralink,rt3050-otg']
+  extend: mmio,generic
+snps,dwc3:
+  buddy_compatible: []
+  extend: mmio,generic
+snps,dwmac:
+  buddy_compatible: ['plxtech,nas782x-gmac']
+  extend: mmio,generic
+sst,sst25vf040b:
+  buddy_compatible: []
+  extend: mmio,generic
+synology,power-off:
+  buddy_compatible: []
+  extend: mmio,generic
+syscon:
+  buddy_compatible: ['atmel,at91sam9x5-pmc']
+  extend: mmio,generic
+usb-ehci:
+  buddy_compatible: ['atmel,at91sam9g45-ehci']
+  extend: mmio,generic
+usb-ohci:
+  buddy_compatible: ['atmel,at91rm9200-ohci']
+  extend: mmio,generic
+w25q128:
+  buddy_compatible: []
+  extend: mmio,generic
+w25q256:
+  buddy_compatible: []
+  extend: mmio,generic
+w25q32:
+  buddy_compatible: []
+  extend: mmio,generic
+w25q64:
+  buddy_compatible: []
+  extend: mmio,generic
+xen,xen:
+  buddy_compatible: ['xen,xen-4.2']
+  extend: mmio,generic
+xhci-platform:
+  buddy_compatible: []
+  extend: mmio,generic

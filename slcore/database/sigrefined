@@ -1,0 +1,5008 @@
+d2 d3 cc d9 dummy
+r0 r1 r2 r3 off r4 full l2 r5 r6
+wp ON cd
+reg none ssi up lr r7
+csi gpio dma hold str
+ED Unknown GPL v2
+ip on spi uart audio cfi_probe gpt
+rng serial8250 left down config sync internal platform momdel UNKNOWN irda
+
+hardware.h
+hardware.h
+hardware.h
+hardware.h
+hardware.h
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+%s: could not map scu registers\n
+%s: ncores %d\n
+%s: missing scu\n
+%s: missing scu\n
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+mmio-sram
+cpu-release-addr
+
+
+
+
+
+
+
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+.arch_extension sec\n
+%0
+property\n
+imprecise external abort
+failed to remap watchdog regs
+r0
+r0
+SMP: %u cores greater than maximum (%u), clipping\n
+r1
+r1
+unable to setup watchdog restart
+r3
+r2
+r2
+/cpus
+%1
+reg
+reg
+reg
+reg
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+%2
+%3
+
+
+
+
+
+
+
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+timer
+timer
+timer
+timer
+timer
+core.h
+core.h
+core.h
+core.h
+core.h
+core.h
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+uboot
+uboot
+uboot
+uboot
+imprecise external abort
+powering system down...\n
+kernel
+kernel
+kernel
+kernel
+kernel
+filesystem
+filesystem
+filesystem
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+cc
+cc
+cc
+cc
+cc
+cc
+mrc p15, 4, %0, c15, c0, 0
+mrc p15, 4, %0, c15, c0, 0
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+core.h
+core.h
+core.h
+core.h
+core.h
+core.h
+mcr	p15, 1, %0, c15, c0, 3 \n\t
+isb	\n\t
+=&r
+=&r
+=&r
+=&r
+=&r
+%s: boot CPU is out of bound!\n
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+core.h
+core.h
+core.h
+core.h
+core.h
+core.h
+dsb
+dsb
+mcr	p15, 0, %0, c1, c0, 0\n
+cc
+cc
+cc
+cc
+cc
+cc
+mrc	p15, 0, %0, c1, c0, 1\n
+cpu %d unexpectedly exit from shutdown\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+Cluster %d CPU%d boots multiple times\n
+mrc	p15, 0, %0, c1, c0, 0\n
+mcr	p15, 0, %0, c1, c0, 1\n
+mx3_sdc_fb
+gpio-keys
+gpio-keys
+gpio-keys
+mxc_rnga
+mxc-ehci
+mxc-ehci
+mxc-ehci
+ipu-core
+mx3-camera
+mxc_w1
+mxc_w1
+arm,core-module-integrator
+cm.h
+uart0
+uart0
+uart0
+uart0
+GPL
+GPL
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+hardware.h
+hardware.h
+hardware.h
+hardware.h
+hardware.h
+arm,primecell
+arm,primecell
+mmci
+uart1
+uart1
+uart1
+uart1
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+platform.h
+platform.h
+platform.h
+platform.h
+platform.h
+platform.h
+platform.h
+platform.h
+platform.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+
+
+
+
+
+
+
+%s\n
+%s\n
+kirkwood.h
+arm,cortex-a5-scu
+arm,cortex-a5-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+wfi
+no memory resource defined\n
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+bootloader
+bootloader
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+smc91x
+smc91x
+filesystem
+filesystem
+filesystem
+timer
+timer
+timer
+timer
+timer
+clock.h
+clock.h
+clock.h
+onenand-flash
+GPL
+GPL
+kernel
+kernel
+kernel
+kernel
+kernel
+hardware.h
+hardware.h
+hardware.h
+hardware.h
+hardware.h
+(dev %#x rev %#x)\n
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+bridge-regs.h
+%s
+%s
+%s
+ds1338
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+mpp.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+tclk
+device_type
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+Failed to suspend the system\n
+kirkwood.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+r0
+r0
+r1
+r1
+Ir
+Ir
+Ir
+Ir
+Ir
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,pl310-cache
+memory
+memory
+memory
+memory
+local-mac-address
+linux,usable-memory
+reg
+reg
+reg
+reg
+gpio-3
+gpio-3
+gpio-3
+ssi
+crm_regs.h
+crm_regs.h
+crm_regs.h
+imx-uart.0
+imx-uart.0
+imx-uart.0
+imx-uart.0
+gpio-1
+gpio-1
+gpio-1
+gpio-1
+imx-i2c.0
+imx-i2c.0
+imx-i2c.0
+dma
+dma
+dma
+imx-uart.2
+imx-uart.2
+imx-uart.2
+imx-uart.2
+spi_imx.0
+spi_imx.0
+spi_imx.0
+spi_imx.0
+gpio-2
+gpio-2
+gpio-2
+gpio-2
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+imx-i2c
+imx-i2c
+imx-i2c
+dm9000
+dm9000
+gpt
+mshc
+imx-fb.0
+gpio-0
+gpio-0
+gpio-0
+gpio-0
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+imx-uart
+imx-uart
+imx-uart
+imx-uart
+imx-uart.1
+imx-uart.1
+imx-uart.1
+imx-uart.1
+imx-i2c.1
+imx-i2c.1
+sdhc2-card-detect
+mxc_nand
+mxc_nand
+spi_imx.1
+spi_imx.1
+spi_imx.1
+at24
+gpio-2
+gpio-2
+gpio-2
+gpio-2
+spi_imx.2
+spi_imx.2
+mxc_pwm
+fclk
+fclk
+mxc-ehci.1
+mxc-ehci.1
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+imx-uart.1
+imx-uart.1
+imx-uart.1
+imx-uart.1
+pwm
+pwm
+kpp
+mxc_w1.0
+crm_regs.h
+crm_regs.h
+crm_regs.h
+imx-uart.0
+imx-uart.0
+imx-uart.0
+imx-uart.0
+sdhc1-card-detect
+TX090
+gpio-1
+gpio-1
+gpio-1
+gpio-1
+imx-wdt.0
+dma
+dma
+dma
+csi
+pcf8563
+pcf8563
+mxc_pwm.0
+mxc-keypad
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+heartbeat
+heartbeat
+heartbeat
+imx-uart.4
+imx-uart.4
+imx-i2c
+imx-i2c
+imx-i2c
+imx-fb.0
+gpio-0
+gpio-0
+gpio-0
+gpio-0
+mxc_w1
+mxc_w1
+imx-uart
+imx-uart
+imx-uart
+imx-uart
+emi
+gpio-3
+gpio-3
+gpio-3
+mxc-ehci.0
+mxc-ehci.0
+sja1000_platform
+gpio
+gpio
+gpio
+imx-i2c.0
+imx-i2c.0
+imx-i2c.0
+mstick
+fsl-usb2-udc
+fsl-usb2-udc
+mtd-ram
+mxc-mmc
+mxc-mmc
+spi_imx.0
+spi_imx.0
+spi_imx.0
+spi_imx.0
+lm75
+usb
+usb
+mxc_nand.0
+mxc_nand.0
+ads7846
+ads7846
+rtic
+usb_ahb
+hclk
+hclk
+mxc-mmc.1
+mxc-mmc.1
+fec
+rtc
+rtc
+rtc
+rtc
+imx-uart.3
+imx-uart.3
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+serial8250
+serial8250
+serial8250
+mpll
+ata
+scc
+imx-uart.2
+imx-uart.2
+imx-uart.2
+imx-uart.2
+mxc-mmc.0
+mxc-mmc.0
+spi_imx
+spi_imx
+spi_imx
+mxc-ehci
+mxc-ehci
+mxc-ehci
+iim
+fec.0
+ADS7846 pendown
+ADS7846 pendown
+can't get ads746 pen down GPIO\n
+none
+Sharp-LQ035Q7
+mxc-ehci.2
+mxc-ehci.2
+mxc-ehci.0
+mxc-ehci.0
+gpio-3
+gpio-3
+gpio-3
+imx-uart.0
+imx-uart.0
+imx-uart.0
+imx-uart.0
+imx-i2c.1
+imx-i2c.1
+gpio-1
+gpio-1
+gpio-1
+gpio-1
+imx-i2c.0
+imx-i2c.0
+imx-i2c.0
+spi_imx.1
+spi_imx.1
+spi_imx.1
+fsl-usb2-udc
+fsl-usb2-udc
+imx-uart.2
+imx-uart.2
+imx-uart.2
+imx-uart.2
+spi_imx.0
+spi_imx.0
+spi_imx.0
+spi_imx.0
+mxc_pwm.0
+mxc-keypad
+spi_imx
+spi_imx
+spi_imx
+gpio-2
+gpio-2
+gpio-2
+gpio-2
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+mxc-ehci
+mxc-ehci
+mxc-ehci
+usb
+usb
+mxc_nand.0
+mxc_nand.0
+spi_imx.2
+spi_imx.2
+imx-uart.4
+imx-uart.4
+imx-i2c.2
+mxc_pwm
+imx-i2c
+imx-i2c
+imx-i2c
+mxc-ehci.1
+mxc-ehci.1
+gpio-0
+gpio-0
+gpio-0
+gpio-0
+mxc-ehci.2
+mxc-ehci.2
+imx-uart
+imx-uart
+imx-uart
+imx-uart
+imx-uart.1
+imx-uart.1
+imx-uart.1
+imx-uart.1
+imx-uart.3
+imx-uart.3
+gpio-keys
+gpio-keys
+gpio-keys
+mxc_iomux: pin %u already used. Allocation for \
+imx-i2c.1
+imx-i2c.1
+sdhc2-card-detect
+mxc_nand
+mxc_nand
+smsc911x
+smsc911x
+wm8350
+spi_imx.1
+spi_imx.1
+spi_imx.1
+at24
+gpio-2
+gpio-2
+gpio-2
+gpio-2
+spi_imx.2
+spi_imx.2
+mxc-ehci.1
+mxc-ehci.1
+mshc
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+?
+imx-uart.1
+imx-uart.1
+imx-uart.1
+imx-uart.1
+pwm
+pwm
+mx3_sdc_fb
+kpp
+mxc_w1.0
+ssi
+crm_regs.h
+crm_regs.h
+crm_regs.h
+imx-uart.0
+imx-uart.0
+imx-uart.0
+imx-uart.0
+sdhc1-card-detect
+TX090
+gpio-1
+gpio-1
+gpio-1
+gpio-1
+imx-wdt.0
+csi
+pcf8563
+pcf8563
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+heartbeat
+heartbeat
+heartbeat
+imx-uart.4
+imx-uart.4
+imx-i2c
+imx-i2c
+imx-i2c
+gpio-0
+gpio-0
+gpio-0
+gpio-0
+mxc_w1
+mxc_w1
+imx-uart
+imx-uart
+imx-uart
+imx-uart
+emi
+mxc-ehci.0
+mxc-ehci.0
+sja1000_platform
+gpio
+gpio
+gpio
+imx-i2c.0
+imx-i2c.0
+imx-i2c.0
+mstick
+fsl-usb2-udc
+fsl-usb2-udc
+mtd-ram
+mxc-mmc
+mxc-mmc
+spi_imx.0
+spi_imx.0
+spi_imx.0
+spi_imx.0
+usb
+usb
+mxc_nand.0
+mxc_nand.0
+rtic
+ipu-core
+usb_ahb
+gpt
+mxc-mmc.1
+mxc-mmc.1
+failed\n
+fec
+rtc
+rtc
+rtc
+rtc
+imx-uart.3
+imx-uart.3
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+mxc_iomux: Attempt to request nonexistant pin %u for \
+%s: reg offset = 0x%x, field = %d\n
+serial8250
+serial8250
+serial8250
+mxc_rnga
+ata
+scc
+imx-uart.2
+imx-uart.2
+imx-uart.2
+imx-uart.2
+mxc-mmc.0
+mxc-mmc.0
+spi_imx
+spi_imx
+spi_imx
+mxc-ehci
+mxc-ehci
+mxc-ehci
+imx-i2c.2
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+iim
+mx3-camera
+fec.0
+Sharp-LQ035Q7
+mxc-ehci.2
+mxc-ehci.2
+gen_nand
+mxc_iomux: pin %u already used. Allocation for \
+gpio-3
+gpio-3
+gpio-3
+crm_regs.h
+crm_regs.h
+crm_regs.h
+mxc_iomux: Attempt to request nonexistant pin %u for \
+imx-uart.0
+imx-uart.0
+imx-uart.0
+imx-uart.0
+gpio-1
+gpio-1
+gpio-1
+gpio-1
+mxc_nand
+mxc_nand
+%s: reg offset = 0x%x, field = %d\n
+spi_imx.1
+spi_imx.1
+spi_imx.1
+mxc-mmc
+mxc-mmc
+imx-uart.2
+imx-uart.2
+imx-uart.2
+imx-uart.2
+spi_imx.0
+spi_imx.0
+spi_imx.0
+spi_imx.0
+mxc-mmc.0
+mxc-mmc.0
+gpio-2
+gpio-2
+gpio-2
+gpio-2
+spi_imx
+spi_imx
+spi_imx
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+devices.h
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+mxc-mmc.1
+mxc-mmc.1
+failed\n
+gpio-0
+gpio-0
+gpio-0
+gpio-0
+imx-uart
+imx-uart
+imx-uart
+imx-uart
+?
+imx-uart.1
+imx-uart.1
+imx-uart.1
+imx-uart.1
+%d.%d
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+local-mac-address
+%s
+%s
+%s
+Unknown
+hardware.h
+hardware.h
+hardware.h
+hardware.h
+hardware.h
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+Generic OMAP board
+omap-keypad
+GPL v2
+GPL v2
+GPL v2
+isp1301_omap
+sti
+u-boot
+heartbeat
+heartbeat
+heartbeat
+xloader
+omap-mcbsp.3
+omap-mcbsp.2
+OMAP Core Type
+dsp
+fck
+smc91x
+smc91x
+omap-led
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+ick
+MPU
+ADS7846 pendown
+ADS7846 pendown
+internal
+cfi_probe
+i2c_omap.1
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+SMC91x irq
+can't get ads7846 pen down GPIO\n
+Disabling unused clock \
+invalid mem resource\n
+sysfs_create_file failed: %d\n
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+omap-mcbsp.1
+mcr p15, 0, %0, c7, c0, 4
+mmci-omap.0
+OMAP%04x
+clock.c: Enable for %s without enable code\n
+%s: can't register clocksource!\n
+omap_wdt
+serial8250
+serial8250
+serial8250
+omapflash
+invalid irq resource\n
+kernel
+kernel
+kernel
+kernel
+kernel
+rootfs
+rootfs
+rootfs
+i2c_ick
+bootloader
+bootloader
+i2c_fck
+mmci-omap
+filesystem
+filesystem
+filesystem
+clock.h
+clock.h
+clock.h
+ads7846
+ads7846
+params
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+OMAP Board Type
+
+
+
+
+
+
+
+Generic OMAP board
+gpio-keys
+gpio-keys
+gpio-keys
+omap-keypad
+GPL v2
+GPL v2
+GPL v2
+isp1301_omap
+sti
+default-on
+default-on
+heartbeat
+heartbeat
+heartbeat
+b
+b
+b
+xloader
+r2
+r2
+omap-mcbsp.3
+%s
+%s
+%s
+omap-mcbsp.2
+OMAP Core Type
+dsp
+File System
+%d
+vmmc
+fck
+smc91x
+smc91x
+maximum of %d - clipping\n
+onenand-flash
+omap-led
+U-Boot
+external
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+ick
+MPU
+ADS7846 pendown
+ADS7846 pendown
+internal
+can't get ads746 pen down GPIO\n
+%u
+cfi_probe
+i2c_omap.1
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+SMC91x irq
+can't get ads7846 pen down GPIO\n
+Disabling unused clock \
+invalid mem resource\n
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+Kernel
+Kernel
+Kernel
+omap-mcbsp.1
+mmci-omap.0
+OMAP%04x
+clock.c: Enable for %s without enable code\n
+%s: can't register clocksource!\n
+omap_wdt
+mmc0
+cm.h
+serial8250
+serial8250
+serial8250
+omapflash
+invalid irq resource\n
+kernel
+kernel
+kernel
+kernel
+kernel
+smsc911x
+smsc911x
+rootfs
+rootfs
+rootfs
+%s\n
+%s\n
+i2c_ick
+bootloader
+bootloader
+i2c_fck
+mmci-omap
+filesystem
+filesystem
+filesystem
+%d\n
+clock.h
+clock.h
+clock.h
+ads7846
+ads7846
+uboot
+uboot
+uboot
+uboot
+params
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+OMAP Board Type
+user
+reset
+(dev %#x rev %#x)\n
+gpio-keys
+gpio-keys
+gpio-keys
+File System
+rootfs
+rootfs
+rootfs
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+sysfs_create_file failed: %d\n
+%s\n
+%s\n
+tclk
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+Kernel
+Kernel
+Kernel
+u-boot
+default-on
+default-on
+pcf8563
+pcf8563
+ds1338
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+%d\n
+power
+timer
+timer
+timer
+timer
+timer
+lm75
+uboot
+uboot
+uboot
+uboot
+U-Boot
+rtc
+rtc
+rtc
+rtc
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+bridge-regs.h
+24c08
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+mpp.h
+kernel
+kernel
+kernel
+kernel
+kernel
+user
+gen_nand
+arm,arm11mp-scu
+failed to remap watchdog regs
+unable to setup watchdog restart
+platform.h
+platform.h
+platform.h
+clock.h
+clock.h
+clock.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irq.h
+dsb\n\t
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+mrc p15, 4, %0, c15, c0, 0
+mrc p15, 4, %0, c15, c0, 0
+memory
+memory
+memory
+memory
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+wfi\n\t
+reg
+reg
+reg
+reg
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+GPL v2
+GPL v2
+GPL v2
+hardware.h
+hardware.h
+hardware.h
+hardware.h
+hardware.h
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+../../generic.h
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+memory
+memory
+memory
+memory
+r0
+r0
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+.arch_extension sec\n
+%1
+r1
+r1
+%0
+%2
+r2
+r2
+%3
+r3
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+arm,core-module-integrator
+arm,arm11mp-scu
+arm,cortex-a5-scu
+arm,cortex-a5-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+%s: could not map scu registers\n
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+/cpus
+%s: ncores %d\n
+core.h
+core.h
+core.h
+core.h
+core.h
+core.h
+%s: missing scu\n
+%s: missing scu\n
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+
+
+
+
+
+
+
+ldrb	%0, [%1, %2]	@ inbc
+ldrb	%0, [%1, %2]	@ inbc
+Jr
+Jr
+=&r
+=&r
+=&r
+=&r
+=&r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+cc
+cc
+cc
+cc
+cc
+cc
+Ir
+Ir
+Ir
+Ir
+Ir
+ldr	%0, [%1, %2]	@ inlc
+ldr	%0, [%1, %2]	@ inlc
+ldr
+ldr
+strb	%0, [%1, %2]	@ outbc
+strb	%0, [%1, %2]	@ outbc
+b
+b
+b
+str	%0, [%1, %2]	@ outlc
+str	%0, [%1, %2]	@ outlc
+
+
+
+
+
+
+
+s3c2412
+ldrb	%0, [%1, %2]	@ inbc
+ldrb	%0, [%1, %2]	@ inbc
+Jr
+Jr
+%1, [%0, #0 ]	@ in
+=&r
+=&r
+=&r
+=&r
+=&r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+ldrb	%0, [%1, #0]	@ inbc
+strb	%0, [%1, #0]	@ outbc
+ldr	%0, [%1, #0]	@ inlc
+ldrh	%0, [%1, %2]	@ inwc
+mov	%0, %2\n\t
+str	%0, [%1, #0]	@ outlc
+h
+cc
+cc
+cc
+cc
+cc
+cc
+%1, [%0, #0 ]	@ out
+Ir
+Ir
+Ir
+Ir
+Ir
+ldr	%0, [%1, %2]	@ inlc
+ldr	%0, [%1, %2]	@ inlc
+str
+ldr
+ldr
+strb	%0, [%1, %2]	@ outbc
+strb	%0, [%1, %2]	@ outbc
+strh	%0, [%1, #0]	@ outwc
+ldrh	%0, [%1, #0]	@ inwc
+b
+b
+b
+str	%0, [%1, %2]	@ outlc
+str	%0, [%1, %2]	@ outlc
+addcc	%0, %0, %3\n\t
+cmp	%2, #(1<<28)\n\t
+strh	%0, [%1, %2]	@ outwc
+spi
+Failed to register clock %s (%d)\n
+spi0
+spi0
+spi0
+usb-ep3
+xdreq1
+xdreq1
+fclk
+fclk
+uart2
+uart2
+lcd
+usb-host
+usb-ep4
+on
+Kernel
+Kernel
+Kernel
+adc
+watchdog
+i2s-sdi
+i2s-sdi
+usb-ep2
+dma
+dma
+dma
+udc: pullup(%d)\n
+sdi
+sdi
+uart1
+uart1
+uart1
+uart1
+iis
+s3c2412
+i2s-sdo
+i2s-sdo
+timer
+timer
+timer
+timer
+timer
+gpio
+gpio
+gpio
+armclk
+off
+usb-bus-host
+uboot
+uboot
+uboot
+uboot
+hclk
+hclk
+timers
+powering system down...\n
+s3c2412-nand
+i2c
+usb-ep1
+rtc
+rtc
+rtc
+rtc
+Boot Agent
+xtal
+mdivclk
+usb-device
+spi1
+spi1
+xdreq0
+xdreq0
+uartclk
+camif-upll
+camif-upll
+uart0
+uart0
+uart0
+uart0
+nand
+nand
+nand
+msysclk
+uart
+
+
+
+
+
+
+
+spi0
+spi0
+spi0
+xdreq1
+xdreq1
+fclk
+fclk
+uart2
+uart2
+dm9000
+dm9000
+usb-ep4
+Kernel
+Kernel
+Kernel
+i2s-sdi
+i2s-sdi
+usb-ep2
+udc: pullup(%d)\n
+sdi
+sdi
+uart1
+uart1
+uart1
+uart1
+ac97
+i2s-sdo
+i2s-sdo
+timer
+timer
+timer
+timer
+timer
+mic-in
+hclk
+hclk
+usb-ep1
+Boot Agent
+pcm-in
+spi1
+spi1
+xdreq0
+xdreq0
+camif-upll
+camif-upll
+uart0
+uart0
+uart0
+uart0
+nand
+nand
+nand
+pcm-out
+usb-ep3
+ac97
+spi
+Failed to register clock %s (%d)\n
+spi0
+spi0
+spi0
+i2s-sdo
+i2s-sdo
+timer
+timer
+timer
+timer
+timer
+adc
+pcm-in
+xtal
+gpio
+gpio
+gpio
+mpll
+mdivclk
+watchdog
+xdreq1
+xdreq1
+i2s-sdi
+i2s-sdi
+armclk
+dma
+dma
+dma
+off
+usb-device
+usb-bus-host
+spi1
+spi1
+xdreq0
+xdreq0
+uartclk
+sdi
+sdi
+camif-upll
+camif-upll
+uart0
+uart0
+uart0
+uart0
+nand
+nand
+nand
+uart2
+uart2
+mic-in
+lcd
+timers
+usb-host
+pcm-out
+s3c2412-nand
+msysclk
+i2c
+on
+uart1
+uart1
+uart1
+uart1
+uart
+hsmmc
+rtc
+rtc
+rtc
+rtc
+iis
+
+
+
+
+
+
+
+Jr
+Jr
+ldrb	%0, [%1, %2]	@ inbc
+ldrb	%0, [%1, %2]	@ inbc
+%1, [%0, #0 ]	@ in
+=&r
+=&r
+=&r
+=&r
+=&r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+ldrb	%0, [%1, #0]	@ inbc
+strb	%0, [%1, #0]	@ outbc
+ldr	%0, [%1, #0]	@ inlc
+ldrh	%0, [%1, %2]	@ inwc
+mov	%0, %2\n\t
+str	%0, [%1, #0]	@ outlc
+h
+cc
+cc
+cc
+cc
+cc
+cc
+%1, [%0, #0 ]	@ out
+Ir
+Ir
+Ir
+Ir
+Ir
+ldr	%0, [%1, %2]	@ inlc
+ldr	%0, [%1, %2]	@ inlc
+str
+ldr
+ldr
+strb	%0, [%1, %2]	@ outbc
+strb	%0, [%1, %2]	@ outbc
+strh	%0, [%1, #0]	@ outwc
+ldrh	%0, [%1, #0]	@ inwc
+b
+b
+b
+str	%0, [%1, %2]	@ outlc
+str	%0, [%1, %2]	@ outlc
+regs-clock.h
+addcc	%0, %0, %3\n\t
+cmp	%2, #(1<<28)\n\t
+strh	%0, [%1, %2]	@ outwc
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+smsc911x
+smsc911x
+wm8350
+default-on
+default-on
+rootfs
+rootfs
+rootfs
+24c08
+uboot
+uboot
+uboot
+uboot
+nand
+nand
+nand
+dm9000
+dm9000
+kernel
+kernel
+kernel
+kernel
+kernel
+hsmmc
+pwm
+pwm
+external
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+Failed to suspend the system\n
+reg
+reg
+reg
+reg
+wfi
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+regs-clock.h
+hardware.h
+hardware.h
+hardware.h
+hardware.h
+hardware.h
+../../generic.h
+device_type
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+cc
+cc
+cc
+cc
+cc
+cc
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+Ir
+Ir
+Ir
+Ir
+Ir
+arm,cortex-a15
+=&r
+=&r
+=&r
+=&r
+=&r
+memory
+memory
+memory
+memory
+linux,usable-memory
+reg
+reg
+reg
+reg
+mrc p15, 4, %0, c15, c0, 0
+mrc p15, 4, %0, c15, c0, 0
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+=r
+mmio-sram
+core.h
+core.h
+core.h
+core.h
+core.h
+core.h
+maximum of %d - clipping\n
+cpu %d unexpectedly exit from shutdown\n
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+%s: missing scu\n
+%s: missing scu\n
+property\n
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+cpu-release-addr
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+Cluster %d CPU%d boots multiple times\n
+%s: cluster %u\n
+dsb
+dsb
+arm,cortex-a15
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+reset
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+pm.h
+%d
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+none
+%u
+irq.h
+spi0
+spi0
+spi0
+GPL v2
+GPL v2
+GPL v2
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+irqs.h
+uart1
+uart1
+uart1
+uart1
+power
+GPL
+GPL
+arm,primecell
+arm,primecell
+mmci
+mmc0
+uart0
+uart0
+uart0
+uart0
+vmmc
+Unknown
+%d.%d
+dsb\n\t
+SMP: %u cores greater than maximum (%u), clipping\n
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,pl310-cache
+memory
+memory
+memory
+memory
+%s
+%s
+%s
+wfi\n\t
+arm,primecell
+arm,primecell
+mcr	p15, 1, %0, c15, c0, 3 \n\t
+isb	\n\t
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+core.h
+core.h
+core.h
+core.h
+core.h
+core.h
+dsb
+dsb
+arm,cortex-a5-scu
+arm,cortex-a5-scu
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+arm,cortex-a9-scu
+%s: cluster %u\n
+%s: boot CPU is out of bound!\n
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+mcr p15, 0, %0, c7, c0, 4
+=&r
+=&r
+=&r
+=&r
+=&r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+core.h
+core.h
+core.h
+core.h
+core.h
+core.h
+mcr	p15, 0, %0, c1, c0, 0\n
+cc
+cc
+cc
+cc
+cc
+cc
+mrc	p15, 0, %0, c1, c0, 1\n
+Ir
+Ir
+Ir
+Ir
+Ir
+no memory resource defined\n
+mrc	p15, 0, %0, c1, c0, 0\n
+mcr	p15, 0, %0, c1, c0, 1\n
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+common.h
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+gpio-keys
+gpio-keys
+ohci-platform
+ohci-platform
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+smsc911x
+sck
+ehci-platform
+ehci-platform
+ehci-platform
+ehci-platform
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+wait\n\t
+wait\n\t
+wait\n\t
+wait\n\t
+ethaddr
+ethaddr
+console=
+console=
+console=
+console=
+console=
+console=
+console=
+pata_platform
+smc91x
+jr\t%0
+jr\t%0
+jr\t%0
+%d\n
+spi_gpio
+.set\tmips3\n\t
+.set\tmips3\n\t
+.set\tmips3\n\t
+.set\tmips3\n\t
+timer
+timer
+timer
+timer
+timer
+timer
+timer
+console=ttyS0,115200
+console=ttyS0,115200
+cs
+level
+level
+sync
+sync
+.set\tmips0
+.set\tmips0
+.set\tmips0
+.set\tmips0
+mosi
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+User FS
+User FS
+User FS
+YAMON
+\n** You can safely turn off the power\n
+\n** You can safely turn off the power\n
+disabled
+kernel
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+gen_nand
+gen_nand
+gen_nand
+gen_nand
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+vbus
+bus
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+default-on
+console=
+console=
+console=
+console=
+console=
+console=
+console=
+mem
+power
+power
+power
+usb
+usb
+usb
+ppp
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+cpu
+cpu
+cpu
+modetty0
+modetty0
+modetty0
+adsl
+busy
+console=ttyS0,%d%c%c%c
+console=ttyS0,%d%c%c%c
+status
+1
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+COPYING
+COPYING
+COPYING
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ohci-platform
+ohci-platform
+uart
+ehci-platform
+ehci-platform
+ehci-platform
+ehci-platform
+common.h
+Failed to get CPU clock: %ld\n
+Failed to get CPU clock: %ld\n
+Failed to get CPU node\n
+Failed to get CPU node\n
+mdio
+ahb
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+cpu
+cpu
+cpu
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+wdt
+modetty0
+modetty0
+modetty0
+bootrom
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+gpio-keys
+gpio-keys
+uart
+heartbeat
+heartbeat
+timer
+timer
+timer
+timer
+timer
+timer
+timer
+usb
+usb
+usb
+%s
+%s
+%s
+console=ttyS1
+console=ttyS1
+status
+linux
+bridge
+wait\n\t
+wait\n\t
+wait\n\t
+wait\n\t
+console=
+console=
+console=
+console=
+console=
+console=
+console=
+0x11
+80
+0x10
+1.0
+1.0
+uart0
+uart0
+uart0
+internal
+1
+unable to fetch mac address\n
+42
+.set\tmips3\n\t
+.set\tmips3\n\t
+.set\tmips3\n\t
+.set\tmips3\n\t
+power
+power
+power
+.set\tmips0
+.set\tmips0
+.set\tmips0
+.set\tmips0
+cfe
+cfe
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+:
+LINUX_CMDLINE
+1.1
+1.1
+sync\n\t
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+green
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+clkfreq
+clkfreq
+BOOT_CONSOLE
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+power
+power
+power
+cfe
+cfe
+:
+adsl
+default-on
+ppp
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+unable to fetch mac address\n
+None
+None
+mti,cpu-interrupt-controller
+mti,cpu-interrupt-controller
+mti,cpu-interrupt-controller
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=r
+=r
+=r
+=r
+=r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+%d
+%d
+20
+29
+%02x
+%02x
+.set pop
+42
+30
+1.1
+1.1
+80
+COPYING
+COPYING
+COPYING
+sync
+sync
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+31
+66
+memory
+memory
+memory
+.set noreorder\n\t
+sha1
+25
+1.0
+1.0
+SPI
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+firmware
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+cobalt-lcd
+rtc_cmos
+rtc_cmos
+rtc_cmos
+rtc_cmos
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%s
+%s
+%s
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+level
+level
+edge
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+%08x
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+device_type
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+/memory
+/memory
+/memory
+ememsize
+Unknown
+mti,cpu-interrupt-controller
+mti,cpu-interrupt-controller
+mti,cpu-interrupt-controller
+interrupts
+Failed to get CPU clock: %ld\n
+Failed to get CPU clock: %ld\n
+Corrupt DT
+The bootloader didn't provide memsize: defaulting to 32MB\n
+%s=
+%s=
+Failed to get CPU node\n
+Failed to get CPU node\n
+interrupt-parent
+compatible
+memory
+memory
+memory
+sha1
+Failed to read the '%s' env variable '%s'\n
+hw
+mti,gic
+linux,usable-memory
+reg
+reg
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+kernel
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+linux
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+jr\t%0
+jr\t%0
+jr\t%0
+COPYING
+COPYING
+COPYING
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+dma2
+dma2
+dma2
+timer
+timer
+timer
+timer
+timer
+timer
+timer
+pcspkr
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+dma page reg
+dma page reg
+dma page reg
+dma1
+dma1
+dma1
+%04x
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+rtc_cmos
+rtc_cmos
+rtc_cmos
+rtc_cmos
+ttyS
+ttyS
+ttyS
+ttyS
+%08x
+spi
+spi
+gpio-keys
+gpio-keys
+/memory
+/memory
+/memory
+i2s
+sck
+mmio
+vbus
+wait;\n
+wait\n\t
+wait\n\t
+wait\n\t
+wait\n\t
+dma
+Failed to register clocksource: %d\n
+uart1
+uart1
+Data
+spi_gpio
+.set\tmips3\n\t
+.set\tmips3\n\t
+.set\tmips3\n\t
+.set\tmips3\n\t
+power
+power
+power
+INTC
+usb
+usb
+usb
+.set push;\n
+cs
+.set\tmips0
+.set\tmips0
+.set\tmips0
+.set\tmips0
+i2c
+rtc
+mosi
+.set pop;\n
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+%llu\n
+busy
+enabled
+uart0
+uart0
+uart0
+nand
+bus
+ppe
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+Failed to remap core resources
+ahb
+ephy
+firmware
+external
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+ld    $a1, 0x38(%[base])          \n
+cache 21, (%[state_addr])     \n
+%s: deadable error : timeout...\n
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+or    %[base], %[base], %[core]   \n
+or    %[base], %[base], %[node]   \n
+cache 0, 2(%[addr])           \n
+PMON_VER=LM9
+.set pop                      \n
+NUMA: Discovered %d cpus on %d nodes\n
+a1
+smp.h
+1: li    %[count], 0x100             \n
+.set mips64                       \n
+machtype=
+cpu_clk
+cpu_clk
+.set push                     \n
+bnez  %[sets], 1b             \n
+ld    $sp, 0x28(%[base])          \n
+ld    $gp, 0x30(%[base])          \n
+cache 1, 3(%[addr])           \n
+nop                               \n
+mfc0  %[cpuid], $15, 1            \n
+andi  %[node], %[cpuid], 0xc      \n
+Booting CPU#%d...\n
+ld    %[initfunc], 0x20(%[base])  \n
+.set noreorder                \n
+ec_kb3310b.h
+start_pfn:0x%llx, end_pfn:0x%llx, num_physpages:0x%lx\n
+li    %[val], 0x7             \n
+console=
+console=
+console=
+console=
+console=
+console=
+console=
+sync                          \n
+addiu %[addr], %[addr], 0x20  \n
+Loongson
+andi  %[core], %[cpuid], 0x3      \n
+mfgpt
+cache 0, 3(%[addr])           \n
+2: bnez  %[count], 2b                \n
+timer
+timer
+timer
+timer
+timer
+timer
+timer
+sw    %[val], (%[state_addr]) \n
+dli   %[base], 0x900000003ff01000 \n
+sync\n\t
+cache 1, 2(%[addr])           \n
+.set pop                          \n
+CPU#%d, func_pc=%lx, sp=%lx, gp=%lx\n
+dsll  %[node], 42                 \n
+.set push                         \n
+console=ttyS0,115200
+console=ttyS0,115200
+%s: irq = %d\n
+i8042.c: Failed to enable KBD port.\n
+NUMA: set cpumask cpu %d on node %d\n
+cache 0, 1(%[addr])           \n
+PMON_VER=LM
+CPU#%d finished, CP0_ST=%x\n
+PMON_VER=LM6
+cache 1, 0(%[addr])           \n
+CP0_PageGrain: CP0 5.1 (0x%lx)\n
+cache 1, 1(%[addr])           \n
+beqz  %[initfunc], 1b             \n
+highmemsize
+highmemsize
+sll   %[core], 8                  \n
+cpuclock
+=&r
+=&r
+%s : spurious interrupt\n
+.set noreorder                    \n
+Node%d's addrspace_offset is 0x%lx\n
+addiu %[count], -1                \n
+Node%d: mem_type:%d, mem_start:0x%llx, mem_size:0x%llx MB\n
+Detected %i available secondary CPU(s)\n
+PMON_VER=LM8
+(%x/%d)ec issued command %d status : 0x%x\n
+i8042.c: Can't read CTR while enabling i8042 kbd port.
+li %[addr], 0x80000000        \n
+andi  %[cpuid], 0x3ff             \n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+1: cache 0, 0(%[addr])           \n
+addiu %[sets], %[sets], -1    \n
+CP0_Config3: CP0 16.3 (0x%lx)\n
+pci memory space
+jr    %[initfunc]                 \n
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+dsrl  %[node], 30                 \n
+%s: get event number timeout.\n
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+macirq
+highmemsize
+highmemsize
+unable to get cpu clock, err=%ld
+ehci-platform
+ehci-platform
+ehci-platform
+ehci-platform
+unable to get %s clock, err=%ld
+stmmaceth
+LS1X-INTC
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+LOONGSON LS1B
+ls1x-rtc
+LOONGSON (unknown)
+cpu
+cpu
+cpu
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+macirq
+highmemsize
+highmemsize
+unable to get cpu clock, err=%ld
+nand-disk
+LOONGSON (unknown)
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+unable to get %s clock, err=%ld
+Failed to register clocksource: %d\n
+ls1x-rtc
+heartbeat
+heartbeat
+console=ttyS1
+console=ttyS1
+ehci-platform
+ehci-platform
+ehci-platform
+ehci-platform
+LOONGSON LS1B
+cpu_clk
+cpu_clk
+stmmaceth
+LS1X-INTC
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ld    $a1, 0x38(%[base])          \n
+cache 21, (%[state_addr])     \n
+%s: deadable error : timeout...\n
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+or    %[base], %[base], %[core]   \n
+or    %[base], %[base], %[node]   \n
+cache 0, 2(%[addr])           \n
+PMON_VER=LM9
+.set pop                      \n
+NUMA: Discovered %d cpus on %d nodes\n
+a1
+smp.h
+1: li    %[count], 0x100             \n
+.set mips64                       \n
+machtype=
+cpu_clk
+cpu_clk
+.set push                     \n
+bnez  %[sets], 1b             \n
+ld    $sp, 0x28(%[base])          \n
+ld    $gp, 0x30(%[base])          \n
+cache 1, 3(%[addr])           \n
+nop                               \n
+mfc0  %[cpuid], $15, 1            \n
+andi  %[node], %[cpuid], 0xc      \n
+Booting CPU#%d...\n
+ld    %[initfunc], 0x20(%[base])  \n
+.set noreorder                \n
+ec_kb3310b.h
+start_pfn:0x%llx, end_pfn:0x%llx, num_physpages:0x%lx\n
+li    %[val], 0x7             \n
+sync                          \n
+addiu %[addr], %[addr], 0x20  \n
+Loongson
+andi  %[core], %[cpuid], 0x3      \n
+mfgpt
+cache 0, 3(%[addr])           \n
+2: bnez  %[count], 2b                \n
+timer
+timer
+timer
+timer
+timer
+timer
+timer
+sw    %[val], (%[state_addr]) \n
+dli   %[base], 0x900000003ff01000 \n
+cache 1, 2(%[addr])           \n
+.set pop                          \n
+CPU#%d, func_pc=%lx, sp=%lx, gp=%lx\n
+dsll  %[node], 42                 \n
+.set push                         \n
+%s: irq = %d\n
+i8042.c: Failed to enable KBD port.\n
+NUMA: set cpumask cpu %d on node %d\n
+cache 0, 1(%[addr])           \n
+PMON_VER=LM
+CPU#%d finished, CP0_ST=%x\n
+PMON_VER=LM6
+cache 1, 0(%[addr])           \n
+CP0_PageGrain: CP0 5.1 (0x%lx)\n
+cache 1, 1(%[addr])           \n
+beqz  %[initfunc], 1b             \n
+sll   %[core], 8                  \n
+=&r
+=&r
+%s : spurious interrupt\n
+.set noreorder                    \n
+Node%d's addrspace_offset is 0x%lx\n
+addiu %[count], -1                \n
+Node%d: mem_type:%d, mem_start:0x%llx, mem_size:0x%llx MB\n
+PMON_VER=LM8
+(%x/%d)ec issued command %d status : 0x%x\n
+i8042.c: Can't read CTR while enabling i8042 kbd port.
+li %[addr], 0x80000000        \n
+andi  %[cpuid], 0x3ff             \n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+1: cache 0, 0(%[addr])           \n
+addiu %[sets], %[sets], -1    \n
+CP0_Config3: CP0 16.3 (0x%lx)\n
+jr    %[initfunc]                 \n
+dsrl  %[node], 30                 \n
+%s: get event number timeout.\n
+%llu\n
+%s
+%s
+%s
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+%s=
+%s=
+\nLINUX started...\n
+clz	%0, %1					\n
+=r
+=r
+=r
+=r
+=r
+prom memory
+prom memory
+prom memory
+prom memory
+.set	push					\n
+.set	pop					\n
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+.set	mips32					\n
+CPU frequency %d.%02d MHz\n
+CPU frequency %d.%02d MHz\n
+CPU frequency %d.%02d MHz\n
+device_type
+=r
+=r
+=r
+=r
+=r
+prom memory
+prom memory
+prom memory
+prom memory
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+/memory
+/memory
+/memory
+None
+None
+ememsize
+mmio
+mti,cpu-interrupt-controller
+mti,cpu-interrupt-controller
+mti,cpu-interrupt-controller
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+memsize=
+interrupts
+.set	pop					\n
+clz	%0, %1					\n
+Corrupt DT
+CPU frequency %d.%02d MHz\n
+CPU frequency %d.%02d MHz\n
+CPU frequency %d.%02d MHz\n
+ethaddr
+ethaddr
+console=
+console=
+console=
+console=
+console=
+console=
+console=
+keyboard
+0x11
+mem
+\nLINUX started...\n
+The bootloader didn't provide memsize: defaulting to 32MB\n
+%s=
+%s=
+%02x:
+%02x:
+interrupt-parent
+dma2
+dma2
+dma2
+IPI_resched
+timer
+timer
+timer
+timer
+timer
+timer
+timer
+dma page reg
+dma page reg
+dma page reg
+debug
+ethaddr not set in boot prom\n
+compatible
+.set	mips32					\n
+rtc_cmos
+rtc_cmos
+rtc_cmos
+rtc_cmos
+Board Config
+memory
+memory
+memory
+0x10
+modetty0
+modetty0
+modetty0
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+/
+User FS
+User FS
+User FS
+IPI_call
+Failed to read the '%s' env variable '%s'\n
+YAMON
+mti,gic
+dma1
+dma1
+dma1
+linux,usable-memory
+%02x\n
+%02x\n
+reg
+reg
+console=ttyS0,%d%c%c%c
+console=ttyS0,%d%c%c%c
+.set	push					\n
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+modetty0
+modetty0
+modetty0
+/memory
+/memory
+/memory
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+smsc911x
+User FS
+User FS
+User FS
+off
+off
+CPU frequency %d.%02d MHz\n
+CPU frequency %d.%02d MHz\n
+CPU frequency %d.%02d MHz\n
+console=ttyS1
+console=ttyS1
+reg
+reg
+console=
+console=
+console=
+console=
+console=
+console=
+console=
+console=ttyS0,%d%c%c%c
+console=ttyS0,%d%c%c%c
+cobalt-lcd
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+memsize=
+on
+on
+Board Config
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+%02x
+%02x
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ohci-platform
+ohci-platform
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+ehci-platform
+ehci-platform
+ehci-platform
+ehci-platform
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+console=
+console=
+console=
+console=
+console=
+console=
+console=
+console=ttyS0,38400
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+User FS
+User FS
+User FS
+cmdlinepart
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+m
+gen_nand
+gen_nand
+gen_nand
+gen_nand
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+dma2
+dma2
+dma2
+.set noreorder\n\t
+timer
+timer
+timer
+timer
+timer
+timer
+timer
+NXP STB22x
+pnx833x-sata
+console=ttyS
+wait
+ip3902-eth
+off
+off
+dma page reg
+dma page reg
+dma page reg
+pnx833x-ehci
+ethaddr not set in boot prom\n
+ethaddr
+ethaddr
+cmdlinepart
+dma1
+dma1
+dma1
+\n\n
+plat_irq_dispatch: unexpected irq %u\n
+PNX-PIC
+pnx8xxx-uart
+CPU clock is %ld MHz\n
+on
+on
+%s\n
+pci memory space
+PNX-GPIO
+gen_nand
+gen_nand
+gen_nand
+gen_nand
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+COPYING
+COPYING
+COPYING
+.set pop;\n
+CPU Clock: %ldMHz\n
+/
+sdhci
+.set push;\n
+wait;\n
+ttyS
+ttyS
+ttyS
+ttyS
+on
+on
+off
+off
+Failed to get CPU node\n
+Failed to get CPU node\n
+SoC Type: %s\n
+Failed to get CPU clock: %ld\n
+Failed to get CPU clock: %ld\n
+usbmode
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+assuming %ld hz ...\n
+Standby switch
+=r
+=r
+=r
+=r
+=r
+prom memory
+prom memory
+prom memory
+prom memory
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+%s badly formatted-<%s>\n
+SLP
+heaptop
+EMEMSP
+Early serial init of port 0 failed\n
+PMC-Sierra MSP7120 Residential Gateway
+PMC-Sierra MSP7120 Eval Board
+clkfreqhz
+wait\n\t
+wait\n\t
+wait\n\t
+wait\n\t
+Clock rate in MHz parse error: %s\n
+la	%0,startpoint			\n
+console=ttyS
+set to default 0x%08x\n
+Clock rate set to %ld\n
+uartfreqhz
+SOFTRESET switch was released\n
+jr\t%0
+jr\t%0
+jr\t%0
+ERER
+PER
+Early serial init of port 1 failed\n
+%02x:
+%02x:
+Failed to determine CPU clock rate,
+%d\n
+.set	pop				\n
+.set\tmips3\n\t
+.set\tmips3\n\t
+.set\tmips3\n\t
+.set\tmips3\n\t
+STANDBY switch was set to OFF (not implemented)\n
+pmcmsp-ehci
+platform add USB DEVICE done %s.\n
+set to default (32Mb)\n
+What is the type of *your* MSP?
+device
+platform add USB HOST done %s.\n
+console=ttyS0,115200
+console=ttyS0,115200
+endpoint:					\n
+get_ethernet_addr: for %s
+msp71xx_udc
+la	%1,endpoint			\n
+EMEM
+startpoint:					\n
+MSP_CIC
+MSP_SLP
+memsize not set in boot prom,
+.set\tmips0
+.set\tmips0
+.set\tmips0
+.set\tmips0
+normal
+UART clock set to %d\n
+cpuclock
+=&r
+=&r
+clkfreq
+clkfreq
+PMC-Sierra MSP4200 Eval Board
+STANDBY switch was set to ON (not implemented)\n
+Spurious %s interrupt?\n
+%s not set in boot prom\n
+heaptop not set in boot prom,
+PMC-Sierra MSP4200 VoIP Gateway
+\n** You can safely turn off the power\n
+\n** You can safely turn off the power\n
+%02x\n
+%02x\n
+SOFTRESET switch was pushed\n
+Softreset button
+Now rebooting .......\n
+Clock rate in Hz parse error: %s\n
+PMC-Sierra MSP7120 FPGA
+m
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+.set	push				\n
+usbmode
+assuming %ld hz ...\n
+Standby switch
+=r
+=r
+=r
+=r
+=r
+prom memory
+prom memory
+prom memory
+prom memory
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+%s badly formatted-<%s>\n
+SLP
+heaptop
+EMEMSP
+Early serial init of port 0 failed\n
+PMC-Sierra MSP7120 Residential Gateway
+PMC-Sierra MSP7120 Eval Board
+clkfreqhz
+wait\n\t
+wait\n\t
+wait\n\t
+wait\n\t
+Clock rate in MHz parse error: %s\n
+la	%0,startpoint			\n
+set to default 0x%08x\n
+Clock rate set to %ld\n
+uartfreqhz
+SOFTRESET switch was released\n
+jr\t%0
+jr\t%0
+jr\t%0
+ERER
+PER
+Early serial init of port 1 failed\n
+%02x:
+%02x:
+Failed to determine CPU clock rate,
+.set	pop				\n
+.set\tmips3\n\t
+.set\tmips3\n\t
+.set\tmips3\n\t
+.set\tmips3\n\t
+IPI_resched
+STANDBY switch was set to OFF (not implemented)\n
+pmcmsp-ehci
+platform add USB DEVICE done %s.\n
+set to default (32Mb)\n
+What is the type of *your* MSP?
+device
+platform add USB HOST done %s.\n
+endpoint:					\n
+get_ethernet_addr: for %s
+msp71xx_udc
+la	%1,endpoint			\n
+EMEM
+startpoint:					\n
+MSP_CIC
+MSP_SLP
+memsize not set in boot prom,
+.set\tmips0
+.set\tmips0
+.set\tmips0
+.set\tmips0
+normal
+UART clock set to %d\n
+clkfreq
+clkfreq
+PMC-Sierra MSP4200 Eval Board
+STANDBY switch was set to ON (not implemented)\n
+Spurious %s interrupt?\n
+%s not set in boot prom\n
+IPI_call
+heaptop not set in boot prom,
+PMC-Sierra MSP4200 VoIP Gateway
+\n** You can safely turn off the power\n
+\n** You can safely turn off the power\n
+%02x\n
+%02x\n
+SOFTRESET switch was pushed\n
+Softreset button
+Now rebooting .......\n
+Clock rate in Hz parse error: %s\n
+PMC-Sierra MSP7120 FPGA
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+.set	push				\n
+pnx8xxx-uart
+PNX-GPIO
+wait
+ip3902-eth
+plat_irq_dispatch: unexpected irq %u\n
+pnx833x-ehci
+PNX-PIC
+NXP STB22x
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+memsize
+pnx833x-sata
+gen_nand
+gen_nand
+gen_nand
+gen_nand
+CPU clock is %ld MHz\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+spi
+spi
+None
+None
+i2s
+common.h
+mti,cpu-interrupt-controller
+mti,cpu-interrupt-controller
+mti,cpu-interrupt-controller
+dma
+uart1
+uart1
+INTC
+CPU Clock: %ldMHz\n
+ppe
+debug
+bootrom
+usb
+usb
+usb
+sdhci
+mdio
+SoC Type: %s\n
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+i2c
+Failed to remap core resources
+ephy
+cpu
+cpu
+cpu
+wdt
+hw
+uart0
+uart0
+uart0
+nand
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+CPU frequency %d.%02d MHz\n
+CPU frequency %d.%02d MHz\n
+CPU frequency %d.%02d MHz\n
+gen_nand
+gen_nand
+gen_nand
+gen_nand
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%d
+%d
+20
+Unknown
+%d [%d.%04d MHz CPU]\n
+dbaud
+ttyS
+ttyS
+ttyS
+ttyS
+29
+sgibtns
+30
+Data
+Calibrating system timer...
+Calibrating system timer...
+console
+console
+disagreement, using average...
+31
+25
+%s
+%s
+%s
+warning: timer counts differ, retrying...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+bridge
+%d
+%d
+%s\n
+\n\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+Calibrating system timer...
+Calibrating system timer...
+console
+console
+Ralf Baechle <ralf@linux-mips.org>
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+rtc
+dbaud
+level
+level
+rtc_cmos
+rtc_cmos
+rtc_cmos
+rtc_cmos
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+edge
+ttyS
+ttyS
+ttyS
+ttyS
+sgibtns
+=r
+=r
+=r
+=r
+=r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+Ralf Baechle <ralf@linux-mips.org>
+LINUX_CMDLINE
+.set pop
+pata_platform
+uart1
+uart1
+sync
+sync
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+GPL
+memory
+memory
+memory
+cfe
+cfe
+Detected %i available secondary CPU(s)\n
+uart0
+uart0
+uart0
+BOOT_CONSOLE
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+%d [%d.%04d MHz CPU]\n
+ttyS
+ttyS
+ttyS
+ttyS
+%02x
+%02x
+keyboard
+1.1
+1.1
+Calibrating system timer...
+Calibrating system timer...
+dma2
+dma2
+dma2
+timer
+timer
+timer
+timer
+timer
+timer
+timer
+console
+console
+dma page reg
+dma page reg
+dma page reg
+disagreement, using average...
+rtc_cmos
+rtc_cmos
+rtc_cmos
+rtc_cmos
+pcspkr
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+serial8250
+1.0
+1.0
+%04x
+dma1
+dma1
+dma1
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+warning: timer counts differ, retrying...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+spi
+spi
+prom memory
+prom memory
+prom memory
+prom memory
+\
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+physmap-flash
+nand-disk
+heartbeat
+heartbeat
+console=
+console=
+console=
+console=
+console=
+console=
+console=
+smc91x
+console=ttyS0,38400
+66
+green
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+leds-gpio
+SPI
+external
+enabled
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+\n
+internal
+disabled
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+cascade
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+r
+wp
+cd
+On
+l2
+full
+d2
+d3
+d9
+rng
+lr
+ED
+r4
+r5
+rng
+r3
+r2
+r1
+ON
+down
+left
+hold
+config
+up
+down
+irda
+model
+platform
+dummy
+r6
+r7
+ip
+initrd
+nvram
+online
+rootaudio
+UNKNOWN
+arm-pmu
+audio
+root

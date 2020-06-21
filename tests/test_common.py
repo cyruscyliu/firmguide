@@ -1,12 +1,8 @@
 from unittest import TestCase
-
 from slcore.compositor import Common
-from settings import *
 
-import os
-import tempfile
 
-class TestCompositor(TestCase):
+class TestCommon(TestCase):
     def test_set_attributes(self):
         common = Common()
 
@@ -22,7 +18,6 @@ class TestCompositor(TestCase):
         attrs = common.get_attributes()
         self.assertEqual({'test': 'A', 'attrs': 'B'}, attrs)
 
-
     def test_get_attributes(self):
         common = Common()
 
@@ -31,4 +26,3 @@ class TestCompositor(TestCase):
 
         attrs = common.get_attributes()
         self.assertEqual({'test': None, 'attrs': None}, attrs)
-

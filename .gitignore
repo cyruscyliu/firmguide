@@ -1,21 +1,10 @@
-build
-log
+# Python
 .idea
 __pycache__
-*.extracted
 *.pyc
-pause.yaml
-*.html
-extract_tmp
-*.swp
-.pytest_cache
-.coverage
-*.tar.xz
-.bash_history
-.binwalk/
-.cache/
-.gitconfig
-.python_history
-.analyses.csv
+# Config
 .project
-*.dtb
+.llvmbin
+.qemu
+.sparse
+*.fix_smp

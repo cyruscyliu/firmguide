@@ -218,4 +218,3 @@ static void marvell_orion_intc_register_types(void)
 }
 
 type_init(marvell_orion_intc_register_types)
-

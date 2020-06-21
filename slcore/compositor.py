@@ -217,9 +217,12 @@ def pack_kernel(components, arch='arm', load_address="0x00008000", entry_point="
     """Add a uimage header to a kernel."""
     kernel = components.get_path_to_kernel()
     uimage = components.get_path_to_uimage()
-    os.system(
-        'mkimage -A {0} -C none -O linux -T kernel -d {1} -a {2} -e {3} {4} >/dev/null 2>&1'.format(
-            arch, kernel, load_address, entry_point, uimage))
+    mkimage = \
+        'mkimage -A {0} -C none -O linux -T kernel \
+        -d {1} -a {2} -e {3} {4} >/dev/null 2>&1'.format(
+            arch, kernel, load_address, entry_point, uimage)
+    status = os.system(mkimage)
+    assert status == 0, 'error in {}'.format(mkimage)
     return uimage
 
 
@@ -378,6 +381,9 @@ def unpack(path, target_dir=None, extract=True):
         Components: A Component object.
     """
     components = Components()
+    if path is None:
+        components.supported = False
+        return components
     if not os.path.exists(path):
         print('[-] {} not exist'.format(path))
         components.supported = False
@@ -400,8 +406,10 @@ def unpack(path, target_dir=None, extract=True):
         if str(result.description).find('flattened image tree') != -1:
             components.set_type(FIT_UIMAGE)
             components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
-            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_fit_uimage(
+            components.path_to_kernel, path_to_dtb, components.path_to_uimage = __handle_fit_uimage(
                 components.path_to_image)
+            if path_to_dtb is not None:
+                components.path_to_dtb = path_to_dtb
         elif str(result.description).find('uImage') != -1:
             components.set_type(LEGACY_UIMAGE)
             components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
@@ -410,8 +418,10 @@ def unpack(path, target_dir=None, extract=True):
             if result.description.lower().startswith('uimage') and result.stub0 == 3:
                 uimage3 = True
                 uimage3_offset = result.offset
-            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_legacy_uimage(
+            components.path_to_kernel, path_to_dtb, components.path_to_uimage = __handle_legacy_uimage(
                 components.path_to_image, uimage3=uimage3, uimage3_offset=uimage3_offset)
+            if path_to_dtb is not None:
+                components.path_to_dtb = path_to_dtb
         elif str(result.description).find('TRX') != -1:
             # sometimes, we have trx header + uImage(uImage header + lzma kernel)
             path_to_image = module.extractor.output[result.file.path].carved[result.offset]
@@ -420,8 +430,10 @@ def unpack(path, target_dir=None, extract=True):
             elif path_to_image.endswith('7z'):
                 # because *.trx will be overwrote by *.7z, we replace 7z with trx here
                 path_to_image = path_to_image.replace('7z', 'trx')
-                components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_trx_kernel(
+                components.path_to_kernel, path_to_dtb, components.path_to_uimage = __handle_trx_kernel(
                     path_to_image)
+                if path_to_dtb is not None:
+                    components.path_to_dtb = path_to_dtb
             components.set_type(TRX_KERNEL)
             path_to_image = module.extractor.output[result.file.path].carved[result.offset]
             components.set_path_to_image(path_to_image)
@@ -429,18 +441,23 @@ def unpack(path, target_dir=None, extract=True):
             components.set_type(IMAGETAG_KERNEL)
             components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
             # this kernel is not recognized yet
-            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
+            components.path_to_kernel, path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
                 components.path_to_image)
+            if path_to_dtb is not None:
+                components.path_to_dtb = path_to_dtb
         elif str(result.description).find('Combined image header') != -1:
             components.set_type(COMBINEDIMAGE_KERNEL)
             components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
             # this kernel is not recognized yet
-            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
+            components.path_to_kernel, path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
                 components.path_to_image)
+            if path_to_dtb is not None:
+                components.path_to_dtb = path_to_dtb
         elif str(result.description).find('Flattened device tree') != -1:
             # we sometimes get the dtb directly
-            dtb = module.extractor.output[result.file.path].carved[result.offset]
-            components.path_to_dtb = dtb
+            path_to_dtb = module.extractor.output[result.file.path].carved[result.offset]
+            if path_to_dtb is not None:
+                components.path_to_dtb = path_to_dtb
         elif str(result.description).find('Squashfs filesystem') != -1:
             components.set_path_to_rootfs(
                 module.extractor.output[result.file.path].carved[result.offset])
@@ -482,8 +499,10 @@ def unpack(path, target_dir=None, extract=True):
             components.set_type(SEAMA_KERNEL)
             components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
             # this kernel is not recognized yet
-            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
+            components.path_to_kernel, path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
                 components.path_to_image)
+            if path_to_dtb is not None:
+                components.path_to_dtb = path_to_dtb
         # Ubiquiti partition header, header size: 56 bytes, name: "kernel"
         elif str(result.description).find('Ubiquiti partition header') != -1:
             if str(result.description).find('kernel') == -1:
@@ -491,18 +510,22 @@ def unpack(path, target_dir=None, extract=True):
             components.set_type(UBIQUITI_KERNEL)
             components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
             # this kernel is not recognized yet
-            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
+            components.path_to_kernel, path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
                 components.path_to_image)
+            if path_to_dtb is not None:
+                components.path_to_dtb = path_to_dtb
         elif str(result.description).find('AVM EVA header') != -1:
-            break
+            pass
         elif str(result.description).find('SENAO firmware header') != -1:
-            break
+            pass
         elif str(result.description).find('TPLink firmware header') != -1:
             components.set_type(TPLINK_KERNEL)
             components.set_path_to_image(module.extractor.output[result.file.path].carved[result.offset])
             # this kernel is not recognized yet
-            components.path_to_kernel, components.path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
+            components.path_to_kernel, path_to_dtb, components.path_to_uimage = __handle_lzma_kernel(
                 components.path_to_image)
+            if path_to_dtb is not None:
+                components.path_to_dtb = path_to_dtb
         components.output += '0x%.8X    %s\n' % (result.offset, result.description)
 
     if not extract:
@@ -511,4 +534,3 @@ def unpack(path, target_dir=None, extract=True):
     components.supported = components.get_type() != None
 
     return components
-

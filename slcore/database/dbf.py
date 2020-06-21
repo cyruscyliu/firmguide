@@ -1,14 +1,13 @@
-from slcore.database.qemu import DatabaseQEMUDevices,\
-    DatabaseQEMUModels, DatabaseQEMUAPIS
+from slcore.database.qemu import DatabaseQEMUModels
 from slcore.database.support import SupportMachines
 
 
 def get_database(dbtype, **kwargs):
     """Database factory."""
-    if dbtype == 'qemu.devices':
-        return DatabaseQEMUDevices()
-    elif dbtype == 'qemu.cpu':
+    if dbtype == 'qemu.cpu':
         return DatabaseQEMUModels('cpu')
+    elif dbtype == 'qemu.ram':
+        return DatabaseQEMUModels('ram')
     elif dbtype == 'qemu.serial':
         return DatabaseQEMUModels('serial')
     elif dbtype == 'qemu.intc':
@@ -21,11 +20,10 @@ def get_database(dbtype, **kwargs):
         return DatabaseQEMUModels('flash')
     elif dbtype == 'qemu.misc':
         return DatabaseQEMUModels('misc')
-    elif dbtype == 'qemu.iv':
-        return DatabaseQEMUModels('iv')
-    elif dbtype == 'qemu.apis':
-        return DatabaseQEMUAPIS()
+    elif dbtype == 'qemu.mmio':
+        return DatabaseQEMUModels('mmio')
     elif dbtype == 'support':
         return SupportMachines()
     else:
-        raise NotImplementedError('the dbtype {} is not support yet'.format(dbtype))
+        raise NotImplementedError(
+            'the dbtype {} is not support yet'.format(dbtype))

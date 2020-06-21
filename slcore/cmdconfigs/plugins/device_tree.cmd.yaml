@@ -1,0 +1,18 @@
+itopology:
+    help: "Plugin - Find the interrupt topology in given device tree."
+    optional: &optional
+        dtb: {short: dtb, required: False, help: 'Path to a device tree blob.'}
+    callback: topologydt
+listdt:
+    help: "Plugin - Disclose device tree blob."
+    optional:
+        <<: *optional
+        mmio: {short: m, required: False, action: "store_true", default: True,
+            help: "Show MMIO regions in the device tree blob."}
+        flash: {short: f, required: False, action: "store_true", default: True,
+            help: "Show FLASH chips in the device tree blob."}
+    callback: disclosedt
+newhwdt:
+    help: "Plugin - newhardware by given device tree blob."
+    optional: *optional
+    callback: updatehardwaredt

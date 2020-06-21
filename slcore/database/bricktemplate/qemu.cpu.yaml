@@ -1,0 +1,63 @@
+arm,arm1026: {extend: 'arm,generic', get_type: arm1026}
+arm,arm1136: {extend: 'arm,generic', get_type: arm1136}
+arm,arm1176: {extend: 'arm,generic', get_type: arm1176}
+arm,arm11mpcore: {extend: 'arm,generic', get_type: arm11mpcore}
+arm,arm920t:
+  buddy_compatible: []
+  extend: arm,generic
+arm,arm926: {extend: 'arm,generic', get_type: arm926}
+arm,arm926ej-s:
+  buddy_compatible: []
+  extend: arm,generic
+arm,arm946: {extend: 'arm,generic', get_type: arm946}
+arm,cortex-a15: {extend: 'arm,generic', get_type: cortex-a15}
+arm,cortex-a5:
+  buddy_compatible: []
+  extend: arm,generic
+arm,cortex-a53:
+  buddy_compatible: []
+  extend: arm,generic
+arm,cortex-a7: {extend: 'arm,generic', get_type: cortex-a7}
+arm,cortex-a72:
+  buddy_compatible: []
+  extend: arm,generic
+arm,cortex-a8: {extend: 'arm,generic', get_type: cortex-a8}
+arm,cortex-a9:
+  extend: arm,generic
+  get_body: [s->cpu = ARM_CPU(object_new(machine->cpu_type));, 'object_property_set_int(OBJECT(s->cpu),
+      {{ reg.base|to_hex }} & 0xffff0000, "reset-cbar", &err);', 'object_property_set_bool(OBJECT(s->cpu),
+      true, "realized", &err);']
+  get_type: cortex-a9
+arm,generic:
+  get_body: [s->cpu = ARM_CPU(object_new(machine->cpu_type));, 'object_property_set_bool(OBJECT(s->cpu),
+      true, "realized", &err);']
+  get_connection: []
+  get_field: [ARMCPU *cpu;]
+  get_header: [target/arm/cpu-qom.h, target/arm/cpu.h]
+  get_irqn: qdev_get_gpio_in(DEVICE(s->cpu), ARM_CPU_IRQ)
+  n_irq: 32
+intel,sa1100: {extend: 'arm,generic', get_type: sa1100}
+marvell,feroceon: {extend: 'arm,generic', get_type: feroceon}
+marvell,sheeva-v7: {extend: 'arm,generic', get_type: cortex-a7}
+marvell,xscale: {extend: 'arm,generic', get_type: pxa250}
+mips(el),generic:
+  get_body: [s->cpu = MIPS_CPU(object_new(machine->cpu_type));, 'object_property_set_bool(OBJECT(s->cpu),
+      true, "realized", &err);']
+  get_connection: []
+  get_field: [MIPSCPU *cpu;]
+  get_header: [target/mips/cpu.h]
+  get_irqn: qdev_get_gpio_in(DEVICE(s->cpu), MIPS_CPU_IRQ)
+  n_irq: 32
+mips,mips1004Kc: {extend: 'mips(el),generic', get_type: 74Kf}
+mips,mips24KEc: {extend: 'mips(el),generic', get_type: 24KEc}
+mips,mips24Kc: {extend: 'mips(el),generic', get_type: 24Kc}
+mips,mips34K: {extend: 'mips(el),generic', get_type: 34Kf}
+mips,mips4KEc: {extend: 'mips(el),generic', get_type: 4KEc}
+mips,mips4Kc: {extend: 'mips(el),generic', get_type: 4Kc}
+mips,mips74Kc: {extend: 'mips(el),generic', get_type: 74Kf}
+qcom,krait:
+  buddy_compatible: []
+  extend: arm,generic
+qcom,scorpion:
+  buddy_compatible: []
+  extend: arm,generic

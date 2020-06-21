@@ -59,6 +59,9 @@ def find_flatten_serial_in_fdt(dts):
         interrupt_parent = find_interrupt_parent_by_path(dts, path_to_serial)
         interrupts = dts.get_property('interrupts', path_to_serial).data
         irqns = find_irqnc_by_pphandle(dts, interrupt_parent, interrupts)
+        if len(irqns) == 0:
+            print('>>>> ERROR <<<< check INTERRUPT CELLS of the interrupt parent of {}'.format(compatible))
+            irqns = [0]
 
         flatten_serial.append({
             'path': path_to_serial, 'compatible': compatible,
@@ -80,5 +83,3 @@ def find_flatten_serial(path_to_dtb):
     """
     dts = load_dtb(path_to_dtb)
     return find_flatten_serial_in_fdt(dts)
-
-
