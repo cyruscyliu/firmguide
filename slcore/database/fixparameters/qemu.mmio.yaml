@@ -16,7 +16,7 @@ plxtech,nas782x-plla:
             registers:
                 # [MMIO] base 0x44e001f0 size 0x00000010 of /plla@44e001f0/['plxtech,nas782x-plla']
                 - {offset: 0x0, size: 0x4, value: 0x8000}
-                - {offset: 0x4, size: 0x4, value: 0x8000}
+                - {offset: 0x4, size: 0x4, value: 0x40000}
 plxtech,nand-nas782x:
     regs_index:
         0:
