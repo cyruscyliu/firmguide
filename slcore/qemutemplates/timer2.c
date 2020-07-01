@@ -16,7 +16,6 @@ static void {{ name }}_tick_callback{{ i }}(void *opaque)
     /* {{ timer_freq }}HZ -> 100HZ */
     if (s->counter[{{ i }}] % ({{ timer_freq }} / 100) == 0)
         qemu_set_irq(s->irq[{{ i }}], 1);
-    s->counter[{{ i }}] &= ((1 << {{ timer_bits }}) - 1);
     s->counter[{{ i }}]++;
 }
 {% endfor %}
