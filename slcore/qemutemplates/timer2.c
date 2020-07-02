@@ -14,8 +14,8 @@ static void {{ name }}_tick_callback{{ i }}(void *opaque)
     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
     timer_mod(s->timer[{{ i }}], 1000000000 / {{ timer_freq }} + now); /* {{ timer_freq }}HZ */
     /* {{ timer_freq }}HZ -> 100HZ */
-    if (s->counter[{{ i }}] % ({{ timer_freq }} / 100) == 0)
-        qemu_set_irq(s->irq[{{ i }}], 1);
+    // if (s->counter[{{ i }}] % ({{ timer_freq }} / 100) == 0)
+    //    qemu_set_irq(s->irq[{{ i }}], 1);
     s->counter[{{ i }}]++;
 }
 {% endfor %}
