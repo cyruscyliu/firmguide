@@ -2,70 +2,107 @@
 
 install_python()
 {
-    # V1.V2.V3, e.g. 3.7.7
-    V1=`python -V 2>&1 | awk '{print $2}' | awk -F '.' '{print $1}'`
-    V2=`python -V 2>&1 | awk '{print $2}' | awk -F '.' '{print $2}'`
-    V3=`python -V 2>&1 | awk '{print $2}' | awk -F '.' '{print $3}'`
+    python -V >/dev/null 2>&1 && PYTHON_VERSION=`python -V | awk '{print $2}'`
+    python3 -V >/dev/null 2>&1 && PYTHON3_VERSION=`python3 -V | awk '{print $2}'`
 
-
-    echo =========================================
-    if [ ${V1} -lt 3 ]; then
-        echo Python ${V1}.${V2}.${V3} is not satisfied
-        echo Install Python 3.7
-        sudo apt-get install -y software-properties-common && \
-            add-apt-repository ppa:deadsnakes/ppa && apt-get update
-        sudo apt-get install -y python3.7 python3-pip python3.7-dev
-        sudo -H python3.7 -m pip install --upgrade pip && \
-            sudo rm /usr/bin/python && \
-            sudo ln -s /usr/bin/python3.7 /usr/bin/python
-    else
-        echo Python ${V1}.${V2}.${V3} is satisfied
+    if [ ! ${PYTHON_VERSION} ]; then
+        if [ ! ${PYTHON3_VERSION} ]; then
+            echo [-] Python or Python3 doesn\'t exist
+            INSTALL_PYTHON=1
+        else
+            ln -sf `which python3` /usr/bin/python >/dev/null 2>&1 || \
+                echo [-] Please sudo to create system symbolic link && exit
+        fi
     fi
 
-    echo =========================================
+    V1=`python -V 2>&1 | awk '{print $2}' | awk -F '.' '{print $1}'`
+    V2=`python -V 2>&1 | awk '{print $2}' | awk -F '.' '{print $2}'`
+    if [ ${V1} -lt 3 ]; then
+        INSTALL_PYTHON=1
+    else
+        if [ ${V2} -lt 6 ]; then
+            INSTALL_PYTHON=1
+        else
+            echo Python3 is satisfied
+            echo =========================================
+        fi
+    fi
+
+    if [ ${INSTALL_PYTHON} -eq 1 ]; then
+        echo Install Python 3
+        echo =========================================
+        apt-get update && apt-get install -y python3.6 && \
+            ln -sf `which python3.6` /usr/bin/python >/dev/null 2>&1
+    fi
+
+    install_python_requirments
+}
+
+install_python_requirments()
+{
     echo Install Python requirments
-    sudo -H pip3.7 install qmp fdt capstone pydot graphviz
-    $SALAMANDER_BUILD/pyqemulog/pyqemulog -h >/dev/null 2>&1 || \
-        (git clone https://github.com/cyruscyliu/pyqemulog $SALAMANDER_BUILD/pyqemulog && \
-        cd $SALAMANDER_BUILD/pyqemulog && sudo -H pip3.7 install . && cd $OLDPWD)
+    echo =========================================
+    apt-get install -y python3-pip && \
+        python3.6 -m pip install --upgrade pip && \
+        ln -sf `which pip3.6` /usr/bin/pip >/dev/null 2>&1 && \
+        pip install --upgrade pip
+    pip install qmp fdt capstone pydot graphviz pyyaml
+    $/tmp/pyqemulog/pyqemulog -h >/dev/null 2>&1 || \
+        (rm -rf /tmp/pyqemulog && git clone https://github.com/cyruscyliu/pyqemulog /tmp/pyqemulog && \
+        cd /tmp/pyqemulog && pip install . && cd $OLDPWD)
     echo Done
 }
 
 install_binwalk()
 {
-    echo =========================================
     echo Install Binwalk-2.1.1
-    wget -nc https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz \
-        -O $SALAMANDER_BUILD/v2.1.1.tar.gz
-    tar --skip-old-files -zxf $SALAMANDER_BUILD/v2.1.1.tar.gz -C $SALAMANDER_BUILD && \
-        cp -r ./externals/binwalk/* $SALAMANDER_BUILD/binwalk-2.1.1/src/ && \
-    echo Patch Binwalk and Install ...
-    cd $SALAMANDER_BUILD/binwalk-2.1.1 && sudo python3.7 setup.py -q install && cd $OLDPWD
+    echo =========================================
 
-    sasquatch --version >/dev/null 2>&1 && \
-        (sudo apt-get install -y zlib1g-dev liblzma-dev liblzo2-dev && \
-        git clone https://github.com/devttys0/sasquatch $SALAMANDER_BUILD/sasquatch && \
-        cd $SALAMANDER_BUILD/sasquatch && ./build.sh && cd $OLDPWD)
+    python -V >/dev/null 2>&1 && PYTHON_VERSION=`python -V | awk '{print $2}'`
+    if [ ! ${PYTHON_VERSION} ]; then
+        echo [-] Please setup Python first && exit
+    else
+        V1=`python -V 2>&1 | awk '{print $2}' | awk -F '.' '{print $1}'`
+        if [ ${V1} -lt 3 ]; then
+            echo [-] Please setup Python first && exit
+        fi
+    fi
+
+    wget -qnc https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz \
+        -O /tmp/v2.1.1.tar.gz
+    tar --skip-old-files -zxf /tmp/v2.1.1.tar.gz -C /tmp && \
+        cp -r ./externals/binwalk/* /tmp/binwalk-2.1.1/src/ && \
+    cd /tmp/binwalk-2.1.1 && python setup.py -q install && cd $OLDPWD
+
+    install_binwalk_dependency
     echo Done
+}
+
+
+install_binwalk_dependency()
+{
+    sasquatch --version >/dev/null 2>&1 && \
+        (apt-get install -y zlib1g-dev liblzma-dev liblzo2-dev && \
+        git clone https://github.com/devttys0/sasquatch /tmp/sasquatch && \
+        cd /tmp/sasquatch && ./build.sh && cd $OLDPWD)
 }
 
 install_qemu()
 {
-    echo =========================================
     echo Install QEMU-4.0.0
-    sudo apt-get install -y git libglib2.0-dev libfdt-dev libpixman-1-dev \
+    echo =========================================
+    apt-get install -y git libglib2.0-dev libfdt-dev libpixman-1-dev \
         zlib1g-dev bison flex libcapstone3 libcapstone-dev u-boot-tools \
         p7zip-full squashfs-tools device-tree-compiler gawk
     wget -nc https://download.qemu.org/qemu-4.0.0.tar.xz \
         -O $SALAMANDER_BUILD/qemu-4.0.0.tar.xz || true && \
     tar --skip-old-files -Jxf $SALAMANDER_BUILD/qemu-4.0.0.tar.xz -C $SALAMANDER_BUILD && \
-    echo Patch QEMU and Install ...
+        # --enable-debug --extra-cflags="-g3" --extra-ldflags="-g3" \
+        # --disable-strip --disable-pie \
     cp -rL --remove-destination ./externals/qemu/* $SALAMANDER_BUILD/qemu-4.0.0/ && \
     cd $SALAMANDER_BUILD/qemu-4.0.0 && ./configure \
         --target-list=arm-softmmu,mips-softmmu,mipsel-softmmu \
         --enable-autoboard \
-        --enable-debug --extra-cflags="-g3" --extra-ldflags="-g3" \
-        --disable-strip --disable-pie \
         && \
         make -j4 && cd $OLDPWD
     echo $SALAMANDER_BUILD/qemu-4.0.0 > .qemu
@@ -74,8 +111,8 @@ install_qemu()
 
 install_sparse()
 {
-    echo =========================================
     echo Install sparse
+    echo =========================================
     $SALAMANDER_BUILD/sparse/sparse --version >/dev/null 2>&1 || \
         git clone git://git.kernel.org/pub/scm/devel/sparse/sparse.git $SALAMANDER_BUILD/sparse && \
         cd $SALAMANDER_BUILD/sparse && make && cd $OLDPWD
