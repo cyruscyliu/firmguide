@@ -2,7 +2,6 @@ marvell,armada-xp-timer:
     n_irq: 6
     counters: [{'addr': '0x14', 'id': 1}]
     freq: 1000000
-    bits: 32
     tilde: False
 marvell,orion-timer:
     # register_current_timer_delay
@@ -26,7 +25,6 @@ marvell,orion-timer:
     n_irq: 2
     counters: [{'addr': '0x14', 'id': 1}]
     freq: 1000000
-    bits: 32
     tilde: False
 plxtech,nas782x-rps-timer:
     # clocksource_mmio_init(base + TIMER_CURR, "",
@@ -38,17 +36,14 @@ plxtech,nas782x-rps-timer:
     n_irq: 1
     counters: [{'addr': '0x24', 'id': 0}]
     freq: 390625
-    bits: 24
     tilde: True
 ralink,cevt-systick:
     n_irq: 1
     counters: []
     freq: 1000000
-    bits: 32
     tilde: False
 ralink,rt2880-timer:
     n_irq: 1
     counters: []
     freq: 1000000
-    bits: 32
     tilde: False
