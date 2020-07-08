@@ -46,7 +46,7 @@ class CallStackI(object):
                 yield insn
 
     def construct(self, pql):
-        for k, cpurf in pql.cpurfs.items():
+        for k, cpurf in pql.get_cpurf():
             # we will firstly skip returned functions
             if int(pql.get_pc(cpurf), 16) == self.guard:
                 self.skip = False

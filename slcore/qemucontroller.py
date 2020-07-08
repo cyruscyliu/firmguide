@@ -192,7 +192,7 @@ class QEMUController(Common):
         timeout = kwargs.pop('timeout')
 
         # nochain is too too slow
-        trace_flags = '-d in_asm,int,cpu -D {}'.format(path_to_trace)
+        trace_flags = '-d in_asm,cpu -D {}'.format(path_to_trace)
         socket = tempfile.NamedTemporaryFile()
         qmp_flags = '-qmp unix:{},server,nowait'.format(socket.name)
         full_command = ' '.join([running_command, trace_flags, qmp_flags])
