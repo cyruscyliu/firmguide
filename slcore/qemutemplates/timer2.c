@@ -5,15 +5,18 @@
 #include "qapi/error.h"
 #include "hw/timer/{{ name }}.h"
 {% for i in timer_n_irq|to_range %}
-static void {{ name }}_tick_callback{{ i }}(void *opaque)
+static void {{ name }}_clksrc_callback{{ i }}(void *opaque)
+{
+    /* {{ name|to_upper}}State *s = opaque; */
+}
+
+static void {{ name }}_clkevt_callback{{ i }}(void *opaque)
 {
     {{ name|to_upper}}State *s = opaque;
 
-    uint32_t counter = ptimer_get_count(s->timer[{{ i }}]);
-
-    /* {{ timer_freq }}HZ -> 100HZ */
-    if (counter % ({{ timer_freq }} / 100) == 0)
-         qemu_set_irq(s->irq[{{ i }}], 1);
+    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    timer_mod(s->timer[{{ i }}], 10000000 + now); /* 100HZ */
+    qemu_set_irq(s->irq[{{ i }}], 1);
 }
 {% endfor %}
 
@@ -31,8 +34,8 @@ static uint64_t {{ name }}_read(void *opaque, hwaddr offset, unsigned size)
         default:
             return 0;{% for counter in timer_counters %}
         case {{ counter.addr }}:{% if timer_increasing %}
-            res = ~ptimer_get_count(s->timer[{{ counter.id }}]);{% endif %}{% if timer_decreasing %}
-            res = ptimer_get_count(s->timer[{{ counter.id }}]);{% endif %}{% endfor %}
+            res = ~ptimer_get_count(s->ptimer[{{ counter.id }}]);{% endif %}{% if timer_decreasing %}
+            res = ptimer_get_count(s->ptimer[{{ counter.id }}]);{% endif %}{% endfor %}
             break;
     }
     return res;
@@ -70,17 +73,20 @@ static void {{ name }}_init(Object *obj)
     qdev_init_gpio_out(DEVICE(s), s->irq, {{ timer_n_irq }});
 
     /* initialize the timer */{% for i in timer_n_irq|to_range %}
-    bh[{{ i }}] = qemu_bh_new({{ name }}_tick_callback{{ i }}, s);
-    s->timer[{{ i }}] = ptimer_init(bh[{{ i }}], PTIMER_POLICY_DEFAULT);{% endfor %}
+    bh[{{ i }}] = qemu_bh_new({{ name }}_clksrc_callback{{ i }}, s);
+    s->ptimer[{{ i }}] = ptimer_init(bh[{{ i }}], PTIMER_POLICY_DEFAULT);
+    s->timer[{{ i }}] = timer_new_ns(QEMU_CLOCK_VIRTUAL, {{ name }}_clkevt_callback{{ i }}, s);{% endfor %}
 }
 
 static void {{ name }}_reset(DeviceState *dev)
 {
     {{ name|to_upper}}State *s = {{ name|to_upper }}(dev);
     {% for i in timer_n_irq|to_range %}
-    ptimer_set_freq(s->timer[{{ i }}], {{ timer_freq }});
-    ptimer_set_limit(s->timer[{{ i }}], (uint32_t)((1 << {{ timer_bits }}) - 1), 1);
-    ptimer_run(s->timer[{{ i }}], 0);{% endfor %}
+    ptimer_set_freq(s->ptimer[{{ i }}], {{ timer_freq }});
+    ptimer_set_limit(s->ptimer[{{ i }}], (uint32_t)((1 << {{ timer_bits }}) - 1), 1);
+    ptimer_run(s->ptimer[{{ i }}], 0);
+    int64_t now{{ i }} = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    timer_mod(s->timer[{{ i }}], 10000000 + now{{ i }});/* 100HZ */{% endfor %}
 }
 
 static void {{ name }}_class_init(ObjectClass *klass, void *data)

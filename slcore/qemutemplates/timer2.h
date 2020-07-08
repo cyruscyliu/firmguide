@@ -19,7 +19,11 @@ typedef struct {{ name|to_upper }}State {
 
     qemu_irq irq[{{ timer_n_irq }}];
 
-    ptimer_state *timer[{{ timer_n_irq }}];
+    /* timer for clock source */
+    ptimer_state *ptimer[{{ timer_n_irq }}];
+    /* timer for clock event */
+    QEMUTimer *timer[{{ timer_n_irq }}];
+
 } {{ name|to_upper }}State;
 
 #endif /* {{ name|to_upper }}_H */
