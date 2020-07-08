@@ -19,7 +19,6 @@ typedef struct {{ name|to_upper }}State {
 
     qemu_irq irq[{{ timer_n_irq }}];
 
-    QEMUBH *bh[{{ timer_n_irq }}];
     ptimer_state *timer[{{ timer_n_irq }}];
 } {{ name|to_upper }}State;
 

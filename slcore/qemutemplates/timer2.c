@@ -60,6 +60,7 @@ static const MemoryRegionOps {{ name }}_ops = {
 static void {{ name }}_init(Object *obj)
 {
     {{ name|to_upper}}State *s = {{ name|to_upper }}(obj);
+    QEMUBH *bh[{{ timer_n_irq }}];
 
     /* initialize the mmio */
     memory_region_init_io(&s->mmio, obj, &{{ name }}_ops, s, TYPE_{{ name|to_upper }}, {{ reg.size|to_hex }});
@@ -69,8 +70,8 @@ static void {{ name }}_init(Object *obj)
     qdev_init_gpio_out(DEVICE(s), s->irq, {{ timer_n_irq }});
 
     /* initialize the timer */{% for i in timer_n_irq|to_range %}
-    s->bh[{{ i }}] = qemu_bh_new({{ name }}_tick_callback{{ i }}, s);
-    s->timer[{{ i }}] = ptimer_init(s->bh[{{ i }}], PTIMER_POLICY_DEFAULT);{% endfor %}
+    bh[{{ i }}] = qemu_bh_new({{ name }}_tick_callback{{ i }}, s);
+    s->timer[{{ i }}] = ptimer_init(bh[{{ i }}], PTIMER_POLICY_DEFAULT);{% endfor %}
 }
 
 static void {{ name }}_reset(DeviceState *dev)
