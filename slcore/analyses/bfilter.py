@@ -34,7 +34,7 @@ class CheckBoard(Analysis):
         exclude = [
             'boot', 'common', 'configs', 'crypto', 'firmware', 'include',
             'kernel', 'kvm', 'lib', 'mm', 'net', 'nvfpe', 'oprofile',
-            'tools', 'xen', 'vfp', 'vdso', 'probes']
+            'tools', 'xen', 'vfp', 'vdso', 'probes', 'plat-orion']
         target = self.find_dir_compiled(exclude=exclude)
         if target is None:
             self.error_info = \
