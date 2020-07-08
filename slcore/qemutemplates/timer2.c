@@ -9,9 +9,11 @@ static void {{ name }}_tick_callback{{ i }}(void *opaque)
 {
     {{ name|to_upper}}State *s = opaque;
 
+    uint32_t counter = ptimer_get_count(s->timer[{{ i }}]);
+
     /* {{ timer_freq }}HZ -> 100HZ */
-    // if (s->counter[{{ i }}] % ({{ timer_freq }} / 100) == 0)
-    //     qemu_set_irq(s->irq[{{ i }}], 1);
+    if (counter % ({{ timer_freq }} / 100) == 0)
+         qemu_set_irq(s->irq[{{ i }}], 1);
 }
 {% endfor %}
 
@@ -44,7 +46,6 @@ static void {{ name }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned
         default:
             return;
         case {{ reg.size|to_offset }}:
-            s->reserved = val;
             break;
     }
     {{ name }}_update(s);
@@ -69,19 +70,16 @@ static void {{ name }}_init(Object *obj)
 
     /* initialize the timer */{% for i in timer_n_irq|to_range %}
     s->bh[{{ i }}] = qemu_bh_new({{ name }}_tick_callback{{ i }}, s);
-    s->timer[{{ i }}] = ptimer_init(s->bh[{{ i }}], PTIMER_POLICY_DEFAULT);
-    ptimer_set_freq(s->timer[{{ i }}], {{ timer_freq }});
-    ptimer_set_limit(s->timer[{{ i }}], (1 << {{ timer_bits }}) - 1, 1);
-    ptimer_run(s->timer[{{ i }}], 0);{% endfor %}
+    s->timer[{{ i }}] = ptimer_init(s->bh[{{ i }}], PTIMER_POLICY_DEFAULT);{% endfor %}
 }
 
 static void {{ name }}_reset(DeviceState *dev)
 {
     {{ name|to_upper}}State *s = {{ name|to_upper }}(dev);
-    int64_t now;
     {% for i in timer_n_irq|to_range %}
-    {{ name }}_tick_callback{{ i }}(s);{% endfor %}
-    s->reserved = 0;
+    ptimer_set_freq(s->timer[{{ i }}], {{ timer_freq }});
+    ptimer_set_limit(s->timer[{{ i }}], (1 << {{ timer_bits }}) - 1, 1);
+    ptimer_run(s->timer[{{ i }}], 0);{% endfor %}
 }
 
 static void {{ name }}_class_init(ObjectClass *klass, void *data)

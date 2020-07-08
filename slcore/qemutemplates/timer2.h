@@ -16,12 +16,11 @@ typedef struct {{ name|to_upper }}State {
     /*< public >*/
 
     MemoryRegion mmio;
-    /* output to the intc */
+
     qemu_irq irq[{{ timer_n_irq }}];
+
     QEMUBH *bh[{{ timer_n_irq }}];
     ptimer_state *timer[{{ timer_n_irq }}];
-
-    uint32_t reserved;
 } {{ name|to_upper }}State;
 
 #endif /* {{ name|to_upper }}_H */
