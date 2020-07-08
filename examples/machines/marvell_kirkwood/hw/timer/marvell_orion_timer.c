@@ -5,35 +5,34 @@
 #include "qemu/osdep.h"
 #include "qemu/log.h"
 #include "qapi/error.h"
-#include "qemu/timer.h"
 #include "hw/timer/marvell_orion_timer.h"
 
-static void marvell_orion_timer_tick_callback0(void *opaque)
+static void marvell_orion_timer_clksrc_callback0(void *opaque)
 {
-    MARVELL_ORION_TIMERState *s = opaque;
-
-    /* stupid timer */
-    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
-    timer_mod(s->timer[0], 1000000000 / 1000000 + now); /* 1000000HZ */
-    /* 1000000HZ -> 100HZ */
-    if (s->counter[0] % (1000000 / 100) == 0)
-        qemu_set_irq(s->irq[0], 1);
-    s->counter[0] &= ((1 << 32) - 1);
-    s->counter[0]++;
+    /* MARVELL_ORION_TIMERState *s = opaque; */
 }
 
-static void marvell_orion_timer_tick_callback1(void *opaque)
+static void marvell_orion_timer_clkevt_callback0(void *opaque)
 {
     MARVELL_ORION_TIMERState *s = opaque;
 
-    /* stupid timer */
     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
-    timer_mod(s->timer[1], 1000000000 / 1000000 + now); /* 1000000HZ */
-    /* 1000000HZ -> 100HZ */
-    if (s->counter[1] % (1000000 / 100) == 0)
-        qemu_set_irq(s->irq[1], 1);
-    s->counter[1] &= ((1 << 32) - 1);
-    s->counter[1]++;
+    timer_mod(s->timer[0], 10000000 + now); /* 100HZ */
+    qemu_set_irq(s->irq[0], 1);
+}
+
+static void marvell_orion_timer_clksrc_callback1(void *opaque)
+{
+    /* MARVELL_ORION_TIMERState *s = opaque; */
+}
+
+static void marvell_orion_timer_clkevt_callback1(void *opaque)
+{
+    MARVELL_ORION_TIMERState *s = opaque;
+
+    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    timer_mod(s->timer[1], 10000000 + now); /* 100HZ */
+    qemu_set_irq(s->irq[1], 1);
 }
 
 
@@ -51,7 +50,7 @@ static uint64_t marvell_orion_timer_read(void *opaque, hwaddr offset, unsigned s
         default:
             return 0;
         case 0x14:
-            res = s->counter[1];
+            res = ptimer_get_count(s->ptimer[1]);
             break;
     }
     return res;
@@ -65,7 +64,6 @@ static void marvell_orion_timer_write(void *opaque, hwaddr offset, uint64_t val,
         default:
             return;
         case 0x0 ... 0x1c:
-            s->reserved = val;
             break;
     }
     marvell_orion_timer_update(s);
@@ -80,6 +78,7 @@ static const MemoryRegionOps marvell_orion_timer_ops = {
 static void marvell_orion_timer_init(Object *obj)
 {
     MARVELL_ORION_TIMERState *s = MARVELL_ORION_TIMER(obj);
+    QEMUBH *bh[2];
 
     /* initialize the mmio */
     memory_region_init_io(&s->mmio, obj, &marvell_orion_timer_ops, s, TYPE_MARVELL_ORION_TIMER, 0x20);
@@ -89,22 +88,28 @@ static void marvell_orion_timer_init(Object *obj)
     qdev_init_gpio_out(DEVICE(s), s->irq, 2);
 
     /* initialize the timer */
-    s->timer[0] = timer_new_ns(QEMU_CLOCK_VIRTUAL, marvell_orion_timer_tick_callback0, s);
-    s->timer[1] = timer_new_ns(QEMU_CLOCK_VIRTUAL, marvell_orion_timer_tick_callback1, s);
+    bh[0] = qemu_bh_new(marvell_orion_timer_clksrc_callback0, s);
+    s->ptimer[0] = ptimer_init(bh[0], PTIMER_POLICY_DEFAULT);
+    s->timer[0] = timer_new_ns(QEMU_CLOCK_VIRTUAL, marvell_orion_timer_clkevt_callback0, s);
+    bh[1] = qemu_bh_new(marvell_orion_timer_clksrc_callback1, s);
+    s->ptimer[1] = ptimer_init(bh[1], PTIMER_POLICY_DEFAULT);
+    s->timer[1] = timer_new_ns(QEMU_CLOCK_VIRTUAL, marvell_orion_timer_clkevt_callback1, s);
 }
 
 static void marvell_orion_timer_reset(DeviceState *dev)
 {
     MARVELL_ORION_TIMERState *s = MARVELL_ORION_TIMER(dev);
-    int64_t now;
     
-    now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
-    timer_mod(s->timer[0], 0x10000000 + now); /* 100HZ */
-    s->counter[0] = 0;
-    now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
-    timer_mod(s->timer[1], 0x10000000 + now); /* 100HZ */
-    s->counter[1] = 0;
-    s->reserved = 0;
+    ptimer_set_freq(s->ptimer[0], 200000000);
+    ptimer_set_limit(s->ptimer[0], (uint32_t)((1 << 32) - 1), 1);
+    ptimer_run(s->ptimer[0], 0);
+    int64_t now0 = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    timer_mod(s->timer[0], 10000000 + now0);/* 100HZ */
+    ptimer_set_freq(s->ptimer[1], 200000000);
+    ptimer_set_limit(s->ptimer[1], (uint32_t)((1 << 32) - 1), 1);
+    ptimer_run(s->ptimer[1], 0);
+    int64_t now1 = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    timer_mod(s->timer[1], 10000000 + now1);/* 100HZ */
 }
 
 static void marvell_orion_timer_class_init(ObjectClass *klass, void *data)

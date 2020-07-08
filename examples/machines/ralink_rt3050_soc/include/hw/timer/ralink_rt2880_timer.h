@@ -6,7 +6,7 @@
 #define RALINK_RT2880_TIMER_H
 
 #include "hw/sysbus.h"
-#include "qemu/timer.h"
+#include "hw/ptimer.h"
 
 #define TYPE_RALINK_RT2880_TIMER "ralink_rt2880_timer"
 #define RALINK_RT2880_TIMER(obj) \
@@ -18,12 +18,14 @@ typedef struct RALINK_RT2880_TIMERState {
     /*< public >*/
 
     MemoryRegion mmio;
-    /* output to the intc */
-    qemu_irq irq[1];
-    QEMUTimer *timer[1];
-    uint32_t counter[1];
 
-    uint32_t reserved;
+    qemu_irq irq[1];
+
+    /* timer for clock source */
+    ptimer_state *ptimer[1];
+    /* timer for clock event */
+    QEMUTimer *timer[1];
+
 } RALINK_RT2880_TIMERState;
 
 #endif /* RALINK_RT2880_TIMER_H */
