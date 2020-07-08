@@ -97,12 +97,12 @@ install_qemu()
     wget -nc https://download.qemu.org/qemu-4.0.0.tar.xz \
         -O $SALAMANDER_BUILD/qemu-4.0.0.tar.xz || true && \
     tar --skip-old-files -Jxf $SALAMANDER_BUILD/qemu-4.0.0.tar.xz -C $SALAMANDER_BUILD && \
-        # --enable-debug --extra-cflags="-g3" --extra-ldflags="-g3" \
-        # --disable-strip --disable-pie \
     cp -rL --remove-destination ./externals/qemu/* $SALAMANDER_BUILD/qemu-4.0.0/ && \
     cd $SALAMANDER_BUILD/qemu-4.0.0 && ./configure \
         --target-list=arm-softmmu,mips-softmmu,mipsel-softmmu \
         --enable-autoboard \
+        --enable-debug --extra-cflags="-g3" --extra-ldflags="-g3" \
+        --disable-strip --disable-pie \
         && \
         make -j4 && cd $OLDPWD
     echo $SALAMANDER_BUILD/qemu-4.0.0 > .qemu
