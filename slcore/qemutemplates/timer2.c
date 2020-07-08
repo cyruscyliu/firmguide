@@ -79,7 +79,7 @@ static void {{ name }}_reset(DeviceState *dev)
     {{ name|to_upper}}State *s = {{ name|to_upper }}(dev);
     {% for i in timer_n_irq|to_range %}
     ptimer_set_freq(s->timer[{{ i }}], {{ timer_freq }});
-    ptimer_set_limit(s->timer[{{ i }}], (1 << {{ timer_bits }}) - 1, 1);
+    ptimer_set_limit(s->timer[{{ i }}], (uint32_t)((1 << {{ timer_bits }}) - 1), 1);
     ptimer_run(s->timer[{{ i }}], 0);{% endfor %}
 }
 
