@@ -2,7 +2,9 @@ marvell,armada-xp-timer:
     n_irq: 6
     counters: [{'addr': '0x14', 'id': 1}]
     freq: 1000000
-    tilde: False
+    bits: 32
+    increasing: True
+    decreasing: False
 marvell,orion-timer:
     # register_current_timer_delay
     # [#0] 0xc0721584 -> register_current_timer_delay(timer=0xc0c22700 <orion_clkevt>)
@@ -25,25 +27,33 @@ marvell,orion-timer:
     n_irq: 2
     counters: [{'addr': '0x14', 'id': 1}]
     freq: 1000000
-    tilde: False
+    bits: 32
+    increasing: True
+    decreasing: False
 plxtech,nas782x-rps-timer:
     # clocksource_mmio_init(base + TIMER_CURR, "",
     #                       clock_rate, 250, TIMER_BITS, clocksource_mmio_readl_down);
     # sched_clock_register(rps_read_sched_clock, TIMER_BITS, clock_rate);
     # TIMER_BITS=24 matters
     # clock_rate=390000 matters
-    # in rps_read_sched_clock, the return value is ~(*(base+0x24)), so the tilde is True
+    # in rps_read_sched_clock, the return value is ~(*(base+0x24)), so the increasing is True
     n_irq: 1
     counters: [{'addr': '0x24', 'id': 0}]
     freq: 390625
-    tilde: True
+    bits: 24
+    increasing: False
+    decreasing: True
 ralink,cevt-systick:
     n_irq: 1
     counters: []
     freq: 1000000
-    tilde: False
+    bits: 32
+    increasing: True
+    decreasing: False
 ralink,rt2880-timer:
     n_irq: 1
     counters: []
     freq: 1000000
-    tilde: False
+    bits: 32
+    increasing: True
+    decreasing: False
