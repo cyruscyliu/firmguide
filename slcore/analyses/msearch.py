@@ -150,7 +150,7 @@ class FindMachine(Analysis):
                 return True
 
         # T4 MACHINE_ID_SIGNATURE
-        self.info('this board doesn\'t have device tree, we will be looking for its machine ids', 1)
+        self.info('this firmware doesn\'t have device tree, we will be looking for its machine ids', 1)
         machine_ids = find_machine_id(components.get_path_to_kernel())
         if machine_ids is None:
             self.info('we will try our profiles one by one', 1)
