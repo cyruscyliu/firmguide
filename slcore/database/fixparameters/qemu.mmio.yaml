@@ -42,7 +42,8 @@ qca,qca9550-pll:
     regs_index:
         0:
             registers:
-                - {offset: 0x0, size: 0x4, value: 0x0810, path: arch/mips/ath79/clock.c, function: qca955x_clocks_init}
+                # quite complicated
+                - {offset: 0x0, size: 0x4, value: 0x0005, path: arch/mips/ath79/clock.c, function: qca955x_clocks_init}
 qca,ar7240-pll:
     regs_index:
         0:
