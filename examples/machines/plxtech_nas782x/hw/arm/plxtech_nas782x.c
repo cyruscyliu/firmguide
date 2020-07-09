@@ -988,7 +988,7 @@ static void plxtech_nas782x_reset(void *opaque)
     
     s->plxtech_nand_nas782x0_reserved[0x0 >> 2] = 0x40;
     s->plxtech_nas782x_plla0_reserved[0x0 >> 2] = 0x8000;
-    s->plxtech_nas782x_plla0_reserved[0x4 >> 2] = 0x8000;
+    s->plxtech_nas782x_plla0_reserved[0x4 >> 2] = 0x40000;
 }
 
 static void plxtech_nas782x_init(MachineState *machine)

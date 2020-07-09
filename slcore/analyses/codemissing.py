@@ -6,7 +6,7 @@ class CheckMissingCode(Analysis):
         trace = self.analysis_manager.get_analysis('loadtrace')
         pql = trace.pql
 
-        for k, cpurf in pql.cpurfs.items():
+        for k, cpurf in pql.get_cpurf():
             nop = 0
 
             bb = pql.get_bb(cpurf)

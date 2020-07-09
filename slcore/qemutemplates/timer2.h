@@ -4,7 +4,7 @@
 #define {{ name|to_upper }}_H
 
 #include "hw/sysbus.h"
-#include "qemu/timer.h"
+#include "hw/ptimer.h"
 
 #define TYPE_{{ name|to_upper }} "{{ name }}"
 #define {{ name|to_upper }}(obj) \
@@ -16,12 +16,14 @@ typedef struct {{ name|to_upper }}State {
     /*< public >*/
 
     MemoryRegion mmio;
-    /* output to the intc */
-    qemu_irq irq[{{ timer_n_irq }}];
-    QEMUTimer *timer[{{ timer_n_irq }}];
-    uint32_t counter[{{ timer_n_irq }}];
 
-    uint32_t reserved;
+    qemu_irq irq[{{ timer_n_irq }}];
+
+    /* timer for clock source */
+    ptimer_state *ptimer[{{ timer_n_irq }}];
+    /* timer for clock event */
+    QEMUTimer *timer[{{ timer_n_irq }}];
+
 } {{ name|to_upper }}State;
 
 #endif /* {{ name|to_upper }}_H */

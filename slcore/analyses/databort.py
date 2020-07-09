@@ -31,7 +31,7 @@ def get_instruction(address, bb):
 class CheckDataAbort(Analysis):
     def handle_arm_dabt(self, pql):
         dabts = []
-        for k, cpurf in pql.cpurfs.items():
+        for k, cpurf in pql.get_cpurf():
             if 'exception' in cpurf and \
                     'type' in cpurf['exception'] and cpurf['exception']['type'] == 'dabt':
                 dabts.append(cpurf)
@@ -61,7 +61,7 @@ class CheckDataAbort(Analysis):
 
     def handle_mips_dabt(self, pql):
         dbes = []
-        for k, cpurf in pql.cpurfs.items():
+        for k, cpurf in pql.get_cpurf():
             if 'exception' in cpurf and 'type' in cpurf['exception'] and \
                     cpurf['exception']['type'] == 'dbe':
                 dbes.append(cpurf)

@@ -26,23 +26,11 @@ class LoadTrace(Analysis):
             return False
 
         self.info('loading {} ...'.format(path_to_trace), 1)
-        if self.firmware.get_arch() == 'arm':
-            if self.firmware.get_endian() == 'l':
-                self.pql = get_pql('aarch32', 'little', path_to_trace)
-            else:
-                self.pql = get_pql('aarch32', 'big', path_to_trace)
-        elif self.firmware.get_arch() == 'mips':
-            if self.firmware.get_endian() == 'l':
-                self.pql = get_pql('mips', 'little', path_to_trace)
-            else:
-                self.pql = get_pql('mips', 'big', path_to_trace)
-        else:
-            self.error_info = 'cannot support parsing log except arm/mips'
-            return False
+        self.pql = get_pql('{}e{}'.format(
+            self.firmware.get_arch(), self.firmware.get_endian()),
+            path_to_trace, mode='generator')
 
-        self.pql.load_cpurf(dump=False)
-        self.info('load {} cpu register files'.format(len(self.pql.cpurfs)), 1)
-        self.pql.load_in_asm(dump=False)
+        self.pql.load_in_asm()
         self.info('load {} basic blocks'.format(len(self.pql.bbs)), 1)
         return True
 

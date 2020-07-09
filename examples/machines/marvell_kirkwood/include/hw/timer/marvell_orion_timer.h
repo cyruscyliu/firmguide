@@ -6,7 +6,7 @@
 #define MARVELL_ORION_TIMER_H
 
 #include "hw/sysbus.h"
-#include "qemu/timer.h"
+#include "hw/ptimer.h"
 
 #define TYPE_MARVELL_ORION_TIMER "marvell_orion_timer"
 #define MARVELL_ORION_TIMER(obj) \
@@ -18,12 +18,14 @@ typedef struct MARVELL_ORION_TIMERState {
     /*< public >*/
 
     MemoryRegion mmio;
-    /* output to the intc */
-    qemu_irq irq[2];
-    QEMUTimer *timer[2];
-    uint32_t counter[2];
 
-    uint32_t reserved;
+    qemu_irq irq[2];
+
+    /* timer for clock source */
+    ptimer_state *ptimer[2];
+    /* timer for clock event */
+    QEMUTimer *timer[2];
+
 } MARVELL_ORION_TIMERState;
 
 #endif /* MARVELL_ORION_TIMER_H */

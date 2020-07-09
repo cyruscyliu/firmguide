@@ -6,7 +6,7 @@
 #define PLXTECH_NAS782X_RPS_TIMER_H
 
 #include "hw/sysbus.h"
-#include "qemu/timer.h"
+#include "hw/ptimer.h"
 
 #define TYPE_PLXTECH_NAS782X_RPS_TIMER "plxtech_nas782x_rps_timer"
 #define PLXTECH_NAS782X_RPS_TIMER(obj) \
@@ -18,12 +18,14 @@ typedef struct PLXTECH_NAS782X_RPS_TIMERState {
     /*< public >*/
 
     MemoryRegion mmio;
-    /* output to the intc */
-    qemu_irq irq[1];
-    QEMUTimer *timer[1];
-    uint32_t counter[1];
 
-    uint32_t reserved;
+    qemu_irq irq[1];
+
+    /* timer for clock source */
+    ptimer_state *ptimer[1];
+    /* timer for clock event */
+    QEMUTimer *timer[1];
+
 } PLXTECH_NAS782X_RPS_TIMERState;
 
 #endif /* PLXTECH_NAS782X_RPS_TIMER_H */

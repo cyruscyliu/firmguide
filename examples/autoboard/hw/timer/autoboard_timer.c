@@ -211,7 +211,7 @@ static void autoboard_timer_init(Object *obj)
     s->name = timer_name;
     s->cfg = get_autoboard_timer_config(choosen_id);
     s->is_level_irq = s->cfg->is_level_irq;
-    s->ns_per_cycle = calc_ns_per_cycle(AUTOBOARD_TIMER_NS_PER_CYCLE, s->cfg->ns_per_cycle);
+    s->ns_per_cycle = s->cfg->ns_per_cycle;
     s->act_irq = autoboard_timer_act_irq;
     s->deact_irq = autoboard_timer_deact_irq;
 

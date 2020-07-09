@@ -6,7 +6,7 @@ class CheckTLBExcep(Analysis):
         tlb = []
         tlbl = 0
         tlbs = 0
-        for k, cpurf in pql.cpurfs.items():
+        for k, cpurf in pql.get_cpurf():
             if 'exception' in cpurf and 'type' in cpurf['exception'] and \
                     cpurf['exception']['type'] == 'tlbl' and tlbl < 10:
                 tlb.append(cpurf)

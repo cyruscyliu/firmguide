@@ -4,7 +4,7 @@ from slcore.amanager import Analysis
 class CheckUndefInst(Analysis):
     def handle_arm_undef_inst(self, pql):
         uis = []
-        for k, cpurf in pql.cpurfs.items():
+        for k, cpurf in pql.get_cpurf():
             if 'exception' in cpurf and 'type' in cpurf['exception'] and \
                     cpurf['exception']['type'] == 'ui':
                 uis.append(cpurf)
@@ -26,7 +26,7 @@ class CheckUndefInst(Analysis):
 
     def handle_mips_undef_inst(self, pql):
         unkinsns = []
-        for k, cpurf in pql.cpurfs.items():
+        for k, cpurf in pql.get_cpurf():
             if 'exception' in cpurf and 'type' in cpurf['exception'] and \
                     cpurf['exception']['type'] == 'ri':
                 unkinsns.append(cpurf)

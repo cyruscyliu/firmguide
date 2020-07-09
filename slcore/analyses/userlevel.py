@@ -5,7 +5,7 @@ class CheckUserLevel(Analysis):
     def scan_user_level_qemudebug(self, pql):
         user_level = 'usr32' \
             if self.firmware.get_arch() == 'arm' else 'user'
-        for k, cpurf in pql.cpurfs.items():
+        for k, cpurf in pql.get_cpurf():
             if cpurf['mode'] == user_level:
                 return True
         self.error_info = 'have not entered the user level'
