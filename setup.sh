@@ -25,6 +25,7 @@ install_python()
         else
             echo Python3 is satisfied
             echo =========================================
+	    INSTALL_PYTHON=0
         fi
     fi
 
@@ -43,8 +44,8 @@ install_python_requirments()
     echo Install Python requirments
     echo =========================================
     apt-get install -y python3-pip && \
-        python3.6 -m pip install --upgrade pip && \
-        ln -sf `which pip3.6` /usr/bin/pip >/dev/null 2>&1 && \
+        python -m pip install --upgrade pip && \
+        ln -sf `which pip${V1}.${V2}` /usr/bin/pip >/dev/null 2>&1 && \
         pip install --upgrade pip
     pip install qmp fdt capstone pydot graphviz pyyaml
     $/tmp/pyqemulog/pyqemulog -h >/dev/null 2>&1 || \
@@ -161,8 +162,8 @@ usage()
     echo "  -l     install LLVM 9.0"
 }
 
-mkdir -p ~/build
-SALAMANDER_BUILD=~/build
+mkdir -p ~/build-latest
+SALAMANDER_BUILD=~/build-latest
 export BUILD_DIR
 
 while getopts "pbqslah" opt; do
