@@ -115,9 +115,11 @@ install_sparse()
     echo Install sparse
     echo =========================================
     $SALAMANDER_BUILD/sparse/sparse --version >/dev/null 2>&1 || \
-        git clone git://git.kernel.org/pub/scm/devel/sparse/sparse.git $SALAMANDER_BUILD/sparse && \
+        git clone git://git.kernel.org/pub/scm/devel/sparse/sparse.git $SALAMANDER_BUILD/sparse
+    cp -rL --remove-destination ./externals/sparse/* $SALAMANDER_BUILD/sparse/ && \
         cd $SALAMANDER_BUILD/sparse && make && cd $OLDPWD
     echo $SALAMANDER_BUILD/sparse > .sparse
+    echo $SALAMANDER_BUILD/traverse> .traverse
     echo Done
 }
 
