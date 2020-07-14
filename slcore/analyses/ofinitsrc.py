@@ -177,6 +177,22 @@ class UpdateCompatibleDB(Analysis):
         return True
 
 
+def search_cb(cmptb, path_to_source):
+    with os.popen('grep -r \\"{}\\" {}/'.format(cmptb, path_to_source)) as f:
+        for line in f:
+            path = line.split(':')[0]
+            if not os.path.exists(path):
+                continue
+            cb = re_scan(path, declare='[_A-Z]+_DECLARE', depress=True)
+            if len(path) > 160:
+                path = '...' + path[150:]
+            if (cb) is not None:
+                for i in cb:
+                    if i[1] != cmptb:
+                        continue
+                    yield i, path
+
+
 class OfInitSrc(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
@@ -206,18 +222,7 @@ class OfInitSrc(Analysis):
             compatible = dts.get_property('compatible', path)
             self.info('searching {}'.format(compatible), 1)
             for cmptb in compatible:
-                with os.popen('grep -r \\"{}\\" {}/'.format(cmptb, path_to_source)) as f:
-                    for line in f:
-                        path = line.split(':')[0]
-                        if not os.path.exists(path):
-                            continue
-                        cb = re_scan(path, declare='[_A-Z]+_DECLARE', depress=True)
-                        if len(path) > 160:
-                            path = '...' + path[150:]
-                        if (cb) is not None:
-                            for i in cb:
-                                if i[1] != cmptb:
-                                    continue
-                                self.info('[bingo] {} in {}'.format(i, path), 1)
-                                c_cb.append(i)
+                for triple, path in search_cb(cmptb, path_to_source):
+                    self.info('[bingo] {} in {}'.format(triple, path), 1)
+                    c_cb.append(triple)
         return True

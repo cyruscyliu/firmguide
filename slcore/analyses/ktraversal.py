@@ -3,24 +3,8 @@ import pydot
 
 from slcore.amanager import Analysis
 from slcore.srcskiplist import UNMODELED_SKIP_LIST
+from slcore.srcfcbs import generic_fcbs
 
-
-generic_fcbs = {
-    'plat_irq_dispatch': {'ignored': True},
-    'of_irq_init': {'ignored': False},
-    'irq_set_chip_and_handler_name': {'ignored': False},
-    'irq_set_chained_handler_and_data': {'ignored': False},
-    'irq_domain_add_legacy': {'ignored': False},
-    '__irq_domain_add': {'ignored': False},
-    'panic': {'ignored': True},
-    'r4k_clockevent_init': {'ignored': True},
-    'init_r4k_clocksource': {'ignored': True},
-    'mips_cpu_irq_init': {'ignored': True},
-    '__irq_set_handler': {'ignored': False},
-    'irq_domain_add_simple': {'ignored': False},
-    'of_clk_init': {'ignored': True},
-    'set_handle_irq': {'ignored': False},
-}
 
 dirs_blacklist = [
     'include', '.pc', 'samples', 'patches', 'user_headers', 'tools',
@@ -37,51 +21,95 @@ class TraverseKernel(Analysis):
 
         self.full_graph = pydot.Dot(graph_type='digraph')
         self.source_code = None
+        self.unknown_list = []
+        self.unhandled_list = []
     
     def is_in_dirs_blacklist(self, root):
         for db in dirs_blacklist:
             if root.startswith(os.path.join(self.source_code, db)):
                 return True
         return False
+
+    def is_in_dirs_whitelist(self, root, dirs):
+        for dw in dirs:
+            if root.startswith(os.path.join(self.source_code, dw)):
+                return True
+        return False
+
+    def is_in_files_whitelist(self, path, files):
+        for fw in files:
+            if path.endswith(fw):
+                return True
+        return False
     
     def get_funccall_graph(self, path):
-        with open.popen('{}/traverse {} 2>/dev/null'.format(
-                self.project.attrs['sparse_dir'], path)) as o:
+        with os.popen('{}/traverse {} 2>/dev/null'.format(
+                self.analysis_manager.project.attrs['sparse_dir'],
+                os.path.join(self.source_code, path))) as o:
             output = o.readlines()
         output = ''.join(output)
 
         graphs = pydot.graph_from_dot_data(output)
         assert len(graphs) == 1, 'something wrong in graph'
         return graphs[0]
+
+    def get_edge(self, src):
+        for subgraph in self.full_graph.get_subgraphs():
+            for edge in subgraph.get_edges():
+                if edge.get_source().strip('"') == src:
+                    yield edge
     
     def walk_kernel(self, caller, fcbs={}, depth=0):
-        for edge in self.graph.get_edge(caller):
-            dest = edge.get_destination()
-            self.parse_funcall(caller, funccall, fcbs, depth+=1)
-            self.walk_kernel(dest, fcbs=fcbs, depth+=1)
+        for edge in self.get_edge(caller):
+            dest = edge.get_destination().strip('"')
+            if not self.parse_funccall(caller, dest, fcbs, depth=depth + 1):
+                self.walk_kernel(dest, fcbs=fcbs, depth=depth + 1)
 
     def parse_funccall(self, caller, funccall, fcbs, depth):
-        # ignore functions we donot want to analyze
         if funccall in UNMODELED_SKIP_LIST:
+            if self.show_skipped_functions:
+                self.info('{}|-{}->{}[skip]'.format(' ' * 2 * (depth - 1), caller, funccall), 1)
             return True
 
         if funccall not in fcbs:
+            self.unknown_list.append(funccall)
+            self.info('{}|-{}->{}[unknown]'.format(' ' * 2 * (depth - 1), caller, funccall), 1)
             return False
         
-        cbs = fcsb[funccall]
-        if cbs['ignored']:
-            # self.info('ana_funccalls2', '{}{}->{}({})({})'.format('->' * (depth+1), caller, f, 'ignored', None), 0)
+        cbs = generic_fcbs[funccall]
+        if 'ignored' in cbs and cbs['ignored']:
+            self.info('{}|-{}->{}[ignored]'.format(' ' * 2 *  (depth - 1), caller, funccall), 1)
             return True
-        if caller in cbs:
-            ext = cbs[caller](self.config)
-            unhandled.extend(ext)
-            self.info('ana_funccalls2', '{}{}->{}({})({})'.format('->' * (depth+1), caller, f, 'handled', None), 0)
-        else:
-            self.info('ana_funccalls2', '{}{}->{}({})({})'.format('->' * (depth+1), caller, f, 'unhandled', None), 0)
-        return funccalls
+        if 'intermediate' in cbs and cbs['intermediate']:
+            self.info('{}|-{}->{}[intermediate]'.format(' ' * 2 * (depth - 1), caller, funccall), 1)
+            return False
+
+        if 'handler' not in cbs:
+            self.info('{}|-{}->{}[unhandled]'.format(' ' * 2 * (depth - 1), caller, funccall), 1)
+            self.unhandled_list.append(funccall)
+            return False
+
+        extend = []
+        status = cbs['handler'](self, caller, extend=extend)
+        if not status:
+            self.info('{}|-{}->{}[unhandled]'.format(' ' * 2 * (depth - 1), caller, funccall), 1)
+            self.unhandled_list.append(funccall)
+            return False
+
+        self.info('{}|-{}->{}[handled]'.format(' ' * 2 * (depth - 1), caller, funccall), 1)
+        if not len(extend) > 0:
+            return True
+
+        for new_caller in extend:
+            self.info('{}|-{}->{}[indirected]'.format(' ' * 2 * (depth + 1 - 1), funccall, new_caller), 1)
+            self.walk_kernel(new_caller, fcbs=fcbs, depth=depth+1)
+        return True
 
     def run(self, **kwargs):
         target_dirs = kwargs.pop('dirs')
+        entrypoint = kwargs.pop('entry_point')
+        target_files = kwargs.pop('file')
+        self.show_skipped_functions = kwargs.pop('all')
 
         # We simply preprocess the c file containing
         # the entry point if no other arguments assigned.
@@ -93,13 +121,23 @@ class TraverseKernel(Analysis):
 
         # load all symbols
         failed_cases = 0
-        for root, dirs, files in os.walk(source_code):
+        for root, dirs, files in os.walk(self.source_code):
             for f in files:
-                if self.is_in_dirs_blacklist(source_code, root):
-                    continue
                 if not f.endswith('.c') and not f.endswith('.S'):
                     continue
-                relative = os.path.join(root, f)[len(source_code) + 1:]
+                absolute = os.path.join(root, f)
+                relative = absolute[len(self.source_code) + 1:]
+
+                if target_files:
+                    if not self.is_in_files_whitelist(absolute, target_files):
+                        continue
+                else:
+                    if self.is_in_dirs_blacklist(absolute):
+                        continue
+                    if target_dirs is not None and \
+                            not self.is_in_dirs_whitelist(absolute, target_dirs):
+                        continue
+
                 cmdline = srcodec.get_cmdline(relative)
                 if cmdline is None:
                     continue
@@ -107,14 +145,25 @@ class TraverseKernel(Analysis):
                 if fp is None:
                     failed_cases += 1
                     continue
-                graph = self.get_funccall_graph()
+                graph = self.get_funccall_graph(fp)
                 for subgraph in graph.get_subgraph_list():
-                    full_graph.add_subgraph(subgraph)
+                    self.full_graph.add_subgraph(subgraph)
+                self.info('[done] {}'.format(relative), 1)
 
         # walk kernel
-        self.walk_kernel('start_kernel', fcbs=generic_fcbs, depth=0)
+        if entrypoint is None:
+            entrypoint = 'start_kernel'
+        self.walk_kernel(entrypoint, fcbs=generic_fcbs, depth=0)
         
         if failed_cases > 0:
             self.warning('{} failed cases'.format(failed_cases), 0)
+
+        if len(self.unknown_list) > 0:
+            self.info('You may add the unknown functions below to the skip list', 1)
+            self.info(str(self.unknown_list), 1)
+
+        if len(self.unhandled_list) > 0:
+            self.info('You may add handlers for the functions below', 1)
+            self.info(str(self.unhandled_list), 1)
         
         return True

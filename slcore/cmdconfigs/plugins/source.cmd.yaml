@@ -19,5 +19,10 @@ ktraversal:
     help: "Plugin - Traverse the Linux kernel source code."
     optional:
         << : *optional
-        dirs: {short: dirs, required: False, help: "Dirs to be included."}
+        dirs: {short: dirs, nargs: '+', required: False, help: "Dirs to be included."}
+        dtb: {short: dtb, required: False, help: 'Device tree blob.'}
+        entry_point: {short: e, required: False,
+            help: "Entrypoint to start the traversal."}
+        file: {short: f, nargs: '+', required: False, help: "File to be traversed."}
+        all: {short: a, action: 'store_true', default: False, help: "Show skipped functions."}
     callback: traversekernel

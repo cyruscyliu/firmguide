@@ -10,7 +10,6 @@ class QuickSrcA(Analysis):
 
     def run(self, **kwargs):
         ep = kwargs.pop('entry_point')
-        caller = kwargs.pop('caller')
         f = kwargs.pop('file')
 
         # We simply preprocess the c file containing
