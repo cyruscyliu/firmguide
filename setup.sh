@@ -119,7 +119,6 @@ install_sparse()
     cp -rL --remove-destination ./externals/sparse/* $SALAMANDER_BUILD/sparse/ && \
         cd $SALAMANDER_BUILD/sparse && make && cd $OLDPWD
     echo $SALAMANDER_BUILD/sparse > .sparse
-    echo $SALAMANDER_BUILD/traverse> .traverse
     echo Done
 }
 
