@@ -2,14 +2,9 @@ import os
 import pydot
 
 from slcore.amanager import Analysis
-from slcore.srcskiplist import UNMODELED_SKIP_LIST
+from slcore.analyses.ktraversalaux import funccalls_blacklist, \
+        dirs_blacklist, files_whitelist
 from slcore.srcfcbs import generic_fcbs
-
-
-dirs_blacklist = [
-    'include', '.pc', 'samples', 'patches', 'user_headers', 'tools',
-    'Documentation', 'usr', 'scripts', 'virt'
-]
 
 
 class TraverseKernel(Analysis):
@@ -66,7 +61,7 @@ class TraverseKernel(Analysis):
                 self.walk_kernel(dest, fcbs=fcbs, depth=depth + 1)
 
     def parse_funccall(self, caller, funccall, fcbs, depth):
-        if funccall in UNMODELED_SKIP_LIST:
+        if funccall in funccalls_blacklist:
             if self.show_skipped_functions:
                 self.info('{}|-{}->{}[skip]'.format(' ' * 2 * (depth - 1), caller, funccall), 1)
             return True
@@ -101,12 +96,18 @@ class TraverseKernel(Analysis):
             return True
 
         for new_caller in extend:
+            if new_caller in funccalls_blacklist:
+                if self.show_skipped_functions:
+                    self.info('{}|-{}->{}[skip]'.format(' ' * 2 * (depth - 1), funccall, new_caller), 1)
+                continue
+            if new_caller not in fcbs:
+                self.unknown_list.append(new_caller)
             self.info('{}|-{}->{}[indirected]'.format(' ' * 2 * (depth + 1 - 1), funccall, new_caller), 1)
             self.walk_kernel(new_caller, fcbs=fcbs, depth=depth+1)
         return True
 
     def run(self, **kwargs):
-        target_dirs = kwargs.pop('dirs')
+        target_dirs = kwargs.pop('dirs')  # dirs_whitelist
         entrypoint = kwargs.pop('entry_point')
         target_files = kwargs.pop('file')
         self.show_skipped_functions = kwargs.pop('all')
@@ -128,15 +129,29 @@ class TraverseKernel(Analysis):
                 absolute = os.path.join(root, f)
                 relative = absolute[len(self.source_code) + 1:]
 
-                if target_files:
-                    if not self.is_in_files_whitelist(absolute, target_files):
-                        continue
+                d_allowed = True
+                if self.is_in_dirs_blacklist(absolute):
+                    d_allowed = False
+
+                if target_dirs is not None and \
+                        not self.is_in_dirs_whitelist(absolute, target_dirs):
+                    d_allowed = False
+
+                f_allowed = True
+                if target_files is not None and \
+                        not self.is_in_files_whitelist(absolute, target_files):
+                    d_allowed = False
+                    f_allowed = False
+
+                if self.is_in_files_whitelist(absolute, files_whitelist):
+                    f_allowed = True
+
+                if target_files is None:
+                    allowed = d_allowed
                 else:
-                    if self.is_in_dirs_blacklist(absolute):
-                        continue
-                    if target_dirs is not None and \
-                            not self.is_in_dirs_whitelist(absolute, target_dirs):
-                        continue
+                    allowed = f_allowed or d_allowed
+                if not allowed:
+                    continue
 
                 cmdline = srcodec.get_cmdline(relative)
                 if cmdline is None:

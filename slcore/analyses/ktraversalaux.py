@@ -1,8 +1,20 @@
-"""
-UNMODELED_SKIP_LIST:  WE DON'T ANALYZE THEM
-"""
+files_whitelist = [
+    'init/main.c',
+    'drivers/irqchip/irqchip.c',
+    'drivers/of/irq.c',
+    'drivers/irqchip/irq-gic.c',
+    'drivers/irqchip/irq-rps.c',
+    'drivers/clocksource/clksrc-of.c',
+]
 
-UNMODELED_SKIP_LIST = [
+
+dirs_blacklist = [
+    'include', '.pc', 'samples', 'patches', 'user_headers', 'tools',
+    'Documentation', 'usr', 'scripts', 'virt'
+]
+
+
+funccalls_blacklist = [
     'early_init_dt_scan', 'of_flat_dt_get_machine_name', 'of_scan_flat_dt',
     'kmemdup', 'kfree', 'msleep', '__builtin_memcmp', 'add_memory_region', 'detect_memory_region',
     'clk_get_rate', 'clk_put', 'sprintf',  '__udelay',
@@ -78,7 +90,7 @@ UNMODELED_SKIP_LIST = [
     'setup_per_cpu_pageset', 'numa_policy_init', 'sched_clock_init', 'calibrate_delay', 'pidmap_init', 'anon_vma_init',
     'acpi_early_init', 'thread_info_cache_init', 'cred_init', 'fork_init', 'proc_caches_init', 'buffer_init', 'key_init',
     'security_init', 'vfs_caches_init', 'signals_init', 'page_writeback_init', 'proc_root_init', 'delayacct_init', 'check_writebuffer_bugs',
-    'ftrace_init', 'rcu_scheduler_starting', 'kernel_thread', 'kernel_thread', 'numa_default_policy', 'rcu_read_lock', 'find_task_by_pid_ns',
+    'ftrace_init', 'rcu_scheduler_starting', 'numa_default_policy', 'rcu_read_lock', 'find_task_by_pid_ns',
     'rcu_read_unlock', 'complete', 'current_thread_info', 'init_idle_bootup_task', 'schedule_preempt_disabled', 'cpu_startup_entry',
     '<noident>', 'read_cpuid_id', 'lookup_processor_type', 'early_paging_init', 'setup_dma_zone', 'psci_init', 'is_smp', 'is_smp',
     'smp_set_ops', 'smp_init_cpus', 'hyp_mode_check', 'reserve_crashkernel', 'vsnprintf', 'early_print',
@@ -88,6 +100,28 @@ UNMODELED_SKIP_LIST = [
     'list_del', 'list_del', 'of_match_node', 'no_printk', 'of_property_read_u32', 'of_property_read_u32', 'numa_node_id', 
     '__irq_alloc_descs', 'set_smp_cross_call', 'register_cpu_notifier', 'gic_get_cpumask', 'gic_dist_config', 'gic_get_cpumask',
     'gic_cpu_config', 'gic_cpu_if_up', '__alloc_percpu', '__alloc_percpu', 'cpu_pm_register_notifier',
-    'numa_node_id', '__irq_alloc_descs'
-
+    'numa_node_id', '__irq_alloc_descs', 'preempt_count', 'preempt_count', 'initcall_blacklisted', 'kasprintf',
+    'strcmp', 'do_one_initcall_debug', 'task_pid_nr', 'ktime_get', 'ktime_get', 'preempt_count_ptr', 'lockup_detector_init',
+    'smp_init', 'sched_init_smp', 'cpuset_init_smp', 'usermodehelper_init', 'shmem_init', 'driver_init', 'init_irq_proc', 'do_ctors',
+    '__usermodehelper_set_disable_depth', 'usermodehelper_enable', 'preempt_count', 'preempt_count',
+    'initcall_blacklisted', 'kasprintf', 'strcmp', 'do_one_initcall_debug', 'task_pid_nr', 'ktime_get', 'ktime_get', 'preempt_count_ptr',
+    'random_int_secret_init', 'sys_open', 'sys_dup', 'sys_dup', 'sys_access', 'prepare_namespace', 'load_default_modules',
+    'load_default_elevator_module', 'async_synchronize_full', 'free_initmem', 'mark_rodata_ro', 'flush_delayed_fput',
+    'run_init_process', 'getname_kernel', 'do_execve', 'run_init_process', 'getname_kernel', 'do_execve', 'try_to_run_init_process',
+    'run_init_process', 'getname_kernel', 'do_execve', 'try_to_run_init_process', 'run_init_process', 'getname_kernel',
+    'do_execve', 'try_to_run_init_process', 'run_init_process', 'getname_kernel', 'do_execve', 'try_to_run_init_process',
+    'run_init_process', 'getname_kernel', 'do_execve', 'try_to_run_init_process', 'run_init_process', 'getname_kernel', 'do_execve',
+     'wait_for_completion', 'set_mems_allowed', 'set_cpus_allowed_ptr', 'task_pid', 'smp_prepare_cpus', 'do_pre_smp_initcalls', 'panic',
+     '__raw_writel', '__raw_readl', 'aer_service_init', 'bgpio_driver_init', 'check_cpu_stall_init', 'clk_debug_init',
+     'clk_disable_unused', 'cpu_pm_init', 'cpu_stop_init', 'cpucache_init', 'cpuidle_init', 'crypto_xz_mod_init', 'deflate_mod_init',
+     'dma_bus_init', 'dma_channel_table_init', 'dma_debug_do_init', 'dnotify_init', 'dummy_timer_register', 'extfrag_debug_init',
+     'gate_vma_init', 'gpio_poweroff_driver_init', 'hashlib_init', 'hung_task_init', 'icplus_init', 'inet_diag_init', 'init_ladder',
+     'init_menu', 'init_scsi', 'init_sd', 'init_workqueues', 'input_init', 'ip_auto_config', 'jump_label_init_module',
+     'lzo_mod_init', 'max_swapfiles_check', 'memblock_init_debugfs', 'migration_init', 'mm_compute_batch_init', 'nand_base_init',
+     'of_init', 'of_platform_serial_driver_init', 'ofpart_parser_init', 'packet_diag_init', 'pci_apply_final_quirks', 'pcie_pme_service_init',
+     'pcie_portdrv_init', 'pcs_driver_init', 'pinctrl_init', 'plat_nand_driver_init', 'pm_init', 'populate_rootfs', 'power_supply_class_init',
+     'pps_init', 'ptp_init', 'pwm_debugfs_init', 'pwm_sysfs_init', 'rand_initialize', 'ras_init', 'rcu_spawn_gp_kthread', 'realtek_init',
+     'regmap_initcall', 'relay_init', 'rtc_hctosys', 'rtc_init', 'sched_clock_syscore_init', 'serial8250_console_init', 'serial_pci_driver_init',
+     'slab_proc_init', 'sock_diag_init', 'spawn_ksoftirqd', 'spi_init', 'stmmac_init', 'syscon_init', 'tcp_diag_init', 'ubi_init', 'ubifs_init',
+     'usb_init', 'v6_userpage_init', 'kthreadd'
 ]
