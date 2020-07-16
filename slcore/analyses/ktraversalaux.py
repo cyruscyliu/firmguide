@@ -2,9 +2,9 @@ files_whitelist = [
     'init/main.c',
     'drivers/irqchip/irqchip.c',
     'drivers/of/irq.c',
-    'drivers/irqchip/irq-gic.c',
-    'drivers/irqchip/irq-rps.c',
     'drivers/clocksource/clksrc-of.c',
+    'drivers/clk/clk-fixed-rate.c',
+    'drivers/clk/clk-fixed-factor.c',
 ]
 
 
@@ -123,5 +123,8 @@ funccalls_blacklist = [
      'pps_init', 'ptp_init', 'pwm_debugfs_init', 'pwm_sysfs_init', 'rand_initialize', 'ras_init', 'rcu_spawn_gp_kthread', 'realtek_init',
      'regmap_initcall', 'relay_init', 'rtc_hctosys', 'rtc_init', 'sched_clock_syscore_init', 'serial8250_console_init', 'serial_pci_driver_init',
      'slab_proc_init', 'sock_diag_init', 'spawn_ksoftirqd', 'spi_init', 'stmmac_init', 'syscon_init', 'tcp_diag_init', 'ubi_init', 'ubifs_init',
-     'usb_init', 'v6_userpage_init', 'kthreadd'
+     'usb_init', 'v6_userpage_init', 'kthreadd', 'IS_ERR', 'clk_prepare', 'clk_enable', 'clk_unprepare', 'clk_prepare_enable',  'free_percpu_irq',
+     'IS_ERR', 'PTR_ERR', 'clk_prepare', 'clk_enable', 'clk_unprepare', 'clk_prepare_enable', '__my_cpu_offset', 'enable_percpu_irq',
+     'enable_percpu_irq', 'get_jiffies_64', 'get_jiffies_64', 'get_jiffies_64', 'get_cpu_mask', '__arm_iounmap', 'free_percpu',
+     'of_property_read_string', 'ERR_PTR', 'kmalloc', 'of_clk_add_provider', 'of_clk_get_parent_name', 'gic_dist_init', 'gic_cpu_init', 'gic_pm_init'
 ]

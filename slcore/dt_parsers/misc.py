@@ -5,7 +5,7 @@ from slcore.dt_parsers.intc import \
 from slcore.dt_parsers.compatible import find_compatible_by_path
 from slcore.dt_parsers.common import load_dtb
 
-# so we don't need to update builtin_flashes manually
+# so we don't need to update builtin miscs manually
 builtin_miscs = list(get_database('qemu.misc').select('*').keys())
 
 

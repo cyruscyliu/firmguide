@@ -1,10 +1,11 @@
 import os
 import pydot
+import yaml
 
 from slcore.amanager import Analysis
 from slcore.analyses.ktraversalaux import funccalls_blacklist, \
         dirs_blacklist, files_whitelist
-from slcore.srcfcbs import generic_fcbs
+from slcore.analyses.ktraversalfcbs import generic_fcbs
 
 
 class TraverseKernel(Analysis):
@@ -18,6 +19,8 @@ class TraverseKernel(Analysis):
         self.source_code = None
         self.unknown_list = []
         self.unhandled_list = []
+        self.pos = {'file': None, 'fun': None, 'line': None}
+        self.slicing = {}
     
     def is_in_dirs_blacklist(self, root):
         for db in dirs_blacklist:
@@ -50,8 +53,12 @@ class TraverseKernel(Analysis):
 
     def get_edge(self, src):
         for subgraph in self.full_graph.get_subgraphs():
+            self.pos['file'] = subgraph.get_attributes()['file']
+            self.pos['fun'] = subgraph.get_attributes()['fun']
             for edge in subgraph.get_edges():
                 if edge.get_source().strip('"') == src:
+                    self.pos['line'] = edge.get_attributes()['line']
+                    self.pos['label'] = edge.get_attributes()['label']
                     yield edge
     
     def walk_kernel(self, caller, fcbs={}, depth=0):
@@ -85,7 +92,7 @@ class TraverseKernel(Analysis):
             return False
 
         extend = []
-        status = cbs['handler'](self, caller, extend=extend)
+        status = cbs['handler'](self, funccall, caller, extend=extend, pos=self.pos)
         if not status:
             self.info('{}|-{}->{}[unhandled]'.format(' ' * 2 * (depth - 1), caller, funccall), 1)
             self.unhandled_list.append(funccall)
@@ -105,6 +112,12 @@ class TraverseKernel(Analysis):
             self.info('{}|-{}->{}[indirected]'.format(' ' * 2 * (depth + 1 - 1), funccall, new_caller), 1)
             self.walk_kernel(new_caller, fcbs=fcbs, depth=depth+1)
         return True
+    
+    def dump_slicing(self):
+        target = os.path.join(self.analysis_manager.project.attrs['path'], 'slicing')
+        with open(target, 'w') as f:
+            yaml.safe_dump(self.slicing, f)
+        self.info('slicing info saved as {}'.format(target), 1)
 
     def run(self, **kwargs):
         target_dirs = kwargs.pop('dirs')  # dirs_whitelist
@@ -180,5 +193,6 @@ class TraverseKernel(Analysis):
         if len(self.unhandled_list) > 0:
             self.info('You may add handlers for the functions below', 1)
             self.info(str(self.unhandled_list), 1)
-        
+
+        self.dump_slicing()
         return True
