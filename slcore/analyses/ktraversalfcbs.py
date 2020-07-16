@@ -122,15 +122,9 @@ generic_fcbs = {
     # clock and timer
     'of_clk_init': {'handler': __of_clk_init_handler}, # indirect call
     'clocksource_of_init': {'handler': __clocksource_of_init_handler},  # indirect call
-    # initcalls
-    'kernel_thread': {'handler': __kernel_thread_handler},  # indirect call
-    'do_one_initcall': {'handler': __do_one_initcall_handler},  # indirect call
-
-    'r4k_clockevent_init': {'ignored': True},
-    'init_r4k_clocksource': {'ignored': True},
-    'mips_cpu_irq_init': {'ignored': True},
-    # clock and timer
+    'timer_probe': {'handler': __clocksource_of_init_handler},  # indirect call
     'request_percpu_irq': {'handler': __generic_slicing_handler},
+    'setup_irq': {'handler': __generic_slicing_handler},
     'clocksource_register_hz': {'handler': __generic_slicing_handler},
     'clocksource_mmio_init': {'handler': __generic_slicing_handler},
     'clocksource_register': {'handler': __generic_slicing_handler},
@@ -138,14 +132,21 @@ generic_fcbs = {
     'clockevents_config_and_register': {'handler': __generic_slicing_handler},
     'clockevents_register_device': {'handler': __generic_slicing_handler},
     'clk_register': {'handler': __generic_slicing_handler},
+    'clk_hw_register': {'handler': __generic_slicing_handler},
     'clk_get_sys': {'handler': __generic_slicing_handler},
+    'register_current_timer_delay': {'handler': __generic_slicing_handler},
+    # initcalls
+    'kernel_thread': {'handler': __kernel_thread_handler},  # indirect call
+    'do_one_initcall': {'handler': __do_one_initcall_handler},  # indirect call
+
+    'r4k_clockevent_init': {'ignored': True},
+    'init_r4k_clocksource': {'ignored': True},
+    'mips_cpu_irq_init': {'ignored': True},
     # intermediate function
     'setup_arch': {'intermediate': True},
     'init_IRQ': {'intermediate': True},
     'irqchip_init': {'intermediate': True},
     'time_init': {'intermediate': True},
-    'clk_register_fixed_rate_with_accuracy': {'intermediate': True},
-    'clk_register_fixed_factor': {'intermediate': True},
     # ignore rest_init until we can handle it
     'rest_init': {'ignored': True, 'intermediate': True},
     'kernel_init': {'intermediate': True},

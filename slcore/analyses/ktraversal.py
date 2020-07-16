@@ -140,29 +140,24 @@ class TraverseKernel(Analysis):
                 if not f.endswith('.c') and not f.endswith('.S'):
                     continue
                 absolute = os.path.join(root, f)
+
                 relative = absolute[len(self.source_code) + 1:]
 
-                d_allowed = True
+                allowed = True
                 if self.is_in_dirs_blacklist(absolute):
-                    d_allowed = False
+                    allowed = False
+
+                if not self.is_in_files_whitelist(absolute, files_whitelist):
+                    allowed = False
+                
+                if target_files is not None and \
+                        self.is_in_files_whitelist(absolute, target_files):
+                    allowed = True
 
                 if target_dirs is not None and \
-                        not self.is_in_dirs_whitelist(absolute, target_dirs):
-                    d_allowed = False
+                        self.is_in_dirs_whitelist(absolute, target_dirs):
+                    allowed = True
 
-                f_allowed = True
-                if target_files is not None and \
-                        not self.is_in_files_whitelist(absolute, target_files):
-                    d_allowed = False
-                    f_allowed = False
-
-                if self.is_in_files_whitelist(absolute, files_whitelist):
-                    f_allowed = True
-
-                if target_files is None:
-                    allowed = d_allowed
-                else:
-                    allowed = f_allowed or d_allowed
                 if not allowed:
                     continue
 
@@ -188,11 +183,11 @@ class TraverseKernel(Analysis):
 
         if len(self.unknown_list) > 0:
             self.info('You may add the unknown functions below to the skip list', 1)
-            self.info(str(self.unknown_list), 1)
+            self.info(str(list(set(self.unknown_list))), 1)
 
         if len(self.unhandled_list) > 0:
             self.info('You may add handlers for the functions below', 1)
-            self.info(str(self.unhandled_list), 1)
+            self.info(str(list(set(self.unhandled_list))), 1)
 
         self.dump_slicing()
         return True

@@ -1,5 +1,8 @@
 files_whitelist = [
     'init/main.c',
+    'arch/arm/kernel/setup.c',
+    'arch/arm/kernel/irq.c',
+    'arch/arm/kernel/time.c',
     'drivers/irqchip/irqchip.c',
     'drivers/of/irq.c',
     'drivers/clocksource/clksrc-of.c',
@@ -92,7 +95,7 @@ funccalls_blacklist = [
     'security_init', 'vfs_caches_init', 'signals_init', 'page_writeback_init', 'proc_root_init', 'delayacct_init', 'check_writebuffer_bugs',
     'ftrace_init', 'rcu_scheduler_starting', 'numa_default_policy', 'rcu_read_lock', 'find_task_by_pid_ns',
     'rcu_read_unlock', 'complete', 'current_thread_info', 'init_idle_bootup_task', 'schedule_preempt_disabled', 'cpu_startup_entry',
-    '<noident>', 'read_cpuid_id', 'lookup_processor_type', 'early_paging_init', 'setup_dma_zone', 'psci_init', 'is_smp', 'is_smp',
+    'read_cpuid_id', 'lookup_processor_type', 'early_paging_init', 'setup_dma_zone', 'psci_init', 'is_smp', 'is_smp',
     'smp_set_ops', 'smp_init_cpus', 'hyp_mode_check', 'reserve_crashkernel', 'vsnprintf', 'early_print',
     'INIT_LIST_HEAD', 'INIT_LIST_HEAD', 'of_find_matching_node_and_match', 'of_find_matching_node_and_match',
     'of_find_matching_node', 'of_find_matching_node', 'of_device_is_available', 'kmem_cache_alloc', 'kzalloc',
@@ -126,5 +129,13 @@ funccalls_blacklist = [
      'usb_init', 'v6_userpage_init', 'kthreadd', 'IS_ERR', 'clk_prepare', 'clk_enable', 'clk_unprepare', 'clk_prepare_enable',  'free_percpu_irq',
      'IS_ERR', 'PTR_ERR', 'clk_prepare', 'clk_enable', 'clk_unprepare', 'clk_prepare_enable', '__my_cpu_offset', 'enable_percpu_irq',
      'enable_percpu_irq', 'get_jiffies_64', 'get_jiffies_64', 'get_jiffies_64', 'get_cpu_mask', '__arm_iounmap', 'free_percpu',
-     'of_property_read_string', 'ERR_PTR', 'kmalloc', 'of_clk_add_provider', 'of_clk_get_parent_name', 'gic_dist_init', 'gic_cpu_init', 'gic_pm_init'
+     'of_property_read_string', 'ERR_PTR', 'kmalloc', 'of_clk_add_provider', 'of_clk_get_parent_name', 'gic_dist_init', 'gic_cpu_init', 'gic_pm_init',
+     'add_latent_entropy', 'add_device_randomness', 'get_random_bytes', 'boot_cpu_hotplug_init', 'early_trace_init', 'workqueue_init_early',
+     'printk_safe_init', 'mem_encrypt_init', 'debug_objects_mem_init', 'thread_stack_cache_init', 'pagecache_init', 'nsfs_init',
+     'check_bugs', 'acpi_subsystem_init', 'arch_post_acpi_subsys_init',  'setup_machine_tags', 'dump_stack_set_arch_desc', 'early_fixmap_init',
+     'early_ioremap_init', 'early_mm_init', 'xen_early_init', 'adjust_lowmem_bounds', 'adjust_lowmem_bounds', 'early_ioremap_reset',
+     'of_node_to_fwnode', '__irq_alloc_domain_generic_chips', 'irq_get_domain_generic_chip', 'resource_size', 'resource_size', 'ioremap',
+     'of_node_to_fwnode', '__irq_alloc_domain_generic_chips', 'resource_size', 'resource_size', 'irq_get_domain_generic_chip', 'ioremap',
+     'of_device_is_compatible', '__kmalloc', 'kmalloc_array', 'kcalloc', 'iounmap', 'atomic_io_modify', 'of_property_read_string_helper', 'ERR_CAST',
+     'of_property_read_string_index'
 ]
