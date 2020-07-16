@@ -137,5 +137,6 @@ funccalls_blacklist = [
      'of_node_to_fwnode', '__irq_alloc_domain_generic_chips', 'irq_get_domain_generic_chip', 'resource_size', 'resource_size', 'ioremap',
      'of_node_to_fwnode', '__irq_alloc_domain_generic_chips', 'resource_size', 'resource_size', 'irq_get_domain_generic_chip', 'ioremap',
      'of_device_is_compatible', '__kmalloc', 'kmalloc_array', 'kcalloc', 'iounmap', 'atomic_io_modify', 'of_property_read_string_helper', 'ERR_CAST',
-     'of_property_read_string_index'
+     'of_property_read_string_index', 'clk_disable_unprepare', 'clk_disable', 'page_address_init',  '__arm_ioremap', 'of_property_read_bool', 
+     'read_cpuid_part'
 ]

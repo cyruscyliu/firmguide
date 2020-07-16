@@ -113,6 +113,7 @@ generic_fcbs = {
     '__irq_set_handler': {'handler': __generic_slicing_handler},  # args::handle
     'irq_set_chip_and_handler_name': {'handler': __generic_slicing_handler},  # args::handle
     'irq_set_chained_handler_and_data': {'handler': __generic_slicing_handler},  # args::handle
+    'l2x0_of_init': {'handler': __generic_slicing_handler},
     # FOR ARM, we have get_irqnr_preamble, get irqnr_and_base that together are also
     # named arch_irq_handler_default after ?(at least >2.16). As for handler_arch_irq,
     # a global function pointer, it is defined by set_handle_irq somewhere..
@@ -128,6 +129,7 @@ generic_fcbs = {
     'clocksource_register_hz': {'handler': __generic_slicing_handler},
     'clocksource_mmio_init': {'handler': __generic_slicing_handler},
     'clocksource_register': {'handler': __generic_slicing_handler},
+    '__clocksource_register_scale': {'handler': __generic_slicing_handler},
     'sched_clock_register': {'handler': __generic_slicing_handler},
     'clockevents_config_and_register': {'handler': __generic_slicing_handler},
     'clockevents_register_device': {'handler': __generic_slicing_handler},
