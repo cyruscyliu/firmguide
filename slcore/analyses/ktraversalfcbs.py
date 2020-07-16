@@ -6,6 +6,13 @@ from slcore.dt_parsers.clk import find_flatten_clk_in_fdt
 from slcore.srcodecontroller import load_system_map
 
 
+temp_of_init_table = {
+    'mti,cpu-interrupt-controller': 'mips_cpu_intc_init',
+    'ralink,rt2880-intc': 'intc_of_init',
+    # 'ralink,rt2880-timer': 'rt_timer_probe', # in do_initcall
+}
+
+
 def __generic_of_init_handler(self, find, extend=[]):
     srcodec = self.analysis_manager.srcodec
     if not srcodec.supported:
@@ -26,6 +33,11 @@ def __generic_of_init_handler(self, find, extend=[]):
             for triple, path in search_cb(cmptb, path_to_source):
                 if triple[2] not in extend:
                     extend.append(triple[2])
+
+    for periph in periphs:
+        for cmptb in periph['compatible']:
+            if cmptb in temp_of_init_table:
+                extend.append(temp_of_init_table[cmptb])
     return True
 
 
@@ -111,9 +123,11 @@ generic_fcbs = {
     'irq_domain_add_linear': {'handler': __generic_slicing_handler},  # args::ops->map
     '__irq_domain_add': {'handler': __generic_slicing_handler},  # args::ops->map
     '__irq_set_handler': {'handler': __generic_slicing_handler},  # args::handle
+    'irq_set_chained_handler': {'handler': __generic_slicing_handler}, # args::handle
     'irq_set_chip_and_handler_name': {'handler': __generic_slicing_handler},  # args::handle
     'irq_set_chained_handler_and_data': {'handler': __generic_slicing_handler},  # args::handle
     'l2x0_of_init': {'handler': __generic_slicing_handler},
+    'mips_cpu_irq_init': {},
     # FOR ARM, we have get_irqnr_preamble, get irqnr_and_base that together are also
     # named arch_irq_handler_default after ?(at least >2.16). As for handler_arch_irq,
     # a global function pointer, it is defined by set_handle_irq somewhere..
@@ -136,19 +150,19 @@ generic_fcbs = {
     'clk_register': {'handler': __generic_slicing_handler},
     'clk_hw_register': {'handler': __generic_slicing_handler},
     'clk_get_sys': {'handler': __generic_slicing_handler},
+    'clkdev_add': {'handler': __generic_slicing_handler},
     'register_current_timer_delay': {'handler': __generic_slicing_handler},
     # initcalls
     'kernel_thread': {'handler': __kernel_thread_handler},  # indirect call
     'do_one_initcall': {'handler': __do_one_initcall_handler},  # indirect call
-
-    'r4k_clockevent_init': {'ignored': True},
-    'init_r4k_clocksource': {'ignored': True},
-    'mips_cpu_irq_init': {'ignored': True},
     # intermediate function
     'setup_arch': {'intermediate': True},
     'init_IRQ': {'intermediate': True},
     'irqchip_init': {'intermediate': True},
     'time_init': {'intermediate': True},
+    'mips_clockevent_init': {'intermediate': True},
+    'r4k_clockevent_init': {'intermediate': True},
+    'init_r4k_clocksource': {'intermediate': True},
     # ignore rest_init until we can handle it
     'rest_init': {'ignored': True, 'intermediate': True},
     'kernel_init': {'intermediate': True},

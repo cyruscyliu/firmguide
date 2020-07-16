@@ -3,6 +3,12 @@ files_whitelist = [
     'arch/arm/kernel/setup.c',
     'arch/arm/kernel/irq.c',
     'arch/arm/kernel/time.c',
+    'arch/mips/kernel/setup.c',
+    'arch/mips/kernel/irq.c',
+    'arch/mips/kernel/time.c',
+    'arch/mips/kernel/csrc-r4k.c',
+    'arch/mips/kernel/cevt-r4k.c',
+    'arch/mips/kernel/irq_cpu.c',
     'drivers/irqchip/irqchip.c',
     'drivers/of/irq.c',
     'drivers/clocksource/clksrc-of.c',
@@ -138,5 +144,6 @@ funccalls_blacklist = [
      'of_node_to_fwnode', '__irq_alloc_domain_generic_chips', 'resource_size', 'resource_size', 'irq_get_domain_generic_chip', 'ioremap',
      'of_device_is_compatible', '__kmalloc', 'kmalloc_array', 'kcalloc', 'iounmap', 'atomic_io_modify', 'of_property_read_string_helper', 'ERR_CAST',
      'of_property_read_string_index', 'clk_disable_unprepare', 'clk_disable', 'page_address_init',  '__arm_ioremap', 'of_property_read_bool', 
-     'read_cpuid_part'
+     'read_cpuid_part', '__ioremap', '__ioremap_mode', 'rt_intc_w32', 'reserve_bootmem', 'clear_c0_cause', 'virt_to_phys',
+     'check_bugs32', 'clockevent_set_clock', 'snprintf', 'plat_of_remap_node' 'arch_mem_init', 'set_io_port_base', 'dma_contiguous_reserve',
 ]
