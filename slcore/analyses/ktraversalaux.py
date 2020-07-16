@@ -146,4 +146,6 @@ funccalls_blacklist = [
      'of_property_read_string_index', 'clk_disable_unprepare', 'clk_disable', 'page_address_init',  '__arm_ioremap', 'of_property_read_bool', 
      'read_cpuid_part', '__ioremap', '__ioremap_mode', 'rt_intc_w32', 'reserve_bootmem', 'clear_c0_cause', 'virt_to_phys',
      'check_bugs32', 'clockevent_set_clock', 'snprintf', 'plat_of_remap_node' 'arch_mem_init', 'set_io_port_base', 'dma_contiguous_reserve',
+     '__div64_32', 'mips_cm_probe', '__BUG_ON', '___pa', '__dt_setup_arch', 'early_init_fdt_reserve_self', 'rdhwr_count_usable',
+     '__get_free_pages', 'setup_early_fdc_console', 'rdhwr_count', 'reserve_bootmem_region', 'get_order', 'calculate_min_delta'
 ]
