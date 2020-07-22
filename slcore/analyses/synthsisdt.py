@@ -63,6 +63,11 @@ class SynthesisDT(Analysis):
         self.context['machine_description'] = self.firmware.get_machine_name()
         self.context['board_id'] = self.firmware.get_board_id()
 
+    def clear_legacy_code(self):
+        local_qemu = os.path.join(
+            self.analysis_manager.project.attrs['path'], 'qemu-4.0.0')
+        os.system('rm -rf {}/*'.format(local_qemu))
+
     def run(self, **kwargs):
         status = self.check_components()
         if not status:
@@ -80,13 +85,15 @@ class SynthesisDT(Analysis):
 
         self.init_context()
         self.clear_statistics()
+        self.clear_legacy_code()
 
         # all intcp should replaced by a real intc
         intcp = {}
         flatten_intc = find_flatten_intc_in_fdt(dts)
         if flatten_intc is not None:
             for intc in flatten_intc:
-                b = Brick('intc', intc['compatible'])
+                b = Brick('intc', intc['compatible'], autoboard=autoboard,
+                          autoboard_all=autoboard_all)
                 if not b.supported:
                     continue
                 if 'phandle' not in intc:

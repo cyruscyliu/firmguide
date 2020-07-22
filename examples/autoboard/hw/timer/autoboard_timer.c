@@ -63,8 +63,8 @@ static void autoboard_timer_tick_callback(void *opaque)
     s = opaque;
 
     /* naive timer */
-    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
-    timer_mod(s->timer, s->ns_per_cycle + now);
+    s->last_tick += s->ns_per_cycle;
+    timer_mod(s->timer, s->last_tick + s->ns_per_cycle);
 
     /* trigger hwevt one cycle */
     for (uint32_t i = 0; i < s->clkdev_num; i++) {
@@ -309,7 +309,8 @@ static void autoboard_timer_reset(DeviceState *dev)
     }
 
     // kickoff the timer
-    autoboard_timer_tick_callback(s);
+    s->last_tick = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    timer_mod(s->timer, s->last_tick + s->ns_per_cycle);
 }
 
 static void autoboard_timer_class_init(ObjectClass *klass, void *data)
