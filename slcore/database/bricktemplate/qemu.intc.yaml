@@ -30,7 +30,7 @@ arm,arm11mp-gic,autoboard,all:
       }});']
   get_field: ['AUTOBOARDARM11MPCorePriveState {{ name }};']
   get_header: [hw/cpu/autoboard_arm11mpcore.h]
-  get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ name }}), {{ irqn }})
+  get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}), {{ irqn }})
   n_irq: 64
   parameters: [name, regs, intcp]
   unique: true

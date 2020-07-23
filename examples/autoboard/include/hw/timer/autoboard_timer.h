@@ -87,6 +87,7 @@ typedef struct AUTOBOARD_TIMERState {
     //         which is greater than AUTOBOARD_TIMER_NS_PER_CYCLE
     uint32_t ns_per_cycle;
     uint64_t last_tick;
+    uint64_t first_tick_off;
 
     /* out irq of the timer */
     qemu_irq irq;

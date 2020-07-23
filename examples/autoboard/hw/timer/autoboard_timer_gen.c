@@ -128,7 +128,7 @@ static auto_config_action oxnas_generic_rps_is_init_cfg = {
 static uint8_t oxnas_generic_rps_is_kernel_read_func(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
 {
     uint32_t midx = 0, moff = 0x24;
-    uint32_t cycles = ((clksrc_stat_mach *)(((timer_bundle)s->clkdevs[0]).stat_mach))->cycles;
+    uint32_t cycles = 0 - (qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) / s->cfg->ns_per_cycle + s->first_tick_off);
 
     s->aummios[midx].write(s->aummios, moff, (uint32_t)(cycles));
     return 0;
@@ -419,7 +419,7 @@ static auto_config_action marvell_orion_timer_is_init_cfg = {
 static uint8_t marvell_orion_timer_is_kernel_read_func(AUTOBOARD_TIMERState *s, auto_config_unit *acu, auto_trifle *at)
 {
     uint32_t midx = 0, moff = 0x14;
-    uint32_t cycles = ((clksrc_stat_mach *)(((timer_bundle)s->clkdevs[0]).stat_mach))->cycles;
+    uint32_t cycles = 0 - (qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) / s->cfg->ns_per_cycle + s->first_tick_off);
 
     s->aummios[midx].write(s->aummios, moff, (uint32_t)(cycles));
     return 0;

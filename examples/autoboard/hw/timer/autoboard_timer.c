@@ -82,6 +82,9 @@ static void autoboard_timer_tick_callback(void *opaque)
                 break;
 
             case STAT_MACH_CLKDEV_SOURCE:
+            // we have a more precise way for clksrc cycle
+            //   could refine these things later
+            /*
             {
                 clksrc_stat_mach *mach;
 
@@ -91,6 +94,7 @@ static void autoboard_timer_tick_callback(void *opaque)
                 mach = s->clkdevs[i].stat_mach;
                 mach->dispatch(mach, &at);
             }
+            */
                 break;
 
             default:
@@ -310,6 +314,7 @@ static void autoboard_timer_reset(DeviceState *dev)
 
     // kickoff the timer
     s->last_tick = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    s->first_tick_off = 0 - s->last_tick / s->cfg->ns_per_cycle;
     timer_mod(s->timer, s->last_tick + s->ns_per_cycle);
 }
 
