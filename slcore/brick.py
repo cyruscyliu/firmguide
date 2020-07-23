@@ -186,6 +186,10 @@ class Brick(object):
         self.actual['get_connection'] = []
         if self.unique:
             p = 1
+        # sucking code that should be removed in the future
+        if self.compatible == ['marvell,orion-timer']:
+            context['irqns'] = [2]
+            n = 1
         for i in range(0, n):
             context['irqn'] = context['irqns'][i]
             for j in range(0, p):

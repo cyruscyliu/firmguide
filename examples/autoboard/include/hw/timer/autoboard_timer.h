@@ -86,6 +86,8 @@ typedef struct AUTOBOARD_TIMERState {
     // this is inited as the lowest multiply of s->cfg->ns_per_cycle 
     //         which is greater than AUTOBOARD_TIMER_NS_PER_CYCLE
     uint32_t ns_per_cycle;
+    uint64_t last_tick;
+    uint64_t first_tick_off;
 
     /* out irq of the timer */
     qemu_irq irq;
