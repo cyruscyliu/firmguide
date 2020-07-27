@@ -37,18 +37,18 @@ git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && m
 
 |brand|target/subtarget|OS|board|note|
 |:---:|:---:|:---:|:---:|:---:|
-|OpenWrt|kirkwood/generic|Linux kernel|arch/arm/mach-mvebu|done|
-|OpenWrt|bcm53xx/generic|Linux kernel|arch/arm/mach-bcm|done|
 |OpenWrt|ramips/rt305x|Linux kernel|arch/mips/ralink|done|
-|OpenWrt|ath79/generic|Linux kernel|arch/mips/ath79|done|
-|OpenWrt|oxnas/generic|Linux kernel|arch/arm/mach-oxnas|done|
 |OpenWrt|ramips/mt7620|Linux kernel|arch/mips/ralink|WIP|
 |OpenWrt|ramips/mt7621|Linux kernel|arch/mips/ralink|WIP|
+|OpenWrt|ath79/generic|Linux kernel|arch/mips/ath79|done|
+|OpenWrt|kirkwood/generic|Linux kernel|arch/arm/mach-mvebu|done|
+|OpenWrt|bcm53xx/generic|Linux kernel|arch/arm/mach-bcm|done|
 |OpenWrt|ramips/rt3883|Linux kernel|arch/mips/ralink|WIP|
 |OpenWrt|ramips/generic|Linux kernel|arch/mips/ralink|WIP|
 |OpenWrt|ipq40xx/generic|Linux kernel|arch/arm/mach-qcom|WIP|
-|OpenWrt|ramips/rt299x|Linux kernel|arch/mips/ralink|WIP|
-
+|OpenWrt|ramips/rt288Linux kernel|arch/mips/ralink|WIP|
+|OpenWrt|oxnas/generic|Linux kernel|arch/arm/mach-oxnas|done|
+|OpenWrt|oxnas/ox820|Linux kernel|arch/arm/mach-oxnas|done|
 
 
 ## Contributors
