@@ -4,7 +4,7 @@ Salamander is a project to boot the Linux kernel in embedded firmware.
 It extracts the Linux kernel from the firmware, and then boots it with a well-modeled QEMU machine.
 We provide normal users with several well-modeled machines; 
 for others who are familiar with the Linux hardware development, we have tutorials that you can follow to make new machines. 
-Please check the table of the supported machines and our development plan.
+Please check the [table](#supported-machines) of the supported machines and our development plan.
 
 ## Installation
 
@@ -42,6 +42,14 @@ git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && m
 |OpenWrt|ramips/rt305x|Linux kernel|arch/mips/ralink|done|
 |OpenWrt|ath79/generic|Linux kernel|arch/mips/ath79|done|
 |OpenWrt|oxnas/generic|Linux kernel|arch/arm/mach-oxnas|done|
+|OpenWrt|ramips/mt7620|Linux kernel|arch/mips/ralink|WIP|
+|OpenWrt|ramips/mt7621|Linux kernel|arch/mips/ralink|WIP|
+|OpenWrt|ramips/rt3883|Linux kernel|arch/mips/ralink|WIP|
+|OpenWrt|ramips/generic|Linux kernel|arch/mips/ralink|WIP|
+|OpenWrt|ipq40xx/generic|Linux kernel|arch/arm/mach-qcom|WIP|
+|OpenWrt|ramips/rt299x|Linux kernel|arch/mips/ralink|WIP|
+
+
 
 ## Contributors
 [cyruscyliu*](https://github.com/cyruscyliu/esv), [occia*](https://github.com/occia)
