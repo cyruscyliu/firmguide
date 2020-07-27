@@ -13,28 +13,20 @@ git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && m
 
 ## Usage
 
-+ step 1, create a project
-
-```shell script
-./salamander create -n test_project -a arm -e b -p ~/build/test_project
-```
-
-+ step 2, update your firmware
++ step 1, update your firmware and valid the result
 
 ```
-./salamander upload -f test_firmware -nc -del
-```
+./salamander upload -f test_firmware -del
 
-+ step 3, validate the result
+...
 
-```
 2020-07-26 05:16:04,237 - INFO - LoadTrace - loadtrace - loading ~/build/test_project/test_firmware.trace ...
 2020-07-26 05:16:11,265 - INFO - LoadTrace - loadtrace - load xxx basic blocks
 2020-07-26 05:16:11,265 - INFO - CheckUserLevel - userlevel - scan user level indicators in ~/build/test_project/test_firmware.trace
 2020-07-26 05:16:20,793 - INFO - CheckUserLevel - userlevel - have entered the user level
 ```
 
-+ step 4, retrieve your commandline
++ step 2, retrieve your commandline
 
 ```
 ./salamander printcmd
