@@ -35,9 +35,9 @@ git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && m
 
 ## Supported Machines
 
-|brand|target/subtarget|OS|board|note|
+|brand|target/subtarget|OS|board|status|
 |:---:|:---:|:---:|:---:|:---:|
-|OpenWrt|ramips/rt305x|Linux kernel|arch/mips/ralink|status|
+|OpenWrt|ramips/rt305x|Linux kernel|arch/mips/ralink|done|
 |OpenWrt|ramips/mt7620|Linux kernel|arch/mips/ralink|WIP|
 |OpenWrt|ramips/mt7621|Linux kernel|arch/mips/ralink|WIP|
 |OpenWrt|ath79/generic|Linux kernel|arch/mips/ath79|done|
@@ -46,7 +46,7 @@ git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && m
 |OpenWrt|ramips/rt3883|Linux kernel|arch/mips/ralink|WIP|
 |OpenWrt|ramips/generic|Linux kernel|arch/mips/ralink|WIP|
 |OpenWrt|ipq40xx/generic|Linux kernel|arch/arm/mach-qcom|WIP|
-|OpenWrt|ramips/rt288Linux kernel|arch/mips/ralink|WIP|
+|OpenWrt|ramips/rt288x|Linux kernel|arch/mips/ralink|WIP|
 |OpenWrt|oxnas/generic|Linux kernel|arch/arm/mach-oxnas|done|
 |OpenWrt|oxnas/ox820|Linux kernel|arch/arm/mach-oxnas|done|
 
