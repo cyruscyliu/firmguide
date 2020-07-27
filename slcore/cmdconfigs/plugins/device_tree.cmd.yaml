@@ -3,7 +3,7 @@ itopology:
     optional: &optional
         dtb: {short: dtb, required: False, help: 'Path to a device tree blob.'}
     callback: topologydt
-listdt:
+dtcoverup:
     help: "Plugin - Disclose device tree blob."
     optional:
         <<: *optional
@@ -13,6 +13,7 @@ listdt:
             help: "Show FLASH chips in the device tree blob."}
     callback: disclosedt
 newhwdt:
-    help: "Plugin - newhardware by given device tree blob."
+    help: "Plugin - update hardware template in given device tree blob."
     optional: *optional
     callback: updatehardwaredt
+
