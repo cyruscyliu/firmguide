@@ -37,7 +37,7 @@ git clone https://github.com/cyruscyliu/esv.git salamander && cd salamander && m
 
 |brand|target/subtarget|OS|board|note|
 |:---:|:---:|:---:|:---:|:---:|
-|OpenWrt|ramips/rt305x|Linux kernel|arch/mips/ralink|done|
+|OpenWrt|ramips/rt305x|Linux kernel|arch/mips/ralink|status|
 |OpenWrt|ramips/mt7620|Linux kernel|arch/mips/ralink|WIP|
 |OpenWrt|ramips/mt7621|Linux kernel|arch/mips/ralink|WIP|
 |OpenWrt|ath79/generic|Linux kernel|arch/mips/ath79|done|
