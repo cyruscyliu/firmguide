@@ -1,4 +1,4 @@
-printcmd:
+cmdcoverup:
     help: "Plugin - Print booting cmdline for given image."
     optional:
         firmware: {short: f, metavar: "IMAGE",
@@ -12,9 +12,14 @@ printcmd:
             required: False
             help: "Path to the OS source."
     callback: bootingcmd
-ofinit:
+ofinitcbs:
     help: "Plugin - Find of_init callbacks w.s.t given device tree."
     optional:
         source: *source
         dtb: *dtb
     callback: ofinitsrc
+usntest:
+    help: "Plugin - Test serials and SMP configs."
+    optional:
+        dtb: *dtb
+    callback: testusn

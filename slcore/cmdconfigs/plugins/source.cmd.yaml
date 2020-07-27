@@ -1,13 +1,13 @@
-newperph:
+newprfsrc:
     help: "Plugin - Find new peripherals in the OS source."
     optional: &optional
         source: {short: s, required: False, help: "Path to the OS source."}
     callback: updatecompatibledb
-newhardware:
+newhwsrc:
     help: "Plugin - Find new hardware in the OS source."
     optional: *optional
     callback: updatehardware
-quicksrc:
+analysrc:
     help: "Plugin - Analyze the OS source quickly."
     optional:
         << : *optional
@@ -15,7 +15,7 @@ quicksrc:
             help: "Find the file contains the entry point of data or function and preprocess the file."}
         file: {short: f, required: False, help: "Preprocess the file."}
     callback: quicksrca
-ktraversal:
+traversrc:
     help: "Plugin - Traverse the Linux kernel source code."
     optional:
         << : *optional
