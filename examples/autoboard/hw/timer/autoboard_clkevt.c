@@ -13,15 +13,16 @@
 
 static void clkevt_past_one_cycle(struct clkevt_stat_mach *m)
 {
+    uint32_t passes = m->step * m->delta;
     if (m->repeat || m->enable) {
         //printf("[+] %s load value is %u\n", m->name, m->load);
-        if (m->load > m->delta)
-            m->load -= m->delta;
-        else {
+        if (m->load > passes) {
+            m->load -= passes;
+        } else {
             // act irq
             //printf("[+] %s act the irq\n", m->name);
             m->act_irq(m->s);
-            m->load = m->countdown;
+            m->load = m->countdown - (passes % m->load);
             m->enable = false;
         }
     }
@@ -35,6 +36,7 @@ static int clkevt_dispatch(struct clkevt_stat_mach *m, auto_trifle *at)
 
     if (at->type == TRIFLE_HW_EVT && at->hw_evt == CLKEVT_HW_EVT_ONE_CYCLE) {
         //printf("[+] one cycle past for clock event %s\n", m->name);
+        m->step = at->evt_arg;
         m->handle_event(m, CLKEVT_HW_EVT_ONE_CYCLE);
         return 0;
     }

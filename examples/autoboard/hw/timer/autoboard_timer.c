@@ -63,8 +63,10 @@ static void autoboard_timer_tick_callback(void *opaque)
     s = opaque;
 
     /* naive timer */
-    s->last_tick += s->ns_per_cycle;
-    timer_mod(s->timer, s->last_tick + s->ns_per_cycle);
+    uint64_t exceed = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) - s->last_tick;
+    uint64_t round = (exceed + s->ns_per_cycle - 1) / s->ns_per_cycle;
+    s->last_tick += (s->ns_per_cycle * round);
+    timer_mod(s->timer, s->last_tick);
 
     /* trigger hwevt one cycle */
     for (uint32_t i = 0; i < s->clkdev_num; i++) {
@@ -75,6 +77,7 @@ static void autoboard_timer_tick_callback(void *opaque)
 
                 at.type = TRIFLE_HW_EVT;
                 at.hw_evt = CLKEVT_HW_EVT_ONE_CYCLE;
+                at.evt_arg = round;
 
                 mach = s->clkdevs[i].stat_mach;
                 mach->dispatch(mach, &at);

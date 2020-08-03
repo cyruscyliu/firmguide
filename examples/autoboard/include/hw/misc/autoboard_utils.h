@@ -87,6 +87,7 @@ typedef struct auto_trifle {
     uint64_t new_val;
     // onlt hw event use the following
     uint32_t hw_evt;
+    uint32_t evt_arg;
 } auto_trifle;
 
 #endif /* TYPE_AUTOBOARD_UTILS_H */

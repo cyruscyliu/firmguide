@@ -86,6 +86,8 @@ typedef struct clkevt_stat_mach {
     uint32_t load;
     uint32_t countdown;
 
+    uint32_t step;
+
     uint32_t progs[CLKEVT_ALL_EVT_NUM];
 
     uint8_t (* is_evt_off) (struct clkevt_stat_mach *, auto_trifle *);
