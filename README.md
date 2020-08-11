@@ -19,8 +19,8 @@ Be default, QEMU 4.0.0 is used and installed;
 otherwise you can install a specific QEMU version by `QEMU_VERSION`.
 
 ```
-QEMU_VERSION=4.0.0 make # or just make
-QEMU_VERSION=2.3.0 QEMU_FLAGS=--python=/usr/bin/python2 make
+QEMU_VERSION=4.0.0 make qemu # or just make qemu
+QEMU_VERSION=2.3.0 QEMU_FLAGS=--python=/usr/bin/python2 make qemu
 ```
 
 ## Usage
