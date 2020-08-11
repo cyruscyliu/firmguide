@@ -17,7 +17,11 @@ class AnalysesManager(Common):
 
         self.project = project
         self.srcodec = None
-        self.qemuc = get_qemucontroller(self.project.attrs['qemu_dir'])
+
+        qemu_dir = self.project.attrs['qemu_dir']
+        qemu_ver = os.path.basename(qemu_dir.split('-')[1])
+        self.qemuc = get_qemucontroller(qemu_dir, version=qemu_ver)
+
         self.firmware = Firmware()
 
         self.arguments = kwargs

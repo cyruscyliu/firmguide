@@ -40,4 +40,8 @@ qemu: test_qemu_version
 		--enable-debug --extra-cflags="-g3" --extra-ldflags="-g3" \
 		--disable-strip --disable-pie ${QEMU_FLAGS} && make -j$(nproc)
 	@echo ${TMPDIR}/qemu-${QEMU_VERSION} > .qemu
+	@echo [+] Change qemutemplates to qemutempltes-${QEMU_VERSION}
+	@mkdir -p ${TOPDIR}/slcore/qemutemplates-${QEMU_VERSION}
+	@rm -f ${TOPDIR}/slcore/qemutemplates
+	@cd ${TOPDIR}/slcore && ln -s qemutemplates-${QEMU_VERSION} qemutemplates
 	@echo [+] Install QEMU-${QEMU_VERSION} done
