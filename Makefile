@@ -44,4 +44,7 @@ qemu: test_qemu_version
 	@mkdir -p ${TOPDIR}/slcore/qemutemplates-${QEMU_VERSION}
 	@rm -f ${TOPDIR}/slcore/qemutemplates
 	@cd ${TOPDIR}/slcore && ln -s qemutemplates-${QEMU_VERSION} qemutemplates
+	@echo [+] Configure FirmGuide
+	@./salamander config
 	@echo [+] Install QEMU-${QEMU_VERSION} done
+

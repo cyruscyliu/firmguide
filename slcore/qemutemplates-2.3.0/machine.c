@@ -90,30 +90,28 @@ static void {{ machine_name }}_init(MachineState *machine)
 
 static void {{ machine_name }}_machine_init(MachineClass *mc)
 {
+    mc->name = "{{ machine_name }}";
     mc->desc = "{{ machine_description }}";
     mc->init = {{ machine_name }}_init;
     // mc->default_ram_size = {{ ram_default_size }} * MiB;
     // mc->ignore_memory_transaction_failures = false;
 }
 
-#define TYPE_MACHINE_SUFFIX "-machine"
-#define MACHINE_TYPE_NAME(machinename) (machinename TYPE_MACHINE_SUFFIX)
+static void {{ machine_name}}_class_init(ObjectClass *oc, void *data)
+{
+    MachineClass *mc = MACHINE_CLASS(oc);
+    {{ machine_name }}_machine_init(mc);
+}
 
-#define DEFINE_MACHINE(namestr, machine_initfn) \
-    static void machine_initfn##_class_init(ObjectClass *oc, void *data) \
-    { \
-	MachineClass *mc = MACHINE_CLASS(oc); \
-	machine_initfn(mc); \
-    } \
-    static const TypeInfo machine_initfn##_typeinfo = { \
-	.name       = MACHINE_TYPE_NAME(namestr), \
-	.parent     = TYPE_MACHINE, \
-	.class_init = machine_initfn##_class_init, \
-    }; \
-    static void machine_initfn##_register_types(void) \
-    { \
-        type_register_static(&machine_initfn##_typeinfo); \
-    } \
-    type_init(machine_initfn##_register_types)
+static const TypeInfo {{ machine_name }}_typeinfo = {
+    .name       = "{{ machine_name }}",
+    .parent     = TYPE_MACHINE,
+    .class_init = {{ machine_name }}_class_init,
+};
 
-DEFINE_MACHINE("{{ machine_name }}", {{ machine_name }}_machine_init)
+static void {{ machine_name }}_register_types(void)
+{
+    type_register_static(&{{ machine_name }}_typeinfo);
+}
+
+type_init({{ machine_name }}_register_types)
