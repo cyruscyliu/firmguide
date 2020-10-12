@@ -1,7 +1,7 @@
 """
 QEMU controller
 
-after several experiments, I conclude
+After several experiments, I conclude
     1) QEMU is likely to be supported on Windows with extra compilation efforts
     https://stackoverflow.com/questions/53084815/compile-qemu-under-
     windows-10-64-bit-for-windows-10-64-bit which is not elegant and not easy.
@@ -14,10 +14,6 @@ after several experiments, I conclude
     in different directories looks quick and dirty but is really helpful.
     Another solution is to have a qemu controller which can lock/unlock qemu
     source code read/write and compilation.
-
-interfaces:
-    + get_command()/trace()/debug()
-    + install()/patch()/add_target()/compile()/recover()
 """
 import os
 import qmp
@@ -29,10 +25,12 @@ from slcore.common import Common
 
 
 class QEMUController(Common):
-    def __init__(self, qemu_root):
+    def __init__(self, qemu_root, version='4.0.0'):
         self.modified = []
         self.new = []
+        self.version = version
         self.qemu_root = qemu_root
+        self.enable_kconfig = version in ['4.0.0']
         self.build_system = {
             'arml': {
                 'defconfig': 'default-configs/arm-softmmu.mak',
@@ -295,11 +293,12 @@ class QEMUController(Common):
             path = os.path.join(build_system['defconfig'])
             content = [config]
             self.__resolve_makefile(path, config, content)
-            # update kconfig
-            kconfig = 'config {}\n'.format(hwname.upper())
-            path = os.path.join(build_system['kconfig'])
-            content = ['\n', kconfig, '    bool\n']
-            self.__resolve_makefile(path, kconfig, content)
+            if self.enable_kconfig:
+                # update kconfig
+                kconfig = 'config {}\n'.format(hwname.upper())
+                path = os.path.join(build_system['kconfig'])
+                content = ['\n', kconfig, '    bool\n']
+                self.__resolve_makefile(path, kconfig, content)
             # update makefile
             makefile = 'obj-$(CONFIG_{}) += {}.o\n'.format(
                 hwname.upper(), fname)
@@ -316,5 +315,5 @@ class QEMUController(Common):
             self.__resolve_makefile(path, makefile, content)
 
 
-def get_qemucontroller(qemu_root):
-    return QEMUController(qemu_root)
+def get_qemucontroller(qemu_root, version='4.0.0'):
+    return QEMUController(qemu_root, version=version)

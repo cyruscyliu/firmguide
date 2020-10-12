@@ -27,8 +27,7 @@ class Install(Analysis):
             self.analysis_manager.qemuc.add_target(
                 self.firmware.get_machine_name(), k, t=v['type'])
         # 3 compile
-        self.analysis_manager.qemuc.compile(
-            cflags='-Wmaybe-uninitialized', cpu=4)
+        self.analysis_manager.qemuc.compile(cpu=4)
         # 4 keep qemu clean
         self.analysis_manager.qemuc.recover()
         return True
