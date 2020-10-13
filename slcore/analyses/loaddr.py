@@ -52,6 +52,6 @@ class CalcLoadAddr(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'loaddr'
-        self.description = 'Resolve image loading address.'
-        self.required = ['bfilter']
+        self.description = 'Find load address.'
+        self.required = []
         self.critical = True
