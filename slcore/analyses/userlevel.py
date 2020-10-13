@@ -15,8 +15,8 @@ class CheckUserLevel(Analysis):
         return False
 
     def run(self, **kwargs):
-        trace_format = self.tarce_format
-        path_to_trace = self.trace
+        trace_format = self.analysis_manager.tarce_format
+        path_to_trace = self.analysis_manager.path_to_trace
 
         self.info('scan user level indicators in {}'.format(
             path_to_trace), 1)
