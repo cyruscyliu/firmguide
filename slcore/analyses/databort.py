@@ -117,6 +117,5 @@ class CheckDataAbort(Analysis):
         self.description = 'Find data abort info.'
         self.critical = False
         self.required = ['userlevel', 'fastuserlevel', 'loadtrace']
-        self.type = 'diag'
         #
         self.dead_addresses = []

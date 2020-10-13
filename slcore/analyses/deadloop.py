@@ -34,4 +34,3 @@ class ShowDeadLoop(Analysis):
         self.description = 'Find dead loop in given trace.'
         self.critical = False
         self.required = ['callstack']
-        self.type = 'diag'

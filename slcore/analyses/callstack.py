@@ -149,5 +149,4 @@ class ShowCallstack(Analysis):
         self.description = 'Show callstack of given trace.'
         self.critical = False
         self.required = ['userlevel', 'fastuserlevel', 'loadtrace']
-        self.type = 'diag'
         self.callstack = []

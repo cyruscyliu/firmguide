@@ -49,4 +49,3 @@ class CheckTLBExcep(Analysis):
         self.description = 'Find tlb load exception info.'
         self.critical = False
         self.required = ['userlevel', 'fastuserlevel', 'loadtrace']
-        self.type = 'diag'

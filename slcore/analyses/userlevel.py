@@ -15,8 +15,8 @@ class CheckUserLevel(Analysis):
         return False
 
     def run(self, **kwargs):
-        trace_format = kwargs.pop('trace_format')
-        path_to_trace = kwargs.pop('path_to_trace')
+        trace_format = self.tarce_format
+        path_to_trace = self.trace
 
         self.info('scan user level indicators in {}'.format(
             path_to_trace), 1)
@@ -41,7 +41,6 @@ class CheckUserLevel(Analysis):
         self.description = 'Check whether we have entered user level.'
         self.critical = False
         self.required = ['loadtrace', 'preparation', 'tracing']
-        self.type = 'diag'
 
 
 class CheckUserLevelF(Analysis):
@@ -98,4 +97,3 @@ class CheckUserLevelF(Analysis):
             'Check whether we have entered user level in a faster way.'
         self.critical = False
         self.required = ['loadtrace', 'preparation', 'tracing']
-        self.type = 'diag'

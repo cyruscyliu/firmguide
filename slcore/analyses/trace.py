@@ -11,13 +11,12 @@ class LoadTrace(Analysis):
         self.description = 'Load QEMU trace from file.'
         self.critical = True
         self.required = ['tracing', 'preparation']
-        self.type = 'diag'
 
         # store trace context
         self.pql = None
 
     def run(self, **kwargs):
-        path_to_trace = kwargs.pop('path_to_trace')
+        path_to_trace = self.trace
         if path_to_trace is None:
             self.error_info = 'there is no trace available'
             return False
@@ -41,6 +40,7 @@ class Tracing(Analysis):
             self.error_info = 'please setup the QEMU'
             return False
         kwargs['running_command'] = self.firmware.running_command
+        kwargs['path_to_trace'] = self.trace
         self.info('tracing QEMU machine {}'.format(
             self.firmware.get_machine_name()), 1)
         return self.analysis_manager.qemuc.trace(**kwargs)
@@ -51,7 +51,6 @@ class Tracing(Analysis):
         self.description = 'Trace QEMU execution for diagnosis.'
         self.critical = True
         self.required = ['preparation', 'install']
-        self.type = 'diag'
 
 
 class DeleteTrace(Analysis):
@@ -74,4 +73,3 @@ class DeleteTrace(Analysis):
         self.description = 'Delete trace to save space after trace analysis.'
         self.critical = False
         self.required = ['userlevel', 'fastuserlevel']
-        self.type = 'diag'
