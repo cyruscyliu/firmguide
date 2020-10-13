@@ -26,7 +26,7 @@ diagnose:
         source: &source
             short: s
             required: False
-            help: "Path to the OS source."
+            help: "Path to OS source."
         nocompilation: &nocompilation
             short: nc
             action: "store_true"
@@ -92,3 +92,4 @@ archive:
     optional:
         dtb: *dtb
     callback: archive
+

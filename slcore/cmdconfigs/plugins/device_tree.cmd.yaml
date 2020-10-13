@@ -8,9 +8,9 @@ dtcoverup:
     optional:
         <<: *optional
         mmio: {short: m, required: False, action: "store_true", default: True,
-            help: "Show MMIO regions in the device tree blob."}
+            help: "Show MMIO regions in device tree."}
         flash: {short: f, required: False, action: "store_true", default: True,
-            help: "Show FLASH chips in the device tree blob."}
+            help: "Show FLASH chips in device tree."}
     callback: disclosedt
 newhwdt:
     help: "Plugin - Add unknown hardware."

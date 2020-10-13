@@ -52,6 +52,9 @@ ram,generic:
   get_field: ['MemoryRegion ram{{ id }};']
   get_header: [exec/address-spaces.h]
   parameters: [regs]
+ti,omap3:
+  buddy_compatible: ['wago,am3505-pfc-750_820x', 'wago,am35xx-pfc', 'ti,am3517']
+  extend: ram,generic
 xen,xenvm:
   buddy_compatible: ['xen,xenvm-4.2']
   extend: ram,generic
