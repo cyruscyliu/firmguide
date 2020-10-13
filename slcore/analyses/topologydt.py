@@ -7,19 +7,15 @@ from slcore.amanager import Analysis
 class TopologyDT(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-
         self.name = 'tolologydt'
         self.description = \
             'Display the interrupt topology in given device tree blob.'
 
     def run(self, **kwargs):
-        path_to_dtb = self.firmware.get_realdtb()
-        if path_to_dtb is None:
-            self.error_info = 'there is no real dtb available.'
-            return False
+        path_to_dtb = kwargs.pop('dtb')
+        self.firmware.set_realdtb(path_to_dtb)
 
         dts = load_dtb(path_to_dtb)
-
         flatten_intc_all = find_flatten_intc_in_fdt(dts, nonintc_slave=True)
 
         def label_intc(intc):

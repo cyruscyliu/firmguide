@@ -11,7 +11,6 @@ from slcore.amanager import Analysis
 class DiscloseDT(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-
         self.name = 'disclosedt'
         self.description = 'Disclose device tree blob.'
 
@@ -19,10 +18,8 @@ class DiscloseDT(Analysis):
         mmio = kwargs.pop('mmio', False)
         flash = kwargs.pop('flash', False)
 
-        path_to_dtb = self.firmware.get_realdtb()
-        if path_to_dtb is None:
-            self.error_info = 'there is no real dtb available.'
-            return False
+        path_to_dtb = kwargs.pop('dtb')
+        self.firmware.set_realdtb(path_to_dtb)
 
         dts = load_dtb(path_to_dtb)
         path_to_dts = path_to_dtb + '.dts'
@@ -49,7 +46,7 @@ class DiscloseDT(Analysis):
                         timer['path'], timer['compatible'])
                 self.info(message, 1)
 
-        for serial in find_flatten_serial_in_fdt(dts):
+        for serial in find_flatten_serial_in_fdt(dts) or []:
             for reg in serial['regs']:
                 message =  \
                     '[SERIAL] base 0x{:08x} size 0x{:08x} of {}/{}'.format(
