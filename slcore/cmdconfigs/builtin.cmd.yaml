@@ -38,7 +38,11 @@ diagnose:
     optional:
         firmware: *firmware
         dtb: *dtb
+        trace: *trace
         timeout: *timeout
+        nocompilation: *nocompilation
+        autoboard: *autoboard
+        autoboard_all: *autoboard_all
         source: &source
             short: s
             required: False
@@ -48,13 +52,8 @@ diagnose:
             action: "store_true"
             default: False
             help: "Skip callstack for sake of time."
-        nocompilation: *nocompilation
-        board: {short: b, required: False, help: "set board manually to replace --url"}
-        url: {short: l, required: False, help: "will be removed in the future"}
         delete: {short: del, required: False, action: "store_true", default=False,
             help: "Delete trace to save space."}
-        autoboard: *autoboard
-        autoboard_all: *autoboard_all
     callback: diagnosis
 synthesize:
     help: "Run - Convert device tree to QEMU virtual machine."

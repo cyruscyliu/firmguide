@@ -45,3 +45,5 @@ ofinitcbs:
     # all: {short: a, action: 'store_true', default: False, help: "Show skipped functions."}
     # callback: traversekernel
     # bfilter
+    # board: {short: b, required: False, help: "set board manually to replace --url"}
+    # url: {short: l, required: False, help: "will be removed in the future"}

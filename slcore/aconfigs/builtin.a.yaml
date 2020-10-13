@@ -25,6 +25,7 @@ synthesis:
 tracecoverup:
     analyses: [
         LoadTrace,
-        CheckMissingCode, ShowCallstack, ShowDeadLoop,
+        CheckMissingCode,
+        ShowCallstack, ShowDeadLoop,
         CheckDataAbort, CheckUndefInst, CheckTLBExcep]
-    description: ''
+    description: 'Coverup QEMU debug trace.'

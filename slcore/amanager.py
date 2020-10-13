@@ -12,130 +12,24 @@ from slcore.compositor import unpack
 
 
 class AnalysesManager(Common):
-    def __init__(self, project, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__()
-
-        self.project = project
-        self.srcodec = None
-
-        qemu_dir = self.project.attrs['qemu_dir']
-        qemu_ver = os.path.basename(qemu_dir.split('-')[1])
-        self.qemuc = get_qemucontroller(qemu_dir, version=qemu_ver)
-
-        self.firmware = Firmware()
-
-        self.arguments = kwargs
-        self.max_iteration = 1
-        self.reset = kwargs.pop('reset')
-
-        self.arguments['trace_format'] = 'qemudebug'
-        default_path_to_trace = '{}/{}-{}-{}.trace'.format(
-                self.project.attrs['path'], self.project.attrs['name'],
-                self.project.attrs['arch'], self.project.attrs['endian'])
-        path_to_trace = kwargs.pop('trace', default_path_to_trace)
-        if path_to_trace is None:
-            path_to_trace = default_path_to_trace
-        self.arguments['path_to_trace'] = path_to_trace
 
         self.analyses_flat = {}  # name:analysis
         self.analyses_tree = {}
         self.last_analysis_status = True
 
-    def warmup(self):
-        # set target dir
-        path = self.project.attrs['path']
-
-        # load profile from path_to_profile
-        path_to_profile = os.path.join(path, 'profile.yaml')
-        if not os.path.exists(path_to_profile):
-            self.firmware.create_empty_profile(path)
-        else:
-            self.firmware.load_from_profile(path_to_profile)
-            # change save-to-path to avoid modifing our well-defined profile
-            self.firmware.path_to_profile = \
-                os.path.join(path, 'profile.yaml')
-
-        # triple friends
-        self.firmware.set_arch(self.project.attrs['arch'])
-        self.firmware.set_endian(self.project.attrs['endian'])
-        self.firmware.set_brand(self.project.attrs['brand'])
-
-        # setup logger as early as possible
-        debug = self.arguments.pop('debug')
-        if debug:
-            setup_logging(
-                self.project.attrs['path'],
-                self.project.attrs['name'],
-                default_level=logging.DEBUG)
-        else:
-            setup_logging(
-                self.project.attrs['path'],
-                self.project.attrs['name'])
-
-        if 'firmware' in self.arguments:
-            images = self.project.attrs['images']
-            components = self.firmware.get_components()
-            if self.arguments['firmware'] is not None:
-                if components is None or (not components.supported):
-                    components = unpack(self.arguments['firmware'], target_dir=path)
-                elif self.arguments['firmware'] != components.get_path_to_raw():
-                    components = unpack(self.arguments['firmware'], target_dir=path)
-                else:
-                    components = components
-            else:
-                if components is None or (not components.supported):
-                    if images is not None and len(images) > 0:
-                        components = unpack(images[0], target_dir=path)
-                    else:
-                        components = unpack(None)
-                else:
-                    components = components
-
-            assert components is not None, 'the components must not be none'
-            if components.supported:
-                working_path = os.path.join(path, components.get_raw_name())
-                if not os.path.exists(working_path):
-                    shutil.copy(components.get_path_to_raw(),
-                                os.path.join(working_path))
-            self.firmware.set_components(components)
-
-        if 'dtb' in self.arguments:
-            dtbs = self.project.attrs['dtbs']
-            realdtb = self.firmware.get_realdtb()
-            components = self.firmware.get_components()
-            if self.arguments['dtb'] is not None:
-                realdtb = self.arguments['dtb']
-            else:
-                if components is None or (not components.supported):
-                    if dtbs is not None and len(dtbs) > 0:
-                        realdtb = dtbs[0]
-                    else:
-                        realdtb = None
-                else:
-                    realdtb = self.firmware.get_components().get_path_to_dtb()
-            self.firmware.set_realdtb(realdtb)
-
-        if 'source' in self.arguments:
-            source = self.arguments['source'] or self.project.attrs['source']
-            self.srcodec = get_srcodecontroller(
-                source, self.project.attrs['cross_compile'],
-                self.project.attrs['arch'], self.project.attrs['endian'],
-                self.project.attrs['makeout']
-            )
-
-        return True
+        self.project = None
+        self.firmware = None
+        self.reset = False
+        self.arguments = kwargs # don't delete this
+        self.analysis_progress = {}
 
     def wrapup(self):
         self.firmware.save_profile()
-        self.snapshot()
-        return True
-
-    def snapshot(self):
         path = self.project.attrs['path']
         self.info('snapshot', 'profile at {}'.format(
             self.firmware.path_to_profile), 1)
-        self.info('snapshot', 'project at {}/project.yaml'.format(path), 1)
-        self.info('snapshot', 'source at {}/qemu-4.0.0'.format(path), 1)
         return True
 
     def print_analyses_chain(self):
@@ -221,28 +115,26 @@ class AnalysesManager(Common):
         with open(analysis, 'r') as f:
             analysis_progress = yaml.safe_load(f)
             if analysis_progress is None:
-                self.firmware.analysis_progress = {}
+                self.analysis_progress = {}
             else:
-                self.firmware.analysis_progress = analysis_progress
+                self.analysis_progress = analysis_progress
 
     def save_analysis(self):
         analysis = os.path.join(self.project.attrs['path'], 'analysis')
         with open(analysis, 'w') as f:
-            yaml.safe_dump(self.firmware.analysis_progress, f)
+            yaml.safe_dump(self.analysis_progress, f)
 
     def finish(self, analysis):
-        if self.firmware.analysis_progress is None:
+        if self.analysis_progress is None:
             return
-        if analysis.type == 'diag':
-            return
-        if analysis.name not in self.firmware.analysis_progress:
-            self.firmware.analysis_progress[analysis.name] = 1
+        if analysis.name not in self.analysis_progress:
+            self.analysis_progress[analysis.name] = 1
 
     def finished(self, analysis):
-        if self.firmware.analysis_progress is None:
+        if self.analysis_progress is None:
             return False
         try:
-            self.firmware.analysis_progress[analysis.name]
+            self.analysis_progress[analysis.name]
             return True
         except KeyError:
             return False
@@ -279,7 +171,7 @@ class AnalysesManager(Common):
 
 class AnalysisInterface():
     @abc.abstractmethod
-    def register(self, project):
+    def register(self, *args, **kwargs):
         """Register this analysis to analysis manager."""
         pass
 
@@ -334,8 +226,8 @@ class Analysis(Common, AnalysisInterface):
         else:
             self.warning(self.error_info, 0)
 
-    def register(self, project, **kwargs):
-        analysis_manager = AnalysesManager(project, **kwargs)
+    def register(self, *args, **kwargs):
+        analysis_manager = AnalysesManager(*args, **kwargs)
         self.analysis_manager = analysis_manager
         self.firmware = analysis_manager.firmware
 
@@ -368,13 +260,12 @@ class Analysis(Common, AnalysisInterface):
 class AnalysisGroup(AnalysisInterface):
     def __init__(self):
         super().__init__()
-
         self.name = None
         self.description = None
         self.members = []
 
-    def register(self, project, **kwargs):
-        analysis_manager = AnalysesManager(project, **kwargs)
+    def register(self, *args, **kwargs):
+        analysis_manager = AnalysesManager(*args, **kwargs)
         for member in self.members:
             analysis_manager.register_analysis(
                 member['class'](analysis_manager))
