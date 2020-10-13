@@ -7,5 +7,4 @@ cmdcoverup:
             short: dtb
             required: False
             help: "Path to device tree."
-        load: {short: l, metavar: "OxLOADADDR", help: "Load address."}
     callback: bootingcmd

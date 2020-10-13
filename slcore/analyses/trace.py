@@ -64,7 +64,7 @@ class Tracing(Analysis):
 
 class DeleteTrace(Analysis):
     def run(self, **kwargs):
-        path_to_trace = kwargs.pop('path_to_trace')
+        path_to_trace = self.analysis_manager.path_to_trace
         if not os.path.exists(path_to_trace):
             return True
 

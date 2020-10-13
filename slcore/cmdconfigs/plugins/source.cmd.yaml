@@ -44,3 +44,4 @@ ofinitcbs:
     # file: {short: f, nargs: '+', required: False, help: "File to be traversed."}
     # all: {short: a, action: 'store_true', default: False, help: "Show skipped functions."}
     # callback: traversekernel
+    # bfilter

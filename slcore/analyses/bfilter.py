@@ -91,7 +91,7 @@ class CheckBoard(Analysis):
         super().__init__(analysis_manager)
         self.name = 'bfilter'
         self.description = \
-            'Filter our Linux Kernels board which are supported.'
+            'Filter our Linux kernels board which are supported.'
         self.required = []
         self.critical = True
         self.path_to_srcode = None

@@ -3,7 +3,8 @@ global:
         debug: {short: d, action: "store_true",
             help: "show verbose logs"}
         path: {short: p, help: "set output directory"}
-        logname: {short: l, help: "set log name"}
+        logname: {short: lg, help: "set log name"}
         machine_name: {short: m, help: "set machine name"}
         arch: {short: a, choices: ["arm", "mips"], help: "set architecture"}
         endian: {short: e, choices: ["b", "l"], help: "set endianness"}
+        load: {short: ld, metavar: "OxLOADADDR", help: "Load address."}

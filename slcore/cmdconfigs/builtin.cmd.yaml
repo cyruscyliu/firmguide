@@ -1,42 +1,27 @@
-diagnose:
-    help: "Run - Online assembling for the image produced by compiling
-        the OS source. Debug interface will be exposed if the validation fails."
+upload:
+    help: "Run - Online kernel booting without debug interface." 
     optional: &optional
         firmware: &firmware
             short: f
-            required: False
-            metavar: "IMAGE"
-            help: "Use the IMAGE to diagnose your models. If not set,
-                use the last valid image, otherwise, use the first image
-                in your current project(./samander batch -s). If there is
-                no valid image and there is no image in your project,
-                you must provide a image."
+            required: True 
+            help: "Firmware to be uploaded."
         dtb: &dtb
             short: dtb
             required: False
-            help: "Path to a device tree blob."
+            help: "Path to device tree."
         trace: &trace
             short: t
-            help: "Path to the trace of format uuid-arch-endian.trace"
+            help: "Path to trace."
         timeout: &timeout
             short: to
             type: int
             default: 60
             help: "Trace timeout."
-        source: &source
-            short: s
-            required: False
-            help: "Path to OS source."
         nocompilation: &nocompilation
             short: nc
             action: "store_true"
             default: False
-            help: "No compilation for concurrent tasks."
-        nocallstack: &nocallstack
-            short: ncs
-            action: "store_true"
-            default: False
-            help: "Skip callstack for sake of time."
+            help: "No compilation (optional for concurrent tasks)."
         autoboard: &autoboard
             short: ab
             action: "store_true"
@@ -47,15 +32,22 @@ diagnose:
             action: "store_true"
             default: False
             help: "Use autoboard replacing QEMU builtin peripherals."
-    callback: diagnosis
-upload:
-    help: "Run - Online kernel booting. No debug interfaces."
+    callback: uploading
+diagnose:
+    help: "Run - Online kernel booting with debug interface."
     optional:
-        firmware:
-            << : *firmware
-            required: True
+        firmware: *firmware
         dtb: *dtb
         timeout: *timeout
+        source: &source
+            short: s
+            required: False
+            help: "Path to OS source (optional for callstack)."
+        nocallstack: &nocallstack
+            short: ncs
+            action: "store_true"
+            default: False
+            help: "Skip callstack for sake of time."
         nocompilation: *nocompilation
         board: {short: b, required: False, help: "set board manually to replace --url"}
         url: {short: l, required: False, help: "will be removed in the future"}
@@ -63,7 +55,7 @@ upload:
             help: "Delete trace to save space."}
         autoboard: *autoboard
         autoboard_all: *autoboard_all
-    callback: uploading
+    callback: diagnosis
 synthesize:
     help: "Run - Convert device tree to QEMU virtual machine."
     optional:
@@ -74,22 +66,15 @@ synthesize:
         autoboard: *autoboard
         autoboard_all: *autoboard_all
     callback: synthesis
-coverup:
-    help: "Standalone - QEMU trace analysis."
-    optional:
-        trace: *trace
-        source: *source
-        nocallstack: *nocallstack
-    callback: tracecoverup
-trace:
-    help: "Standalone - Trace."
-    optional:
-        trace: *trace
-        timeout: *timeout
-    callback: trace
 archive:
     help: "Standalone - QEMU machine archiving."
     optional:
         dtb: *dtb
     callback: archive
-
+coverup:
+    help: "Plugin - Disclose QEMU debug trace."
+    optional:
+        trace: *trace
+        source: *source
+        nocallstack: *nocallstack
+    callback: tracecoverup

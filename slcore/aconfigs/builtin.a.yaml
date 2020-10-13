@@ -1,28 +1,30 @@
 uploading:
-    analyses: [FindMachine,
+    analyses: [
+        Unpack,
+        DTPreprocessing, SynthesisDT, Install,
         Preparation, Tracing,
         LoadTrace,
         CheckUserLevelF,
         DeleteTrace]
-    description: ''
-tracecoverup:
-    analyses: [
-        LoadTrace,
-        CheckMissingCode, ShowCallstack, ShowDeadLoop,
-        CheckDataAbort, CheckUndefInst, CheckTLBExcep]
-    description: ''
+    description: 'Upload firmware without debug interface.'
 diagnosis:
     analyses: [
-        CheckBoard,
+        Unpack,
         DTPreprocessing, SynthesisDT, Install,
-        CalcLoadAddr, Preparation, Tracing,
+        Preparation, Tracing,
         LoadTrace,
         CheckUserLevel,
         CheckMissingCode,
         ShowCallstack, ShowDeadLoop,
         CheckDataAbort, CheckUndefInst, CheckTLBExcep]
-    description: ''
+    description: 'Upload firmware with debug interface and more checks.'
 synthesis:
     analyses: [
         DTPreprocessing, SynthesisDT, Install]
+    description: 'Convert device tree to QEMU virtual machine.'
+tracecoverup:
+    analyses: [
+        LoadTrace,
+        CheckMissingCode, ShowCallstack, ShowDeadLoop,
+        CheckDataAbort, CheckUndefInst, CheckTLBExcep]
     description: ''
