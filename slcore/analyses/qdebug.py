@@ -8,7 +8,8 @@ class QEMUDbgMachSrc(Analysis):
         clean = kwargs.pop('clean')
 
         prefix_from = os.path.join(
-            self.analysis_manager.project.attrs['path'], 'qemu-4.0.0')
+            self.analysis_manager.project.attrs['path'],
+            self.firmware.get_machine_name())
         prefix_to = self.analysis_manager.project.attrs['qemu_dir']
         if not os.path.exists(prefix_from):
             self.error_info = '{} doesn\'t exist'.format(prefix_from)
@@ -46,4 +47,3 @@ class QEMUDbgMachSrc(Analysis):
         self.description = 'Add and delete machine source for debugging QEMU.'
         self.critical = True
         self.required = []
-        self.type = 'diag'
