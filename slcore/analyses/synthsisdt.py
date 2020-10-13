@@ -22,7 +22,7 @@ class SynthesisDT(Analysis):
         super().__init__(analysis_manager)
 
         self.name = 'synthesisdt'
-        self.description = 'Synthesize bricks to QEMU machines.'
+        self.description = 'Convert device tree to QEMU virtual machine.'
         self.required = ['preprocdt']
 
         self.context = {}
@@ -65,14 +65,11 @@ class SynthesisDT(Analysis):
 
     def clear_legacy_code(self):
         local_qemu = os.path.join(
-            self.analysis_manager.project.attrs['path'], 'qemu-4.0.0')
-        os.system('rm -rf {}/*'.format(local_qemu))
+            self.analysis_manager.project.attrs['path'],
+            self.firmware.get_machine_name())
+        os.system('rm -rf {}'.format(local_qemu))
 
     def run(self, **kwargs):
-        status = self.check_components()
-        if not status:
-            return status
-
         path_to_dtb = self.firmware.get_realdtb()
         if path_to_dtb is None:
             self.error_info = 'there is no real dtb available.'
@@ -242,7 +239,9 @@ class SynthesisDT(Analysis):
             self.error_info = 'error in parsing, missing {}'.format(e)
             return False
         # ######## save machine.c ########
-        base = os.path.join(self.analysis_manager.project.attrs['path'], 'qemu-4.0.0')
+        base = os.path.join(
+                self.analysis_manager.project.attrs['path'],
+                self.firmware.get_machine_name())
         location = self.location[self.context['arch']]
         fname = self.context['machine_name'] + '.c'
         self.__save(source, base, location, fname)

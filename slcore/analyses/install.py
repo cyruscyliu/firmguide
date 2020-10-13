@@ -16,7 +16,8 @@ class Install(Analysis):
         synthesisdt = self.analysis_manager.get_analysis('synthesisdt')
         # 1 copy files to qemu/
         prefix = os.path.join(
-            self.analysis_manager.project.attrs['path'], 'qemu-4.0.0')
+            self.analysis_manager.project.attrs['path'],
+            self.firmware.get_machine_name())
         self.analysis_manager.qemuc.install(prefix)
         self.info('install {}'.format(prefix), 1)
         # 2 update compilation targets
@@ -27,7 +28,7 @@ class Install(Analysis):
             self.analysis_manager.qemuc.add_target(
                 self.firmware.get_machine_name(), k, t=v['type'])
         # 3 compile
-        self.analysis_manager.qemuc.compile(cpu=4)
+        self.analysis_manager.qemuc.compile()
         # 4 keep qemu clean
         self.analysis_manager.qemuc.recover()
         return True
@@ -38,4 +39,3 @@ class Install(Analysis):
         self.description = 'Install and compile QEMU machine.'
         self.critical = True
         self.required = ['preprocdt', 'synthesisdt']
-        self.type = 'diag'
