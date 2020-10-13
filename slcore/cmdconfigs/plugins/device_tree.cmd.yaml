@@ -16,3 +16,7 @@ newhwdt:
     help: "Plugin - Add unknown hardware."
     optional: *optional
     callback: updatehardwaredt
+usntest:
+    help: "Plugin - Test serials and SMP."
+    optional: *optional
+    callback: testusn
