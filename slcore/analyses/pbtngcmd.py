@@ -17,7 +17,7 @@ class PBtngCMD(Analysis):
 
         srcodec = self.analysis_manager.srcodec
         if not srcodec.supported:
-            self.warning('please set the source code', 1)
+            self.warning('please set the source code for debugging interface', 1)
             return True
 
         qemuc = self.analysis_manager.qemuc
