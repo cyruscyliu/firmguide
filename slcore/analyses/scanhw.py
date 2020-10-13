@@ -75,7 +75,7 @@ class UpdateHardware(Analysis):
                         continue
                     if self.is_gpio_intc(k, context['compatible']):
                         continue
-                    b.update_model(self.firmware.get_arch())
+                    b.update_model(self.analysis_manager.firmware.get_arch())
                     self.info('update {} {}'.format(
                         k, context['compatible']), 1)
                 else:

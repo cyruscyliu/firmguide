@@ -17,16 +17,16 @@ class Install(Analysis):
         # 1 copy files to qemu/
         prefix = os.path.join(
             self.analysis_manager.project.attrs['path'],
-            self.firmware.get_machine_name())
+            self.analysis_manager.firmware.get_machine_name())
         self.analysis_manager.qemuc.install(prefix)
         self.info('install {}'.format(prefix), 1)
         # 2 update compilation targets
         self.analysis_manager.qemuc.add_target(
-            self.firmware.get_machine_name(), self.firmware.get_machine_name(),
-            t='hw', arch=self.firmware.get_arch(), endian=self.firmware.get_endian())
+            self.analysis_manager.firmware.get_machine_name(), self.analysis_manager.firmware.get_machine_name(),
+            t='hw', arch=self.analysis_manager.firmware.get_arch(), endian=self.analysis_manager.firmware.get_endian())
         for k, v in synthesisdt.external.items():
             self.analysis_manager.qemuc.add_target(
-                self.firmware.get_machine_name(), k, t=v['type'])
+                self.analysis_manager.firmware.get_machine_name(), k, t=v['type'])
         # 3 compile
         self.analysis_manager.qemuc.compile()
         # 4 keep qemu clean

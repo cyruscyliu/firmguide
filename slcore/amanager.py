@@ -5,9 +5,6 @@ import shutil
 import logging
 
 from slcore.common import Common, setup_logging
-from slcore.profile.firmware import Firmware
-from slcore.srcodecontroller import get_srcodecontroller
-from slcore.qemucontroller import get_qemucontroller
 from slcore.compositor import unpack
 
 
@@ -188,12 +185,7 @@ class Analysis(Common, AnalysisInterface):
         self.critical = False
         self.args = None
         self.type = 'inf'
-
         self.analysis_manager = analysis_manager
-        if analysis_manager is not None:
-            self.firmware = analysis_manager.firmware
-        else:
-            self.firmware = None
 
     def is_critical(self):
         return self.critical
@@ -229,14 +221,11 @@ class Analysis(Common, AnalysisInterface):
     def register(self, *args, **kwargs):
         analysis_manager = AnalysesManager(*args, **kwargs)
         self.analysis_manager = analysis_manager
-        self.firmware = analysis_manager.firmware
-
         analysis_manager.register_analysis(self)
-
         return analysis_manager
 
     def check_components_is_none(self):
-        components = self.firmware.get_components()
+        components = self.analysis_manager.firmware.get_components()
         if components is None:
             self.error_info = 'components is missing'
             return True
@@ -249,7 +238,7 @@ class Analysis(Common, AnalysisInterface):
         if self.check_components_is_none():
             return False
 
-        components = self.firmware.get_components()
+        components = self.analysis_manager.firmware.get_components()
         if not components.has_kernel():
             self.error_info = 'firmware have no kernel, maybe is a rootfs image'
             return False

@@ -12,7 +12,7 @@ from slcore.dt_parsers.cpu import find_flatten_cpu_in_fdt
 class DTPreprocessing(Analysis):
     def run(self, **kwargs):
         # Data should not be obtained from kwargs.
-        path_to_dtb = self.firmware.get_realdtb()
+        path_to_dtb = self.analysis_manager.firmware.get_realdtb()
         if path_to_dtb is None:
             self.error_info = 'there is no device tree blob available.'
             return False
@@ -28,12 +28,12 @@ class DTPreprocessing(Analysis):
 
         # machine name: must exist
         compatible = find_compatible_in_fdt(dts)
-        self.firmware.set_machine_name(
+        self.analysis_manager.firmware.set_machine_name(
             compatible[0].replace(',', '_').replace('-', '_'))
         # board id
         # board_id = query_board_id_by_compatible(compatible)
         board_id = '0xFFFFFFFF'
-        self.firmware.set_board_id(board_id)
+        self.analysis_manager.firmware.set_board_id(board_id)
 
         # arch
         cpu = find_flatten_cpu_in_fdt(dts)
@@ -42,11 +42,11 @@ class DTPreprocessing(Analysis):
             return False
         # arch = query_arch_by_compatible(cpu['compatible'])
         arch = 'arm'
-        self.firmware.set_arch(arch)
-        self.firmware.set_endian('l')
+        self.analysis_manager.firmware.set_arch(arch)
+        self.analysis_manager.firmware.set_endian('l')
 
         # uart count
-        self.firmware.set_uart_num(len(find_flatten_serial_in_fdt(dts)))
+        self.analysis_manager.firmware.set_uart_num(len(find_flatten_serial_in_fdt(dts)))
         return True
 
     def __init__(self, analysis_manager):

@@ -50,7 +50,7 @@ class CheckUndefInst(Analysis):
         trace = self.analysis_manager.get_analysis('loadtrace')
         pql = trace.pql
 
-        if self.firmware.get_arch() == 'arm':
+        if self.analysis_manager.firmware.get_arch() == 'arm':
             return self.handle_arm_undef_inst(pql)
         else:
             return self.handle_mips_undef_inst(pql)

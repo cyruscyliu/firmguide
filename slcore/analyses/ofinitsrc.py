@@ -209,7 +209,7 @@ class OfInitSrc(Analysis):
         path_to_source = srcodec.get_path_to_source_code()
 
         # let's traverse the device tree
-        path_to_dtb = self.firmware.get_realdtb()
+        path_to_dtb = self.analysis_manager.firmware.get_realdtb()
         if path_to_dtb is None:
             self.error_info = 'there is no real dtb available.'
             return False

@@ -38,7 +38,7 @@ class CheckTLBExcep(Analysis):
         trace = self.analysis_manager.get_analysis('loadtrace')
         pql = trace.pql
 
-        if self.firmware.get_arch() == 'arm':
+        if self.analysis_manager.firmware.get_arch() == 'arm':
             return self.handle_arm_tlb_exception(pql)
         else:
             return self.handle_mips_tlb_exception(pql)

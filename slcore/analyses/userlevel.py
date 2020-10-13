@@ -4,7 +4,7 @@ from slcore.amanager import Analysis
 class CheckUserLevel(Analysis):
     def scan_user_level_qemudebug(self, pql):
         user_level = 'usr32' \
-            if self.firmware.get_arch() == 'arm' else 'user'
+            if self.analysis_manager.firmware.get_arch() == 'arm' else 'user'
         for k, cpurf in pql.get_cpurf():
             if cpurf['mode'] == user_level:
                 return True
@@ -28,9 +28,9 @@ class CheckUserLevel(Analysis):
             result = self.scan_user_level_qemudebug(pql)
             if result:
                 self.info('have entered the user level', 1)
-                self.firmware.set_stage(True, 'user_mode')
+                self.analysis_manager.firmware.set_stage(True, 'user_mode')
                 raise SystemExit()
-            self.firmware.set_stage(False, 'user_mode')
+            self.analysis_manager.firmware.set_stage(False, 'user_mode')
             return result
         else:
             return self.scan_user_level_ktracer(pql)
@@ -65,9 +65,9 @@ class CheckUserLevelF(Analysis):
         return False
 
     def scan_user_level_qemudebug(self, path_to_trace):
-        if self.firmware.get_arch() == 'arm':
+        if self.analysis_manager.firmware.get_arch() == 'arm':
             return self.__scan_arm_user_level_qemudebug(path_to_trace)
-        elif self.firmware.get_arch() == 'mips':
+        elif self.analysis_manager.firmware.get_arch() == 'mips':
             return self.__scan_mips_user_level_qemudebug(path_to_trace)
 
     def scan_user_level_ktracer(self, path_to_trace):
@@ -83,9 +83,9 @@ class CheckUserLevelF(Analysis):
             result = self.scan_user_level_qemudebug(path_to_trace)
             if result:
                 self.info('have entered the user level', 1)
-                self.firmware.set_stage(True, 'user_mode')
+                self.analysis_manager.firmware.set_stage(True, 'user_mode')
                 return True
-            self.firmware.set_stage(False, 'user_mode')
+            self.analysis_manager.firmware.set_stage(False, 'user_mode')
             return False
         else:
             return self.scan_user_level_ktracer(path_to_trace)

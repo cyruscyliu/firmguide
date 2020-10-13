@@ -25,14 +25,14 @@ class LoadTrace(Analysis):
             return False
 
         self.info('loading {} ...'.format(path_to_trace), 1)
-        if self.firmware.get_arch() is None:
+        if self.analysis_manager.firmware.get_arch() is None:
             self.error_info = 'there is arch available'
             return False
-        if self.firmware.get_endian() is None:
+        if self.analysis_manager.firmware.get_endian() is None:
             self.error_info = 'there is endian available'
             return False
         self.pql = get_pql('{}e{}'.format(
-            self.firmware.get_arch(), self.firmware.get_endian()),
+            self.analysis_manager.firmware.get_arch(), self.analysis_manager.firmware.get_endian()),
             path_to_trace, mode='generator')
 
         self.pql.load_in_asm()
@@ -48,10 +48,10 @@ class Tracing(Analysis):
         if not self.analysis_manager.qemuc.supported:
             self.error_info = 'please setup the QEMU'
             return False
-        kwargs['running_command'] = self.firmware.running_command
+        kwargs['running_command'] = self.analysis_manager.firmware.running_command
         kwargs['path_to_trace'] = self.analysis_manager.path_to_trace
         self.info('tracing QEMU machine {}'.format(
-            self.firmware.get_machine_name()), 1)
+            self.analysis_manager.firmware.get_machine_name()), 1)
         return self.analysis_manager.qemuc.trace(**kwargs)
 
     def __init__(self, analysis_manager):

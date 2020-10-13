@@ -13,7 +13,7 @@ class PBtngCMD(Analysis):
 
     def run(self, **kwargs):
         # running command
-        self.info(self.firmware.running_command, 1)
+        self.info(self.analysis_manager.firmware.running_command, 1)
 
         srcodec = self.analysis_manager.srcodec
         if not srcodec.supported:
@@ -25,7 +25,7 @@ class PBtngCMD(Analysis):
             self.error_info = 'please setup the QEMU'
             return False
         gdb_cmdline, debug_cmdline, help_info = qemuc.debug_ifs(
-            self.firmware.running_command,
+            self.analysis_manager.firmware.running_command,
             os.path.join(srcodec.get_path_to_source_code(), 'vmlinux'))
         for help_info_line in help_info:
             self.info(help_info_line, 1)

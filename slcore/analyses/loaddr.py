@@ -5,8 +5,8 @@ from slcore.amanager import Analysis
 
 class CalcLoadAddr(Analysis):
     def run(self, **kwargs):
-        if self.firmware.get_arch() == 'arm':
-            self.firmware.set_kernel_load_address('0x00008000')
+        if self.analysis_manager.firmware.get_arch() == 'arm':
+            self.analysis_manager.firmware.set_kernel_load_address('0x00008000')
             self.info('get arm loading address 0x{:x} by default'.format(
                 0x8000), 1)
             return True
@@ -41,7 +41,7 @@ class CalcLoadAddr(Analysis):
                             0xFFFFFFFF
                         state = 0
 
-            self.firmware.set_kernel_load_address(hex(address))
+            self.analysis_manager.firmware.set_kernel_load_address(hex(address))
             self.info('get mips loading address 0x{:x} from lds'.format(
                 address), 1)
             return True

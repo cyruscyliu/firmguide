@@ -6,6 +6,9 @@ from slcore.common import setup_logging
 from slcore.cgenerator import generate_cmd_parser
 from slcore.aregister import register_analysis_and_group
 from slcore.pmanager import Project
+from slcore.profile.firmware import Firmware
+from slcore.srcodecontroller import get_srcodecontroller
+from slcore.qemucontroller import get_qemucontroller
 
 
 def setup_analysis_manager(self, **kwargs):
@@ -33,7 +36,7 @@ def setup_analysis_manager(self, **kwargs):
     endian = kwargs.pop('endian', None)
     firmware.set_endian(endian)
     # 
-    self.firmware.path_to_profile = os.path.join(
+    firmware.path_to_profile = os.path.join(
         self.project.attrs['path'], '.profile')
     self.firmware = firmware
 
@@ -41,6 +44,7 @@ def setup_analysis_manager(self, **kwargs):
     self.trace_format = 'qemudebug'
 
     # Each instance may not include
+    source = kwargs.pop('source', None)
     if 'source' in kwargs:
         self.srcodec = get_srcodecontroller(source, 
             self.project.attrs['cross_compile'],

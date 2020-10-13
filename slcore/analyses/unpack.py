@@ -19,14 +19,14 @@ class Unpack(Analysis):
         if not components.supported:
             self.error_info = '{} is not supported'.format(path_to_firmware)
             return False
-        self.firmware.set_components(components)
+        self.analysis_manager.firmware.set_components(components)
 
         path_to_dtb = components.get_path_to_dtb()
         if path_to_dtb is not None:
             self.info('find {}'.format(path_to_dtb), 1)
-        self.firmware.set_realdtb(path_to_dtb)
+        self.analysis_manager.firmware.set_realdtb(path_to_dtb)
 
-        # self.firmware.set_kernel_load_address(load_address)
+        # self.analysis_manager.firmware.set_kernel_load_address(load_address)
 
         if not show:
             return True

@@ -126,14 +126,14 @@ class ShowCallstack(Analysis):
         trace = self.analysis_manager.get_analysis('loadtrace')
         pql = trace.pql
 
-        if self.firmware.get_arch() == 'arm':
-            callstack = ARMCallStack(self.firmware.get_endian())
-        elif self.firmware.get_arch() == 'mips':
-            callstack = MIPSCallStack(self.firmware.get_endian())
+        if self.analysis_manager.firmware.get_arch() == 'arm':
+            callstack = ARMCallStack(self.analysis_manager.firmware.get_endian())
+        elif self.analysis_manager.firmware.get_arch() == 'mips':
+            callstack = MIPSCallStack(self.analysis_manager.firmware.get_endian())
         else:
             self.error_info = \
                 'cannot support {}e{}'.format(
-                    self.firmware.get_arch(), self.firmware.get_arch())
+                    self.analysis_manager.firmware.get_arch(), self.analysis_manager.firmware.get_arch())
             return False
 
         for c in callstack.construct(pql):

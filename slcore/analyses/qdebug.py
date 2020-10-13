@@ -9,7 +9,7 @@ class QEMUDbgMachSrc(Analysis):
 
         prefix_from = os.path.join(
             self.analysis_manager.project.attrs['path'],
-            self.firmware.get_machine_name())
+            self.analysis_manager.firmware.get_machine_name())
         prefix_to = self.analysis_manager.project.attrs['qemu_dir']
         if not os.path.exists(prefix_from):
             self.error_info = '{} doesn\'t exist'.format(prefix_from)
