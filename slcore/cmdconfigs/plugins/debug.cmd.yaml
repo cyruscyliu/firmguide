@@ -3,5 +3,4 @@ debugsrc:
     optional:
         clean: {short: c, action: 'store_true', default: False,
             help: "Delete machine source for debugging."}
-        machine_name: {short: m, required: True, help: "Machine name."}
     callback: qemudbgmachsrc

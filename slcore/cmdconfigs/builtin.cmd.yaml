@@ -31,7 +31,7 @@ diagnose:
             short: nc
             action: "store_true"
             default: False
-            help: "Set this for multi-tasks."
+            help: "No compilation for concurrent tasks."
         nocallstack: &nocallstack
             short: ncs
             action: "store_true"
@@ -41,15 +41,15 @@ diagnose:
             short: ab
             action: "store_true"
             default: False
-            help: "Use autoboard except QEMU builtin hardware."
+            help: "Use autoboard except QEMU builtin peripherals."
         autoboard_all: &autoboard_all
-            short: aba
+            short: aa
             action: "store_true"
             default: False
-            help: "Use autoboard replacing QEMU builtin hardware."
+            help: "Use autoboard replacing QEMU builtin peripherals."
     callback: diagnosis
 upload:
-    help: "Run - Online assembling for any image. No debug interfaces."
+    help: "Run - Online kernel booting. No debug interfaces."
     optional:
         firmware:
             << : *firmware
@@ -65,10 +65,11 @@ upload:
         autoboard_all: *autoboard_all
     callback: uploading
 synthesize:
-    help: "Standalone - QEMU machine rendering with bricks."
+    help: "Run - Convert device tree to QEMU virtual machine."
     optional:
-        dtb: *dtb
-        firmware: *firmware
+        dtb:
+          << : *dtb
+          required: True
         nocompilation: *nocompilation
         autoboard: *autoboard
         autoboard_all: *autoboard_all
