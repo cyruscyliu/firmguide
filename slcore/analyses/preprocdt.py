@@ -5,8 +5,8 @@ from slcore.dt_parsers.common import load_dtb
 from slcore.dt_parsers.compatible import find_compatible_in_fdt
 from slcore.dt_parsers.serial import find_flatten_serial_in_fdt
 from slcore.dt_parsers.cpu import find_flatten_cpu_in_fdt
-# from slcore.dt_parsers.compatible import query_arch_by_compatible, \
-#         query_board_id_by_compatible
+from slcore.dt_parsers.compatible import query_arch_by_compatible, \
+        query_board_id_by_compatible
 
 
 class DTPreprocessing(Analysis):
@@ -28,22 +28,29 @@ class DTPreprocessing(Analysis):
 
         # machine name: must exist
         compatible = find_compatible_in_fdt(dts)
-        self.analysis_manager.firmware.set_machine_name('@'.join([
-            comptb[i].replace(',', '_').replace('-', '_') for comptb in compatible]))
+        self.analysis_manager.firmware.set_machine_name('_'.join([
+            comptb.replace(',', '_').replace('-', '_') for comptb in compatible]))
         # TODO update board_id
-        # board_id = query_board_id_by_compatible(compatible)
-        board_id = '0xFFFFFFFF'
+        board_id = query_board_id_by_compatible(compatible)
         self.analysis_manager.firmware.set_board_id(board_id)
+        self.info('board id {} is chosen automatically'.format(board_id), 1)
 
         # arch
         cpu = find_flatten_cpu_in_fdt(dts) 
         if cpu is None:
             self.error_info = 'invalid dtb, no processor is available'
             return False
-        arch = query_arch_by_compatible(cpu['compatible'])
-        arch = 'arm'
+        arch = query_arch_by_compatible(cpu[0]['compatible'])
         self.analysis_manager.firmware.set_arch(arch)
-        self.analysis_manager.firmware.set_endian('l')
+        self.info('arch {} is chosen automatically'.format(arch), 1)
+        if arch == 'arm':
+            self.analysis_manager.firmware.set_endian('l')
+            self.info('endian l is chosen automatically', 1)
+            self.analysis_manager.firmware.set_kernel_load_address('0x00008000')
+            self.info('load address 0x00008000 is chosen automatically', 1)
+        else:
+            self.error_info = 'please set -e for endian and -ld for load adress'
+            return False
 
         # uart count
         self.analysis_manager.firmware.set_uart_num(len(find_flatten_serial_in_fdt(dts) or []))

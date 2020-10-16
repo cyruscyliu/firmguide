@@ -64,6 +64,7 @@ class Brick(object):
             self.old_compatible = None
         self.supported = False
         self.model = None
+        self.extend = None
         self.actual = {}
         self.effic_compatible = effi
         self.buddy_compatible = []
@@ -331,7 +332,7 @@ class Brick(object):
         """Expand the low level template if extend exists."""
         if 'extend' in model:
             extend = self.__load_model(model['extend'])
-            model.pop('extend')
+            self.extend = model.pop('extend')
             for k, v in extend.items():
                 if k in model:
                     continue
