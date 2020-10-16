@@ -1,6 +1,7 @@
 debugsrc:
     help: "Plugin - Add and delete QEMU source for debugging."
     optional:
+        machine_name: {short: m, help: "Set machine name.", requried: True}
         clean: {short: c, action: 'store_true', default: False,
             help: "Delete machine source for debugging."}
     callback: qemudbgmachsrc
