@@ -68,7 +68,7 @@ class DeleteTrace(Analysis):
         if not os.path.exists(path_to_trace):
             return True
 
-        delete = kwargs.pop('delete')
+        delete = kwargs.pop('delete', True)
         if not delete:
             return True
         if delete:
