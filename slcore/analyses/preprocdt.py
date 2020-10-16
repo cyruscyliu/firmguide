@@ -28,9 +28,9 @@ class DTPreprocessing(Analysis):
 
         # machine name: must exist
         compatible = find_compatible_in_fdt(dts)
-        self.analysis_manager.firmware.set_machine_name(
-            compatible[0].replace(',', '_').replace('-', '_'))
-        # board id
+        self.analysis_manager.firmware.set_machine_name('@'.join([
+            comptb[i].replace(',', '_').replace('-', '_') for comptb in compatible]))
+        # TODO update board_id
         # board_id = query_board_id_by_compatible(compatible)
         board_id = '0xFFFFFFFF'
         self.analysis_manager.firmware.set_board_id(board_id)
@@ -40,7 +40,7 @@ class DTPreprocessing(Analysis):
         if cpu is None:
             self.error_info = 'invalid dtb, no processor is available'
             return False
-        # arch = query_arch_by_compatible(cpu['compatible'])
+        arch = query_arch_by_compatible(cpu['compatible'])
         arch = 'arm'
         self.analysis_manager.firmware.set_arch(arch)
         self.analysis_manager.firmware.set_endian('l')

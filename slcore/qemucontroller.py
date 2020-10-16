@@ -78,6 +78,8 @@ class QEMUController(Common):
             else:
                 return '{}/mips-softmmu/qemu-system-mips'.format(
                     self.qemu_root)
+        else:
+            raise NotImplementedError('unsupported arch {}'.format(arch))
 
     def get_command(
             self, arch, endian, machine, kernel, dtb_offset=None,

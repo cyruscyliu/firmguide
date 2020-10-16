@@ -65,10 +65,14 @@ class CheckUserLevelF(Analysis):
         return False
 
     def scan_user_level_qemudebug(self, path_to_trace):
-        if self.analysis_manager.firmware.get_arch() == 'arm':
+        arch = self.analysis_manager.firmware.get_arch()
+        if arch == 'arm':
             return self.__scan_arm_user_level_qemudebug(path_to_trace)
-        elif self.analysis_manager.firmware.get_arch() == 'mips':
+        elif arch == 'mips':
             return self.__scan_mips_user_level_qemudebug(path_to_trace)
+        else:
+            self.error_info = 'unsupported arch {}'.format(arch)
+            return False
 
     def scan_user_level_ktracer(self, path_to_trace):
         return False

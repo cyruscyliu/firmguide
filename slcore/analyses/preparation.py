@@ -15,17 +15,21 @@ class Preparation(Analysis):
             return False
 
         # 1. prepare -k path/to/kernel
-        if self.analysis_manager.firmware.get_arch() == 'mips':
+        arch = self.analysis_manager.firmware.get_arch()
+        if  arch == 'mips':
             # 1.1 If a mips firmware has CMDLINE label,
             # we replace what after CMDLINE with our cmdline.
             fix_cmdline(self.analysis_manager.firmware.get_components())
             # 1.2 find the builtin dtb
             offset = fix_builtin_dtb(self.analysis_manager.firmware.get_components())
-        elif self.analysis_manager.firmware.get_arch() == 'arm':
+        elif arch == 'arm':
             # 1.2 If an arm firmware has a built-in dtb, disable it.
             fix_armdtb(
                 self.analysis_manager.firmware.get_components(), self.analysis_manager.firmware.get_realdtb())
             offset = None
+        else:
+            self.error_info = 'unsupported arch {}'.format(arch)
+            return False
         # 1.3 we cannot handle SMP
         saved_dtb = self.analysis_manager.firmware.get_components().get_path_to_dtb()
         self.analysis_manager.firmware.get_components().set_path_to_dtb(

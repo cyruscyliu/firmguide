@@ -85,6 +85,7 @@ class CheckBoard(Analysis):
         elif arch == 'mips':
             return self.is_unsupport_mips_machine()
         else:
+            self.error_info = 'unsupported arch {}'.format(arch)
             return False
 
     def __init__(self, analysis_manager):

@@ -50,10 +50,14 @@ class CheckUndefInst(Analysis):
         trace = self.analysis_manager.get_analysis('loadtrace')
         pql = trace.pql
 
-        if self.analysis_manager.firmware.get_arch() == 'arm':
+        arch = self.analysis_manager.firmware.get_arch()
+        if arch == 'arm':
             return self.handle_arm_undef_inst(pql)
-        else:
+        elif arch == 'mips':
             return self.handle_mips_undef_inst(pql)
+        else:
+            self.error_info = 'unsupported arch {}'.format(arch)
+            return False
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)

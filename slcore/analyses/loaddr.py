@@ -5,11 +5,16 @@ from slcore.amanager import Analysis
 
 class CalcLoadAddr(Analysis):
     def run(self, **kwargs):
-        if self.analysis_manager.firmware.get_arch() == 'arm':
+        arch = self.analysis_manager.firmware.get_arch()
+        if arch == 'arm':
             self.analysis_manager.firmware.set_kernel_load_address('0x00008000')
             self.info('get arm loading address 0x{:x} by default'.format(
                 0x8000), 1)
             return True
+
+        if arch != 'mips':
+            self.error_info = 'unsupported arch {}'.format(arch)
+            return False
 
         srcodec = self.analysis_manager.srcodec
         if not srcodec.supported:
