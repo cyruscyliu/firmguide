@@ -26,7 +26,7 @@ def __generic_of_init_handler(self, find, extend=[]):
         return False
 
     dts = load_dtb(path_to_dtb)
-    periphs = find(dts)
+    periphs = find(dts) or []
 
     for periph in periphs:
         for cmptb in periph['compatible']:

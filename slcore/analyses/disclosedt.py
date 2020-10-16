@@ -28,11 +28,11 @@ class DiscloseDT(Analysis):
         with open(path_to_dts, 'w') as f:
             f.write(dts.to_dts())
 
-        for cpu in find_flatten_cpu_in_fdt(dts):
+        for cpu in find_flatten_cpu_in_fdt(dts) or []:
             message = '[CPU] of {}/{}'.format(cpu['path'], cpu['compatible'])
             self.info(message, 1)
 
-        for mem in find_flatten_ram_in_fdt(dts):
+        for mem in find_flatten_ram_in_fdt(dts) or []:
             for reg in mem['regs']:
                 message =  \
                     '[MEM] base 0x{:08x} size 0x{:08x} of {}/{}'.format(
@@ -40,7 +40,7 @@ class DiscloseDT(Analysis):
                         mem['path'], mem['compatible'])
                 self.info(message, 1)
 
-        for timer in find_flatten_timer_in_fdt(dts):
+        for timer in find_flatten_timer_in_fdt(dts) or []:
             for reg in timer['regs']:
                 message =  \
                     '[TIMER] base 0x{:08x} size 0x{:08x} of {}/{}'.format(
@@ -56,7 +56,7 @@ class DiscloseDT(Analysis):
                         serial['path'], serial['compatible'])
                 self.info(message, 1)
 
-        flatten_mmio = find_flatten_mmio_in_fdt(dts)
+        flatten_mmio = find_flatten_mmio_in_fdt(dts) or []
         def memory_overlapping_detection(compatible, start, end):
             for mmio in flatten_mmio:
                 if mmio['compatible'] == compatible:
@@ -85,7 +85,7 @@ class DiscloseDT(Analysis):
                     self.info(message, 1)
 
         if flash:
-            for flash in find_flatten_flash_in_fdt(dts):
+            for flash in find_flatten_flash_in_fdt(dts) or []:
                 for reg in flash['regs']:
                     message = \
                         '[FLASH] base 0x{:08x} size 0x{:08x} of {}/{}'.format(

@@ -18,7 +18,7 @@ class TopologyDT(Analysis):
             return False
 
         dts = load_dtb(path_to_dtb)
-        flatten_intc_all = find_flatten_intc_in_fdt(dts, nonintc_slave=True)
+        flatten_intc_all = find_flatten_intc_in_fdt(dts, nonintc_slave=True) or []
 
         def label_intc(intc):
             return intc['compatible'][-1]

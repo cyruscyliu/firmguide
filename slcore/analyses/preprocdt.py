@@ -36,7 +36,7 @@ class DTPreprocessing(Analysis):
         self.analysis_manager.firmware.set_board_id(board_id)
 
         # arch
-        cpu = find_flatten_cpu_in_fdt(dts)
+        cpu = find_flatten_cpu_in_fdt(dts) 
         if cpu is None:
             self.error_info = 'invalid dtb, no processor is available'
             return False
@@ -46,7 +46,7 @@ class DTPreprocessing(Analysis):
         self.analysis_manager.firmware.set_endian('l')
 
         # uart count
-        self.analysis_manager.firmware.set_uart_num(len(find_flatten_serial_in_fdt(dts)))
+        self.analysis_manager.firmware.set_uart_num(len(find_flatten_serial_in_fdt(dts) or []))
         return True
 
     def __init__(self, analysis_manager):
