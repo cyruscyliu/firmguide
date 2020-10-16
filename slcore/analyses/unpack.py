@@ -26,9 +26,6 @@ class Unpack(Analysis):
             self.info('find {}'.format(path_to_dtb), 1)
         self.analysis_manager.firmware.set_realdtb(path_to_dtb)
 
-        # TODO
-        # self.analysis_manager.firmware.set_kernel_load_address(load_address)
-
         if not show:
             return True
         # Show details
