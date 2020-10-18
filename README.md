@@ -11,6 +11,13 @@ can be automatically or manually (complementary method) generated.
 FirmGuide is a command-oriented tool like `git`.
 It has three modes for different scenarios.
 
+### Install
+
+```bash
+git clone xxx
+cd firmguide && make
+```
+
 ### Scenario 1: Boot Linux-based firmware for further dynamic analysis.
 
 Suppose there is a firmware image that has a Linux kernel with device tree,
