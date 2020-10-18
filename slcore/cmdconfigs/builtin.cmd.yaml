@@ -68,7 +68,7 @@ synthesize:
 archive:
     help: "Plugin - QEMU machine archiving."
     optional:
-        dtb: *dtb
+        profile: {short: p, help: "Set profile.", required: False}
     callback: archive
 coverup:
     help: "Plugin - Disclose QEMU debug trace."
