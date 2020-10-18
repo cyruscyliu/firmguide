@@ -14,7 +14,7 @@ def find_machine_id_s(strings):
         list: The list of machine ids the image supports.
     """
     machine_ids = yaml.safe_load(open(os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), 'machine_id.yaml')))
+        os.path.dirname(os.path.realpath(__file__)), 'by_machineid/machine_id.yaml')))
 
     # construct
     target_strings = {}

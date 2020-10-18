@@ -24,7 +24,7 @@ class SupportMachines(Database):
 
         database_dir = os.path.dirname(os.path.realpath(__file__))
         base_dir = os.path.dirname(os.path.dirname(database_dir))
-        table = open(os.path.join(database_dir, 'support.{}.yaml'.format(arch)))
+        table = open(os.path.join(database_dir, 'by_machine/support.{}.yaml'.format(arch)))
         info = yaml.safe_load(table)
         table.close()
 
@@ -60,13 +60,12 @@ class SupportMachines(Database):
         assert arch in ['arm', 'arm64', 'mips']
 
         database_dir = os.path.dirname(os.path.realpath(__file__))
-        table = open(os.path.join(database_dir, 'support.{}.yaml'.format(arch)))
+        table = open(os.path.join(database_dir, 'by_machine/support.{}.yaml'.format(arch)))
         info = yaml.safe_load(table)
         table.close()
 
         info[args[0]] = kwargs.pop('board', None)
 
-        table = open(os.path.join(database_dir, 'support.{}.yaml'.format(arch)), 'w')
+        table = open(os.path.join(database_dir, 'by_machine/support.{}.yaml'.format(arch)), 'w')
         yaml.safe_dump(info, table)
         table.close()
-

@@ -1,7 +1,7 @@
 import os
 
 from slcore.database.dbf import get_database
-from slcore.database.machine_id import find_machine_id
+from slcore.database.machineid import find_machine_id
 from slcore.database.board_dir import find_board_dir
 from slcore.dt_parsers.compatible import find_compatible
 from slcore.common import Common, setup_logging
