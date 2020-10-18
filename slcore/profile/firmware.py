@@ -6,10 +6,11 @@ from slcore.compositor import Components
 from slcore.profile.kernel import KernelForFirmware
 from slcore.profile.openwrt import OpenWRTForFirmware
 from slcore.profile.statistics import StatisticsForFirmware
+from slcore.profile.statistics2 import StatisticsForFirmware2
 
 
-class Firmware(StatisticsForFirmware, KernelForFirmware,
-               OpenWRTForFirmware, Common):
+class Firmware(StatisticsForFirmware2, StatisticsForFirmware,
+               KernelForFirmware, OpenWRTForFirmware, Common):
     def __init__(self, *args, **kwargs):
         self.profile = {}
         self.components = None
@@ -294,3 +295,12 @@ class Firmware(StatisticsForFirmware, KernelForFirmware,
             self.set_iv_num(1)
         else:
             self.set_iv_num(num + 1)
+
+    # ######## statistics2 ########
+    def add_entry(self, entry):
+        details = self.get_general('statistics', 'details')
+        if details is None:
+            self.set_general('statistics', 'details', value=[entry])
+        else:
+            details.append(entry)
+            self.set_general('statistics', 'details', value=details)

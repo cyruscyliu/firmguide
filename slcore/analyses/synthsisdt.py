@@ -69,22 +69,7 @@ class SynthesisDT(Analysis):
             self.analysis_manager.firmware.get_machine_name())
         os.system('rm -rf {}'.format(local_qemu))
 
-    def run(self, **kwargs):
-        path_to_dtb = self.analysis_manager.firmware.get_realdtb()
-        if path_to_dtb is None:
-            self.error_info = 'there is no real dtb available.'
-            return False
-
-        autoboard = kwargs.pop('autoboard')
-        autoboard_all = kwargs.pop('autoboard_all')
-
-        dts = load_dtb(path_to_dtb)
-
-        self.init_context()
-        self.clear_statistics()
-        self.clear_legacy_code()
-
-        # all intcp should replaced by a real intc
+    def instantiate_intc(self, dts, autoboard, autoboard_all):
         intcp = {}
         flatten_intc = find_flatten_intc_in_fdt(dts)
         if flatten_intc is not None:
@@ -103,14 +88,28 @@ class SynthesisDT(Analysis):
                 if not b.supported:
                     continue
                 intcp[-1] = b
+        return intcp
 
-        # let's begin
+    def run(self, **kwargs):
+        # Parse arguments
+        path_to_dtb = self.analysis_manager.firmware.get_realdtb()
+        if path_to_dtb is None:
+            self.error_info = 'there is no real dtb available.'
+            return False
+
+        autoboard = kwargs.pop('autoboard')
+        autoboard_all = kwargs.pop('autoboard_all')
+
+        dts = load_dtb(path_to_dtb)
+
+        # Initialize
+        self.init_context()
+        self.clear_statistics()
+        self.clear_legacy_code()
+        intcp = self.instantiate_intc(dts, autoboard, autoboard_all) # intc table
+
+        # Let's begin
         for k, v in self.rendering_handlers.items():
-            # ######### handle flash ########
-            if k == 'flash' and self.analysis_manager.firmware.get_components() \
-                    and self.analysis_manager.firmware.get_components().has_device_tree():
-                dts = load_dtb(self.analysis_manager.firmware.get_components().get_path_to_dtb())
-            # ######### !!!!!!!!!!!! ########
             flatten_ks = v(dts)
             if flatten_ks is None:
                 self.warning('no {} found'.format(k), 0)
@@ -135,21 +134,22 @@ class SynthesisDT(Analysis):
                 k = 'mmio'
                 cast = ['mmio,generic']
                 effi = 'plxtech,nand-nas782x'
-            # ######### !!!!!!!!!!!! ########
+            # ######### handle mmio ########
             if k == 'mmio':
                 flatten_ks = merge_flatten_mmio(flatten_ks)
+            # ######### !!!!!!!!!!!! ########
             for context in flatten_ks:
                 if k != 'serial' and self.__skip(context['compatible']):
                     self.debug('skip {}'.format(context['compatible']), 0)
                     continue
                 # ######## the 1st check, (type, compatible) check ########
-                # ######### !!!!!!!!!!!! ########
                 b = Brick(k, context['compatible'],
                         cast=cast, effi=effi,
                         autoboard=autoboard, autoboard_all=autoboard_all)
                 if not b.supported:
                     self.warning('cannot support {} {}'.format(
                         k, context['compatible']), 0)
+                    self.update_new_statistics(b, supported=False)
                     continue
                 # ######## the 2nd check, parameters check ########
                 context['name'] = b.effic_compatible.replace(',', '_').replace('-', '_')
@@ -158,11 +158,12 @@ class SynthesisDT(Analysis):
                     if phandle not in intcp:
                         self.warning('cannot support {} {}, {}'.format(
                             k, b.effic_compatible, 'intcp is missing'), 0)
+                        self.update_new_statistics(b, supported=False)
                         continue
                     context['intcp'] = intcp[phandle].model
                     context['intcp']['name'] = \
                         intcp[phandle].effic_compatible.replace(',', '_').replace('-', '_')
-
+                # ######## update generic parameters ########
                 context['to_upper'] = self.context['to_upper']
                 context['to_range'] = self.context['to_range']
                 context['to_endian'] = self.context['to_endian']
@@ -173,28 +174,32 @@ class SynthesisDT(Analysis):
                 context['machine_name'] = self.context['machine_name']
                 context['machine_description'] = self.context['machine_description']
                 context['board_id'] = self.context['board_id']
-
+                # ######### handle flash ########
                 if k == 'flash' and self.analysis_manager.firmware.get_arch() == 'mips':
                     if context['regs'][0]['base'] > 0x20000000:
                         context['regs'][0]['base'] &= 0x1FFFFFF
                     context['regs'][0]['size'] = \
                         0x20000000 - context['regs'][0]['base']
-                # ######### !!!!!!!!!!!! ########
+                # ######### load and render ########
+                iv = None
                 fix_parameters = self.load_fix_parameters(k, b.effic_compatible)
                 if fix_parameters is not None:
                     for x, y in fix_parameters.items():
                         if x != 'regs_index':
                             b.model[x] = y
                         else:
+                            iv = {}
                             for index, yy in y.items():
                                 for xxx, yyy in yy.items():
                                     context['regs'][index][xxx] = yyy
+                                    iv[index] = yyy
                                     self.analysis_manager.firmware.inc_iv_num()
                                     self.debug('iv+1 {} {}'.format(k, b.effic_compatible), 1)
                 m_context = b.render(context)
                 if isinstance(m_context, str):
                     self.warning('cannot suport {} {}, {} is missing'.format(
                         k, b.effic_compatible, m_context), 0)
+                    self.update_new_statistics(b, supported=False)
                     continue
                 self.__add_context(m_context)
                 # ######### the 3rd check, external check ########
@@ -202,21 +207,23 @@ class SynthesisDT(Analysis):
                     context[x] = y
                 context['license'] = self.context['license']
                 b.load_template()
-                # ######### !!!!!!!!!!!! ########
+                # ######### load and render ########
                 source, header = b.render_qdev(context)
                 if isinstance(source, KeyError):
                     self.error_info = 'cannot suport {} {}, {} is missing'.format(
                         k, b.effic_compatible, source)
+                    self.update_new_statistics(b, supported=False)
                     return False
                 if b.external:
                     self.external[context['name']] = \
                         {'type': b.external_type, 'source': source, 'header': header}
-                # update the skipped_bdevices
+                # ########## update the skipped_bdevices ########
                 self.skipped_bdevices.append(b.effic_compatible)
                 self.skipped_bdevices.extend(b.buddy_compatible)
                 self.debug('{} done'.format(context['compatible']), 1)
                 self.update_statistics(k, crm=b.builtin, debug=context['compatible'])
-        # let's go on
+                self.update_new_statistics(b, supported=True, iv=iv)
+        # ########## update parameters might be empty ########
         if 'timer_get_header' not in self.context:
             self.context['timer_get_header'] = []
             self.context['timer_get_body'] = []
@@ -230,7 +237,7 @@ class SynthesisDT(Analysis):
             self.context['misc_get_header'] = []
             self.context['misc_get_body'] = []
             self.context['misc_get_field'] = []
-        # ######## !!!!!!!! ########
+        # ######## load and render ########
         try:
             self.load_template()
             a = Template(self.machine).render(self.context)
@@ -279,6 +286,11 @@ class SynthesisDT(Analysis):
         else:
             self.analysis_manager.firmware.inc_mrm_num()
             self.debug('mrm+1 {} {}'.format(t, debug), 1)
+
+    def update_new_statistics(self, brick, supported=None, iv=None):
+        entry = brick.get_statistics(supported=supported, iv=iv)
+        self.analysis_manager.firmware.add_entry(entry)
+        self.debug('add {}'.format(entry), 1)
 
     def __save(self, s, base, location, fname):
         os.makedirs(base, exist_ok=True)
