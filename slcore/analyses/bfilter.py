@@ -44,7 +44,7 @@ class CheckBoard(Analysis):
         status = support.select('board', board=target, arch='arm')
         if status:
             self.info('arm/{} is supported'.format(target), 1)
-            self.firmware.set_board(target)
+            self.analysis_manager.firmware.set_board(target)
             return True
         else:
             self.error_info = 'arm/{} is not supported yet'.format(target)
@@ -64,7 +64,7 @@ class CheckBoard(Analysis):
         support = get_database('support')
         status = support.select('board', board=target, arch='mips')
         if status:
-            self.firmware.set_board(target)
+            self.analysis_manager.firmware.set_board(target)
             self.info('mips/{} is supported'.format(target), 1)
             return True
         else:
@@ -78,20 +78,21 @@ class CheckBoard(Analysis):
             return False
         self.path_to_srcode = srcodec.get_path_to_source_code()
 
-        arch = self.firmware.get_arch()
+        arch = self.analysis_manager.firmware.get_arch()
         self.arch = arch
         if arch == 'arm':
             return self.is_unsupport_arm_machine()
         elif arch == 'mips':
             return self.is_unsupport_mips_machine()
         else:
+            self.error_info = 'unsupported arch {}'.format(arch)
             return False
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'bfilter'
         self.description = \
-            'Filter our Linux Kernels board which are supported.'
+            'Filter our Linux kernels board which are supported.'
         self.required = []
         self.critical = True
         self.path_to_srcode = None

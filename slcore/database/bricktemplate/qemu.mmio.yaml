@@ -163,6 +163,9 @@ atmel,hsmci:
 atmel,sama5d3-rstc:
   buddy_compatible: []
   extend: mmio,generic
+barebox,state:
+  buddy_compatible: []
+  extend: mmio,generic
 brcm,bcm4708-sysram:
   buddy_compatible: []
   extend: mmio,generic
@@ -1100,6 +1103,105 @@ synology,power-off:
   extend: mmio,generic
 syscon:
   buddy_compatible: ['atmel,at91sam9x5-pmc']
+  extend: mmio,generic
+ti,am3517-emac:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,am3517-hecc:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,davinci_mdio:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,ehci-omap:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,ohci-omap3:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap2-iommu:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap2-mcspi:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-1w:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-aes:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-cm:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-dispc:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-dsi:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-dss:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-gpio:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-hsmmc:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-i2c:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-l3-smx:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-mailbox:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-mcbsp:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-musb:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-prm:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-rfbi:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-scm:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-sham:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-ssi:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-ssi-port:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-uart:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-venc:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3-wdt:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3430-gpmc:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,omap3430-sdma:
+  buddy_compatible: ['ti,omap3630-sdma']
+  extend: mmio,generic
+ti,usbhs-host:
+  buddy_compatible: []
+  extend: mmio,generic
+ti,usbhs-tll:
+  buddy_compatible: []
   extend: mmio,generic
 usb-ehci:
   buddy_compatible: ['atmel,at91sam9g45-ehci']

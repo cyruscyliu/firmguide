@@ -9,6 +9,7 @@ alphascale,asm9260-icoll: {extend: 'intc,generic'}
 arm,arm1176jzf-devchip-gic: {extend: 'intc,generic'}
 arm,arm11mp-gic:
   buddy_compatible: ['arm,arm11mp-twd-timer', mpcore_wdt]
+  builtin: 3
   get_body: ['object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_ARM11MPCORE_PRIV);',
     'object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{
       name }}), 0, {{ reg.base|to_hex }} & 0xffff0000);']
@@ -20,9 +21,9 @@ arm,arm11mp-gic:
   n_irq: 64
   parameters: [name, regs, intcp]
   unique: true
-  builtin: 3
 arm,arm11mp-gic,autoboard,all:
   buddy_compatible: ['arm,arm11mp-twd-timer', mpcore_wdt]
+  builtin: 3
   get_body: ['object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_AUTOBOARDARM11MPCORE_PRIV);',
     'object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{
       name }}), 0, {{ reg.base|to_hex }} & 0xffff0000);']
@@ -34,17 +35,17 @@ arm,arm11mp-gic,autoboard,all:
   n_irq: 64
   parameters: [name, regs, intcp]
   unique: true
-  builtin: 3
 arm,armv7m-nvic: {extend: 'intc,generic'}
 arm,cortex-a15-gic: {extend: 'intc,generic'}
 arm,cortex-a7-gic: {extend: 'intc,generic'}
 arm,cortex-a9-gic:
   buddy_compatible: ['arm,cortex-a9-scu', 'arm,cortex-a9-global-timer', 'arm,cortex-a9-twd-timer']
+  builtin: 4
   get_body: ['object_initialize(&s->{{ name }}, sizeof(s->{{ name }}), TYPE_A9MPCORE_PRIV);',
-    'qdev_prop_set_uint32(DEVICE(&s->arm_cortex_a9_gic), "num-cpu", 2);',
-    'qdev_prop_set_uint32(DEVICE(&s->arm_cortex_a9_gic), "num-irq", 128);', 'object_property_set_bool(OBJECT(&s->{{
-      name }}), true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{
-      name }}), 0, {{ reg.base|to_hex }} & 0xffff0000);']
+    'qdev_prop_set_uint32(DEVICE(&s->arm_cortex_a9_gic), "num-cpu", 2);', 'qdev_prop_set_uint32(DEVICE(&s->arm_cortex_a9_gic),
+      "num-irq", 128);', 'object_property_set_bool(OBJECT(&s->{{ name }}), true, "realized",
+      &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ reg.base|to_hex
+      }} & 0xffff0000);']
   get_connection: ['sysbus_connect_irq(SYS_BUS_DEVICE(&s->{{ name }}), 0, {{ intcp.get_irqn
       }});']
   get_field: ['A9MPPrivState {{ name }};']
@@ -53,7 +54,6 @@ arm,cortex-a9-gic:
   n_irq: 128
   parameters: [name, regs, intcp]
   unique: true
-  builtin: 4
 arm,eb11mp-gic: {extend: 'intc,generic'}
 arm,gic-400: {extend: 'intc,generic'}
 arm,gic-v3: {extend: 'intc,generic'}
@@ -127,11 +127,12 @@ marvell,orion-bridge-intc,autoboard:
     'object_initialize(&s->{{ name }}{{ id }}, sizeof(s->{{ name }}{{ id }}), TYPE_AUTOBOARD_INTC);',
     'qdev_set_parent_bus(DEVICE(&s->{{ name }}{{ id }}), sysbus_get_default());',
     'object_property_set_bool(OBJECT(&s->{{ name }}{{ id }}), true, "realized", &err);',
-    'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}{{ id }}), 0, {{ reg.base|to_hex }});']
+    'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}{{ id }}), 0, {{ reg.base|to_hex
+      }});']
   get_connection: ['qdev_connect_gpio_out(DEVICE(&s->{{ name }}{{ id }}), 0, {{ intcp.get_irqn
       }});']
   get_field: ['AUTOBOARD_INTCState {{ name }}{{ id }};']
-  get_header: ['hw/intc/autoboard_intc.h']
+  get_header: [hw/intc/autoboard_intc.h]
   get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}{{ iid }}), {{ irqn }})
   n_irq: 32
   parameters: [name, regs, intcp]
@@ -141,15 +142,16 @@ marvell,orion-intc,autoboard:
     'object_initialize(&s->{{ name }}{{ id }}, sizeof(s->{{ name }}{{ id }}), TYPE_AUTOBOARD_INTC);',
     'qdev_set_parent_bus(DEVICE(&s->{{ name }}{{ id }}), sysbus_get_default());',
     'object_property_set_bool(OBJECT(&s->{{ name }}{{ id }}), true, "realized", &err);',
-    'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}{{ id }}), 0, {{ reg.base|to_hex }});']
+    'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}{{ id }}), 0, {{ reg.base|to_hex
+      }});']
   get_connection: ['qdev_connect_gpio_out(DEVICE(&s->{{ name }}{{ id }}), 0, {{ intcp.get_irqn
       }});']
   get_field: ['AUTOBOARD_INTCState {{ name }}{{ id }};']
-  get_header: ['hw/intc/autoboard_intc.h']
+  get_header: [hw/intc/autoboard_intc.h]
   get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}{{ iid }}), {{ irqn }})
   n_irq: 64
   parameters: [name, regs, intcp]
-  unique: True
+  unique: true
 marvell,pxa-intc: {extend: 'intc,generic'}
 mediatek,mt6577-sysirq: {extend: 'intc,generic'}
 mediatek,mtk-cirq: {extend: 'intc,generic'}
@@ -159,6 +161,7 @@ mrvl,mmp-intc: {extend: 'intc,generic'}
 mrvl,mmp2-intc: {extend: 'intc,generic'}
 mrvl,mmp2-mux-intc: {extend: 'intc,generic'}
 mti,cpu-interrupt-controller:
+  builtin: 2
   get_body: [cpu_mips_irq_init_cpu(s->cpu);, cpu_mips_clock_init(s->cpu);]
   get_connection: []
   get_field: []
@@ -166,7 +169,6 @@ mti,cpu-interrupt-controller:
   get_irqn: s->cpu->env.irq[{{ irqn }}]
   n_irq: 8
   paramters: []
-  builtin: 2
 mti,gic: {extend: 'intc,generic'}
 nvidia,tegra20-ictlr: {extend: 'intc,generic'}
 nvidia,tegra210-ictlr: {extend: 'intc,generic'}
@@ -178,20 +180,23 @@ opencores,or1k-pic: {extend: 'intc,generic'}
 opencores,or1k-pic-edge: {extend: 'intc,generic'}
 opencores,or1k-pic-level: {extend: 'intc,generic'}
 oxsemi,ox810se-rps-irq: {extend: 'intc,generic'}
+pinctrl-single:
+  buddy_compatible: ['ti,omap3-padconf']
+  extend: intc,generic
 plxtech,nas782x-rps: {extend: 'intc,generic'}
 qca,ar7100-cpu-intc: {extend: 'mti,cpu-interrupt-controller'}
 qca,ar7100-misc-intc: {extend: 'intc,generic'}
 qca,ar7240-misc-intc: {extend: 'intc,generic', external: true}
 qca,ar7240-misc-intc,autoboard:
-  get_body: ['set_autoboard_intc_cfg(AUTOBOARD_INTC_ATH79_GENERIC, "intc");',
-    'object_initialize(&s->{{ name }}{{ id }}, sizeof(s->{{ name }}{{ id }}), TYPE_AUTOBOARD_INTC);',
-    'qdev_set_parent_bus(DEVICE(&s->{{ name }}{{ id }}), sysbus_get_default());',
-    'object_property_set_bool(OBJECT(&s->{{ name }}{{ id }}), true, "realized", &err);',
-    'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}{{ id }}), 0, {{ reg.base|to_hex }});']
+  get_body: ['set_autoboard_intc_cfg(AUTOBOARD_INTC_ATH79_GENERIC, "intc");', 'object_initialize(&s->{{
+      name }}{{ id }}, sizeof(s->{{ name }}{{ id }}), TYPE_AUTOBOARD_INTC);', 'qdev_set_parent_bus(DEVICE(&s->{{
+      name }}{{ id }}), sysbus_get_default());', 'object_property_set_bool(OBJECT(&s->{{
+      name }}{{ id }}), true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{
+      name }}{{ id }}), 0, {{ reg.base|to_hex }});']
   get_connection: ['qdev_connect_gpio_out(DEVICE(&s->{{ name }}{{ id }}), 0, {{ intcp.get_irqn
       }});']
   get_field: ['AUTOBOARD_INTCState {{ name }}{{ id }};']
-  get_header: ['hw/intc/autoboard_intc.h']
+  get_header: [hw/intc/autoboard_intc.h]
   get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}{{ iid }}), {{ irqn }})
   n_irq: 32
   parameters: [name, regs, intcp]
@@ -206,35 +211,23 @@ qcom,smp2p:
   extend: intc,generic
 qcom,smsm:
   buddy_compatible: []
-  extend: intc,generic
 ralink,mt7621-gic:
   buddy_compatible: []
   extend: intc,generic
 ralink,rt2880-intc: {extend: 'intc,generic', external: true}
 ralink,rt2880-intc,autoboard:
-  get_body: ['set_autoboard_intc_cfg(AUTOBOARD_INTC_RAMIPS_RT3883, "intc");',
-    'object_initialize(&s->{{ name }}{{ id }}, sizeof(s->{{ name }}{{ id }}), TYPE_AUTOBOARD_INTC);',
-    'qdev_set_parent_bus(DEVICE(&s->{{ name }}{{ id }}), sysbus_get_default());',
-    'object_property_set_bool(OBJECT(&s->{{ name }}{{ id }}), true, "realized", &err);',
-    'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{ name }}{{ id }}), 0, {{ reg.base|to_hex }});']
+  get_body: ['set_autoboard_intc_cfg(AUTOBOARD_INTC_RAMIPS_RT3883, "intc");', 'object_initialize(&s->{{
+      name }}{{ id }}, sizeof(s->{{ name }}{{ id }}), TYPE_AUTOBOARD_INTC);', 'qdev_set_parent_bus(DEVICE(&s->{{
+      name }}{{ id }}), sysbus_get_default());', 'object_property_set_bool(OBJECT(&s->{{
+      name }}{{ id }}), true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{
+      name }}{{ id }}), 0, {{ reg.base|to_hex }});']
   get_connection: ['qdev_connect_gpio_out(DEVICE(&s->{{ name }}{{ id }}), 0, {{ intcp.get_irqn
       }});']
   get_field: ['AUTOBOARD_INTCState {{ name }}{{ id }};']
-  get_header: ['hw/intc/autoboard_intc.h']
+  get_header: [hw/intc/autoboard_intc.h]
   get_irqn: qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}{{ iid }}), {{ irqn }})
   n_irq: 32
   parameters: [name, regs, intcp]
-qca,ar9340-intc: {extend: 'intc,generic'}
-qcom,apq8084-pinctrl:
-  buddy_compatible: []
-  extend: intc,generic
-qcom,msm-8660-qgic: {extend: 'intc,generic'}
-qcom,msm-qgic2: {extend: 'intc,generic'}
-qcom,smp2p:
-  buddy_compatible: []
-  extend: intc,generic
-qcom,smsm:
-  buddy_compatible: []
 renesas,h8300h-intc: {extend: 'intc,generic'}
 renesas,h8s-intc: {extend: 'intc,generic'}
 samsung,exynos4210-combiner: {extend: 'intc,generic'}

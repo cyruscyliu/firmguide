@@ -1,5 +1,22 @@
-from slcore.dt_parsers.common import load_dtb
 import os
+
+from slcore.dt_parsers.common import load_dtb
+from slcore.brick import Brick
+
+
+def query_arch_by_compatible(cpu_compatible):
+    b = Brick('cpu', cpu_compatible)
+    extend = b.extend
+    if extend == 'arm,generic':
+        return 'arm'
+    elif extend == 'mips(el),generic':
+        return 'mips'
+    else:
+        raise NotImplementedError('unsupported arch {}'.format(arch))
+
+
+def query_board_id_by_compatible(compatible):
+    return '0xFFFFFFFF'
 
 
 def find_compatible_in_fdt(dts):

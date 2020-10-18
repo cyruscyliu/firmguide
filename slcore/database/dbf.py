@@ -1,5 +1,5 @@
 from slcore.database.qemu import DatabaseQEMUModels
-from slcore.database.support import SupportMachines
+from slcore.database.machines import SupportMachines
 
 
 def get_database(dbtype, **kwargs):

@@ -1,6 +1,9 @@
 global:
     optional:
-        reset: {short: r, action: "store_true", default: False,
-            help: "reset all analyses"}
         debug: {short: d, action: "store_true",
             help: "show verbose logs"}
+        path: {short: p, help: "set output directory"}
+        logname: {short: lg, help: "set log name"}
+        arch: {short: a, choices: ["arm", "mips"], help: "set architecture"}
+        endian: {short: e, choices: ["b", "l"], help: "set endianness"}
+        load: {short: ld, metavar: "OxLOADADDR", help: "Load address."}

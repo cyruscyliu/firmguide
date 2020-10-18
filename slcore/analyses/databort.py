@@ -106,10 +106,14 @@ class CheckDataAbort(Analysis):
         trace = self.analysis_manager.get_analysis('loadtrace')
         pql = trace.pql
 
-        if self.firmware.get_arch() == 'arm':
+        arch = self.analysis_manager.firmware.get_arch()
+        if arch == 'arm':
             return self.handle_arm_dabt(pql)
-        else:
+        elif arch == 'mips':
             return self.handle_mips_dabt(pql)
+        else:
+            self.error_info = 'unsupported arch {}'.format(arch)
+            return False
 
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
@@ -117,6 +121,5 @@ class CheckDataAbort(Analysis):
         self.description = 'Find data abort info.'
         self.critical = False
         self.required = ['userlevel', 'fastuserlevel', 'loadtrace']
-        self.type = 'diag'
         #
         self.dead_addresses = []

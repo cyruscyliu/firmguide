@@ -20,13 +20,13 @@ def __generic_of_init_handler(self, find, extend=[]):
         return False
     path_to_source = srcodec.get_path_to_source_code()
 
-    path_to_dtb = self.firmware.get_realdtb()
+    path_to_dtb = self.analysis_manager.firmware.get_realdtb()
     if path_to_dtb is None:
         self.error_info = 'there is no real dtb available.'
         return False
 
     dts = load_dtb(path_to_dtb)
-    periphs = find(dts)
+    periphs = find(dts) or []
 
     for periph in periphs:
         for cmptb in periph['compatible']:

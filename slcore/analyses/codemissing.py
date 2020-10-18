@@ -28,4 +28,3 @@ class CheckMissingCode(Analysis):
             'Check whether or not the executable is loaded normally.'
         self.critical = False
         self.required = ['userlevel', 'fastuserlevel', 'loadtrace']
-        self.type = 'diag'

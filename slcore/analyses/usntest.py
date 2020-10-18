@@ -10,7 +10,7 @@ from slcore.brick import Brick
 
 class TestUSN(Analysis):
     def run(self, **kwargs):
-        path_to_dtb = self.firmware.get_realdtb()
+        path_to_dtb = self.analysis_manager.firmware.get_realdtb()
         if path_to_dtb is None:
             self.error_info = 'there is no real dtb available.'
             return False
@@ -18,7 +18,7 @@ class TestUSN(Analysis):
         dts = load_dtb(path_to_dtb)
 
         # test serial model
-        serials = find_flatten_serial_in_fdt(dts)
+        serials = find_flatten_serial_in_fdt(dts) or []
         for serial in serials:
             b = Brick('serial', serial['compatible'])
             if not b.supported:
@@ -29,7 +29,7 @@ class TestUSN(Analysis):
                     serial['compatible']), 0)
 
         # test smp
-        cpus = find_flatten_cpu_in_fdt(dts)
+        cpus = find_flatten_cpu_in_fdt(dts) or []
         if len(cpus) == 1:
             self.info('there is only 1 processor.', 1)
             return True
@@ -37,7 +37,7 @@ class TestUSN(Analysis):
             self.warning('there are {} processors.'.format(len(cpus)), 0)
 
         # test intc model
-        intcs = find_flatten_intc_in_fdt(dts)
+        intcs = find_flatten_intc_in_fdt(dts) or []
         for intc in intcs:
             b = Brick('intc', intc['compatible'])
             if not b.supported:

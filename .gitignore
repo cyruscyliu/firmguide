@@ -2,9 +2,18 @@
 .idea
 __pycache__
 *.pyc
+
 # Config
 .project
 .llvmbin
 .qemu
 .sparse
 *.fix_smp
+
+# FirmGuide
+*.dts
+*.extracted
+*.log
+*.trace
+*.profile
+*_*

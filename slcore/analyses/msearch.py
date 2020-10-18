@@ -1,7 +1,7 @@
 import os
 
 from slcore.database.dbf import get_database
-from slcore.database.machine_id import find_machine_id
+from slcore.database.machineid import find_machine_id
 from slcore.database.board_dir import find_board_dir
 from slcore.dt_parsers.compatible import find_compatible
 from slcore.common import Common, setup_logging
@@ -61,20 +61,20 @@ class MD(Common):
 class FindMachine(Analysis):
     def update_profile(self):
         # fix runtime
-        self.firmware.set_stage(False, 'user_mode')
-        self.firmware.profile['booting_command'] = None
+        self.analysis_manager.firmware.set_stage(False, 'user_mode')
+        self.analysis_manager.firmware.profile['booting_command'] = None
 
-        raw_name = self.firmware.get_components().get_raw_name()
-        self.firmware.path_to_profile = os.path.join(
+        raw_name = self.analysis_manager.firmware.get_components().get_raw_name()
+        self.analysis_manager.firmware.path_to_profile = os.path.join(
             self.analysis_manager.project.attrs['path'],
             '{}.profile.yaml'.format(raw_name))
 
     def update_log(self):
-        raw_name = self.firmware.get_components().get_raw_name()
+        raw_name = self.analysis_manager.firmware.get_components().get_raw_name()
         setup_logging(self.analysis_manager.project.attrs['path'], raw_name)
 
     def update_trace(self):
-        raw_name = self.firmware.get_components().get_raw_name()
+        raw_name = self.analysis_manager.firmware.get_components().get_raw_name()
         self.analysis_manager.arguments['path_to_trace'] = os.path.join(
             self.analysis_manager.project.attrs['path'],
             '{}.trace'.format(raw_name))
@@ -83,17 +83,17 @@ class FindMachine(Analysis):
         support = get_database('support')
         revision, target, subtarget = [None] * 3
 
-        brand = self.firmware.get_brand()
+        brand = self.analysis_manager.firmware.get_brand()
         assert brand is not None, 'brand must be clear'
-        arch = self.firmware.get_arch()
+        arch = self.analysis_manager.firmware.get_arch()
 
         if url is not None and brand == 'openwrt':
             from slcore.brandsupkg.openwrt import parse_openwrt_url
             revision, target, subtarget = parse_openwrt_url(url)
         else:
             board = find_board_dir(
-                self.firmware.get_components().get_path_to_kernel(), 
-                self.firmware.get_arch())
+                self.analysis_manager.firmware.get_components().get_path_to_kernel(), 
+                self.analysis_manager.firmware.get_arch())
             print(board)
             exit()
 
@@ -106,7 +106,7 @@ class FindMachine(Analysis):
             return None
 
     def run(self, **kwargs):
-        components = self.firmware.get_components()
+        components = self.analysis_manager.firmware.get_components()
 
         if self.check_components_is_none():
             return False
@@ -143,7 +143,7 @@ class FindMachine(Analysis):
                     self.error_info = \
                         '002 cannot find the compatible {} and nothing prepared'.format(compatible)
                     return False
-                self.firmware.set_realdtb(os.path.join(
+                self.analysis_manager.firmware.set_realdtb(os.path.join(
                     self.analysis_manager.project.attrs['base_dir'],
                     profile['realdtb']))
                 self.info('we support {}'.format(compatible), 1)
@@ -166,7 +166,7 @@ class FindMachine(Analysis):
                 '003 cannot find any machine id or any built-in profile'
             return False
 
-        self.firmware.set_realdtb(os.path.join(
+        self.analysis_manager.firmware.set_realdtb(os.path.join(
             self.analysis_manager.project.attrs['base_dir'],
            profile['realdtb']))
         return True
@@ -174,6 +174,6 @@ class FindMachine(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'msearch'
-        self.description = 'Find a valid machine profile.'
-        self.required = []
+        self.description = 'Find a valid device tree.'
+        self.required = ['unpack']
         self.critical = True

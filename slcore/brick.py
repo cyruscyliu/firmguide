@@ -64,6 +64,7 @@ class Brick(object):
             self.old_compatible = None
         self.supported = False
         self.model = None
+        self.extend = None
         self.actual = {}
         self.effic_compatible = effi
         self.buddy_compatible = []
@@ -331,7 +332,7 @@ class Brick(object):
         """Expand the low level template if extend exists."""
         if 'extend' in model:
             extend = self.__load_model(model['extend'])
-            model.pop('extend')
+            self.extend = model.pop('extend')
             for k, v in extend.items():
                 if k in model:
                     continue
@@ -349,3 +350,34 @@ class Brick(object):
         if os.path.exists(self.template_to_header):
             with open(self.template_to_header) as f:
                 self.header = ''.join(f.readlines())
+
+    def get_statistics(self, supported=None, iv=None):
+        entry = {
+            'compatible': self.compatible,
+            'type': self.t,
+            'iv': {}
+        }
+        if iv is not None:
+            for xxx, yyy in iv.items():
+                entry['iv'][xxx] = yyy
+        if supported is not None:
+            entry['supported'] = supported
+        else:
+            entry['supported'] = self.supported
+
+        if not entry['supported']:
+            return entry
+
+        if self.builtin is not None:
+            entry['mtype'] = 'code_reuse'
+            entry['code_reuse_count'] = self.builtin
+            return entry
+
+        if self.t in ['cpu', 'ram', 'serial', 'misc']:
+            entry['mtype'] = 'code_reuse'
+            entry['code_reuse_count'] = 1
+        elif self.t in ['intc', 'timer']:
+            entry['mtype'] = 'state_machine'
+        else:
+            entry['mtype'] = 'memory_region'
+        return entry

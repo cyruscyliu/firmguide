@@ -1,28 +1,49 @@
-newprfsrc:
-    help: "Plugin - Find new peripherals in the OS source."
+ofinitsrc:
+    help: "Plugin - Add unknown of_init declaration in OS source."
     optional: &optional
-        source: {short: s, required: False, help: "Path to the OS source."}
+        source: &source
+            short: s
+            required: False
+            help: "Path to OS source."
     callback: updatecompatibledb
 newhwsrc:
-    help: "Plugin - Find new hardware in the OS source."
+    help: "Plugin - Add unknown hardware in OS source."
     optional: *optional
     callback: updatehardware
-analysrc:
-    help: "Plugin - Analyze the OS source quickly."
+loaddr:
+    help: "Plugin - Find load address."
+    optional: *optional
+    callback: calcloadaddr
+ofinitcbs:
+    help: "Plugin - Find of_init callbacks in OS source."
     optional:
-        << : *optional
-        entry_point: {short: e, required: False,
-            help: "Find the file contains the entry point of data or function and preprocess the file."}
-        file: {short: f, required: False, help: "Preprocess the file."}
-    callback: quicksrca
-traversrc:
-    help: "Plugin - Traverse the Linux kernel source code."
-    optional:
-        << : *optional
-        dirs: {short: dirs, nargs: '+', required: False, help: "Dirs to be included."}
-        dtb: {short: dtb, required: False, help: 'Device tree blob.'}
-        entry_point: {short: e, required: False,
-            help: "Entrypoint to start the traversal."}
-        file: {short: f, nargs: '+', required: False, help: "File to be traversed."}
-        all: {short: a, action: 'store_true', default: False, help: "Show skipped functions."}
-    callback: traversekernel
+        source:
+            << : *source
+            required: Ture
+        dtb: &dtb
+            short: dtb
+            required: True
+            help: "Path to device tree."
+    callback: ofinitsrc
+    # analysrc:
+    # help: "Plugin - Find file in OS source."
+    # optional:
+    # << : *optional
+    # entry_point: {short: e, required: False,
+    # help: "Find file contains the entry point of data or function and preprocess the file."}
+    # file: {short: f, required: False, help: "File to be preprocessed."}
+    # callback: quicksrca
+    # traversrc:
+    # help: "Plugin - Find booting process from OS source."
+    # optional:
+    # << : *optional
+    # dirs: {short: dirs, nargs: '+', required: False, help: "Dirs to be included."}
+    # dtb: {short: dtb, required: False, help: 'Device tree blob.'}
+    # entry_point: {short: e, required: False,
+    # help: "Entrypoint to start the traversal."}
+    # file: {short: f, nargs: '+', required: False, help: "File to be traversed."}
+    # all: {short: a, action: 'store_true', default: False, help: "Show skipped functions."}
+    # callback: traversekernel
+    # bfilter
+    # board: {short: b, required: False, help: "set board manually to replace --url"}
+    # url: {short: l, required: False, help: "will be removed in the future"}

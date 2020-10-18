@@ -6,18 +6,17 @@ from slcore.compositor import Components
 from slcore.profile.kernel import KernelForFirmware
 from slcore.profile.openwrt import OpenWRTForFirmware
 from slcore.profile.statistics import StatisticsForFirmware
+from slcore.profile.statistics2 import StatisticsForFirmware2
 
 
-class Firmware(StatisticsForFirmware, KernelForFirmware,
-               OpenWRTForFirmware, Common):
+class Firmware(StatisticsForFirmware2, StatisticsForFirmware,
+               KernelForFirmware, OpenWRTForFirmware, Common):
     def __init__(self, *args, **kwargs):
-        self.analysis_progress = None  # /tmp/uuid/analyses
-
-        self.profile = None
+        self.profile = {}
         self.components = None
         self.running_command = None
 
-        self.path_to_profile = None  # path
+        self.path_to_profile = None 
         self.realdtb = None  # path
         self.realdts = None  # path
 
@@ -47,15 +46,8 @@ class Firmware(StatisticsForFirmware, KernelForFirmware,
     def get_profile(self, *args, **kwargs):
         return self.profile
 
-    def create_empty_profile(self, path):
-        self.path_to_profile = os.path.join(path, 'profile.yaml')
-        with open(self.path_to_profile, 'w') as f:
-            yaml.safe_dump({}, f)
-        self.set_profile({})
-
     def load_from_profile(self, path_to_profile):
-        self.path_to_profile = path_to_profile
-        with open(self.path_to_profile, 'r') as f:
+        with open(path_to_profile, 'r') as f:
             profile = yaml.safe_load(f)
 
         if 'components' in profile:
@@ -303,3 +295,12 @@ class Firmware(StatisticsForFirmware, KernelForFirmware,
             self.set_iv_num(1)
         else:
             self.set_iv_num(num + 1)
+
+    # ######## statistics2 ########
+    def add_entry(self, entry):
+        details = self.get_general('statistics', 'details')
+        if details is None:
+            self.set_general('statistics', 'details', value=[entry])
+        else:
+            details.append(entry)
+            self.set_general('statistics', 'details', value=details)

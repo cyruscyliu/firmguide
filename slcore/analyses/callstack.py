@@ -110,11 +110,7 @@ class MIPSCallStack(CallStackI):
 
 class ShowCallstack(Analysis):
     def address2symbol(self, address):
-        srcodec = self.analysis_manager.srcodec
-        if not srcodec.supported:
-            self.warning('please set the source code', 1)
-            return None
-        return srcodec.address2symbol(address)
+        return self.analysis_manager.srcodec.address2symbol(address)
 
     def run(self, **kwargs):
         nocallstack = kwargs.pop('nocallstack')
@@ -122,17 +118,21 @@ class ShowCallstack(Analysis):
             self.debug('skip callstack analysis', 1)
             return True
 
+        srcodec = self.analysis_manager.srcodec
+        if not srcodec.supported:
+            self.error_info = 'please set the source code'
+            return False
+
         trace = self.analysis_manager.get_analysis('loadtrace')
         pql = trace.pql
 
-        if self.firmware.get_arch() == 'arm':
-            callstack = ARMCallStack(self.firmware.get_endian())
-        elif self.firmware.get_arch() == 'mips':
-            callstack = MIPSCallStack(self.firmware.get_endian())
+        arch = self.analysis_manager.firmware.get_arch()
+        if arch == 'arm':
+            callstack = ARMCallStack(self.analysis_manager.firmware.get_endian())
+        elif arch == 'mips':
+            callstack = MIPSCallStack(self.analysis_manager.firmware.get_endian())
         else:
-            self.error_info = \
-                'cannot support {}e{}'.format(
-                    self.firmware.get_arch(), self.firmware.get_arch())
+            self.error_info = 'unsupported arch {}'.format(arch)
             return False
 
         for c in callstack.construct(pql):
@@ -146,8 +146,7 @@ class ShowCallstack(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'callstack'
-        self.description = 'Show callstack of given trace.'
+        self.description = 'Show callstack of trace.'
         self.critical = False
-        self.required = ['userlevel', 'fastuserlevel', 'loadtrace']
-        self.type = 'diag'
+        self.required = ['userlevel', 'fastuserlevel', 'loadtrace', 'codemissing']
         self.callstack = []
