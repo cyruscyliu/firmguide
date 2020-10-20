@@ -114,7 +114,7 @@ class TraverseKernel(Analysis):
         return True
     
     def dump_slicing(self):
-        target = os.path.join(self.analysis_manager.project.attrs['path'], 'slicing')
+        target = os.path.join(self.analysis_manager.project.attrs['path'], '.slicing')
         with open(target, 'w') as f:
             yaml.safe_dump(self.slicing, f)
         self.info('slicing info saved as {}'.format(target), 1)
@@ -138,7 +138,10 @@ class TraverseKernel(Analysis):
 
         board = self.analysis_manager.firmware.get_board() # decided in bfilter
         self.info('-d {} automatically by bfilter'.format(board), 1)
-        target_dirs.append(board)
+        if target_dirs is None:
+            target_dirs = [board]
+        else:
+            target_dirs.append(board)
 
         # load all symbols
         failed_cases = 0
@@ -153,14 +156,11 @@ class TraverseKernel(Analysis):
                 allowed = True
                 if self.is_in_dirs_blacklist(absolute):
                     allowed = False
-
                 if not self.is_in_files_whitelist(absolute, files_whitelist):
                     allowed = False
-                
                 if target_files is not None and \
                         self.is_in_files_whitelist(absolute, target_files):
                     allowed = True
-
                 if target_dirs is not None and \
                         self.is_in_dirs_whitelist(absolute, target_dirs):
                     allowed = True

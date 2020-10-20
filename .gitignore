@@ -8,6 +8,7 @@ __pycache__
 .llvmbin
 .qemu
 .sparse
+.slicing
 *.fix_smp
 
 # FirmGuide

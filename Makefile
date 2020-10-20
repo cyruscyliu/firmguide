@@ -100,6 +100,6 @@ help:
 	@echo "  sparse		install Sparse 0.6.2"
 
 clean:
-	rm -rf *.dts *.extracted *.log .qemu .sparse
-
+	rm -rf *.dts *.extracted *.log .qemu .sparse .slicing
+ 
 .PHONY: all clean help
