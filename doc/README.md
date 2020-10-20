@@ -7,6 +7,7 @@ Table of Contents
          * [synthesize](#synthesize)
          * [upload](#upload)
          * [diagnose](#diagnose)
+         * [traversrc](#traversrc)
       * [PLUGIN subcommands](#plugin-subcommands)
          * [itopology](#itopology)
          * [dtcovereup](#dtcovereup)
@@ -52,11 +53,11 @@ we list how others (`-a`, `-e`, `-ld`) would be used by subcommands.
 N means don't need this argument. P means sometimes need this argument.
 Y means always need this argument.
 
-|  Subcommand | synthesize | upload | diagnose | itopology | dtcoverup | newhwdt | unpack | cmdcoverup | loaddr | ofinitcbs | coverup | debugsrc | usntest | analysrc |
-|:-----------:|:----------:|:------:|:--------:|:---------:|:---------:|:-------:|:------:|:----------:|:------:|:---------:|:-------:|:--------:|:-------:|:---------|
-|  -a/--arch  |      N     |    N   |     N    |     N     |     N     |    N    |    N   |      N     |    N   |     N     |    Y    |     N    |    N    |     N    |
-| -e/--endian |      P     |    P   |     P    |     N     |     N     |    N    |    N   |      P     |    N   |     N     |    Y    |     N    |    N    |     N    |
-|  -ld/--load |      P     |    P   |     P    |     N     |     N     |    N    |    N   |      P     |    N   |     N     |    N    |     N    |    N    |     N    |
+|  Subcommand | synthesize | upload | diagnose | traversrc | itopology | dtcoverup | newhwdt | unpack | cmdcoverup | loaddr | ofinitcbs | coverup | debugsrc | usntest | analysrc |
+|:-----------:|:----------:|:------:|:--------:|:---------:|:---------:|:---------:|:-------:|:------:|:----------:|:------:|:---------:|:-------:|:--------:|:-------:|:---------|
+|  -a/--arch  |      N     |    N   |     N    |     N     |     N     |     N     |    N    |    N   |      N     |    N   |     N     |    Y    |     N    |    N    |     N    |
+| -e/--endian |      P     |    P   |     P    |     N     |     N     |     N     |    N    |    N   |      P     |    N   |     N     |    Y    |     N    |    N    |     N    |
+|  -ld/--load |      P     |    P   |     P    |     N     |     N     |     N     |    N    |    N   |      P     |    N   |     N     |    N    |     N    |    N    |     N    |
 
 ## `CORE` subcommands
 
@@ -255,10 +256,68 @@ root@esv:~/firmguide# ./firmguide upload -f examples/62771d14b82e554a95d048af998
 
 ### `diagnose`
 
-This core subcommand do most of the same things as `upload`.
+This core subcommand does most of the same things as `upload`.
 However, the test in `diagnose` is not simple.
 If the test is failed, it will analyze the root cause
 and exposes GDB interfaces finally.
+
+### `traversrc`
+
+This core subcommand walks through the startup process of Linux kernel
+and shows interesting functions for manual analysis. Assign `-dtb` to
+solve part of indirect call problems. This core subcommand is not complete
+because of poor implementation that should be improved in the future.
+Note that `<noindent>` is the indirect call that `sparse` cannot handle.
+
+```txt
+root@openwrt-builder:~/firmguide# ./firmguide traversrc -s linux-3.18.20 -cc /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/OpenWrt-SDK-15.05-oxnas_gcc-4.8-linaro_uClibc-0.9.33.2_eabi.Linux-x86_64/staging_dir/toolchain-arm_mpcore_gcc-4.8-linaro_uClibc-0.9.33.2_eabi/bin/arm-openwrt-linux- -dtb examples/plxtech_nas782x.dtb
+2020-10-20 02:35:03,266 - INFO - AnalysesManager - chain cont'd - bfilter->ktraversal
+2020-10-20 02:35:03,280 - INFO - CheckBoard - bfilter - arch/arm/mach-oxnas is under our consideration
+2020-10-20 02:35:03,280 - INFO - TraverseKernel - ktraversal - -d mach-oxnas automatically by bfilter
+2020-10-20 02:35:05,877 - INFO - TraverseKernel - ktraversal - [done] init/main.c
+2020-10-20 02:35:06,428 - INFO - TraverseKernel - ktraversal - [done] arch/arm/kernel/irq.c
+2020-10-20 02:35:08,190 - INFO - TraverseKernel - ktraversal - [done] arch/arm/kernel/setup.c
+2020-10-20 02:35:08,541 - INFO - TraverseKernel - ktraversal - [done] arch/arm/kernel/time.c
+2020-10-20 02:35:09,294 - INFO - TraverseKernel - ktraversal - [done] arch/arm/mach-oxnas/mach-ox820.c
+2020-10-20 02:35:10,042 - INFO - TraverseKernel - ktraversal - [done] arch/arm/mach-oxnas/platsmp.c
+2020-10-20 02:35:10,207 - INFO - TraverseKernel - ktraversal - [done] arch/arm/mach-oxnas/hotplug.c
+2020-10-20 02:35:11,082 - INFO - TraverseKernel - ktraversal - [done] drivers/clk/clk-fixed-rate.c
+2020-10-20 02:35:11,484 - INFO - TraverseKernel - ktraversal - [done] drivers/clk/clk-fixed-factor.c
+2020-10-20 02:35:11,788 - INFO - TraverseKernel - ktraversal - [done] drivers/clocksource/clksrc-of.c
+2020-10-20 02:35:12,100 - INFO - TraverseKernel - ktraversal - [done] drivers/irqchip/irqchip.c
+2020-10-20 02:35:13,239 - INFO - TraverseKernel - ktraversal - [done] drivers/of/irq.c
+2020-10-20 02:35:13,628 - INFO - TraverseKernel - ktraversal - |-start_kernel->setup_arch[intermediate]
+2020-10-20 02:35:13,771 - INFO - TraverseKernel - ktraversal -   |-setup_arch-><noident>[unknown]
+2020-10-20 02:35:13,982 - INFO - TraverseKernel - ktraversal -   |-setup_arch-><noident>[unknown]
+2020-10-20 02:35:14,296 - INFO - TraverseKernel - ktraversal - |-start_kernel->init_IRQ[intermediate]
+2020-10-20 02:35:14,396 - INFO - TraverseKernel - ktraversal -   |-init_IRQ-><noident>[unknown]
+2020-10-20 02:35:14,607 - INFO - TraverseKernel - ktraversal -   |-init_IRQ->irqchip_init[intermediate]
+[-] cannot recognize "arm,gic-400",IRQCHIP_DECLARE(cortex_a15_gic, "arm,cortex-a15-gic" in linux-3.18.20/patches/platform/320-oxnas-irqchip.patch
+2020-10-20 02:36:33,302 - INFO - TraverseKernel - ktraversal -     |-irqchip_init->of_irq_init[handled]
+2020-10-20 02:36:33,302 - INFO - TraverseKernel - ktraversal -       |-of_irq_init->gic_of_init[indirected]
+2020-10-20 02:36:33,508 - INFO - TraverseKernel - ktraversal -       |-of_irq_init->rps_of_init[indirected]
+2020-10-20 02:36:33,889 - INFO - TraverseKernel - ktraversal - |-start_kernel->time_init[intermediate]
+2020-10-20 02:36:34,003 - INFO - TraverseKernel - ktraversal -   |-time_init-><noident>[unknown]
+2020-10-20 02:36:48,849 - INFO - TraverseKernel - ktraversal -   |-time_init->of_clk_init[handled]
+2020-10-20 02:36:48,850 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->of_fixed_clk_setup[indirected]
+2020-10-20 02:36:49,096 - INFO - TraverseKernel - ktraversal -       |-of_fixed_clk_setup->clk_register_fixed_rate_with_accuracy[unknown]
+2020-10-20 02:36:49,364 - INFO - TraverseKernel - ktraversal -         |-clk_register_fixed_rate_with_accuracy->clk_register[handled]
+2020-10-20 02:36:49,429 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->of_fixed_factor_clk_setup[indirected]
+2020-10-20 02:36:49,733 - INFO - TraverseKernel - ktraversal -       |-of_fixed_factor_clk_setup->clk_register_fixed_factor[unknown]
+2020-10-20 02:36:49,983 - INFO - TraverseKernel - ktraversal -         |-clk_register_fixed_factor->clk_register[handled]
+2020-10-20 02:36:50,019 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->oxnas_init_stdclk[indirected]
+2020-10-20 02:36:50,314 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->oxnas_init_pllb[indirected]
+2020-10-20 02:36:50,590 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->oxnas_init_plla[indirected]
+2020-10-20 02:36:55,360 - INFO - TraverseKernel - ktraversal -   |-time_init->clocksource_of_init[handled]
+2020-10-20 02:36:55,360 - INFO - TraverseKernel - ktraversal -     |-clocksource_of_init->rps_timer_init[indirected]
+2020-10-20 02:36:55,599 - INFO - TraverseKernel - ktraversal -     |-clocksource_of_init->twd_local_timer_of_register[indirected]
+2020-10-20 02:36:55,927 - INFO - TraverseKernel - ktraversal - |-start_kernel-><noident>[unknown]
+2020-10-20 02:36:56,196 - INFO - TraverseKernel - ktraversal - |-start_kernel->rest_init[ignored]
+2020-10-20 02:36:56,330 - INFO - TraverseKernel - ktraversal - You may add the unknown functions below to the skip list
+2020-10-20 02:36:56,330 - INFO - TraverseKernel - ktraversal - ['of_fixed_clk_setup', '<noident>', 'oxnas_init_plla', 'gic_of_init', 'oxnas_init_stdclk', 'of_fixed_factor_clk_setup', 'rps_of_init', 'oxnas_init_pllb', 'twd_local_timer_of_register', 'rps_timer_init', 'clk_register_fixed_factor', 'clk_register_fixed_rate_with_accuracy']
+2020-10-20 02:36:56,425 - INFO - TraverseKernel - ktraversal - slicing info saved as /root/firmguide/.slicing
+2020-10-20 02:36:56,426 - INFO - AnalysesManager - snapshot - profile at /root/firmguide/.profile
+```
 
 ## `PLUGIN` subcommands
 
