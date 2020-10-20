@@ -1,11 +1,6 @@
 Table of Contents
 =================
 
-   * [Development](./Development.md#development)
-      * [Add analysis (group)](./Development.md#add-analysis-group)
-      * [APIs for analysis (group)](./Development.md#apis-for-analysis-group)
-         * [Analysis Manager](./Development.md#analysis-manager)
-
    * [Subcommand](./Subcommands.md#subcommand)
       * [./firmguide and its command-level arguments](./Subcommands.md#firmguide-and-its-command-level-arguments)
       * [CORE subcommands](./Subcommands.md#core-subcommands)
@@ -27,5 +22,10 @@ Table of Contents
          * [archive](./Subcommands.md#archive)
          * [usntest](./Subcommands.md#usntest)
          * [analysrc](./Subcommands.md#analysrc)
+
+   * [Development](./Development.md#development)
+      * [Add analysis (group)](./Development.md#add-analysis-group)
+      * [APIs for analysis (group)](./Development.md#apis-for-analysis-group)
+         * [Analysis Manager](./Development.md#analysis-manager)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
