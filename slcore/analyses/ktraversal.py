@@ -57,7 +57,8 @@ class TraverseKernel(Analysis):
             self.pos['fun'] = subgraph.get_attributes()['fun']
             for edge in subgraph.get_edges():
                 if edge.get_source().strip('"') == src:
-                    self.pos['line'] = edge.get_attributes()['line']
+                    # TODO
+                    # self.pos['line'] = edge.get_attributes()['line']
                     self.pos['label'] = edge.get_attributes()['label']
                     yield edge
     
