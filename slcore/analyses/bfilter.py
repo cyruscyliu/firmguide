@@ -24,7 +24,6 @@ class CheckBoard(Analysis):
             if target in exclude:
                 continue
             results.append(target)
-
         if len(results):
             return results[0]
         else:
@@ -42,7 +41,7 @@ class CheckBoard(Analysis):
             return False
         self.analysis_manager.firmware.set_arch('arm')
         self.analysis_manager.firmware.set_board(target)
-        self.info('arm/{} is under our consideration'.format(target), 1)
+        self.info('arch/arm/{} is under our consideration'.format(target), 1)
         return True
 
     def is_unsupport_mips_machine(self):
@@ -58,7 +57,7 @@ class CheckBoard(Analysis):
             return False
         self.analysis_manager.firmware.set_arch('mips')
         self.analysis_manager.firmware.set_board(target)
-        self.info('mips/{} is under our consideration'.format(target), 1)
+        self.info('arch/mips/{} is under our consideration'.format(target), 1)
 
     def run(self, **kwargs):
         srcodec = self.analysis_manager.srcodec

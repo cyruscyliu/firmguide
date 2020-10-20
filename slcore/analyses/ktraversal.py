@@ -138,11 +138,13 @@ class TraverseKernel(Analysis):
             return False
 
         board = self.analysis_manager.firmware.get_board() # decided in bfilter
+        arch = self.analysis_manager.firmware.get_arch() # decided in bfilter
+        a_a_b = 'arch/{}/{}'.format(arch, board)
         self.info('-d {} automatically by bfilter'.format(board), 1)
         if target_dirs is None:
-            target_dirs = [board]
+            target_dirs = [a_a_b]
         else:
-            target_dirs.append(board)
+            target_dirs.append(a_a_b)
 
         # load all symbols
         failed_cases = 0
@@ -167,6 +169,7 @@ class TraverseKernel(Analysis):
                     allowed = True
 
                 if not allowed:
+                    self.debug('relative {} is not allowed'.format(relative), 0)
                     continue
 
                 cmdline = srcodec.get_cmdline(relative)
