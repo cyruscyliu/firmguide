@@ -160,4 +160,3 @@ subcommand:
 
 Note that the `prop` and `val` should follow the argument list in
 [argparse.add_argument()](https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument).
-
