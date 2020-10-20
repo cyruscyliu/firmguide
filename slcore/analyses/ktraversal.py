@@ -11,9 +11,9 @@ from slcore.analyses.ktraversalfcbs import generic_fcbs
 class TraverseKernel(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-
         self.name = 'ktraversal'
         self.description = 'Linux kernel source code traversal.'
+        self.required = ['bfilter']
 
         self.full_graph = pydot.Dot(graph_type='digraph')
         self.source_code = None
