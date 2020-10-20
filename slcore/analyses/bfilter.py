@@ -91,9 +91,7 @@ class CheckBoard(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'bfilter'
-        self.description = \
-            'Filter our Linux kernels board which are supported.'
-        self.required = []
+        self.description = 'Decide which Linux kenrel board is supported.'
         self.critical = True
         self.path_to_srcode = None
         self.arch = None

@@ -65,6 +65,16 @@ synthesize:
         autoboard: *autoboard
         autoboard_all: *autoboard_all
     callback: synthesis
+traversrc:
+    help: "Run - Traverse startup process by OS source."
+    optional:
+        source: *source
+        entry_point: {short: e, required: False, help: "Entrypoint to start the traversal."}
+        file: {short: f, nargs: '+', required: False, help: "File to be traversed."}
+        dirs: {short: dirs, nargs: '+', required: False, help: "Dirs to be included."}
+        all: {short: a, action: 'store_true', default: False, help: "Show skipped functions."}
+        dtb: *dtb
+    callback: traversal
 archive:
     help: "Plugin - QEMU machine archiving."
     optional:
