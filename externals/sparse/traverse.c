@@ -68,7 +68,7 @@ static void r_symbol(unsigned mode, struct position *pos, struct symbol *sym)
 	}
 	// caller: ctx->name
 	// callee: sym->ident->name
-	printf("    \"%s\" -> \"%s\" [label=%d, line=%d, pos=%d, kind=%c]\n",
+	printf("    \"%s\" -> \"%s\" [label=%d, line=%d, pos=%d, kind=%d]\n",
 	       ctx->name, sym->ident->name, counter++,
 	       pos->line, pos->pos, sym->kind);
 
@@ -117,7 +117,7 @@ static void r_member(unsigned mode, struct position *pos, struct symbol *sym, st
 	if (mode_str[2] != 'r')
 		return;
 
-	printf("    \"%s\" -> \"%s.%s\" [label=%d, line=%d, pos=%d, kind=%c]\n",
+	printf("    \"%s\" -> \"%s.%s\" [label=%d, line=%d, pos=%d, kind=%d]\n",
 	       ctx->name, si->name, mi->name, counter++,
 	       pos->line, pos->pos, sym->kind);
 
