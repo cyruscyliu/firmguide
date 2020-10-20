@@ -18,6 +18,12 @@ class QuickSrcA(Analysis):
         if not srcodec.supported:
             self.error_info = 'please set the source code'
             return False
+        if srcodec.path_to_cross_compile is None:
+            self.error_info = 'please set the cross compile prefix'
+            return False
+
+        if ep is not None and f is not None:
+            self.warning('-e/-f are mutual exclusive, choose -e by default', 0)
 
         if ep:
             path_to_entry_point = srcodec.symbol2file(ep)
@@ -33,13 +39,12 @@ class QuickSrcA(Analysis):
             self.info('preprocess and save as {}/{}'.format(
                 srcodec.get_path_to_source_code(), path_to_pentry_point), 1)
             return True
-
-        if f:
+        elif f:
             cmdline = srcodec.get_cmdline(f)
             fp = srcodec.preprocess(f, cmdline=cmdline)
             self.info('preprocess and save as {}/{}'.format(
                 srcodec.get_path_to_source_code(), fp), 1)
             return True
-
-        self.error_info = 'nothing expected'
-        return False
+        else:
+            self.error_info = 'nothing expected'
+            return False

@@ -20,6 +20,7 @@ Table of Contents
          * [debugsrc](#debugsrc)
          * [archive](#archive)
          * [usntest](#usntest)
+         * [analysrc](#analysrc)
    * [Development](#development)
       * [Add analysis (group)](#add-analysis-group)
       * [APIs for analysis (group)](#apis-for-analysis-group)
@@ -51,11 +52,11 @@ we list how others (`-a`, `-e`, `-ld`) would be used by subcommands.
 N means don't need this argument. P means sometimes need this argument.
 Y means always need this argument.
 
-|  Subcommand | synthesize | upload | diagnose | itopology | dtcoverup | newhwdt | unpack | cmdcoverup | loaddr | ofinitcbs | coverup | debugsrc | usntest |
-|:-----------:|:----------:|:------:|:--------:|:---------:|:---------:|:-------:|:------:|:----------:|:------:|:---------:|:-------:|:--------:|:-------:|
-|  -a/--arch  |      N     |    N   |     N    |     N     |     N     |    N    |    N   |      N     |    N   |     N     |    Y    |     N    |    N    |
-| -e/--endian |      P     |    P   |     P    |     N     |     N     |    N    |    N   |      P     |    N   |     N     |    Y    |     N    |    N    |
-|  -ld/--load |      P     |    P   |     P    |     N     |     N     |    N    |    N   |      P     |    N   |     N     |    N    |     N    |    N    |
+|  Subcommand | synthesize | upload | diagnose | itopology | dtcoverup | newhwdt | unpack | cmdcoverup | loaddr | ofinitcbs | coverup | debugsrc | usntest | analysrc |
+|:-----------:|:----------:|:------:|:--------:|:---------:|:---------:|:-------:|:------:|:----------:|:------:|:---------:|:-------:|:--------:|:-------:|:---------|
+|  -a/--arch  |      N     |    N   |     N    |     N     |     N     |    N    |    N   |      N     |    N   |     N     |    Y    |     N    |    N    |     N    |
+| -e/--endian |      P     |    P   |     P    |     N     |     N     |    N    |    N   |      P     |    N   |     N     |    Y    |     N    |    N    |     N    |
+|  -ld/--load |      P     |    P   |     P    |     N     |     N     |    N    |    N   |      P     |    N   |     N     |    N    |     N    |    N    |     N    |
 
 ## `CORE` subcommands
 
@@ -655,6 +656,18 @@ root@esv:~/firmguide# ./firmguide usntest -dtb examples/plxtech_nas782x.dtb
 2020-10-16 02:34:19,472 - INFO - TestUSN - usntest - support serial ['ns16550a']
 2020-10-16 02:34:19,473 - INFO - TestUSN - usntest - there is only 1 processor.
 2020-10-16 02:34:19,474 - INFO - AnalysesManager - snapshot - profile at /root/firmguide/.profile
+```
+
+### `analysrc`
+
+This plugin preprocesses the file given or containing a given function for further analysis.
+
+```txt
+root@esv:~/firmguide# ./firmguide analysrc -e setup_arch -s linux-3.18.20 -cc /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/OpenWrt-SDK-15.05-oxnas_gcc-4.8-linaro_uClibc-0.9.33.2_eabi.Linux-x86_64/staging_dir/toolchain-arm_mpcore_gcc-4.8-linaro_uClibc-0.9.33.2_eabi/bin/arm-openwrt-linux-
+2020-10-20 02:20:03,865 - INFO - AnalysesManager - chain cont'd - quicksrca
+2020-10-20 02:20:04,892 - INFO - QuickSrcA - quicksrca - find setup_arch in arch/arm/kernel/setup.c
+2020-10-20 02:20:04,971 - INFO - QuickSrcA - quicksrca - preprocess and save as linux-3.18.20/arch/arm/kernel/setup.i
+2020-10-20 02:20:04,973 - INFO - AnalysesManager - snapshot - profile at /root/firmguide/.profile
 ```
 
 # Development
