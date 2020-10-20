@@ -157,6 +157,8 @@ generic_fcbs = {
     'do_one_initcall': {'handler': __do_one_initcall_handler},  # indirect call
     # intermediate function
     'setup_arch': {'intermediate': True},
+    # 'machine_desc.init_early': {'intermediate': True},
+    # 'machine_desc.smp_init': {'intermediate': True},
     'init_IRQ': {'intermediate': True},
     'irqchip_init': {'intermediate': True},
     'time_init': {'intermediate': True},
@@ -164,7 +166,7 @@ generic_fcbs = {
     'r4k_clockevent_init': {'intermediate': True},
     'init_r4k_clocksource': {'intermediate': True},
     # ignore rest_init until we can handle it
-    'rest_init': {'ignored': True, 'intermediate': True},
+    'rest_init': {'ignored': False, 'intermediate': True},
     'kernel_init': {'intermediate': True},
     'kernel_init_freeable': {'intermediate': True},
     'do_basic_setup': {'intermediate': True},
