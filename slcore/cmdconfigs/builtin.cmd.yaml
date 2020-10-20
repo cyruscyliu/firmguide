@@ -59,8 +59,8 @@ synthesize:
     help: "Run - Convert device tree to QEMU virtual machine."
     optional:
         dtb:
-          << : *dtb
-          required: True
+            << : *dtb
+            required: True
         nocompilation: *nocompilation
         autoboard: *autoboard
         autoboard_all: *autoboard_all
@@ -68,7 +68,10 @@ synthesize:
 traversrc:
     help: "Run - Traverse startup process by OS source."
     optional:
-        source: *source
+        source:
+            <<:  *source
+            required: True
+        cross_compile: {short: cc, required: True, help: "Prefix to cross compiler."}
         entry_point: {short: e, required: False, help: "Entrypoint to start the traversal."}
         file: {short: f, nargs: '+', required: False, help: "File to be traversed."}
         dirs: {short: dirs, nargs: '+', required: False, help: "Dirs to be included."}

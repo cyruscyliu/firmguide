@@ -132,6 +132,13 @@ class TraverseKernel(Analysis):
             self.error_info = 'please set the source code'
             return False
         self.source_code = os.path.realpath(srcodec.get_path_to_source_code())
+        if srcodec.path_to_cross_compile is None:
+            self.error_info = 'please set the cross compile prefix'
+            return False
+
+        board = self.analysis_manager.firmware.get_board() # decided in bfilter
+        self.info('-d {} automatically by bfilter'.format(board), 1)
+        target_dirs.append(board)
 
         # load all symbols
         failed_cases = 0

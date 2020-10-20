@@ -40,6 +40,8 @@ class CheckBoard(Analysis):
             self.error_info = \
                 'no available target found, please compile the source code'
             return False
+        self.analysis_manager.firmware.set_arch('arm')
+        self.analysis_manager.firmware.set_board(target)
         self.info('arm/{} is under our consideration'.format(target), 1)
         return True
 
@@ -54,6 +56,8 @@ class CheckBoard(Analysis):
             self.error_info = \
                 'no available target found, please check the source code'
             return False
+        self.analysis_manager.firmware.set_arch('mips')
+        self.analysis_manager.firmware.set_board(target)
         self.info('mips/{} is under our consideration'.format(target), 1)
 
     def run(self, **kwargs):
