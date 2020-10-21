@@ -119,6 +119,7 @@ Where to find them?
 ## Manual Analysis
 
 We provide several subcommands for manual analysis.
+
 First, try `traversrc` to pricisely traverse kernel function from `start_kernel`
 to `rest_init`. The traversal in implemented by `sparse` in AST level.
 We only care about functions, such that global/local variables are ignored
@@ -139,6 +140,7 @@ If `mach_desc.init_time` is an indirect call,
 add a record below after running `tranversrc` in `1.fcbs`.
 At the same time, please `-a` to check intermediate functions whether they are visited,
 otherwise, you should add file(s)/dir(s) that contain those functions and rerun `traversrc`.
+At last, you will see all interesting functions in `.slicing`.
 
 ```
 mach_desc.init_time:
@@ -146,4 +148,5 @@ mach_desc.init_time:
   extend: [ox820_timer_init]
 ```
 
-Finally, you will see all interesting functions in `.slicing`.
+Second, use `analysrc` to locate interesting functions. 
+It will preprocess the file that has interesting functions for your convenience.
