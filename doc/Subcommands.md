@@ -256,58 +256,91 @@ and exposes GDB interfaces finally.
 
 This core subcommand walks through the startup process of Linux kernel
 and shows interesting functions for manual analysis. Assign `-dtb` to
-solve part of indirect call problems. This core subcommand is not complete
-because of poor implementation that should be improved in the future.
-Note that `<noindent>` is the indirect call that `sparse` cannot handle.
+solve part of indirect call problems. This core subcommand is now complete
+and able to show struct member indirect call by struct.member.
 
 ```txt
-root@openwrt-builder:~/firmguide# ./firmguide traversrc -s linux-3.18.20 -cc /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/OpenWrt-SDK-15.05-oxnas_gcc-4.8-linaro_uClibc-0.9.33.2_eabi.Linux-x86_64/staging_dir/toolchain-arm_mpcore_gcc-4.8-linaro_uClibc-0.9.33.2_eabi/bin/arm-openwrt-linux- -dtb examples/plxtech_nas782x.dtb
-2020-10-20 02:35:03,266 - INFO - AnalysesManager - chain cont'd - bfilter->ktraversal
-2020-10-20 02:35:03,280 - INFO - CheckBoard - bfilter - arch/arm/mach-oxnas is under our consideration
-2020-10-20 02:35:03,280 - INFO - TraverseKernel - ktraversal - -d mach-oxnas automatically by bfilter
-2020-10-20 02:35:05,877 - INFO - TraverseKernel - ktraversal - [done] init/main.c
-2020-10-20 02:35:06,428 - INFO - TraverseKernel - ktraversal - [done] arch/arm/kernel/irq.c
-2020-10-20 02:35:08,190 - INFO - TraverseKernel - ktraversal - [done] arch/arm/kernel/setup.c
-2020-10-20 02:35:08,541 - INFO - TraverseKernel - ktraversal - [done] arch/arm/kernel/time.c
-2020-10-20 02:35:09,294 - INFO - TraverseKernel - ktraversal - [done] arch/arm/mach-oxnas/mach-ox820.c
-2020-10-20 02:35:10,042 - INFO - TraverseKernel - ktraversal - [done] arch/arm/mach-oxnas/platsmp.c
-2020-10-20 02:35:10,207 - INFO - TraverseKernel - ktraversal - [done] arch/arm/mach-oxnas/hotplug.c
-2020-10-20 02:35:11,082 - INFO - TraverseKernel - ktraversal - [done] drivers/clk/clk-fixed-rate.c
-2020-10-20 02:35:11,484 - INFO - TraverseKernel - ktraversal - [done] drivers/clk/clk-fixed-factor.c
-2020-10-20 02:35:11,788 - INFO - TraverseKernel - ktraversal - [done] drivers/clocksource/clksrc-of.c
-2020-10-20 02:35:12,100 - INFO - TraverseKernel - ktraversal - [done] drivers/irqchip/irqchip.c
-2020-10-20 02:35:13,239 - INFO - TraverseKernel - ktraversal - [done] drivers/of/irq.c
-2020-10-20 02:35:13,628 - INFO - TraverseKernel - ktraversal - |-start_kernel->setup_arch[intermediate]
-2020-10-20 02:35:13,771 - INFO - TraverseKernel - ktraversal -   |-setup_arch-><noident>[unknown]
-2020-10-20 02:35:13,982 - INFO - TraverseKernel - ktraversal -   |-setup_arch-><noident>[unknown]
-2020-10-20 02:35:14,296 - INFO - TraverseKernel - ktraversal - |-start_kernel->init_IRQ[intermediate]
-2020-10-20 02:35:14,396 - INFO - TraverseKernel - ktraversal -   |-init_IRQ-><noident>[unknown]
-2020-10-20 02:35:14,607 - INFO - TraverseKernel - ktraversal -   |-init_IRQ->irqchip_init[intermediate]
+root@openwrt-builder:~/firmguide# ./firmguide traversrc -s linux-3.18.20 -dtb examples/plxtech_nas782x.dtb -cc /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/OpenWrt-SDK-15.05-oxnas_gcc-4.8-linaro_uClibc-0.9.33.2_eabi.Linux-x86_64/staging_dir/toolchain-arm_mpcore_gcc-4.8-linaro_uClibc-0.9.33.2_eabi/bin/arm-openwrt-linux-
+2020-10-21 05:09:39,905 - INFO - AnalysesManager - chain cont'd - bfilter->ktraversal
+2020-10-21 05:09:39,917 - INFO - CheckBoard - bfilter - arch/arm/mach-oxnas is under our consideration
+2020-10-21 05:09:39,917 - INFO - TraverseKernel - ktraversal - -d mach-oxnas automatically by bfilter
+2020-10-21 05:09:39,918 - INFO - TraverseKernel - ktraversal - load 0.fcbs
+2020-10-21 05:09:39,932 - INFO - TraverseKernel - ktraversal - load 1.fcbs
+2020-10-21 05:09:42,889 - INFO - TraverseKernel - ktraversal - [done] init/main.c
+2020-10-21 05:09:43,535 - INFO - TraverseKernel - ktraversal - [done] arch/arm/kernel/irq.c
+2020-10-21 05:09:45,473 - INFO - TraverseKernel - ktraversal - [done] arch/arm/kernel/setup.c
+2020-10-21 05:09:45,864 - INFO - TraverseKernel - ktraversal - [done] arch/arm/kernel/time.c
+2020-10-21 05:09:46,643 - INFO - TraverseKernel - ktraversal - [done] arch/arm/mach-oxnas/mach-ox820.c
+2020-10-21 05:09:47,470 - INFO - TraverseKernel - ktraversal - [done] arch/arm/mach-oxnas/platsmp.c
+2020-10-21 05:09:47,617 - INFO - TraverseKernel - ktraversal - [done] arch/arm/mach-oxnas/hotplug.c
+2020-10-21 05:09:48,493 - INFO - TraverseKernel - ktraversal - [done] drivers/clk/clk-fixed-rate.c
+2020-10-21 05:09:48,945 - INFO - TraverseKernel - ktraversal - [done] drivers/clk/clk-fixed-factor.c
+2020-10-21 05:09:49,222 - INFO - TraverseKernel - ktraversal - [done] drivers/clocksource/clksrc-of.c
+2020-10-21 05:09:49,545 - INFO - TraverseKernel - ktraversal - [done] drivers/irqchip/irqchip.c
+2020-10-21 05:09:50,947 - INFO - TraverseKernel - ktraversal - [done] drivers/of/irq.c
+2020-10-21 05:09:51,262 - INFO - TraverseKernel - ktraversal - |-start_kernel->setup_arch
+2020-10-21 05:09:51,406 - INFO - TraverseKernel - ktraversal -   |-setup_arch->machine_desc.smp_init[sliced]
+2020-10-21 05:09:51,406 - INFO - TraverseKernel - ktraversal -   |-setup_arch->machine_desc.init_early[sliced]
+2020-10-21 05:09:51,501 - INFO - TraverseKernel - ktraversal - |-start_kernel->init_IRQ
+2020-10-21 05:09:51,651 - INFO - TraverseKernel - ktraversal -   |-init_IRQ->irqchip_init
 [-] cannot recognize "arm,gic-400",IRQCHIP_DECLARE(cortex_a15_gic, "arm,cortex-a15-gic" in linux-3.18.20/patches/platform/320-oxnas-irqchip.patch
-2020-10-20 02:36:33,302 - INFO - TraverseKernel - ktraversal -     |-irqchip_init->of_irq_init[handled]
-2020-10-20 02:36:33,302 - INFO - TraverseKernel - ktraversal -       |-of_irq_init->gic_of_init[indirected]
-2020-10-20 02:36:33,508 - INFO - TraverseKernel - ktraversal -       |-of_irq_init->rps_of_init[indirected]
-2020-10-20 02:36:33,889 - INFO - TraverseKernel - ktraversal - |-start_kernel->time_init[intermediate]
-2020-10-20 02:36:34,003 - INFO - TraverseKernel - ktraversal -   |-time_init-><noident>[unknown]
-2020-10-20 02:36:48,849 - INFO - TraverseKernel - ktraversal -   |-time_init->of_clk_init[handled]
-2020-10-20 02:36:48,850 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->of_fixed_clk_setup[indirected]
-2020-10-20 02:36:49,096 - INFO - TraverseKernel - ktraversal -       |-of_fixed_clk_setup->clk_register_fixed_rate_with_accuracy[unknown]
-2020-10-20 02:36:49,364 - INFO - TraverseKernel - ktraversal -         |-clk_register_fixed_rate_with_accuracy->clk_register[handled]
-2020-10-20 02:36:49,429 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->of_fixed_factor_clk_setup[indirected]
-2020-10-20 02:36:49,733 - INFO - TraverseKernel - ktraversal -       |-of_fixed_factor_clk_setup->clk_register_fixed_factor[unknown]
-2020-10-20 02:36:49,983 - INFO - TraverseKernel - ktraversal -         |-clk_register_fixed_factor->clk_register[handled]
-2020-10-20 02:36:50,019 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->oxnas_init_stdclk[indirected]
-2020-10-20 02:36:50,314 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->oxnas_init_pllb[indirected]
-2020-10-20 02:36:50,590 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->oxnas_init_plla[indirected]
-2020-10-20 02:36:55,360 - INFO - TraverseKernel - ktraversal -   |-time_init->clocksource_of_init[handled]
-2020-10-20 02:36:55,360 - INFO - TraverseKernel - ktraversal -     |-clocksource_of_init->rps_timer_init[indirected]
-2020-10-20 02:36:55,599 - INFO - TraverseKernel - ktraversal -     |-clocksource_of_init->twd_local_timer_of_register[indirected]
-2020-10-20 02:36:55,927 - INFO - TraverseKernel - ktraversal - |-start_kernel-><noident>[unknown]
-2020-10-20 02:36:56,196 - INFO - TraverseKernel - ktraversal - |-start_kernel->rest_init[ignored]
-2020-10-20 02:36:56,330 - INFO - TraverseKernel - ktraversal - You may add the unknown functions below to the skip list
-2020-10-20 02:36:56,330 - INFO - TraverseKernel - ktraversal - ['of_fixed_clk_setup', '<noident>', 'oxnas_init_plla', 'gic_of_init', 'oxnas_init_stdclk', 'of_fixed_factor_clk_setup', 'rps_of_init', 'oxnas_init_pllb', 'twd_local_timer_of_register', 'rps_timer_init', 'clk_register_fixed_factor', 'clk_register_fixed_rate_with_accuracy']
-2020-10-20 02:36:56,425 - INFO - TraverseKernel - ktraversal - slicing info saved as /root/firmguide/.slicing
-2020-10-20 02:36:56,426 - INFO - AnalysesManager - snapshot - profile at /root/firmguide/.profile
+2020-10-21 05:09:59,577 - INFO - TraverseKernel - ktraversal -     |-irqchip_init->of_irq_init[indirect call]
+2020-10-21 05:09:59,578 - INFO - TraverseKernel - ktraversal -       |-of_irq_init->gic_of_init[intermediate]
+2020-10-21 05:09:59,808 - INFO - TraverseKernel - ktraversal -       |-of_irq_init->rps_of_init[intermediate]
+2020-10-21 05:10:00,076 - INFO - TraverseKernel - ktraversal -   |-init_IRQ->machine_desc.init_irq[sliced]
+2020-10-21 05:10:00,076 - INFO - TraverseKernel - ktraversal -   |-init_IRQ->l2x0_of_init[sliced]
+2020-10-21 05:10:00,196 - INFO - TraverseKernel - ktraversal - |-start_kernel->time_init
+2020-10-21 05:10:00,320 - INFO - TraverseKernel - ktraversal -   |-time_init->machine_desc.init_time[sliced]
+2020-10-21 05:10:13,502 - INFO - TraverseKernel - ktraversal -   |-time_init->of_clk_init[indirect call]
+2020-10-21 05:10:13,503 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->of_fixed_clk_setup[intermediate]
+2020-10-21 05:10:13,689 - INFO - TraverseKernel - ktraversal -       |-of_fixed_clk_setup->clk_register_fixed_rate_with_accuracy[sliced]
+2020-10-21 05:10:13,689 - INFO - TraverseKernel - ktraversal -       |-of_fixed_clk_setup->of_clk_src_simple_get[sliced]
+2020-10-21 05:10:13,758 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->of_fixed_factor_clk_setup[intermediate]
+2020-10-21 05:10:13,956 - INFO - TraverseKernel - ktraversal -       |-of_fixed_factor_clk_setup->clk_register_fixed_factor[sliced]
+2020-10-21 05:10:13,956 - INFO - TraverseKernel - ktraversal -       |-of_fixed_factor_clk_setup->of_clk_src_simple_get[sliced]
+2020-10-21 05:10:13,974 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->oxnas_init_stdclk[intermediate]
+2020-10-21 05:10:14,191 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->oxnas_init_pllb[intermediate]
+2020-10-21 05:10:14,453 - INFO - TraverseKernel - ktraversal -     |-of_clk_init->oxnas_init_plla[intermediate]
+2020-10-21 05:10:18,439 - INFO - TraverseKernel - ktraversal -   |-time_init->clocksource_of_init[indirect call]
+2020-10-21 05:10:18,440 - INFO - TraverseKernel - ktraversal -     |-clocksource_of_init->rps_timer_init[intermediate]
+2020-10-21 05:10:18,672 - INFO - TraverseKernel - ktraversal -     |-clocksource_of_init->twd_local_timer_of_register[intermediate]
+2020-10-21 05:10:18,970 - INFO - TraverseKernel - ktraversal - |-start_kernel->rest_init
+2020-10-21 05:10:19,060 - INFO - TraverseKernel - ktraversal -   |-rest_init->kernel_thread[indirect call]
+2020-10-21 05:10:19,060 - INFO - TraverseKernel - ktraversal -     |-kernel_thread->kernel_init[intermediate]
+2020-10-21 05:10:19,116 - INFO - TraverseKernel - ktraversal -       |-kernel_init->kernel_init_freeable
+2020-10-21 05:10:19,213 - INFO - TraverseKernel - ktraversal -         |-kernel_init_freeable->do_basic_setup
+2020-10-21 05:10:19,318 - INFO - TraverseKernel - ktraversal -           |-do_basic_setup->do_initcalls
+2020-10-21 05:10:19,428 - INFO - TraverseKernel - ktraversal -             |-do_initcalls->do_initcall_level
+2020-10-21 05:10:19,545 - INFO - TraverseKernel - ktraversal -               |-do_initcall_level->repair_env_string[sliced]
+2020-10-21 05:10:19,997 - INFO - TraverseKernel - ktraversal -               |-do_initcall_level->do_one_initcall[indirect call]
+2020-10-21 05:10:19,997 - INFO - TraverseKernel - ktraversal -                 |-do_one_initcall->customize_machine[intermediate]
+2020-10-21 05:10:20,158 - INFO - TraverseKernel - ktraversal -                   |-customize_machine->machine_desc.init_machine[sliced]
+2020-10-21 05:10:20,212 - INFO - TraverseKernel - ktraversal -                 |-do_one_initcall->init_machine_late[intermediate]
+2020-10-21 05:10:20,381 - INFO - TraverseKernel - ktraversal -                   |-init_machine_late->machine_desc.init_late[sliced]
+2020-10-21 05:10:20,516 - INFO - TraverseKernel - ktraversal -                 |-do_one_initcall->ox820_reset_init[intermediate]
+2020-10-21 05:10:20,747 - INFO - TraverseKernel - ktraversal -                 |-do_one_initcall->oxnas_pcie_init[intermediate]
+2020-10-21 05:10:20,973 - INFO - TraverseKernel - ktraversal -                 |-do_one_initcall->oxnas_pinctrl_init[intermediate]
+2020-10-21 05:10:21,204 - INFO - TraverseKernel - ktraversal -                 |-do_one_initcall->oxnas_register_nand[intermediate]
+2020-10-21 05:10:22,101 - INFO - TraverseKernel - ktraversal -   |-rest_init->kernel_thread[indirect call]
+2020-10-21 05:10:22,101 - INFO - TraverseKernel - ktraversal -   |-rest_init->kernel_init
+2020-10-21 05:10:22,127 - INFO - TraverseKernel - ktraversal -     |-kernel_init->kernel_init_freeable
+2020-10-21 05:10:22,278 - INFO - TraverseKernel - ktraversal -       |-kernel_init_freeable->do_basic_setup
+2020-10-21 05:10:22,388 - INFO - TraverseKernel - ktraversal -         |-do_basic_setup->do_initcalls
+2020-10-21 05:10:22,503 - INFO - TraverseKernel - ktraversal -           |-do_initcalls->do_initcall_level
+2020-10-21 05:10:22,627 - INFO - TraverseKernel - ktraversal -             |-do_initcall_level->repair_env_string[sliced]
+2020-10-21 05:10:22,636 - INFO - TraverseKernel - ktraversal -             |-do_initcall_level->do_one_initcall[indirect call]
+2020-10-21 05:10:22,636 - INFO - TraverseKernel - ktraversal -               |-do_one_initcall->customize_machine[intermediate]
+2020-10-21 05:10:22,791 - INFO - TraverseKernel - ktraversal -                 |-customize_machine->machine_desc.init_machine[sliced]
+2020-10-21 05:10:22,845 - INFO - TraverseKernel - ktraversal -               |-do_one_initcall->init_machine_late[intermediate]
+2020-10-21 05:10:23,027 - INFO - TraverseKernel - ktraversal -                 |-init_machine_late->machine_desc.init_late[sliced]
+2020-10-21 05:10:23,077 - INFO - TraverseKernel - ktraversal -               |-do_one_initcall->ox820_reset_init[intermediate]
+2020-10-21 05:10:23,303 - INFO - TraverseKernel - ktraversal -               |-do_one_initcall->oxnas_pcie_init[intermediate]
+2020-10-21 05:10:23,539 - INFO - TraverseKernel - ktraversal -               |-do_one_initcall->oxnas_pinctrl_init[intermediate]
+2020-10-21 05:10:23,762 - INFO - TraverseKernel - ktraversal -               |-do_one_initcall->oxnas_register_nand[intermediate]
+2020-10-21 05:10:24,972 - INFO - TraverseKernel - ktraversal - Please -a to check intermediate functions whether they are visited
+2020-10-21 05:10:24,972 - INFO - TraverseKernel - ktraversal - Otherwise, you should add file(s)/dir(s) that contain those functions
+2020-10-21 05:10:24,987 - INFO - TraverseKernel - ktraversal - slicing info saved as /root/firmguide/.slicing
+2020-10-21 05:10:24,988 - INFO - AnalysesManager - snapshot - profile at /root/firmguide/.profile
 ```
 
 ## `PLUGIN` subcommands

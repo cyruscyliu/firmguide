@@ -18,3 +18,5 @@ __pycache__
 *.trace
 *.profile
 *_*
+*-*
+*.fcbs
