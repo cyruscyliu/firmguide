@@ -6,6 +6,7 @@ Table of Contents
       * [Fixed Parameters for Interrupt Controller](#fixed-parameters-for-interrupt-controller)
       * [Fixed Parameters for Timer](#fixed-parameters-for-timer)
       * [Fixed Parameters for MMIO Region](#fixed-parameters-for-mmio-region)
+      * [Manual Analysis](#manual-analysis)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 

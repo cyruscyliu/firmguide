@@ -6,10 +6,6 @@ to a QEMU virtual machine by a new technique named `model-guided kernel executio
 Each QEMU virtual machine is composed of many peripheral models that
 can be automatically or manually (complementary method) generated.
 
-## Usage
-
-FirmGuide is a command-oriented tool like `git`.
-It has three modes for different scenarios.
 
 ### Install
 
@@ -18,14 +14,40 @@ git clone xxx
 cd firmguide && make
 ```
 
-### Scenario 1: Boot Linux-based firmware for further dynamic analysis.
+## Usage
 
-Suppose there is a firmware image that has a Linux kernel with device tree,
-just upload this firmware with the load address of the Linux kernel
-(0x00008000 for ARM by default).
+FirmGuide is a command-oriented tool like `git`.
+Please look at [Subcommand](doc/Subcommand.md) for more information.
+
+### Scenario 1: Convert a device tree blob to a QEMU virtual machine.
+
 
 ```bash
-./firmware -ld 0x00008000 upload -f path/to/firmware
+root@esv:~/firmguide# ./firmguide synthesize -dtb examples/plxtech_nas782x.dtb
 ```
+
+### Scenario 2: Upload a firmware image and boot it.
+
+```bash
+root@esv:~/firmguide# ./firmguide upload -f examples/62771d14b82e554a95d048af99866c404acb196f.bin
+```
+
+### Scenario 3: Manual analysis to support new peripherals.
+
+Please check [Overview](doc/TemplateAndParameters.md#overview) and
+[Manual Analysis](doc/TemplateAndParameters.md#manual-analysis) for more information.
+
+### Scenario 4: Automatic analysis to support new peripherals.
+
+WIP
+
+## SoC Support List
+
+WIP
+
+## Case Study for Dynamic Analysis
+
+WIP
+
 ## License
 [MIT License](./LICENSE)
