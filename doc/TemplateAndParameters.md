@@ -114,3 +114,35 @@ Where to find them?
 Where to find them?
 + setup_arch
 + do_initcall_level
+
+## Manual Analysis
+
+We provide several subcommands for manual analysis.
+First, try `traversrc` to pricisely traverse kernel function from `start_kernel`
+to `rest_init`. The traversal in implemented by `sparse` in AST level.
+We only care about functions, such that global/local variables are ignored
+in the traversal. Because of simple implementation, conditions are also
+ignored, such that each callee in the caller will be visited.
+After the traversal, we will save all interesting functions as `.slicing`.
+Each recored in `.slicing` consists of the function name, in which file the function is,
+and its line number.
+
+However, manual efforts are needed during the traversal because of indirect calls.
+You can use `-dtb` to solve indirect calls that go to intc/timer initialization functions.
+For remaining indirect calls you have to update them manually by
+adding a record in `x.fcbs` in your working directory.
+
+In the traversal, we will list all interesting functions by `[unknown]`,
+For your convenience, `traversrc` will save all `unknown` functions in `0.fcbs`.
+If `mach_desc.init_time` is an indirect call, 
+add a record below after running `tranversrc` in `1.fcbs`.
+At the same time, please `-a` to check intermediate functions whether they are visited,
+otherwise, you should add file(s)/dir(s) that contain those functions and rerun `traversrc`.
+
+```
+mach_desc.init_time:
+  skipped: False,
+  extend: [ox820_timer_init]
+```
+
+Finally, you will see all interesting functions in `.slicing`.
