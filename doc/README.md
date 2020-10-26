@@ -36,11 +36,13 @@ Table of Contents
 
    * [Template and Parameters](TemplateAndParameters.md#template-and-parameters)
       * [Overview](TemplateAndParameters.md#overview)
-      * [QEMU hw implementation](doc/TemplateAndParameters.md#qemu-hw-implementation)
-         * [State transition of Interrupt Controller](doc/TemplateAndParameters.md#state-transition-of-interrupt-controller)
-      * [Fixed Parameters for Interrupt Controller](TemplateAndParameters.md#fixed-parameters-for-interrupt-controller)
-      * [Fixed Parameters for Timer](TemplateAndParameters.md#fixed-parameters-for-timer)
-      * [Fixed Parameters for MMIO Region](TemplateAndParameters.md#fixed-parameters-for-mmio-region)
+      * [QEMU hw implementation](TemplateAndParameters.md#qemu-hw-implementation)
+         * [State transition of Interrupt Controller](TemplateAndParameters.md#state-transition-of-interrupt-controller)
+         * [State transition of Timer](TemplateAndParameters.md#state-transition-of-timer)
+      * [Fixed Parameters](TemplateAndParameters.md#fixed-parameters)
+         * [Interrupt Controller](TemplateAndParameters.md#interrupt-controller)
+         * [Timer](TemplateAndParameters.md#timer)
+         * [MMIO Region](TemplateAndParameters.md#mmio-region)
       * [Manual Analysis](TemplateAndParameters.md#manual-analysis)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)

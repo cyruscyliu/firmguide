@@ -3,11 +3,13 @@ Table of Contents
 
    * [Template and Parameters](#template-and-parameters)
       * [Overview](#overview)
-      * [QEMU hw implementation](doc/TemplateAndParameters.md#qemu-hw-implementation)
-         * [State transition of Interrupt Controller](doc/TemplateAndParameters.md#state-transition-of-interrupt-controller)
-      * [Fixed Parameters for Interrupt Controller](#fixed-parameters-for-interrupt-controller)
-      * [Fixed Parameters for Timer](#fixed-parameters-for-timer)
-      * [Fixed Parameters for MMIO Region](#fixed-parameters-for-mmio-region)
+      * [QEMU hw implementation](#qemu-hw-implementation)
+         * [State transition of Interrupt Controller](#state-transition-of-interrupt-controller)
+         * [State transition of Timer](#state-transition-of-timer)
+      * [Fixed Parameters](#fixed-parameters)
+         * [Interrupt Controller](#interrupt-controller)
+         * [Timer](#timer)
+         * [MMIO Region](#mmio-region)
       * [Manual Analysis](#manual-analysis)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
@@ -51,7 +53,7 @@ Things in box with * are handled manually.
 +*****+*****+*****+*****+*****+*****+      +-----+-----+-----+-----+-----+-----+            |    +-----+-----+----+
 | <model, QEMU hw implementation*>  | ---> | <model, QEMU hw implementation^>  | -----------+
 +*****+*****+*****+*****+*****+*****+  ^   +-----+-----+-----+-----+-----+-----+            
-```                                    |
+                                       |
                                        |
                                  +*****+*****+*****+*****+*****+*****+*****+*****+*****+***+ 
                                  |                             | <model, fixed parameters> |
@@ -113,7 +115,27 @@ masked is clear when
 xxx_action from Interrupt Controller driver callbacks indicates
 which property of a certain interrupt request will be set or clear.
 
-## Fixed Parameters for Interrupt Controller
+### State transition of Timer
+
+There are two internal timers in the template of Timer.
+The first one is a fixed rate timer (clockevent), 100HZ.
+The second timer (clocksource) is configured by four properties,
+timer_freq, timer_bits, timer_increasing, timer_decreasing, and timer_counters.
+
+timer_freq: The frequence(rate) of a timer.
+timer_bits: The number of valid bits of a timer counter.
+timer_increasing/timer_descreasing: Whether or not the value of the timer counter is stored
+in reverse.
+timer_counters: The offset of the timer counters.
+
+The state transition of Timer is quite simple. After configuration,
+the first timer will file the interrupt periodically;
+the second timer will be acquired by Linux kernel to maintain
+a precise time.
+
+## Fixed Parameters 
+
+### Interrupt Controller
 
 |parameter|description|
 |:---:|:---|
@@ -133,7 +155,7 @@ Where to find them?
 + set_handle_irq (ARM)
 + plat_irq_dispatch (MIPS)
 
-## Fixed Parameters for Timer
+### Timer
 
 |parameter|description|
 |:---:|:---|
@@ -156,7 +178,7 @@ Where to find them?
 + clkdev_add
 + register_current_timer_delay
 
-## Fixed Parameters for MMIO Region
+### MMIO Region
 
 |parameter|description|
 |:---:|:---|
