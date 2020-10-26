@@ -122,11 +122,11 @@ The first one is a fixed rate timer (clockevent), 100HZ.
 The second timer (clocksource) is configured by four properties,
 timer_freq, timer_bits, timer_increasing, timer_decreasing, and timer_counters.
 
-timer_freq: The frequence(rate) of a timer.
-timer_bits: The number of valid bits of a timer counter.
+timer_freq: The frequence(rate) of a timer.  
+timer_bits: The number of valid bits of a timer counter.  
 timer_increasing/timer_descreasing: Whether or not the value of the timer counter is stored
-in reverse.
-timer_counters: The offset of the timer counters.
+in reverse.  
+timer_counters: The offset of the timer counters.  
 
 The state transition of Timer is quite simple. After configuration,
 the first timer will file the interrupt periodically;
