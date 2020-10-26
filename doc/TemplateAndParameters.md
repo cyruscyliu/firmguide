@@ -68,18 +68,16 @@ Things in box with * are handled manually.
 ### State transition of Interrupt Controller
 
 REST: The Interrupt Controller is idle.  
-NOISE: There exist some interrupt requests. 
+NOISE: There exist some interrupt requests.  
 ALARM:  The interrupt Controller should file the interrupt to a processor.  
 
 pending: The property of an interrupt request indicates
-that there exist a interrupt request pending.
-
+that there exist a interrupt request pending.  
 masked: The property of an interrupt request indicates
-whether or not it is allowed to file the interrupt to a processor.
-
+whether or not it is allowed to file the interrupt to a processor.  
 set_irqn_to_regs will set the pending register to a specific value.
 Linux kernel will read this register, calculate the interrupt request number,
-and call its interrupt servise routine.
+and call its interrupt servise routine.  
 
 | state_from | pending | masked | state_to |                   action                   |
 |:----------:|:-------:|:------:|:--------:|:------------------------------------------:|
