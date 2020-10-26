@@ -61,6 +61,43 @@ Things in box with * are handled manually.
                                                       (We automated this part in out paper.)
 ```
 
+## QEMU hw implementation
+
+### State transition for Interrupt Controller
+
+| state_from | pending | masked | state_to |                   action                   |
+|:----------:|:-------:|:------:|:--------:|:------------------------------------------:|
+|    REST    |    0    |    0   |   REST   |                                            |
+|    REST    |    0    |    1   |   REST   |                                            |
+|    REST    |    1    |    0   |   ALARM  |  set_irqn_to_regs(irqn) qemu_setup_irq(1)  |
+|    REST    |    1    |    1   |   NOISE  |                                            |
+|    NOISE   |    0    |    0   |   REST   | clear_irqn_to_regs(irqn) qemu_setup_irq(0) |
+|    NOISE   |    0    |    1   |   REST   | clear_irqn_to_regs(irqn) qemu_setup_irq(0) |
+|    NOISE   |    1    |    0   |   ALARM  |  set_irqn_to_regs(irqn) qemu_setup_irq(1)  |
+|    NOISE   |    1    |    1   |   NOISE  |                                            |
+|    ALARM   |    0    |    0   |   REST   | clear_irqn_to_regs(irqn) qemu_setup_irq(0) |
+|    ALARM   |    0    |    1   |   REST   | clear_irqn_to_regs(irqn) qemu_setup_irq(0) |
+|    ALARM   |    1    |    0   |   ALARM  |                                            |
+|    ALARM   |    1    |    1   |   NOISE  | clear_irqn_to_regs(irqn) qemu_setup_irq(0) |
+
+pending is set when 
++ other peripheral has an interrrupt request
+
+pending is clean when
++ other peripheral cancles its interrrupt request
++ mask_ack_action happens
++ ack_action happens
+
+masked is set when
++ the interrupt controller is reset
++ mask_ack_action happens
++ mask_action happens
+
+masked is clear when
++ unmask_action happens
+
+## QEMU hw implementation (autoboard)
+
 ## Fixed Parameters for Interrupt Controller
 
 |parameter|description|
