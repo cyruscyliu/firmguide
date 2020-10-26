@@ -3,6 +3,8 @@ Table of Contents
 
    * [Template and Parameters](#template-and-parameters)
       * [Overview](#overview)
+      * [QEMU hw implementation](doc/TemplateAndParameters.md#qemu-hw-implementation)
+         * [State transition of Interrupt Controller](doc/TemplateAndParameters.md#state-transition-of-interrupt-controller)
       * [Fixed Parameters for Interrupt Controller](#fixed-parameters-for-interrupt-controller)
       * [Fixed Parameters for Timer](#fixed-parameters-for-timer)
       * [Fixed Parameters for MMIO Region](#fixed-parameters-for-mmio-region)
@@ -63,7 +65,21 @@ Things in box with * are handled manually.
 
 ## QEMU hw implementation
 
-### State transition for Interrupt Controller
+### State transition of Interrupt Controller
+
+REST: The Interrupt Controller is idle.  
+NOISE: There exist some interrupt requests. 
+ALARM:  The interrupt Controller should file the interrupt to a processor.  
+
+pending: The property of an interrupt request indicates
+that there exist a interrupt request pending.
+
+masked: The property of an interrupt request indicates
+whether or not it is allowed to file the interrupt to a processor.
+
+set_irqn_to_regs will set the pending register to a specific value.
+Linux kernel will read this register, calculate the interrupt request number,
+and call its interrupt servise routine.
 
 | state_from | pending | masked | state_to |                   action                   |
 |:----------:|:-------:|:------:|:--------:|:------------------------------------------:|
@@ -83,7 +99,7 @@ Things in box with * are handled manually.
 pending is set when 
 + other peripheral has an interrrupt request
 
-pending is clean when
+pending is clear when
 + other peripheral cancles its interrrupt request
 + mask_ack_action happens
 + ack_action happens
@@ -96,7 +112,8 @@ masked is set when
 masked is clear when
 + unmask_action happens
 
-## QEMU hw implementation (autoboard)
+xxx_action from Interrupt Controller driver callbacks indicates
+which property of a certain interrupt request will be set or clear.
 
 ## Fixed Parameters for Interrupt Controller
 
