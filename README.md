@@ -6,9 +6,11 @@ In the virtual execution environment, you can debug, trace, and test
 the Linux kernel to collect runtime information that can be used to
 understand vulnerabilities, PoCs, root causes of crashes happend in the Linux kernel.
 FirmGuide is a effectively complementary dynamic analysis platform to Firmadyne
-that focus on user space programs.
+that focuses on user space programs - FirmGuide focuses on the Linux kernel.
 
-What FirmGuide does is, which is quite easy to understand, to generate a QEMU virtual machine.
+To support the Linux kernel, FirmGuide generates a QEMU virtual machine for it,
+which is quite easy to understand,
+a QEMU virtual machine meaning a full control of the Linux kernel.
 The QEMU virtual machine is generated automatically according to a list of hardware
 and their topology described in the device tree blob packed together with the Linux kernel image.
 Then the Linux kernel could be booted with the generated QEMU virutal machine.
@@ -28,27 +30,17 @@ cd firmguide && make
 FirmGuide is a command-oriented tool like `git`.
 Please look at [Subcommand](doc/Subcommand.md) for more information.
 
-### Scenario 1: Convert a device tree blob to a QEMU virtual machine.
-
-
-```bash
-root@esv:~/firmguide# ./firmguide synthesize -dtb examples/plxtech_nas782x.dtb
-```
-
-### Scenario 2: Upload a firmware image and boot it.
+Upload a firmware image and boot it.
 
 ```bash
 root@esv:~/firmguide# ./firmguide upload -f examples/62771d14b82e554a95d048af99866c404acb196f.bin
 ```
 
-### Scenario 3: Manual analysis to support new peripherals.
+## Advanced Development
 
-Please check [Overview](doc/TemplateAndParameters.md#overview) and
-[Manual Analysis](doc/TemplateAndParameters.md#manual-analysis) for more information.
-
-### Scenario 4: Automatic analysis to support new peripherals.
-
-WIP
++ [Convert a device tree blob to a QEMU virtual machine](#)
++ [Manual analysis to support new peripherals](#)
++ [Automatic analysis to support new peripherals](#)
 
 ## SoC Support List
 
