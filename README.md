@@ -43,13 +43,13 @@ Othersize, the firmware image cannot be supported.
 
 + There is one or two peripherals unsupported, and the synthesis of QEMU virtual machine is failed.
 > Please report it, or you can manually support the peripherals.
+Please check [Advanced Development](#Advanced-Development).
 
 + Any other troubles should be caused by bugs in FirmGuide.
 > Please report them to us.
 
 ## Advanced Development
 
-+ [Convert a device tree blob to a QEMU virtual machine](#)
 + [Manual analysis to support new peripherals](#)
 + [Automatic analysis to support new peripherals](#)
 
