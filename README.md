@@ -14,7 +14,6 @@ a QEMU virtual machine meaning a full control of the Linux kernel.
 The QEMU virtual machine is generated automatically according to a list of hardware
 and their topology described in the device tree blob packed together with the Linux kernel image.
 Then the Linux kernel could be booted with the generated QEMU virutal machine.
-We provide you several subcommands to do so.
 Any further dynamic analysis then can be performed by modifying QEMU or
 putting a driver in a rootfs file (qemu-system-arm ... -initrd path/to/rootfs).
 
@@ -27,14 +26,14 @@ cd firmguide && make
 
 ## Usage
 
-FirmGuide is a command-oriented tool like `git`.
-Please look at [Subcommand](doc/Subcommand.md) for more information.
-
 Upload a firmware image and boot it.
 
 ```bash
 root@esv:~/firmguide# ./firmguide upload -f examples/62771d14b82e554a95d048af99866c404acb196f.bin
 ```
+
+FirmGuide is a command-oriented tool like `git`.
+Please look at [Subcommand](doc/Subcommand.md) for more information.
 
 ## Advanced Development
 
