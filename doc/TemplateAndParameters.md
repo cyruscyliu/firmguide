@@ -29,11 +29,11 @@ by manually and automatically infer parameters used in the abstraction
 
 Here is the flow of the QEMU virtual machine synthesis.
 It is clear that the parameters are generated from a device tree file and Linux kernel source code.
-The QEMU registeration APIs are already or can be automatically prepared.
-The QEMU hw implementation template is prepared manually.
 The dynamic parameters can be extracted from the device tree automatically.
 However, the fixed parameters have to be infered manullay or automatically, and
 we will talk about this later.
+The QEMU registeration APIs are already or can be automatically prepared.
+The QEMU hw implementation template is prepared manually.
 The concretization is automatic and the code generation is also automatic.
 
 
@@ -70,20 +70,35 @@ The concretization is automatic and the code generation is also automatic.
                                                       (We automated this part in out paper.)
 ```
 
-## QEMU hw implementation
+## QEMU hw implementation (version 1)
 
-### State transition of Interrupt Controller
+## Interrupt Controller
 
-REST: The Interrupt Controller is idle.  
-NOISE: There exist some interrupt requests.  
-ALARM:  The interrupt Controller should file the interrupt to a processor.  
+### State transition
 
-pending: The property of an interrupt request indicates
-that there exist a interrupt request pending.  
-masked: The property of an interrupt request indicates
-whether or not it is allowed to file the interrupt to a processor.  
-set_irqn_to_regs will set the pending register to a specific value.
-Linux kernel will read this register, calculate the interrupt request number,
+We will first briefly introduce several concepts in advance.
+
+We have defined three states and they are illustrated one by one in the following.
++ REST  
+The Interrupt Controller is idle.  
++ NOISE  
+There exist some interrupt requests.  
++ ALARM  
+The interrupt Controller should file the interrupt to a processor.  
+
+At the same time, we defined several internal properties to label
+what has happend for each interrupt source.
++ pending  
+The property of an interrupt request indicates that there exist a interrupt request pending.  
++ masked  
+The property of an interrupt request indicates whether or not
+it is allowed to file the interrupt to a processor.  
+
+Finally, we have defined two internal actions to respond Linux kernel.
+The two actions are used with qemu_setup_irq together.
++ set_irqn_to_regs will set the pending register to a specific value.
++ clear_irqn_to_regs will clear the pending register to a specific value.
+Linux kernel will read the pending register, calculate the interrupt request number,
 and call its interrupt servise routine.  
 
 | state_from | pending | masked | state_to |                   action                   |
@@ -101,26 +116,34 @@ and call its interrupt servise routine.
 |    ALARM   |    1    |    0   |   ALARM  |                                            |
 |    ALARM   |    1    |    1   |   NOISE  | clear_irqn_to_regs(irqn) qemu_setup_irq(0) |
 
-pending is set when 
-+ other peripheral has an interrrupt request
+Here, we summarize the time when the too properties are changed.
+By the way, xxx_action below is infered from Interrupt Controller low-level callbacks.
 
-pending is clear when
-+ other peripheral cancles its interrrupt request
-+ mask_ack_action happens
-+ ack_action happens
+| property | set/clear | when |
+|:---:|:---:|:---:|
+|pending|set|other peripheral has an interrrupt request|
+|pending|clear|other peripheral cancles its interrrupt request|
+|pending|clear|mask_ack_action happens|
+|pending|clear|ack_action happens|
+|masked|set|the interrupt controller is reset|
+|masked|set|mask_ack_action happens|
+|masked|set|mask_action happens|
+|masked|clear|masked is clear when|
+|masked|clear|unmask_action happens|
 
-masked is set when
-+ the interrupt controller is reset
-+ mask_ack_action happens
-+ mask_action happens
+### Parameters of the Interrupt Controller template
 
-masked is clear when
-+ unmask_action happens
+## Timer
 
-xxx_action from Interrupt Controller driver callbacks indicates
-which property of a certain interrupt request will be set or clear.
+### State transition
 
-### State transition of Timer
+The state transition of Timer is quite simple. There are
+two timers in the tempate.
+The first timer will file the interrupt periodically;
+the second timer is freely running and will be acquired by Linux kernel to maintain
+a precise time.
+
+### Parameters of the Timer template
 
 There are two internal timers in the template of Timer.
 The first one is a fixed rate timer (clockevent), 100HZ.
@@ -133,10 +156,6 @@ timer_increasing/timer_descreasing: Whether or not the value of the timer counte
 in reverse.  
 timer_counters: The offset of the timer counters.  
 
-The state transition of Timer is quite simple. After configuration,
-the first timer will file the interrupt periodically;
-the second timer will be acquired by Linux kernel to maintain
-a precise time.
 
 ## Fixed Parameters 
 
