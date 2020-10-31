@@ -52,7 +52,7 @@ Please check [Advanced Development](#advanced-development).
 
 + [Manual analysis to support new peripherals](#)
 + [Automatic analysis to support new peripherals](#)
-+ [FirmGuide internals and development](#)
++ [FirmGuide internals and development](#doc/Development.md)
 
 ## SoC Support List
 

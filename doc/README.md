@@ -1,6 +1,5 @@
 Table of Contents
 =================
-
    * [Subcommand](Subcommands.md#subcommand)
       * [./firmguide and its command-level arguments](Subcommands.md#firmguide-and-its-command-level-arguments)
       * [CORE subcommands](Subcommands.md#core-subcommands)
@@ -22,18 +21,13 @@ Table of Contents
          * [archive](Subcommands.md#archive)
          * [usntest](Subcommands.md#usntest)
          * [analysrc](Subcommands.md#analysrc)
-
-   * [Development](./Development.md#development)
-      * [APIs for analysis (group)](Development.md#apis-for-analysis-group)
-         * [Analysis Manager](Development.md#analysis-manager)
-         * [Frimware profile getter/setter](Development.md#frimware-profile-gettersetter)
-         * [Components getter/setter](Development.md#components-gettersetter)
-         * [Device tree parsers (dt_parsers)](Development.md#device-tree-parsers-dt_parsers)
-         * [Database](Development.md#database)
-         * [QEMU controller](Development.md#qemu-controller)
-         * [Source controller](Development.md#source-controller)
-      * [Add subcommand](Development.md#add-subcommand)
-
+   * [FirmGuide internals](doc/Development.md#firmguide-internals)
+   * [Development](doc/Development.md#development)
+      * [Add subcommand](doc/Development.md#add-subcommand)
+      * [Add analysis (group)](doc/Development.md#add-analysis-group)
+      * [APIs for analysis (group)](doc/Development.md#apis-for-analysis-group)
+         * [Analysis Manager](doc/Development.md#analysis-manager)
+         * [Frimware profile getter/setter](doc/Development.md#frimware-profile-gettersetter)
    * [Template and Parameters](TemplateAndParameters.md#template-and-parameters)
       * [Overview](TemplateAndParameters.md#overview)
       * [QEMU hw implementation](TemplateAndParameters.md#qemu-hw-implementation)
