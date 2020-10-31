@@ -144,14 +144,14 @@ By the way, xxx_action below is infered from Interrupt Controller low-level call
 |        name        |      dynamic parameter     | automatically generated | string |             |
 |     endianness     |      dynamic parameter     | automatically generated | string |             |
 |         reg        |      dynamic parameter     | automatically generated |  dict  |             |
-|        size        |         item of reg        |    manullay generated   | string |             |
+|        size        |         item of reg        | automatically generated | string |             |
 |  intc_irqn_to_regs |       fixed parameter      |    manually generated   |  list  |             |
-|  intc_irqn_to_reg  |  item of intc_irqn_to_regs |    manually generated   |  dict  |             |
+|  intc_irqn_to_reg  |  item of intc_irqn_to_regs |    manually generated   |  dict  | When an interrupt is triggered, Linux kernel will check a pending register in an interrupt controller to calculate the current interrupt request number. Figure out the way of calculation and the name of the pending register. |
 |        irqn        |  item of intc_irqn_to_reg  |    manullay generated   | string |             |
 |      set_body      |  item of intc_irqn_to_reg  |    manullay generated   | string |             |
 |     clear_body     |  item of intc_irqn_to_reg  |    manullay generated   | string |             |
 | intc_get_registers |       fixed parameter      |    manually generated   |  list  |             |
-|      register      | item of intc_get_registers |    manually generated   |  dict  |             |
+|      register      | item of intc_get_registers |    manually generated   |  dict  | An interrupt controller has several internal registers. Figure out the offset of name and the operation on them according to the low-level driver callbacks. |
 |       offset       |      item of register      |    manullay generated   | string |             |
 |        rname       |      item of register      |    manullay generated   | string |             |
 |      mask_ack      |      item of register      |    manullay generated   |  bool  |             |
@@ -162,7 +162,7 @@ By the way, xxx_action below is infered from Interrupt Controller low-level call
 |     ack_action     |      item of register      |    manullay generated   | string |             |
 |       unmask       |      item of register      |    manullay generated   |  bool  |             |
 |    unmask_action   |      item of register      |    manullay generated   | string |             |
-|      override      |      item of register      |    manullay generated   |  bool  |             |
+|      override      |      item of register      |    manullay generated   |  bool  | Whether or not to update the internal register when Linux kernel write new a value. |
 
 #### Where to infer parameters
 
@@ -194,16 +194,16 @@ to maintain a precise time.
 |      name        |   dynamic parameter    | automatically generated | string |             |
 |   endianness     |   dynamic parameter    | automatically generated | string |             |
 |       reg        |   dynamic parameter    | automatically generated |  dict  |             |
-|      size        |     item of reg        |    manullay generated   | string |             |
-|    timer_n_irq   |     fixed parameter    |    manually generated   | string |             |
+|      size        |     item of reg        | automatically generated | string |             |
+|   timer_n_irq    |     fixed parameter    |    manually generated   | string | The number of interrupts this timer can trigger. |
 |  timer_counters  |     fixed parameter    |    manually generated   |  list  |             |
-|      counter     | item of timer_counters |    manually generated   |  dict  |             |
+|      counter     | item of timer_counters |    manually generated   |  dict  | The counter register information. Figuir out its interrupt id and its address. |
 |       addr       |     item of counter    |    manullay generated   | string |             |
 |        id        |     item of counter    |    manullay generated   | string |             |
-| timer_increasing |     fixed parameter    |    manually generated   |  bool  |             |
-| timer_decreasing |     fixed parameter    |    manually generated   |  bool  |             |
+| timer_increasing |     fixed parameter    |    manually generated   |  bool  | Whether or not the counter register increases. |
+| timer_decreasing |     fixed parameter    |    manually generated   |  bool  | Whether or not the counter register decreases. |
 |    timer_freq    |     fixed paramter     |    manually generated   | string |             |
-|    timer_bits    |     fixed paramter     |    manually generated   | string |             |
+|    timer_bits    |     fixed paramter     |    manually generated   | string | The valid bits of the counter. |
 
 #### Where to infer parameters
 
@@ -232,7 +232,9 @@ to maintain a precise time.
 |    regs    | dynamic parameter | automatically generated |  list  |             |
 |    reg     |    item of regs   |    manually generated   |  item  |             |
 | registers  |  fixed parameter  |    manually generated   |  list  |             |
-|  register  | item of registers |    manually generated   |  item  |             |
+|  register  | item of registers |    manually generated   |  item  | Some internal registers of the peripheral have to be initialized with proper value. Figure out their offset and the expected value. |
+|   offset   | item of registers |    manually generated   |  item  |             |
+|   value    | item of registers |    manually generated   |  item  |             |
 
 #### Where to infer parameters
 
