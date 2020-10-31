@@ -3,14 +3,19 @@ Table of Contents
 
    * [Template and Parameters](#template-and-parameters)
       * [Overview](#overview)
-      * [QEMU hw implementation](#qemu-hw-implementation)
-         * [State transition of Interrupt Controller](#state-transition-of-interrupt-controller)
-         * [State transition of Timer](#state-transition-of-timer)
-      * [Fixed Parameters](#fixed-parameters)
+      * [QEMU hw implementation (version 1)](#qemu-hw-implementation-version-1)
          * [Interrupt Controller](#interrupt-controller)
+            * [State transition](#state-transition)
+            * [Parameters details](#parameters-details)
+            * [Where to infer parameters](#where-to-infer-parameters)
          * [Timer](#timer)
+            * [State transition](#state-transition-1)
+            * [Parameters details](#parameters-details-1)
+            * [Where to infer parameters](#where-to-infer-parameters-1)
          * [MMIO Region](#mmio-region)
-      * [Manual Analysis](#manual-analysis)
+            * [Parameters details](#parameters-details-2)
+            * [Where to infer parameters](#where-to-infer-parameters-2)
+   * [Manual Analysis](#manual-analysis)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
@@ -72,11 +77,11 @@ The concretization is automatic and the code generation is also automatic.
 
 ## QEMU hw implementation (version 1)
 
-## Interrupt Controller
+### Interrupt Controller
 
-### State transition
+#### State transition
 
-We will first briefly introduce several concepts in advance.
+We will first briefly introduce several concepts.
 
 We have defined three states and they are illustrated one by one in the following.
 + REST  
@@ -131,43 +136,36 @@ By the way, xxx_action below is infered from Interrupt Controller low-level call
 |masked|clear|masked is clear when|
 |masked|clear|unmask_action happens|
 
-### Parameters of the Interrupt Controller template
+#### Parameters details
 
-## Timer
+|      parameter     |                            |                         |  type  | description |
+|:------------------:|:--------------------------:|:-----------------------:|:------:|:-----------:|
+|       license      |     internal parameter     | automatically generated | string |             |
+|        name        |      dynamic parameter     | automatically generated | string |             |
+|     endianness     |      dynamic parameter     | automatically generated | string |             |
+|         reg        |      dynamic parameter     | automatically generated |  dict  |             |
+|        size        |         item of reg        |    manullay generated   | string |             |
+|  intc_irqn_to_regs |       fixed parameter      |    manually generated   |  list  |             |
+|  intc_irqn_to_reg  |  item of intc_irqn_to_regs |    manually generated   |  dict  |             |
+|        irqn        |  item of intc_irqn_to_reg  |    manullay generated   | string |             |
+|      set_body      |  item of intc_irqn_to_reg  |    manullay generated   | string |             |
+|     clear_body     |  item of intc_irqn_to_reg  |    manullay generated   | string |             |
+| intc_get_registers |       fixed parameter      |    manually generated   |  list  |             |
+|      register      | item of intc_get_registers |    manually generated   |  dict  |             |
+|       offset       |      item of register      |    manullay generated   | string |             |
+|        rname       |      item of register      |    manullay generated   | string |             |
+|      mask_ack      |      item of register      |    manullay generated   |  bool  |             |
+|   mask_ack_action  |      item of register      |    manullay generated   | string |             |
+|        mask        |      item of register      |    manullay generated   |  bool  |             |
+|     mask_action    |      item of register      |    manullay generated   | string |             |
+|         ack        |      item of register      |    manullay generated   |  bool  |             |
+|     ack_action     |      item of register      |    manullay generated   | string |             |
+|       unmask       |      item of register      |    manullay generated   |  bool  |             |
+|    unmask_action   |      item of register      |    manullay generated   | string |             |
+|      override      |      item of register      |    manullay generated   |  bool  |             |
 
-### State transition
+#### Where to infer parameters
 
-The state transition of Timer is quite simple. There are
-two timers in the tempate.
-The first timer will file the interrupt periodically;
-the second timer is freely running and will be acquired by Linux kernel to maintain
-a precise time.
-
-### Parameters of the Timer template
-
-There are two internal timers in the template of Timer.
-The first one is a fixed rate timer (clockevent), 100HZ.
-The second timer (clocksource) is configured by four properties,
-timer_freq, timer_bits, timer_increasing, timer_decreasing, and timer_counters.
-
-timer_freq: The frequence(rate) of a timer.  
-timer_bits: The number of valid bits of a timer counter.  
-timer_increasing/timer_descreasing: Whether or not the value of the timer counter is stored
-in reverse.  
-timer_counters: The offset of the timer counters.  
-
-
-## Fixed Parameters 
-
-### Interrupt Controller
-
-|parameter|description|
-|:---:|:---|
-|{regs_addr, regs_value}|The address of the MMIO and its initial value|
-|{irqn, set_handler, clear_handler}|IRQ and the regs set/clear handlers when it happens.|
-|{ack_hint, mask_hint, unmask_hint}|The hint of the state `ack`, `mask`, `unmask`.|
-
-Where to find them?
 + irq_domain_add_simple
 + irq_domain_add_legacy
 + irq_domain_add_linear
@@ -181,14 +179,34 @@ Where to find them?
 
 ### Timer
 
-|parameter|description|
-|:---:|:---|
-|rate|The rate of the clock source/event device|
-|counter_addr|The address of the counter for timekeeping and scheduled clock.|
-|n_bits|The number of bits of the counter.|
-|monotone|Whether the counter counts down or not.|
+#### State transition
 
-Where to find them?
+The state transition of Timer is quite simple.
+There are two timers in the tempate.
+The first timer will file the interrupt periodically;
+the second timer is freely running and will be acquired by Linux kernel 
+to maintain a precise time.
+
+#### Parameters details
+|    parameter     |                        |                         |  type  | description |
+|:----------------:|:----------------------:|:-----------------------:|:------:|:-----------:|
+|     license      |   internal parameter   | automatically generated | string |             |
+|      name        |   dynamic parameter    | automatically generated | string |             |
+|   endianness     |   dynamic parameter    | automatically generated | string |             |
+|       reg        |   dynamic parameter    | automatically generated |  dict  |             |
+|      size        |     item of reg        |    manullay generated   | string |             |
+|    timer_n_irq   |     fixed parameter    |    manually generated   | string |             |
+|  timer_counters  |     fixed parameter    |    manually generated   |  list  |             |
+|      counter     | item of timer_counters |    manually generated   |  dict  |             |
+|       addr       |     item of counter    |    manullay generated   | string |             |
+|        id        |     item of counter    |    manullay generated   | string |             |
+| timer_increasing |     fixed parameter    |    manually generated   |  bool  |             |
+| timer_decreasing |     fixed parameter    |    manually generated   |  bool  |             |
+|    timer_freq    |     fixed paramter     |    manually generated   | string |             |
+|    timer_bits    |     fixed paramter     |    manually generated   | string |             |
+
+#### Where to infer parameters
+
 + clocksource_register_hz
 + clocksource_mmio_init
 + clocksource_register
@@ -204,17 +222,24 @@ Where to find them?
 
 ### MMIO Region
 
-|parameter|description|
-|:---:|:---|
-|addr|The address of the MMIO to be manipulated.|
-|size|The size of the MMIO to be manipulated.|
-|value|The initial value of the MMIO.|
+#### Parameters details
 
-Where to find them?
+| parameter  |                   |                         |  type  | description |
+|:----------:|:-----------------:|:-----------------------:|:------:|:-----------:|
+|    name    | dynamic parameter | automatically generated | string |             |
+| endianness | dynamic parameter | automatically generated | string |             |
+|     id     | dynamic parameter | automatically generated | string |             |
+|    regs    | dynamic parameter | automatically generated |  list  |             |
+|    reg     |    item of regs   |    manually generated   |  item  |             |
+| registers  |  fixed parameter  |    manually generated   |  list  |             |
+|  register  | item of registers |    manually generated   |  item  |             |
+
+#### Where to infer parameters
+
 + setup_arch
 + do_initcall_level
 
-## Manual Analysis
+# Manual Analysis
 
 We provide several subcommands for manual analysis.
 
@@ -248,3 +273,5 @@ mach_desc.init_time:
 
 Second, use `analysrc` to locate interesting functions. 
 It will preprocess the file that has interesting functions for your convenience.
+
+Third, look at all information in the front of this documentation to infer paramaters.
