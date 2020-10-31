@@ -1,11 +1,20 @@
 # FirmGuide
 
 FirmGuide is a project aiming to boost the capability of dynamic analysis
-of the Linux kernel in embedded firmware. It basically converts a device tree
-to a QEMU virtual machine by a new technique named `model-guided kernel execution.
-Each QEMU virtual machine is composed of many peripheral models that
-can be automatically or manually (complementary method) generated.
+of the Linux kernel for embedded system in virtual execution environment.
+In the virtual execution environment, you can debug, trace, and test
+the Linux kernel to collect runtime information that can be used to
+understand vulnerabilities, PoCs, root causes of crashes happend in the Linux kernel.
+FirmGuide is a effectively complementary dynamic analysis platform to Firmadyne
+that focus on user space programs.
 
+What FirmGuide does is, which is quite easy to understand, to generate a QEMU virtual machine.
+The QEMU virtual machine is generated automatically according to a list of hardware
+and their topology described in the device tree blob packed together with the Linux kernel image.
+Then the Linux kernel could be booted with the generated QEMU virutal machine.
+We provide you several subcommands to do so.
+Any further dynamic analysis then can be performed by modifying QEMU or
+putting a driver in a rootfs file (qemu-system-arm ... -initrd path/to/rootfs).
 
 ### Install
 
