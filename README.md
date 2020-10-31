@@ -26,14 +26,26 @@ cd firmguide && make
 
 ## Usage
 
+> FirmGuide is a command-oriented tool like `git`.
+Please look at [Subcommand](doc/Subcommand.md) for more information.
+
 Upload a firmware image and boot it.
 
 ```bash
 root@esv:~/firmguide# ./firmguide upload -f examples/62771d14b82e554a95d048af99866c404acb196f.bin
 ```
 
-FirmGuide is a command-oriented tool like `git`.
-Please look at [Subcommand](doc/Subcommand.md) for more information.
+If the `upload` is failed, you may take one or several following steps.
+
+There is no device tree avaiable.
+> If you have another firmware image with device tree, use it.
+Othersize, the firmware image cannot be supported.
+
+There is one or two peripherals unsupported, and the synthesis of QEMU virtual machine is failed.
+> Please report it, or you can manually support the peripherals.
+
+Any other troubles should be caused by bugs in FirmGuide.
+> Please report them to us.
 
 ## Advanced Development
 

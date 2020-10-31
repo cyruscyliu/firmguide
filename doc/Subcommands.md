@@ -41,8 +41,8 @@ FirgGuide has several command-level arguments.
 You can enter `./firmware -h` for more information.
 Besides `-d`, `-p`, and `-lg` that are easy to understand and use,
 we list how others (`-a`, `-e`, `-ld`) would be used by subcommands.
-N means don't need this argument. P means sometimes need this argument.
-Y means always need this argument.
+N means you don't need this argument. P means you sometimes need this argument.
+Y means you always need this argument.
 
 |  Subcommand | synthesize | upload | diagnose | traversrc | itopology | dtcoverup | newhwdt | unpack | cmdcoverup | loaddr | ofinitcbs | coverup | debugsrc | usntest | analysrc |
 |:-----------:|:----------:|:------:|:--------:|:---------:|:---------:|:---------:|:-------:|:------:|:----------:|:------:|:---------:|:-------:|:--------:|:-------:|:---------|
