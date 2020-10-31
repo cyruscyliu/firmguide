@@ -6,11 +6,9 @@ from slcore.dt_parsers.clk import find_flatten_clk_in_fdt
 from slcore.srcodecontroller import load_system_map
 
 
-temp_of_init_table = {
-    'mti,cpu-interrupt-controller': 'mips_cpu_intc_init',
-    'ralink,rt2880-intc': 'intc_of_init',
-    # 'ralink,rt2880-timer': 'rt_timer_probe', # in do_initcall
-}
+def generic_indirect_call_handler(self, func, caller, extend=[], pos={}):
+    extend = self.user_fcbs[func]['extend']
+    return True
 
 
 def __generic_of_init_handler(self, find, extend=[]):
@@ -33,11 +31,6 @@ def __generic_of_init_handler(self, find, extend=[]):
             for triple, path in search_cb(cmptb, path_to_source):
                 if triple[2] not in extend:
                     extend.append(triple[2])
-
-    for periph in periphs:
-        for cmptb in periph['compatible']:
-            if cmptb in temp_of_init_table:
-                extend.append(temp_of_init_table[cmptb])
     return True
 
 
@@ -115,6 +108,10 @@ def __generic_slicing_handler(self, func, caller, extend=[], pos={}):
     return True
 
 
+def generic_slicing_handler(self, func, caller, extend=[], pos={}):
+    return __generic_slicing_handler(self, func, caller, extend=extend, pos=pos)
+
+
 generic_fcbs = {
     # interrupt controller
     'of_irq_init': {'handler': __of_irq_init_handler},  # indirect call
@@ -163,8 +160,7 @@ generic_fcbs = {
     'mips_clockevent_init': {'intermediate': True},
     'r4k_clockevent_init': {'intermediate': True},
     'init_r4k_clocksource': {'intermediate': True},
-    # ignore rest_init until we can handle it
-    'rest_init': {'ignored': True, 'intermediate': True},
+    'rest_init': {'intermediate': True},
     'kernel_init': {'intermediate': True},
     'kernel_init_freeable': {'intermediate': True},
     'do_basic_setup': {'intermediate': True},

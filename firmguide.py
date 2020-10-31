@@ -45,15 +45,8 @@ def setup_analysis_manager(self, **kwargs):
 
     # Each instance may not include
     source = kwargs.pop('source', None)
-    if 'source' in kwargs:
-        self.srcodec = get_srcodecontroller(source, 
-            self.project.attrs['cross_compile'],
-            self.project.attrs['arch'], 
-            self.project.attrs['endian'],
-            self.project.attrs['makeout'])
-    else:
-        self.srcodec = get_srcodecontroller(source, 
-            None, None, None, None)
+    cross_compile = kwargs.pop('cross_compile', None)
+    self.srcodec = get_srcodecontroller(source, cross_compile=cross_compile)
 
 
 if __name__ == '__main__':
@@ -79,7 +72,7 @@ if __name__ == '__main__':
     logname = args.pop('logname') or 'firmguide'
     project_args['logname'] = logname
     # for expert-mode
-    # project_args['sparse_dir'] = open('.sparse').readline().strip()
+    project_args['sparse_dir'] = open('.sparse').readline().strip()
     # for automation-mode
     # project_args['llvm_dir'] = open('.llvmbin').readline().strip()
 

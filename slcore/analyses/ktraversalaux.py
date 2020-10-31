@@ -147,5 +147,10 @@ funccalls_blacklist = [
      'read_cpuid_part', '__ioremap', '__ioremap_mode', 'rt_intc_w32', 'reserve_bootmem', 'clear_c0_cause', 'virt_to_phys',
      'check_bugs32', 'clockevent_set_clock', 'snprintf', 'plat_of_remap_node' 'arch_mem_init', 'set_io_port_base', 'dma_contiguous_reserve',
      '__div64_32', 'mips_cm_probe', '__BUG_ON', '___pa', '__dt_setup_arch', 'early_init_fdt_reserve_self', 'rdhwr_count_usable',
-     '__get_free_pages', 'setup_early_fdc_console', 'rdhwr_count', 'reserve_bootmem_region', 'get_order', 'calculate_min_delta'
+     '__get_free_pages', 'setup_early_fdc_console', 'rdhwr_count', 'reserve_bootmem_region', 'get_order', 'calculate_min_delta',
+     'debug_objects_early_init', 'boot_init_stack_canary', 'cgroup_init_early', 'arch_local_irq_disable', 'arch_local_irq_disable',
+     'psci_smp_available', 'obsolete_checksetup', 'cgroup_init', 'initcall_levels', 'efi_late_init', 'cpuset_init', 'sfi_init_late',
+     'efi_free_boot_services', 'arch_local_save_flags', 'parameqn', 'obs_kernel_param.setup_func', 'strncmp',  '__builtin_expect',
+     'arch_local_irq_enable', '__check_is_bitmap', 'strchr', 'taskstats_init_early', 'unknown_bootoption', 'efi_enabled', 'perf_event_init',
+     'memmove', 'set_init_arg',  'page_cgroup_init',
 ]

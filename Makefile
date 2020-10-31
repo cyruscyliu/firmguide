@@ -81,13 +81,25 @@ ifeq (, $(shell which sasquatch))
 endif
 	@echo [+] Done
 
+sparse:
+	@echo [+] Install Sparse
+	@echo =========================================
+	wget -nc https://git.kernel.org/pub/scm/devel/sparse/sparse.git/snapshot/sparse-0.6.2.tar.gz \
+		-O /tmp/sparse-0.6.2.tar.gz || true
+	tar --skip-old-files -zxf /tmp/sparse-0.6.2.tar.gz -C /tmp
+	cp -rL --remove-destination ./externals/sparse/* /tmp/sparse-0.6.2/
+	make -C /tmp/sparse-0.6.2
+	echo /tmp/sparse-0.6.2 > .sparse
+	@echo [+] Done
+
 help:
 	@echo "  all     	install all below by default"
 	@echo "  python     	install Python 3.6"
 	@echo "  binwalk     	install Binwalk 2.1.1"
 	@echo "  qemu     	install QEMU 4.0.0"
+	@echo "  sparse		install Sparse 0.6.2"
 
 clean:
-	rm -rf *.dts *.extracted *.log .qemu
-
+	rm -rf *.dts *.extracted *.log .qemu .sparse .slicing *.fcbs
+ 
 .PHONY: all clean help

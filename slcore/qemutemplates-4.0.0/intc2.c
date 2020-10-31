@@ -33,19 +33,6 @@ static void {{ name }}_update(void *opaque)
     int i;
 
     // state transition table
-    // state_from pending masked state_to
-    //    REST       0      0     REST
-    //    REST       0      1     REST
-    //    REST       1      0     NOISE
-    //    REST       1      1     NOISE
-    //    NOISE      0      0     REST
-    //    NOISE      0      1     REST
-    //    NOISE      1      0     ALARM(*)
-    //    NOISE      1      1     NOISE
-    //    ALARM      0      0     REST(*)
-    //    ALARM      0      1     REST(*)
-    //    ALARM      1      0     ALARM(*)
-    //    ALARM      1      1     NOISE(*)
     for (i = 0; i < N_IRQ; i++) {
         switch(s->state[i]) {
             case STATE_REST:

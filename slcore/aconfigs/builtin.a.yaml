@@ -29,3 +29,5 @@ tracecoverup:
         ShowCallstack, ShowDeadLoop,
         CheckDataAbort, CheckUndefInst, CheckTLBExcep]
     description: 'Coverup QEMU debug trace.'
+traversal:
+    analyses: [CheckBoard, TraverseKernel]

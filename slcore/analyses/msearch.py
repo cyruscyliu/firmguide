@@ -174,6 +174,6 @@ class FindMachine(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
         self.name = 'msearch'
-        self.description = 'Find a valid device tree.'
+        self.description = 'Find a valid device tree (deprecated).'
         self.required = ['unpack']
         self.critical = True

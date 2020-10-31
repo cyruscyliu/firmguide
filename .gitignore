@@ -8,6 +8,7 @@ __pycache__
 .llvmbin
 .qemu
 .sparse
+.slicing
 *.fix_smp
 
 # FirmGuide
@@ -17,3 +18,5 @@ __pycache__
 *.trace
 *.profile
 *_*
+*-*
+*.fcbs

@@ -5,15 +5,16 @@ import yaml
 from slcore.amanager import Analysis
 from slcore.analyses.ktraversalaux import funccalls_blacklist, \
         dirs_blacklist, files_whitelist
-from slcore.analyses.ktraversalfcbs import generic_fcbs
+from slcore.analyses.ktraversalfcbs import generic_fcbs, \
+        generic_slicing_handler, generic_indirect_call_handler
 
 
 class TraverseKernel(Analysis):
     def __init__(self, analysis_manager):
         super().__init__(analysis_manager)
-
         self.name = 'ktraversal'
         self.description = 'Linux kernel source code traversal.'
+        self.required = ['bfilter']
 
         self.full_graph = pydot.Dot(graph_type='digraph')
         self.source_code = None
@@ -21,6 +22,8 @@ class TraverseKernel(Analysis):
         self.unhandled_list = []
         self.pos = {'file': None, 'fun': None, 'line': None}
         self.slicing = {}
+        self.last_user_fcbs = 0
+        self.user_fcbs = {}
     
     def is_in_dirs_blacklist(self, root):
         for db in dirs_blacklist:
@@ -57,7 +60,8 @@ class TraverseKernel(Analysis):
             self.pos['fun'] = subgraph.get_attributes()['fun']
             for edge in subgraph.get_edges():
                 if edge.get_source().strip('"') == src:
-                    self.pos['line'] = edge.get_attributes()['line']
+                    # TODO
+                    # self.pos['line'] = edge.get_attributes()['line']
                     self.pos['label'] = edge.get_attributes()['label']
                     yield edge
     
@@ -83,7 +87,7 @@ class TraverseKernel(Analysis):
             self.info('{}|-{}->{}[ignored]'.format(' ' * 2 *  (depth - 1), caller, funccall), 1)
             return True
         if 'intermediate' in cbs and cbs['intermediate']:
-            self.info('{}|-{}->{}[intermediate]'.format(' ' * 2 * (depth - 1), caller, funccall), 1)
+            self.info('{}|-{}->{}'.format(' ' * 2 * (depth - 1), caller, funccall), 1)
             return False
 
         if 'handler' not in cbs:
@@ -98,9 +102,10 @@ class TraverseKernel(Analysis):
             self.unhandled_list.append(funccall)
             return False
 
-        self.info('{}|-{}->{}[handled]'.format(' ' * 2 * (depth - 1), caller, funccall), 1)
         if not len(extend) > 0:
+            self.info('{}|-{}->{}[sliced]'.format(' ' * 2 * (depth - 1), caller, funccall), 1)
             return True
+        self.info('{}|-{}->{}[indirect call]'.format(' ' * 2 * (depth - 1), caller, funccall), 1)
 
         for new_caller in extend:
             if new_caller in funccalls_blacklist:
@@ -109,12 +114,12 @@ class TraverseKernel(Analysis):
                 continue
             if new_caller not in fcbs:
                 self.unknown_list.append(new_caller)
-            self.info('{}|-{}->{}[indirected]'.format(' ' * 2 * (depth + 1 - 1), funccall, new_caller), 1)
+            self.info('{}|-{}->{}[intermediate]'.format(' ' * 2 * (depth + 1 - 1), funccall, new_caller), 1)
             self.walk_kernel(new_caller, fcbs=fcbs, depth=depth+1)
         return True
     
     def dump_slicing(self):
-        target = os.path.join(self.analysis_manager.project.attrs['path'], 'slicing')
+        target = os.path.join(self.analysis_manager.project.attrs['path'], '.slicing')
         with open(target, 'w') as f:
             yaml.safe_dump(self.slicing, f)
         self.info('slicing info saved as {}'.format(target), 1)
@@ -132,6 +137,21 @@ class TraverseKernel(Analysis):
             self.error_info = 'please set the source code'
             return False
         self.source_code = os.path.realpath(srcodec.get_path_to_source_code())
+        if srcodec.path_to_cross_compile is None:
+            self.error_info = 'please set the cross compile prefix'
+            return False
+
+        board = self.analysis_manager.firmware.get_board() # decided in bfilter
+        arch = self.analysis_manager.firmware.get_arch() # decided in bfilter
+        a_a_b = 'arch/{}/{}'.format(arch, board)
+        self.info('-d {} automatically by bfilter'.format(board), 1)
+        if target_dirs is None:
+            target_dirs = [a_a_b]
+        else:
+            target_dirs.append(a_a_b)
+
+        self.load_user_fcbs()
+        self.update_generic_fcbs()
 
         # load all symbols
         failed_cases = 0
@@ -146,19 +166,17 @@ class TraverseKernel(Analysis):
                 allowed = True
                 if self.is_in_dirs_blacklist(absolute):
                     allowed = False
-
                 if not self.is_in_files_whitelist(absolute, files_whitelist):
                     allowed = False
-                
                 if target_files is not None and \
                         self.is_in_files_whitelist(absolute, target_files):
                     allowed = True
-
                 if target_dirs is not None and \
                         self.is_in_dirs_whitelist(absolute, target_dirs):
                     allowed = True
 
                 if not allowed:
+                    self.debug('relative {} is not allowed'.format(relative), 0)
                     continue
 
                 cmdline = srcodec.get_cmdline(relative)
@@ -174,6 +192,7 @@ class TraverseKernel(Analysis):
                 self.info('[done] {}'.format(relative), 1)
 
         # walk kernel
+        # load all customized configs
         if entrypoint is None:
             entrypoint = 'start_kernel'
         self.walk_kernel(entrypoint, fcbs=generic_fcbs, depth=0)
@@ -182,12 +201,40 @@ class TraverseKernel(Analysis):
             self.warning('{} failed cases'.format(failed_cases), 0)
 
         if len(self.unknown_list) > 0:
-            self.info('You may add the unknown functions below to the skip list', 1)
-            self.info(str(list(set(self.unknown_list))), 1)
-
+            self.info('update unknown functions in {}.fcbs'.format(self.last_user_fcbs), 1)
+            user_fcbs = {}
+            for unknown_func in list(set(self.unknown_list)):
+                user_fcbs[unknown_func] = {
+                    'skipped': False,
+                    'extend': [],
+                }
+            yaml.safe_dump(user_fcbs, open('{}.fcbs'.format(self.last_user_fcbs), 'w'))
         if len(self.unhandled_list) > 0:
             self.info('You may add handlers for the functions below', 1)
             self.info(str(list(set(self.unhandled_list))), 1)
 
+        self.info('Please -a to check intermediate functions whether they are visited', 1)
+        self.info('Otherwise, you should add file(s)/dir(s) that contain those functions', 1)
+
         self.dump_slicing()
         return True
+    
+    def load_user_fcbs(self):
+        for i in range(0, 100):
+            if not os.path.exists('{}.fcbs'.format(i)):
+                continue
+            user_fcbs_i = yaml.safe_load(open('{}.fcbs'.format(i)))
+            for k, v in user_fcbs_i.items():
+                if 'skipped' in v and v['skipped']:
+                    self.user_fcbs[k] = {'ignored': True}
+                    continue
+                if 'extend' in v and len(v['extend']) != 0:
+                    self.user_fcbs[k] = {'handler': generic_indirect_call_handler, 'extend': v['extend']}
+                    continue
+                self.user_fcbs[k] = {'handler': generic_slicing_handler}
+            self.info('load {}.fcbs'.format(i), 1)
+            self.last_user_fcbs = i + 1
+
+    def update_generic_fcbs(self):
+        for k, v in self.user_fcbs.items():
+            generic_fcbs[k] = v

@@ -1,3 +1,3 @@
 bootingcmd:
     analyses: [Unpack, DTPreprocessing, Preparation, PBtngCMD]
-    description: ''
+    description: 'Print booting command line.'

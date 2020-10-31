@@ -10,9 +10,7 @@ class Project(object):
             'rootfs_dir': kwargs.pop('rootfs_dir'),
             'qemu_dir': kwargs.pop('qemu_dir'),
             'logname': kwargs.pop('logname'),
+            # TODO
             # 'llvm_dir': kwargs.pop('llvm_dir'),
-            # 'sparse_dir': kwargs.pop('sparse_dir'),
-            # TODO: remove cross_compile and makeout later
-            'cross_compile': kwargs.pop('cross_compile', None),
-            'makeout': kwargs.pop('makeout', None)
+            'sparse_dir': kwargs.pop('sparse_dir'),
         }

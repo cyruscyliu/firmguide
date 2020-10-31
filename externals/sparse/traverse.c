@@ -1,113 +1,160 @@
-/* 
- * Sparse traverse
- * 
- * Copyright (C) 2020 Qiang Liu <qiangliu@zju.edu.cn>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-#include <stdarg.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <fcntl.h>
+#include "dissect.h"
 
-#include "lib.h"
-#include "allocate.h"
-#include "token.h"
-#include "parse.h"
-#include "symbol.h"
-#include "expression.h"
-#include "linearize.h"
+int counter = 0;
+bool start = false;
+unsigned curr_stream = -1;
 
-
-static void func_traversal(struct entrypoint *ep)
+static inline const char *show_mode(unsigned mode)
 {
-	struct basic_block *bb;
-	struct instruction *insn;
+	static char str[3];
 
-	const char *fname, *sname;
-	int i = 0;
+	if (mode == -1)
+		return "def";
 
-	fname = show_ident(ep->name->ident);
-	sname = stream_name(ep->entry->bb->pos.stream);
+#define	U(u_r)	"-rwm"[(mode / u_r) & 3]
+	str[0] = U(U_R_AOF);
+	str[1] = U(U_R_VAL);
+	str[2] = U(U_R_PTR);
+#undef	U
 
-	printf("subgraph cluster%p {\n"
-	       "    color=blue;\n"
-	       "    label=<<TABLE BORDER=\"0\" CELLBORDER=\"0\">\n"
-	       "             <TR><TD>%s</TD></TR>\n"
-	       "             <TR><TD><FONT POINT-SIZE=\"21\">%s()</FONT></TD></TR>\n"
-	       "           </TABLE>>;\n"
-	       "    file=\"%s\";\n"
-	       "    fun=\"%s\";\n",
-	       ep, sname, fname, sname, fname);
+	return str;
+}
 
-	FOR_EACH_PTR(ep->bbs, bb) {
-		/* List loads and stores */
-		FOR_EACH_PTR(bb->insns, insn) {
-			if (!insn->bb)
-				continue;
-			switch(insn->opcode) {
-			case OP_CALL:
-				printf("    \"%s\" -> \"%s\" [label=%d]\n", show_ident(ep->name->ident),
-					  show_ident(insn->func->ident), i);
-				i++;
-				break;
-			case OP_INLINED_CALL:
-				printf("    \"%s\" -> \"%s\" [label=%d]\n", show_ident(ep->name->ident),
-					  show_ident(insn->func->ident), i);
-				i++;
-				break;
+static void r_symbol(unsigned mode, struct position *pos, struct symbol *sym)
+{
+	// prepare
+	static struct ident null;
+	struct ident *ctx = &null;
+	if (dissect_ctx)
+		ctx = dissect_ctx->ident;
+
+	if (!sym->ident)
+		sym->ident = built_in_ident("__asm__");
+
+	// detect function
+	if (ctx->len == 0) {
+		// not in function
+		// keep function definition
+		if (mode == -1 && sym->kind == 'f') {
+			if (start)
+				printf("}\n\n");
+			if (curr_stream != pos->stream) {
+				curr_stream = pos->stream;
 			}
-		} END_FOR_EACH_PTR(insn);
-	} END_FOR_EACH_PTR(bb);
-	printf("}\n");
+			// caller: sym->ident->name
+			printf("subgraph \"%s\" {\n"
+			       "    color=blue;\n"
+			       "    label=<<TABLE BORDER=\"0\" CELLBORDER=\"0\">\n"
+			       "             <TR><TD>%s</TD></TR>\n"
+			       "             <TR><TD><FONT POINT-SIZE=\"21\">%s()</FONT></TD></TR>\n"
+			       "           </TABLE>>;\n"
+			       "    file=\"%s\";\n"
+			       "    fun=\"%s\";\n",
+			       sym->ident->name,
+			       stream_name(curr_stream), sym->ident->name,
+			       stream_name(curr_stream), sym->ident->name);
+			start = true;
+			counter = 0;
+			return;
+		} else
+			return;
+	} else {
+		// in function
+		// remove variable defined in caller
+		// keep callees in caller 
+		if (sym->kind == 'v')
+			return;
+	}
+	// caller: ctx->name
+	// callee: sym->ident->name
+	printf("    \"%s\" -> \"%s\" [label=%d, line=%d, pos=%d, kind=%d]\n",
+	       ctx->name, sym->ident->name, counter++,
+	       pos->line, pos->pos, sym->kind);
+
+	switch (sym->kind) {
+	case 's':
+		if (sym->type == SYM_STRUCT || sym->type == SYM_UNION)
+			break;
+		goto err;
+
+	case 'f':
+		if (sym->type != SYM_BAD && sym->ctype.base_type->type != SYM_FN)
+			goto err;
+	case 'v':
+		if (sym->type == SYM_NODE || sym->type == SYM_BAD)
+			break;
+		goto err;
+	default:
+		goto err;
+	}
+
+	return;
+err:
+	warning(*pos, "r_symbol bad sym type=%d kind=%d", sym->type, sym->kind);
+}
+
+static void r_member(unsigned mode, struct position *pos, struct symbol *sym, struct symbol *mem)
+{
+	struct ident *ni, *si, *mi;
+
+	static struct ident null;
+	struct ident *ctx = &null;
+	if (dissect_ctx)
+		ctx = dissect_ctx->ident;
+
+	// remove struct member defined in caller
+	if (ctx->len == 0)
+		return;
+
+	ni = built_in_ident("?");
+	si = sym->ident ?: ni;
+	/* mem == NULL means entire struct accessed */
+	mi = mem ? (mem->ident ?: ni) : built_in_ident("*");
+
+	// remove struct member used but not pointered
+	const char *mode_str = show_mode(mode);
+	if (mode_str[2] != 'r')
+		return;
+
+	printf("    \"%s\" -> \"%s.%s\" [label=%d, line=%d, pos=%d, kind=%d]\n",
+	       ctx->name, si->name, mi->name, counter++,
+	       pos->line, pos->pos, sym->kind);
+
+	if (sym->ident && sym->kind != 's')
+		warning(*pos, "r_member bad sym type=%d kind=%d", sym->type, sym->kind);
+	if (mem && mem->kind != 'm')
+		warning(*pos, "r_member bad mem->kind = %d", mem->kind);
+}
+
+static void r_symdef(struct symbol *sym)
+{
+	r_symbol(-1, &sym->pos, sym);
+}
+
+static void r_memdef(struct symbol *sym, struct symbol *mem)
+{
+	r_member(-1, &mem->pos, sym, mem);
 }
 
 int main(int argc, char **argv)
 {
+	static struct reporter reporter = {
+		.r_symdef = r_symdef,
+		.r_memdef = r_memdef,
+		.r_symbol = r_symbol,
+		.r_member = r_member,
+	};
+
 	struct string_list *filelist = NULL;
-	char *file;
-	struct symbol *sym;
-
-	struct symbol_list *fsyms, *all_syms=NULL;
-
-	printf("digraph function_graph {\n");
-	fsyms = sparse_initialize(argc, argv, &filelist);
-	concat_symbol_list(fsyms, &all_syms);
-
-	FOR_EACH_PTR(filelist, file) {
-		fsyms = sparse(file);
-		concat_symbol_list(fsyms, &all_syms);
-
-		FOR_EACH_PTR(fsyms, sym) {
-			expand_symbol(sym);
-			linearize_symbol(sym);
-		} END_FOR_EACH_PTR(sym);
-
-		FOR_EACH_PTR(fsyms, sym) {
-			if (sym->ep) {
-				func_traversal(sym->ep);
-			}
-		} END_FOR_EACH_PTR(sym);
-	} END_FOR_EACH_PTR(file);
+	sparse_initialize(argc, argv, &filelist);
+	printf("digraph function_graph {\n"
+	       "       rankdir=LR\n"
+	       "       ratio=compress\n");
+	dissect(&reporter, filelist);
+	if (start)
+		printf("}\n");
 	printf("}\n");
+
 	return 0;
 }

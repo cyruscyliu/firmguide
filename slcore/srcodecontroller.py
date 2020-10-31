@@ -12,7 +12,7 @@ BACKUP, PATCH, COMPILE, LINK = 0, 1, 2, 3
 
 SOURCE_CODE_ATTRIBUTES = [
     'path_to_source_code', 'path_to_cross_compile',
-    'path_to_makeout', 'arch', 'endian', 'path_to_vmlinux',
+    'path_to_makeout', 'path_to_vmlinux',
     'system_map', 'path_to_dot_config'
 ]
 
@@ -89,8 +89,8 @@ class SRCodeController(Common):
         self.set_attributes(SOURCE_CODE_ATTRIBUTES)
         self.config = {}
 
-    def symbol2fileg(self, symbol, relative=True):
-        search_in = os.path.join(self.path_to_source_code, 'arch/{}'.format(self.arch))
+    def symbol2fileg(self, symbol, arch, relative=True):
+        search_in = os.path.join(self.path_to_source_code, 'arch/{}'.format(arch))
         search_in2 = os.path.join(self.path_to_source_code, 'drivers')
 
         f = None
@@ -297,7 +297,7 @@ class SRCodeController(Common):
                 # self.warning(firmware, '{} -> {}(global used before defined)'.format(caller, g), 1)
                 # pass
 
-def get_srcodecontroller(source, cross_compile, arch, endian, makeout=None):
+def get_srcodecontroller(source, cross_compile=None, makeout=None):
     srcodec = SRCodeController()
 
     srcodec.set_path_to_source_code(source)
@@ -308,7 +308,5 @@ def get_srcodecontroller(source, cross_compile, arch, endian, makeout=None):
     else:
         srcodec.supported = False
     srcodec.set_path_to_cross_compile(cross_compile)
-    srcodec.set_arch(arch)
-    srcodec.set_endian(endian)
     srcodec.set_path_to_makeout(makeout)
     return srcodec
