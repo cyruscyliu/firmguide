@@ -1,0 +1,247 @@
+adm5120:
+  device_tree: false
+  targets:
+    openwrt:
+    - adm5120
+adm8668:
+  device_tree: null
+  machine_ids: {}
+  targets:
+    openwrt:
+    - adm8668
+alchemy:
+  device_tree: false
+  targets:
+    openwrt:
+    - au1000
+amazon:
+  device_tree: null
+  machine_ids: {}
+  targets:
+    openwrt:
+    - amazon
+ar231x:
+  device_tree: false
+  targets:
+    openwrt:
+    - atheros
+ar25:
+  deivce_tree: false
+ar7:
+  device_tree: true
+  targets:
+    openwrt:
+    - ar7
+ath25:
+  device_tree: null
+  machine_ids: {}
+  targets:
+    openwrt:
+    - ath25
+ath79:
+  device_tree: true
+  support_list:
+    buffalo,whr-g301n:
+      arch: mips
+      brand: openwrt
+      endian: b
+      example: examples/machines/qca_ar7240
+      loaddr: '0x80060000'
+      realdtb: slcore/database/archivedtb/qca_ar7240.dtb
+      subtarget: tiny
+      target: ath79
+    librerouter,librerouter-v1:
+      arch: mips
+      brand: openwrt
+      endian: b
+      example: examples/machines/qca_qca9558
+      loaddr: '0x80060000'
+      realdtb: slcore/database/archivedtb/qca_qca9558.dtb
+      subtarget: generic
+      target: ath79
+    qca,ar7240:
+      arch: mips
+      brand: openwrt
+      endian: b
+      example: examples/machines/qca_ar7240
+      loaddr: '0x80060000'
+      realdtb: slcore/database/archivedtb/qca_ar7240.dtb
+      subtarget: tiny
+      target: ath79
+    qca,qca9558:
+      arch: mips
+      brand: openwrt
+      endian: b
+      example: examples/machines/qca_qca9558
+      loaddr: '0x80060000'
+      realdtb: slcore/database/archivedtb/qca_qca9558.dtb
+      subtarget: generic
+      target: ath79
+  targets:
+    openwrt:
+    - ar71xx
+    - ath79
+    - ath79
+bcm47xx:
+  device_tree: false
+  targets:
+    openwrt:
+    - brcm47xx
+bcm63xx:
+  device_tree: false
+  targets:
+    openwrt:
+    - brcm63xx
+bcm947xx:
+  device_tree: null
+  machine_ids: {}
+  targets:
+    openwrt:
+    - brcm-2.4
+bmips:
+  device_tree: true
+cavium-octeon:
+  device_tree: true
+  targets:
+    openwrt:
+    - octeon
+cobalt:
+  device_tree: false
+  targets:
+    openwrt:
+    - cobalt
+dec:
+  device_tree: false
+emma:
+  device_tree: false
+ifxmips:
+  device_tree: null
+  machine_ids: {}
+  targets:
+    openwrt:
+    - ifxmips
+jazz:
+  device_tree: false
+jz4740:
+  device_tree: true
+  targets:
+    openwrt:
+    - xburst
+lantiq:
+  device_tree: true
+  targets:
+    openwrt:
+    - lantiq
+lasat:
+  device_tree: false
+loongson:
+  device_tree: false
+loongson1:
+  device_tree: false
+loongson32:
+  device_tree: false
+loongson64:
+  device_tree: false
+mti-malta:
+  device_tree: true
+  targets:
+    openwrt:
+    - malta
+mti-sead3:
+  device_tree: true
+netlogic:
+  device_tree: false
+  targets:
+    openwrt:
+    - netlogic
+paravirt:
+  device_tree: false
+pistachio:
+  device_tree: true
+  targets:
+    openwrt:
+    - pistachio
+pmcs-msp71xx:
+  device_tree: false
+pnx833x:
+  device_tree: false
+ralink:
+  device_tree: true
+  support_list:
+    3G-6200N:
+      arch: mips
+      brand: openwrt
+      endian: l
+      example: examples/machines/ralink_rt3050_soc
+      loaddr: '0x80000000'
+      realdtb: slcore/database/archivedtb/ralink_rt3050_soc.dtb
+      subtarget: rt305x
+      target: ramips
+    BR-6475ND:
+      arch: mips
+      brand: openwrt
+      endian: l
+      example: examples/machines/ralink_rt3883_soc
+      loaddr: '0x80000000'
+      realdtb: slcore/database/archivedtb/ralink_rt3883_soc.dtb
+      subtarget: rt3883
+      target: ramips
+    mediatek,linkit-smart-7688:
+      arch: mips
+      brand: openwrt
+      endian: l
+      example: examples/machines/mediatek_mt7628an_soc
+      realdtb: slcore/database/archivedtb/mediatek_mt7628an_soc.dtb
+      subtarget: mt76x8
+      target: ramips
+    mediatek,mt7628an-soc:
+      arch: mips
+      brand: openwrt
+      endian: l
+      example: examples/machines/mediatek_mt7628an_soc
+      realdtb: slcore/database/archivedtb/mediatek_mt7628an_soc.dtb
+      subtarget: mt76x8
+      target: ramips
+    ralink,rt3050-soc:
+      arch: mips
+      brand: openwrt
+      endian: l
+      example: examples/machines/ralink_rt3050_soc
+      loaddr: '0x80000000'
+      realdtb: slcore/database/archivedtb/ralink_rt3050_soc.dtb
+      subtarget: rt305x
+      target: ramips
+    ralink,rt3883-soc:
+      arch: mips
+      brand: openwrt
+      endian: l
+      example: examples/machines/ralink_rt3883_soc
+      loaddr: '0x80000000'
+      realdtb: slcore/database/archivedtb/ralink_rt3883_soc.dtb
+      subtarget: rt3883
+      target: ramips
+  targets:
+    openwrt:
+    - ramips
+rb532:
+  device_tree: false
+  targets:
+    openwrt:
+    - rb532
+sgi-ip22:
+  device_tree: false
+sgi-ip27:
+  device_tree: false
+sgi-ip32:
+  device_tree: false
+sibyte:
+  device_tree: false
+  targets:
+    openwrt:
+    - sibyte
+sni:
+  device_tree: false
+txx9:
+  device_tree: false
+vr41xx:
+  device_tree: false
