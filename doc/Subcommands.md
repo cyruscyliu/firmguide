@@ -92,6 +92,16 @@ checks user-mode and shell indicators,
 and delete the QEMU trace finally.
 If the test is failed, neither further analysis nor QEMU GDB interface is available.
 
+If the `upload` is failed, you may take one or several following steps.
++ There is no device tree avaiable.
+> If you have another firmware image with device tree, use it.
+Othersize, the firmware image cannot be supported.
++ There is one or two peripherals unsupported, and the synthesis of QEMU virtual machine is failed.
+> Please report it, or you can manually support the peripherals.
+Please check [Template and Parameters](TemplateAndParameters.md#template-and-parameters).
++ Any other troubles should be caused by bugs in FirmGuide.
+> Please report them to us.
+
 ```txt
 root@esv:~/firmguide# ./firmguide upload -f examples/62771d14b82e554a95d048af99866c404acb196f.bin
 2020-10-16 09:20:04,208 - INFO - AnalysesManager - chain cont'd - bfilter(invalid)->msearch(invalid)->unpack->preprocdt->synthesisdt
