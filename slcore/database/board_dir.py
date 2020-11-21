@@ -17,7 +17,7 @@ def find_board_dir_s(strings, arch):
     # TODO the signature should be refined because of too much FP
     signature = yaml.safe_load(open(os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        'signature.{}.yaml'.format(arch))))
+        'by_board_dir', 'signature.{}.yaml'.format(arch))))
 
     # construct
     target_strings = {}
