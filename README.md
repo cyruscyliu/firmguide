@@ -1,31 +1,37 @@
 # FirmGuide
 
-FirmGuide is a project aiming to boost the capability of dynamic analysis
-of the Linux kernel for embedded system in virtual execution environment.
-In the virtual execution environment, you can debug, trace, and test
+FirmGuide is a set of tools
+that help you to quickly develop an embedded QEMU emulator or virtual machine
+for a Linux-based embedded system,
+especially boosting the capability of dynamic analysis of the corresponding Linux kernel.
+
+In the emulator, you can debug, trace, and test
 the Linux kernel to collect runtime information that can be used to
-understand vulnerabilities, PoCs, root causes of crashes happend in the Linux kernel.
-FirmGuide is an effectively complementary dynamic analysis platform to Firmadyne
+understand vulnerabilities, PoCs, root causes of crashes in the Linux kernel.
+FirmGuide is an effectively complementary to Firmadyne
 that focuses on user space programs - FirmGuide focuses on the Linux kernel.
 
-To support the Linux kernel, FirmGuide generates a QEMU virtual machine for it,
-which is quite easy to understand, to fully control of the Linux kernel.
-The QEMU virtual machine is generated automatically according to the list of hardware
+The emulator can be automatically generated according to the list of hardware
 described in the device tree blob packed together with the Linux kernel image.
 FirmGuide searches the implementation of each hardware in a database,
 composites all the implementation together to be compiled with QEMU source tree.
+FirmGuide cannot handle the images without device tree blobs.
 
-Yes, you are supposed to provide the specific implementation of hardware in the database.
-There are many ways to achicve that.
-First, you can read datasheet and implement all functionality of that hardware.
-Second, you can follow our paper where we provide several brand new insights to develop virtual hardware.
-However, it is still an open research question to virtualize hardware in an automatical and scalable way.
-Hope you can find a better solution!
+In theory, each part of the emulator, that is, the implementation of each hardware,
+is supposed to be provided manually and precisely. However, FirmGuide tells us
+only the interrupt controller, the timer and the serial are necessary
+to boot a Linux kernel and to spawn a shell finally.
+Focus on the three hardware and FirmGuide will handle all other hardware for you.
+
+We have three policies to deal with each of the three necessary hardware.
+1. If QEMU has supported that hardware, use it.
+2. If not, you can follow our paper to automatically generate what FirmGuide needs.
+3. Otherwise, you can read its datasheet and seed a patch to QEMU, then going back to policy 1.
 
 ## Install
 
 ```bash
-git clone xxx; cd firmguide; make
+git clone xxx --depth=1; cd firmguide; make
 ```
 
 ## Usage
