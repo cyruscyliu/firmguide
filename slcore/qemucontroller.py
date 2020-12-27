@@ -318,4 +318,6 @@ class QEMUController(Common):
 
 
 def get_qemucontroller(qemu_root, version='4.0.0'):
+    if version is None:
+        return None
     return QEMUController(qemu_root, version=version)
