@@ -46,6 +46,15 @@ The basic unit of FirmGuide is to convert a device tree file to a QEMU virtual m
 root@esv:~/firmguide# ./firmguide synthesize -dtb examples/plxtech_nas782x.dtb
 ```
 
+## Tools
+
+Given the source of Linux kernel and the makeout.txt, you can recompile and
+generate intermediate files (.i) of an file that contains a specific function.
+
+``` bash
+./firmguide analysrc -s /path/to/source -cc /path/to/cross_compile_prefix --e start_kernel
+```
+
 ## Virtual hardware development
 
 To develop a virtual hardware, 
