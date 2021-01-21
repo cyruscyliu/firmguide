@@ -36,7 +36,7 @@ class DTPreprocessing(Analysis):
         self.info('board id {} is chosen automatically'.format(board_id), 1)
 
         # arch
-        cpu = find_flatten_cpu_in_fdt(dts) 
+        cpu = find_flatten_cpu_in_fdt(dts)
         if cpu is None:
             self.error_info = 'invalid dtb, no processor is available'
             return False
@@ -49,8 +49,14 @@ class DTPreprocessing(Analysis):
             self.analysis_manager.firmware.set_kernel_load_address('0x00008000')
             self.info('load address 0x00008000 is chosen automatically', 1)
         else:
-            self.error_info = 'please set -e for endian and -ld for load adress'
-            return False
+            # mips
+            endian = kwargs.pop('endian')
+            load = kwargs.pop('load')
+            if not (endian and load):
+                self.error_info = 'please set -e for endian and -ld for load address'
+                return False
+            self.analysis_manager.firmware.set_endian(endian)
+            self.analysis_manager.firmware.set_kernel_load_address(load)
 
         # uart count
         self.analysis_manager.firmware.set_uart_num(len(find_flatten_serial_in_fdt(dts) or []))
