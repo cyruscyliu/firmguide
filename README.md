@@ -30,20 +30,31 @@ We have three policies to deal with each of the three necessary hardware.
 
 ## Install
 
-```bash
-git clone xxx --depth=1; cd firmguide; make
+``` bash
+git clone xxx --depth=1; cd firmguide; make; make qemu sparse
 ```
+
+If you just use [Tools](#Tools) of FirmGuide, please just `make`. There is no
+need to install `qemu` and `sparse`.
 
 ## Usage
 
 > FirmGuide is a command-oriented tool like `git`.
 Please look at [Subcommand](doc/Subcommand.md) for more information.
 
-The basic unit of FirmGuide is to convert a device tree file to a QEMU virtual machine.
-`synthesize` will generate and compile the QEMU virtual machine automatically.
+The basic of FirmGuide is to convert a device tree file to a QEMU virtual
+machine. `synthesize` will generate and compile the QEMU virtual machine
+automatically.
 
-``` txt 
-root@esv:~/firmguide# ./firmguide synthesize -dtb examples/plxtech_nas782x.dtb
+``` bash
+./firmguide synthesize -dtb examples/plxtech_nas782x.dtb
+```
+
+Upon `synthesize`, you can upload a firmware image then. For mips, you are
+supposed to provide `-e` and `-ld` (`./firmguide loaddr`) as well.
+
+``` bash
+./firmguide upload -f /path/to/a/firmware/image
 ```
 
 ## Tools
