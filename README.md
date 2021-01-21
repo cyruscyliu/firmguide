@@ -43,8 +43,7 @@ need to install `qemu` and `sparse`.
 Please look at [Subcommand](doc/Subcommand.md) for more information.
 
 The basic of FirmGuide is to convert a device tree file to a QEMU virtual
-machine. `synthesize` will generate and compile the QEMU virtual machine
-automatically.
+machine.
 
 ``` bash
 ./firmguide synthesize -dtb examples/plxtech_nas782x.dtb
@@ -59,11 +58,12 @@ supposed to provide `-e` and `-ld` (`./firmguide loaddr`) as well.
 
 ## Tools
 
-Given the source of Linux kernel and the makeout.txt, you can recompile and
-generate intermediate files (.i) of an file that contains a specific function.
+Given the source of Linux kernel with a makeout.txt (`make -Bnk`) in the same
+directory, you can generate the preprocessed file (.i) of an file that contains
+a specific function. Please assign the cross compiler at the same time.
 
 ``` bash
-./firmguide analysrc -s /path/to/source -cc /path/to/cross_compile_prefix --e start_kernel
+./firmguide analysrc -s /path/to/source -cc /path/to/cross_compile_prefix -e start_kernel
 ```
 
 ## Virtual hardware development
