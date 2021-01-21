@@ -81,8 +81,6 @@ if __name__ == '__main__':
     project_args['qemu_dir'] = check_and_load('qemu')
     project_args['sparse_dir'] = check_and_load('sparse')
     project_args['llvm_dir'] = check_and_load('llvmbin')
-    if project_args['qemu_dir'] is None:
-        print('warning: please make to use more tools')
     project = Project(**project_args)
 
     # #########################################
