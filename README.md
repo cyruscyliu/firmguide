@@ -46,7 +46,13 @@ The basic of FirmGuide is to convert a device tree file to a QEMU virtual
 machine.
 
 ``` bash
-./firmguide synthesize -dtb examples/plxtech_nas782x.dtb
+./firmguide synthesize -dtb /path/to/dtb
+```
+
+For mips, you should provide `-e` and `-ld` (`./firmguide loaddr`).
+
+``` bash
+./firmguide -e l -ld 0x80000000 synthesize -dtb /path/to/dtb
 ```
 
 Upon `synthesize`, you can upload a firmware image then. 
@@ -63,7 +69,7 @@ For mips, you should provide `-e` and `-ld` (`./firmguide loaddr`) as well.
 
 ## Tools
 
-Give a firmware image, you can unpack it to list pathnames of the Linux kernel
+Given a firmware image, you can unpack it to list pathnames of the Linux kernel
 and the device tree blob, and usually of the uImage.
 
 ``` bash

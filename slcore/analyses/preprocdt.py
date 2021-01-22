@@ -28,7 +28,7 @@ class DTPreprocessing(Analysis):
 
         # machine name: must exist
         compatible = find_compatible_in_fdt(dts)
-        self.analysis_manager.firmware.set_machine_name('_'.join([
+        self.analysis_manager.firmware.set_machine_name('fg_' + '_'.join([
             comptb.replace(',', '_').replace('-', '_') for comptb in compatible]))
         # TODO update board_id
         board_id = query_board_id_by_compatible(compatible)
