@@ -2,7 +2,7 @@ install:
     help: "Plugin - Install after synthesis for debugging."
     optional:
         machine_name: {short: n, help: "Set machine name.", required: false}
-        machine_files: {short: f, help: "Set machine files.", required: True}
+        machine_source: {short: s, help: "Set machine files.", required: True}
     callback: standaloneinstall
 debugsrc:
     help: "Plugin - Add and delete QEMU source for debugging."
