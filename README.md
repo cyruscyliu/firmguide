@@ -49,11 +49,16 @@ machine.
 ./firmguide synthesize -dtb examples/plxtech_nas782x.dtb
 ```
 
-Upon `synthesize`, you can upload a firmware image then. For mips, you are
-supposed to provide `-e` and `-ld` (`./firmguide loaddr`) as well.
+Upon `synthesize`, you can upload a firmware image then. 
 
 ``` bash
 ./firmguide upload -f /path/to/a/firmware/image
+```
+
+For mips, you should provide `-e` and `-ld` (`./firmguide loaddr`) as well.
+
+``` bash
+./firmguide -e l -ld 0x80000000 upload -f /path/to/a/firmware/image
 ```
 
 ## Tools
