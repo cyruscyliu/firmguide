@@ -63,6 +63,13 @@ For mips, you should provide `-e` and `-ld` (`./firmguide loaddr`) as well.
 
 ## Tools
 
+Give a firmware image, you can unpack it to list pathnames of the Linux kernel
+and the device tree blob, and usually of the uImage.
+
+``` bash
+./firmguide unpack -f /path/to/a/firmware/image
+```
+
 Given the source of Linux kernel with a makeout.txt (`make -Bnk`) in the same
 directory, you can generate the preprocessed file (.i) of an file that contains
 a specific function. Please assign the cross compiler at the same time.
