@@ -170,8 +170,18 @@ brcm,bcm4708-sysram:
   buddy_compatible: []
   extend: mmio,generic
 brcm,bus-axi:
-  buddy_compatible: []
-  extend: mmio,generic
+  external: true
+  external_header: examples/hardware/brcm_bus_axi/include/hw/net/brcm_bus_axi.h
+  external_source: examples/hardware/brcm_bus_axi/hw/net/brcm_bus_axi.c
+  external_type: net
+  get_body: ['object_initialize(&s->brcm_bus_axi{{ id }}, sizeof(s->brcm_bus_axi{{
+      id }}), TYPE_BRCM_BUS_AXI);', 'qdev_set_parent_bus(DEVICE(&s->brcm_bus_axi{{
+      id }}), sysbus_get_default());', 'object_property_set_bool(OBJECT(&s->brcm_bus_axi{{
+      id }}), true, "realized", &err);', 'sysbus_mmio_map_overlap(SYS_BUS_DEVICE(&s->brcm_bus_axi{{
+      id }}), 0, {{ reg.base|to_hex }}, -1);']
+  get_connection: []
+  get_field: ['BRCM_BUS_AXIState brcm_bus_axi{{ id }};']
+  get_header: [hw/net/brcm_bus_axi.h]
 cdns,emac:
   buddy_compatible: ['cdns,at91rm9200-emac']
   extend: mmio,generic
@@ -513,21 +523,22 @@ mmio,generic:
   get_reset: ['s->{{ name }}{{ id }}_reserved[{{ register.offset|to_hex }} >> 2] =
       {{ register.value|to_hex }};']
   get_suite: ["static void {{ name }}{{ id }}_update(void *opaque)\n{\n    /* {{ machine_name|to_upper\
-      \ }}State *s = opaque; */\n}\n\nstatic uint64_t {{ name }}{{ id }}_read(void\
-      \ *opaque, hwaddr offset, unsigned size)\n{\n    {{ machine_name|to_upper }}State\
-      \ *s = opaque;\n    uint32_t res = 0;\n\n    switch (offset) {\n    default:\n\
-      \        qemu_log_mask(LOG_GUEST_ERROR, \"%s: Bad offset %\"HWADDR_PRIx\"\\\
-      n\", __func__, offset);\n        return 0;\n    case {{ reg.size|to_offset }}:\n\
-      \        res = s->{{ name }}{{ id }}_reserved[offset >> 2];\n        break;\n\
-      \    }\n    return res;\n}\n\nstatic void {{ name }}{{ id }}_write(void *opaque,\
-      \ hwaddr offset, uint64_t val, unsigned size)\n{\n    {{ machine_name|to_upper\
-      \  }}State *s = opaque;\n\n    switch (offset) {\n    default:\n        qemu_log_mask(LOG_GUEST_ERROR,\
-      \ \"%s: Bad offset %\"HWADDR_PRIx\"\\n\", __func__, offset);\n        return;\n\
-      \    case {{ reg.size|to_offset }}:\n        s->{{ name }}{{ id }}_reserved[offset\
-      \ >> 2] = val;\n        break;\n    }\n    {{ name }}{{ id }}_update(s);\n}\n\
-      \nstatic const MemoryRegionOps {{ name }}_ops{{ id }} = {\n    .read = {{ name\
-      \ }}{{ id }}_read,\n    .write = {{ name }}{{ id }}_write,\n    .endianness\
-      \ = {{ endian|to_endian }},\n};"]
+      \ }}State *s = opaque; */\n}\n\nstatic uint64_t {{ name }}{{ id }}_read(void *opaque,\
+      \ hwaddr offset, unsigned size)\n{\n    qemu_log(\"[R] {{ name }} 0x%lx 0x%x\\n\", \
+      \ offset, size);\n    {{ machine_name|to_upper }}State *s = opaque;\n  \
+      \  uint32_t res = 0;\n\n    switch (offset) {\n    default:\n        qemu_log_mask(LOG_GUEST_ERROR,\
+      \ \"%s: Bad offset %\"HWADDR_PRIx\"\\n\", __func__, offset);\n        return 0;\n\
+      \    case {{ reg.size|to_offset }}:\n        res = s->{{ name }}{{ id }}_reserved[offset\
+      \ >> 2];\n        break;\n    }\n    return res;\n}\n\nstatic void {{ name }}{{\
+      \ id }}_write(void *opaque, hwaddr offset, uint64_t val, unsigned size)\n{\n \
+      \   qemu_log(\"[W] {{ name }} 0x%lx 0x%x 0x%x\\n\", offset, val, size);\n\
+      \    {{ machine_name|to_upper  }}State *s = opaque;\n\n    switch (offset) {\n\
+      \    default:\n        qemu_log_mask(LOG_GUEST_ERROR, \"%s: Bad offset %\"HWADDR_PRIx\"\
+      \\n\", __func__, offset);\n        return;\n    case {{ reg.size|to_offset }}:\n\
+      \        s->{{ name }}{{ id }}_reserved[offset >> 2] = val;\n        break;\n\
+      \    }\n    {{ name }}{{ id }}_update(s);\n}\n\nstatic const MemoryRegionOps {{\
+      \ name }}_ops{{ id }} = {\n    .read = {{ name }}{{ id }}_read,\n    .write =\
+      \ {{ name }}{{ id }}_write,\n    .endianness = {{ endian|to_endian }},\n};\n"]
   parameters: [name, regs, endian]
 mmio-sram:
   buddy_compatible: []
