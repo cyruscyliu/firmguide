@@ -5,7 +5,7 @@ from slcore.render import Template
 from slcore.database.dbf import get_database
 
 
-EXTERNAL_TEMPLATE_VERSION = 2
+EXTERNAL_TEMPLATE_VERSION = os.getenv('EXTERNAL_TEMPLATE_VERSION', 2)
 
 
 def to_qemu_endian(endian):

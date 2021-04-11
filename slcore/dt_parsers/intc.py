@@ -23,6 +23,8 @@ COMPATIBLE_INTERRUPTS_INDEX = {
     'nvidia,tegra210-agic': 1,
     'qcom,msm-8660-qgic': 1,
     'qcom,msm-qgic2': 1,
+    'brcm,bcm2836-l1-intc': 1,
+    'brcm,bcm2836-armctrl-ic': 1,
 }
 
 

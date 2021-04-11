@@ -17,6 +17,7 @@ arm,cortex-a5:
 arm,cortex-a53:
   buddy_compatible: []
   extend: arm,generic
+  get_type: cortex-a53
 arm,cortex-a7: {extend: 'arm,generic', get_type: cortex-a7}
 arm,cortex-a72:
   buddy_compatible: []

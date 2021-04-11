@@ -4,7 +4,15 @@ altr,uart-1.0: {extend: 'serial,generic'}
 amlogic,meson-ao-uart: {extend: 'serial,generic'}
 amlogic,meson-uart: {extend: 'serial,generic'}
 arm,mps2-uart: {extend: 'serial,generic'}
-arm,pl011: {extend: 'serial,generic'}
+arm,pl011: {
+  get_body: [
+    'pl011_create({{ reg.base|to_hex }}, {{ intcp.get_irqn }}, serial_hd({{ sid }}));'], 
+  get_header: ['hw/char/pl011.h'],
+  parameters: ['regs', 'sid'],
+  get_connection: [],
+  get_field: []
+}
+arm,primecell: {extend: 'arm,pl011'}
 arm,sbsa-uart: {extend: 'serial,generic'}
 brcm,bcm6345-uart: {extend: 'serial,generic'}
 cdns,uart-r1p12: {extend: 'serial,generic'}

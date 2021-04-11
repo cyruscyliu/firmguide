@@ -41,6 +41,8 @@ class DiscloseDT(Analysis):
                 self.info(message, 1)
 
         for timer in find_flatten_timer_in_fdt(dts) or []:
+            if 'regs' not in timer:
+                continue
             for reg in timer['regs']:
                 message =  \
                     '[TIMER] base 0x{:08x} size 0x{:08x} of {}/{}'.format(
