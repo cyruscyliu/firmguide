@@ -74,7 +74,14 @@ atmel,sama5d3-aic: {extend: 'intc,generic'}
 atmel,sama5d4-aic: {extend: 'intc,generic'}
 brcm,bcm2835-armctrl-ic: {extend: 'intc,generic'}
 brcm,bcm2836-armctrl-ic: {extend: 'intc,generic'}
-brcm,bcm2836-l1-intc: {extend: 'intc,generic'}
+brcm,bcm2836-l1-intc:
+  builtin: 1
+  get_body: ['object_initialize(&s->{{ name }}{{ id }}, sizeof(s->{{ name }}{{ id
+      }}), TYPE_BCM2836_CONTROL);', 'qdev_set_parent_bus(DEVICE(&s->{{ name }}{{
+      id }}), sysbus_get_default());', 'object_property_set_bool(OBJECT(&s->{{ name
+      }}{{ id }}), true, "realized", &err);', 'sysbus_mmio_map(SYS_BUS_DEVICE(&s->{{
+      name }}{{ id }}), 0, {{ reg.base|to_hex }});']
+  extend: 'intc,generic'
 brcm,bcm3380-l2-intc: {extend: 'intc,generic'}
 brcm,bcm6318-ext-intc: {extend: 'intc,generic'}
 brcm,bcm6345-ext-intc: {extend: 'intc,generic'}

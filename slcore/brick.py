@@ -83,6 +83,7 @@ class Brick(object):
         self.fix_size = None
         self.disable = False
         self.builtin = None
+        self.get_connection_repeated = True
 
         for cmptb in self.compatible:
             model = self.__load_model(cmptb)
@@ -106,6 +107,8 @@ class Brick(object):
                 self.disable = True
             if 'builtin' in model:
                 self.builtin = model['builtin']
+            if 'get_connection_repeated' in model:
+                self.get_connection_repeated = model['get_connection_repeated']
             # external source and header
             if 'external' in model:
                 self.external = model['external']
@@ -190,6 +193,8 @@ class Brick(object):
         # sucking code that should be removed in the future
         if self.compatible == ['marvell,orion-timer']:
             context['irqns'] = [2]
+            n = 1
+        if not self.get_connection_repeated:
             n = 1
         for i in range(0, n):
             context['irqn'] = context['irqns'][i]
