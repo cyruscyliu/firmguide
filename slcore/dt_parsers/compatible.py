@@ -32,6 +32,19 @@ def find_compatible_in_fdt(dts):
     return compatible
 
 
+def find_model_in_fdt(dts):
+    """Find the model of a machine.
+
+    Args:
+        dts(dts): The dts from load_dtb.
+
+    Returns:
+        list: The model of the machine.
+    """
+    model = dts.get_property('model', '/').data
+    return model
+
+
 def find_compatible(path_to_dtb):
     """Find the compatible of a machine.
 

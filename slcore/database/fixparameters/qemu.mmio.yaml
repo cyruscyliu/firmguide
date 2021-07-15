@@ -6,10 +6,6 @@ marvell,orion-wdt:
     regs_index:
         0:
             priority: -1
-brcm,bus-axi:
-    regs_index:
-        0:
-            priority: -1
 plxtech,nas782x-plla:
     regs_index:
         0:

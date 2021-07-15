@@ -7,7 +7,10 @@ from slcore.dt_parsers.common import load_dtb
 
 def __find_path_to_serial(dts):
     supported_serials = [
-        'ns16550a', 'ns8250', 'ns16550', 'snps,dw-apb-uart']
+        'ns16550a', 'ns8250', 'ns16550',
+        'snps,dw-apb-uart',
+        'arm,pl011', 'arm,primecell'
+    ]
     path_to_serials = []
     for pa, no, pros in dts.walk():
         compatible = dts.get_property('compatible', pa)

@@ -1,10 +1,10 @@
 # This will replace setup.sh in the future.
 
-PRONAME 	= FirmGuide
-VERSION		= 0.8.0
+PRONAME 		= FirmGuide
+VERSION			= 0.8.0
 
-TOPDIR 	        = ${shell pwd}
-TMPDIR 		= /tmp
+TOPDIR 	    	= ${shell pwd}
+TMPDIR 			= /tmp
 
 QEMU_VERSION 	?= 4.0.0
 QEMU_FLAGS      ?=
@@ -12,7 +12,7 @@ FIRMGUID_BUILD 	?= ${TMPDIR}
 
 export TOPDIR TMPDIR QEMU_VERSION FIRMGUID_BUILD PRONAME VERSION
 
-all: python binwalk qemu
+default: python binwalk
 
 test_qemu_version:
 ifneq ($(wildcard ${TOPDIR}/externals/qemu-${QEMU_VERSION}.patch), )
@@ -93,13 +93,11 @@ sparse:
 	@echo [+] Done
 
 help:
-	@echo "  all     	install all below by default"
-	@echo "  python     	install Python 3.6"
-	@echo "  binwalk     	install Binwalk 2.1.1"
-	@echo "  qemu     	install QEMU 4.0.0"
-	@echo "  sparse		install Sparse 0.6.2"
+	@echo "  default\tinstall Python3.6 and Binwalk 2.1.1"
+	@echo "  qemu\t\tinstall QEMU 4.0.0"
+	@echo "  sparse\tinstall Sparse 0.6.2"
 
 clean:
 	rm -rf *.dts *.extracted *.log .qemu .sparse .slicing *.fcbs
  
-.PHONY: all clean help
+.PHONY: default clean help

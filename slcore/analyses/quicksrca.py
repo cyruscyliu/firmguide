@@ -28,7 +28,12 @@ class QuickSrcA(Analysis):
         if ep:
             path_to_entry_point = srcodec.symbol2file(ep)
             if path_to_entry_point is None:
-                path_to_entry_point = srcodec.symbol2fileg(ep)
+                if 'arch' in kwargs:
+                    arch = kwargs.pop('arch')
+                else:
+                    self.error_info = 'please set the architecture for more results'
+                    return False
+                path_to_entry_point = srcodec.symbol2fileg(ep, arch)
                 if path_to_entry_point is None:
                     self.info('cannot find {}'.format(ep), 0)
                     return False

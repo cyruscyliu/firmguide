@@ -9,7 +9,18 @@ alphascale,asm9260-timer: {extend: 'timer,generic'}
 amlogic,meson6-timer: {extend: 'timer,generic'}
 andestech,atcpit100: {extend: 'timer,generic'}
 arm,arm11mp-twd-timer: {extend: 'timer,generic'}
-arm,armv7-timer: {extend: 'timer,generic'}
+arm,armv7-timer: 
+  get_body: []
+  get_connection: [
+    'qdev_connect_gpio_out(DEVICE(&s->cpu), GTIMER_SEC,  qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}{{ iid }}), 0);',
+    'qdev_connect_gpio_out(DEVICE(&s->cpu), GTIMER_PHYS, qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}{{ iid }}), 1);',
+    'qdev_connect_gpio_out(DEVICE(&s->cpu), GTIMER_HYP,  qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}{{ iid }}), 2);',
+    'qdev_connect_gpio_out(DEVICE(&s->cpu), GTIMER_VIRT, qdev_get_gpio_in(DEVICE(&s->{{ intcp.name }}{{ iid }}), 3);',
+  ]
+  get_connection_repeated: False
+  get_field: []
+  get_header: []
+  parameters: [intcp]
 arm,armv7-timer-mem: {extend: 'timer,generic'}
 arm,armv7m-systick: {extend: 'timer,generic'}
 arm,armv8-timer: {extend: 'timer,generic'}
