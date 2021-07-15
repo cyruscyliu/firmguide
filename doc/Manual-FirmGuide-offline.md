@@ -28,28 +28,41 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 We will first briefly introduce several concepts.
 
-We have defined three states and they are illustrated one by one in the following.
-+ REST  
-The Interrupt Controller is idle.  
-+ NOISE  
-There exist some interrupt requests.  
-+ ALARM  
-The interrupt Controller should file the interrupt to a processor.  
+We have defined three states and they are illustrated one by one in the
+following.
 
-At the same time, we defined several internal properties to label
-what has happend for each interrupt source.
-+ pending  
-The property of an interrupt request indicates that there exist a interrupt request pending.  
-+ masked  
-The property of an interrupt request indicates whether or not
-it is allowed to file the interrupt to a processor.  
++ REST
+
+The Interrupt Controller is idle.
+
++ NOISE
+
+There exist some interrupt requests.
+
++ ALARM
+
+The interrupt Controller should file the interrupt to a processor.
+
+At the same time, we defined several internal properties to label what
+has happend for each interrupt source.
+
++ pending
+
+The property of an interrupt request indicates that there exist a
+interrupt request pending.
+
++ masked
+
+The property of an interrupt request indicates whether or not it is
+allowed to file the interrupt to a processor.
 
 Finally, we have defined two internal actions to respond Linux kernel.
 The two actions are used with qemu_setup_irq together.
 + set_irqn_to_regs will set the pending register to a specific value.
-+ clear_irqn_to_regs will clear the pending register to a specific value.
-Linux kernel will read the pending register, calculate the interrupt request number,
-and call its interrupt servise routine.  
++ clear_irqn_to_regs will clear the pending register to a specific
++ value.
+Linux kernel will read the pending register, calculate the interrupt
+request number, and call its interrupt servise routine.
 
 | state_from | pending | masked | state_to |                   action                   |
 |:----------:|:-------:|:------:|:--------:|:------------------------------------------:|
@@ -66,8 +79,9 @@ and call its interrupt servise routine.
 |    ALARM   |    1    |    0   |   ALARM  |                                            |
 |    ALARM   |    1    |    1   |   NOISE  | clear_irqn_to_regs(irqn) qemu_setup_irq(0) |
 
-Here, we summarize the time when the too properties are changed.
-By the way, xxx_action below is infered from Interrupt Controller low-level callbacks.
+Here, we summarize the time when the too properties are changed. By the
+way, xxx_action below is infered from Interrupt Controller low-level
+callbacks.
 
 | property | set/clear | when |
 |:---:|:---:|:---:|
@@ -126,11 +140,10 @@ By the way, xxx_action below is infered from Interrupt Controller low-level call
 
 #### State transition
 
-The state transition of Timer is quite simple.
-There are two timers in the tempate.
-The first timer will file the interrupt periodically;
-the second timer is freely running and will be acquired by Linux kernel 
-to maintain a precise time.
+The state transition of Timer is quite simple. There are two timers in
+the tempate. The first timer will file the interrupt periodically; the
+second timer is freely running and will be acquired by Linux kernel to
+maintain a precise time.
 
 #### Parameters details
 |    parameter     |                        |                         |  type  | description |
@@ -190,27 +203,30 @@ to maintain a precise time.
 
 We provide several subcommands for manual analysis.
 
-First, try `traversrc` to pricisely traverse kernel function from `start_kernel`
-to `rest_init`. The traversal in implemented by `sparse` in AST level.
-We only care about functions, such that global/local variables are ignored
-in the traversal. Because of simple implementation, conditions are also
-ignored, such that each callee in the caller will be visited.
-After the traversal, we will save all interesting functions as `.slicing`.
-Each recored in `.slicing` consists of the function name, in which file the function is,
-and its line number.
+First, try `traversrc` to pricisely traverse kernel function from
+`start_kernel` to `rest_init`. The traversal in implemented by `sparse`
+in AST level.  We only care about functions, such that global/local
+variables are ignored in the traversal. Because of simple
+implementation, conditions are also ignored, such that each callee in
+the caller will be visited.  After the traversal, we will save all
+interesting functions as `.slicing`.  Each recored in `.slicing`
+consists of the function name, in which file the function is, and its
+line number.
 
-However, manual efforts are needed during the traversal because of indirect calls.
-You can use `-dtb` to solve indirect calls that go to intc/timer initialization functions.
-For remaining indirect calls you have to update them manually by
-adding a record in `x.fcbs` in your working directory.
+However, manual efforts are needed during the traversal because of
+indirect calls.  You can use `-dtb` to solve indirect calls that go to
+intc/timer initialization functions.  For remaining indirect calls you
+have to update them manually by adding a record in `x.fcbs` in your
+working directory.
 
 In the traversal, we will list all interesting functions by `[unknown]`,
-For your convenience, `traversrc` will save all `unknown` functions in `0.fcbs`.
-If `mach_desc.init_time` is an indirect call, 
-add a record below after running `tranversrc` in `1.fcbs`.
-At the same time, please `-a` to check intermediate functions whether they are visited,
-otherwise, you should add file(s)/dir(s) that contain those functions and rerun `traversrc`.
-At last, you will see all interesting functions in `.slicing`.
+For your convenience, `traversrc` will save all `unknown` functions in
+`0.fcbs`.  If `mach_desc.init_time` is an indirect call, add a record
+below after running `tranversrc` in `1.fcbs`.  At the same time, please
+`-a` to check intermediate functions whether they are visited,
+otherwise, you should add file(s)/dir(s) that contain those functions
+and rerun `traversrc`.  At last, you will see all interesting functions
+in `.slicing`.
 
 ```
 mach_desc.init_time:
@@ -218,8 +234,9 @@ mach_desc.init_time:
   extend: [ox820_timer_init]
 ```
 
-Second, use `analysrc` to locate interesting functions. 
-It will preprocess the file that has interesting functions for your convenience.
+Second, use `analysrc` to locate interesting functions. It will
+preprocess the file that has interesting functions for your convenience.
 
-Third, look at all information in the front of this documentation to infer paramaters.
+Third, look at all information in the front of this documentation to
+infer paramaters.
 

@@ -17,36 +17,46 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 Given is the internals of FirmGuide.
 
 Overall, FirmGuide is composed of four layers as listed in the figure.
-+ User Interface  
+
++ User Interface
+
 The layer of user interface eases the usage of FirmGuide by providing
-many subcommands that cover detailed implementation in the bottom layers.
-The command manager is responsible for subcommand registeration and parsing.
-Please check [Add subcommand](#add-subcommand) for more information.
-+ Analysis Layer  
-The layer of analysis is the core part of FirmGuide. Analysis is the smallest
-task to perform analysis on firmware, device tree blob, source code analysis,
-and code generation. You can also put several analysis together to form a
-more powerful analysis group. In the figure, we put the basic functionality
-of FirmGuide to illustrate how a firmware image is converted to a QEMU vertual machine.
-Analysis manager is responsible for analysis registration and schedual.
-Please check [Add analysis(groud)](#add-analysis-group) and
-[APIs for analysis (group)](#apis-for-analysis-group) for more information.
-+ Basic Layer  
-The layer of basics is responsible to support analysis development.
-For example, you can use `QEMU controller` to patch and compile QEMU source,
+many subcommands that cover detailed implementation in the bottom
+layers.  The command manager is responsible for subcommand registeration
+and parsing.  Please check [Add subcommand](#add-subcommand) for more
+information.
+
++ Analysis Layer
+
+The layer of analysis is the core part of FirmGuide. Analysis is the
+smallest task to perform analysis on firmware, device tree blob, source
+code analysis, and code generation. You can also put several analysis
+together to form a more powerful analysis group. In the figure, we put
+the basic functionality of FirmGuide to illustrate how a firmware image
+is converted to a QEMU vertual machine.  Analysis manager is responsible
+for analysis registration and schedual.  Please check [Add
+analysis(groud)](#add-analysis-group) and [APIs for analysis
+(group)](#apis-for-analysis-group) for more information.
+
++ Basic Layer
+
+The layer of basics is responsible to support analysis development.  For
+example, you can use `QEMU controller` to patch and compile QEMU source,
 and even trace QEMU instance. 
-+ External Layer  
-The layer of externals has other useful tools used in FirmGuide. 
-They are downloaded and patched when you install FirmGuide. Their use are
-transparent to users and you don't need to care them if you are developping the basic layer.
+
++ External Layer
+The layer of externals has other useful tools used in FirmGuide.  They
+are downloaded and patched when you install FirmGuide. Their use are
+transparent to users and you don't need to care them if you are
+developping the basic layer.
 
 # Development
 
 ## Add subcommand
 
-A subcommand focuses on a specific user interface,
-such as uploading and booting a firmware image.
-The subcommand is registered in `slcore/cmdconfigs`.
+A subcommand focuses on a specific user interface, such as uploading and
+booting a firmware image.  The subcommand is registered in
+`slcore/cmdconfigs`.
 
 Here is an example of the subcommand registration.
 
@@ -66,11 +76,12 @@ Note that the `prop` and `val` should follow the argument list in
 
 ## Add analysis (group)
 
-An analysis focuses on a specific task, such as parsing a device tree blob,
-which is the basic schedule unit in FirmGuide. Each analysis is a Python
-class and all of them are put under `slcore/analysis`.
-Several analyses work together as an analysis group that is more powerful
-to accomplish a complex task. The group of analysis is defined in `slcore/aconfigs`.
+An analysis focuses on a specific task, such as parsing a device tree
+blob, which is the basic schedule unit in FirmGuide. Each analysis is a
+Python class and all of them are put under `slcore/analysis`.  Several
+analyses work together as an analysis group that is more powerful to
+accomplish a complex task. The group of analysis is defined in
+`slcore/aconfigs`.
 
 Here is the template of an analysis.
 ```Python
@@ -128,3 +139,4 @@ def run(self, **kwargs):
     self.analysis_manager.firmware.get_components() # set_components(components)
     return True
 ```
+

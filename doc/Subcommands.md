@@ -27,22 +27,22 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 # Subcommand
 
-FirmGuide is a command-oriented project just like `git`.
-You can enter `./firmware -h` for more information.
+FirmGuide is a command-oriented project just like `git`. You can enter
+`./firmware -h` for more information.
 
-It has many subcommands consisting of `CORE` subcommands
-and `PLUGIN` subcommands, where the latter are very small and useful tools.
-Each subcommand has its arguments and
-you can enter `./firmguide subcommand -h` for more information.
+It has many subcommands consisting of `CORE` subcommands and `PLUGIN`
+subcommands, where the latter are very small and useful tools.  Each
+subcommand has its arguments and you can enter `./firmguide subcommand
+-h` for more information.
 
 ## `./firmguide` and its command-level arguments
 
-FirgGuide has several command-level arguments.
-You can enter `./firmware -h` for more information.
-Besides `-d`, `-p`, and `-lg` that are easy to understand and use,
-we list how others (`-a`, `-e`, `-ld`) would be used by subcommands.
-N means you don't need this argument. P means you sometimes need this argument.
-Y means you always need this argument.
+FirgGuide has several command-level arguments.  You can enter
+`./firmware -h` for more information.  Besides `-d`, `-p`, and `-lg`
+that are easy to understand and use, we list how others (`-a`, `-e`,
+`-ld`) would be used by subcommands.  N means you don't need this
+argument. P means you sometimes need this argument.  Y means you always
+need this argument.
 
 |  Subcommand | synthesize | upload | diagnose | traversrc | itopology | dtcoverup | newhwdt | unpack | cmdcoverup | loaddr | ofinitcbs | coverup | debugsrc | usntest | analysrc |
 |:-----------:|:----------:|:------:|:--------:|:---------:|:---------:|:---------:|:-------:|:------:|:----------:|:------:|:---------:|:-------:|:--------:|:-------:|:---------|
@@ -84,21 +84,22 @@ root@esv:~/firmguide# ./firmguide synthesize -dtb examples/plxtech_nas782x.dtb
 
 ### `upload`
 
-This core subcommand first extracts a device tree in an uploaded firmware image,
-then generate a a QEMU virtual machine, next test the image with the virtual machine
-whether the image can be booted.
-The test is quite simple. It enables QEMU trace,
-checks user-mode and shell indicators,
-and delete the QEMU trace finally.
-If the test is failed, neither further analysis nor QEMU GDB interface is available.
+This core subcommand first extracts a device tree in an uploaded
+firmware image, then generate a a QEMU virtual machine, next test the
+image with the virtual machine whether the image can be booted.  The
+test is quite simple. It enables QEMU trace, checks user-mode and shell
+indicators, and delete the QEMU trace finally.  If the test is failed,
+neither further analysis nor QEMU GDB interface is available.
 
 If the `upload` is failed, you may take one or several following steps.
 + There is no device tree avaiable.
 > If you have another firmware image with device tree, use it.
 Othersize, the firmware image cannot be supported.
-+ There is one or two peripherals unsupported, and the synthesis of QEMU virtual machine is failed.
++ There is one or two peripherals unsupported, and the synthesis of QEMU
++ virtual machine is failed.
 > Please report it, or you can manually support the peripherals.
-Please check [Template and Parameters](TemplateAndParameters.md#template-and-parameters).
+Please check [Template and
+Parameters](TemplateAndParameters.md#template-and-parameters).
 + Any other troubles should be caused by bugs in FirmGuide.
 > Please report them to us.
 
@@ -257,17 +258,16 @@ root@esv:~/firmguide# ./firmguide upload -f examples/62771d14b82e554a95d048af998
 
 ### `diagnose`
 
-This core subcommand does most of the same things as `upload`.
-However, the test in `diagnose` is not simple.
-If the test is failed, it will analyze the root cause
-and exposes GDB interfaces finally.
+This core subcommand does most of the same things as `upload`. However,
+the test in `diagnose` is not simple.  If the test is failed, it will
+analyze the root cause and exposes GDB interfaces finally.
 
 ### `traversrc`
 
 This core subcommand walks through the startup process of Linux kernel
 and shows interesting functions for manual analysis. Assign `-dtb` to
-solve part of indirect call problems. This core subcommand is now complete
-and able to show struct member indirect call by struct.member.
+solve part of indirect call problems. This core subcommand is now
+complete and able to show struct member indirect call by struct.member.
 
 ```txt
 root@openwrt-builder:~/firmguide# ./firmguide traversrc -s linux-3.18.20 -dtb examples/plxtech_nas782x.dtb -cc /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/OpenWrt-SDK-15.05-oxnas_gcc-4.8-linaro_uClibc-0.9.33.2_eabi.Linux-x86_64/staging_dir/toolchain-arm_mpcore_gcc-4.8-linaro_uClibc-0.9.33.2_eabi/bin/arm-openwrt-linux-
@@ -358,9 +358,9 @@ root@openwrt-builder:~/firmguide# ./firmguide traversrc -s linux-3.18.20 -dtb ex
 ### `itopology`
 
 This plugin reads a a device tree blob, parses its interrupt topology
-(how peripherals are connected to interrupt controllers and
-how the interrupt controllers are connected to processors), and prints the topology in dot.
-You can plot the dot file in `https://edotor.net`.
+(how peripherals are connected to interrupt controllers and how the
+interrupt controllers are connected to processors), and prints the
+topology in dot.  You can plot the dot file in `https://edotor.net`.
 
 ```txt
 root@esv:~/firmguide# ./firmguide itopology -dtb examples/plxtech_nas782x.dtb
@@ -432,9 +432,9 @@ root@esv:~/firmguide# ./firmguide dtcoverup -dtb examples/plxtech_nas782x.dtb
 
 ### `newhwdt`
 
-This plugin adds hardware listed in the given a device tree blob
-to our hardware database. This plugin is used at the very beginning
-and will be rarely used in the future.
+This plugin adds hardware listed in the given a device tree blob to our
+hardware database. This plugin is used at the very beginning and will be
+rarely used in the future.
 
 ```txt
 root@esv:~/firmguide# ./firmguide -d newhwdt -dtb examples/plxtech_nas782x.dtb
@@ -467,8 +467,9 @@ root@esv:~/firmguide# ./firmguide -d newhwdt -dtb examples/plxtech_nas782x.dtb
 
 ### `unpack`
 
-This plugin unpacks firmware to components (Please see the example below. The components start with path_to.)
-It extends `Binwalk` and is compatible with more firmware.
+This plugin unpacks firmware to components (Please see the example
+below. The components start with path_to.) It extends `Binwalk` and is
+compatible with more firmware.
 
 ```txt
 root@esv:~/firmguide# ./firmguide unpack -f example/62771d14b82e554a95d048af99866c404acb196f.bin
@@ -494,12 +495,12 @@ root@esv:~/firmguide# ./firmguide unpack -f example/62771d14b82e554a95d048af9986
 
 ### `cmdcoverup`
 
-This plugin unpacks the firmware, repacks the inside Linux kernel with a uImage header
-(such that you have to pass a load address by `-ld`), and constructs a command line
-that boots the Linux kernel with QEMU (such that you have to pass
-extra architecture information by `-a` and `-e`). It optionally constructs a command line
-that exposes a QEMU GDB interface
-(such that you have to pass extra source information by `-s`).
+This plugin unpacks the firmware, repacks the inside Linux kernel with a
+uImage header (such that you have to pass a load address by `-ld`), and
+constructs a command line that boots the Linux kernel with QEMU (such
+that you have to pass extra architecture information by `-a` and `-e`).
+It optionally constructs a command line that exposes a QEMU GDB
+interface (such that you have to pass extra source information by `-s`).
 
 ```txt
 root@esv:~/firmguide# ./firmguide cmdcoverup -f /root/images/62771d14b82e554a95d048af99866c404acb196f.bin -s /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/linux-oxnas/linux-3.18.20
@@ -543,8 +544,8 @@ root@esv:~/firmguide# ./firmguide cmdcoverup -f /root/images/62771d14b82e554a95d
 
 ### `loaddr`
 
-This plugin finds the load address of a Linux kernel image
-with the help of the source code.
+This plugin finds the load address of a Linux kernel image with the help
+of the source code.
 
 ```txt
 root@esv:~/firmguide# ./firmguide loaddr -s /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/linux-oxnas/linux-3.18.20
@@ -555,14 +556,16 @@ root@esv:~/firmguide# ./firmguide loaddr -s /mnt/iscsi/openwrt-build-docker/shar
 
 ### `ofinitsrc`
 
-This plugin finds all `IRQCHIP_DECLARE`, etc. declares and updates this information
-in our hardware database. This plugin is used at the very beginning
-and will be rarely used in the future. No example because of too much output.
+This plugin finds all `IRQCHIP_DECLARE`, etc. declares and updates this
+information in our hardware database. This plugin is used at the very
+beginning and will be rarely used in the future. No example because of
+too much output.
 
 ### `ofinitcbs`
 
-This plugin finds all callback functions defined in `IRQCHIP_DECLARE`, etc. for
-hardware listed in the given a device tree blob. It is quite useful for manual analysis.
+This plugin finds all callback functions defined in `IRQCHIP_DECLARE`,
+etc. for hardware listed in the given a device tree blob. It is quite
+useful for manual analysis.
 
 ```txt
 root@esv:~/firmguide# ./firmguide ofinitcbs -dtb slcore/database/archivedtb/plxtech_nas782x.dtb -s /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/linux-oxnas/linux-3.18.20
@@ -612,9 +615,9 @@ root@esv:~/firmguide# ./firmguide ofinitcbs -dtb slcore/database/archivedtb/plxt
 ### `coverup`
 
 This plugin covers up a QEMU debug trace (firmguide.trace by default).
-Architecture information (`-a`, `-e`) is needed
-because the trace is architecture-dependent.
-If `-s` is available, a call stack is then printed.
+Architecture information (`-a`, `-e`) is needed because the trace is
+architecture-dependent.  If `-s` is available, a call stack is then
+printed.
 
 ```txt
 root@esv:~/firmguide#  ./firmguide -a arm -e l coverup -s /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/linux-oxnas/linux-3.18.20
@@ -709,8 +712,9 @@ root@esv:~/firmguide#  ./firmguide -a arm -e l coverup -s /mnt/iscsi/openwrt-bui
 
 ### `debugsrc`
 
-This plugin moves and removes generated a QEMU virtual machine code
-to QEMU source tree for debugging (`-m` is needed to locate which code to be operated).
+This plugin moves and removes generated a QEMU virtual machine code to
+QEMU source tree for debugging (`-m` is needed to locate which code to
+be operated).
 
 ```txt
 root@esv:~/firmguide# ./firmguide debugsrc -m plxtech_nas7820_plxtech_nas782x/
@@ -729,8 +733,9 @@ root@openwrt-builder:~/esv-latest# ./firmguide debugsrc -m plxtech_nas7820_plxte
 
 ### `archive`
 
-This plugin archives the synthesis profile to our database.
-This plugin can be used after `synthesize` directly and it will use `.profile` by default.
+This plugin archives the synthesis profile to our database. This plugin
+can be used after `synthesize` directly and it will use `.profile` by
+default.
 
 ```txt
 root@esv:~/firmguide# ./firmguide archive -p plxtech_nas7820_plxtech_nas782x.yaml
@@ -753,7 +758,8 @@ root@esv:~/firmguide# ./firmguide usntest -dtb examples/plxtech_nas782x.dtb
 
 ### `analysrc`
 
-This plugin preprocesses the file given or containing a given function for further analysis.
+This plugin preprocesses the file given or containing a given function
+for further analysis.
 
 ```txt
 root@esv:~/firmguide# ./firmguide analysrc -e setup_arch -s linux-3.18.20 -cc /mnt/iscsi/openwrt-build-docker/share/15.05-bfae3162fb949c343763ad9ea7ab3fe0/./chaos_calmer-15.05/build_dir/target-arm_mpcore_uClibc-0.9.33.2_eabi/OpenWrt-SDK-15.05-oxnas_gcc-4.8-linaro_uClibc-0.9.33.2_eabi.Linux-x86_64/staging_dir/toolchain-arm_mpcore_gcc-4.8-linaro_uClibc-0.9.33.2_eabi/bin/arm-openwrt-linux-
@@ -762,3 +768,4 @@ root@esv:~/firmguide# ./firmguide analysrc -e setup_arch -s linux-3.18.20 -cc /m
 2020-10-20 02:20:04,971 - INFO - QuickSrcA - quicksrca - preprocess and save as linux-3.18.20/arch/arm/kernel/setup.i
 2020-10-20 02:20:04,973 - INFO - AnalysesManager - snapshot - profile at /root/firmguide/.profile
 ```
+
