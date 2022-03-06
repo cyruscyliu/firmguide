@@ -48,7 +48,7 @@ qemu: test_qemu_version
 
 python: python3.6
 
-python3.6: 
+python3.6:
 ifeq (, $(shell which python3.6))
 	@echo [+] Install Python3.6
 	@echo =========================================
@@ -58,15 +58,13 @@ endif
 	@echo =========================================
 	apt-get install -y python3-pip
 	python3.6 -m pip install --upgrade pip
-	pip3.6 install --upgrade pip
-	pip3.6 install qmp fdt capstone pydot graphviz pyyaml
-	test /tmp/pyqemulog/pyqemulog.py >/dev/null 2>&1 || \
-		(rm -rf /tmp/pyqemulog && \
-		git clone https://github.com/cyruscyliu/pyqemulog /tmp/pyqemulog && \
-		cd /tmp/pyqemulog && pip3.6 install . && cd $(OLDPWD))
+	python3.6 -m pip install qmp fdt capstone pydot graphviz pyyaml
+	rm -rf /tmp/pyqemulog && \
+	git clone https://github.com/cyruscyliu/pyqemulog /tmp/pyqemulog && \
+	cd /tmp/pyqemulog && python3.6 -m pip install . && cd $(OLDPWD)
 	@echo [+] Done
 
-binwalk: 
+binwalk:
 	@echo [+] Install Binwalk
 	@echo =========================================
 	wget -nc https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz \
@@ -99,5 +97,5 @@ help:
 
 clean:
 	rm -rf *.dts *.extracted *.log .qemu .sparse .slicing *.fcbs
- 
+
 .PHONY: default clean help

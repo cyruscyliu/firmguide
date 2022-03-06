@@ -203,6 +203,7 @@ def __binwalk_scan_all(path, target_dir, extract=True):
     # we set block=sizeof(path), so there is one and only one module in this scan
     for module in binwalk.scan(
             path, signature=True, extract=extract, quiet=True, block=size, directory=target_dir):
+        print(module)
         return module
 
 def __enlarge_image(path, target_size):
