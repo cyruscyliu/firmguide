@@ -16,7 +16,7 @@ FirmGuide focuses on the Linux kernel. More details are in our
 ## Install
 
 ``` bash
-sudo make; sudo make qemu sparse
+make; make qemu sparse
 ```
 
 ## Usage

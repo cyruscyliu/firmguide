@@ -52,16 +52,16 @@ python3.6:
 ifeq (, $(shell which python3.6))
 	@echo [+] Install Python3.6
 	@echo =========================================
-	apt-get install -y python3.6
+	sudo apt-get install -y python3.6
 endif
 	@echo [+] Install Python requirments
 	@echo =========================================
-	apt-get install -y python3-pip
-	python3.6 -m pip install --upgrade pip
-	python3.6 -m pip install qmp fdt capstone pydot graphviz pyyaml
-	rm -rf /tmp/pyqemulog && \
+	sudo apt-get install -y python3-pip
+	sudo -H python3.6 -m pip install --upgrade pip
+	sudo -H python3.6 -m pip install qmp fdt capstone pydot graphviz pyyaml
+	sudo rm -rf /tmp/pyqemulog && \
 	git clone https://github.com/cyruscyliu/pyqemulog /tmp/pyqemulog && \
-	cd /tmp/pyqemulog && python3.6 -m pip install . && cd $(OLDPWD)
+	cd /tmp/pyqemulog && sudo -H python3.6 -m pip install . && cd $(OLDPWD)
 	@echo [+] Done
 
 binwalk:
@@ -71,9 +71,9 @@ binwalk:
 		-O /tmp/v2.1.1.tar.gz || true
 	tar --skip-old-files -zxf /tmp/v2.1.1.tar.gz -C /tmp && \
 		cp -r ./externals/binwalk/* /tmp/binwalk-2.1.1/src/ && \
-	cd /tmp/binwalk-2.1.1 && python3.6 setup.py -q install && cd $(OLDPWD)
+	cd /tmp/binwalk-2.1.1 && sudo -H python3.6 setup.py install && cd $(OLDPWD)
 ifeq (, $(shell which sasquatch))
-	apt-get install -y zlib1g-dev liblzma-dev liblzo2-dev && \
+	sudo apt-get install -y zlib1g-dev liblzma-dev liblzo2-dev && \
 		git clone https://github.com/devttys0/sasquatch /tmp/sasquatch && \
 		cd /tmp/sasquatch && ./build.sh && cd $(OLDPWD)
 endif
