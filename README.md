@@ -9,6 +9,10 @@ an effectively complementary to Firmadyne that focuses on user space programs -
 FirmGuide focuses on the Linux kernel. More details are in our
 [paper](https://cyruscyliu.github.io/papers/firmguide-ase21.pdf).
 
+## Plan
+
+[ ] Upgrade QEMU 4.0.0 to the latest QEMU
+
 ## Install
 
 ``` bash
