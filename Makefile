@@ -36,7 +36,7 @@ qemu: test_qemu_version
 	@echo [+] Compile QEMU-${QEMU_VERSION}
 	cd ${TMPDIR}/qemu-${QEMU_VERSION} && ./configure \
 		--target-list=arm-softmmu,mips-softmmu,mipsel-softmmu \
-		--enable-autoboard \
+		--enable-autoboard --python=/usr/bin/python3.8 \
 		--enable-debug --extra-cflags="-g3" --extra-ldflags="-g3" \
 		--disable-strip --disable-pie ${QEMU_FLAGS} && make -j$(nproc)
 	@echo ${TMPDIR}/qemu-${QEMU_VERSION} > .qemu
@@ -46,22 +46,22 @@ qemu: test_qemu_version
 	cd ${TOPDIR}/slcore && ln -s qemutemplates-${QEMU_VERSION} qemutemplates
 	@echo [+] Done
 
-python: python3.6
+python: python3.8
 
-python3.6:
-ifeq (, $(shell which python3.6))
-	@echo [+] Install Python3.6
+python3.8:
+ifeq (, $(shell which python3.8))
+	@echo [+] Install python3.8
 	@echo =========================================
-	sudo apt-get install -y python3.6
+	sudo apt-get install -y python3.8
 endif
 	@echo [+] Install Python requirments
 	@echo =========================================
 	sudo apt-get install -y python3-pip
-	sudo -H python3.6 -m pip install --upgrade pip
-	sudo -H python3.6 -m pip install qmp fdt capstone pydot graphviz pyyaml
+	sudo -H python3.8 -m pip install --upgrade pip
+	sudo -H python3.8 -m pip install qmp fdt capstone pydot graphviz pyyaml
 	sudo rm -rf /tmp/pyqemulog && \
 	git clone https://github.com/cyruscyliu/pyqemulog /tmp/pyqemulog && \
-	cd /tmp/pyqemulog && sudo -H python3.6 -m pip install . && cd $(OLDPWD)
+	cd /tmp/pyqemulog && sudo -H python3.8 -m pip install . && cd $(OLDPWD)
 	@echo [+] Done
 
 binwalk:
@@ -71,7 +71,7 @@ binwalk:
 		-O /tmp/v2.1.1.tar.gz || true
 	tar --skip-old-files -zxf /tmp/v2.1.1.tar.gz -C /tmp && \
 		cp -r ./externals/binwalk/* /tmp/binwalk-2.1.1/src/ && \
-	cd /tmp/binwalk-2.1.1 && sudo -H python3.6 setup.py install && cd $(OLDPWD)
+	cd /tmp/binwalk-2.1.1 && sudo -H python3.8 setup.py install && cd $(OLDPWD)
 ifeq (, $(shell which sasquatch))
 	sudo apt-get install -y zlib1g-dev liblzma-dev liblzo2-dev && \
 		git clone https://github.com/devttys0/sasquatch /tmp/sasquatch && \
@@ -91,7 +91,7 @@ sparse:
 	@echo [+] Done
 
 help:
-	@echo "  default\tinstall Python3.6 and Binwalk 2.1.1"
+	@echo "  default\tinstall python3.8 and Binwalk 2.1.1"
 	@echo "  qemu\t\tinstall QEMU 4.0.0"
 	@echo "  sparse\tinstall Sparse 0.6.2"
 

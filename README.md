@@ -15,7 +15,7 @@ FirmGuide focuses on the Linux kernel. More details are in our
 
 ## Install
 
-Tested on: Ubuntu 18.04
+Tested on: Ubuntu 20.04
 
 ``` bash
 make; make qemu sparse

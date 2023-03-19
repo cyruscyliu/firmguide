@@ -1,1 +1,1 @@
-python3.6 ./firmguide.py $@
+python3.8 ./firmguide.py $@
