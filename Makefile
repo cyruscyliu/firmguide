@@ -67,6 +67,7 @@ endif
 binwalk:
 	@echo [+] Install Binwalk
 	@echo =========================================
+	sudo apt-get install u-boot-tools
 	wget -nc https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz \
 		-O /tmp/v2.1.1.tar.gz || true
 	tar --skip-old-files -zxf /tmp/v2.1.1.tar.gz -C /tmp && \
