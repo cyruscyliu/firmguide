@@ -3,6 +3,7 @@
 #include "qemu/osdep.h"
 #include "qemu/log.h"
 #include "qapi/error.h"
+#include "qemu/main-loop.h"
 #include "hw/timer/{{ name }}.h"
 {% for i in timer_n_irq|to_range %}
 static void {{ name }}_clksrc_callback{{ i }}(void *opaque)
