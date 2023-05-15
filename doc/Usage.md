@@ -32,7 +32,7 @@ make zImage uImage modules dtbs
 5. Synthesize QEMU virtual machine and resolve warnings.
 
 ```sh
-./firmgduie 
+./firmguide
 ```
 
 ## Common Warnings
