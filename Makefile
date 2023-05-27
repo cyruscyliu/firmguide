@@ -71,13 +71,8 @@ binwalk:
 	wget -nc https://github.com/ReFirmLabs/binwalk/archive/v2.1.1.tar.gz \
 		-O /tmp/v2.1.1.tar.gz || true
 	tar --skip-old-files -zxf /tmp/v2.1.1.tar.gz -C /tmp && \
-		cp -r ./externals/binwalk/* /tmp/binwalk-2.1.1/src/ && \
-	cd /tmp/binwalk-2.1.1 && sudo -H python3.8 setup.py install && cd $(OLDPWD)
-ifeq (, $(shell which sasquatch))
-	sudo apt-get install -y zlib1g-dev liblzma-dev liblzo2-dev && \
-		git clone https://github.com/devttys0/sasquatch /tmp/sasquatch && \
-		cd /tmp/sasquatch && ./build.sh && cd $(OLDPWD)
-endif
+		cp -r ./externals/binwalk/* /tmp/binwalk-2.1.1/ && \
+	cd /tmp/binwalk-2.1.1 && sudo ./deps.sh && sudo -H python3.8 setup.py install && cd $(OLDPWD)
 	@echo [+] Done
 
 sparse:
